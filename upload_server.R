@@ -45,8 +45,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       list(
         dq_main = dq_main,
         overlap_details = overlap_details,
-        outstanding_referrals = CE_outstanding_referrals,
-        pdde_main = pdde_main
+        outstanding_referrals = outstanding_referrals,
+        pdde_main = pdde_main,
+        long_stayers = long_stayers
       )
     }, local_settings = local_settings,
       .args = mget(c(dq_mirai_dependencies, pdde_mirai_dependencies))
@@ -73,6 +74,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     session$userData$dq_main <- dq_pdde_results$dq_main
     session$userData$overlap_details <- dq_pdde_results$overlap_details
     session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
+    session$userData$long_stayers <- dq_pdde_results$long_stayers
     
     setProgress(detail = "Done!", value = 1)
     

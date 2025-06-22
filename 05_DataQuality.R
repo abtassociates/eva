@@ -1624,9 +1624,9 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
 
 # Non-Residential Long Stayers --------------------------------------------
 
-calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype){
+calculate_long_stayers_local_settings_dt <- function(projecttype){
   # get non-exited enrollments for projecttype
-  logToConsole(session, glue::glue("In calculate long stayers: too_many_days = {too_many_days}, projecttype = {projecttype}"))
+  logToConsole(session, glue::glue("In calculate long stayers: projecttype = {projecttype}"))
   non_exits <- session$userData$validation %>%
     fsubset(ProjectType == projecttype & 
               (ExitDate >= session$userData$meta_HUDCSV_Export_End | is.na(ExitDate))
@@ -1663,45 +1663,50 @@ calculate_long_stayers_local_settings_dt <- function(too_many_days, projecttype)
       # Take EntryDate if there's no Information or DateProvided
       fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
   }
+  
   logToConsole(session, "calculating long_stayres")
   # calculate days since last known
-  long_stayers <- qDT(non_exits_w_lastknown_date) %>%
-    fmutate(
-      DaysSinceLastKnown = as.numeric(difftime(
-        as.Date(session$userData$meta_HUDCSV_Export_Date), LastKnown, units = "days"
-      ))
-    ) %>%
-    # NOW FILTER DOWN TO THE PROBLEM CASES
-    fsubset(DaysSinceLastKnown > too_many_days)
-  
-  if(nrow(long_stayers) == 0) return(NULL)
-  
-  logToConsole(session, "merging check info")
-  # Each project type gets its own Issue text+Guidance etc.
-  merge_check_info_dt(
-    long_stayers,
-    case_when(
-      projecttype %in% c(out_project_type, sso_project_type, ce_project_type) ~ 103,
-      projecttype == es_nbn_project_type ~ 142,
-      projecttype %in% c(other_project_project_type, day_project_type) ~ 102
-    )
-  )[, ..vars_we_want]
+  return(
+    qDT(non_exits_w_lastknown_date) %>%
+      fmutate(
+        DaysSinceLastKnown = as.numeric(difftime(
+          as.Date(session$userData$meta_HUDCSV_Export_Date), LastKnown, units = "days"
+        ))
+      ) %>%
+      merge_check_info_dt(
+        case_when(
+          projecttype %in% c(out_project_type, sso_project_type, ce_project_type) ~ 103,
+          projecttype == es_nbn_project_type ~ 142,
+          projecttype %in% c(other_project_project_type, day_project_type) ~ 102
+        )
+      )
+  )
 }
 
 ## ES NbN --------------------
-ESNbN <- calculate_long_stayers_local_settings_dt(local_settings$ESNbNLongStayers, es_nbn_project_type) #1
+ESNbN <- calculate_long_stayers_local_settings_dt(es_nbn_project_type) #1
 
 ## Non-Residential Projects (other than HP projects) --------
-Outreach <- calculate_long_stayers_local_settings_dt(local_settings$OUTLongStayers, out_project_type) #4
-ServicesOnly <- calculate_long_stayers_local_settings_dt(local_settings$ServicesOnlyLongStayers, sso_project_type) #6
-Other <- calculate_long_stayers_local_settings_dt(local_settings$OtherLongStayers, other_project_project_type) #7
-DayShelter <- calculate_long_stayers_local_settings_dt(local_settings$DayShelterLongStayers, day_project_type) #11
-CoordinatedEntry <- calculate_long_stayers_local_settings_dt(local_settings$CELongStayers, ce_project_type) #14
+Outreach <- calculate_long_stayers_local_settings_dt(out_project_type) #4
+ServicesOnly <- calculate_long_stayers_local_settings_dt(sso_project_type) #6
+Other <- calculate_long_stayers_local_settings_dt(other_project_project_type) #7
+DayShelter <- calculate_long_stayers_local_settings_dt(day_project_type) #11
+CoordinatedEntry <- calculate_long_stayers_local_settings_dt(ce_project_type) #14
+
+long_stayers <- rbindlist(
+  list(
+    Outreach,
+    ServicesOnly,
+    Other,
+    DayShelter,
+    CoordinatedEntry
+  )
+)
 
 # Outstanding Referrals --------------------------------------------
-calculate_outstanding_referrals <- function(too_many_days, dq_data){
+calculate_outstanding_referrals <- function(dq_data){
   if(is.null(dq_data)) return(NULL)
-  logToConsole(session, paste0("in calculate_outstanding_referrals: too_many_days = ", too_many_days))
+  logToConsole(session, paste0("in calculate_outstanding_referrals"))
   
   dq_data %>%
     left_join(session$userData$Event %>% select(EnrollmentID,
@@ -1731,16 +1736,12 @@ calculate_outstanding_referrals <- function(too_many_days, dq_data){
       )
     ) %>%
     filter(Event %in% c(10:15, 17:18) &
-             is.na(ResultDate) &
-             too_many_days < Days) %>%
-    merge_check_info(checkIDs = 100) 
+             is.na(ResultDate))
     # we don't select vars_we_want here because 
     # this gets used in DQ export, where we need all variables
 }
 ## CE ------
-# This will be included in the DQ Export
-CE_outstanding_referrals <- calculate_outstanding_referrals(local_settings$CEOutstandingReferrals, base_dq_data)
-CE_Event <- CE_outstanding_referrals %>% select(all_of(vars_we_want))
+outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 # All together now --------------------------------------------------------
 dq_main <- as.data.table(rbind(
@@ -1817,14 +1818,7 @@ dq_main <- as.data.table(rbind(
   veteran_missing_discharge_status,
   veteran_missing_wars,
   veteran_missing_year_entered,
-  veteran_missing_year_separated,
-  ESNbN,
-  Outreach,
-  DayShelter,
-  ServicesOnly,
-  Other,
-  CoordinatedEntry,
-  CE_Event
+  veteran_missing_year_separated
 ))
 
 dq_main <- unique(dq_main)[, Type := factor(Type,
@@ -1832,9 +1826,3 @@ dq_main <- unique(dq_main)[, Type := factor(Type,
                                                        "Error",
                                                        "Warning"))]
 dq_main <- as.data.frame(dq_main)
-
-# list(
-#   dq_main = dq_main,
-#   overlap_details = overlap_details,
-#   outstanding_referrals = CE_outstanding_referrals # used in Org export
-# )

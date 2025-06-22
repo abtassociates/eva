@@ -138,7 +138,11 @@ output$dq_org_guidance_summary <- renderDT({
 
 output$downloadOrgDQReportButton  <- renderUI({
   req(session$userData$valid_file() == 1)
-  req(length(dqDownloadInfo()$orgDQData) > 0)
+  req(
+    nrow(session$userData$dq_main) > 0 || 
+    nrow(session$userData$long_stayers) > 0 || 
+    nrow(session$userData$outstanding_referrals) > 0
+  )
   downloadButton(outputId = "downloadOrgDQReport",
                  label = "Download")
 })
@@ -158,7 +162,11 @@ output$downloadOrgDQReport <- downloadHandler(
 # button
 output$downloadSystemDQReportButton  <- renderUI({
   req(session$userData$valid_file() == 1)
-  req(length(dqDownloadInfo()$systemDQData) > 0)
+  req(
+    nrow(session$userData$dq_main) > 0 || 
+      nrow(session$userData$long_stayers) > 0 || 
+      nrow(session$userData$outstanding_referrals) > 0
+  )
   downloadButton(outputId = "downloadSystemDQReport",
                  label = "Download") %>% withSpinner()
 })
@@ -173,65 +181,42 @@ output$downloadSystemDQReport <- downloadHandler(
   }
 )
 
-# SYSTEM-LEVEL DQ TAB PLOTS -----------------------------------------------
+# SYSTEM AND ORG-LEVEL DQ TAB PLOTS -----------------------------------------------
 # By-org shows organizations containing highest number of HP/errors/warnings
 # By-issue shows issues that are the most common of that type
-output$systemDQHighPriorityErrorsByOrg_ui <- renderUI({
-  renderDQPlot("sys", "High Priority", "Org", "#71B4CB")
-})
 
-output$systemDQHighPriorityErrorsByIssue_ui <- renderUI({
-  renderDQPlot("sys", "High Priority", "Issue", "#71B4CB")
-})
+## Get DQ Plot Data Function -----------------
+dq_full <- reactive({
+  logToConsole(session, "in dq_full")
+  long_stayers <- if(nrow(session$userData$long_stayers) > 0) {
+    session$userData$long_stayers %>%
+      fmutate(
+        too_many_days = case_match(
+          ProjectType,
+          es_nbn_project_type ~ input$ESNbNLongStayers,
+          out_project_type ~ input$OUTLongStayers,
+          sso_project_type ~ input$ServicesOnlyLongStayers,
+          other_project_project_type ~ input$OtherLongStayers,
+          day_project_type ~ input$DayShelterLongStayers,
+          ce_project_type ~ input$CELongStayers
+        )
+      ) %>% 
+      fsubset(DaysSinceLastKnown > too_many_days) %>%
+      fselect(vars_we_want)
+  } else data.table()
+  
+  outstanding_referrals <- if(nrow(session$userData$outstanding_referrals) > 0) {
+    session$userData$outstanding_referrals %>%
+      fsubset(input$CEOutstandingReferrals < Days) %>%
+      merge_check_info(checkIDs = 100) %>%
+      fselect(vars_we_want)
+  } else data.table()
 
-output$systemDQErrorsByOrg_ui <- renderUI({
-  renderDQPlot("sys", "Error", "Org", "#71B4CB")
-})
-
-output$systemDQErrorsByIssue_ui <- renderUI({
-  renderDQPlot("sys", "Error", "Issue", "#71B4CB")
-})
-
-output$systemDQWarningsByOrg_ui <- renderUI({
-  renderDQPlot("sys", "Warning", "Org", "#71B4CB")
-})
-
-output$systemDQWarningsByIssue_ui <- renderUI({
-  renderDQPlot("sys", "Warning", "Issue", "#71B4CB")
-})
-
-
-# ORG-LEVEL TAB PLOTS -----------------------------------------------------
-# By-project shows projects, within the selected org, containing highest 
-# number of HP errors/errors/warnings
-# By-issue shows issues, within the selected org, that are the most common 
-# of that type (HP errors/errors/warnings)
-output$orgDQHighPriorityErrorsByProject_ui <- renderUI({
-  renderDQPlot("org", "High Priority", "Project", "#71B4CB")
-})
-
-output$orgDQHighPriorityErrorByIssue_ui <- renderUI({
-  renderDQPlot("org", "High Priority", "Issue", "#71B4CB")
-})
-
-output$orgDQErrorsByProject_ui <- renderUI({
-  renderDQPlot("org", "Error", "Project", "#71B4CB")
-})
-
-output$orgDQErrorByIssue_ui <- renderUI({
-  renderDQPlot("org", "Error", "Issue", "#71B4CB")
-})
-
-output$orgDQWarningsByProject_ui <- renderUI({
-  renderDQPlot("org", "Warning", "Project", "#71B4CB")
-})
-
-output$orgDQWarningsByIssue_ui <- renderUI({
-  renderDQPlot("org", "Warning", "Issue", "#71B4CB")
-})
-
-output$orgDQWarningsByIssue_ui <- renderUI({
-  renderDQPlot("org", "Warning", "Issue", "#71B4CB")
+  bind_rows(
+    session$userData$dq_main,
+    long_stayers,
+    outstanding_referrals
+  )
 })
 #   PURPOSE: This script contains functions used by the app
 #   for generating the DQ plots and DQ exports
@@ -397,8 +382,15 @@ renderDQPlot <- function(level, issueType, group, color) {
   
   # Plots for System-Level DQ Tab -------------------------------------------
   # determine which data.frame we start with
+get_dq_plot_data <- function(level, issueType, groupVars) {
+  # First, need to get long_stayers, if any
+  # Unlike other DQ checks, this happens here because it needs to be reactive tp
+  # local setting changes
+  logToConsole(session, glue::glue("in get_Dq_plot_data, level = {level}, issueType = {issueType}, groupVars = {groupVars}"))
+  dq_data <- dq_full()
+  
   if(level == "sys") {
-    plot_df <- session$userData$dq_main %>%
+    plot_df <- dq_data %>%
       left_join(session$userData$Project0 %>%
                   select(ProjectID, OrganizationID) %>%
                   unique(), by = "ProjectID") %>%
@@ -410,7 +402,7 @@ renderDQPlot <- function(level, issueType, group, color) {
              Type) %>%
       unique()
   } else {
-    plot_df <- session$userData$dq_main %>%
+    plot_df <- dq_data %>%
       select(PersonalID,
              ProjectID,
              ProjectName,
@@ -420,7 +412,14 @@ renderDQPlot <- function(level, issueType, group, color) {
              Type) %>%
       unique()
   }
-
+  
+  
+  # Each project type gets its own Issue text+Guidance etc.
+  if(level == "org") {
+    plot_df <- plot_df %>% 
+      filter(OrganizationName %in% c(input$orgList))
+  }
+  
   plot_data <- plot_df %>%
     filter(Type == issueType) %>% 
     group_by(across(all_of(groupVars))) %>%
@@ -428,86 +427,117 @@ renderDQPlot <- function(level, issueType, group, color) {
     ungroup() %>%
     arrange(desc(countVar))
   
-  if(level == "org") {
-    plot_data <- plot_data %>% 
-      filter(OrganizationName %in% c(input$orgList))
-  }
+  return(plot_data)
+}
 
-  # dynamically refer to the UI element ID
-  outputId <- paste0(
-    if_else(level == 'sys', 'system', 'org'),
-    "DQ",
-    if_else(issueType == 'High Priority', 'HighPriorityErrors', issueType),
-    "By",
-    group
+## Generate Plots -----------------
+# All plots are the same, but with different levels and issue types.
+# so we can define a mapping and then loop accordingly
+
+
+# --- 1. DEFINE YOUR PLOT CONFIGURATIONS IN A TIBBLE ---
+# Your original mappings remain useful
+dq_issue_type_map <- c(
+  "HighPriority" = "High Priority",
+  "Warning" = "Warning",
+  "Error" = "Error"
+)
+
+# Use tidyr::expand_grid to create all possible combinations
+plot_configs <- tidyr::expand_grid(
+  level = c("sys", "org"),
+  issueType = names(dq_issue_type_map),
+  byType = c("Org", "Project", "Issue"),
+  color = "#71B4CB"
+) %>%
+  # Filter out invalid combinations (e.g., system-level "By Project")
+  filter(
+    !(level == "sys" & byType == "Project"),
+    !(level == "org" & byType == "Org")
+  )
+
+
+# --- 2. CREATE A SINGLE FUNCTION TO GENERATE A PLOT AND ITS UI ---
+# This function takes a single row of the config tibble as arguments
+renderDQPlot <- function(level, issueType, byType, color) {
+  plot_output_id = paste0(level, "DQ", issueType, "By", byType)
+  ui_output_id = paste0(plot_output_id, "_ui")
+  
+  groupVars = case_when(
+    level == "sys" & byType == "Org" ~ list(c("OrganizationName", "OrganizationID")),
+    level == "sys" & byType == "Issue" ~ list("Issue"),
+    level == "org" & byType == "Project" ~ list(c("OrganizationName", "ProjectName", "ProjectID")),
+    level == "org" & byType == "Issue" ~ list(c("OrganizationName", "Issue")),
+    TRUE ~ list(NULL)
   )
   
-  # generate the plot
-  # note there's no ui.R element with this ID, but it's, necessary to have an 
-  # output element to refer to in the plotOutput statement below)
-  output[[outputId]] <- renderPlot({
-    req(session$userData$valid_file() == 1)
+  # Derive the x-axis variable for the plot
+  x_group = case_when(
+    byType == "Org" ~ "OrganizationName",
+    byType == "Project" ~ "ProjectName",
+    byType == "Issue" ~ "Issue"
+  )
   
-    issueTypeDisplay = if_else(issueType == "Warning", 
-                               "warnings", 
-                               "errors"
-                               )
-    
-    validate(need(nrow(plot_data) > 0, 
-                  message = paste0("Great job! No ",
-                                   issueTypeDisplay,
-                                   " to show.")
-                  )
-             )
+  # RENDER THE UI (The Plot's Container)
+  output[[ui_output_id]] <- renderUI({
+    req(session$userData$valid_file() == 1)
+    req(nrow(dq_full()) > 0)
+    plotOutput(plot_output_id,
+               height = if_else(nrow(dq_full()) == 0, 50, 400),
+               width = ifelse(isTRUE(getOption("shiny.testmode")),
+                              "1640",
+                              "100%"))
+  })
+  
+  # RENDER THE PLOT (The Plot's Content)
+  output[[plot_output_id]] <- renderPlot({
+    req(session$userData$valid_file() == 1)
+    req(nrow(dq_full()) > 0)
 
-    ggplot(head(plot_data, 10L),
-           aes(
-             x = reorder(!!as.name(x_group), countVar),
-             y = countVar
-           )) +
-      geom_col(show.legend = FALSE,
-               color = color,
-               fill = color) +
+    plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
+    
+    issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
+    
+    validate(
+      need(
+        nrow(plot_data) > 0,
+        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+      )
+    )
+    
+    # Your ggplot code remains identical
+    ggplot(head(plot_data, 10L), aes(x = reorder(!!as.name(x_group), countVar), y = countVar)) +
+      geom_col(show.legend = FALSE, color = color, fill = color) +
       coord_flip() +
-      labs(x = "",
-           y = "Number of Enrollments") +
+      labs(x = "", y = "Number of Enrollments") +
       scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
       scale_y_discrete(expand = expansion(mult = c(0, .1))) +
       theme_classic() +
-      theme(axis.line = element_line(linetype = "blank"),
-            axis.text = element_text(size = sys_axis_text_font),
-            axis.text.x = element_blank(),
-            axis.title = element_text(size = sys_axis_text_font),
-            axis.ticks = element_line(linetype = "blank"),
-            plot.background = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.grid.major = element_blank()) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black",
-                size = sys_chart_text_font)
-  },
-  alt = case_when(outputId == "systemDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
-                  outputId == "systemDQHighPriorityErrorsByOrg" ~ "A bar chart of the top organizations with the most High Priority Errors in the system.",
-                  outputId == "systemDQErrorByIssue" ~ "A bar chart of the top General Errors in the system.",
-                  outputId == "systemDQErrorByOrg" ~ "A bar chart of the top organizations with the most General Errors in the system.",
-                  outputId == "systemDQWarningByIssue" ~ "A bar chart of the top Warnings in the system.",
-                  outputId == "systemDQWarningByOrg" ~ "A bar chart of the top organizations with the most Warnings in the system.",
-                  outputId == "orgDQHighPriorityErrorsByIssue" ~ "A bar chart of the top High Priority Errors in the organization.",
-                  outputId == "orgDQHighPriorityErrorsByProject" ~ "A bar chart of the organization's projects with the most High Priority Errors.",
-                  outputId == "orgDQErrorByIssue" ~ "A bar chart of the top General Errors in the organization.",
-                  outputId == "orgDQErrorByProject" ~ "A bar chart of the organization's projects with the most General Errors.",
-                  outputId == "orgDQWarningByIssue" ~ "A bar chart of the top Warnings in the organization.",
-                  TRUE ~ "A bar chart of the organization's projects with the most Warnings.")
+      theme(
+        axis.line = element_line(linetype = "blank"),
+        axis.text = element_text(size = sys_axis_text_font),
+        axis.text.x = element_blank(),
+        axis.title = element_text(size = sys_axis_text_font),
+        axis.ticks = element_line(linetype = "blank"),
+        plot.background = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank()
+      ) +
+      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size = sys_chart_text_font)
+  })
+}
+
+
+# --- 3. ITERATE OVER THE CONFIGS TO CREATE ALL PLOTS ---
+# pwalk takes the tibble and applies the function to each row.
+# It automatically maps column names to the function's arguments.
+purrr::pwalk(plot_configs, renderDQPlot)
   )
   
-  # this effectively collapses the plot if there are no rows
-  plot_height = if_else(nrow(plot_data) == 0, 50, 400)
+  exportDFList <- exportDFList[sapply(exportDFList, 
+                                      function(x) dim(x)[1]) > 0]
   
-  # finally, render the plot
-  return(plotOutput(outputId,
-                    height = plot_height,
-                    width = ifelse(isTRUE(getOption("shiny.testmode")),
-                                    "1640",
-                                    "100%")))
+  return(exportDFList)
 }
 
 # list of data frames to include in DQ Org Report
@@ -515,11 +545,11 @@ dqDownloadInfo <- reactive({
   logToConsole(session, "in dqDownloadInfo")
   req(session$userData$valid_file() == 1)
 
-  exportTestValues(dq_main = session$userData$dq_main %>% nice_names())
+  exportTestValues(dq_main = dq_full() %>% nice_names())
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
   
   # org-level data prep (filtering to selected org)
-  orgDQData <- session$userData$dq_main %>%
+  orgDQData <- dq_full() %>%
     filter(OrganizationName %in% c(input$orgList))
   
   orgDQoverlapDetails <- session$userData$overlap_details %>% 
@@ -540,20 +570,13 @@ dqDownloadInfo <- reactive({
       ),
     
     systemDQData = 
-      getDQReportDataList(session$userData$dq_main,
+      getDQReportDataList(dq_full(),
                           session$userData$overlap_details,
                           "OrganizationName",
                           session$userData$outstanding_referrals
       )
   )
 })
-
-
-
-
-
-
-
 
 # # System Data Quality Overview --------------------------------------------
 # empty_dq_overview_plot <- function(currPlot) {
