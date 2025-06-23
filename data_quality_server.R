@@ -1,3 +1,24 @@
+#   PURPOSE: This script contains functions used by the app
+#   for generating the DQ plots and DQ exports
+
+vars_prep <- c(
+  "EnrollmentID",
+  "HouseholdID",
+  "PersonalID",
+  "OrganizationName",
+  "ProjectID",
+  "ProjectName",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitDate"
+)
+
+vars_we_want <- c(vars_prep,
+                  "Issue",
+                  "Type",
+                  "Guidance")
+
 # PDDE Checker ------------------------------------------------------------
 # PDDE Download Button ----------------------------------------------------
 output$downloadPDDEReportButton  <- renderUI({
@@ -218,170 +239,7 @@ dq_full <- reactive({
     outstanding_referrals
   )
 })
-#   PURPOSE: This script contains functions used by the app
-#   for generating the DQ plots and DQ exports
 
-
-vars_prep <- c(
-  "EnrollmentID",
-  "HouseholdID",
-  "PersonalID",
-  "OrganizationName",
-  "ProjectID",
-  "ProjectName",
-  "ProjectType",
-  "EntryDate",
-  "MoveInDateAdjust",
-  "ExitDate"
-)
-
-vars_we_want <- c(vars_prep,
-                  "Issue",
-                  "Type",
-                  "Guidance")
-
-getDQReportDataList <-
-  function(dqData,
-           dqOverlapDetails = NULL,
-           bySummaryLevel = NULL,
-           dqReferrals = NULL) {
-    
-    select_list <- c(
-      "OrganizationName",
-      "ProjectID",
-      "ProjectName",
-      "ProjectType",
-      "Issue",
-      "PersonalID",
-      "EnrollmentID",
-      "HouseholdID",
-      "EntryDate"
-    )
-    
-    high_priority <- dqData %>%
-      filter(Type == "High Priority") %>%
-      mutate(ProjectType = project_type_abb(ProjectType)) %>%
-      select(all_of(select_list))
-    
-    errors <- dqData %>%
-      filter(Type == "Error") %>%
-      mutate(ProjectType = project_type_abb(ProjectType)) %>%
-      select(all_of(select_list))
-    
-    warnings <- dqData %>%
-      filter(Type == "Warning") %>%
-      mutate(ProjectType = project_type_abb(ProjectType)) %>%
-      select(all_of(select_list))
-    
-    dqReferralDetails <- dqReferrals %>%
-      filter(Issue == "Days Referral Active Exceeds Local Settings") %>%
-      mutate(ProjectType = project_type_abb(ProjectType)) %>%
-      select(
-        OrganizationName,
-        ProjectID,
-        ProjectName,
-        ProjectType,
-        EventID,
-        PersonalID,
-        EnrollmentID,
-        EventDate,
-        EventType,
-        Days
-      )
-    
-    mainsummary <- dqData %>% 
-      select(Type, Issue, PersonalID) %>%
-      # group_by(ProjectName, Type, Issue) %>%
-      group_by(Type, Issue) %>%
-      summarise(Enrollments = n()) %>%
-      ungroup() %>%
-      select(Type, Enrollments, Issue) %>%
-      arrange(Type, desc(Enrollments))
-
-    bySummaryLevel2 <- rlang::sym(bySummaryLevel)
-    byunitsummary <- dqData %>% 
-      select(!!bySummaryLevel2, Type, Issue, PersonalID) %>%
-      group_by(!!bySummaryLevel2, Type, Issue) %>%
-      summarise(Enrollments = n()) %>%
-      ungroup() %>%
-      select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
-      arrange(Type, desc(Enrollments), !!bySummaryLevel2)
-    
-    
-    guidance <- dqData %>%
-      select(Type, Issue, Guidance) %>%
-      unique() %>%
-      mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-      arrange(Type)
-    
-    exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                               c(session$userData$meta_HUDCSV_Export_Start,
-                                 session$userData$meta_HUDCSV_Export_End,
-                                 session$userData$meta_HUDCSV_Export_Date))
-    
-    colnames(exportDetail) <- c("Export Field", "Value")
-    
-    exportDFList <- list(
-      exportDetail = exportDetail %>% nice_names(),
-      mainsummary = mainsummary %>% nice_names(),
-      byunitsummary = byunitsummary %>% nice_names(),
-      guidance = guidance %>% nice_names(),
-      high_priority = high_priority %>% nice_names(),
-      errors = errors %>% nice_names(),
-      warnings = warnings %>% nice_names(),
-      overlaps = dqOverlapDetails %>% nice_names(),
-      dqReferrals = dqReferralDetails %>% nice_names()
-    )
-    
-    names(exportDFList) <- c(
-      "Export Detail",
-      paste(
-        if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
-        "Summary"
-      ),
-      paste(
-        if_else(
-          bySummaryLevel == "OrganizationName",
-          "Organization",
-          "Project"
-        ),
-        "Summary"
-      ),
-      "Guidance",
-      "High Priority",
-      "Errors",
-      "Warnings",
-      "Overlap Details",
-      "Referral Details"
-    )
-    
-    exportDFList <- exportDFList[sapply(exportDFList, 
-                                        function(x) dim(x)[1]) > 0]
-    
-    return(exportDFList)
-  }
-
-renderDQPlot <- function(level, issueType, group, color) {
-  req(nrow(session$userData$dq_main) > 0 & session$userData$valid_file() == 1)
-  # groupVars is the variable(s) used to summarise/count rows
-  # x_group is the x variable used to in the ggplot reordering
-  if(group == "Org") {
-    groupVars <- c("OrganizationName", "OrganizationID")
-    x_group <- "OrganizationName"
-  } else if(group == "Project") {
-    groupVars <- c("OrganizationName", "ProjectName", "ProjectID")
-    x_group <- "ProjectName"
-  } else if(group == "Issue" && level == "org") {
-    groupVars <- c("OrganizationName", "Issue")
-    x_group <- "Issue"
-  } else if(group == "Issue" && level == "sys") {
-    groupVars <- "Issue"
-    x_group <- "Issue"
-  } 
-
-  
-  # Plots for System-Level DQ Tab -------------------------------------------
-  # determine which data.frame we start with
 get_dq_plot_data <- function(level, issueType, groupVars) {
   # First, need to get long_stayers, if any
   # Unlike other DQ checks, this happens here because it needs to be reactive tp
@@ -532,6 +390,120 @@ renderDQPlot <- function(level, issueType, byType, color) {
 # pwalk takes the tibble and applies the function to each row.
 # It automatically maps column names to the function's arguments.
 purrr::pwalk(plot_configs, renderDQPlot)
+
+getDQReportDataList <- function(
+  dqData,
+  dqOverlapDetails = NULL,
+  bySummaryLevel = NULL,
+  dqReferrals = NULL) {
+  
+  logToConsole(session, "in getDQReportDataList")
+  select_list <- c(
+    "OrganizationName",
+    "ProjectID",
+    "ProjectName",
+    "ProjectType",
+    "Issue",
+    "PersonalID",
+    "EnrollmentID",
+    "HouseholdID",
+    "EntryDate"
+  )
+  
+  high_priority <- dqData %>%
+    filter(Type == "High Priority") %>%
+    mutate(ProjectType = project_type_abb(ProjectType)) %>%
+    select(all_of(select_list))
+  
+  errors <- dqData %>%
+    filter(Type == "Error") %>%
+    mutate(ProjectType = project_type_abb(ProjectType)) %>%
+    select(all_of(select_list))
+  
+  warnings <- dqData %>%
+    filter(Type == "Warning") %>%
+    mutate(ProjectType = project_type_abb(ProjectType)) %>%
+    select(all_of(select_list))
+  
+  dqReferralDetails <- dqReferrals %>%
+    mutate(ProjectType = project_type_abb(ProjectType)) %>%
+    select(
+      OrganizationName,
+      ProjectID,
+      ProjectName,
+      ProjectType,
+      EventID,
+      PersonalID,
+      EnrollmentID,
+      EventDate,
+      EventType,
+      Days
+    )
+  
+  mainsummary <- dqData %>% 
+    select(Type, Issue, PersonalID) %>%
+    # group_by(ProjectName, Type, Issue) %>%
+    group_by(Type, Issue) %>%
+    summarise(Enrollments = n()) %>%
+    ungroup() %>%
+    select(Type, Enrollments, Issue) %>%
+    arrange(Type, desc(Enrollments))
+
+  bySummaryLevel2 <- rlang::sym(bySummaryLevel)
+  byunitsummary <- dqData %>% 
+    select(!!bySummaryLevel2, Type, Issue, PersonalID) %>%
+    group_by(!!bySummaryLevel2, Type, Issue) %>%
+    summarise(Enrollments = n()) %>%
+    ungroup() %>%
+    select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
+    arrange(Type, desc(Enrollments), !!bySummaryLevel2)
+  
+  
+  guidance <- dqData %>%
+    select(Type, Issue, Guidance) %>%
+    unique() %>%
+    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+    arrange(Type)
+  
+  exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
+                             c(session$userData$meta_HUDCSV_Export_Start,
+                               session$userData$meta_HUDCSV_Export_End,
+                               session$userData$meta_HUDCSV_Export_Date))
+  
+  colnames(exportDetail) <- c("Export Field", "Value")
+  
+  exportDFList <- list(
+    exportDetail = exportDetail %>% nice_names(),
+    mainsummary = mainsummary %>% nice_names(),
+    byunitsummary = byunitsummary %>% nice_names(),
+    guidance = guidance %>% nice_names(),
+    high_priority = high_priority %>% nice_names(),
+    errors = errors %>% nice_names(),
+    warnings = warnings %>% nice_names(),
+    overlaps = dqOverlapDetails %>% nice_names(),
+    dqReferrals = dqReferralDetails %>% nice_names()
+  )
+  
+  names(exportDFList) <- c(
+    "Export Detail",
+    paste(
+      if_else(bySummaryLevel == "OrganizationName", "System", "Organization"),
+      "Summary"
+    ),
+    paste(
+      if_else(
+        bySummaryLevel == "OrganizationName",
+        "Organization",
+        "Project"
+      ),
+      "Summary"
+    ),
+    "Guidance",
+    "High Priority",
+    "Errors",
+    "Warnings",
+    "Overlap Details",
+    "Referral Details"
   )
   
   exportDFList <- exportDFList[sapply(exportDFList, 
