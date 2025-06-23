@@ -839,7 +839,7 @@ future_exits <- base_dq_data %>%
     
 # Missing Income at Entry -------------------------------------------------
 
-projects_require_income <- unique(projects_funders_types[inc == 1, "ProjectID"])
+projects_require_income <- unique(projects_funders_types[inc == 1]$ProjectID)
 
 missing_income_entry <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
@@ -1322,7 +1322,7 @@ invalid_movein_date <- base_dq_data %>%
 
 # Missing Health Ins ------------------------------------------------------
 
-projects_require_hi <- unique(projects_funders_types[hi == 1, "ProjectID"])
+projects_require_hi <- unique(projects_funders_types[hi == 1]$ProjectID)
 
 missing_health_insurance <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
@@ -1386,7 +1386,7 @@ rm(health_insurance_subs)
 
 # Missing NCBs at Entry ---------------------------------------------------
 
-projects_require_ncb <- unique(projects_funders_types[ncb == 1, "ProjectID"])
+projects_require_ncb <- unique(projects_funders_types[ncb == 1]$ProjectID)
 
 #just the different kinds of non-cash benefits, many to an enrollment
 ncb_subs <- IncomeBenefits %>%
