@@ -166,9 +166,27 @@ start_date_last6months <- end_date_last6months %m-% months(6) + days(1)
 staging_last6months <- staging %>%
   filter(Date >= start_date_last6months & Date <= end_date_last6months)
 
-eva_colors <- c("#16697a", "#C2462E", "#71B4CB", "#73655E",
-                 "#C1DDD7","#FCB248","#CEEfb7", "#71B58B")
-
+## update colors using Eva brand guide - data viz palette
+## also move light colors to end of vector to use as needed for these charts
+eva_colors <- c(# dark blue
+                "#16697A",
+                # blue
+                "#71B4CB",
+                # yellow
+                "#FCB248",
+                # sea green
+                "#52BFA5",
+                # orange
+                "#E8812A",
+                # purple
+                "#7F5D9D",
+                # light purple
+                 "#D5BFE6",
+                # light blue
+                "#C1DDD7",
+                 #coral - not listed in this palette but could use
+                  #"#C2462E", 
+                )
 ```
 
 
