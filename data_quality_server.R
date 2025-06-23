@@ -382,7 +382,22 @@ renderDQPlot <- function(level, issueType, byType, color) {
         panel.grid.major = element_blank()
       ) +
       geom_text(aes(label = countVar), hjust = -0.5, color = "black", size = sys_chart_text_font)
-  })
+  },
+  alt = case_match(
+    outputId,
+    "systemDQHighPriorityByIssue" = "A bar chart of the top High Priority Errors in the system.",
+    "systemDQHighPriorityByOrg" = "A bar chart of the top organizations with the most High Priority Errors in the system.",
+    "systemDQErrorByIssue" = "A bar chart of the top General Errors in the system.",
+    "systemDQErrorByOrg" = "A bar chart of the top organizations with the most General Errors in the system.",
+    "systemDQWarningByIssue" = "A bar chart of the top Warnings in the system.",
+    "systemDQWarningByOrg" = "A bar chart of the top organizations with the most Warnings in the system.",
+    "orgDQHighPriorityByIssue" = "A bar chart of the top High Priority Errors in the organization.",
+    "orgDQHighPriorityProject" = "A bar chart of the organization's projects with the most High Priority Errors.",
+    "orgDQErrorByIssue" = "A bar chart of the top General Errors in the organization.",
+    "orgDQErrorByProject" = "A bar chart of the organization's projects with the most General Errors.",
+    "orgDQWarningByIssue" = "A bar chart of the top Warnings in the organization.",
+    "orgDQWarningByProject" = "A bar chart of the organization's projects with the most Warnings.")
+  )
 }
 
 
