@@ -51,9 +51,7 @@
       41,
       42,
       43,
-      44,
-      45,
-      46
+      44
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -241,11 +239,7 @@
       115,
       116,
       117,
-      118,
-      119,
-      120,
-      121,
-      122
+      118
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -662,7 +656,25 @@
         }
       }
     },
-    "orgDQHighPriorityErrorsByIssue": {
+    "orgDQErrorByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQHighPriorityByIssue": {
       "src": "[image data hash: 8fcc992418956267a2eb4f684ceefa88]",
       "width": 1640,
       "height": 400,
@@ -713,6 +725,24 @@
           "height": 400
         }
       }
+    },
+    "orgDQHighPriorityByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQHighPriorityByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
     },
     "orgDQWarningByIssue": {
       "src": "[image data hash: c6f3027a0ee121a8ee9a42381b595f6d]",
@@ -773,7 +803,7 @@
         }
       }
     },
-    "orgDQWarningsByIssue_ui": {
+    "orgDQWarningByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
@@ -797,32 +827,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 22
+        "Warning": 20
       },
       "Issue": {
-        "Length": "46",
+        "Length": "44",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "46",
+        "Length": "44",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "122",
+        "Length": "118",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 52,
-        "Warning": 65
+        "Warning": 61
       },
       "Issue": {
-        "Length": "122",
+        "Length": "118",
         "Class": "character",
         "Mode": "character"
       },
@@ -830,7 +860,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.737704918032787,
+        "Mean": 8.40677966101695,
         "3rd Qu.": 7,
         "Max.": 181
       }
