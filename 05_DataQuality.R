@@ -1655,13 +1655,12 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
       fmutate(LastKnown = EntryDate)
   } else {
     non_exits_w_lastknown_date <- 
-      join(non_exits, data_w_dates, on = "EnrollmentID", how="left") %>%
+      join(non_exits, data_w_dates, on = "EnrollmentID", how="left", multiple=TRUE) %>%
       fgroup_by(EnrollmentID) %>%
       # Take EntryDate if there's no Information or DateProvided
-      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate))
+      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate)) %>%
+      funique(cols = c("EnrollmentID", "LastKnown"))
   }
-  
-  logToConsole(session, "calculating long_stayres")
   # calculate days since last known
   return(
     qDT(non_exits_w_lastknown_date) %>%
