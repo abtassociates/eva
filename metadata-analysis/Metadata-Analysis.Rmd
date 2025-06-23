@@ -599,11 +599,13 @@ staging_last6months %>%
   count(Event) %>% 
   mutate(EventType = case_when(
     str_detect(Event, "Powerpoint") ~ "Image",
-    str_detect(Event, "Tabular") ~ "Tabular"
+    str_detect(Event, "Tabular") ~ "Tabular",
+    str_detect(Event, "Client Level Export") ~ "Tabular"
     )) %>% 
   mutate(`System Overview Description` = case_when(
     str_detect(Event, "Client System Status") ~ "Client System Status",
     str_detect(Event, "System Demographics") ~ "System Demographics",
+    str_detect(Event, "Client Level Export") ~ "System Demographics",
     str_detect(Event, "System Flow") ~ "System Flow"
     )) %>% 
   ggplot(aes(fill=`System Overview Description`, y=n, x=EventType)) + 
