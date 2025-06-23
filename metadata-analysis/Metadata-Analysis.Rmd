@@ -183,7 +183,7 @@ eva_colors <- c(# dark blue
                 # light purple
                  "#D5BFE6",
                 # light blue
-                "#C1DDD7",
+                "#C1DDD7"
                  #coral - not listed in this palette but could use
                   #"#C2462E", 
                 )
