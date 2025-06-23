@@ -48,7 +48,6 @@ mirai::everywhere({
   library(data.table)
   library(tidyverse)
   library(janitor)
-  library(readr)
   library(collapse)
   library(here)
   source(here("hardcodes.R"))
