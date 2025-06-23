@@ -472,4 +472,4 @@ outflow_debug_cols <- c(
   "days_to_lookahead"
 )
 
-in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]])
+in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
