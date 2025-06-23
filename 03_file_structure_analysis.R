@@ -409,7 +409,7 @@ session$userData$file_structure_analysis_main(rbind(
   valid_values_client,
   files_with_brackets
   ) %>%
-  mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
+  mutate(Type = factor(Type, levels = issue_levels)) %>%
   arrange(Type)
 )
 

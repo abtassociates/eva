@@ -223,14 +223,16 @@ dq_full <- reactive({
         )
       ) %>% 
       fsubset(DaysSinceLastKnown > too_many_days) %>%
-      fselect(vars_we_want)
+      fselect(vars_we_want) %>%
+      fmutate(Type = factor(Type, levels = issue_levels))
   } else data.table()
   
   outstanding_referrals <- if(nrow(session$userData$outstanding_referrals) > 0) {
     session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
-      fselect(vars_we_want)
+      fselect(vars_we_want) %>%
+      fmutate(Type = factor(Type, levels = issue_levels))
   } else data.table()
 
   bind_rows(
