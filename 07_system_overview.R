@@ -423,7 +423,7 @@ es_nbn_enrollments <- enrollment_categories[
   .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
 ]
 
-session$userData$lh_nbn <- qDT(Services) %>%
+session$userData$lh_nbn <- Services %>%
   fselect(EnrollmentID, DateProvided) %>%
   join(
     es_nbn_enrollments,

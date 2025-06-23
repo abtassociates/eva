@@ -28,10 +28,15 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Prepping initial data..", value = .4)
     source("04_initial_data_prep.R", local = TRUE) 
-
-    local_settings = setNames(
-      lapply(local_settings_inputs, function(x) session$input[[x]]),
-      local_settings_inputs
+    dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
+    dq_and_pdde_dependencies[["session"]] <- list(
+      token = session$token,
+      userData = list(
+        Project0 = session$userData$Project0,
+        meta_HUDCSV_Export_Date = session$userData$meta_HUDCSV_Export_Date,
+        meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End,
+        validation = session$userData$validation
+      )
     )
     
     setProgress(detail = "Assessing your data quality..", value = .7)
@@ -49,9 +54,7 @@ process_upload <- function(upload_filename, upload_filepath) {
         pdde_main = pdde_main,
         long_stayers = long_stayers
       )
-    }, local_settings = local_settings,
-      .args = mget(c(dq_mirai_dependencies, pdde_mirai_dependencies))
-    )
+    }, .args = dq_and_pdde_dependencies)
     
     setProgress(detail = "Preparing System Overview Data", value = .85)
     source("07_system_overview.R", local = TRUE)
@@ -60,6 +63,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     logToConsole(session, "collecting DQ and PDDE results")
     dq_pdde_results <- dq_pdde_mirai[]
     if(mirai::is_error_value(dq_pdde_results)) {
+      if(in_dev_mode) browser()
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", dq_pdde_results))
     }
     

@@ -76,6 +76,7 @@ session$userData$Project0 <- project_prep %>%
          OperatingEndDate,
          ProjectType,
          RRHSubType,
+         HousingType,
          VictimServiceProvider) %>%
   unique()
 
@@ -272,7 +273,7 @@ rm(HHMoveIn)
 # that fall outside of participation/operation date ranges.
 
 EnrollmentAdjust <- Enrollment %>%
-  filter(
+  fsubset(
     !EnrollmentvParticipating %in% c(
       "Enrollment After Participating Period",
       "Enrollment Before Participating Period"
@@ -286,7 +287,9 @@ EnrollmentAdjust <- Enrollment %>%
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
-  filter(RecordType == 200 & !is.na(DateProvided))
+  fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
+  fselect(EnrollmentID, DateProvided, PersonalID) %>%
+  qDT()
 
 # Build validation df for app ---------------------------------------------
 # this contains Project and Org info together
@@ -363,7 +366,8 @@ projects_funders_types <- Funder %>%
             ncb = max(ncb, na.rm = TRUE),
             hi = max(hi, na.rm = TRUE),
             dv = max(dv, na.rm = TRUE)) %>%
-  ungroup()
+  ungroup() %>%
+  qDT()
 
 # Active Inventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
@@ -384,48 +388,18 @@ activeInventory <- Inventory %>%
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 
-# HMIS-participating projects with active Inventory during report period -------
-# HMIS-Participating projects that have inventory are almost necessarilly residential.
-# Store this "generous" span so we can check if any enrollments fall within it
-HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
-  # HMiS-participating projects
-  fsubset(HMISParticipationType == 1, 
-          ProjectID, 
-          ProjectTimeID, 
-          ProjectType,
-          HMISParticipationStatusStartDate, 
-          HMISParticipationStatusEndDate,
-          OperatingStartDate,
-          OperatingEndDate
-  ) %>%
-  join(
-    activeInventory %>% 
-      fselect(ProjectID, InventoryStartDate, InventoryEndDate, Availability, BedInventory) %>%
-      funique(),
-    on = "ProjectID",
-    how = "inner",
-    multiple = TRUE
-  ) %>%
-  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
-  fmutate(
-    ProjectHMISParticipationStart = pmax(
-      HMISParticipationStatusStartDate, 
-      OperatingStartDate
-    ),
-    ProjectHMISParticipationEnd = pmin(
-      HMISParticipationStatusEndDate,
-      OperatingEndDate,
-      na.rm = TRUE
-    ),
-    ProjectHMISActiveParticipationStart = pmax(
-      ProjectHMISParticipationStart,
-      InventoryStartDate
-    ),
-    ProjectHMISActiveParticipationEnd = pmin(
-      ProjectHMISParticipationEnd,
-      InventoryEndDate,
-      na.rm = TRUE
-    )
+# Event (Used in DQ)
+Event <- Event %>% 
+  fselect(
+    EnrollmentID,
+    EventID,
+    EventDate,
+    Event,
+    ProbSolDivRRResult,
+    ReferralCaseManageAfter,
+    LocationCrisisOrPHHousing,
+    ReferralResult,
+    ResultDate
   )
 
 # desk_time_providers <- validation() %>%
@@ -434,7 +408,3 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
 #        exited_between(., today() - years(1), today())) &
 #       ProjectType %in% lh_ph_hp_project_types) %>%
 #   dplyr::select(ProjectName) %>% unique()
-
-session$userData$CurrentLivingSituation <- CurrentLivingSituation
-session$userData$Event <- Event
-session$userData$Services <- Services

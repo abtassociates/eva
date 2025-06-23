@@ -839,8 +839,7 @@ future_exits <- base_dq_data %>%
     
 # Missing Income at Entry -------------------------------------------------
 
-projects_require_income <- projects_funders_types %>% filter(inc == 1) %>%
-  pull(ProjectID)
+projects_require_income <- unique(projects_funders_types[inc == 1, "ProjectID"])
 
 missing_income_entry <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
@@ -969,7 +968,7 @@ rm(income_subs)
 
 # Enrollment Active Outside Participating Dates ---------------------------
 
-enrollment_positions <- EnrollmentAdjust %>%
+enrollment_positions <- Enrollment %>%
   select(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating) %>%
   left_join(base_dq_data, by = c("EnrollmentID"))
 
@@ -1052,8 +1051,7 @@ overlap_staging <- base_dq_data_dt[
 # For NbNs, modify EnrollmentStart/End to be the first/last DateProvided 
 # for a given enrollment
 if(nrow(Services) > 0) {
-  services_dt <- as.data.table(Services)
-  services_summary <- services_dt[
+  services_summary <- Services[
     , .(
       FirstDateProvided = min(DateProvided, na.rm = TRUE),
       LastDateProvided = max(DateProvided, na.rm = TRUE)
@@ -1179,7 +1177,7 @@ overlap_dt <- overlap_dt[IsOverlap == TRUE]
 # but because DatePRovided is m:1 with Enrollment, we need to process separately
 # from the enrollment-level data above
 if(nrow(Services) > 0) {
-  overlap_nbns <- services_dt[, `:=`(
+  overlap_nbns <- Services[, `:=`(
       PreviousEnrollmentID = shift(EnrollmentID, type = "lag"),
       IsOverlap = ifelse(duplicated(DateProvided) | duplicated(DateProvided, fromLast = TRUE), TRUE, FALSE), 
       PreviousProjectType = es_nbn_project_type
@@ -1324,8 +1322,7 @@ invalid_movein_date <- base_dq_data %>%
 
 # Missing Health Ins ------------------------------------------------------
 
-projects_require_hi <- projects_funders_types %>% filter(hi == 1) %>%
-  pull(ProjectID)
+projects_require_hi <- unique(projects_funders_types[hi == 1, "ProjectID"])
 
 missing_health_insurance <- base_dq_data %>%
   left_join(IncomeBenefits, by = c("PersonalID", "EnrollmentID")) %>%
@@ -1389,8 +1386,7 @@ rm(health_insurance_subs)
 
 # Missing NCBs at Entry ---------------------------------------------------
 
-projects_require_ncb <- projects_funders_types %>% filter(ncb == 1) %>%
-  pull(ProjectID)
+projects_require_ncb <- unique(projects_funders_types[ncb == 1, "ProjectID"])
 
 #just the different kinds of non-cash benefits, many to an enrollment
 ncb_subs <- IncomeBenefits %>%
@@ -1476,17 +1472,16 @@ conflicting_ncbs_entry <- base_dq_data %>%
   select(all_of(vars_we_want))
     
 # SSVF --------------------------------------------------------------------
-
-ssvf_funded <- Funder %>%
-  filter(Funder %in% c(ssvf_fund_sources)) %>%
-  pull(ProjectID)
-
 ssvf_base_dq_data <- base_dq_data %>%
-  filter(ProjectID %in% c(ssvf_funded)) %>%
-  select(all_of(vars_prep)) %>%
-  left_join(
+  join(
+    qDT(Funder)[Funder %in% ssvf_fund_sources],
+    on = "ProjectID",
+    how = "inner"
+  ) %>%
+  fselect(all_of(vars_prep)) %>%
+  join(
     Enrollment %>%
-      select(
+      fselect(
         EnrollmentID,
         RelationshipToHoH,
         PercentAMI,
@@ -1495,11 +1490,12 @@ ssvf_base_dq_data <- base_dq_data %>%
         ThresholdScore,
         TargetScreenReqd
       ),
-    by = "EnrollmentID"
+    on = "EnrollmentID",
+    how = "left"
   ) %>%
-  left_join(
+  join(
     Client %>%
-      select(
+      fselect(
         PersonalID,
         VeteranStatus,
         YearEnteredService,
@@ -1515,7 +1511,8 @@ ssvf_base_dq_data <- base_dq_data %>%
         MilitaryBranch,
         DischargeStatus
       ),
-    by = "PersonalID"
+    on = "PersonalID",
+    how = "left"
   )
 
 veteran_missing_year_entered <- ssvf_base_dq_data %>%
@@ -1642,10 +1639,10 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
   # this starts the clock of how long their stay is.
   data_w_dates <- if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
     # This will be merged back into non_exits
-    session$userData$CurrentLivingSituation %>% fselect(EnrollmentID, KnownDate = InformationDate)
+    CurrentLivingSituation %>% fselect(EnrollmentID, KnownDate = InformationDate)
   } else if(projecttype == es_nbn_project_type) {
     # This will be merged back into non_exits
-    session$userData$Services %>% fselect(EnrollmentID, KnownDate = DateProvided)
+    Services %>% fselect(EnrollmentID, KnownDate = DateProvided)
   } else {
     # If a different project type, we'll just use their EntryDate as the KnownDate
     non_exits
@@ -1709,15 +1706,7 @@ calculate_outstanding_referrals <- function(dq_data){
   logToConsole(session, paste0("in calculate_outstanding_referrals"))
   
   dq_data %>%
-    left_join(session$userData$Event %>% select(EnrollmentID,
-                                                EventID,
-                                                EventDate,
-                                                Event,
-                                                ProbSolDivRRResult,
-                                                ReferralCaseManageAfter,
-                                                LocationCrisisOrPHHousing,
-                                                ReferralResult,
-                                                ResultDate),
+    left_join(Event,
               by = "EnrollmentID") %>%
     select(all_of(vars_prep), ProjectID, EventID, EventDate, ResultDate, Event) %>%
     mutate(
