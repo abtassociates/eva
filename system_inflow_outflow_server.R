@@ -52,6 +52,15 @@ outflow_summary_levels <- c(
   "something's wrong"
 )
 
+inflow_chart_summary_levels <- c(
+  "Active at Start",
+  "Inflow"
+)
+outflow_chart_summary_levels <- c(
+  "Outflow",
+  "Active at End"
+)
+
 collapse_details <- list(
   "Outflow" = outflow_chart_detail_levels, 
   "Inflow" = inflow_chart_detail_levels
@@ -555,16 +564,16 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
-get_counts_by_month_for_mbm <- function(monthly_chart_records) {
+get_counts_by_month_for_mbm <- function(monthly_data) {
   monthly_counts <- rbind(
-    monthly_chart_records[, .(
+    monthly_data[, .(
       PersonalID, 
       month, 
       PlotFillGroups = InflowPlotFillGroups, 
       Detail = InflowTypeDetail,
       Summary = InflowTypeSummary
     )],
-    monthly_chart_records[, .(
+    monthly_data[, .(
       PersonalID, 
       month, 
       PlotFillGroups = OutflowPlotFillGroups, 
