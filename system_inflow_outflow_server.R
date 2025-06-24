@@ -546,10 +546,6 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     )
   
   get_counts_by_month_for_mbm(monthly_data) %>%
-    fsubset(
-      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
-      (Detail != "Unknown" | is.na(Detail))
-    ) %>%
     ftransform(
       PlotFillGroups = factor(
         PlotFillGroups,
@@ -577,6 +573,10 @@ get_counts_by_month_for_mbm <- function(monthly_chart_records) {
     )]
   ) %>%
     funique() %>%
+    fsubset(
+      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
+        (Detail != "Unknown" | is.na(Detail))
+    ) %>%
     fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
