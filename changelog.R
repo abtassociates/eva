@@ -4,11 +4,11 @@ output$changelog <- renderDT({
     ~ Change,
     "06-13-2025",
     "<b>New Features</><br>
-      - New Month-by-Month System Flow visualization
-      - Performance improvements
+      - New Month-by-Month System Flow visualization<br>
+      - Performance improvements<br>
     <b>Bug Fixes</b> <br>
       - Fixed SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>). <br>
-      - Fixed underreporting of DQ checks for enrollments outside project operation/participation.
+      - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
     <b>Miscellaneous</b> <br>
       - Updated System Overview instruction text. <br>
       - Streamlined System Flow export",
