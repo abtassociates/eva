@@ -124,13 +124,12 @@ output$client_level_download_btn <- downloadHandler(
         ),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
         OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
-        `Moved into Housing or Exited to Permanent Destination by Report End` = paste0(
-          if_else(
-            flast(OutflowTypeSummary) == "Active at End",
-            "Yes - Enrolled, ",
-            "No - "
-          ), 
-          flast(OutflowTypeDetail)
+        `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
+          flast(OutflowTypeDetail),
+          "Exited, Permanent" ~ "Yes - Exited, Permanent",
+          "Housed" ~ "Yes - Enrolled, Housed",
+          "Homeless" ~ "No - Enrolled, Homeless",
+          .default = paste0("No - ", flast(OutflowTypeDetail))
         )
       ) %>%
       fungroup() %>%
