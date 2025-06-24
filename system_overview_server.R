@@ -419,7 +419,7 @@ client_categories_filtered <- reactive({
   
   session$userData$client_categories[
     AgeCategory %in% input$syso_age &
-    if(input$syso_race_ethnicity == "All") TRUE else get(input$syso_race_ethnicity) == 1 & 
+    (if(input$syso_race_ethnicity == "All") rep(TRUE, .N) else get(input$syso_race_ethnicity) == 1) & 
     (
       input$syso_spec_pops == "None" |
       (input$syso_spec_pops == "Veteran" &
