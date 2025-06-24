@@ -131,10 +131,6 @@ function(input, output, session) {
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
-    if("period_cache" %in% ls(session$userData)) {
-      rm(list = ls(session$userData$period_cache), 
-         envir = session$userData$period_cache)
-    }
     memoise::forget(session$userData$get_period_specific_enrollment_categories)
     memoise::forget(session$userData$get_period_specific_nbn_enrollment_services)
     gc()

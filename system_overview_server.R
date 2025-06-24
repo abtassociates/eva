@@ -347,34 +347,6 @@ period_specific_data <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   logToConsole(session, "in period_specific_data")
   
-  if(is.null(session$userData$period_cache)) {
-    session$userData$period_cache <- new.env()
-  }
-  cache <- session$userData$period_cache
-  
-  check_cache_size(cache)
-  
-  cache_key <- digest::digest(list(
-    if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
-    
-    # Client-level filters
-    input$syso_age,
-    input$syso_race_ethnicity,
-    input$syso_spec_pops,
-    
-    # Enrollment-level filters
-    input$syso_hh_type,
-    input$syso_level_of_detail,
-    input$syso_project_type
-  ))
-  
-  cached_result <- cache[[cache_key]]
-  if (!is.null(cached_result)) {
-    logToConsole(session, "Cache HIT in period_specific_data. Returning copy.")
-    return(cached_result)
-  }
-  
-  logToConsole(session, "Cache MISS in period_specific_data. Recomputing.")
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
   results <- lapply(
@@ -411,8 +383,6 @@ period_specific_data <- reactive({
   
   logToConsole(session, "Storing and returning new copy to cache.")
 
-  cache[[cache_key]] <- results
-  
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn", 
     condition = fndistinct(results[["Full"]]$PersonalID) > 10
@@ -423,7 +393,23 @@ period_specific_data <- reactive({
   )
   
   results
-})
+}) %>%
+  # This saves the *results* in the cache so if they change inputs back to 
+  # something already seen, it doesn't have to re-run the code
+  bindCache(
+    if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
+
+    # Client-level filters
+    input$syso_age,
+    input$syso_race_ethnicity,
+    input$syso_spec_pops,
+
+    # Enrollment-level filters
+    input$syso_hh_type,
+    input$syso_level_of_detail,
+    input$syso_project_type,
+    cache = "session"
+  )
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
