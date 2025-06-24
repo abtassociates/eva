@@ -156,7 +156,7 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "systemDQErrorsByIssue_ui": {
+    "sysDQErrorByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -164,7 +164,7 @@
         "validation"
       ]
     },
-    "systemDQHighPriorityErrorsByIssue_ui": {
+    "sysDQHighPriorityByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -172,7 +172,7 @@
         "validation"
       ]
     },
-    "systemDQWarningsByIssue_ui": {
+    "sysDQWarningByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
