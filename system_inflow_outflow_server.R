@@ -581,16 +581,43 @@ get_counts_by_month_for_mbm <- function(monthly_chart_records) {
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
 
+  all_months <- data.table(month = get_months_in_report_period()) %>%
+    fmutate(month = factor(format(month, "%b %y")))
+  
+  full_combinations <- data.table(
+    Detail = c(
+      "Homeless",
+      inflow_chart_detail_levels,
+      outflow_chart_detail_levels,
+      "Housed"
+    ),
+    Summary = c(
+      "Active at Start",
+      rep("Inflow", length(inflow_chart_detail_levels)),
+      rep("Outflow", length(outflow_chart_detail_levels)),
+      "Active at End"
+    ),
+    PlotFillGroups = c(
+      "Active at Start: Homeless",
+      rep("Inflow", length(inflow_chart_detail_levels)),
+      rep("Outflow", length(outflow_chart_detail_levels)),
+      "Active at End: Housed"
+    )
+  ) %>%
+    fmutate(k = 1) %>%
+    merge(
+      all_months[, k:= 1],
+      by = "k", 
+      allow.cartesian = TRUE
+    ) %>%
+    fmutate(k = NULL)
+
   # Make sure all month-type combinations are reflected
   join(
     monthly_counts,
-    CJ(
-      month = levels(monthly_counts$month),
-      PlotFillGroups = levels(monthly_counts$PlotFillGroups),
-      sorted = FALSE
-    ),
-    on = c("month","PlotFillGroups"),
-    how = "full"
+    full_combinations,
+    how = "full",
+    overid = 0
   ) %>%
   collapse::replace_na(value = 0, cols = "Count")
 }
