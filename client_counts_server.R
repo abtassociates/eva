@@ -172,7 +172,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
   
-  ### session$userData$validation CURRENT TAB ###
+  ### CURRENT TAB ###
   # counts for each status, by project for just the current date
   validationCurrent <- 
     pivot_and_sum(
@@ -183,7 +183,7 @@ get_clientcount_download_info <- function(file) {
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
 
-  ### session$userData$validation DETAIL TAB ###
+  ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     select(!!keepCols, !!clientCountDetailCols) %>%
     arrange(OrganizationName, ProjectName, EntryDate)

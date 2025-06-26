@@ -28,6 +28,8 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Prepping initial data..", value = .4)
     source("04_initial_data_prep.R", local = TRUE) 
+    
+    setProgress(detail = "Assessing your data quality..", value = .7)
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,
@@ -38,8 +40,6 @@ process_upload <- function(upload_filename, upload_filepath) {
         validation = session$userData$validation
       )
     )
-    
-    setProgress(detail = "Assessing your data quality..", value = .7)
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)
