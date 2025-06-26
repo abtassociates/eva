@@ -54,25 +54,22 @@ process_upload <- function(upload_filename, upload_filepath) {
         pdde_main = pdde_main,
         long_stayers = long_stayers
       )
-    }, .args = dq_and_pdde_dependencies)
+    }, .args = dq_and_pdde_dependencies) %...>% {
+      # Store results of DQ and PDDE ------------------------------------------
+      dq_pdde_results <- .[]
+      logToConsole(session, "saving DQ and PDDE results to session")
+      session$userData$pdde_main <- dq_pdde_results$pdde_main
+      session$userData$dq_main <- dq_pdde_results$dq_main
+      session$userData$overlap_details <- dq_pdde_results$overlap_details
+      session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
+      session$userData$long_stayers <- dq_pdde_results$long_stayers
+    } %...!% {
+      logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
+      if(in_dev_mode) browser()
+    }
     
     setProgress(detail = "Preparing System Overview Data", value = .85)
     source("07_system_overview.R", local = TRUE)
-    
-    # Store results of DQ and PDDE ------------------------------------------
-    logToConsole(session, "collecting DQ and PDDE results")
-    dq_pdde_results <- dq_pdde_mirai[]
-    if(mirai::is_error_value(dq_pdde_results)) {
-      if(in_dev_mode) browser()
-      logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", dq_pdde_results))
-    }
-    
-    logToConsole(session, "saving DQ and PDDE results to session")
-    session$userData$pdde_main <- dq_pdde_results$pdde_main
-    session$userData$dq_main <- dq_pdde_results$dq_main
-    session$userData$overlap_details <- dq_pdde_results$overlap_details
-    session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
-    session$userData$long_stayers <- dq_pdde_results$long_stayers
     
     setProgress(detail = "Done!", value = 1)
     

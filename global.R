@@ -22,6 +22,7 @@ library(mirai)
 library(plotly)
 library(collapse)
 library(flextable)
+library(promises)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
