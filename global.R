@@ -1,8 +1,7 @@
 
 Sys.setenv(TZ = "America/New_York")
 
-library(tidyverse)
-library(lubridate)
+library(tidyverse) # loads ggplot2, dplyr, tidyr, readr, purrr, tibble, stringr, forcats, lubridate
 library(shinydashboard)
 library(shiny)
 library(shinyWidgets)
@@ -17,14 +16,12 @@ library(here)
 library(shinycssloaders)
 library(dtplyr)
 library(data.table)
-library(ggplot2)
 library(ggalluvial)
 library(officer)
 library(mirai)
 library(plotly)
 library(collapse)
 library(flextable)
-library(purrr)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
