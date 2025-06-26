@@ -49,6 +49,11 @@ mirai::everywhere({
   library(tidyverse)
   library(collapse)
   library(here)
+  
+  options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
+  options(shiny.fullstacktrace = TRUE)
+  options(shiny.stacktraceon = TRUE)
+  
   source(here("hardcodes.R"))
   source(here("helper_functions.R"))
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
