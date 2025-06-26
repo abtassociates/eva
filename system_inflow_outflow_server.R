@@ -1066,6 +1066,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
         list(className = 'dt-center', targets = '_all') # Center text
       )
     ),
+    style = "default",
     rownames = FALSE
   )  %>%
     # Highlight only the first column of "Inflow" and "Outflow" rows
