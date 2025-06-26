@@ -339,7 +339,7 @@ nice_names <- function(df){
   names(hmis_abbreviations) <- names_from_janitor
   
   df_names <- df %>%
-    clean_names(
+    janitor::clean_names(
       "title",
       abbreviations = c("ID",
                         "ESSH",
