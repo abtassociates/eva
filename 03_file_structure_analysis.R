@@ -237,7 +237,8 @@ valid_values_client <- existing_cols %>%
 
 # CHECK: duplicate client ID
 duplicate_client_id <- Client %>%
-  get_dupes(PersonalID) %>%
+  fcount(PersonalID) %>%
+  fsubset(N > 1) %>%
   merge_check_info(checkIDs = 7) %>%
   mutate(
     Detail = paste("There are", dupe_count, "duplicates for PersonalID", PersonalID)

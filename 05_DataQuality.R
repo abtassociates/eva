@@ -100,7 +100,7 @@ rm(DV)
 # Duplicate EEs -----------------------------------------------------------
 
 duplicate_ees <-
-  get_dupes(base_dq_data, PersonalID, ProjectID, EntryDate) %>%
+  fsubset(fduplicated(fselect(., PersonalID, ProjectID, EntryDate))) %>%
   merge_check_info(checkIDs = 1) %>%
   select(all_of(vars_we_want))
 

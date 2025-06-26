@@ -47,7 +47,6 @@ daemons(1, output = TRUE)
 mirai::everywhere({
   library(data.table)
   library(tidyverse)
-  library(janitor)
   library(collapse)
   library(here)
   source(here("hardcodes.R"))

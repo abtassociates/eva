@@ -293,8 +293,9 @@ syso_grouping_detail <- c(
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
-evachecks_no_dupes <- evachecks %>%
-  janitor::get_dupes(ID) %>% nrow() == 0
+if(any_duplicated(evachecks$ID)) {
+  stop("EvaChecks has duplicate IDs!")
+}
 
 # Funding and Project Type Considerations DQ ------------------------------
 
