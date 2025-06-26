@@ -241,7 +241,7 @@ duplicate_client_id <- Client %>%
   fsubset(N > 1) %>%
   merge_check_info(checkIDs = 7) %>%
   mutate(
-    Detail = paste("There are", dupe_count, "duplicates for PersonalID", PersonalID)
+    Detail = paste("There are", N, "duplicates for PersonalID", PersonalID)
   ) %>%
   select(all_of(issue_display_cols)) %>%
   unique()
@@ -257,14 +257,14 @@ if (nrow(Enrollment) == 0) {
 }
 
 duplicate_enrollment_id <- Enrollment %>%
-  fcount(EnrollmentID, name="dupe_count") %>%
-  fsubset(dupe_count > 1) %>% 
+  fcount(EnrollmentID) %>%
+  fsubset(N > 1) %>% 
   merge_check_info(checkIDs = 8) %>%
   fmutate(
     Detail = str_squish(
       paste0(
         "There are ",
-        dupe_count,
+        N,
         " duplicates found for EnrollmentID ",
         EnrollmentID,
         "."
@@ -352,14 +352,14 @@ rel_to_hoh_invalid <- Enrollment %>%
 duplicate_household_id <- Enrollment %>%
   fselect(HouseholdID, ProjectID) %>%
   funique() %>%
-  fcount(HouseholdID, name="dupe_count") %>%
-  fsubset(dupe_count > 1 & !is.na(HouseholdID)) %>%
+  fcount(HouseholdID) %>%
+  fsubset(N > 1 & !is.na(HouseholdID)) %>%
   merge_check_info(checkIDs = 98) %>%
   mutate(
     Detail = paste("HouseholdID", 
                    HouseholdID,
                    "is reused across",
-                   dupe_count,
+                   N,
                    "Enrollments into different projects.")
   ) %>%
   select(all_of(issue_display_cols)) %>%
