@@ -43,7 +43,7 @@ source(here("helper_functions.R")) # functions used throughout the app
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
 # Create DQ and PDDE script environment
-daemons(2, output = TRUE)
+daemons(1, output = TRUE)
 mirai::everywhere({
   library(data.table)
   library(tidyverse)
