@@ -293,7 +293,7 @@ syso_grouping_detail <- c(
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
-if(any_duplicated(evachecks$ID)) {
+if(collapse::any_duplicated(evachecks$ID)) {
   stop("EvaChecks has duplicate IDs!")
 }
 
