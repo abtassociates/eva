@@ -330,18 +330,6 @@ get_report_dates <- function() {
   )
 }
 
-# Cache management for period-specific universe_ppl_flag datasets --------------
-# Check cache size - this keeps the cache manageable
-check_cache_size <- function(cache, max_size_mb = 100) {
-  cache_size <- utils::object.size(cache) / 1024^2  # Convert to MB
-  if (cache_size > max_size_mb) {
-    rm(list = ls(cache), envir = cache)
-    gc()
-    return(TRUE)
-  }
-  FALSE
-}
-
 # Get period-specific universe_ppl_flag datasets ---------------------------
 period_specific_data <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
