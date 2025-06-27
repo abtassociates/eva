@@ -651,7 +651,7 @@ session$userData$get_period_specific_enrollment_categories <- memoise::memoise(
       ) %>%
       fungroup() %>%
       fmutate(
-        days_since_lookback = fifelse(eecr, difftime(EntryDate, first_lookback_exit, units="days"), NA),
+        days_since_lookback = fifelse(eecr, as.integer(difftime(EntryDate, first_lookback_exit, units="days")), NA),
         lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
         lookback_movein_before_start = eecr & first_lookback_movein < startDate,
         # Beginning with the first month's Outflow and ending after the last month's Inflow, 
