@@ -369,8 +369,6 @@ period_specific_data <- reactive({
     }
   )
   
-  logToConsole(session, "Storing and returning new copy to cache.")
-
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn", 
     condition = fndistinct(results[["Full"]]$PersonalID) > 10
@@ -565,6 +563,7 @@ lh_nbn_period <- function(startDate, endDate) {
 
 ## LH info for Other enrollments --------------
 lh_other_period <- function(all_filtered, startDate, endDate) {
+  logToConsole(session, paste0("in lh_other_period for ", startDate))
   all_filtered %>%
     fsubset(
       EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) & (
@@ -586,7 +585,7 @@ lh_other_period <- function(all_filtered, startDate, endDate) {
 
 # Combine lh_infos and add to filtered universe dataset-------------------
 add_lh_info <- function(all_filtered, period) {
-  logToConsole(session, "in add_lh_info")
+  logToConsole(session, paste0("in add_lh_info for ", period[[1]]))
   startDate <- period[1]
   endDate <- period[2]
 

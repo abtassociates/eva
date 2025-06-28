@@ -133,6 +133,7 @@ full_unit_of_analysis_display <- reactive({
 # While the following datasets appear to be inflow-outflow specific, 
 # the reason they are stored in this system_overview script is because they 
 universe_enrl_flags <- function(all_filtered_w_lh, period) {
+  logToConsole(session, paste0("In universe_enrl_flags, period = ", period))
   startDate <- period[1]
   endDate <- period[2]
   
@@ -187,6 +188,8 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
 ## People-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
 universe_ppl_flags <- function(universe_df, period) {
+  logToConsole(session, paste0("In universe_ppl_flags, period = ", period))
+  
   setkey(universe_df, PersonalID)
 
   # PersonalIDs: 637203, 678824, 681240
