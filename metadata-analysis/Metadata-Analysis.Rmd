@@ -14,7 +14,7 @@ library(lubridate)
 library(patchwork)
 library(gt)
 library(scales)
-library(data.table)
+library(collapse)
 
 # Instructions ------------------------------------------------------------
 
@@ -29,20 +29,24 @@ session_data <- read_csv(here("metadata-analysis/metadata/sessiondata.csv")) %>%
   group_by(SessionToken) %>%
   count(CoC)
 
-new_way_dt <- data.table::fread(here("metadata-analysis/metadata/metadata.csv"))
-
-new_way_dt[,sessionTime := difftime(max(Datestamp), min(Datestamp), units = "mins"), by=SessionToken]
-new_way_dt[,is_timeout := sessionTime >= 10 & sessionTime < 11, by=SessionToken]
-new_way_dt[,Details := if_else(Details == "Session started" & is_timeout == TRUE , 
-                                                                 "Session restarted after timeout", 
-                                                                 Details), by=SessionToken]
-        
-setnames(new_way_dt, c("SessionToken","Datestamp","Details"),c("SessionID","Date","Event"))                                                
-new_way_dt <- new_way_dt[,.SD, .SDcols=c("SessionID","Date","Event")]
-
-new_way_dt[, c("WeekEnding","MonthEnding","EventCategory") := list(ceiling_date(Date, unit = "week", week_start = 1), 
-                                                    floor_date(Date, unit = "month"),
-                                                    case_when(
+new_way <-
+  read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
+  # ^ change where your file is in your project directory
+  fgroup_by(SessionToken) %>%
+  fmutate(sessionTime = difftime(fmax(Datestamp), fmin(Datestamp), units = "mins"),
+         is_timeout = sessionTime >= 10 & sessionTime < 11,
+         Details = if_else(Details == "Session started" & is_timeout == TRUE , 
+                            "Session restarted after timeout", 
+                           Details
+                           )
+         ) %>%
+  fungroup() %>%
+  fselect("SessionID" = SessionToken,
+         "Date" = Datestamp,
+         "Event" = Details) %>%
+  fmutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+         MonthEnding = floor_date(Date, unit = "month"),
+         EventCategory = case_when(
            Event %in% c(
              "Unsuccessful upload - not structurally valid",
              "Unsuccessful upload - not hashed",
@@ -56,11 +60,8 @@ new_way_dt[, c("WeekEnding","MonthEnding","EventCategory") := list(ceiling_date(
            Event %in% c("Successful upload") ~ "Successful upload",
            grepl("Downloaded", Event, ignore.case = TRUE) ~ "Downloaded",
            TRUE ~ "Other"
-         )
-                                      )]
-
-new_way_dt <- new_way_dt[today() >= WeekEnding]
-setDF(new_way_dt)
+         )) %>%
+  fsubset(today() >= WeekEnding)
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%
@@ -101,7 +102,7 @@ old_way <- rbind(uploads_df, visits_df) %>%
     )
   )
 
-staging <- rbind(new_way_dt, old_way) %>%
+staging <- rbind(new_way, old_way) %>%
   mutate(Event = if_else(Event == "Session started", "Site hits", Event),
          WeekEnding = as.Date(WeekEnding),
          MonthEnding = as.Date(MonthEnding),
