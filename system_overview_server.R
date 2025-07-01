@@ -337,48 +337,59 @@ period_specific_data <- reactive({
   
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
-  results <- lapply(
-    session$userData$report_dates,
-    function(period) {
-      # custom_rprof({
-      enrollments_categories_filtered <- session$userData$get_period_specific_enrollment_categories(
-        period, 
+  enrollments_categories_filtered <- lapply(
+    names(session$userData$report_dates),
+    function(periodName) {
+      periodDates <- as.Date(session$userData$report_dates[[periodName]])
+      
+      session$userData$get_period_specific_enrollment_categories(
+        periodDates, 
         upload_name, 
         enrollments_filtered()
-      )
-      
-      if(nrow(enrollments_categories_filtered) == 0) return(enrollments_categories_filtered)
-      
-      all_filtered <- join( 
-        enrollments_categories_filtered,
-        client_categories_filtered(),
-        on = "PersonalID",
-        how = "inner"
-      )
-      
-      all_filtered_w_lh <- add_lh_info(all_filtered, period)
-      universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh, period)
-      universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags, period)
-      
-      # Add month flag for month-periods
-      if(!identical(period, session$userData$report_dates[["Full"]])) {
-        universe_w_ppl_flags[, month := as.Date(period[1])]
-      }
-      # }, "system_overview_server.R")
-      universe_w_ppl_flags
+      ) %>%
+        fmutate(
+          period = periodName,
+          startDate = periodDates[1],
+          endDate = periodDates[2]
+        )
     }
   )
+
+  all_filtered <- join( 
+    rbindlist(enrollments_categories_filtered),
+    client_categories_filtered(),
+    on = "PersonalID",
+    how = "inner"
+  )
+  
+  all_filtered_w_lh <- add_lh_info(all_filtered)
+  universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh)
+  universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
+  
+  # }, "system_overview_server.R")
+  
   
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn", 
-    condition = fndistinct(results[["Full"]]$PersonalID) > 10
+    condition = fndistinct(universe_w_ppl_flags[period == "Full", PersonalID]) > 10
   )
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn_ppt", 
-    condition = fndistinct(results[["Full"]]$PersonalID) > 10
+    condition = fndistinct(universe_w_ppl_flags[period == "Full", PersonalID]) > 10
   )
   
-  results
+  # Split into months and full-period
+  full_data <- universe_w_ppl_flags[period == "Full"]
+  months_data <- universe_w_ppl_flags[period != "Full"][, 
+    month := factor(
+      format(as.Date(period), "%b %y"), 
+      levels = format(get_months_in_report_period(), "%b %y")
+    )]
+  
+  list(
+    Full = full_data,
+    Months = months_data
+  )
 }) %>%
   # This saves the *results* in the cache so if they change inputs back to 
   # something already seen, it doesn't have to re-run the code
@@ -396,6 +407,10 @@ period_specific_data <- reactive({
     input$syso_project_type,
     cache = "session"
   )
+
+month_datasets <- function() {
+  period_specific_data()[names(period_specific_data()) != "Full"]
+}
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
@@ -562,8 +577,8 @@ lh_nbn_period <- function(startDate, endDate) {
 }
 
 ## LH info for Other enrollments --------------
-lh_other_period <- function(all_filtered, startDate, endDate) {
-  logToConsole(session, paste0("in lh_other_period for ", startDate))
+lh_other_period <- function(all_filtered) {
+  logToConsole(session, "in lh_other_period")
   all_filtered %>%
     fsubset(
       EntryDate <= endDate & ExitAdjust >= (startDate %m-% years(2)) & (
@@ -579,18 +594,18 @@ lh_other_period <- function(all_filtered, startDate, endDate) {
       straddles_start, straddles_end,
       entry_in_start_window,
       days_since_lookback,
-      days_to_lookahead
+      days_to_lookahead,
+      period, startDate, endDate
     )
 }
 
 # Combine lh_infos and add to filtered universe dataset-------------------
-add_lh_info <- function(all_filtered, period) {
-  logToConsole(session, paste0("in add_lh_info for ", period[[1]]))
-  startDate <- period[1]
-  endDate <- period[2]
+add_lh_info <- function(all_filtered) {
+  logToConsole(session, "in add_lh_info")
 
-  lh_other_info <- lh_other_period(all_filtered, startDate, endDate)[, .(
+  lh_other_info <- lh_other_period(all_filtered)[, .(
     EnrollmentID,
+    period,
     
     was_lh_at_start = 
       # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
@@ -611,7 +626,7 @@ add_lh_info <- function(all_filtered, period) {
   join(
     all_filtered, 
     lh_other_info, 
-    on = "EnrollmentID", 
+    on = c("EnrollmentID", "period"), 
     how = "left",
     suffix = c("", ".new")
   ) %>%

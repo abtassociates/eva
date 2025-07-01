@@ -132,10 +132,8 @@ full_unit_of_analysis_display <- reactive({
 #
 # While the following datasets appear to be inflow-outflow specific, 
 # the reason they are stored in this system_overview script is because they 
-universe_enrl_flags <- function(all_filtered_w_lh, period) {
-  logToConsole(session, paste0("In universe_enrl_flags, period = ", period))
-  startDate <- period[1]
-  endDate <- period[2]
+universe_enrl_flags <- function(all_filtered_w_lh) {
+  logToConsole(session, "In universe_enrl_flags")
   
   all_filtered_w_lh[, `:=`(
     # INFLOW CALCULATOR COLUMNS
@@ -187,10 +185,10 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
 
 ## People-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
-universe_ppl_flags <- function(universe_df, period) {
-  logToConsole(session, paste0("In universe_ppl_flags, period = ", period))
+universe_ppl_flags <- function(universe_df) {
+  logToConsole(session, "In universe_ppl_flags")
   
-  setkey(universe_df, PersonalID)
+  setkey(universe_df, period, PersonalID)
 
   # PersonalIDs: 637203, 678824, 681240
   # InflowTypeDetail is NA
@@ -224,7 +222,7 @@ universe_ppl_flags <- function(universe_df, period) {
     unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
     
     continuous_at_end_client = any(continuous_at_end , na.rm = TRUE)
-  ), by = PersonalID
+  ), by = .(PersonalID, period)
   ][, `:=`(
     InflowTypeSummary = factor(
       fcase(
@@ -269,15 +267,37 @@ universe_ppl_flags <- function(universe_df, period) {
       ), levels = c(outflow_detail_levels, rev(active_at_levels))
     )
   )]
-  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & 
-  identical(period, session$userData$report_dates[1])) {
+  
+  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
     if(in_dev_mode) browser()
     stop("There's an Inflow-Unknown in the Full Annual data!")
   }
 
-  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
-     nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
-    if(in_dev_mode) browser()
+  if(nrow(universe_w_ppl_flags[
+    InflowTypeSummary == "something's wrong" |
+    OutflowTypeSummary == "something's wrong"
+  ]) > 0) {
+    cols_to_view <- unique(c(
+      "period",
+      "startDate",
+      "InflowTypeSummary", 
+      "OutflowTypeSummary", 
+      inflow_debug_cols,
+      outflow_debug_cols
+    ))
+    
+    bad_records <- universe_w_ppl_flags[
+      InflowTypeSummary == "something's wrong" |
+      OutflowTypeSummary == "something's wrong",
+      cols_to_view,
+      with = FALSE
+    ]
+    
+    if(in_dev_mode) {
+      view(bad_records[InflowTypeSummary == "something's wrong", c("period", "startDate", inflow_debug_cols), with=FALSE])
+      view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
+      browser()
+    }
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
@@ -290,11 +310,7 @@ universe_ppl_flags <- function(universe_df, period) {
     # PersonalID 688880, DEMO mode, Jan 22, Outflow
     # PersonalID 690120, DEMO mode, Apr 22, Outflow
     
-    logToConsole(session, 
-      paste0("There are something's wrong records in the universe_ppl_flags data when period = ", 
-             ifelse(identical(period, session$userData$report_dates[1]), "Annual", format(period[1], "%b %y"))
-      )
-    )
+    logToConsole(session, "There are something's wrong records in the universe_ppl_flags data")
   }
 
   # PersonalID: 529378, enrollment 825777 - 
@@ -309,7 +325,8 @@ universe_ppl_flags <- function(universe_df, period) {
   # print(
   #   universe_w_ppl_flags[PersonalID == 613426, .(EnrollmentID, eecr, lecr, period[1])]
   # )
-  universe_w_ppl_flags
+  universe_w_ppl_flags %>%
+    fselect(-startDate, -endDate)
 }
 
 # Inflow/Outflow Client-Level Data ---------------------------
@@ -346,15 +363,15 @@ get_inflow_outflow_full <- reactive({
 # combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
   logToConsole(session, paste0("In get_inflow_outflow_monthly"))
-  full_data <- rbindlist(period_specific_data()[-1])
+  months_data <- period_specific_data()[["Months"]]
   
-  logToConsole(session, paste0("In get_inflow_outflow_monthly, num full_data records: ", nrow(full_data)))
+  logToConsole(session, paste0("In get_inflow_outflow_monthly, num months_data records: ", nrow(months_data)))
   
-  if(nrow(full_data) == 0) return(full_data)
+  if(nrow(months_data) == 0) return(months_data)
   
-  if(in_dev_mode) export_bad_records("Month", full_data)
+  if(in_dev_mode) export_bad_records("Month", months_data)
   
-  data.table::copy(full_data %>%
+  data.table::copy(months_data %>%
     fselect(
       PersonalID, 
       InflowTypeDetail, 
@@ -373,13 +390,6 @@ get_inflow_outflow_monthly <- reactive({
         OutflowTypeSummary == "Outflow" |
         InflowTypeDetail == "Homeless" | 
         OutflowTypeDetail == "Housed"
-    ) %>%
-    fmutate(
-      # factorize month for easier processing
-      month = factor(
-        format(month, "%b %y"), 
-        levels = format(get_months_in_report_period(), "%b %y")
-      )
     )
   )
 })
@@ -1539,8 +1549,8 @@ qc_checks <- function() {
   browser()
 
   # TESTING DIFF BETWEEN FULL AND MBM
-  full <- period_specific_data()[[1]]
-  all_months <- rbindlist(period_specific_data()[-1])
+  full <- period_specific_data()[["Full"]]
+  all_months <- period_specific_data()[["Months"]]
   setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
   setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
   # 

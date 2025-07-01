@@ -107,7 +107,8 @@ output$client_level_download_btn <- downloadHandler(
              new = names(report_status_fields))
     
     #Monthly Statuses
-    monthly_statuses <- rbindlist(period_specific_data()[-1]) %>%
+
+    monthly_statuses <- period_specific_data()[["Months"]] %>%
       fsubset(
         InflowTypeSummary == "Inflow" |
         OutflowTypeSummary == "Outflow" |
@@ -142,12 +143,6 @@ output$client_level_download_btn <- downloadHandler(
         OutflowTypeDetail
       ) %>%
       funique() %>%
-      fmutate(
-        month = factor(
-          format(month, "%b %y"), 
-          levels = format(get_months_in_report_period(), "%b %y")
-        )
-      ) %>%
       pivot(
         ids = c("PersonalID", 
                 "Moved into Housing During Report",

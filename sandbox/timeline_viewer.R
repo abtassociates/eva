@@ -37,7 +37,7 @@ enrollments_dt <- reactive({
 })
 
 enrl_month_categories <- function() {
-  unique(rbindlist(period_specific_data()[-1])[
+  unique(period_specific_data()[["Months"]][
     , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month, InflowTypeDetail, OutflowTypeDetail, EnrollmentID)
   ])
 }
