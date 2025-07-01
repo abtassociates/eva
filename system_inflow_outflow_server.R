@@ -192,37 +192,29 @@ universe_ppl_flags <- function(universe_df) {
 
   # PersonalIDs: 637203, 678824, 681240
   # InflowTypeDetail is NA
+  universe_df[, `:=`(
+    exited_perm = exited_system & Destination %in% perm_livingsituation,
+    exited_temp = exited_system & !Destination %in% perm_livingsituation
+  )]
   
-  # Check for something's wrong
   universe_w_ppl_flags <- universe_df[, `:=`(
     # INFLOW
     active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
-    
     active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
-    
     return_from_perm_client = any(return_from_perm, na.rm = TRUE),
-    
     reengaged_from_temp_client = any(return_from_nonperm, na.rm = TRUE),
-
     first_time_homeless_client = any(first_time_homeless, na.rm = TRUE),
-    
     unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
-    
     continuous_at_start_client = any(continuous_at_start, na.rm = TRUE),
     
     # OUTFLOW
-    perm_dest_client = any(exited_system & Destination %in% perm_livingsituation, na.rm = TRUE),
-    
-    temp_dest_client = any(exited_system & !Destination %in% perm_livingsituation, na.rm = TRUE),
-    
+    perm_dest_client = any(exited_perm, na.rm = TRUE),
+    temp_dest_client = any(exited_temp, na.rm = TRUE),
     homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
-    
     housed_at_end_client = any(housed_at_end, na.rm = TRUE),
-    
     unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
-    
     continuous_at_end_client = any(continuous_at_end , na.rm = TRUE)
-  ), by = .(PersonalID, period)
+  ), by = .(period, PersonalID)
   ][, `:=`(
     InflowTypeSummary = factor(
       fcase(
@@ -268,31 +260,32 @@ universe_ppl_flags <- function(universe_df) {
     )
   )]
   
+  if(!in_dev_mode) {
+    universe_w_ppl_flags[, .(
+      PersonalID,
+      InflowTypeSummary,
+      InflowTypeDetail,
+      OutflowTypeSummary,
+      OutflowTypeDetail,
+      ProjectType,
+      month,
+      EnrollmentID, 
+      eecr,
+      lecr,
+      MoveInDateAdjust
+    )]
+  }
+  
   if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
     if(in_dev_mode) browser()
     stop("There's an Inflow-Unknown in the Full Annual data!")
   }
 
-  if(nrow(universe_w_ppl_flags[
+  bad_records <- universe_w_ppl_flags[
     InflowTypeSummary == "something's wrong" |
     OutflowTypeSummary == "something's wrong"
-  ]) > 0) {
-    cols_to_view <- unique(c(
-      "period",
-      "startDate",
-      "InflowTypeSummary", 
-      "OutflowTypeSummary", 
-      inflow_debug_cols,
-      outflow_debug_cols
-    ))
-    
-    bad_records <- universe_w_ppl_flags[
-      InflowTypeSummary == "something's wrong" |
-      OutflowTypeSummary == "something's wrong",
-      cols_to_view,
-      with = FALSE
-    ]
-    
+  ]
+  if(nrow(bad_records) > 0) {
     if(in_dev_mode) {
       view(bad_records[InflowTypeSummary == "something's wrong", c("period", "startDate", inflow_debug_cols), with=FALSE])
       view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
@@ -325,8 +318,7 @@ universe_ppl_flags <- function(universe_df) {
   # print(
   #   universe_w_ppl_flags[PersonalID == 613426, .(EnrollmentID, eecr, lecr, period[1])]
   # )
-  universe_w_ppl_flags %>%
-    fselect(-startDate, -endDate)
+  universe_w_ppl_flags
 }
 
 # Inflow/Outflow Client-Level Data ---------------------------

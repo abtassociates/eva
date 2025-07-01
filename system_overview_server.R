@@ -366,9 +366,6 @@ period_specific_data <- reactive({
   universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh)
   universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
   
-  # }, "system_overview_server.R")
-  
-  
   shinyjs::toggle(
     "sys_inflow_outflow_download_btn", 
     condition = fndistinct(universe_w_ppl_flags[period == "Full", PersonalID]) > 10
@@ -380,12 +377,16 @@ period_specific_data <- reactive({
   
   # Split into months and full-period
   full_data <- universe_w_ppl_flags[period == "Full"]
-  months_data <- universe_w_ppl_flags[period != "Full"][, 
-    month := factor(
-      format(as.Date(period), "%b %y"), 
-      levels = format(get_months_in_report_period(), "%b %y")
-    )]
   
+  p <- format(get_months_in_report_period(), "%b %y")
+  months_data <- universe_w_ppl_flags %>%
+    fsubset(period != "Full") %>%
+    fmutate(month = factor(
+      format(as.Date(period), "%b %y"), 
+      levels = p
+      )
+    )
+
   list(
     Full = full_data,
     Months = months_data
@@ -407,10 +408,6 @@ period_specific_data <- reactive({
     input$syso_project_type,
     cache = "session"
   )
-
-month_datasets <- function() {
-  period_specific_data()[names(period_specific_data()) != "Full"]
-}
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
@@ -636,4 +633,3 @@ add_lh_info <- function(all_filtered) {
     ) %>%
     fselect(-c(was_lh_at_start.new, was_lh_at_end.new))
 }
-

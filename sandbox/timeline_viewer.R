@@ -37,9 +37,15 @@ enrollments_dt <- reactive({
 })
 
 enrl_month_categories <- function() {
-  unique(period_specific_data()[["Months"]][
-    , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month, InflowTypeDetail, OutflowTypeDetail, EnrollmentID)
-  ])
+  period_specific_data()[["Months"]][, .(
+    PersonalID, 
+    InflowTypeSummary, 
+    OutflowTypeSummary, 
+    month, 
+    InflowTypeDetail, 
+    OutflowTypeDetail, 
+    EnrollmentID
+  )] %>% funique()
 }
 
 observeEvent(session$userData$valid_file(), {
