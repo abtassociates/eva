@@ -364,7 +364,8 @@ main_test_script <- function(test_script_name, test_dataset) {
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
-        "sys_inflow_outflow_monthly_ui_chart"
+        "sys_inflow_outflow_monthly_ui_chart",
+        "sys_inflow_outflow_monthly_table"
       )
     )
     

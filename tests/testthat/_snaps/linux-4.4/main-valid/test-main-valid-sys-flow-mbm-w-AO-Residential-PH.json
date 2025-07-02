@@ -36,8 +36,155 @@
 
       ]
     },
+    "sys_inflow_outflow_monthly_table": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Oct 21<\/th>\n      <th>Nov 21<\/th>\n      <th>Dec 21<\/th>\n      <th>Jan 22<\/th>\n      <th>Feb 22<\/th>\n      <th>Mar 22<\/th>\n      <th>Apr 22<\/th>\n      <th>May 22<\/th>\n      <th>Jun 22<\/th>\n      <th>Jul 22<\/th>\n      <th>Aug 22<\/th>\n      <th>Sep 22<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "t",
+          "ordering": false,
+          "columnDefs": [
+            {
+              "width": "48px",
+              "targets": 0
+            },
+            {
+              "className": "dt-center",
+              "targets": "_all"
+            },
+            {
+              "orderable": false,
+              "targets": 0
+            },
+            {
+              "name": " ",
+              "targets": 0
+            },
+            {
+              "name": "Oct 21",
+              "targets": 1
+            },
+            {
+              "name": "Nov 21",
+              "targets": 2
+            },
+            {
+              "name": "Dec 21",
+              "targets": 3
+            },
+            {
+              "name": "Jan 22",
+              "targets": 4
+            },
+            {
+              "name": "Feb 22",
+              "targets": 5
+            },
+            {
+              "name": "Mar 22",
+              "targets": 6
+            },
+            {
+              "name": "Apr 22",
+              "targets": 7
+            },
+            {
+              "name": "May 22",
+              "targets": 8
+            },
+            {
+              "name": "Jun 22",
+              "targets": 9
+            },
+            {
+              "name": "Jul 22",
+              "targets": 10
+            },
+            {
+              "name": "Aug 22",
+              "targets": 11
+            },
+            {
+              "name": "Sep 22",
+              "targets": 12
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "rowCallback": "function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[0]; $(this.api().cell(row, 0).node()).css({'background-color':value == \"Active at Start: Homeless\" ? \"#ECE7E3\" : value == \"Inflow\" ? \"#BDB6D7\" : value == \"Outflow\" ? \"#6A559B\" : value == \"Active at End: Housed\" ? \"#9E958F\" : null,'border':value == \"Active at Start: Homeless\" ? \"2px solid black\" : value == \"Inflow\" ? \"2px solid black\" : value == \"Outflow\" ? \"2px solid black\" : value == \"Active at End: Housed\" ? \"2px solid black\" : null});\nvar value=data[0]; $(this.api().cell(row, 0).node()).css({'color':value == \"Outflow\" ? \"white\" : value == \"Active at End: Housed\" ? \"white\" : null});\nvar value=data[12]; $(this.api().cell(row, 12).node()).css({'color':$.inArray(dataIndex + 1, [5]) >= 0 ? \"white\" : null,'background-color':$.inArray(dataIndex + 1, [5]) >= 0 ? \"#6A559B\" : null});\n}",
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.rowCallback",
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.1",
+          "src": {
+            "href": "crosstalk-1.2.1"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
     "sys_inflow_outflow_monthly_ui_chart": {
-      "src": "[image data hash: 7434fe91387c4478bec04b5b995e9ccd]",
+      "src": "[image data hash: 19e4d663bac8c3070e7e87009f2aaa27]",
       "width": 1575,
       "height": 500,
       "alt": "Plot object",
@@ -57,8 +204,8 @@
             "domain": {
               "left": 0.505,
               "right": 12.495,
-              "bottom": -50.1,
-              "top": 1052.1,
+              "bottom": -34.8,
+              "top": 730.8,
               "discrete_limits": {
                 "x": [
                   "Oct 21",
