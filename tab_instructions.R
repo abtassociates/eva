@@ -774,7 +774,7 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 of clients identified as active in your system at 
                                 the start of the report period plus the number of 
                                 clients that inflowed into your system.</p>
-                                
+                                <br>
                                 <p>Under the chart tab are five demographic categories 
                                 you can choose from: Age, 
                                 All Races/Ethnicities, a second race/ethnicity 
@@ -782,7 +782,7 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 race/ethnicity option differs for each
                                 Race/Ethnicity Methodology Type selection you made 
                                 earlier on the Filter Menu.</p>
-                                
+                                <br>
                                 <p>For a simple count of totals within a demographic 
                                 category, select only one category. To see the 
                                 intersection of two demographic categories, select 
@@ -792,14 +792,14 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 category. Please note that you can only select one 
                                 race/ethnicity category to display in the chart 
                                 at a time.</p>
-                                
+                                <br>
                                 <p>Each cell in the chart is a unique combination 
                                 of demographic characteristics. For example, if 
                                 you selected Age and Race/Ethnicity, a unique demographic 
                                 combination would be \"25 to 34” and \"Black alone.” Any cell with a count is shaded. 
                                 The darker the color in a cell, the greater the 
                                 value of that cell.</p>
-                                
+                                <br>
                                 <p>Please note that household type and age group filters use different 
                                 methods for calculating a client's age. Household type is based on all 
                                 household members’ ages as of the entry date of their earliest enrollment 
@@ -808,11 +808,11 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 Because of this reporting difference, it is possible for a client that ages from 
                                 24 to 25 during the report period to be categorized in the Adult Only 18-24 
                                 household type while also being categorized as in the 25-34 age group.</p>
-                                
+                                <br>
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
                                 the System Demographics Chart.</p>
-                                
+                                <br>
                                 <ul>
                                   <li>Any value less than 11 is suppressed, including totals.</li>
                                   <li>If there is only one suppressed value within 
@@ -822,7 +822,7 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 </ul>
                                 
                                 <p>All suppressed values are represented by *** in the chart.</p>
-                                
+                                <br>
                                 <p>Please note that while data can be suppressed 
                                 in the System Demographics chart in Eva and in its 
                                 image download, the data in the chart’s data download 
