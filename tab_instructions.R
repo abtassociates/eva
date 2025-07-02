@@ -531,7 +531,7 @@ tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
                 or remove anything as you see fit to preserve client anonymity. </p>
                ")
 
-tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4><b>Chart Overview</b></h4>
+tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow charts show your homeless system's inflow and outflow during the period, 
                                 helping you assess the effectiveness of your homeless system. 
                                 The client universe for this chart is the number of clients identified as active in your system 
@@ -539,8 +539,8 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4><b>Chart Overvi
                                 during the period. There are three System Flow charts: the Summary Chart, the Detail Chart, 
                                 and the Month-by-Month Chart. 
                                 The charts are read from left to right. </p>
-                                
-                                <h4><b>Summary and Detail Charts</b></h4>
+                                <br>
+                                <h4>Summary and Detail Charts</h4>
                                 <p>The Summary and Detail Charts show the total number of clients active in the system at the start and end of the period and whether they are homeless at that time or housed (and still receiving assistance). The Summary Chart shows the inflow and outflow of clients that occurred throughout the period. The Detail Chart breaks down inflow and outflow into several categories. </p>
                                 
                                 <ul>
@@ -552,7 +552,8 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4><b>Chart Overvi
                                 </ul>
                                 
                                 <p>In the Summary and Detail Charts, the Total Change value represents the Outflow value(s) minus Inflow value(s). A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
-                                <h4><b>Month-by-Month Chart</b></h4>
+                                <br>
+                                <h4>Month-by-Month Chart</h4>
                                 <p>The Month-by-Month Chart shows Inflow and Outflow counts over a 12-month period. The actual counts are listed in a table below the chart. The chart includes monthly \"baseline\" numbers for Inflow and Outflow. These \"baseline\" numbers are defined as:
                                 <ul>
                                 <li>Clients experiencing homelessness at the start of each month for Inflow</li>
@@ -561,11 +562,116 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4><b>Chart Overvi
                                 <p>A client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March.
 
 The Month-by-Month Chart also has Flow Type Filters for viewing \"First-Time Homeless\" and \"Inactive\" client counts. The default Flow Type Filter is \"All\" which shows the Inflow, Outflow, and baseline numbers together.</p>
-In the Month-by-Month Chart, the Monthly Change value in the chart’s table is calculated by 
-
+In the Month-by-Month Chart, the Monthly Change value in the chart’s table is calculated by</p> <br>
 <pre><code>(Inflow + Active at Start: Homeless) - (Outflow + Active at End: Housed)</code></pre><br>
 <p>The Monthly Change values are then added together and divided by 12 to give the Average Monthly Change value. A negative Average Monthly Change value means, on average, more clients left your system than flowed into your system each month. A positive Average Monthly Change value means, on average, more clients flowed into your system than left your system each month.</p>
-                                                            ")
+  <p>The System Flow chart is read from 
+                                left to right. The Total Change value represents 
+                                the Outflow value(s) minus Inflow value(s). The 
+                                Total Change value can be positive or negative. 
+                                A negative change value means more clients left 
+                                your system than flowed into your system. A positive 
+                                change value means more clients flowed into your 
+                                system than left your system.</p>
+                                <br>
+                                <h4>Interpretation Tips</h4>
+                                <p>This section provides general tips on how to 
+                                interpret the chart. Depending on the data you uploaded, 
+                                some of the items below may not apply.</p>
+                                <br>
+                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                  <tr>
+                                    <th>Scenario</th>
+                                    <th>What You See</th>
+                                    <th>What It Means</th>
+                                  </tr>
+                                  <tr>
+                                    <td>Less than 36 months of data are uploaded</td>
+                                    <td>In the Detail chart, \"Inflow Unspecified\" 
+                                    displays instead of \"First-Time Homeless.”</td>
+                                    <td>The \"First-Time Homeless” category refers 
+                                    to someone who has not been served in the system 
+                                    within the 24 months prior to their entry. Therefore, 
+                                    it is not possible to assess if people are newly 
+                                    homeless or returners/re-engagers without a 36-month 
+                                    dataset. Thus, because of the shorter timeframe 
+                                    of your export, the number of returners/re-engagers 
+                                    may be an undercount.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Less than 12 months of data are uploaded</td>
+                                    <td>In the Detail chart, \"Inflow Unspecified\" 
+                                    displays instead of \"First-Time Homeless.”</td>
+                                    <td>The \"First-Time Homeless” category refers 
+                                    to someone who has not been served in the system 
+                                    within the 24 months prior to their entry.
+                                    Therefore, it will be difficult to draw conclusions about 
+                                    whether changes in inflow/outflow are meaningful. 
+                                    For instance, change in inflow/outflow over a 
+                                    4-month period may reflect expected seasonal shifts 
+                                    instead of a difference in system performance. 
+                                    For a fuller and more complete picture of your 
+                                    system, please use a file that has at least 36 
+                                    months of data.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Total Inflow is greater than total Outflow</td>
+                                    <td>In the Summary chart, the bar for Inflow 
+                                    is larger than the bar for Outflow. The Total 
+                                    Change value is a positive number, representing an increase.</td>
+                                    <td>This means there were more clients that came into your system 
+                                    than left your system during the reporting period. 
+                                    Compare with results from prior years to see 
+                                    if more clients are coming into the system than 
+                                    in prior years, or if the change is because 
+                                    fewer clients are exiting. Use the Detail Chart 
+                                    to explore if a majority of the clients flowing 
+                                    in were first-time homeless, returning to homelessness 
+                                    after previously exiting to a permanent destination, 
+                                    or re-engaging with the system after previously 
+                                    exiting to a non-permanent destination.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Total Outflow is greater than total Inflow</td>
+                                    <td>In the Summary chart, the bar for Outflow
+                                    is larger than the bard for Inflow. The Total 
+                                    Change value is a negative number, representing a reduction.</td>
+                                    <td>This means there were more clients that left your system than 
+                                    came into your system during the reporting period.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>The largest Outflow category is \"Non-Permanent Destination”</td>
+                                    <td>In the Detail chart, the bar for \"Non-Permanent 
+                                    Destination” is larger than the bar for \"Permanent 
+                                    Destination” and the bar for \"Inactive.”</td>
+                                    <td>This means most clients leaving your system 
+                                    are exiting to temporary or unknown destinations. 
+                                    Check your completion rate for exit destination 
+                                    to see if any corrections to unknown destinations 
+                                    are possible. To inform strategies for improving 
+                                    performance, filter to look at results for more 
+                                    specific groups, to see if there are differences 
+                                    in the rate of exits to temporary destinations.</td>
+                                  </tr>
+                                  <tr>
+                                    <td>The largest Outflow category \"Inactive”</td>
+                                    <td>In the Detail chart, the bar for \"Inactive”
+                                    is larger than the bar for \"Permanent 
+                                    Destination” and the bar for \"Non-Permanent Destination.”</td>
+                                    <td>This means many ended the report period 
+                                    with (1) an open enrollment in an Emergency 
+                                    Shelter – Night-by-Night project that has not 
+                                    had a bed night recorded within the last 15 
+                                    days of the report period, (2) an open enrollment 
+                                    in Street Outreach, Day Shelter, Supportive 
+                                    Services, and Other project type enrollments 
+                                    without a Current Living Situation (CLS) record 
+                                    within the last 60 days of the report period, 
+                                    or (3) an open enrollment in Coordinated Entry 
+                                    without a CLS record within the last 90 days 
+                                    of the report period.</td>
+                                  </tr>
+                                </table>")
 
 tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 <p>The Client System Status Chart shows the end-of-year 
