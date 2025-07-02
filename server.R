@@ -131,8 +131,6 @@ function(input, output, session) {
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
-    memoise::forget(session$userData$get_period_specific_enrollment_categories)
-    memoise::forget(session$userData$get_period_specific_nbn_enrollment_services)
     gc()
     cat(paste0("Session ", session$token, " ended at ", Sys.time()))
     logMetadata(session, "Session Ended")

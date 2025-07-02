@@ -197,68 +197,72 @@ universe_ppl_flags <- function(universe_df) {
     exited_temp = exited_system & !Destination %in% perm_livingsituation
   )]
   
-  universe_w_ppl_flags <- universe_df[, `:=`(
-    # INFLOW
-    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
-    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
-    return_from_perm_client = any(return_from_perm, na.rm = TRUE),
-    reengaged_from_temp_client = any(return_from_nonperm, na.rm = TRUE),
-    first_time_homeless_client = any(first_time_homeless, na.rm = TRUE),
-    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
-    continuous_at_start_client = any(continuous_at_start, na.rm = TRUE),
-    
-    # OUTFLOW
-    perm_dest_client = any(exited_perm, na.rm = TRUE),
-    temp_dest_client = any(exited_temp, na.rm = TRUE),
-    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
-    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
-    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
-    continuous_at_end_client = any(continuous_at_end , na.rm = TRUE)
-  ), by = .(period, PersonalID)
-  ][, `:=`(
-    InflowTypeSummary = factor(
-      fcase(
-        active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
-        first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
-        continuous_at_start_client, "Continuous at Start",
-        default = "something's wrong"
-      ), levels = inflow_summary_levels
-    ),
-    
-    InflowTypeDetail = factor(
-      fcase(
-        active_at_start_homeless_client, "Homeless",
-        active_at_start_housed_client, "Housed",
-        return_from_perm_client, "Returned from \nPermanent",
-        reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
-        first_time_homeless_client, "First-Time \nHomeless",
-        continuous_at_start_client, "Continuous at Start",
-        unknown_at_start_client, "Unknown",
-        default = "something's wrong"
-      ), levels = c(active_at_levels, inflow_detail_levels)
-    ),
-    
-    OutflowTypeSummary = factor(
-      fcase(
-        perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
-        homeless_at_end_client | housed_at_end_client, "Active at End",
-        continuous_at_end_client, "Continuous at End",
-        default = "something's wrong"
-      ), levels = outflow_summary_levels
-    ),
-    
-    OutflowTypeDetail = factor(
-      fcase(
-        perm_dest_client, "Exited, \nPermanent",
-        temp_dest_client, "Exited, \nNon-Permanent",
-        unknown_at_end_client, "Inactive",
-        homeless_at_end_client, "Homeless",
-        housed_at_end_client, "Housed",
-        continuous_at_end_client, "Continuous at End",
-        default = "something's wrong"
-      ), levels = c(outflow_detail_levels, rev(active_at_levels))
-    )
-  )]
+  universe_w_ppl_flags <- universe_df %>%
+    fgroup_by(period, PersonalID) %>%
+    fmutate(
+      # INFLOW
+      active_at_start_homeless_client = anyv(active_at_start_homeless, TRUE),
+      active_at_start_housed_client = anyv(active_at_start_housed, TRUE),
+      return_from_perm_client = anyv(return_from_perm, TRUE),
+      reengaged_from_temp_client = anyv(return_from_nonperm, TRUE),
+      first_time_homeless_client = anyv(first_time_homeless, TRUE),
+      unknown_at_start_client = anyv(unknown_at_start, TRUE),
+      continuous_at_start_client = anyv(continuous_at_start, TRUE),
+      
+      # OUTFLOW
+      perm_dest_client = anyv(exited_perm, TRUE),
+      temp_dest_client = anyv(exited_temp, TRUE),
+      homeless_at_end_client = anyv(homeless_at_end, TRUE),
+      housed_at_end_client = anyv(housed_at_end, TRUE),
+      unknown_at_end_client = anyv(unknown_at_end, TRUE),
+      continuous_at_end_client = anyv(continuous_at_end , TRUE)
+    ) %>%
+    fungroup() %>%
+    ftransform(
+      InflowTypeSummary = factor(
+        fcase(
+          active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+          first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
+          continuous_at_start_client, "Continuous at Start",
+          default = "something's wrong"
+        ), levels = inflow_summary_levels
+      ),
+      
+      InflowTypeDetail = factor(
+        fcase(
+          active_at_start_homeless_client, "Homeless",
+          active_at_start_housed_client, "Housed",
+          return_from_perm_client, "Returned from \nPermanent",
+          reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+          first_time_homeless_client, "First-Time \nHomeless",
+          continuous_at_start_client, "Continuous at Start",
+          unknown_at_start_client, "Unknown",
+          default = "something's wrong"
+        ), levels = c(active_at_levels, inflow_detail_levels)
+      ),
+      
+      OutflowTypeSummary = factor(
+        fcase(
+          perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
+          homeless_at_end_client | housed_at_end_client, "Active at End",
+          continuous_at_end_client, "Continuous at End",
+          default = "something's wrong"
+        ), levels = outflow_summary_levels
+      ),
+      
+      OutflowTypeDetail = factor(
+        fcase(
+          perm_dest_client, "Exited, \nPermanent",
+          temp_dest_client, "Exited, \nNon-Permanent",
+          unknown_at_end_client, "Inactive",
+          homeless_at_end_client, "Homeless",
+          housed_at_end_client, "Housed",
+          continuous_at_end_client, "Continuous at End",
+          default = "something's wrong"
+        ), levels = c(outflow_detail_levels, rev(active_at_levels))
+      )
+    ) %>%
+    fselect(-startDate, -endDate)
   
   if(!in_dev_mode) {
     universe_w_ppl_flags[, .(
@@ -287,7 +291,7 @@ universe_ppl_flags <- function(universe_df) {
   ]
   if(nrow(bad_records) > 0) {
     if(in_dev_mode) {
-      view(bad_records[InflowTypeSummary == "something's wrong", c("period", "startDate", inflow_debug_cols), with=FALSE])
+      view(bad_records[InflowTypeSummary == "something's wrong", c("period", inflow_debug_cols), with=FALSE])
       view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
       browser()
     }
