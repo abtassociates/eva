@@ -37,7 +37,7 @@
       ]
     },
     "sys_inflow_outflow_monthly_ui_chart": {
-      "src": "[image data hash: 19e4d663bac8c3070e7e87009f2aaa27]",
+      "src": "[image data hash: 7434fe91387c4478bec04b5b995e9ccd]",
       "width": 1575,
       "height": 500,
       "alt": "Plot object",
@@ -57,8 +57,8 @@
             "domain": {
               "left": 0.505,
               "right": 12.495,
-              "bottom": -34.8,
-              "top": 730.8,
+              "bottom": -50.1,
+              "top": 1052.1,
               "discrete_limits": {
                 "x": [
                   "Oct 21",

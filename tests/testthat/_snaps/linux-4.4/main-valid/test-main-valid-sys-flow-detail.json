@@ -37,7 +37,7 @@
       ]
     },
     "sys_inflow_outflow_detail_ui_chart": {
-      "src": "[image data hash: b544dadaa9d302d725f0c095ea979647]",
+      "src": "[image data hash: 3aa0872d8ae1113b548079f8000aebad]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n      outflow during the report period. The detailed view of this chart \n      shows inflow as three subcategories: first-time homeless, returned from \n      permanent, and re-engaged from non-permanent and outflow as three \n      subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -58,7 +58,7 @@
               "left": 0.3225,
               "right": 8.6275,
               "bottom": 0,
-              "top": 7634
+              "top": 7661
             },
             "mapping": {
               "y": null,
