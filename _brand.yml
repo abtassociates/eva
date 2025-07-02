@@ -43,3 +43,5 @@ typography:
   - family: Roboto
     source: google
   base: Roboto
+  monospace: Roboto
+  headings: Roboto
