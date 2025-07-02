@@ -350,26 +350,36 @@ rm(hh_adjustments)
 # which are then used to select the EECR/LECR
 # throws out HP and enrollments outside Report window and 2 years prior
 # limits to only necessary columns
-enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
-  ProjectTypeWeight = fcase(
-    ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
-    ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
-    ProjectType %in% lh_residential_project_types, 60,
-    ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
-    ProjectType == ce_project_type, 30,
-    default = 20
-  ),
-  lh_prior_livingsituation = !is.na(LivingSituation) &
-    (LivingSituation %in% homeless_livingsituation_incl_TH |
-       (LivingSituation %in% institutional_livingsituation &
-          LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
-          !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
-       )
-    )
-  )][
+enrollment_categories <- qDT(enrollment_prep_hohs) %>%
+  fsubset(
     ProjectType != hp_project_type & 
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
-  ][, .(
+  ) %>%
+  fmutate(
+    ProjectTypeWeight = fcase(
+      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
+      ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
+      ProjectType %in% lh_residential_project_types, 60,
+      ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
+      ProjectType == ce_project_type, 30,
+      default = 20
+    ),
+    lh_prior_livingsituation = !is.na(LivingSituation) &
+      (LivingSituation %in% homeless_livingsituation_incl_TH |
+         (LivingSituation %in% institutional_livingsituation &
+            LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
+            !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
+         )
+      )
+  ) %>%
+  roworder(PersonalID, EntryDate, ExitAdjust) %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(
+    days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
+    days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
+  ) %>%
+  fungroup() %>%
+  fselect(
     EnrollmentID,
     PersonalID,
     HouseholdID,
@@ -388,11 +398,11 @@ enrollment_categories <- as.data.table(enrollment_prep_hohs)[, `:=`(
     CorrectedHoH,
     # DomesticViolenceCategory,
     HouseholdType,
-    ProjectTypeWeight
-  )
-]
-setkey(enrollment_categories, EnrollmentID)
-setindex(enrollment_categories, PersonalID, ProjectType)
+    ProjectTypeWeight,
+    days_since_lookback,
+    days_to_lookahead
+  ) %>%
+  setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
 # Prepare a dataset of literally homeless CLS records, along with EntryDate and ProjectType. 
 # This partially replaces the old homeless_cls_finder function
@@ -405,7 +415,9 @@ lh_cls <- qDT(CurrentLivingSituation) %>%
 
 non_res_enrollments <- enrollment_categories[
   ProjectType %in% non_res_project_types, 
-  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
+    days_since_lookback,
+    days_to_lookahead)
 ]
 
 session$userData$lh_non_res <- join(
@@ -420,7 +432,9 @@ session$userData$lh_non_res <- join(
 # Do something similar for ES NbNs and Services
 es_nbn_enrollments <- enrollment_categories[
   ProjectType == es_nbn_project_type, 
-  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
+    days_since_lookback,
+    days_to_lookahead)
 ]
 
 session$userData$lh_nbn <- Services %>%

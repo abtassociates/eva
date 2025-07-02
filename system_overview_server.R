@@ -472,7 +472,8 @@ lh_non_res_period <- function() {
       lh_cls_in_end_window,
       entry_in_start_window,
       entry_in_end_window,
-      lh_cls_during_period
+      lh_cls_during_period,
+      straddles_start, straddles_end, days_since_lookback, days_to_lookahead
     ) %>%
     fsubset(
       lh_cls_in_start_window |
@@ -493,8 +494,6 @@ lh_non_res_period <- function() {
     fmutate(
       lh_cls_in_start_window = anyv(lh_cls_in_start_window, TRUE),
       lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
-      entry_in_start_window = entry_in_start_window,
-      entry_in_end_window = entry_in_end_window,
       lh_cls_during_period = anyv(lh_cls_during_period, TRUE)
     ) %>%
     fungroup()
@@ -517,7 +516,8 @@ lh_nbn_period <- function() {
       nbn_in_end_window,
       entry_in_start_window,
       entry_in_end_window,
-      nbn_during_period
+      nbn_during_period,
+      straddles_start, straddles_end, days_since_lookback, days_to_lookahead
     ) %>%
     fsubset(
       nbn_in_start_window |
@@ -573,15 +573,14 @@ add_lh_info <- function(all_filtered) {
     EnrollmentID,
     period,
     
-    was_lh_at_start = 
-      # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
-      # must either straddle or otherwise be close to (i.e. 14 days from) 
-      # start so we can make claims about status at start
-      # and must be within 14 days of previous enrollment, otherwise it would be an exit
-      (straddles_start | (entry_in_start_window & days_since_lookback <= 14)) & (
-        ProjectType %in% lh_project_types_nonbn | 
-        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-      ),
+    # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+    # must either straddle or otherwise be close to (i.e. 14 days from) 
+    # start so we can make claims about status at start
+    # and must be within 14 days of previous enrollment, otherwise it would be an exit
+    was_lh_at_start = (straddles_start | days_since_lookback <= 14) & (
+      ProjectType %in% lh_project_types_nonbn | 
+      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+    ),
     
     was_lh_at_end = (straddles_end | days_to_lookahead <= 14) & (
       ProjectType %in% lh_project_types_nonbn | 
@@ -626,7 +625,12 @@ expand_by_periods <- function(dt) {
     ) %>%
     fsubset(EntryDate <= endDate & ExitAdjust >= exit_cutoff) %>%
     fselect(-temp_key, -exit_cutoff) %>%
-    setkey(period)
+    setkey(period) %>%
+    ftransform(
+      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
+      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
+      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate
+    )
 }
 
 
@@ -642,26 +646,30 @@ get_lh_non_res_esnbn_info <- function() {
       was_lh_at_start = (
         # Non-Res and LH CLS in 60/90-day window OR 
         # Entry in 60/90 day window and lh_prior_livingsituation
-        (ProjectType %in% non_res_project_types & (
-          lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
-        )) |
+        (straddles_start | days_since_lookback <= 14) & (
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
+          )) |
           # ES NbN and Bed Night in 15-day window
           # we don't need lh_prior_livingsituation here 
           # because ES NbN enrollment implies homelessness
           (ProjectType == es_nbn_project_type & (
             nbn_in_start_window | entry_in_start_window
           ))
+        )
       ),
       was_lh_during_period = (ProjectType == es_nbn_project_type & nbn_during_period) |
         (ProjectType %in% non_res_project_types & lh_cls_during_period),
       
       was_lh_at_end =
-        (ProjectType %in% non_res_project_types & (
-          lh_cls_in_end_window | (entry_in_end_window & lh_prior_livingsituation)
-        )) |
-        (ProjectType == es_nbn_project_type & (
-          nbn_in_end_window | entry_in_end_window
-        ))
+        (straddles_end | days_to_lookahead <= 14) & (
+          (ProjectType %in% non_res_project_types & (
+            lh_cls_in_end_window | (entry_in_end_window & lh_prior_livingsituation)
+          )) |
+          (ProjectType == es_nbn_project_type & (
+            nbn_in_end_window | entry_in_end_window
+          ))
+        )
     ) %>%
     fselect(
       period,
@@ -677,19 +685,16 @@ get_period_specific_enrollment_categories <- reactive({
   logToConsole(session, "in get_period_specific_enrollment_categories")
   period_enrollments_filtered <- expand_by_periods(enrollments_filtered())
   
-  enrollment_categories_period <- period_enrollments_filtered %>%
-    ftransform(
-      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
-      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
-      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate #,
+  # enrollment_categories_period <- period_enrollments_filtered %>%
+    # ftransform(
       # DomesticViolenceCategory = fcase(
       #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
       #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
       #   default = "NotDV"
       # )
-    )
+    # )
   
-  enrollment_categories_period <- enrollment_categories_period %>% 
+  enrollment_categories_period <- period_enrollments_filtered %>% 
     join(
       get_lh_non_res_esnbn_info(),
       on = c("period","EnrollmentID"),
@@ -777,11 +782,14 @@ get_period_specific_enrollment_categories <- reactive({
       # we'll force them to get an EECR because they exited.
       in_nbn_non_res = ProjectType %in% c(es_nbn_project_type, non_res_project_types),
       eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters & (
-        (in_nbn_non_res & (
-          was_lh_during_period | 
-          (month(ExitAdjust) == month(startDate) & year(ExitAdjust) == year(startDate) & period != "Full")
-        )) | 
-        !in_nbn_non_res
+        period == "Full" | 
+        (period != "Full" & (
+          in_nbn_non_res & (
+            was_lh_during_period | 
+            (month(ExitAdjust) == month(startDate) & year(ExitAdjust) == year(startDate))
+          ) | 
+          !in_nbn_non_res
+        ))
       ),
       eecr = fcoalesce(eecr, FALSE),
       lecr = (lecr_straddle | lecr_no_straddle),
@@ -835,12 +843,10 @@ get_period_specific_enrollment_categories <- reactive({
       first_lookback = flast(fifelse(is_lookback, EnrollmentID, NA)) == EnrollmentID,
       first_lookback_exit = fmax(fifelse(first_lookback, ExitAdjust, NA)),
       first_lookback_destination = fmax(fifelse(first_lookback, Destination, NA)),
-      first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA)),
-      days_to_lookahead = fifelse(lecr, L(EntryDate, n=-1) - ExitAdjust, NA)
+      first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA))
     ) %>%
     fungroup() %>%
     fmutate(
-      days_since_lookback = fifelse(eecr, as.integer(difftime(EntryDate, first_lookback_exit, units="days")), NA),
       lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
       lookback_movein_before_start = eecr & first_lookback_movein < startDate,
       # Beginning with the first month's Outflow and ending after the last month's Inflow, 
