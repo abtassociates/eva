@@ -685,7 +685,7 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 period. This chart does not include clients that 
                                 inflowed into your system after the start of the 
                                 report period.</p>
-                                
+                                <br>
                                 <p>The left-hand bar labeled \"Period Start” in the 
                                 chart shows the status of clients active/enrolled 
                                 in your system at the start of the period; clients 
@@ -696,7 +696,7 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 statuses at the end of the period: \"Exited, Non-Permanent,” 
                                 \"Enrolled, Homeless,” \"Inactive,” \"Exited, Permanent,” 
                                 and \"Enrolled, Housed.”</p>
-                                
+                                <br>
                                 <p>In the area of the figure between the two bars, 
                                 the Client System Status Chart depicts the change 
                                 of these clients from their status at the start 
@@ -706,11 +706,12 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 proportion of clients that make up that linkage. 
                                 Meaning, the thicker the linkage, the larger proportion 
                                 of clients it represents.</p>
-                                
+                                <br>
                                 <h4>Interpretation Tips</h4>
                                 <p>This section provides general tips on how to 
                                 interpret the chart. Depending on the data you 
                                 uploaded, some of the items below may not apply.</p>
+                                <br>
                                 <table class='sys_info_table' id='sys_status_info_table'>
                                   <tr>
                                     <th>Scenario</th>
