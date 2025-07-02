@@ -778,7 +778,8 @@ get_period_specific_enrollment_categories <- reactive({
       in_nbn_non_res = ProjectType %in% c(es_nbn_project_type, non_res_project_types),
       eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters & (
         (in_nbn_non_res & (
-          was_lh_during_period | month(ExitAdjust) == month(startDate)
+          was_lh_during_period | 
+          (month(ExitAdjust) == month(startDate) & year(ExitAdjust) == year(startDate))
         )) | 
         !in_nbn_non_res
       ),
