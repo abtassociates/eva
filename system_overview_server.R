@@ -460,11 +460,11 @@ lh_non_res_period <- function() {
       end_window = endDate - fifelse(ProjectType == ce_project_type, 90, 60)
     ) %>%
     ftransform(
-      lh_cls_in_start_window = between(InformationDate, start_window, startDate + 15),
-      lh_cls_in_end_window = between(InformationDate, end_window, endDate + 15),
-      entry_in_start_window = between(EntryDate, start_window, startDate + 15),
-      entry_in_end_window = between(EntryDate, end_window, endDate),
-      lh_cls_during_period = between(InformationDate, start_window, endDate + 15)
+      lh_cls_in_start_window = InformationDate %between% list(start_window, startDate + 15),
+      lh_cls_in_end_window = InformationDate %between% list(end_window, endDate + 15),
+      entry_in_start_window = EntryDate %between% list(start_window, startDate + 15),
+      entry_in_end_window = EntryDate %between% list(end_window, endDate),
+      lh_cls_during_period = InformationDate %between% list(start_window, endDate + 15)
     )  %>%
     fselect(
       period, EnrollmentID, ProjectType, lh_prior_livingsituation,
@@ -504,11 +504,11 @@ lh_nbn_period <- function() {
   logToConsole(session, "in lh_nbn_period")
   lh_nbn <- expand_by_periods(session$userData$lh_nbn) %>%
     ftransform(
-      nbn_in_start_window = between(DateProvided, startDate - 15, startDate + 15),
-      nbn_in_end_window = between(DateProvided, endDate - 15, endDate + 15),
-      entry_in_start_window = between(EntryDate, startDate - 15, startDate + 15),
-      entry_in_end_window = between(EntryDate, endDate - 15, endDate),
-      nbn_during_period = between(DateProvided, startDate - 15, endDate + 15)
+      nbn_in_start_window = DateProvided %between% list(startDate - 15, startDate + 15),
+      nbn_in_end_window = DateProvided %between% list(endDate - 15, endDate + 15),
+      entry_in_start_window = EntryDate %between% list(startDate - 15, startDate + 15),
+      entry_in_end_window = EntryDate %between% list(endDate - 15, endDate),
+      nbn_during_period = DateProvided %between% list(startDate - 15, endDate + 15)
     ) %>%
     fselect(
       period, EnrollmentID, ProjectType, 
@@ -553,7 +553,7 @@ lh_other_period <- function(all_filtered) {
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
     ) %>%
     ftransform(
-      entry_in_start_window = between(EntryDate, startDate, startDate + 15)
+      entry_in_start_window = EntryDate %between% list(startDate, startDate + 15)
     ) %>%
     fselect(
       period, EnrollmentID, ProjectType, MoveInDateAdjust,
