@@ -143,15 +143,15 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
       (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
-      (days_since_lookback <= 14 & lookback_dest_perm & lookback_movein_before_start)
+      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
     ),
     
     return_from_perm = eecr & 
-      between(days_since_lookback, 15, 730) & lookback_dest_perm &
+      days_since_lookback %between% c(15, 730) & lookback_dest_perm &
       any_lookbacks_with_exit_to_perm,
     
     return_from_nonperm = eecr & (
-      (between(days_since_lookback, 15, 730) & !lookback_dest_perm) |
+      (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
       (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start) 
     ) & (
       any_lookbacks_with_exit_to_nonperm |
