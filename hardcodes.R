@@ -406,10 +406,18 @@ sessionVars <- c(
   "dq_main", 
   "outstanding_referrals",
   "pdde_main", 
+  "dq_pdde_mirai_complete",
   "enrollment_categories",
   "client_categories",
   "lh_non_res",
   "lh_nbn"
+)
+
+reactive_session_vars <- c(
+  "valid_file", 
+  "initially_valid_import", 
+  "file_structure_analysis_main", 
+  "dq_pdde_mirai_complete"
 )
 
 # environment depencies for DQ and PDDE mirai

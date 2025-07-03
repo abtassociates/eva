@@ -22,8 +22,9 @@ vars_we_want <- c(vars_prep,
 # PDDE Checker ------------------------------------------------------------
 # PDDE Download Button ----------------------------------------------------
 output$downloadPDDEReportButton  <- renderUI({
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   req(nrow(session$userData$pdde_main) > 0)
+  
   downloadButton(outputId = "downloadPDDEReport",
                  label = "Download")
 })
@@ -158,7 +159,7 @@ output$dq_org_guidance_summary <- renderDT({
 # Download Org DQ Report --------------------------------------------------
 
 output$downloadOrgDQReportButton  <- renderUI({
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   req(
     nrow(session$userData$dq_main) > 0 || 
     nrow(session$userData$long_stayers) > 0 || 
@@ -182,12 +183,13 @@ output$downloadOrgDQReport <- downloadHandler(
 # Download System DQ Report -----------------------------------------------
 # button
 output$downloadSystemDQReportButton  <- renderUI({
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   req(
     nrow(session$userData$dq_main) > 0 || 
-      nrow(session$userData$long_stayers) > 0 || 
-      nrow(session$userData$outstanding_referrals) > 0
+    nrow(session$userData$long_stayers) > 0 || 
+    nrow(session$userData$outstanding_referrals) > 0
   )
+  
   downloadButton(outputId = "downloadSystemDQReport",
                  label = "Download") %>% withSpinner()
 })
@@ -208,8 +210,10 @@ output$downloadSystemDQReport <- downloadHandler(
 
 ## Get DQ Plot Data Function -----------------
 dq_full <- reactive({
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+
   logToConsole(session, "in dq_full")
-  long_stayers <- if(nrow(session$userData$long_stayers) > 0) {
+  long_stayers <- if(!is.null(session$userData$long_stayers) > 0) {
     session$userData$long_stayers %>%
       fmutate(
         too_many_days = case_match(
@@ -227,7 +231,7 @@ dq_full <- reactive({
       fmutate(Type = factor(Type, levels = issue_levels))
   } else data.table()
   
-  outstanding_referrals <- if(nrow(session$userData$outstanding_referrals) > 0) {
+  outstanding_referrals <- if(!is.null(session$userData$outstanding_referrals) > 0) {
     session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
@@ -340,8 +344,8 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE UI (The Plot's Container)
   output[[ui_output_id]] <- renderUI({
-    req(session$userData$valid_file() == 1)
     req(nrow(dq_full()) > 0)
+    
     plotOutput(plot_output_id,
                height = if_else(nrow(dq_full()) == 0, 50, 400),
                width = ifelse(isTRUE(getOption("shiny.testmode")),
@@ -351,7 +355,6 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
-    req(session$userData$valid_file() == 1)
     req(nrow(dq_full()) > 0)
 
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
@@ -532,7 +535,7 @@ getDQReportDataList <- function(
 # list of data frames to include in DQ Org Report
 dqDownloadInfo <- reactive({
   logToConsole(session, "in dqDownloadInfo")
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
 
   exportTestValues(dq_main = dq_full() %>% nice_names())
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())

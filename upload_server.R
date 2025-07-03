@@ -57,12 +57,14 @@ process_upload <- function(upload_filename, upload_filepath) {
     }, .args = dq_and_pdde_dependencies) %...>% {
       # Store results of DQ and PDDE ------------------------------------------
       dq_pdde_results <- .[]
+
       logToConsole(session, "saving DQ and PDDE results to session")
       session$userData$pdde_main <- dq_pdde_results$pdde_main
       session$userData$dq_main <- dq_pdde_results$dq_main
       session$userData$overlap_details <- dq_pdde_results$overlap_details
       session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
       session$userData$long_stayers <- dq_pdde_results$long_stayers
+      session$userData$dq_pdde_mirai_complete(1)
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       if(in_dev_mode) browser()

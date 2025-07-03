@@ -482,7 +482,7 @@ reset_app <- function(session) {
 # essentially resets the app
 reset_session_vars <- function(session) {
   for(v in sessionVars) {
-    if(v %in% c("valid_file", "initially_valid_import", "file_structure_analysis_main")) {
+    if(v %in% reactive_session_vars) {
       val <- if(v == "file_structure_analysis_main") NULL else 0
       if(is.null(session$userData[[v]])) 
         session$userData[[v]] <- reactiveVal(val) 
