@@ -583,12 +583,12 @@ add_lh_info <- function(all_filtered) {
     # must either straddle or otherwise be close to (i.e. 14 days from) 
     # start so we can make claims about status at start
     # and must be within 14 days of previous enrollment, otherwise it would be an exit
-    was_lh_at_start = (straddles_start | days_since_lookback <= 14) & (
+    was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
       ProjectType %in% lh_project_types_nonbn | 
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
     ),
     
-    was_lh_at_end = (straddles_end | days_to_lookahead <= 14) & (
+    was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
       ProjectType %in% lh_project_types_nonbn | 
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
     )
@@ -652,7 +652,7 @@ get_lh_non_res_esnbn_info <- function() {
       was_lh_at_start = (
         # Non-Res and LH CLS in 60/90-day window OR 
         # Entry in 60/90 day window and lh_prior_livingsituation
-        (straddles_start | days_since_lookback <= 14) & (
+        (straddles_start | days_since_lookback %between% c(0, 14)) & (
           (ProjectType %in% non_res_project_types & (
             lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
           )) |
@@ -664,11 +664,18 @@ get_lh_non_res_esnbn_info <- function() {
           ))
         )
       ),
-      was_lh_during_period = (ProjectType == es_nbn_project_type & nbn_during_period) |
-        (ProjectType %in% non_res_project_types & lh_cls_during_period),
+      was_lh_during_period = (
+        ProjectType == es_nbn_project_type & (
+          nbn_during_period | entry_during_period
+        )
+      ) | (
+        ProjectType %in% non_res_project_types & (
+          lh_cls_during_period | (entry_during_period & lh_prior_livingsituation)
+        )
+      ),
       
       was_lh_at_end =
-        (straddles_end | days_to_lookahead <= 14) & (
+        (straddles_end | days_to_lookahead %between% c(0, 14)) & (
           (ProjectType %in% non_res_project_types & (
             lh_cls_in_end_window | (entry_in_end_window & lh_prior_livingsituation)
           )) |
@@ -791,8 +798,7 @@ get_period_specific_enrollment_categories <- reactive({
         period == "Full" | 
         (period != "Full" & (
           in_nbn_non_res & (
-            was_lh_during_period | 
-            (month(ExitAdjust) == month(startDate) & year(ExitAdjust) == year(startDate))
+            was_lh_during_period | ExitAdjust %between% list(startDate, endDate)
           ) | 
           !in_nbn_non_res
         ))
@@ -863,10 +869,10 @@ get_period_specific_enrollment_categories <- reactive({
       # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
       # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
       continuous_at_start = startDate > session$userData$ReportStart &
-        eecr & EntryDate >= startDate & days_since_lookback <= 14,
+        eecr & EntryDate >= startDate & days_since_lookback %between% c(0, 14),
       continuous_at_end = startDate > session$userData$ReportStart & 
         endDate < session$userData$ReportEnd &
-        lecr & ExitAdjust <= endDate & days_to_lookahead <= 14
+        lecr & ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14)
     ) 
   
   logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
