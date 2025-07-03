@@ -372,13 +372,6 @@ enrollment_categories <- qDT(enrollment_prep_hohs) %>%
          )
       )
   ) %>%
-  roworder(PersonalID, EntryDate, ExitAdjust) %>%
-  fgroup_by(PersonalID) %>%
-  fmutate(
-    days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
-    days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
-  ) %>%
-  fungroup() %>%
   fselect(
     EnrollmentID,
     PersonalID,
@@ -398,22 +391,43 @@ enrollment_categories <- qDT(enrollment_prep_hohs) %>%
     CorrectedHoH,
     # DomesticViolenceCategory,
     HouseholdType,
-    ProjectTypeWeight,
-    days_since_lookback,
-    days_to_lookahead
+    ProjectTypeWeight
   ) %>%
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
-# Prepare a dataset of literally homeless CLS records, along with EntryDate and ProjectType. 
-# This partially replaces the old homeless_cls_finder function
-# (which required filtering the same way for every record, so now we're doing more work once)
-# by casting a wide net for (Non-Res) Project Types that rely on CurrentLivingSituation 
-# this dataset will be used to categorize people as active_at_start, homeless_at_end, and unknown_at_end
+# Get dataset of literally homeless CLS records. This will be used to:
+# 1. remove problematic enrollments
+# 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
+# and unknown_at_end
 lh_cls <- qDT(CurrentLivingSituation) %>%
   fselect(EnrollmentID, InformationDate, CurrentLivingSituation) %>%
   fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH)
 
-non_res_enrollments <- enrollment_categories[
+# Remove "problematic" enrollments ----------------------------------
+# These are non-residential enrollments for which we have no LH evidence: 
+# So any enrollment that is not lh_prior_livingsituation and has no LH CLS
+problematic_nonres_enrollmentIDs <- base::setdiff(
+  enrollment_categories[
+    ProjectType %in% non_res_project_types & lh_prior_livingsituation == FALSE
+  ]$EnrollmentID,
+  unique(lh_cls$EnrollmentID)
+)
+
+# Save a final version of the enrollment dataset
+session$userData$enrollment_categories <- enrollment_categories %>%
+  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs) %>%
+  roworder(PersonalID, EntryDate, ExitAdjust) %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(
+    days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
+    days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
+  ) %>%
+  fungroup()
+
+# Prepare a dataset of non_res enrollments and corresponding LH info
+# will be used to categorize non-res enrollments/people as active_at_start, 
+# homeless_at_end, and unknown_at_end
+non_res_enrollments <- session$userData$enrollment_categories[
   ProjectType %in% non_res_project_types, 
   .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
     days_since_lookback,
@@ -430,7 +444,7 @@ session$userData$lh_non_res <- join(
 
 
 # Do something similar for ES NbNs and Services
-es_nbn_enrollments <- enrollment_categories[
+es_nbn_enrollments <- session$userData$enrollment_categories[
   ProjectType == es_nbn_project_type, 
   .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
     days_since_lookback,
@@ -445,16 +459,8 @@ session$userData$lh_nbn <- Services %>%
     how = "inner"
   )
 
-# Remove "problematic" enrollments ----------------------------------
-# These are non-residential enrollments for which we have no LH evidence: 
-# So any enrollment that is not lh_prior_livingsituation and has no LH CLS
-problematic_nonres_enrollmentIDs <- base::setdiff(
-  non_res_enrollments[lh_prior_livingsituation == FALSE]$EnrollmentID,
-  unique(lh_cls$EnrollmentID)
-)
 
-session$userData$enrollment_categories <- enrollment_categories %>%
-  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
+  
 
 if(in_dev_mode) enrollment_categories_all <<- enrollment_categories
 
