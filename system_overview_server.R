@@ -462,25 +462,28 @@ lh_non_res_period <- function() {
     ftransform(
       lh_cls_in_start_window = InformationDate %between% list(start_window, startDate + 15),
       lh_cls_in_end_window = InformationDate %between% list(end_window, endDate + 15),
+      lh_cls_during_period = InformationDate %between% list(start_window, endDate + 15),
       entry_in_start_window = EntryDate %between% list(start_window, startDate + 15),
       entry_in_end_window = EntryDate %between% list(end_window, endDate),
-      lh_cls_during_period = InformationDate %between% list(start_window, endDate + 15)
+      entry_during_period = EntryDate %between% list(startDate, endDate)
     )  %>%
     fselect(
       period, EnrollmentID, ProjectType, lh_prior_livingsituation,
       lh_cls_in_start_window,
       lh_cls_in_end_window,
+      lh_cls_during_period,
       entry_in_start_window,
       entry_in_end_window,
-      lh_cls_during_period,
+      entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead
     ) %>%
     fsubset(
       lh_cls_in_start_window |
         lh_cls_in_end_window |
+        lh_cls_during_period |
         entry_in_start_window |
         entry_in_end_window |
-        lh_cls_during_period
+        entry_during_period
     )
 
   if(nrow(lh_non_res) == 0 ) {
@@ -506,25 +509,28 @@ lh_nbn_period <- function() {
     ftransform(
       nbn_in_start_window = DateProvided %between% list(startDate - 15, startDate + 15),
       nbn_in_end_window = DateProvided %between% list(endDate - 15, endDate + 15),
+      nbn_during_period = DateProvided %between% list(startDate - 15, endDate + 15),
       entry_in_start_window = EntryDate %between% list(startDate - 15, startDate + 15),
       entry_in_end_window = EntryDate %between% list(endDate - 15, endDate),
-      nbn_during_period = DateProvided %between% list(startDate - 15, endDate + 15)
+      entry_during_period = EntryDate %between% list(startDate - 15, endDate + 15)
     ) %>%
     fselect(
       period, EnrollmentID, ProjectType, 
       nbn_in_start_window,
       nbn_in_end_window,
+      nbn_during_period,
       entry_in_start_window,
       entry_in_end_window,
-      nbn_during_period,
+      entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead
     ) %>%
     fsubset(
       nbn_in_start_window |
-        nbn_in_end_window |
-        entry_in_start_window |
-        entry_in_end_window |
-        nbn_during_period
+      nbn_in_end_window |
+      nbn_during_period |
+      entry_in_start_window |
+      entry_in_end_window |
+      entry_during_period
     )
   
   if(nrow(lh_nbn) == 0) {
