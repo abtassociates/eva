@@ -419,7 +419,13 @@ session$userData$enrollment_categories <- enrollment_categories %>%
   roworder(PersonalID, EntryDate, ExitAdjust) %>%
   fgroup_by(PersonalID) %>%
   fmutate(
-    days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
+    # days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
+    days_since_lookback = {
+      # Get cumulative maximum of previous ExitAdjust dates
+      prev_exits <- flag(ExitAdjust)
+      valid_exits <- fifelse(prev_exits <= EntryDate, prev_exits, NA)
+      as.integer(difftime(EntryDate, valid_exits, units="days"))
+    },
     days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
   ) %>%
   fungroup()
