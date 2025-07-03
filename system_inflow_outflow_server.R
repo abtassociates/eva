@@ -657,8 +657,8 @@ sys_monthly_chart_data_wide <- reactive({
   
   # Get Monthly Change (Inflow - Outflow)
   month_cols <- names(summary_data)[-1:-3]
-  inflow_vals <- summary_data[PlotFillGroups %in% mbm_inflow_levels, ..month_cols]
-  outflow_vals <- summary_data[PlotFillGroups %in% mbm_outflow_levels, ..month_cols]
+  inflow_vals <- summary_data[PlotFillGroups == "Inflow", ..month_cols]
+  outflow_vals <- summary_data[PlotFillGroups == "Outflow", ..month_cols]
   change_row <- fsum(inflow_vals) - fsum(outflow_vals)
 
   rbind(
