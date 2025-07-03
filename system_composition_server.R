@@ -752,7 +752,7 @@ get_people_universe_filtered <- reactive({
   join(
     get_period_specific_enrollment_categories() %>%
       fsubset(period == "Full") %>%
-      fselect(-period, -startDate, -endDate),
+      fselect(-period, -startDate, -endDate, days_to_lookahead, days_since_lookback),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%
