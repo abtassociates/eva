@@ -828,7 +828,9 @@ get_period_specific_enrollment_categories <- reactive({
       any_lookbacks_with_exit_to_perm = anyv(perm_dest, TRUE),
       any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)
     ) %>%
-    fungroup() %>%
+    fungroup()
+  
+  enrollment_categories_period <- enrollment_categories_period %>%
     fsubset(has_eecr == TRUE)
   
   # need to split here
