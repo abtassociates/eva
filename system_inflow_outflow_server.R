@@ -563,13 +563,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       )
     )
   
-  get_counts_by_month_for_mbm(monthly_data) %>%
-    ftransform(
-      PlotFillGroups = factor(
-        PlotFillGroups,
-        levels = c(mbm_inflow_levels, mbm_outflow_levels)
-      )
-    )
+  get_counts_by_month_for_mbm(monthly_data)
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
@@ -591,44 +585,42 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
     )]
   ) %>%
     funique() %>%
-    fsubset(
-      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
-        (Detail != "Unknown" | is.na(Detail))
-    ) %>%
+    fsubset(Detail != "Unknown" | is.na(Detail)) %>%
     fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
 
   all_months <- data.table(month = get_months_in_report_period()) %>%
     fmutate(month = factor(format(month, "%b %y")))
-  
+  # PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
+    
   full_combinations <- data.table(
     Detail = c(
-      "Homeless",
+      active_at_levels,
       inflow_chart_detail_levels,
       outflow_chart_detail_levels,
-      "Housed"
+      active_at_levels
     ),
     Summary = c(
-      "Active at Start",
+      rep("Active at Start", length(active_at_levels)),
       rep("Inflow", length(inflow_chart_detail_levels)),
       rep("Outflow", length(outflow_chart_detail_levels)),
-      "Active at End"
+      rep("Active at End", length(active_at_levels))
     ),
     PlotFillGroups = c(
-      "Active at Start: Homeless",
+      paste0("Active at Start: ", active_at_levels),
       rep("Inflow", length(inflow_chart_detail_levels)),
       rep("Outflow", length(outflow_chart_detail_levels)),
-      "Active at End: Housed"
+      paste0("Active at End: ", active_at_levels)
     )
   ) %>%
     fmutate(k = 1) %>%
-    merge(
+    join(
       all_months[, k:= 1],
-      by = "k", 
-      allow.cartesian = TRUE
+      on = "k", 
+      multiple = TRUE
     ) %>%
-    fmutate(k = NULL)
+    fselect(-k)
 
   # Make sure all month-type combinations are reflected
   join(
@@ -897,6 +889,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
 
     plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+      fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels)) %>%
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
         Summary,
@@ -1178,7 +1171,9 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
 
-  summary_data_wide <- sys_monthly_chart_data_wide()
+  summary_data_wide <- sys_monthly_chart_data_wide() %>%
+    fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change"))
+  
   req(nrow(summary_data_wide) > 0)
   
   if(input$mbm_status_filter == "First-Time Homeless")
@@ -1271,7 +1266,9 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
   logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
-  d <- sys_monthly_chart_data_wide() %>% fselect(-Detail, -Summary)
+  d <- sys_monthly_chart_data_wide() %>% 
+    fselect(-Detail, -Summary) %>%
+    fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change"))
   d <- collap(
     d, 
     cols=names(d %>% fselect(-PlotFillGroups)),
