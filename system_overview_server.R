@@ -718,7 +718,7 @@ get_period_specific_enrollment_categories <- reactive({
     # to be used when calculating eecr/lecr in no-straddle cases
     fgroup_by(period, PersonalID)
   
-  enrollment_categories_period <- enrollment_categories_period%>%
+  enrollment_categories_period <- enrollment_categories_period %>%
     fmutate(
       any_straddle_start = anyv(straddles_start, TRUE),
       any_straddle_end = anyv(straddles_end, TRUE),
@@ -726,7 +726,7 @@ get_period_specific_enrollment_categories <- reactive({
     ) %>%
     # flag the first and last straddling enrollments, 
     # by (desc) ProjectTypeWeight and EntryDate
-    roworder(-ProjectTypeWeight, EntryDate) %>%
+    roworder(period, -ProjectTypeWeight, EntryDate) %>%
     fmutate(
       eecr_straddle = ffirst(
         fifelse(straddles_start, EnrollmentID, NA)
@@ -738,7 +738,7 @@ get_period_specific_enrollment_categories <- reactive({
     # flag the first and last enrollments in the report period,
     # for people that have no straddles,
     # by EntryDate and (desc) ProjectTypeWeight
-    roworder(EntryDate, -ProjectTypeWeight) %>%
+    roworder(period, EntryDate, -ProjectTypeWeight) %>%
     fmutate(
       eecr_no_straddle = ffirst(
         fifelse(in_date_range & (
