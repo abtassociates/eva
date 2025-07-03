@@ -37,7 +37,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 5f1749c81e336a0e7e31731d4a9e847a]",
+      "src": "[image data hash: 82582fdf52f2d2431552753dacde7946]",
       "width": 1113,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -57,8 +57,8 @@
             "domain": {
               "left": 0,
               "right": 3,
-              "bottom": -43.85,
-              "top": 920.85,
+              "bottom": -43.8,
+              "top": 919.8,
               "discrete_limits": {
                 "x": [
                   "Period Start",
