@@ -653,6 +653,8 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
+    logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
   }
