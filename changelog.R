@@ -2,13 +2,24 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "06-13-2025",
+    "<b>New Features</><br>
+      - New Month-by-Month System Flow visualization<br>
+      - Performance improvements<br>
+    <b>Bug Fixes</b> <br>
+      - Fixed SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>). <br>
+      - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
+    <b>Miscellaneous</b> <br>
+      - Updated System Overview instruction text. <br>
+      - Streamlined System Flow export",
     "04-24-2025",
     "<b>Bug Fixes</b> <br>
       - Avoid crash when no available beds for active inventory during PDDE check (Issue <a href='https://github.com/abtassociates/eva/issues/762' target = '_blank'>#762</a>)<br>
       - Adjust how move-in date is computed for household members.<br>
       - Fixed issue with Project Type column in DQ Export.<br>
      <b>Miscellaneous</b> <br>
-      - Update Long Stayers check for ES NbN projects to use Bed Nights, rather than CLS records.",
+      - Update Long Stayers check for ES NbN projects to use Bed Nights, rather than CLS records.<br>
+    ",
     "04-03-2025",
     "<b>New Features</b> <br>
       - Added new PDDE check for active inventory with no enrollments during the inventory dates.<br>

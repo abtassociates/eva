@@ -193,22 +193,22 @@
         ],
         [
           "Error        :21  ",
-          "1st Qu.:  3.25  ",
+          "1st Qu.:  2.25  ",
           "Class :character  "
         ],
         [
           "Warning      :22  ",
-          "Median : 10.00  ",
+          "Median :  9.00  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   : 27.78  ",
+          "Mean   : 23.17  ",
           null
         ],
         [
           null,
-          "3rd Qu.: 22.00  ",
+          "3rd Qu.: 21.75  ",
           null
         ],
         [
@@ -221,37 +221,37 @@
         [
           "Length:122        ",
           "High Priority: 5  ",
-          "Min.   :  1.00  ",
+          "Min.   :  1.000  ",
           "Length:122        "
         ],
         [
           "Class :character  ",
           "Error        :52  ",
-          "1st Qu.:  1.00  ",
+          "1st Qu.:  1.000  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
           "Warning      :65  ",
-          "Median :  3.00  ",
+          "Median :  3.000  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   : 10.48  ",
+          "Mean   :  8.738  ",
           null
         ],
         [
           null,
           null,
-          "3rd Qu.:  7.00  ",
+          "3rd Qu.:  7.000  ",
           null
         ],
         [
           null,
           null,
-          "Max.   :214.00  ",
+          "Max.   :181.000  ",
           null
         ]
       ],
@@ -342,14 +342,14 @@
       ],
       "Errors": [
         [
-          "Length:417        ",
-          "Length:417        ",
-          "Length:417        ",
-          "Length:417        ",
-          "Length:417        ",
-          "Length:417        ",
-          "Length:417        ",
-          "Length:417        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
           "Min.   :2018-06-27  "
         ],
         [
@@ -361,7 +361,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-11-05  "
+          "1st Qu.:2021-01-18  "
         ],
         [
           "Mode  :character  ",
@@ -372,7 +372,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-04-28  "
+          "Median :2021-08-19  "
         ],
         [
           null,
@@ -383,7 +383,7 @@
           null,
           null,
           null,
-          "Mean   :2021-05-01  "
+          "Mean   :2021-06-16  "
         ],
         [
           null,
@@ -394,7 +394,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-11-30  "
+          "3rd Qu.:2022-01-25  "
         ],
         [
           null,
@@ -861,23 +861,23 @@
         "Total"
       ],
       "n": [
-        22,
-        1,
-        5,
+        33,
+        2,
+        11,
         0,
-        214,
+        403,
+        6,
+        0,
+        0,
+        0,
         4,
-        0,
-        0,
+        61,
         0,
         3,
-        36,
-        0,
-        1,
         3,
-        846,
-        45,
-        1180
+        1417,
+        69,
+        2012
       ]
     },
     "sys_comp_report_pct_df": {
@@ -901,58 +901,67 @@
         "Total"
       ],
       "pct": [
-        "1.9%",
+        "1.6%",
         "0.1%",
-        "0.4%",
+        "0.5%",
         "0%",
-        "18.1%",
+        "20%",
         "0.3%",
         "0%",
         "0%",
         "0%",
-        "0.3%",
-        "3.1%",
+        "0.2%",
+        "3%",
         "0%",
         "0.1%",
-        "0.3%",
-        "71.7%",
-        "3.8%",
+        "0.1%",
+        "70.4%",
+        "3.4%",
         "100%"
       ]
     },
     "sys_inflow_outflow_report": {
-      "PersonalID": {
-        "Length": "1180",
-        "Class": "character",
-        "Mode": "character"
+      "Detail": {
+        "Housed": 2,
+        "Homeless": 2,
+        "First-Time Homeless": 1,
+        "Returned from Permanent": 1,
+        "Re-engaged from Non-Permanent": 1,
+        "Exited, Non-Permanent": 1,
+        "Exited, Permanent": 1,
+        "Inactive": 1
       },
-      "InflowTypeSummary": {
-        "Active at Start": 877,
-        "Inflow": 303,
-        "something's wrong": 0
+      "Summary": {
+        "Active at Start": 2,
+        "Inflow": 3,
+        "Outflow": 3,
+        "Active at End": 2
       },
-      "InflowTypeDetail": {
-        "Housed": 575,
-        "Homeless": 302,
-        "First-Time \nHomeless": 270,
-        "Returned from \nPermanent": 19,
-        "Re-engaged from \nNon-Permanent": 14,
-        "Unknown": 0,
-        "Continuous at Start": 0
+      "InflowOutflow": {
+        "Inflow": 5,
+        "Outflow": 5
       },
-      "OutflowTypeSummary": {
-        "Outflow": 615,
-        "Active at End": 565,
-        "something's wrong": 0
+      "PlotFillGroups": {
+        "Housed": 2,
+        "Homeless": 2,
+        "Inflow": 3,
+        "Outflow": 3
       },
-      "OutflowTypeDetail": {
-        "Exited,\nNon-Permanent": 162,
-        "Exited,\nPermanent": 436,
-        "Inactive": 17,
-        "Continuous at End": 0,
-        "Homeless": 200,
-        "Housed": 365,
-        "something's wrong": 0
+      "N": {
+        "Min.": 13,
+        "1st Qu.": 52.5,
+        "Median": 238,
+        "Mean": 236,
+        "3rd Qu.": 351.25,
+        "Max.": 575
+      },
+      "order": {
+        "Min.": 1,
+        "1st Qu.": 3.25,
+        "Median": 5.5,
+        "Mean": 5.5,
+        "3rd Qu.": 7.75,
+        "Max.": 10
       }
     },
     "sys_status_report": {
@@ -981,16 +990,16 @@
         "Enrolled, Housed"
       ],
       "freq": [
-        57,
+        52,
         220,
-        8,
+        11,
         30,
-        260,
-        67,
+        262,
+        64,
         110,
         6,
-        82,
-        37
+        83,
+        38
       ]
     },
     "systemDQ_download": {
@@ -1024,26 +1033,26 @@
         [
           "High Priority: 3  ",
           "Min.   :    2.0  ",
-          "Length:67         "
+          "Length:68         "
         ],
         [
-          "Error        :35  ",
-          "1st Qu.:   29.0  ",
+          "Error        :36  ",
+          "1st Qu.:   20.5  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-          "Median :  152.0  ",
+          "Median :  137.5  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  838.2  ",
+          "Mean   :  821.7  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  519.0  ",
+          "3rd Qu.:  511.5  ",
           null
         ],
         [
@@ -1054,33 +1063,33 @@
       ],
       "Organization Summary": [
         [
-          "Length:994        ",
+          "Length:999        ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:994        "
+          "Length:999        "
         ],
         [
           "Class :character  ",
-          "Error        :433  ",
+          "Error        :435  ",
           "1st Qu.:   3.00  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :505  ",
+          "Warning      :508  ",
           "Median :   8.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  56.50  ",
+          "Mean   :  55.93  ",
           null
         ],
         [
           null,
           null,
-          "3rd Qu.:  25.75  ",
+          "3rd Qu.:  25.00  ",
           null
         ],
         [
@@ -1093,11 +1102,11 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:67         ",
-          "Length:67         "
+          "Length:68         ",
+          "Length:68         "
         ],
         [
-          "Error        :35  ",
+          "Error        :36  ",
           "Class :character  ",
           "Class :character  "
         ],
@@ -1177,14 +1186,14 @@
       ],
       "Errors": [
         [
-          "Length:8403       ",
-          "Length:8403       ",
-          "Length:8403       ",
-          "Length:8403       ",
-          "Length:8403       ",
-          "Length:8403       ",
-          "Length:8403       ",
-          "Length:8403       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1196,7 +1205,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-05-27  "
+          "1st Qu.:2020-05-08  "
         ],
         [
           "Mode  :character  ",
@@ -1207,7 +1216,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-02  "
+          "Median :2021-02-01  "
         ],
         [
           null,
@@ -1218,7 +1227,7 @@
           null,
           null,
           null,
-          "Mean   :2020-12-19  "
+          "Mean   :2020-12-15  "
         ],
         [
           null,
@@ -1245,14 +1254,14 @@
       ],
       "Warnings": [
         [
-          "Length:46677      ",
-          "Length:46677      ",
-          "Length:46677      ",
-          "Length:46677      ",
-          "Length:46677      ",
-          "Length:46677      ",
-          "Length:46677      ",
-          "Length:46677      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1264,7 +1273,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-10  "
+          "1st Qu.:2020-06-09  "
         ],
         [
           "Mode  :character  ",
@@ -1286,7 +1295,7 @@
           null,
           null,
           null,
-          "Mean   :2021-02-14  "
+          "Mean   :2021-02-13  "
         ],
         [
           null,
@@ -1297,7 +1306,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-07  "
+          "3rd Qu.:2022-01-06  "
         ],
         [
           null,

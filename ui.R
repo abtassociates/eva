@@ -201,7 +201,6 @@ page_navbar(
       ),
       accordion_panel(
         title = "Outstanding Referrals",
-        
         tabLocalSettings_outstanding_referrals,
         numericInput(
           inputId = "CEOutstandingReferrals",

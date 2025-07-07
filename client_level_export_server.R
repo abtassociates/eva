@@ -96,10 +96,63 @@ output$client_level_download_btn <- downloadHandler(
       earliest_report_info, on = "PersonalID", nomatch = 0
     ][
       latest_report_info, on = "PersonalID", nomatch = 0
+    ][
+      , `:=`(
+        InflowTypeDetail = str_remove(InflowTypeDetail, "\n"),
+        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n")
+      )
     ]
     setnames(client_level_details, 
              old = report_status_fields, 
              new = names(report_status_fields))
+    
+    #Monthly Statuses
+
+    monthly_statuses <- period_specific_data()[["Months"]] %>%
+      fsubset(
+        InflowTypeSummary == "Inflow" |
+        OutflowTypeSummary == "Outflow" |
+        OutflowTypeDetail != "Continuous at End"
+      ) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        `Moved into Housing During Report` = anyv(
+          lecr & 
+          ProjectType %in% ph_project_types & 
+          session$userData$ReportStart < fcoalesce(MoveInDateAdjust, no_end_date) & 
+          fcoalesce(MoveInDateAdjust, no_end_date) < session$userData$ReportEnd,
+          TRUE
+        ),
+        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
+        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
+        `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
+          flast(OutflowTypeDetail),
+          "Exited, Permanent" ~ "Yes - Exited, Permanent",
+          "Housed" ~ "Yes - Enrolled, Housed",
+          "Homeless" ~ "No - Enrolled, Homeless",
+          .default = paste0("No - ", flast(OutflowTypeDetail))
+        )
+      ) %>%
+      fungroup() %>%
+      fselect(
+        PersonalID, 
+        `Moved into Housing During Report`,
+        `Exited to Permanent Destination During Report`,
+        `Moved into Housing or Exited to Permanent Destination by Report End`,
+        month,
+        OutflowTypeDetail
+      ) %>%
+      funique() %>%
+      pivot(
+        ids = c("PersonalID", 
+                "Moved into Housing During Report",
+                "Exited to Permanent Destination During Report",
+                "Moved into Housing or Exited to Permanent Destination by Report End"),        # Column(s) defining the rows of the output
+        names = "month", 
+        values = "OutflowTypeDetail",
+        how = "wider"
+      )
+    
     
     # User's filter selections - metadata tab
     export_date_info <- tibble(
@@ -129,20 +182,22 @@ output$client_level_download_btn <- downloadHandler(
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
-    # all sheets for export
+    # everything together
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
       data_dictionary = setNames(
         read.csv(here("www/client-level-export-data-dictionary.csv")),
         c("Column Name", "Variable Type", "Definition")
       ),
-      client_level_details = client_level_details
+      client_level_details = client_level_details,
+      monthly_statuses
     )
     
     names(client_level_export_list) = c(
       "Metadata",
       "Data Dictionary",
-      "Details"
+      "Details",
+      "Monthly Statuses"
     )
     
     write_xlsx(

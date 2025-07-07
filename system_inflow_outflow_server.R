@@ -4,34 +4,43 @@ active_at_levels <- c(
   "Homeless"
 )
 
+# All possible levels
 inflow_detail_levels <- c(
   "First-Time \nHomeless", 
   "Returned from \nPermanent",
   "Re-engaged from \nNon-Permanent",
   "Unknown",
-  "Continuous at Start"
-  # "something's wrong"
+  "Continuous at Start",
+  "something's wrong"
 )
 
+outflow_detail_levels <- c(
+  "Exited, \nNon-Permanent",
+  "Exited, \nPermanent",
+  "Inactive",
+  "Continuous at End",
+  "something's wrong"
+)
+
+# Levels for detail chart
 inflow_chart_detail_levels <- c(
   "First-Time \nHomeless", 
   "Returned from \nPermanent",
   "Re-engaged from \nNon-Permanent"
 )
 
-outflow_detail_levels <- c(
-  "Exited,\nNon-Permanent",
-  "Exited,\nPermanent",
-  "Inactive",
-  "Continuous at End"
-)
-
 outflow_chart_detail_levels <- c(
-  "Exited,\nNon-Permanent",
-  "Exited,\nPermanent",
+  "Exited, \nNon-Permanent",
+  "Exited, \nPermanent",
   "Inactive"
 )
 
+inflow_outflow_levels <- c("Inflow","Outflow")
+
+mbm_inflow_levels <- c("Active at Start: Homeless", "Inflow")
+mbm_outflow_levels <- c("Outflow", "Active at End: Housed")
+
+# Levels for summary chart
 inflow_summary_levels <- c(
   "Active at Start",
   "Inflow",
@@ -41,6 +50,15 @@ outflow_summary_levels <- c(
   "Outflow",
   "Active at End",
   "something's wrong"
+)
+
+inflow_chart_summary_levels <- c(
+  "Active at Start",
+  "Inflow"
+)
+outflow_chart_summary_levels <- c(
+  "Outflow",
+  "Active at End"
 )
 
 collapse_details <- list(
@@ -82,6 +100,28 @@ mbm_single_status_chart_colors <- c(
 mbm_bar_width = 0.2
 mbm_export_bar_width = 0.4
 
+level_of_detail_text <- reactive({
+  case_when(
+    input$syso_level_of_detail == "All" ~ "People",
+    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+    TRUE ~
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+  )
+})
+
+full_unit_of_analysis_display <- reactive({
+  paste0(
+    "Total ", 
+    level_of_detail_text(),
+    if_else(
+      input$syso_hh_type == "All",
+      "",
+      paste0(" in ",
+             str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+             " Households")
+    )
+  )
+})
 # Period-Specific, Filtered, Enrollment-Level Universe -------------------------
 
 ## Enrollment-level flags ------------------------
@@ -92,9 +132,8 @@ mbm_export_bar_width = 0.4
 #
 # While the following datasets appear to be inflow-outflow specific, 
 # the reason they are stored in this system_overview script is because they 
-universe_enrl_flags <- function(all_filtered_w_lh, period) {
-  startDate <- period[1]
-  endDate <- period[2]
+universe_enrl_flags <- function(all_filtered_w_lh) {
+  logToConsole(session, "In universe_enrl_flags")
   
   all_filtered_w_lh[, `:=`(
     # INFLOW CALCULATOR COLUMNS
@@ -104,17 +143,20 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
     
     active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
       (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
-      (days_since_lookback <= 14 & lookback_dest_perm & lookback_movein_before_start)
+      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
     ),
     
     return_from_perm = eecr & 
-      between(days_since_lookback, 15, 730) & lookback_dest_perm &
+      days_since_lookback %between% c(15, 730) & lookback_dest_perm &
       any_lookbacks_with_exit_to_perm,
     
     return_from_nonperm = eecr & (
-      (between(days_since_lookback, 15, 730) & !lookback_dest_perm) |
+      (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
       (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start) 
-    ) & any_lookbacks_with_exit_to_nonperm,
+    ) & (
+      any_lookbacks_with_exit_to_nonperm |
+      was_lh_during_period 
+    ),
     
     first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
       EntryDate >= startDate,
@@ -125,14 +167,14 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
       !was_lh_at_start,
     
     # OUTFLOW CALCULATOR COLUMNS
-    exited = lecr & between(ExitAdjust, startDate, endDate) & (!continuous_at_end | is.na(continuous_at_end)),
+    exited_system = lecr & ExitAdjust %between% list(startDate, endDate) & (!continuous_at_end | is.na(continuous_at_end)),
     
     homeless_at_end = lecr & was_lh_at_end,
     
     housed_at_end = lecr & 
       ProjectType %in% ph_project_types & 
       fcoalesce(MoveInDateAdjust, no_end_date) < endDate &
-      (straddles_end | days_to_lookahead <= 14),
+      (straddles_end | days_to_lookahead %between% c(0, 14)),
     
     unknown_at_end = lecr &
       straddles_end & 
@@ -143,92 +185,116 @@ universe_enrl_flags <- function(all_filtered_w_lh, period) {
 
 ## People-level flags ------------------------
 # Need to keep it enrollment-level so other scripts can reference the enrollments
-universe_ppl_flags <- function(universe_df, period) {
-  setkey(universe_df, PersonalID)
+universe_ppl_flags <- function(universe_df) {
+  logToConsole(session, "In universe_ppl_flags")
+  
+  setkey(universe_df, period, PersonalID)
 
-  # Check for something's wrong
-  universe_w_ppl_flags <- universe_df[, `:=`(
-    # INFLOW
-    active_at_start_homeless_client = any(active_at_start_homeless, na.rm = TRUE),
-    
-    active_at_start_housed_client = any(active_at_start_housed, na.rm = TRUE),
-    
-    return_from_perm_client = any(return_from_perm, na.rm = TRUE),
-    
-    reengaged_from_temp_client = any(return_from_nonperm, na.rm = TRUE),
-
-    first_time_homeless_client = any(first_time_homeless, na.rm = TRUE),
-    
-    unknown_at_start_client = any(unknown_at_start, na.rm = TRUE),
-    
-    continuous_at_start_client = any(continuous_at_start, na.rm = TRUE),
-    
-    # OUTFLOW
-    perm_dest_client = any(exited & Destination %in% perm_livingsituation, na.rm = TRUE),
-    
-    temp_dest_client = any(exited & !Destination %in% perm_livingsituation, na.rm = TRUE),
-    
-    homeless_at_end_client = any(homeless_at_end, na.rm = TRUE),
-    
-    housed_at_end_client = any(housed_at_end, na.rm = TRUE),
-    
-    unknown_at_end_client = any(unknown_at_end, na.rm = TRUE),
-    
-    continuous_at_end_client = any(continuous_at_end , na.rm = TRUE)
-  ), by = PersonalID
-  ][, `:=`(
-    InflowTypeSummary = factor(
-      fcase(
-        active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
-        first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
-        continuous_at_start_client, "Continuous at Start",
-        default = "something's wrong"
-      ), levels = inflow_summary_levels
-    ),
-    
-    InflowTypeDetail = factor(
-      fcase(
-        active_at_start_homeless_client, "Homeless",
-        active_at_start_housed_client, "Housed",
-        unknown_at_start_client, "Unknown",
-        return_from_perm_client, "Returned from \nPermanent",
-        reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
-        first_time_homeless_client, "First-Time \nHomeless",
-        continuous_at_start_client, "Continuous at Start",
-        default = "something's wrong"
-      ), levels = c(active_at_levels, inflow_detail_levels)
-    ),
-    
-    OutflowTypeSummary = factor(
-      fcase(
-        perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
-        homeless_at_end_client | housed_at_end_client, "Active at End",
-        continuous_at_end_client, "Continuous at End",
-        default = "something's wrong"
-      ), levels = outflow_summary_levels
-    ),
-    
-    OutflowTypeDetail = factor(
-      fcase(
-        perm_dest_client, "Exited,\nPermanent",
-        temp_dest_client, "Exited,\nNon-Permanent",
-        unknown_at_end_client, "Inactive",
-        homeless_at_end_client, "Homeless",
-        housed_at_end_client, "Housed",
-        continuous_at_end_client, "Continuous at End",
-        default = "something's wrong"
-      ), levels = c(outflow_detail_levels, rev(active_at_levels), "something's wrong")
-    )
+  # PersonalIDs: 637203, 678824, 681240
+  # InflowTypeDetail is NA
+  universe_df[, `:=`(
+    exited_perm = exited_system & Destination %in% perm_livingsituation,
+    exited_temp = exited_system & !Destination %in% perm_livingsituation
   )]
-  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown"]) > 0 & 
-  identical(period, session$userData$report_dates[1])) {
+  
+  universe_w_ppl_flags <- universe_df %>%
+    fgroup_by(period, PersonalID) %>%
+    fmutate(
+      # INFLOW
+      active_at_start_homeless_client = anyv(active_at_start_homeless, TRUE),
+      active_at_start_housed_client = anyv(active_at_start_housed, TRUE),
+      return_from_perm_client = anyv(return_from_perm, TRUE),
+      reengaged_from_temp_client = anyv(return_from_nonperm, TRUE),
+      first_time_homeless_client = anyv(first_time_homeless, TRUE),
+      unknown_at_start_client = anyv(unknown_at_start, TRUE),
+      continuous_at_start_client = anyv(continuous_at_start, TRUE),
+      
+      # OUTFLOW
+      perm_dest_client = anyv(exited_perm, TRUE),
+      temp_dest_client = anyv(exited_temp, TRUE),
+      homeless_at_end_client = anyv(homeless_at_end, TRUE),
+      housed_at_end_client = anyv(housed_at_end, TRUE),
+      unknown_at_end_client = anyv(unknown_at_end, TRUE),
+      continuous_at_end_client = anyv(continuous_at_end , TRUE)
+    ) %>%
+    fungroup() %>%
+    ftransform(
+      InflowTypeSummary = factor(
+        fcase(
+          active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
+          first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
+          continuous_at_start_client, "Continuous at Start",
+          default = "something's wrong"
+        ), levels = inflow_summary_levels
+      ),
+      
+      InflowTypeDetail = factor(
+        fcase(
+          active_at_start_homeless_client, "Homeless",
+          active_at_start_housed_client, "Housed",
+          return_from_perm_client, "Returned from \nPermanent",
+          reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
+          first_time_homeless_client, "First-Time \nHomeless",
+          continuous_at_start_client, "Continuous at Start",
+          unknown_at_start_client, "Unknown",
+          default = "something's wrong"
+        ), levels = c(active_at_levels, inflow_detail_levels)
+      ),
+      
+      OutflowTypeSummary = factor(
+        fcase(
+          perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
+          homeless_at_end_client | housed_at_end_client, "Active at End",
+          continuous_at_end_client, "Continuous at End",
+          default = "something's wrong"
+        ), levels = outflow_summary_levels
+      ),
+      
+      OutflowTypeDetail = factor(
+        fcase(
+          perm_dest_client, "Exited, \nPermanent",
+          temp_dest_client, "Exited, \nNon-Permanent",
+          unknown_at_end_client, "Inactive",
+          homeless_at_end_client, "Homeless",
+          housed_at_end_client, "Housed",
+          continuous_at_end_client, "Continuous at End",
+          default = "something's wrong"
+        ), levels = c(outflow_detail_levels, rev(active_at_levels))
+      )
+    ) %>%
+    fselect(-startDate, -endDate)
+  
+  if(!in_dev_mode) {
+    universe_w_ppl_flags[, .(
+      PersonalID,
+      InflowTypeSummary,
+      InflowTypeDetail,
+      OutflowTypeSummary,
+      OutflowTypeDetail,
+      ProjectType,
+      month,
+      EnrollmentID, 
+      eecr,
+      lecr,
+      MoveInDateAdjust
+    )]
+  }
+  
+  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
     if(in_dev_mode) browser()
     stop("There's an Inflow-Unknown in the Full Annual data!")
   }
 
-  if(nrow(universe_w_ppl_flags[InflowTypeSummary == "something's wrong"]) > 0 |
-     nrow(universe_w_ppl_flags[OutflowTypeSummary == "something's wrong"]) > 0) {
-    if(in_dev_mode) browser()
+  bad_records <- universe_w_ppl_flags[
+    InflowTypeSummary == "something's wrong" |
+    OutflowTypeSummary == "something's wrong"
+  ]
+  if(nrow(bad_records) > 0) {
+    if(in_dev_mode) {
+      view(bad_records[InflowTypeSummary == "something's wrong", c("period", inflow_debug_cols), with=FALSE])
+      view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
+      browser()
+    }
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
     # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
     # e.g. PersonalID 14780 in Oct and Nov
@@ -241,11 +307,7 @@ universe_ppl_flags <- function(universe_df, period) {
     # PersonalID 688880, DEMO mode, Jan 22, Outflow
     # PersonalID 690120, DEMO mode, Apr 22, Outflow
     
-    logToConsole(session, 
-      paste0("There are something's wrong records in the universe_ppl_flags data when period = ", 
-             ifelse(identical(period, session$userData$report_dates[1]), "Annual", format(period[1], "%b %y"))
-      )
-    )
+    logToConsole(session, "There are something's wrong records in the universe_ppl_flags data")
   }
 
   # PersonalID: 529378, enrollment 825777 - 
@@ -267,6 +329,7 @@ universe_ppl_flags <- function(universe_df, period) {
 ## Summary (Annual) ----------------------------
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
+  logToConsole(session, "In get_inflow_outflow_full")
   full_data <- period_specific_data()[["Full"]]
   
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
@@ -275,6 +338,9 @@ get_inflow_outflow_full <- reactive({
   
   if(in_dev_mode) export_bad_records("Full", full_data)
   
+  # AS 6/8/25: Do we want to remove *people* that are Continuous? Or just exclude from those Inflow/Outflow bars?
+  # ditto for Inflow = Unknown
+  # 637203 is an example of someone with Inflow = Unknown but has a regular Outflow
   full_data %>%
     fselect(PersonalID,
             InflowTypeSummary,
@@ -290,16 +356,18 @@ get_inflow_outflow_full <- reactive({
 })
 
 ## Monthly ---------------------------------
+# combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
-  full_data <- rbindlist(period_specific_data()[-1])
+  logToConsole(session, paste0("In get_inflow_outflow_monthly"))
+  months_data <- period_specific_data()[["Months"]]
   
-  logToConsole(session, paste0("In get_inflow_outflow_monthly, num full_data records: ", nrow(full_data)))
+  logToConsole(session, paste0("In get_inflow_outflow_monthly, num months_data records: ", nrow(months_data)))
   
-  if(nrow(full_data) == 0) return(full_data)
+  if(nrow(months_data) == 0) return(months_data)
   
-  if(in_dev_mode) export_bad_records("Month", full_data)
+  if(in_dev_mode) export_bad_records("Month", months_data)
   
-  full_data %>%
+  data.table::copy(months_data %>%
     fselect(
       PersonalID, 
       InflowTypeDetail, 
@@ -318,17 +386,40 @@ get_inflow_outflow_monthly <- reactive({
         OutflowTypeSummary == "Outflow" |
         InflowTypeDetail == "Homeless" | 
         OutflowTypeDetail == "Housed"
-    ) %>%
-    fmutate(
-      # factorize month for easier processing
-      month = factor(
-        format(month, "%b %y"), 
-        levels = format(get_months_in_report_period(), "%b %y")
-      )
     )
+  )
 })
 
 export_bad_records <- function(period, df) {
+  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
+  if(period == "Month") {
+    df_multiple_inactives <- df %>%
+      fselect(PersonalID,
+              InflowTypeSummary,
+              InflowTypeDetail,
+              OutflowTypeSummary,
+              OutflowTypeDetail,
+              month
+      ) %>%
+      funique() %>%
+      roworder(PersonalID, month) %>%
+      fmutate(is_inactive = OutflowTypeDetail == "Inactive")
+    
+    # 3. Identify consecutive blocks of status (active or inactive)
+    #    rleid() assigns a unique ID to consecutive runs of identical values
+    df_multiple_inactives[, block_id := rleid(is_inactive), by = PersonalID]
+    
+    # 4. Calculate the length of each block
+    df_multiple_inactives[, block_length := .N, by = .(PersonalID, block_id)]
+    
+    df_multiple_inactives <- df_multiple_inactives[is_inactive == TRUE & block_length > 1]
+    if(nrow(df_multiple_inactives) > 0)
+      write_xlsx(
+        df_multiple_inactives[is_inactive == TRUE & block_length > 1],
+        path = glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-multiple-inactives-in-a-row-for-{period}-{today()}.xlsx")
+      )
+  }
+  
   df <- df[InflowTypeSummary == "something's wrong" | OutflowTypeSummary == "something's wrong"]
   
   if(nrow(df) == 0) return(NULL)
@@ -341,8 +432,6 @@ export_bad_records <- function(period, df) {
       fsubset(OutflowTypeSummary == "something's wrong") %>% 
       fselect(outflow_debug_cols, if(period == "Month") "month")
   )
-  
-  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
 
   write_xlsx(
     dfs, 
@@ -421,13 +510,13 @@ sys_inflow_outflow_annual_chart_data <- reactive({
     inflow_outflow_full_data[, .(
       Detail = InflowTypeDetail,
       Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
-      InflowOutflow = factor("Inflow", levels = c("Inflow","Outflow")),
+      InflowOutflow = factor("Inflow", levels = inflow_outflow_levels),
       PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
     )],
     inflow_outflow_full_data[, .(
       Detail = OutflowTypeDetail,
       Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
-      InflowOutflow = factor("Outflow", levels = c("Inflow","Outflow")),
+      InflowOutflow = factor("Outflow", levels = inflow_outflow_levels),
       PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
     )]
   ) %>% 
@@ -472,50 +561,107 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         `Active at End: Housed` = "Housed",
         Outflow = outflow_detail_levels
       )
-    ) %>%
-    fsubset(
-      InflowPlotFillGroups != "something's wrong" & (
-        input$mbm_fth_filter == "All" |
-        (input$mbm_fth_filter == "First-Time Homeless" & InflowTypeDetail == "First-Time \nHomeless") |
-        (input$mbm_fth_filter == "Inactive" & OutflowTypeDetail == "Inactive")
-      )
     )
-
-  logToConsole(session, paste0("In sys_inflow_outflow_monthly_chart_data, after subsetting for monthly chart, num monthly_data records: ", nrow(monthly_data)))
-  monthly_data
+  
+  get_counts_by_month_for_mbm(monthly_data)
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
-get_counts_by_month_for_mbm <- function(monthly_chart_records) {
+get_counts_by_month_for_mbm <- function(monthly_data) {
   monthly_counts <- rbind(
-    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups)],
-    monthly_chart_records[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups)]
+    monthly_data[, .(
+      PersonalID, 
+      month, 
+      PlotFillGroups = InflowPlotFillGroups, 
+      Detail = InflowTypeDetail,
+      Summary = InflowTypeSummary
+    )],
+    monthly_data[, .(
+      PersonalID, 
+      month, 
+      PlotFillGroups = OutflowPlotFillGroups, 
+      Detail = OutflowTypeDetail,
+      Summary = OutflowTypeSummary
+    )]
   ) %>%
     funique() %>%
-    fgroup_by(month, PlotFillGroups) %>%
+    fsubset(Detail != "Unknown" | is.na(Detail)) %>%
+    fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
-    roworder(month, PlotFillGroups)
+    roworder(month, Summary, PlotFillGroups, Detail)
+
+  all_months <- data.table(month = get_months_in_report_period()) %>%
+    fmutate(month = factor(format(month, "%b %y")))
+  # PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
+    
+  full_combinations <- data.table(
+    Detail = c(
+      active_at_levels,
+      inflow_chart_detail_levels,
+      outflow_chart_detail_levels,
+      active_at_levels
+    ),
+    Summary = c(
+      rep("Active at Start", length(active_at_levels)),
+      rep("Inflow", length(inflow_chart_detail_levels)),
+      rep("Outflow", length(outflow_chart_detail_levels)),
+      rep("Active at End", length(active_at_levels))
+    ),
+    PlotFillGroups = c(
+      paste0("Active at Start: ", active_at_levels),
+      rep("Inflow", length(inflow_chart_detail_levels)),
+      rep("Outflow", length(outflow_chart_detail_levels)),
+      paste0("Active at End: ", active_at_levels)
+    )
+  ) %>%
+    fmutate(k = 1) %>%
+    join(
+      all_months[, k:= 1],
+      on = "k", 
+      multiple = TRUE
+    ) %>%
+    fselect(-k)
 
   # Make sure all month-type combinations are reflected
   join(
     monthly_counts,
-    CJ(
-      month = levels(monthly_counts$month),
-      PlotFillGroups = unique(monthly_counts$PlotFillGroups),
-      sorted = FALSE
-    ),
-    on = c("month","PlotFillGroups"),
-    how = "full"
+    full_combinations,
+    how = "full",
+    overid = 0
   ) %>%
-    fmutate(
-      Summary = fct_collapse(
-        PlotFillGroups, 
-        Inflow = "Active at Start: Homeless",
-        Outflow = "Active at End: Housed"
-      )
-    ) %>%
-    collapse::replace_na(value = 0, cols = "Count")
+  collapse::replace_na(value = 0, cols = "Count")
 }
+
+### Monthly_chart_data, wide format
+sys_monthly_chart_data_wide <- reactive({
+  logToConsole(session, "In sys_monthly_chart_data_wide")
+  monthly_counts_long <- sys_inflow_outflow_monthly_chart_data()
+  req(nrow(monthly_counts_long) > 0)
+
+  summary_data <- pivot(
+    monthly_counts_long,
+    ids = c("Summary", "PlotFillGroups", "Detail"),        # Column(s) defining the rows of the output
+    names = "month",       # Column whose values become column names
+    values = "Count",  # An arbitrary column to count (used with fun)
+    how = "wider",
+    fill = 0             # Fill missing combinations with 0
+  )
+  
+  # Get Monthly Change (Inflow - Outflow)
+  month_cols <- names(summary_data)[-1:-3]
+  inflow_vals <- summary_data[PlotFillGroups == "Inflow", ..month_cols]
+  outflow_vals <- summary_data[PlotFillGroups == "Outflow", ..month_cols]
+  change_row <- fsum(inflow_vals) - fsum(outflow_vals)
+
+  rbind(
+    summary_data,
+    add_vars(as.list(change_row), 
+             PlotFillGroups = "Monthly Change", 
+             Detail = "Monthly Change",
+             Summary = "Monthly Change")
+  ) %>%
+    roworder(PlotFillGroups)
+})
 
 ### Inactive + FTH ------------------------
 sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
@@ -529,6 +675,11 @@ sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status)
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month) %>%
+    join(
+      data.table(month = unique(monthly_data$month)),
+      on = "month",
+      how = "right"
+    ) %>%
     replace_na(value = 0, cols = "Count")
 }
 
@@ -546,9 +697,13 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       collap(cols="N", ~ InflowOutflow + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
   } else {
-    # re-label FTH if export is >= 1094 days
-    if(session$userData$days_of_data >= 1094)
-      df[, Detail := fct_recode(Detail, "Inflow\nUnspecified" = "First-Time \nHomeless")]
+    # re-label Inflow Unspecified if export is < 1094 days
+    if(session$userData$days_of_data < 1094)
+      df <- df %>%
+        ftransform(
+          Summary = fct_relabel(Summary, "Inflow \nUnspecified" = "First-Time \nHomeless")
+        )
+
     mid_plot <- 4.5
   }
   
@@ -569,13 +724,16 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       yend = round(cumsum(N)),
       group.id = GRPid(Summary),
       N_formatted = scales::comma(abs(N))
-    )
+    ) %>%
+    # Remove Active at Start/End bars that are 0, since there's no label other 
+    # than legend, which makes it hard to interpret the floating 0
+    fsubset(!(N == 0 & PlotFillGroups %in% active_at_levels))
   
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
-  inflow_to_outflow <- df[PlotFillGroups %in% active_at_levels, sum(N)*-1]
-  
+  total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
+
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
     # the bars
@@ -593,8 +751,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     # the connecting segments between bars
     geom_segment(
-      data = df %>% 
-        flast(g = .$group.id) %>% 
+      data = df %>%
+        flast(g = .$group.id) %>%
         fselect(yend, group.id),
       aes(
         x = group.id,
@@ -627,7 +785,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       aes(
         x = group.id,
         label = if_else(!grepl("Active at", Summary), N_formatted, NA),
-        y = if_else(Summary == "Inflow", yend, ystart), vjust = -.6
+        y = if_else(PlotFillGroups == "Inflow", yend, ystart), 
+        vjust = -.6
       ),
       size = sys_chart_text_font
     ) +
@@ -636,7 +795,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       paste0(
         sys_total_count_display(total_clients),
         "Total Change: ",
-        if(inflow_to_outflow > 0) "+" else "", scales::comma(inflow_to_outflow),
+        if(total_change > 0) "+" else "", scales::comma(total_change),
         "\n",
         "\n"
       )
@@ -727,30 +886,24 @@ renderInflowOutflowFullPlot(
 # Bar - Active at Start + Inflow/Outflow
 get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   reactive({
-    logToConsole(session, "In sys_inflow_outflow_monthly_ui_chart")
-    monthly_chart_validation()
-    
-    monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
-    
-    # Get counts of each type by month
-    plot_data <- get_counts_by_month_for_mbm(monthly_chart_records)
+    logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
+
+    plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+      fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels)) %>%
+      collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
+      fmutate(InflowOutflow = fct_collapse(
+        Summary,
+        Inflow = inflow_summary_levels,
+        Outflow = outflow_summary_levels
+      ))
     
     # Get Average Info for Title Display
-    averages <- plot_data %>%
-      fsubset(PlotFillGroups != "Active at Start: Homeless") %>%
-      collap(cols = "Count", FUN=fmean, by = ~ Summary)
+    averages <- fmean(plot_data$Count, g=plot_data$PlotFillGroups)
     
-    avg_monthly_change <- fmean(
-      plot_data[PlotFillGroups == "Inflow", Count] - 
-        plot_data[Summary == "Outflow", Count]
-    )
-    
-    level_of_detail_text <- case_when(
-      input$syso_level_of_detail == "All" ~ "People",
-      input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-      TRUE ~
-        getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-    )
+    # Inflow and Outflow here include Inflow+Active at Start and Outflow+Active at End
+    totals_start <- fsum(plot_data[InflowOutflow == "Inflow", Count])
+    totals_end <- fsum(plot_data[InflowOutflow == "Outflow", Count])
+    avg_monthly_change <- (totals_start - totals_end)/(length(session$userData$report_dates) - 1)
     
     plot_data$month_numeric <- as.numeric(as.factor(plot_data$month))
     
@@ -765,13 +918,12 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     # this parameter obviously "eats into" into the distance between ticks
     bar_adjust <- if_else(isExport, 1, 1.2)
     
-    # browser()
-    g <- ggplot(plot_data, aes(x = interaction(month, Summary), y = Count, fill = PlotFillGroups)) +
+    g <- ggplot(plot_data, aes(x = interaction(month, InflowOutflow), y = Count, fill = PlotFillGroups)) +
       geom_bar(
-        data = plot_data[Summary == "Inflow"] %>%
+        data = plot_data[InflowOutflow == "Inflow"] %>%
           fmutate(PlotFillGroups = fct_relevel(
             PlotFillGroups,
-            "Inflow",  "Active at Start: Homeless"
+            rev(mbm_inflow_levels)
           )),
         aes(x = month, y = Count, fill = PlotFillGroups),
         stat = "identity",
@@ -781,7 +933,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         just = bar_adjust
       ) +
       geom_bar(
-        data = plot_data[Summary == "Outflow"],
+        data = plot_data[InflowOutflow == "Outflow"],
         aes(x = month, y = Count, fill = PlotFillGroups),
         stat = "identity",
         position = "stack",
@@ -792,16 +944,23 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       theme_minimal() +
       labs(
         x = "Month",
-        y = paste0("Count of ", level_of_detail_text)
+        y = paste0("Count of ", level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-      scale_fill_manual(values = mbm_bar_colors, name = "Inflow/Outflow Types") + # Update legend title
+      scale_fill_manual(
+        values = mbm_bar_colors, 
+        name = NULL,
+        breaks = c(mbm_inflow_levels, mbm_outflow_levels)
+      ) + # Update legend title
       ggtitle(
         paste0(
-          "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
-          "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
+          "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
+          "Average Monthly Outflow: -", scales::comma(averages["Outflow"], accuracy = 0.1), "\n",
           "Average Monthly Change in ", 
-          level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+          level_of_detail_text(), " in ", 
+          str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "), 
+          if_else(getNameByValue(syso_hh_types, input$syso_hh_type) == "All Household Types", "", " Households"),
+          ": ", 
           scales::comma(avg_monthly_change, accuracy = 0.1)
         )
       ) +
@@ -822,7 +981,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     # For PPT export, add data labels, centered horizontally and vertically within a bar
     if(isExport) {
       g <- g + geom_text(
-        data = plot_data[Summary == "Inflow"] %>%
+        data = plot_data[InflowOutflow == "Inflow"] %>%
           fmutate(PlotFillGroups = fct_relevel(
             PlotFillGroups,
             "Inflow",  "Active at Start: Homeless"
@@ -834,7 +993,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         size.unit = "pt"
       ) +
       geom_text(
-        data = plot_data[Summary == "Outflow"],
+        data = plot_data[InflowOutflow == "Outflow"],
         aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
         stat = "identity",
         position = position_stack(vjust = 0.5),
@@ -847,9 +1006,10 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   })
 }
 
-output$sys_inflow_outflow_monthly_ui_chart <- renderPlot(
+output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+  monthly_chart_validation()
   get_sys_inflow_outflow_monthly_plot()()
-)
+})
 
 # Pure line chart -------
 # output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
@@ -1010,53 +1170,36 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot(
 # Making the month labels looks like both the chart's x-axis and the table's column headers
 get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
+
+  summary_data_wide <- sys_monthly_chart_data_wide() %>%
+    fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change"))
   
-  monthly_chart_records <- sys_inflow_outflow_monthly_chart_data()
-  req(nrow(monthly_chart_records) > 0)
+  req(nrow(summary_data_wide) > 0)
   
-  summary_data <- pivot(
-    monthly_chart_records %>%
-      get_counts_by_month_for_mbm(.) %>%
-      fsubset(PlotFillGroups %in% names(mbm_bar_colors)),
-    ids = "PlotFillGroups",        # Column(s) defining the rows of the output
-    names = "month",       # Column whose values become column names
-    values = "Count",  # An arbitrary column to count (used with fun)
-    how = "wider",
-    fill = 0             # Fill missing combinations with 0
-  ) %>%
-    # prepend Active at Start to Housed and Homeless
-    ftransform(
-      PlotFillGroups = factor(
-        PlotFillGroups,
-        levels = names(mbm_bar_colors)
-      )
+  if(input$mbm_status_filter == "First-Time Homeless")
+    summary_data_with_change <- summary_data_wide %>%
+      fsubset(PlotFillGroups == "Inflow" & Detail == "First-Time \nHomeless") %>%
+      ftransform(PlotFillGroups = input$mbm_status_filter) %>%
+      fselect(-Detail, -Summary)
+  else if(input$mbm_status_filter == "Inactive")
+    summary_data_with_change <- summary_data_wide %>%
+      fsubset(PlotFillGroups == "Outflow" & Detail == "Inactive") %>%
+      ftransform(PlotFillGroups = input$mbm_status_filter) %>%
+      fselect(-Detail, -Summary)
+  else {
+    summary_data_wide <- summary_data_wide %>% fselect(-Detail, -Summary)
+    summary_data_with_change <- collap(
+      summary_data_wide, 
+      cols=names(summary_data_wide %>% fselect(-PlotFillGroups)),
+      FUN="fsum", 
+      by = ~ PlotFillGroups
     )
+  }
   
-  # Get Monthly Change (Inflow - Outflow)
-  month_cols <- names(summary_data)[-1]
-  inflow_vals <- summary_data[PlotFillGroups %in% names(mbm_inflow_bar_colors), ..month_cols]
-  outflow_vals <- summary_data[PlotFillGroups %in% names(mbm_outflow_bar_colors), ..month_cols]
-  change_row <- if(nrow(inflow_vals) > 0) fsum(inflow_vals) - fsum(outflow_vals) else outflow_vals
-  
-  summary_data_with_change <- rbind(
-    summary_data, 
-    add_vars(as.list(change_row), PlotFillGroups = "Monthly Change")
-  ) %>%
-    roworder(PlotFillGroups)
-  
-  if(input$mbm_fth_filter == "First-Time Homeless")
-    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Inflow"][
-      , PlotFillGroups := input$mbm_fth_filter
-    ]
-  else if(input$mbm_fth_filter == "Inactive")
-    summary_data_with_change <- summary_data_with_change[PlotFillGroups == "Outflow"][
-      , PlotFillGroups := input$mbm_fth_filter
-    ]
-  
-  setnames(summary_data_with_change, "PlotFillGroups", " ")
+  req(nrow(summary_data_with_change) > 0)
   
   monthly_dt <- datatable(
-    summary_data_with_change,
+    summary_data_with_change %>% frename("PlotFillGroups" = " "),
     options = list(
       dom = 't',
       ordering = FALSE,
@@ -1074,11 +1217,11 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       columns = 1,  # First column
       target = "cell",
       backgroundColor = styleEqual(
-        names(mbm_bar_colors),
+        c(mbm_inflow_levels, mbm_outflow_levels),
         unname(mbm_bar_colors)
       ),
       border = styleEqual(
-        names(mbm_bar_colors),
+        c(mbm_inflow_levels, mbm_outflow_levels),
         c(rep("2px solid black", 4))
       )
     ) %>%
@@ -1087,38 +1230,55 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       columns = 1,
       target = "cell",
       color = styleEqual(
-        c("Active at End: Housed", "Outflow"),
-        c("white", "white")
+        mbm_outflow_levels, 
+        rep("white", length(mbm_outflow_levels))
       )
     )
   
-  # Highlight max inflow
-  if(any(change_row > 0)) {
-    monthly_dt <- monthly_dt %>%
-      formatStyle(
-        columns = month_cols[which.max(change_row)],
-        target = "cell",
-        backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Inflow"])
-      )
-  }
-  
-  if(any(change_row < 0)) {
-    monthly_dt <- monthly_dt %>%
-      formatStyle(
-        columns = month_cols[which.min(change_row)],
-        target = "cell",
-        color = styleRow(nrow(summary_data_with_change), 'white'),
-        backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
-      )
+  if(input$mbm_status_filter == "All") {
+    # Highlight max inflow
+    month_cols <- names(summary_data_with_change)[-1]
+    change_row <- as.integer(summary_data_with_change[PlotFillGroups == "Monthly Change", ..month_cols])
+
+    if(any(change_row > 0, na.rm=TRUE)) {
+      monthly_dt <- monthly_dt %>%
+        formatStyle(
+          columns = month_cols[which.max(change_row)],
+          target = "cell",
+          backgroundColor = styleRow(
+            nrow(summary_data_with_change), 
+            mbm_bar_colors["Inflow"]
+          )
+        )
+    }
+    
+    if(any(change_row < 0, na.rm=TRUE)) {
+      monthly_dt <- monthly_dt %>%
+        formatStyle(
+          columns = month_cols[which.min(change_row)],
+          target = "cell",
+          color = styleRow(nrow(summary_data_with_change), 'white'),
+          backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
+        )
+    }
   }
   monthly_dt
 })
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
-  d <- get_sys_inflow_outflow_monthly_table()$x$data
+  logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
+  d <- sys_monthly_chart_data_wide() %>% 
+    fselect(-Detail, -Summary) %>%
+    fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change"))
+  d <- collap(
+    d, 
+    cols=names(d %>% fselect(-PlotFillGroups)),
+    FUN="fsum", 
+    by = ~ PlotFillGroups
+  ) %>%
+    frename("PlotFillGroups" = " ")
   
   ft <- flextable(d) %>%
-    autofit() %>%
     width(j = 1, width = 0.9) %>% # make first col narrower
     bold(part = "header") %>%
     align(align = "center", part = "all") %>%
@@ -1128,7 +1288,7 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   row_labels <- d[[1]]
   
   # Formatting the inflow/outflow row labels
-  inflow_outflow_row_indices <- which(row_labels %in% names(mbm_bar_colors))
+  inflow_outflow_row_indices <- which(row_labels %in% c(mbm_inflow_levels, mbm_outflow_levels))
   outflow_row_indices <- which(row_labels %in% c("Active at End: Housed", "Outflow"))
 
   ft <- ft %>%
@@ -1142,14 +1302,17 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   # Highlight the monthly change inflow and outflow vals
   monthly_change_row <- which(row_labels == "Monthly Change")
   monthly_change_vals <- d[monthly_change_row, names(d)[-1]]
-  ft <- ft %>%
-    bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
-    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"])
 
+  ft %>%
+    bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
+    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"]) %>%
+    color(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, color = "white")
 }
-output$sys_inflow_outflow_monthly_table <- renderDT(
+
+output$sys_inflow_outflow_monthly_table <- renderDT({
+  monthly_chart_validation()
   get_sys_inflow_outflow_monthly_table()
-)
+})
 
 ### Inactive + FTH chart --------------------------------------
 sys_monthly_single_status_ui_chart <- function(varname, status) {
@@ -1159,32 +1322,27 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     varname, 
     status
   )
-  
-  level_of_detail_text <- case_when(
-    input$syso_level_of_detail == "All" ~ "People",
-    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-    TRUE ~
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
-  )
 
   ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
+    geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",
-      y = paste0("Count of ", level_of_detail_text)
+      y = paste0("Count of ", level_of_detail_text())
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
-      axis.text = element_blank(),
-      axis.title.y = element_text(size = sys_axis_text_font),  
+      axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),
+      axis.text.y = element_blank(),
+      axis.title.y = element_text(size = sys_axis_text_font), 
       axis.title.x = element_blank(),
       legend.position = "none",
-      panel.grid = element_blank(),        # Remove gridlines
+      panel.grid = element_blank(),
       axis.line.x = element_line(),          
       axis.line.y = element_blank(),
       axis.ticks.y = element_blank(),
-      plot.margin = margin(l = 50),
+      plot.margin = margin(l = 55),
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
@@ -1199,6 +1357,7 @@ output$sys_fth_monthly_ui_chart <- renderPlot({
 })
 
 monthly_chart_validation <- function() {
+  logToConsole(session, "In monthly_chart_validation")
   num_people <- length(unique(get_inflow_outflow_monthly()$PersonalID))
   
   validate(
@@ -1215,15 +1374,18 @@ monthly_chart_validation <- function() {
     )
   )
 }
+
 # Info to include in Inflow/Outflow Exports -----------------------------------
-sys_inflow_outflow_export_info <- function() {
-  logToConsole(session, "In sys_inflow_outflow_export_info")
+sys_inflow_outflow_totals <- reactive({
+  logToConsole(session, "In sys_inflow_outflow_totals")
   
   df <- sys_inflow_outflow_annual_chart_data()
-
   data.table(
     Chart = c(
-      "Total Served (Start + Inflow) People",
+      paste0(
+        full_unit_of_analysis_display(),
+        " Served (Start + Inflow)"
+      ),
       "Total Inflow",
       "Total Outflow",
       "Total Change"
@@ -1232,93 +1394,75 @@ sys_inflow_outflow_export_info <- function() {
       sum(df[InflowOutflow == 'Inflow']$N, na.rm = TRUE),
       sum(df[Summary %in% inflow_detail_levels]$N, na.rm = TRUE),
       sum(df[Summary %in% outflow_detail_levels]$N, na.rm = TRUE),   
-      sum(df[Summary == "Active at End"]$N, na.rm = TRUE) -
-        sum(df[Summary == "Active at Start"]$N, na.rm = TRUE)
+      sum(df[PlotFillGroups == "Inflow"]$N, na.rm = TRUE) -
+        sum(df[PlotFillGroups == "Outflow"]$N, na.rm = TRUE)
     ))
   )
-}
+})
 
 # Tabular/Excel Export --------------------------------------------------------
 ## Monthly Export function------
 sys_export_monthly_info <- function() {
-  df_monthly <- sys_inflow_outflow_monthly_chart_data()
+  logToConsole(session, "In sys_export_monthly_info")
+  monthly_counts_wide <- sys_monthly_chart_data_wide()
   
-  monthly_counts <- rbind(
-    df_monthly[, .(PersonalID, month, PlotFillGroups = InflowPlotFillGroups, Detail = InflowTypeDetail)] %>%
-      fmutate(Detail = fct_relabel(
-        Detail, 
-        function(x) if_else(
-          x %in% active_at_levels, 
-          paste0("Active at Start: ", x), 
-          paste0("Inflow: ", x)
-        )
-      )),
-    df_monthly[, .(PersonalID, month, PlotFillGroups = OutflowPlotFillGroups, Detail = OutflowTypeDetail)] %>%
-      fmutate(Detail = fct_relabel(
-        Detail, 
-        function(x) if_else(
-          x %in% active_at_levels, 
-          paste0("Active at End: ", x), 
-          paste0("Outflow: ", x)
-        )
-      ))
-  ) %>%
-    fsubset(!Detail %in% c(
-      "Inflow: Continuous at Start",
-      "Outflow: Continuous at End", 
-      "Inflow: Unknown",
-      "Active at Start: Housed",
-      "Active at End: Homeless"
-    )) %>%
-    funique() %>%
-    fgroup_by(month, PlotFillGroups, Detail) %>%
-    fsummarise(Count = GRPN()) %>%
-    roworder(month, PlotFillGroups, Detail) %>%
-    pivot(
-      ids = c("PlotFillGroups", "Detail"),
-      values = "Count",
-      names = "month",
-      fill = 0,
-      how = "wider"
+  month_cols <- names(monthly_counts_wide)[-1:-3]
+
+  monthly_counts_detail = monthly_counts_wide %>%
+    ftransform(Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))) %>%
+    fselect(-PlotFillGroups)
+    
+  monthly_totals <- monthly_counts_wide %>%
+    fsubset(PlotFillGroups %in% inflow_outflow_levels) %>%
+    collap(cols=month_cols, FUN="fsum", by = ~ PlotFillGroups) %>%
+    frename(PlotFillGroups = "Detail") %>%
+    fmutate(
+      Summary = Detail, 
+      Detail = factor(paste0("Total ", Detail))
     )
   
-  monthly_totals <- monthly_counts %>%
-    fsubset(PlotFillGroups %in% c("Inflow", "Outflow")) %>%
-    fselect(-Detail) %>% 
-    fgroup_by(PlotFillGroups) %>%
-    fsum() %>%
-    frename(PlotFillGroups = "Detail") %>%
-    fmutate(Detail = factor(paste0("Total ", Detail)))
+  monthly_counts <- bind_rows(monthly_counts_detail, monthly_totals) %>%
+    roworder(Summary, Detail)
   
-  monthly_changes <- qDT(as.list(
-    fsum(monthly_counts[Detail == "Active at Start: Homeless" | PlotFillGroups == "Inflow", !c("Detail")]) -
-      fsum(monthly_counts[Detail == "Active at End: Housed" | PlotFillGroups == "Outflow", !c("Detail")]) 
-  )) %>%
-    frename(PlotFillGroups = "Detail") %>%
-    fmutate(Detail = factor("Monthly Change"))
-  
-  monthly_averages <- bind_rows(monthly_changes, monthly_totals)[
-    , 
-    .(Value = as.character(round(rowMeans(.SD), 0))),
-    by = c("Chart" = "Detail")
-  ][, Chart := gsub("Total ", "", paste0("Average ", Chart))]
-  
+  monthly_average_cols <- c("Total Inflow", "Total Outflow", "Monthly Change")
+  monthly_averages <- data.table(
+    Chart = paste0("Average ", gsub("Total ", "", monthly_average_cols)),
+    Value = as.character(
+      scales::comma(
+        rowMeans(
+          monthly_counts[Detail %in% monthly_average_cols, ..month_cols]
+        )*c(1,-1,1),
+        accuracy = 0.1
+      )
+    )
+  )
   return(
     list(
-      monthly_counts_detail = monthly_counts,
-      monthly_counts_total = monthly_totals,
-      monthly_changes = monthly_changes,
+      monthly_counts = monthly_counts,
       monthly_averages = monthly_averages
     )
   )
 }
 
 ## Sys Inflow/Outflow Download Handler ------
+# downloads all Inflow/Outflow chart data, including MbMs
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
+    logToConsole(session, "Inflow/Outflow data download")
+
     df <- sys_inflow_outflow_annual_chart_data() %>% 
-      fmutate(Summary = fct_collapse(Summary, !!!collapse_details))
+      ftransform(
+        Summary = fct_collapse(Summary, !!!collapse_details),
+        Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))
+      )
+    
+    if(session$userData$days_of_data < 1094) {
+      df <- df %>%
+        ftransform(
+          Detail = fct_recode(Detail, "Inflow Unspecified" = "First-Time Homeless")
+        )
+    }
     
     totals_df <- df %>% 
       fgroup_by(Summary) %>% 
@@ -1326,48 +1470,34 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
                  N = fsum(N, na.rm = TRUE))
 
     monthly_data <- sys_export_monthly_info()
-    
+
     write_xlsx(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df() %>%
           bind_rows(
             sys_export_filter_selections(),
-            sys_inflow_outflow_export_info(),
+            sys_inflow_outflow_totals(),
             monthly_data$monthly_averages
           ) %>%
           mutate(Value = replace_na(Value, 0)) %>%
           rename("System Flow" = Value),
-        "System Flow Data" = bind_rows(df, totals_df) %>%
+        "System Flow Summary" = bind_rows(df, totals_df) %>%
           roworder(Summary) %>%
           fselect(
             "Summary Category" = Summary,
             "Detail Category" = Detail,
             "Count" = N
           ),
-        "System Flow Data Monthly" = bind_rows(
-            monthly_data$monthly_counts_detail, 
-            monthly_data$monthly_counts_total, 
-            monthly_data$monthly_changes
-          ) %>%
-          fmutate(Detail = fct_relevel(
-            Detail, 
-            "Total Inflow", 
-            after = 7
-          )) %>%
-          roworder(Detail) %>%
-          fselect(-PlotFillGroups)
+        "System Flow Data Monthly" = monthly_data$monthly_counts
       ),
       path = file,
       format_headers = FALSE,
       col_names = TRUE
     )
-    
-    logMetadata(session, paste0(
-      "Downloaded Sys Inflow Outflow Report",
-      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
-    ))
-    
-    exportTestValues(sys_inflow_outflow_report = summarize_df(get_inflow_outflow_full()))
+
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+    exportTestValues(sys_inflow_outflow_report = summarize_df(df))
   }
 )
 
@@ -1377,6 +1507,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     paste("System Flow_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
+    logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
     monthly_data <- sys_export_monthly_info()
     
     sys_overview_ppt_export(
@@ -1386,23 +1517,22 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(
           sys_export_filter_selections(),
-          sys_inflow_outflow_export_info(),
+          sys_inflow_outflow_totals(),
           monthly_data$monthly_averages
         ),
-      plot_slide_title = "System Flow Summary",
       plots = list(
-        get_sys_inflow_outflow_annual_plot(
+        "System Inflow/Outflow Summary" = get_sys_inflow_outflow_annual_plot(
           "sys_inflow_outflow_summary_ui_chart",
           isExport = TRUE
         ),
-        get_sys_inflow_outflow_annual_plot(
+        "System Inflow/Outflow Detail" = get_sys_inflow_outflow_annual_plot(
           "sys_inflow_outflow_detail_ui_chart",
           isExport = TRUE
         ),
-        # list(
-          get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
-          get_sys_inflow_outflow_monthly_flextable()
-        # )
+        "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
+        "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
+        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless"),
+        "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
       ),
       summary_font_size = 19
     )
@@ -1413,8 +1543,8 @@ qc_checks <- function() {
   browser()
 
   # TESTING DIFF BETWEEN FULL AND MBM
-  full <- period_specific_data()[[1]]
-  all_months <- rbindlist(period_specific_data()[-1])
+  full <- period_specific_data()[["Full"]]
+  all_months <- period_specific_data()[["Months"]]
   setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
   setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
   # 

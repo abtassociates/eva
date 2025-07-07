@@ -259,12 +259,18 @@ main_test_script <- function(test_script_name, test_dataset) {
       ),
       output = c(
         "headerSystemDQ",
-        "systemDQErrorByIssue",
-        "systemDQErrorsByIssue_ui",
-        "systemDQHighPriorityErrorsByIssue",
-        "systemDQHighPriorityErrorsByIssue_ui",
-        "systemDQWarningByIssue",
-        "systemDQWarningsByIssue_ui",
+        "sysDQErrorByIssue",
+        "sysDQErrorByIssue_ui",
+        "sysDQHighPriorityByIssue",
+        "sysDQHighPriorityByIssue_ui",
+        "sysDQWarningByIssue",
+        "sysDQWarningByIssue_ui",
+        "sysDQErrorByProject",
+        "sysDQErrorByProject_ui",
+        "sysDQHighPriorityByProject",
+        "sysDQHighPriorityByProject_ui",
+        "sysDQWarningByProject",
+        "sysDQWarningByProject_ui",
         "downloadSystemDQReportButton"
       )
     )
@@ -305,11 +311,17 @@ main_test_script <- function(test_script_name, test_dataset) {
         "dq_org_guidance_summary",
         "dq_organization_summary_table",
         "orgDQErrorByIssue",
-        "orgDQErrorsByIssue_ui",
-        "orgDQHighPriorityErrorsByIssue",
-        "orgDQHighPriorityErrorsByIssue_ui",
+        "orgDQErrorByIssue_ui",
+        "orgDQHighPriorityByIssue",
+        "orgDQHighPriorityByIssue_ui",
         "orgDQWarningByIssue",
-        "orgDQWarningsByIssue_ui",
+        "orgDQWarningByIssue_ui",
+        "orgDQErrorByProject",
+        "orgDQErrorByProject_ui",
+        "orgDQHighPriorityByProject",
+        "orgDQHighPriorityByProject_ui",
+        "orgDQWarningByProject",
+        "orgDQWarningByProject_ui",
         "downloadOrgDQReportButton"
       ),
       export = non_download_dq_org_exports
@@ -373,7 +385,7 @@ main_test_script <- function(test_script_name, test_dataset) {
 
     
     # change universe filters
-    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential: Homeless Projects")
+    app$set_inputs(syso_hh_type = "AO", syso_project_type = "LHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential",
@@ -382,7 +394,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     # change universe filters
-    app$set_inputs(syso_project_type = "Residential: Permanent Housing Projects")
+    app$set_inputs(syso_project_type = "PHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential-PH",
@@ -411,12 +423,13 @@ main_test_script <- function(test_script_name, test_dataset) {
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
-        "sys_inflow_outflow_monthly_ui_chart"
+        "sys_inflow_outflow_monthly_ui_chart",
+        "sys_inflow_outflow_monthly_table"
       )
     )
     
     # go to FTH chart
-    app$set_inputs(mbm_fth_filter = "First-Time Homeless")
+    app$set_inputs(mbm_status_filter = "First-Time Homeless")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-fth-w-AO-Residential-PH",
@@ -428,7 +441,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     # go to Inative chart
-    app$set_inputs(mbm_fth_filter = "Inactive")
+    app$set_inputs(mbm_status_filter = "Inactive")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-inactive-w-AO-Residential-PH",
@@ -584,16 +597,16 @@ review_helper <- function(datasetname, test_script_name = "main-valid", comparis
   
   if(comparison_type == 1) {
     # For simple differences, view more visually with one of these methods
-    diffviewer::visual_diff(old_path, new_path)
+    print(diffviewer::visual_diff(old_path, new_path))
   } else if(comparison_type == 2) {
     # Full records if at all different
     records_in_one_or_another(old, new, datasetname)
   } else if(comparison_type == 3) {
     # summary of differences
-    waldo::compare(old, new) 
+    print(waldo::compare(old, new))
   } else if(comparison_type == 4) {
     # Summary of differences
-    diffobj::diffObj(old, new)
+    print(diffobj::diffObj(old, new))
   }
 }
 

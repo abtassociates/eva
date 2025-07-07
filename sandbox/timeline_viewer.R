@@ -2,11 +2,8 @@ raw_enrollments_dt <- reactive({
   # browser()
   upload_name <- ifelse(input$in_demo_mode, "DEMO", input$imported$name)
   
-  session$userData$get_period_specific_enrollment_categories(
-    session$userData$report_dates[["Full"]], 
-    ifelse(input$in_demo_mode, "DEMO", input$imported$name),
-    enrollment_categories_filtered()
-  ) %>%
+  get_period_specific_enrollment_categories() %>%
+    fsubset(period == "Full") %>%
     fselect(PersonalID, EnrollmentID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation, LivingSituation, MoveInDateAdjust) %>%
     join(
       session$userData$lh_nbn %>% fselect(EnrollmentID, DateProvided),
@@ -37,12 +34,19 @@ enrollments_dt <- reactive({
 })
 
 enrl_month_categories <- function() {
-  unique(rbindlist(period_specific_data()[-1])[
-    , .(PersonalID, InflowTypeSummary, OutflowTypeSummary, month, InflowTypeDetail, OutflowTypeDetail, EnrollmentID)
-  ])
+  period_specific_data()[["Months"]][, .(
+    PersonalID, 
+    InflowTypeSummary, 
+    OutflowTypeSummary, 
+    month, 
+    InflowTypeDetail, 
+    OutflowTypeDetail, 
+    EnrollmentID
+  )] %>% funique()
 }
 
 observeEvent(session$userData$valid_file(), {
+  req(FALSE) #making sure this doesn't run, since timeline_viewer is a helper
   req(session$userData$valid_file() == 1)
   
   # Only run this observer once when the file is first loaded

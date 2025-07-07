@@ -164,11 +164,11 @@ syso_level_of_detail <- list(
 
 syso_project_types <- list(
   "All Project Types" = "All",
-  "All Residential Projects" = c(
-    "Residential: Homeless Projects",
-    "Residential: Permanent Housing Projects"
-  ),
-  "All Non-residential" = "Non-Residential: Street Outreach" # 4
+  "All Residential Projects" = "AllRes",
+  "- Residential: Homeless Projects" = "LHRes",
+  "- Residential: Permanent Housing Projects" = "PHRes",
+  "All Non-Residential" = "AllNonRes",
+  "- Non-Residential: Street Outreach" = "SO"
 )
 
 syso_age_cats <- c(
@@ -293,8 +293,9 @@ syso_grouping_detail <- c(
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
-evachecks_no_dupes <- evachecks %>%
-  janitor::get_dupes(ID) %>% nrow() == 0
+if(collapse::any_duplicated(evachecks$ID)) {
+  stop("EvaChecks has duplicate IDs!")
+}
 
 # Funding and Project Type Considerations DQ ------------------------------
 
@@ -386,6 +387,7 @@ ppt_summary_slide_font <- 19 # 19 pts = 25px
 ppt_chart_title_font_size <- 36
 
 # Upload-specific static variables shared across session --------------------
+# These are variables/datasets shared outside the process_upload scope
 sessionVars <- c(
   "validation", 
   "Export", 
@@ -394,9 +396,6 @@ sessionVars <- c(
   "file_structure_analysis_main", 
   "Project0", 
   "Client",
-  "CurrentLivingSituation", 
-  "Event", 
-  "Services",
   "ReportStart", 
   "ReportEnd", 
   "days_of_data",
@@ -407,11 +406,18 @@ sessionVars <- c(
   "dq_main", 
   "outstanding_referrals",
   "pdde_main", 
-  "days_of_data",
+  "dq_pdde_mirai_complete",
   "enrollment_categories",
   "client_categories",
   "lh_non_res",
   "lh_nbn"
+)
+
+reactive_session_vars <- c(
+  "valid_file", 
+  "initially_valid_import", 
+  "file_structure_analysis_main", 
+  "dq_pdde_mirai_complete"
 )
 
 # environment depencies for DQ and PDDE mirai
@@ -422,33 +428,19 @@ dq_mirai_dependencies <- c(
   "HealthAndDV",
   "CurrentLivingSituation",
   "projects_funders_types",
-  "IncomeBenefits",
-  "EnrollmentAdjust",
-  "Services",
   "Funder",
-  "session"
+  "IncomeBenefits",
+  "Services",
+  "Event"
 )
 
 pdde_mirai_dependencies <- c(
   "Inventory",
   "Enrollment",
-  "Project",
   "ProjectCoC",
   "activeInventory",
   "HMISParticipation",
-  "HMIS_participating_projects_w_active_inv_no_overflow",
-  "CEParticipation",
-  "session"
-)
-
-local_settings_inputs <- c(
-  "ESNbNLongStayers",
-  "OUTLongStayers",
-  "ServicesOnlyLongStayers",
-  "OtherLongStayers",
-  "DayShelterLongStayers",
-  "CELongStayers",
-  "CEOutstandingReferrals"
+  "CEParticipation"
 )
 
 inflow_debug_cols <- c(
@@ -484,9 +476,9 @@ outflow_debug_cols <- c(
   "days_since_lookback",
   "straddles_end",
   "OutflowTypeDetail",
-  "exited",
+  "exited_system",
   "Destination",
   "days_to_lookahead"
 )
 
-in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]])
+in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))

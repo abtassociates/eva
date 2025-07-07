@@ -1,8 +1,8 @@
 
 Sys.setenv(TZ = "America/New_York")
 
-library(tidyverse)
-library(lubridate)
+library(tidyverse) # loads ggplot2, dplyr, tidyr, readr, purrr, tibble, stringr, forcats, lubridate
+library(shinydashboard)
 library(shiny)
 library(bslib)
 library(bsicons)
@@ -12,23 +12,23 @@ library(DT)
 library(readxl)
 library(writexl)
 library(glue)
-library(janitor)
 library(shinyjs)
 library(shinydisconnect)
 library(here)
 library(shinycssloaders)
 library(dtplyr)
 library(data.table)
-library(ggplot2)
 library(ggalluvial)
 library(officer)
 library(mirai)
 library(plotly)
 library(collapse)
 library(flextable)
+library(promises)
 
 options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
 options(shiny.fullstacktrace = TRUE)
+options(shiny.stacktraceon = TRUE)
 set_collapse(na.rm = TRUE, verbose = FALSE)
 
 if(dir.exists(here("metadata-analysis/metadata/"))) {
@@ -43,14 +43,17 @@ source(here('tab_instructions.R'), local = TRUE) # static HTML text elements
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
 # Create DQ and PDDE script environment
-daemons(4, output = TRUE)
+daemons(1, output = TRUE)
 mirai::everywhere({
   library(data.table)
   library(tidyverse)
-  library(janitor)
-  library(readr)
   library(collapse)
   library(here)
+  
+  options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
+  options(shiny.fullstacktrace = TRUE)
+  options(shiny.stacktraceon = TRUE)
+  
   source(here("hardcodes.R"))
   source(here("helper_functions.R"))
   source(here('tab_instructions.R')) # static HTML text elements

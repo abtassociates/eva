@@ -18,7 +18,7 @@
     ],
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
-    "syso_project_type": "Residential: Permanent Housing Projects",
+    "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
     "syso_tabbox": "System Demographics",
@@ -32,13 +32,13 @@
       ]
     },
     "sys_comp_summary_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> All Residential Projects2 <br>\n<b>Methodology Type:<\/b> Method 1 <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<b>Methodology Type:<\/b> Method 1 <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
       "deps": [
 
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 2676cc4b7f9c6c14bbae98e7f6e61224]",
+      "src": "[image data hash: 14fbfed5bcb64b2e1d462a7f58797ce6]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",

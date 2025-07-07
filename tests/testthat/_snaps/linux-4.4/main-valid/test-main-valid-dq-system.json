@@ -43,8 +43,8 @@
 
       ]
     },
-    "systemDQErrorByIssue": {
-      "src": "[image data hash: c967a433481679a6e879b133b1d2c2d9]",
+    "sysDQErrorByIssue": {
+      "src": "[image data hash: 95cdf5f3db38edccd2bb4f4f71f90e0b]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -71,8 +71,8 @@
 
                 ],
                 "y": [
+                  "Missing Non-cash Benefits at Entry",
                   "Invalid Move-In Date",
-                  "Missing HP Screening or Threshold Score",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -102,8 +102,8 @@
         }
       }
     },
-    "systemDQErrorsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+    "sysDQErrorByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"sysDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -120,7 +120,7 @@
         }
       ]
     },
-    "systemDQHighPriorityErrorsByIssue": {
+    "sysDQHighPriorityByIssue": {
       "src": "[image data hash: fdc307e31c12218c349c35b42f4d07de]",
       "width": 1640,
       "height": 400,
@@ -172,8 +172,8 @@
         }
       }
     },
-    "systemDQHighPriorityErrorsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+    "sysDQHighPriorityByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"sysDQHighPriorityByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -190,7 +190,7 @@
         }
       ]
     },
-    "systemDQWarningByIssue": {
+    "sysDQWarningByIssue": {
       "src": "[image data hash: 4d5eda4848b09f60d44e4a4f1adfd96e]",
       "width": 1640,
       "height": 400,
@@ -249,8 +249,8 @@
         }
       }
     },
-    "systemDQWarningsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+    "sysDQWarningByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"sysDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",

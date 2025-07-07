@@ -126,6 +126,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     )
 }
 output$sankey_ui_chart <- renderPlot({
+  logToConsole(session, "in sankey_ui_chart")
   req(session$userData$valid_file() == 1)
   
   plot_data <- get_sankey_data()
@@ -192,6 +193,9 @@ output$sys_status_download_btn <- downloadHandler(
     )
 
     exportTestValues(sys_status_report = get_sankey_data())
+    
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   }
 )
 
@@ -207,9 +211,8 @@ output$sys_status_download_btn_ppt <- downloadHandler(
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
         bind_rows(sys_status_export_info(get_sankey_data())),
-      plot_slide_title = "Client System Status",
       plots = list(
-        render_sankey_plot(get_sankey_data(), isExport=TRUE)
+        "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
       ),
       summary_font_size = 21
     )
@@ -220,6 +223,7 @@ output$sys_status_download_btn_ppt <- downloadHandler(
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
 get_sankey_data <- reactive({
+  logToConsole(session, "in get_sankey_data")
   full_data <- get_inflow_outflow_full()
   
   req(nrow(full_data) > 0)
@@ -229,14 +233,23 @@ get_sankey_data <- reactive({
     .(PersonalID, InflowTypeDetail, OutflowTypeDetail)
   ]
   
-  req(nrow(plot_df) > 0)
+  shinyjs::toggle(
+    "sys_status_download_btn",
+    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
+  )
+  shinyjs::toggle(
+    "sys_status_download_btn_ppt",
+    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
+  )
   
+  req(nrow(plot_df) > 0)
+
   allu <- plot_df %>%
     count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
     mutate(
       Begin = factor(Begin, levels = active_at_levels), # Or c("Housed", "Homeless") depending on desired order
       
-      End = gsub("\n", " ", End), # Remove newlines
+      End = str_remove(End, "\n"), # Remove newlines
       End = ifelse( # Prepend "Enrolled, " for specific values
         End %in% active_at_levels,
         paste0("Enrolled, ", End),

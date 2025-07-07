@@ -144,12 +144,6 @@ function(input, output, session) {
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
-    if("period_cache" %in% ls(session$userData)) {
-      rm(list = ls(session$userData$period_cache), 
-         envir = session$userData$period_cache)
-    }
-    memoise::forget(session$userData$get_period_specific_enrollment_categories)
-    memoise::forget(session$userData$get_period_specific_nbn_enrollment_services)
     gc()
     cat(paste0("Session ", session$token, " ended at ", Sys.time()))
     logMetadata(session, "Session Ended")

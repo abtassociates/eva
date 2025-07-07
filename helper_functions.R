@@ -340,7 +340,7 @@ nice_names <- function(df){
   names(hmis_abbreviations) <- names_from_janitor
   
   df_names <- df %>%
-    clean_names(
+    janitor::clean_names(
       "title",
       abbreviations = c("ID",
                         "ESSH",
@@ -482,8 +482,7 @@ reset_app <- function(session) {
 # essentially resets the app
 reset_session_vars <- function(session) {
   for(v in sessionVars) {
-    rv <- session$userData[[v]]
-    if(v %in% c("valid_file", "initially_valid_import", "file_structure_analysis_main")) {
+    if(v %in% reactive_session_vars) {
       val <- if(v == "file_structure_analysis_main") NULL else 0
       if(is.null(session$userData[[v]])) 
         session$userData[[v]] <- reactiveVal(val) 

@@ -114,7 +114,7 @@
       ]
     },
     "in_demo_mode": false,
-    "mbm_fth_filter": "All",
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": null,
     "pageid": "tabDQSystem",
@@ -396,7 +396,7 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "systemDQErrorsByIssue_ui": {
+    "sysDQErrorByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -404,6 +404,7 @@
         "validation"
       ]
     },
+<<<<<<< HEAD
     "systemDQErrorsByOrg_ui": {
       "message": "",
       "call": "NULL",
@@ -413,6 +414,9 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue_ui": {
+=======
+    "sysDQHighPriorityByIssue_ui": {
+>>>>>>> feat/monthly-inflow-outflows
       "message": "",
       "call": "NULL",
       "type": [
@@ -420,6 +424,7 @@
         "validation"
       ]
     },
+<<<<<<< HEAD
     "systemDQHighPriorityErrorsByOrg_ui": {
       "message": "",
       "call": "NULL",
@@ -429,6 +434,9 @@
       ]
     },
     "systemDQWarningsByIssue_ui": {
+=======
+    "sysDQWarningByIssue_ui": {
+>>>>>>> feat/monthly-inflow-outflows
       "message": "",
       "call": "NULL",
       "type": [

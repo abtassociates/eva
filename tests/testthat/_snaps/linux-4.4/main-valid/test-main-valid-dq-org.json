@@ -51,9 +51,7 @@
       41,
       42,
       43,
-      44,
-      45,
-      46
+      44
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -241,11 +239,7 @@
       115,
       116,
       117,
-      118,
-      119,
-      120,
-      121,
-      122
+      118
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -518,8 +512,13 @@
         "style": "bootstrap5",
         "filter": "top",
         "vertical": false,
+<<<<<<< HEAD
         "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"214\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"table table-striped table-hover row-border order-column display\">\n  <thead>\n    <tr>\n      <th>Project Name<\/th>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Clients<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+=======
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"181\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Project Name<\/th>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Clients<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+>>>>>>> feat/monthly-inflow-outflows
         "options": {
           "dom": "ltpi",
           "columnDefs": [
@@ -698,7 +697,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: bf459ca88ce9efaf9dcff7caf57ed2db]",
+      "src": "[image data hash: 3bb38b71f865ce2c18f87e79f719e596]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -717,7 +716,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 235.4,
+              "right": 25.3,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -725,6 +724,7 @@
 
                 ],
                 "y": [
+                  "Enrollment Crosses Operating Start",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -733,8 +733,7 @@
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
                   "Missing Months or Times Homeless",
-                  "Conflicting Income yes/no at Exit",
-                  "Missing HP Screening or Threshold Score"
+                  "Conflicting Income yes/no at Exit"
                 ]
               }
             },
@@ -756,7 +755,25 @@
         }
       }
     },
-    "orgDQHighPriorityErrorsByIssue": {
+    "orgDQErrorByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQHighPriorityByIssue": {
       "src": "[image data hash: 8fcc992418956267a2eb4f684ceefa88]",
       "width": 1640,
       "height": 400,
@@ -807,6 +824,24 @@
           "height": 400
         }
       }
+    },
+    "orgDQHighPriorityByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQHighPriorityByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
     },
     "orgDQWarningByIssue": {
       "src": "[image data hash: c6f3027a0ee121a8ee9a42381b595f6d]",
@@ -867,7 +902,7 @@
         }
       }
     },
-    "orgDQWarningsByIssue_ui": {
+    "orgDQWarningByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
@@ -891,32 +926,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 22
+        "Warning": 20
       },
       "Issue": {
-        "Length": "46",
+        "Length": "44",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "46",
+        "Length": "44",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "122",
+        "Length": "118",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 52,
-        "Warning": 65
+        "Warning": 61
       },
       "Issue": {
-        "Length": "122",
+        "Length": "118",
         "Class": "character",
         "Mode": "character"
       },
@@ -924,9 +959,9 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 10.47540983606557,
+        "Mean": 8.40677966101695,
         "3rd Qu.": 7,
-        "Max.": 214
+        "Max.": 181
       }
     }
   }

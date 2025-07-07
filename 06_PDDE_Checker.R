@@ -71,12 +71,8 @@ operating_end_missing <- Enrollment %>%
 # Missing CoC Information Missing address field(s), Missing Geocode,
 # Missing Geography Type, Invalid Zip Code if possible
 
-HousingTypeDF <- Project %>% 
-  select(ProjectID, HousingType)
-
 missing_CoC_Info <- session$userData$Project0 %>%
-  left_join(ProjectCoC, by = "ProjectID") %>%
-  left_join(HousingTypeDF, by = "ProjectID") %>% 
+  left_join(ProjectCoC, by = "ProjectID") %>% 
   filter(is.na(Address1) | 
            is.na(City) | 
            is.na(State) | 
@@ -276,7 +272,46 @@ vsps_in_hmis <- session$userData$Project0 %>%
  # Zero Utilization --------------------------------------------------------
 # HMIS participating projects that have ANY active inventory (with available beds) 
 # should not have 0 enrollments
-zero_utilization <- HMIS_participating_projects_w_active_inv_no_overflow %>%
+zero_utilization <- qDT(ProjectSegments) %>%
+  # HMiS-participating projects
+  fsubset(HMISParticipationType == 1, 
+          ProjectID, 
+          ProjectTimeID, 
+          ProjectType,
+          HMISParticipationStatusStartDate, 
+          HMISParticipationStatusEndDate,
+          OperatingStartDate,
+          OperatingEndDate
+  ) %>%
+  join(
+    activeInventory %>% 
+      fselect(ProjectID, InventoryStartDate, InventoryEndDate, Availability, BedInventory) %>%
+      funique(),
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>%
+  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
+  fmutate(
+    ProjectHMISParticipationStart = pmax(
+      HMISParticipationStatusStartDate, 
+      OperatingStartDate
+    ),
+    ProjectHMISParticipationEnd = pmin(
+      HMISParticipationStatusEndDate,
+      OperatingEndDate,
+      na.rm = TRUE
+    ),
+    ProjectHMISActiveParticipationStart = pmax(
+      ProjectHMISParticipationStart,
+      InventoryStartDate
+    ),
+    ProjectHMISActiveParticipationEnd = pmin(
+      ProjectHMISParticipationEnd,
+      InventoryEndDate,
+      na.rm = TRUE
+    )
+  ) %>%
   # Only keep (inventory) with non-overflow beds
   # Overflow beds are meant to be available on an ad hoc or temporary basis. And 
   # since this dataset is used for flagging inventory-related problems, we don't
@@ -440,8 +475,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
 # For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds) or 3 (Other bed type). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
 
 ES_BedType_HousingType <- activeInventory %>%
-  left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by = "ProjectID") %>%
-  left_join(HousingTypeDF, by = "ProjectID") %>% 
+  left_join(session$userData$Project0 %>% select(ProjectID, ProjectType, HousingType), by = "ProjectID") %>%
   filter(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
            ((HousingType %in% c(client_single_site, client_multiple_sites) & !(ESBedType %in% c(1, 3))) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
   ) %>%
@@ -472,7 +506,7 @@ activeInventory_COC_merged <-  join(
 Active_Inventory_per_COC <- activeInventory_COC_merged %>%
   fsubset(source == "ProjectCoC") %>%
   join(missing_inventory_record, on = "ProjectID", how="anti") %>%
-  join(Project %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
+  join(session$userData$Project0 %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
   fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType))) %>% 
   merge_check_info(checkIDs = 136) %>% 
@@ -517,7 +551,7 @@ vsp_clients <- session$userData$Project0 %>%
 
 # Put it all together -----------------------------------------------------
 
-bind_rows(
+pdde_main <- bind_rows(
   subpopNotTotal,
   operating_end_missing,
   rrh_no_subtype,

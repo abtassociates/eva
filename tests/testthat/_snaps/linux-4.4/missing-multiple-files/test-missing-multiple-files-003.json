@@ -47,7 +47,7 @@
       ]
     },
     "in_demo_mode": false,
-    "mbm_fth_filter": "All",
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": null,
     "pageid": "tabPDDE",

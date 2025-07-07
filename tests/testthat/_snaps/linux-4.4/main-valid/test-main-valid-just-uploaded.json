@@ -28,6 +28,7 @@
       1080
     ],
     "dq_summary_subtabs": "Data Quality Summary",
+
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -108,7 +109,7 @@
       ]
     },
     "in_demo_mode": false,
-    "mbm_fth_filter": "All",
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": "Organization A‰",
     "pageid": "tabUpload",

@@ -23,7 +23,7 @@ syscomp_detailBox <- function() {
       br(),
       
       if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
+        chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
       
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
       HTML(glue(
@@ -318,7 +318,8 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
       unname(var_cols[[selections[2]]])
-    )
+    ) %>%
+    funique()
   
   validate(
     need(
@@ -657,6 +658,8 @@ output$sys_comp_download_btn <- downloadHandler(
     exportTestValues(sys_comp_df = get_people_universe_filtered())
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   }
 )
 
@@ -724,18 +727,20 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),
-      plot_slide_title = paste0(
-        "System Demographics: ",
-        input$system_composition_selections[1],
-        " by ",
-        input$system_composition_selections[2]
-      ),
-      plots = list(
-        if (length(input$system_composition_selections) == 1) {
-          sys_comp_plot_1var(isExport = TRUE)
-        } else {
-          sys_comp_plot_2vars(isExport = TRUE)
-        }
+      plots = setNames(
+        list(
+          if (length(input$system_composition_selections) == 1) {
+            sys_comp_plot_1var(isExport = TRUE)
+          } else {
+            sys_comp_plot_2vars(isExport = TRUE)
+          }
+        ),
+        paste0(
+          "System Demographics: ",
+          input$system_composition_selections[1],
+          " by ",
+          input$system_composition_selections[2]
+        )
       ),
       summary_font_size = 28
     )
@@ -744,11 +749,12 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
-  unique(
-    join(
-      period_specific_data()[["Full"]][, .(PersonalID)],
-      session$userData$client_categories,
-      on = "PersonalID"
-    )
-  )
+  join(
+    get_period_specific_enrollment_categories() %>%
+      fsubset(period == "Full") %>%
+      fselect(-period, -startDate, -endDate, -days_to_lookahead, -days_since_lookback),
+    session$userData$client_categories,
+    on = "PersonalID"
+  ) %>%
+    funique()
 })
