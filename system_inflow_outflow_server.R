@@ -901,8 +901,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     averages <- fmean(plot_data$Count, g=plot_data$PlotFillGroups)
     
     # Inflow and Outflow here include Inflow+Active at Start and Outflow+Active at End
-    totals_start <- fsum(plot_data[InflowOutflow == "Inflow", Count])
-    totals_end <- fsum(plot_data[InflowOutflow == "Outflow", Count])
+    totals_start <- fsum(plot_data[PlotFillGroups == "Inflow", Count])
+    totals_end <- fsum(plot_data[PlotFillGroups == "Outflow", Count])
     avg_monthly_change <- (totals_start - totals_end)/(length(session$userData$report_dates) - 1)
     
     plot_data$month_numeric <- as.numeric(as.factor(plot_data$month))
