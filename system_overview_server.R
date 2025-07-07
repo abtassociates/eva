@@ -465,7 +465,7 @@ lh_non_res_period <- function() {
       lh_cls_during_period = InformationDate %between% list(start_window, endDate + 15),
       entry_in_start_window = EntryDate %between% list(start_window, startDate + 15),
       entry_in_end_window = EntryDate %between% list(end_window, endDate),
-      entry_during_period = EntryDate %between% list(startDate, endDate)
+      lh_entry_during_period = EntryDate %between% list(start_window, endDate) & lh_prior_livingsituation
     )  %>%
     fselect(
       period, EnrollmentID, ProjectType, lh_prior_livingsituation,
@@ -474,7 +474,7 @@ lh_non_res_period <- function() {
       lh_cls_during_period,
       entry_in_start_window,
       entry_in_end_window,
-      entry_during_period,
+      lh_entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead
     ) %>%
     fsubset(
@@ -483,7 +483,7 @@ lh_non_res_period <- function() {
         lh_cls_during_period |
         entry_in_start_window |
         entry_in_end_window |
-        entry_during_period
+        lh_entry_during_period
     )
 
   if(nrow(lh_non_res) == 0 ) {
@@ -512,7 +512,7 @@ lh_nbn_period <- function() {
       nbn_during_period = DateProvided %between% list(startDate - 15, endDate + 15),
       entry_in_start_window = EntryDate %between% list(startDate - 15, startDate + 15),
       entry_in_end_window = EntryDate %between% list(endDate - 15, endDate),
-      entry_during_period = EntryDate %between% list(startDate - 15, endDate + 15)
+      lh_entry_during_period = EntryDate %between% list(startDate - 15, endDate + 15)
     ) %>%
     fselect(
       period, EnrollmentID, ProjectType, 
@@ -521,7 +521,7 @@ lh_nbn_period <- function() {
       nbn_during_period,
       entry_in_start_window,
       entry_in_end_window,
-      entry_during_period,
+      lh_entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead
     ) %>%
     fsubset(
@@ -530,7 +530,7 @@ lh_nbn_period <- function() {
       nbn_during_period |
       entry_in_start_window |
       entry_in_end_window |
-      entry_during_period
+      lh_entry_during_period
     )
   
   if(nrow(lh_nbn) == 0) {
@@ -666,11 +666,11 @@ get_lh_non_res_esnbn_info <- function() {
       ),
       was_lh_during_period = (
         ProjectType == es_nbn_project_type & (
-          nbn_during_period | entry_during_period
+          nbn_during_period | lh_entry_during_period
         )
       ) | (
         ProjectType %in% non_res_project_types & (
-          lh_cls_during_period | (entry_during_period & lh_prior_livingsituation)
+          lh_cls_during_period |lh_entry_during_period
         )
       ),
       
@@ -797,9 +797,9 @@ get_period_specific_enrollment_categories <- reactive({
       eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters & (
         period == "Full" | 
         (period != "Full" & (
-          in_nbn_non_res & (
+          (in_nbn_non_res & (
             was_lh_during_period | ExitAdjust %between% list(startDate, endDate)
-          ) | 
+          )) | 
           !in_nbn_non_res
         ))
       ),
