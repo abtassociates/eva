@@ -724,7 +724,7 @@ nav_panel(
                  uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
                    withSpinner(),
                  radioGroupButtons(
-                   inputId = "mbm_fth_filter",
+                   inputId = "mbm_status_filter",
                    label = "Flow Type Filters",
                    choices = c("All", "First-Time Homeless", "Inactive"), #Inactive
                    selected = "All",
@@ -732,19 +732,19 @@ nav_panel(
                    checkIcon = list(yes = icon("check"))
                  ),
                  conditionalPanel(
-                   condition = "input.mbm_fth_filter == 'Inactive'",
+                   condition = "input.mbm_status_filter == 'Inactive'",
                    plotOutput("sys_inactive_monthly_ui_chart",
                               width = "100%",
                               height = "500")
                  ),
                  conditionalPanel(
-                   condition = "input.mbm_fth_filter == 'First-Time Homeless'",
+                   condition = "input.mbm_status_filter == 'First-Time Homeless'",
                    plotOutput("sys_fth_monthly_ui_chart",
                               width = "100%",
                               height = "500")
                  ),
                  conditionalPanel(
-                   condition = "input.mbm_fth_filter == 'All'",
+                   condition = "input.mbm_status_filter == 'All'",
                    plotOutput("sys_inflow_outflow_monthly_ui_chart",
                               width = "100%",
                               height = "500") %>%

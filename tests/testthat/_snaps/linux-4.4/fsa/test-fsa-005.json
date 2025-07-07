@@ -476,7 +476,6 @@
         "validation"
       ]
     },
-<<<<<<< HEAD
     "systemDQErrorsByOrg_ui": {
       "message": "",
       "call": "NULL",
@@ -486,9 +485,6 @@
       ]
     },
     "systemDQHighPriorityErrorsByIssue_ui": {
-=======
-    "sysDQHighPriorityByIssue_ui": {
->>>>>>> feat/monthly-inflow-outflows
       "message": "",
       "call": "NULL",
       "type": [
@@ -496,7 +492,6 @@
         "validation"
       ]
     },
-<<<<<<< HEAD
     "systemDQHighPriorityErrorsByOrg_ui": {
       "message": "",
       "call": "NULL",
@@ -506,9 +501,6 @@
       ]
     },
     "systemDQWarningsByIssue_ui": {
-=======
-    "sysDQWarningByIssue_ui": {
->>>>>>> feat/monthly-inflow-outflows
       "message": "",
       "call": "NULL",
       "type": [
