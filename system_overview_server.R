@@ -419,24 +419,24 @@ enrollments_filtered <- reactive({
       passes_enrollment_filters =
         # Household type filter
         (input$syso_hh_type == "All" |
-           (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-           (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-           (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-           (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-           input$syso_hh_type == HouseholdType
+        (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+        (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+        (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+        (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+        input$syso_hh_type == HouseholdType
         ) &
         # Level of detail filter
         (input$syso_level_of_detail == "All" |
-           (input$syso_level_of_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (input$syso_level_of_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
+        (input$syso_level_of_detail == "HoHsAndAdults" &
+           (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+        (input$syso_level_of_detail == "HoHsOnly" &
+           CorrectedHoH == 1)) &
         # Project type filter
         (input$syso_project_type == "All" |
-           (input$syso_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-           (input$syso_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-           (input$syso_project_type == "SO" & ProjectType == out_project_type) |
-           (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
+        (input$syso_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
+        (input$syso_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
+        (input$syso_project_type == "SO" & ProjectType == out_project_type) |
+        (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
         )
     ) %>%
     fselect(-VeteranStatus)
