@@ -4,6 +4,8 @@ Sys.setenv(TZ = "America/New_York")
 library(tidyverse) # loads ggplot2, dplyr, tidyr, readr, purrr, tibble, stringr, forcats, lubridate
 library(shinydashboard)
 library(shiny)
+library(bslib)
+library(bsicons)
 library(shinyWidgets)
 library(scales)
 library(DT)
@@ -36,6 +38,7 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 }
 source(here("hardcodes.R")) # hard-coded variables and data frames
 source(here("helper_functions.R")) # functions used throughout the app
+source(here('tab_instructions.R'), local = TRUE) # static HTML text elements
 
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
@@ -57,3 +60,19 @@ mirai::everywhere({
 })
 onStop(function() daemons(0))
 
+bslib_eva_theme <- bs_theme(
+  version = 5,
+  brand = TRUE,
+  "card-bg" = "white",
+  "navbar-bg" = "#16697A",
+  "accordion-bg" = "white",
+  "accordion-border-radius" = "8px",
+  "accordion-inner-border-radius" = "8px",
+  "sidebar-bg" = "white",
+  "dropdown-bg" = "white",
+  "input-bg" = "white",
+  "nav-underline-link-active-color" = "#16697A",
+  "modal-content-bg" = "white",
+  #bg = '#ecf0f5',fg='black',
+  font_scale = 0.875 # units are rem, 1rem = 16px
+)

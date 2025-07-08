@@ -308,7 +308,8 @@ output$clientCountData <- renderDT({
     x,
     rownames = FALSE,
     filter = 'top',
-    options = list(dom = 'ltpi')
+    options = list(dom = 'ltpi'),
+    style = "default"
   )
 })
 
@@ -325,7 +326,8 @@ output$clientCountSummary <- renderDT({
       nice_names(),
     rownames = FALSE,
     filter = 'none',
-    options = list(dom = 't')
+    options = list(dom = 't'),
+    style = "default"
   )
 })
 

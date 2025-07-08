@@ -25,20 +25,49 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$set_inputs(pageid = "tabClientCount")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_subtabs = 'Client Counts Detail')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
-    app$set_inputs(sidebarmenuid = "tabPDDE")
+    #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
+    app$set_inputs(pageid = "tabPDDE")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(pdde_subtabs = "Guidance")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqsystem_subtabs = "Top 10 Organizations")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "General Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqsystem_subtabs = "Top 10 Organizations")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "Warnings")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqsystem_subtabs = "Top 10 Organizations")
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$set_inputs(pageid = "tabDQOrg")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "General Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "Warnings")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(dq_summary_subtabs = "Data Quality Guidance")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
   })
@@ -161,13 +190,15 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     print(paste0("Just uploaded in ", test_script_name))
     app$wait_for_idle(timeout = 1e+06)
-    app$click(selector="#shiny-modal")
+    app$click(selector="#shiny-modal .btn-default")
     app$expect_values(name="just-uploaded", input=TRUE, output=TRUE)
     
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$set_inputs(pageid = "tabClientCount")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_subtabs = 'Client Counts Detail')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
@@ -185,15 +216,17 @@ main_test_script <- function(test_script_name, test_dataset) {
       )
     )
     
-    app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
-    app$set_inputs(sidebarmenuid = "tabPDDE")
+    #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
+    app$set_inputs(pageid = "tabPDDE")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(pdde_subtabs = "Guidance")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "pdde",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
-        "sidebarmenuid",
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
+        "pageid",
         inputs_no_bindings(DTs = c("pdde_guidance_summary", "pdde_summary_table"))
       ),
       output = c(
@@ -204,14 +237,25 @@ main_test_script <- function(test_script_name, test_dataset) {
       )
     )
     
-    app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqsystem_subtabs = "Top 10 Organizations")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "General Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqsystem_subtabs = "Top 10 Organizations")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "Warnings")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqsystem_subtabs = "Top 10 Organizations")
     app$expect_values(
       name = "dq-system",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
-        "sidebarmenuid"
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
+        "pageid"
       ),
       output = c(
         "headerSystemDQ",
@@ -236,14 +280,29 @@ main_test_script <- function(test_script_name, test_dataset) {
       "dq_organization_summary_table"
     )
     
-    app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$set_inputs(pageid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "General Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "Warnings")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqorg_subtabs = "Top 10 Projects")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(dq_summary_subtabs = "Data Quality Guidance")
+    app$wait_for_idle(timeout = 1e+06)
+    
     app$expect_values(
       name = "dq-org",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
-        "sidebarmenuid",
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
+        "pageid",
         "orgList",
         inputs_no_bindings(DTs = c("dq_org_guidance_summary", "dq_organization_summary_table"))
       ),
@@ -291,7 +350,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     )
     
     sys_inflow_outflow_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_inflow_outflow_subtabs",
       sys_universe_filters,
       sys_flow_filters,
@@ -303,7 +362,7 @@ main_test_script <- function(test_script_name, test_dataset) {
       "sys_inflow_outflow_summary_ui_chart"
     )
     
-    app$set_inputs(sidebarmenuid = "tabSystemOverview")
+    app$set_inputs(pageid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary",
@@ -399,14 +458,14 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values(
       name = "sys-flow-information",
       input = c(
-        "sidebarmenuid",
+        "pageid",
         "sys_inflow_outflow_subtabs"
       )
     )
     
     # System Status/Sankey
     sys_status_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_status_subtabs",
       sys_universe_filters,
       sys_flow_filters,
@@ -435,7 +494,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     # System Composition/Demographics
     sys_comp_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_comp_subtabs",
       sys_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 

@@ -126,7 +126,7 @@ toggle_sys_components <- function(cond, init=FALSE) {
   if(init) {
     shinyjs::runjs("
       document.getElementById('syso_tabbox')
-        .insertAdjacentHTML('beforeEnd', '<li class=\"client_level_download_tab\" id=\"client_level_download_tab\"></li>');
+        .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"client_level_download_tab\"></li>');
       $('#client_level_download_btn').appendTo('#client_level_download_tab')
         .toggle('{cond}' == 'TRUE');
     ")

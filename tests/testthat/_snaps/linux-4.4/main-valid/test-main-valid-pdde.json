@@ -1,5 +1,6 @@
 {
   "input": {
+    "pageid": "tabPDDE",
     "pdde_guidance_summary_cell_clicked": {
 
     },
@@ -160,10 +161,7 @@
           }
         }
       ]
-    },
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE"
+    }
   },
   "output": {
     "downloadPDDEReportButton": {

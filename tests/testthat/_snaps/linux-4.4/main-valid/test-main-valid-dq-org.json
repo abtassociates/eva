@@ -313,9 +313,7 @@
       ]
     },
     "orgList": "Organization A‰",
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQOrg"
+    "pageid": "tabDQOrg"
   },
   "output": {
     "downloadOrgDQReportButton": {
@@ -592,7 +590,7 @@
       ]
     },
     "headerDataQuality": {
-      "html": "<h2>Organization-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "html": "<h2>Organization-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerDQOrg_supp\" class=\"shiny-html-output\"><\/div>",
       "deps": [
 
       ]
@@ -658,6 +656,80 @@
     },
     "orgDQErrorByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQErrorByProject": {
+      "src": "[image data hash: 1bb7447594d3079e4ce75b434d4f8aa7]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the organization's projects with the most General Errors.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 80.3,
+              "bottom": 0.4,
+              "top": 7.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Organization A - HP - 2",
+                  "Organization A - PSH",
+                  "Organization A - ES - 2",
+                  "Organization A - ES",
+                  "Organization A - HP",
+                  "Organization A - SO",
+                  "Organization A - RRH - 2"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(ProjectName, countVar)"
+            },
+            "range": {
+              "left": 209.603809931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQErrorByProject_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByProject\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -744,6 +816,76 @@
         }
       ]
     },
+    "orgDQHighPriorityByProject": {
+      "src": "[image data hash: d5c6137f46496fd689c5871d98dac8f8]",
+      "width": 1640,
+      "height": 400,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 13.2,
+              "bottom": 0.4,
+              "top": 3.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Organization A - RRH - 2",
+                  "Organization A - SO",
+                  "Organization A - HP - 2"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(ProjectName, countVar)"
+            },
+            "range": {
+              "left": 209.603809931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQHighPriorityByProject_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQHighPriorityByProject\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
     "orgDQWarningByIssue": {
       "src": "[image data hash: c6f3027a0ee121a8ee9a42381b595f6d]",
       "width": 1640,
@@ -805,6 +947,82 @@
     },
     "orgDQWarningByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQWarningByProject": {
+      "src": "[image data hash: b33166bb046c6c53dd342bb1f900504d]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the organization's projects with the most Warnings.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 261.8,
+              "bottom": 0.4,
+              "top": 9.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Organization A - RRH - 3",
+                  "Organization A - PSH",
+                  "Organization A - RRH",
+                  "Organization A - HP",
+                  "Organization A - HP - 2",
+                  "Organization A - RRH - 2",
+                  "Organization A - SO",
+                  "Organization A - ES - 2",
+                  "Organization A - ES"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(ProjectName, countVar)"
+            },
+            "range": {
+              "left": 209.603809931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQWarningByProject_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByProject\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",

@@ -8,15 +8,28 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
+    "accordion_client_count": null,
+    "accordion_dqorg": null,
+    "accordion_dqsystem": null,
+    "accordion_home": null,
+    "accordion_local_settings": null,
+    "accordion_pdde": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+    "card_filters1_full_screen": false,
+    "card_filters2_full_screen": false,
+    "client_count_subtabs": "Client Counts Summary",
     "currentProviderList": "Organization A - ES",
     "dateRangeCount": [
       "2019-10-01",
       "2022-09-30"
     ],
+    "demo_mode_tooltip": false,
     "dimension": [
       1920,
       1080
     ],
+    "dq_summary_subtabs": "Data Quality Summary",
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -76,6 +89,10 @@
         }
       ]
     },
+    "g_errors_dqorg_subtabs": "Top 10 Issues",
+    "g_errors_dqsystem_subtabs": "Top 10 Issues",
+    "hp_errors_dqorg_subtabs": "Issues",
+    "hp_errors_dqsystem_subtabs": "Issues",
     "imported": {
       "name": [
         "FY24-ICF-main-valid.zip"
@@ -90,14 +107,13 @@
         "0.zip"
       ]
     },
-    "isdemo": false,
+    "in_demo_mode": false,
     "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": "Organization A‰",
+    "pageid": "tabUpload",
+    "pdde_subtabs": "PDDE Check Summary",
     "showDownloadImpermissibleButton": 0,
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": null,
-    "sidebarmenuid": "tabUpload",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Summary Chart",
     "sys_status_subtabs": "Chart",
@@ -123,7 +139,11 @@
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
-    ]
+    ],
+    "tabDQOrg_subtabs": "High Priority Errors",
+    "tabDQSystem_subtabs": "High Priority Errors",
+    "warnings_dqorg_subtabs": "Top 10 Issues",
+    "warnings_dqsystem_subtabs": "Top 10 Issues"
   },
   "output": {
     "downloadFileStructureAnalysisBtn": {

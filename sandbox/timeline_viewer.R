@@ -123,145 +123,145 @@ observeEvent(input$enrollmentIDFilter, {
   )
 }, ignoreInit = TRUE)
 
-output$timelinePlot <- renderPlotly({
-  filtered_data <- enrollments_dt()
-  # browser()
-  # Calculate the full date range (12 months + 4 months prior + 1 month after)
-  date_range_start <- session$userData$ReportStart %m-% months(4)
-  date_range_end <- session$userData$ReportEnd %m+% months(1)
-  
-  # Create month tick marks
-  month_ticks <- seq.Date(from = date_range_start, to = date_range_end, by = "month")
-  month_labels <- format(month_ticks, "%b %Y")
-  
-  updateSliderInput(
-    session,
-    "monthFilter",
-    label = month_labels
-  )
-
-  # Get unique personal IDs for y-axis positioning
-  person_ids <- unique(filtered_data[, PersonalID])
-  person_positions <- data.table(PersonalID = person_ids, 
-                                 Position = 1:length(person_ids))
-  filtered_data <- merge(filtered_data, person_positions, by = "PersonalID")
-  
-  # Create a mapping of enrollment to initial inflow category
-  # filtered_data[, entry_month := floor_date(EntryDate, "month")]
-  filtered_data[, entry_month := floor_date(pmax(EntryDate, session$userData$ReportStart), "month"), by=PersonalID]
-  
-  # Merge inflow data with filtered data
-  filtered_data <- enrl_month_categories()[
-    filtered_data, 
-    on = .(EnrollmentID)
-  ][, month := format(month, "%b %y")]
-
-  filtered_data[is.na(InflowTypeSummary) & ExitAdjust < session$userData$ReportStart, InflowTypeSummary := "Lookback"]
-
-  filtered_data[, segment_start := pmax(as.Date(EntryDate), date_range_start)]
-  filtered_data[, segment_end := pmin(as.Date(ExitAdjust), as.Date(date_range_end) %m-% months(1))]
-  # filtered_data <- filtered_data[!is.na(InformationDate)]
-  filtered_data <- unique(filtered_data)
-  
-  # Jitter enrollment lines away from each other
-  jittered_data <- unique(filtered_data[, .(
-    EnrollmentID, 
-    PersonalID, 
-    EntryDate, 
-    ExitAdjust, 
-    segment_start, 
-    segment_end, 
-    Position, 
-    ProjectType, 
-    lh_prior_livingsituation, 
-    LivingSituationCategory, 
-    InflowTypeDetail,
-    InflowTypeSummary,
-    OutflowTypeDetail
-  )])
-  jittered_data[, Position_jittered := Position + (seq_len(.N) - 1) * 0.05, by = Position]
-  
-  export_random_100(filtered_data)
-  
-  p <- ggplot() +
-    # Add vertical month lines
-    geom_vline(xintercept = as.numeric(month_ticks), linetype = "dotted", color = "gray80") +
-    
-    # Add enrollment lines
-    geom_segment(data = jittered_data,
-                 aes(x = segment_start, 
-                     xend = segment_end,
-                     y = Position_jittered, 
-                     yend = Position_jittered,
-                     color = as.factor(InflowTypeSummary),
-                     # group = EnrollmentID,
-                     text = paste("PersonalID:", PersonalID, 
-                                  "<br>EnrollmentID:", EnrollmentID,
-                                  "<br>EntryDate:", format(EntryDate, "%Y-%m-%d"),
-                                  "<br>ExitAdjust:", format(ExitAdjust, "%Y-%m-%d"),
-                                  "<br>ProjectType:", ProjectType,
-                                  "<br>LivingSituation:", LivingSituationCategory,
-                                  "<br>lh_prior_livingsituation:", lh_prior_livingsituation,
-                                  "<br>Inflow Detail:", InflowTypeDetail, # For click events
-                                  "<br>Outflow Detail:", OutflowTypeDetail)), # For click events
-                 linewidth = 1)
-  
-  if(nrow(filtered_data[!is.na(InformationDate)]) > 0) {
-    # Add information date markers
-    p <- p + 
-      geom_point(data = unique(filtered_data[, .(EnrollmentID, Position, InformationDate)]),
-               aes(x = as.Date(InformationDate), 
-                   y = Position),
-               shape = 3,
-               color = "orange",
-               size = 2)
-  }
-  
-  if(nrow(filtered_data[!is.na(DateProvided)]) > 0) {
-    # Add information date markers
-    p <- p + 
-      geom_point(data = unique(filtered_data[, .(EnrollmentID, Position, DateProvided)]),
-                 aes(x = as.Date(DateProvided), 
-                     y = Position),
-                 shape = 3,
-                 color = "pink",
-                 size = 2)
-  }
-  p <- p +
-    # Add living situation markers at exit date
-    geom_point(data = unique(jittered_data[ExitAdjust < as.Date("2099-01-01"), .(EnrollmentID, PersonalID, ExitAdjust, Position, 
-                                                                                 LivingSituationCategory, Position_jittered)]),
-               aes(x = as.Date(ExitAdjust), 
-                   y = Position_jittered,
-                   shape = LivingSituationCategory),
-               size = 2) +
-    # Customize the plot
-    scale_x_date(limits = c(date_range_start, date_range_end),
-                 breaks = as.Date(month_ticks),
-                 labels = month_labels) +
-    scale_y_continuous(breaks = person_positions$Position,
-                       labels = NULL) +
-    scale_color_manual(values = c("Active at Start" = "blue", "Inflow" = "green", "Unknown" = "gray")) +
-    scale_shape_manual(values = c("permanent" = 16, "homeless" = 17, "temporary" = 15, 
-                                  "institutional" = 18, "other" = 8)) +
-    labs(x = "Date", 
-         y = "Personal ID",
-         color = "Inflow Summary",
-         shape = "Living Situation") +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.text.y = element_blank(),
-          axis.title.y = element_blank(),
-          panel.grid.minor = element_blank())
-  
-  # Convert to plotly for interactivity
-  ggplotly(p, tooltip = "text", source="timelines") %>%
-    layout(
-      hoverlabel = list(bgcolor = "white"),
-      margin = list(l = 50, r = 50, b = 100, t = 50),
-      legend = list(orientation = "h", y = -0.2)
-    )
-})
+# output$timelinePlot <- renderPlotly({
+#   filtered_data <- enrollments_dt()
+#   # browser()
+#   # Calculate the full date range (12 months + 4 months prior + 1 month after)
+#   date_range_start <- session$userData$ReportStart %m-% months(4)
+#   date_range_end <- session$userData$ReportEnd %m+% months(1)
+#   
+#   # Create month tick marks
+#   month_ticks <- seq.Date(from = date_range_start, to = date_range_end, by = "month")
+#   month_labels <- format(month_ticks, "%b %Y")
+#   
+#   updateSliderInput(
+#     session,
+#     "monthFilter",
+#     label = month_labels
+#   )
+# 
+#   # Get unique personal IDs for y-axis positioning
+#   person_ids <- unique(filtered_data[, PersonalID])
+#   person_positions <- data.table(PersonalID = person_ids, 
+#                                  Position = 1:length(person_ids))
+#   filtered_data <- merge(filtered_data, person_positions, by = "PersonalID")
+#   
+#   # Create a mapping of enrollment to initial inflow category
+#   # filtered_data[, entry_month := floor_date(EntryDate, "month")]
+#   filtered_data[, entry_month := floor_date(pmax(EntryDate, session$userData$ReportStart), "month"), by=PersonalID]
+#   
+#   # Merge inflow data with filtered data
+#   filtered_data <- enrl_month_categories()[
+#     filtered_data, 
+#     on = .(EnrollmentID)
+#   ][, month := format(month, "%b %y")]
+# 
+#   filtered_data[is.na(InflowTypeSummary) & ExitAdjust < session$userData$ReportStart, InflowTypeSummary := "Lookback"]
+# 
+#   filtered_data[, segment_start := pmax(as.Date(EntryDate), date_range_start)]
+#   filtered_data[, segment_end := pmin(as.Date(ExitAdjust), as.Date(date_range_end) %m-% months(1))]
+#   # filtered_data <- filtered_data[!is.na(InformationDate)]
+#   filtered_data <- unique(filtered_data)
+#   
+#   # Jitter enrollment lines away from each other
+#   jittered_data <- unique(filtered_data[, .(
+#     EnrollmentID, 
+#     PersonalID, 
+#     EntryDate, 
+#     ExitAdjust, 
+#     segment_start, 
+#     segment_end, 
+#     Position, 
+#     ProjectType, 
+#     lh_prior_livingsituation, 
+#     LivingSituationCategory, 
+#     InflowTypeDetail,
+#     InflowTypeSummary,
+#     OutflowTypeDetail
+#   )])
+#   jittered_data[, Position_jittered := Position + (seq_len(.N) - 1) * 0.05, by = Position]
+#   
+#   export_random_100(filtered_data)
+#   
+#   p <- ggplot() +
+#     # Add vertical month lines
+#     geom_vline(xintercept = as.numeric(month_ticks), linetype = "dotted", color = "gray80") +
+#     
+#     # Add enrollment lines
+#     geom_segment(data = jittered_data,
+#                  aes(x = segment_start, 
+#                      xend = segment_end,
+#                      y = Position_jittered, 
+#                      yend = Position_jittered,
+#                      color = as.factor(InflowTypeSummary),
+#                      # group = EnrollmentID,
+#                      text = paste("PersonalID:", PersonalID, 
+#                                   "<br>EnrollmentID:", EnrollmentID,
+#                                   "<br>EntryDate:", format(EntryDate, "%Y-%m-%d"),
+#                                   "<br>ExitAdjust:", format(ExitAdjust, "%Y-%m-%d"),
+#                                   "<br>ProjectType:", ProjectType,
+#                                   "<br>LivingSituation:", LivingSituationCategory,
+#                                   "<br>lh_prior_livingsituation:", lh_prior_livingsituation,
+#                                   "<br>Inflow Detail:", InflowTypeDetail, # For click events
+#                                   "<br>Outflow Detail:", OutflowTypeDetail)), # For click events
+#                  linewidth = 1)
+#   
+#   if(nrow(filtered_data[!is.na(InformationDate)]) > 0) {
+#     # Add information date markers
+#     p <- p + 
+#       geom_point(data = unique(filtered_data[, .(EnrollmentID, Position, InformationDate)]),
+#                aes(x = as.Date(InformationDate), 
+#                    y = Position),
+#                shape = 3,
+#                color = "orange",
+#                size = 2)
+#   }
+#   
+#   if(nrow(filtered_data[!is.na(DateProvided)]) > 0) {
+#     # Add information date markers
+#     p <- p + 
+#       geom_point(data = unique(filtered_data[, .(EnrollmentID, Position, DateProvided)]),
+#                  aes(x = as.Date(DateProvided), 
+#                      y = Position),
+#                  shape = 3,
+#                  color = "pink",
+#                  size = 2)
+#   }
+#   p <- p +
+#     # Add living situation markers at exit date
+#     geom_point(data = unique(jittered_data[ExitAdjust < as.Date("2099-01-01"), .(EnrollmentID, PersonalID, ExitAdjust, Position, 
+#                                                                                  LivingSituationCategory, Position_jittered)]),
+#                aes(x = as.Date(ExitAdjust), 
+#                    y = Position_jittered,
+#                    shape = LivingSituationCategory),
+#                size = 2) +
+#     # Customize the plot
+#     scale_x_date(limits = c(date_range_start, date_range_end),
+#                  breaks = as.Date(month_ticks),
+#                  labels = month_labels) +
+#     scale_y_continuous(breaks = person_positions$Position,
+#                        labels = NULL) +
+#     scale_color_manual(values = c("Active at Start" = "blue", "Inflow" = "green", "Unknown" = "gray")) +
+#     scale_shape_manual(values = c("permanent" = 16, "homeless" = 17, "temporary" = 15, 
+#                                   "institutional" = 18, "other" = 8)) +
+#     labs(x = "Date", 
+#          y = "Personal ID",
+#          color = "Inflow Summary",
+#          shape = "Living Situation") +
+#     theme_minimal() +
+#     theme(axis.text.x = element_text(angle = 45, hjust = 1),
+#           axis.text.y = element_blank(),
+#           axis.title.y = element_blank(),
+#           panel.grid.minor = element_blank())
+#   
+#   # Convert to plotly for interactivity
+#   ggplotly(p, tooltip = "text", source="timelines") %>%
+#     layout(
+#       hoverlabel = list(bgcolor = "white"),
+#       margin = list(l = 50, r = 50, b = 100, t = 50),
+#       legend = list(orientation = "h", y = -0.2)
+#     )
+# })
 # 
 # # Store clicked enrollment information
 # selectedEnrollment <- reactiveVal(NULL)

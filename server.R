@@ -23,9 +23,8 @@ function(input, output, session) {
   # Handle if user arrives from external site
   observe({
     req(session$clientData$url_search != "")
-    updateTabItems(session,
-                   "sidebarmenuid",
-                   "tabGlossary")
+   
+    nav_select(id = 'pageid', selected = 'tabGlossary', session = session)
     #parseQueryString(session$clientData$url_search))
   })
   
@@ -37,19 +36,27 @@ function(input, output, session) {
 
   logMetadata(session, "Session started")
   
-  # Tab Management -----------------------------------------------------------------
-  observeEvent(input$sidebarmenuid, { 
-    logMetadata(session, paste0("User on ",input$sidebarmenuid, 
+  # set during initially valid processing stop. Rest of processing stops if invalid
+  # FSA is hidden unless initially_valid_import() == 1
+  # initially_valid_import <- reactiveVal() 
+  
+  # in_demo_mode <- reactiveVal(value=FALSE)
+  # log when user navigate to a tab
+  observe({
+    logMetadata(session, paste0("User on ",input$pageid,
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   })
   
-  # Tab headers ------------------------
+  
+  # Headers -----------------------------------------------------------------
+  
   output$headerUpload <-
     headerGeneric(session, "Upload HMIS CSV Export",
                   h4(
                     strong("Export Date: "),
                     format(session$userData$meta_HUDCSV_Export_Date, "%m-%d-%Y at %I:%M %p")
                   ))
+
 
   output$headerLocalSettings <- headerGeneric(session, "Edit Local Settings")
 
@@ -73,12 +80,18 @@ function(input, output, session) {
   
   output$headerSystemDQ <- headerGeneric(session, "System-level Data Quality")
   
-  output$headerDataQuality <- headerGeneric(session, "Organization-level Data Quality")
+  output$headerDQOrg_supp <- renderUI({ 
+    req(session$userData$valid_file() == 1)
+    
+    h4(input$orgList)
+  })
+  output$headerDataQuality <- headerGeneric(session, "Organization-level Data Quality",
+                                            htmlOutput("headerDQOrg_supp"))
   
   output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
   output$headerSystemExit <- headerGeneric(session, "System Exit")
-  
+
   # output$headerUtilization <- renderUI({
   #   list(h2("Bed and Unit Utilization"),
   #        h4(input$providerListUtilization),
@@ -104,7 +117,7 @@ function(input, output, session) {
   
   # Detect user clicking to go to upload page -------------------------------
   observeEvent(input$Go_to_upload, {
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
+    nav_select(id = "pageid", selected = "tabUpload", session = session)
   }) 
   
   # Timeout detection ---------------------

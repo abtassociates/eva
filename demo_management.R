@@ -1,13 +1,18 @@
+# Reactive val for monitoring demo mode - this is used to differentiate
+# from input$in_demo_mode, which is the demo mode switch. The switch 
+# triggers a modal where they can continue or cancel, so this value
+# only updates if the user clicks continue. (so during the modal, there can be 
+# a time when input$in_demo_mode = TRUE but in_demo_mode_compare stays FALSE)
+in_demo_mode_compare <- reactiveVal(FALSE)
+
 # in Demo Mode, tracks if user has seen tab-specific pop-up
 seen_message <- reactiveValues() 
 
-demo_modal_closed <- reactiveVal()
-
 # Tab-description message when in demo mode ----------------------------------
-observeEvent(input$sidebarmenuid, {
+observeEvent(input$pageid, {
   req(input$in_demo_mode)
   req(input$continue_demo_btn)
-  selectedTabId <- input$sidebarmenuid
+  selectedTabId <- input$pageid
   msg <- 
     switch(selectedTabId,
            "tabUpload" = "Welcome to the Upload HMIS CSV Export page. This
@@ -16,20 +21,20 @@ observeEvent(input$sidebarmenuid, {
              see an example of the types of issues the File Structure Analysis
              identifies. ",
            
-           "tabLocalSettings" = "Welcome to the Edit Local Settings page. This
+           "tabLocalSettings" = "Welcome to the Local Settings page. This
              page is where users can adjust the local settings of their uploaded
              dataset so Eva can better analyze their data in a way that is
              meaningful to their CoC. In Demo Mode, changing these settings will
              cause Eva to recalculate the data quality metrics with the selected
              parameters.",
            
-           "tabClientCount" = "Welcome to the View Client Counts page. This
+           "tabClientCount" = "Welcome to the Client Counts page. This
              page helps users review the counts of households/clients served in
              each project and verify that a project is up to date on their HMIS
              data entry. In Demo Mode, you can see an example Client Counts
              report.",
            
-           "tabPDDE" = "Welcome to the Check Project Data page. This page
+           "tabPDDE" = "Welcome to the Project Data page. This page
              helps users review the Project Descriptor Data Element (PDDE) data
              quality issues in their HMIS data. Users can use this information
              to identify where corrections should be made in their HMIS. In Demo
@@ -68,123 +73,23 @@ observeEvent(input$sidebarmenuid, {
   showModal(modalDialog(msg))
 }) 
 
-toggleDemoJs <- function(t) {
-  js_t <- ifelse(t, 'true','false')
-  shinyjs::runjs(str_glue("
-      $('#home_demo_instructions').parent().parent().toggle({js_t});
-      $('#home_demo_instructions').parent().css('border', '2px solid #FCB248');
-      
-      $('.in_demo_mode').toggle({js_t});
-      
-      $('#home_live_instructions').parent().parent().toggle(!{js_t});
-      
-      document.getElementById('isdemo').checked = {js_t};
-      
-      $('#imported').closest('.btn').attr('disabled',{js_t});
-      
-      $('#demo_banner').remove();
-    "))
-  
-  if(t) {
-    capture.output("Switching to demo mode!")
-    
-    # let user know things take a min to load then load the demo data
-    showModal(
-      modalDialog(
-        "Activating demo mode...",
-        title = NULL,
-        footer = NULL
-      )
-    )
-    
-    process_upload("demo.zip", here("demo.zip"))
-    
-    session$userData$valid_file(1)
-    
-    removeModal()
-    
-    if(input$sidebarmenuid != "tabHome") {
-      updateTabItems(session, "sidebarmenuid", "tabHome")
-    }
-    
-    
-    shinyjs::runjs(paste0(
-      "var demoBannerHTML = \"<div id='demo_banner' class='in_demo_mode'>",
-      "DEMO",
-      "</div>\";",
-      "$('header.main-header').append(demoBannerHTML);"
-    ))
-    
-    shinyjs::runjs("$('#sidebarItemExpanded').css({
-                     'top': '1.5em',
-                     'position':'relative'})")
-    shinyjs::hide(id = "successful_upload")
-    shinyjs::disable("imported")
-    
-    print("Switched to demo mode!")
-    logMetadata(session, "Switched to demo mode")
-    
-  } else {
-    capture.output("Switching to live mode")
-    
-    updateTabItems(session, "sidebarmenuid", "tabUpload")
-    
-    shinyjs::runjs("
-          $('#imported').closest('.btn').removeAttr('disabled');
-      ")
-    shinyjs::runjs("$('#sidebarItemExpanded').css({
-                     'top': '',
-                     'position':''})")
-    shinyjs::enable("imported")
-    
-    shinyjs::runjs("
-      $('#imported').closest('.input-group-btn').next().val('');
-      ")
-    
-    shinyjs::hide("fileStructureAnalysis")
-    
-    reset_app(session)
-    
-    print("Switched into live mode!")
-    capture.output("Switched into live mode")
-    logMetadata(session, "Switched into live mode")
-  }
-}
 
-observeEvent(input$continue_demo_btn, {
-  removeModal()
-  toggleDemoJs(TRUE)
-})
+observeEvent(input$in_demo_mode,{
+  req(in_demo_mode_compare() != input$in_demo_mode)
+  show_warning_popup(input$in_demo_mode)
+}, ignoreInit = TRUE)
 
-observeEvent(input$stay_in_demo, {
-  demo_modal_closed(1)
-  removeModal()
-  runjs('document.getElementById("isdemo").checked = true;')
-  logMetadata(session, "Chose to stay in demo mode")
-})
+show_warning_popup <- function(in_demo_mode) {
+  if(in_demo_mode == TRUE) {
 
-observeEvent(input$stay_in_live, {
-  demo_modal_closed(1)
-  removeModal()
-  runjs('document.getElementById("isdemo").checked = false;')
-  logMetadata(session, "Chose to stay in live mode")
-})
-
-observeEvent(input$continue_live_btn, {
-  removeModal()
-  toggleDemoJs(FALSE)
-})
-
-observeEvent(input$in_demo_mode, {
-  if(input$in_demo_mode == TRUE) {
     msg <- "<p>You're currently requesting to turn on Demo Mode. Demo Mode
       allows you to explore Eva using sample HMIS data, rather than having to
       use your own HMIS CSV Export file."
     
     if(length(input$imported) > 0) {
-      msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS 
-        CSV Export data will be erased from Eva and replaced with the sample 
-        HMIS data. You will be able to re-upload your HMIS CSV 
+      msg <- paste(msg, "<p>If you turn on Demo Mode now, your uploaded HMIS
+        CSV Export data will be erased from Eva and replaced with the sample
+        HMIS data. You will be able to re-upload your HMIS CSV
         Export file if you switch out of Demo Mode.</p>")
     } else {
       msg <- paste(msg, "You will still be able to upload your own HMIS CSV
@@ -215,6 +120,56 @@ observeEvent(input$in_demo_mode, {
       )
     )
   }
-}, ignoreInit = TRUE)
+}
 
-shinyjs::runjs("$('#home_demo_instructions').parent().parent().hide()")
+observeEvent(input$continue_demo_btn, {
+  removeModal()
+  toggle_demo(TRUE)
+})
+
+observeEvent(input$stay_in_demo, {
+
+  toggle_switch(id = 'in_demo_mode', value = TRUE)
+  removeModal()
+  logMetadata(session, "Chose to stay in demo mode")
+})
+
+observeEvent(input$stay_in_live, {
+
+  toggle_switch(id = 'in_demo_mode', value = FALSE)  
+  removeModal()
+  logMetadata(session, "Chose to stay in live mode")
+})
+
+observeEvent(input$continue_live_btn, {
+  removeModal()
+  toggle_demo(FALSE)
+})
+
+ output$demo_text <- renderUI({
+     tabUpload_in_demo_mode
+ })
+
+toggle_demo <- function(in_demo_mode) {
+  
+  if(in_demo_mode == TRUE){
+    process_upload("demo.zip", here("demo.zip"))
+    removeModal()
+    accordion_panel_open(id = 'accordion_home', values = 'home_demo_instructions')
+  } else {
+    reset_app(session)
+  }
+  mode <- ifelse(in_demo_mode, 'demo', 'live')
+  print(glue("Switched to {mode} mode!"))
+  capture.output(glue("Switched into {mode} mode"))
+  logMetadata(session, glue("Switched to {mode} mode"))
+  
+  nav_select(id = 'pageid', selected = ifelse(in_demo_mode, 'tabHome', 'tabUpload'), session = session)
+  shinyjs::toggle("fileStructureAnalysis", condition = in_demo_mode)
+  shinyjs::toggle("demo_text", condition = in_demo_mode)
+  shinyjs::toggleState("imported", condition = !in_demo_mode)
+  shinyjs::toggle('demo_banner', condition = in_demo_mode)
+  shinyjs::toggle(selector = '#accordion_home [data-value=home_live_instructions]', condition = !in_demo_mode)
+  shinyjs::toggle(selector = '#accordion_home [data-value=home_demo_instructions]', condition = in_demo_mode)
+  in_demo_mode_compare(in_demo_mode)
+}

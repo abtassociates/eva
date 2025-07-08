@@ -266,6 +266,7 @@ logMetadata <- function(session, detail) {
 
 headerGeneric <- function(session, tabTitle, extraHTML = NULL) {
   renderUI({
+
     if(session$userData$valid_file() == 1) {
       list(h2(tabTitle),
            h4(strong("Date Range of Current File: "),
@@ -473,7 +474,6 @@ reset_postvalid_components <- function(session) {
   shinyjs::hide("sys_comp_download_btn_ppt")
 }
 
-# essentially resets the app
 reset_app <- function(session) {
   reset_session_vars(session)
   reset_postvalid_components(session)

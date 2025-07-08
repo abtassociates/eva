@@ -604,7 +604,8 @@ output$glossary <- renderDataTable({
     options = list(
       searchHighlight = TRUE,
       order = list(list(0, 'asc'), list(1, 'asc'))
-    )
+    ),
+    style = "default"
   )
   
 })

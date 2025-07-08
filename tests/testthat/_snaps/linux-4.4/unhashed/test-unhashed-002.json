@@ -8,15 +8,32 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
+    "accordion_client_count": null,
+    "accordion_dqorg": null,
+    "accordion_dqsystem": null,
+    "accordion_home": null,
+    "accordion_local_settings": null,
+    "accordion_pdde": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+    "card_filters1_full_screen": false,
+    "card_filters2_full_screen": false,
+    "client_count_subtabs": "Client Counts Detail",
     "currentProviderList": null,
     "dateRangeCount": [
       "2023-10-05",
       "2023-10-05"
     ],
+    "demo_mode_tooltip": false,
     "dimension": [
       1920,
       1080
     ],
+    "dq_summary_subtabs": "Data Quality Summary",
+    "g_errors_dqorg_subtabs": "Top 10 Issues",
+    "g_errors_dqsystem_subtabs": "Top 10 Issues",
+    "hp_errors_dqorg_subtabs": "Issues",
+    "hp_errors_dqsystem_subtabs": "Issues",
     "imported": {
       "name": [
         "FY24-ICF-unhashed.zip"
@@ -31,13 +48,12 @@
         "0.zip"
       ]
     },
-    "isdemo": false,
+    "in_demo_mode": false,
     "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": null,
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": null,
-    "sidebarmenuid": "tabClientCount",
+    "pageid": "tabClientCount",
+    "pdde_subtabs": "PDDE Check Summary",
     "sys_comp_subtabs": "Chart",
     "sys_inflow_outflow_subtabs": "Summary Chart",
     "sys_status_subtabs": "Chart",
@@ -63,7 +79,11 @@
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
-    ]
+    ],
+    "tabDQOrg_subtabs": "High Priority Errors",
+    "tabDQSystem_subtabs": "High Priority Errors",
+    "warnings_dqorg_subtabs": "Top 10 Issues",
+    "warnings_dqsystem_subtabs": "Top 10 Issues"
   },
   "output": {
     "clientCountData": [

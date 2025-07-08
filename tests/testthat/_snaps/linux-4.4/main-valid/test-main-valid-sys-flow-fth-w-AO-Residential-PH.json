@@ -1,7 +1,7 @@
 {
   "input": {
     "methodology_type": "1",
-    "sidebarmenuid": "tabSystemOverview",
+    "pageid": "tabSystemOverview",
     "sys_inflow_outflow_subtabs": "Month-by-Month Chart",
     "syso_age": [
       "0 to 12",
@@ -31,8 +31,8 @@
       ]
     },
     "sys_fth_monthly_ui_chart": {
-      "src": "[image data hash: 8feeb2d181e617cea7735d649eee22e4]",
-      "width": 1575,
+      "src": "[image data hash: ca9bdb281bed14debb7863e9efa13739]",
+      "width": 1847,
       "height": 500,
       "alt": "Plot object",
       "coordmap": {
@@ -75,15 +75,15 @@
               "y": "Count"
             },
             "range": {
-              "left": 74.27397260273973,
-              "right": 1575,
+              "left": 74.27397260273975,
+              "right": 1847,
               "bottom": 481.068493150685,
               "top": 0
             }
           }
         ],
         "dims": {
-          "width": 1575,
+          "width": 1847,
           "height": 500
         }
       }
