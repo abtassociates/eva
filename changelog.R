@@ -2,8 +2,8 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "06-13-2025",
-    "<b>New Features</><br>
+    "07-18-2025",
+    "<b>New Features</b><br>
       - New Month-by-Month System Flow visualization<br>
       - Major UI update, due to upgrade to bootstrap5<br>
       - Performance improvements<br>
