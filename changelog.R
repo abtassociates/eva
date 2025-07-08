@@ -5,10 +5,12 @@ output$changelog <- renderDT({
     "06-13-2025",
     "<b>New Features</><br>
       - New Month-by-Month System Flow visualization<br>
+      - Major UI update, due to upgrade to bootstrap5<br>
       - Performance improvements<br>
     <b>Bug Fixes</b> <br>
       - Fixed SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>). <br>
       - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
+      - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
     <b>Miscellaneous</b> <br>
       - Updated System Overview instruction text. <br>
       - Streamlined System Flow export",
