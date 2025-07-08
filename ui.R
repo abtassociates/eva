@@ -158,21 +158,21 @@ page_navbar(
                 label = NULL,
                 multiple = FALSE,
                 accept = ".zip",width = '100%'),
+      br(),
       uiOutput("fileInfo") %>% withSpinner()
     ),
     card(
       card_title("HMIS CSV Export File Structure Analysis"),
       
       DTOutput("fileStructureAnalysis"),
-      p(),
+      br(),
       HTML("<p>Users should contact their vendor to resolve high priority 
             errors identified in the HMIS CSV Export File Structure Analysis, as
             well as any other structural issues which you feel need to be corrected.
             </p>"),
-      p(),
-      uiOutput('downloadFileStructureAnalysisBtn', fill = FALSE, inline = TRUE),
-      p(),
-      uiOutput('downloadImpermissibleCharacterDetailBtn', fill = FALSE),
+      br(),
+      uiOutput('downloadFileStructureAnalysisBtn', fill = FALSE, inline = TRUE,style='margin-bottom:10px'),
+      uiOutput('downloadImpermissibleCharacterDetailBtn', fill = FALSE, inline = TRUE),
       fillable = FALSE
     )
     # fluidRow(box(
