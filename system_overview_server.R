@@ -804,7 +804,7 @@ get_period_specific_enrollment_categories <- reactive({
         ))
       ),
       eecr = fcoalesce(eecr, FALSE),
-      lecr = (lecr_straddle | lecr_no_straddle),
+      lecr = (lecr_straddle | lecr_no_straddle) & passes_enrollment_filters,
       lecr = fcoalesce(lecr, FALSE),
       in_nbn_non_res = NULL
     )
