@@ -56,7 +56,6 @@ mirai::everywhere({
   
   source(here("hardcodes.R"))
   source(here("helper_functions.R"))
-  source(here('tab_instructions.R')) # static HTML text elements
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
 onStop(function() daemons(0))

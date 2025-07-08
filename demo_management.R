@@ -1,4 +1,8 @@
-# This helps manage "canceling" a switch to/from demo mode
+# Reactive val for monitoring demo mode - this is used to differentiate
+# from input$in_demo_mode, which is the demo mode switch. The switch 
+# triggers a modal where they can continue or cancel, so this value
+# only updates if the user clicks continue. (so during the modal, there can be 
+# a time when input$in_demo_mode = TRUE but in_demo_mode_compare stays FALSE)
 in_demo_mode_compare <- reactiveVal(FALSE)
 
 # in Demo Mode, tracks if user has seen tab-specific pop-up
