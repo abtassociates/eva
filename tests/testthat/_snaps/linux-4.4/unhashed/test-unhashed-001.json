@@ -16,6 +16,8 @@
     "accordion_pdde": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
+    "card_filters1_full_screen": false,
+    "card_filters2_full_screen": false,
     "client_count_subtabs": "Client Counts Summary",
     "currentProviderList": null,
     "dateRangeCount": [

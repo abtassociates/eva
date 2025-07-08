@@ -16,6 +16,8 @@
     "accordion_pdde": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
+    "card_filters1_full_screen": false,
+    "card_filters2_full_screen": false,
     "client_count_subtabs": "Client Counts Detail",
     "currentProviderList": null,
     "dateRangeCount": [
@@ -182,7 +184,7 @@
         "validation"
       ]
     },
-    "systemDQErrorsByOrg_ui": {
+    "sysDQErrorByOrg_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -190,7 +192,7 @@
         "validation"
       ]
     },
-    "systemDQHighPriorityErrorsByIssue_ui": {
+    "sysDQHighPriorityByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -198,7 +200,7 @@
         "validation"
       ]
     },
-    "systemDQHighPriorityErrorsByOrg_ui": {
+    "sysDQHighPriorityByOrg_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -206,7 +208,7 @@
         "validation"
       ]
     },
-    "systemDQWarningsByIssue_ui": {
+    "sysDQWarningByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -214,7 +216,7 @@
         "validation"
       ]
     },
-    "systemDQWarningsByOrg_ui": {
+    "sysDQWarningByOrg_ui": {
       "message": "",
       "call": "NULL",
       "type": [

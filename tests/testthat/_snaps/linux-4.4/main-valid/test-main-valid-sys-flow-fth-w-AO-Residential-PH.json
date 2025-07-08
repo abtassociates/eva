@@ -31,7 +31,7 @@
       ]
     },
     "sys_fth_monthly_ui_chart": {
-      "src": "[image data hash: d8889b67cf86ff646dddca51dbde7ca0]",
+      "src": "[image data hash: ca9bdb281bed14debb7863e9efa13739]",
       "width": 1847,
       "height": 500,
       "alt": "Plot object",
@@ -75,9 +75,9 @@
               "y": "Count"
             },
             "range": {
-              "left": 69.29265255292654,
+              "left": 74.27397260273975,
               "right": 1847,
-              "bottom": 497.2602739726028,
+              "bottom": 481.068493150685,
               "top": 0
             }
           }

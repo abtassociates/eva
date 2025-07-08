@@ -548,11 +548,11 @@ main_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")
     customDownload(app, "sys_inflow_outflow_download_btn", "System-Flow-Download.xlsx")
-    #customDownload(app, "sys_inflow_outflow_download_btn_ppt", "System-Flow-Download-PPT.pptx")
+    customDownload(app, "sys_inflow_outflow_download_btn_ppt", "System-Flow-Download-PPT.pptx")
     customDownload(app, "sys_status_download_btn", "System-Status-Download.xlsx")
-    #customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
+    customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
     customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
-    #customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
+    customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
     if(!is_gha) {
       customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
     }

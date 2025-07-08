@@ -420,11 +420,11 @@ page_navbar(
             selected = "Issues",
             nav_panel(
               title = 'Issues',
-              uiOutput("systemDQHighPriorityErrorsByIssue_ui")
+              uiOutput("sysDQHighPriorityByIssue_ui")
             ),
             nav_panel(
               title = 'Top 10 Organizations',
-              uiOutput("systemDQHighPriorityErrorsByOrg_ui")
+              uiOutput("sysDQHighPriorityByOrg_ui")
             )
           )
         ),
@@ -438,11 +438,11 @@ page_navbar(
             selected = "Top 10 Issues",
             nav_panel(
               title = 'Top 10 Issues',
-              uiOutput("systemDQErrorsByIssue_ui")
+              uiOutput("sysDQErrorByIssue_ui")
             ),
             nav_panel(
               title = 'Top 10 Organizations',
-              uiOutput("systemDQErrorsByOrg_ui")
+              uiOutput("sysDQErrorByOrg_ui")
             )
           )
         ),
@@ -455,11 +455,11 @@ page_navbar(
             selected = "Top 10 Issues",
             nav_panel(
               title = "Top 10 Issues", 
-              uiOutput("systemDQWarningsByIssue_ui")
+              uiOutput("sysDQWarningByIssue_ui")
             ),
             nav_panel(
               title = "Top 10 Organizations", 
-              uiOutput("systemDQWarningsByOrg_ui")
+              uiOutput("sysDQWarningByOrg_ui")
             )
           )
         ),
@@ -509,11 +509,11 @@ page_navbar(
             selected = "Issues",
             nav_panel(
               title = 'Issues',
-              uiOutput("orgDQHighPriorityErrorByIssue_ui") %>% withSpinner()
+              uiOutput("orgDQHighPriorityByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
               title = 'Top 10 Projects',
-              uiOutput("orgDQHighPriorityErrorsByProject_ui")  %>% withSpinner()
+              uiOutput("orgDQHighPriorityByProject_ui")  %>% withSpinner()
             )
           )
         ),
@@ -531,7 +531,7 @@ page_navbar(
             ),
             nav_panel(
               title = 'Top 10 Projects',
-              uiOutput("orgDQErrorsByProject_ui")  %>% withSpinner()
+              uiOutput("orgDQErrorByProject_ui")  %>% withSpinner()
             )
           )
         ),
@@ -544,11 +544,11 @@ page_navbar(
             selected = "Top 10 Issues",
             nav_panel(
               title = "Top 10 Issues", 
-              uiOutput("orgDQWarningsByIssue_ui") %>% withSpinner()
+              uiOutput("orgDQWarningByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
               title = "Top 10 Projects", 
-              uiOutput("orgDQWarningsByProject_ui") %>% withSpinner()
+              uiOutput("orgDQWarningByProject_ui") %>% withSpinner()
             )
           )
         ),
