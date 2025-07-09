@@ -14,7 +14,7 @@ show_invalid_popup <- function(popupText = NULL, issueID, title) {
       HTML(
         ifelse(
           is.null(popupText), 
-          evachecks %>% filter(ID == issueID) %>% pull(Guidance), 
+          evachecks %>% fsubset(ID == issueID) %>% pull(Guidance), 
           popupText
         )
       ),
@@ -31,11 +31,11 @@ hasNoExportRow <- function() {
   # Saving it for easier reference later
   session$userData$Export <- importFile(upload_filepath, "Export")
   
-  if(nrow(session$userData$Export) == 0) {
+  if(fnrow(session$userData$Export) == 0) {
     # in order to log the session (which we do here because it's the soonest we 
     # have access to the Export data needed for logging the session)
     # we need to add a row to it
-    session$userData$Export <- bind_rows(session$userData$Export, tibble_row())
+    session$userData$Export <- rowbind(session$userData$Export, tibble_row())
     returnVal <- TRUE
   }
   logSessionData(session)
@@ -123,7 +123,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       If you are not sure how to resolve this issue, please contact your HMIS vendor."
     )
     logMetadata(session, "Unsuccessful upload - Export.csv has no rows")
-  } else if(nrow(session$userData$Export) > 1) {
+  } else if(fnrow(session$userData$Export) > 1) {
     show_invalid_popup(
       issueID = 140,
       title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file contains more than 1 row.",
