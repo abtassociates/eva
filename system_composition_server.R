@@ -78,7 +78,7 @@ get_sys_comp_plot_df_1var <- function(comp_df, var_col) {
       group_by(!!sym(selection)) %>%
       summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
   } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    plot_df <- qDF(table(comp_df[[var_col]]))
     names(plot_df) <- c(selection, "n")
     
     if(selection == "Domestic Violence Status") {
@@ -104,7 +104,7 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
   # 13 to 24 with White, etc.
   process_combination <- function(v1, v2, comp_df) {
     logToConsole(session, glue("processing combination of {v1} and {v2}"))
-    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
+    freq_df <- qDF(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
       selections[1],
       selections[2],

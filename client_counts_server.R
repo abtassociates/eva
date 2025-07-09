@@ -17,7 +17,7 @@ client_count_data_df <- reactive({
   ReportEnd <- input$dateRangeCount[2]
 
   session$userData$validation %>%
-    mutate(
+    fmutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
         RelationshipToHoH == 1 ~ "Head of Household",
@@ -51,9 +51,9 @@ client_count_data_df <- reactive({
       ),
       sort = ymd(ReportEnd) - ymd(EntryDate)
     ) %>%
-    arrange(desc(sort), HouseholdID, PersonalID) %>%
+    roworder(-sort, HouseholdID, PersonalID) %>% 
     # make sure to include all columns that will be needed for the various uses
-    select(
+    fselect(
       PersonalID,
       EnrollmentID,
       HouseholdID,
@@ -67,7 +67,7 @@ client_count_data_df <- reactive({
       OrganizationName,
       ProjectType
     ) %>%
-    filter(EntryDate <= ReportEnd &
+    fsubset(EntryDate <= ReportEnd &
              (is.na(ExitDate) | ExitDate >= ReportStart))
 })
 
@@ -79,15 +79,15 @@ client_count_summary_df <- reactive({
   # this function summarizes a project-specific client_count, returning a dataset with counts by status
   client_count_summary_by <- function(vname, client_counts) {
     df <- client_counts %>%
-      mutate(Status = sub(" \\(.*", "", Status)) %>%
-      select(all_of(vname), Status) %>%
-      unique() %>%
+      fmutate(Status = sub(" \\(.*", "", Status)) %>%
+      fselect(vname,'Status') %>% #select(all_of(vname), Status) %>%
+      funique() %>%
       group_by(Status)
     return(df)
   }
   
   client_counts <- client_count_data_df() %>%
-    filter(ProjectName == input$currentProviderList)
+    fsubset(ProjectName == input$currentProviderList)
   
   hhs <- client_count_summary_by("HouseholdID", client_counts) %>%
     summarise(Households = n())
@@ -224,12 +224,12 @@ output$validate_plot <- renderPlot({
   # browser()
   
   detail <- client_count_data_df() %>%
-    filter(str_detect(Status, "Exit", negate = TRUE)) %>%
-    mutate(Status = factor(
-      case_when(
-        str_detect(Status, "Currently in") ~ "Currently in project",
-        str_detect(Status, "Currently Moved") ~ "Currently Moved In",
-        TRUE ~ Status
+    fsubset(str_detect(Status, "Exit", negate = TRUE)) %>%
+    fmutate(Status = factor(
+      fcase(
+        str_detect(Status, "Currently in"), "Currently in project",
+        str_detect(Status, "Currently Moved"), "Currently Moved In",
+        default = Status
       ),
       levels = c("Currently in project",
                  "Active No Move-In",
@@ -244,14 +244,14 @@ output$validate_plot <- renderPlot({
   
   
   plot_data <- detail %>%
-    left_join(detail_order, by = "ProjectType") %>%
+    join(detail_order, on = "ProjectType", how = 'left') %>%
     group_by(ProjectType) %>%
     arrange(ProjectType, desc(Total)) %>%
-    mutate(
-      movedin = lag(Total, default = 0),
-      text_position = case_when(
-        !ProjectType %in% c(ph_project_types) ~ InProject / 2,
-        ProjectType %in% c(ph_project_types) ~ 
+    fmutate(
+      movedin = flag(Total, default = 0),
+      text_position = fcase(
+        !ProjectType %in% c(ph_project_types), InProject / 2,
+        ProjectType %in% c(ph_project_types), 
           Total / 2 + movedin
       )
     )
