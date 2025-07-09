@@ -10,41 +10,41 @@ age_years <- function(earlier, later)
 # Display Helpers ---------------------------------------------------------
 
 living_situation <- function(ReferenceNo) {
-  case_when(
-    ReferenceNo == 8 ~ "Client doesn't know",
-    ReferenceNo == 9 ~ "Client prefers not to answer",
-    ReferenceNo == 17 ~ "Other",
-    ReferenceNo == 24 ~ "Deceased",
-    ReferenceNo == 30 ~ "No exit interview completed",
-    ReferenceNo == 37 ~ "Worker unable to determine",
-    ReferenceNo == 99 ~ "Data not collected",
-    ReferenceNo == 101 ~ "Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
-    ReferenceNo == 116 ~ "Place not meant for habitation",
-    ReferenceNo == 118 ~ "Safe Haven",
-    ReferenceNo == 204 ~ "Psychiatric hospital/ other psychiatric facility",
-    ReferenceNo == 205 ~ "Substance abuse treatment facility or detox center",
-    ReferenceNo == 206 ~ "Hospital or other residential non-psychiatric medical facility",
-    ReferenceNo == 207 ~ "Jail/prison/juvenile detention",
-    ReferenceNo == 225 ~ "Long-term care facility or nursing home",
-    ReferenceNo == 215 ~ "Foster care home of foster care group home",
-    ReferenceNo == 327 ~ "Moved from HOPWA funded project to HOPWA TH",
-    ReferenceNo == 302 ~ "Transitional housing",
-    ReferenceNo == 332 ~ "Host Home (non-crisis)",
-    ReferenceNo == 329 ~ "Residential project or halfway house with no homeless criteria",
-    ReferenceNo == 312 ~ "Staying or living with family, temporary tenure",
-    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
-    ReferenceNo == 314 ~ "H/Motel paid for by household",
-    ReferenceNo == 313 ~ "Staying or living with friends, temporary tenure",
-    ReferenceNo == 335 ~ "Staying or living with family, temporary tenure",
-    ReferenceNo == 336 ~ "Staying or living in a friend's room, apartment or house",
-    ReferenceNo == 335 ~ "Staying or living in a family member's room, apartment, or house",
-    ReferenceNo == 423 ~ "Staying or living with friends, permanent tenure",
-    ReferenceNo == 422 ~ "Staying or living with family, permanent tenure",
-    ReferenceNo == 435 ~ "Rental by client, with ongoing housing subsidy",
-    ReferenceNo == 410 ~ "Rental by client, no ongoing housing subsidy",
-    ReferenceNo == 426 ~ "Moved from one HOPWA funded project to HOPWA PH",
-    ReferenceNo == 421 ~ "Owned by client, with ongoing housing subsidy",
-    ReferenceNo == 411 ~ "Owned by client, no ongoing housing subsidy"
+  fcase(
+    ReferenceNo == 8,"Client doesn't know",
+    ReferenceNo == 9,"Client prefers not to answer",
+    ReferenceNo == 17,"Other",
+    ReferenceNo == 24,"Deceased",
+    ReferenceNo == 30,"No exit interview completed",
+    ReferenceNo == 37,"Worker unable to determine",
+    ReferenceNo == 99,"Data not collected",
+    ReferenceNo == 101,"Emergency shelter/ h/motel paid for by a third party/Host Home shelter",
+    ReferenceNo == 116,"Place not meant for habitation",
+    ReferenceNo == 118,"Safe Haven",
+    ReferenceNo == 204,"Psychiatric hospital/ other psychiatric facility",
+    ReferenceNo == 205,"Substance abuse treatment facility or detox center",
+    ReferenceNo == 206,"Hospital or other residential non-psychiatric medical facility",
+    ReferenceNo == 207,"Jail/prison/juvenile detention",
+    ReferenceNo == 225,"Long-term care facility or nursing home",
+    ReferenceNo == 215,"Foster care home of foster care group home",
+    ReferenceNo == 327,"Moved from HOPWA funded project to HOPWA TH",
+    ReferenceNo == 302,"Transitional housing",
+    ReferenceNo == 332,"Host Home (non-crisis)",
+    ReferenceNo == 329,"Residential project or halfway house with no homeless criteria",
+    ReferenceNo == 312,"Staying or living with family, temporary tenure",
+    ReferenceNo == 313,"Staying or living with friends, temporary tenure",
+    ReferenceNo == 314,"H/Motel paid for by household",
+    ReferenceNo == 313,"Staying or living with friends, temporary tenure",
+    ReferenceNo == 335,"Staying or living with family, temporary tenure",
+    ReferenceNo == 336,"Staying or living in a friend's room, apartment or house",
+    ReferenceNo == 335,"Staying or living in a family member's room, apartment, or house",
+    ReferenceNo == 423,"Staying or living with friends, permanent tenure",
+    ReferenceNo == 422,"Staying or living with family, permanent tenure",
+    ReferenceNo == 435,"Rental by client, with ongoing housing subsidy",
+    ReferenceNo == 410,"Rental by client, no ongoing housing subsidy",
+    ReferenceNo == 426,"Moved from one HOPWA funded project to HOPWA PH",
+    ReferenceNo == 421,"Owned by client, with ongoing housing subsidy",
+    ReferenceNo == 411,"Owned by client, no ongoing housing subsidy"
   )
 }
 
@@ -65,80 +65,80 @@ rental_subsidy_types <- function(ReferenceNo){
 }
 
 project_type <- function(ReferenceNo){
-  case_when(
-    ReferenceNo == 1 ~ "Emergency Shelter (NbN)",
-    ReferenceNo == 0 ~ "Emergency Shelter (E/E)",
-    ReferenceNo == 2 ~ "Transitional Housing",
-    ReferenceNo == 3 ~ "Permanent Supportive Housing",
-    ReferenceNo == 4 ~ "Street Outreach",
-    ReferenceNo == 6 ~ "Services Only",
-    ReferenceNo == 7 ~ "Other",
-    ReferenceNo == 8 ~ "Safe Haven",
-    ReferenceNo == 9 ~ "PH - Housing Only",
-    ReferenceNo == 10 ~ "PH - Housing with Services",
-    ReferenceNo == 11 ~ "Day Shelter",
-    ReferenceNo == 12 ~ "Prevention",
-    ReferenceNo == 13 ~ "Rapid Rehousing",
-    ReferenceNo == 14 ~ "Coordinated Entry"
+  fcase(
+    ReferenceNo == 1, "Emergency Shelter (NbN)",
+    ReferenceNo == 0, "Emergency Shelter (E/E)",
+    ReferenceNo == 2, "Transitional Housing",
+    ReferenceNo == 3, "Permanent Supportive Housing",
+    ReferenceNo == 4, "Street Outreach",
+    ReferenceNo == 6, "Services Only",
+    ReferenceNo == 7, "Other",
+    ReferenceNo == 8, "Safe Haven",
+    ReferenceNo == 9, "PH - Housing Only",
+    ReferenceNo == 10, "PH - Housing with Services",
+    ReferenceNo == 11, "Day Shelter",
+    ReferenceNo == 12, "Prevention",
+    ReferenceNo == 13, "Rapid Rehousing",
+    ReferenceNo == 14, "Coordinated Entry"
   )
 }
 
 project_type_abb <- function(ReferenceNo){
-  case_when(
-    ReferenceNo == 1 ~ "ES (NbN)",
-    ReferenceNo == 0 ~ "ES (E/E)",
-    ReferenceNo == 2 ~ "TH",
-    ReferenceNo == 3 ~ "PSH",
-    ReferenceNo == 4 ~ "OUT",
-    ReferenceNo == 6 ~ "SSO",
-    ReferenceNo == 7 ~ "Other",
-    ReferenceNo == 8 ~ "SH",
-    ReferenceNo == 9 ~ "OPH no Svcs",
-    ReferenceNo == 10 ~ "OPH w/ Svcs",
-    ReferenceNo == 11 ~ "DAY",
-    ReferenceNo == 12 ~ "HP",
-    ReferenceNo == 13 ~ "RRH",
-    ReferenceNo == 14 ~ "CE"
+  fcase(
+    ReferenceNo == 1, "ES (NbN)",
+    ReferenceNo == 0, "ES (E/E)",
+    ReferenceNo == 2, "TH",
+    ReferenceNo == 3, "PSH",
+    ReferenceNo == 4, "OUT",
+    ReferenceNo == 6, "SSO",
+    ReferenceNo == 7, "Other",
+    ReferenceNo == 8, "SH",
+    ReferenceNo == 9, "OPH no Svcs",
+    ReferenceNo == 10, "OPH w/ Svcs",
+    ReferenceNo == 11, "DAY",
+    ReferenceNo == 12, "HP",
+    ReferenceNo == 13, "RRH",
+    ReferenceNo == 14, "CE"
   )
 }
 
 rel_to_hoh <- function(ReferenceNo){
-  case_when(
-    ReferenceNo == 1 ~ "HoH",
-    ReferenceNo == 2 ~ "HoHs child",
-    ReferenceNo == 3 ~ "HoHs partner/spouse",
-    ReferenceNo == 4 ~ "HoHs other relation",
-    ReferenceNo == 5 ~ "Non-relation member",
-    ReferenceNo == 99 ~ "Data not collected"
+  fcase(
+    ReferenceNo == 1, "HoH",
+    ReferenceNo == 2, "HoHs child",
+    ReferenceNo == 3, "HoHs partner/spouse",
+    ReferenceNo == 4, "HoHs other relation",
+    ReferenceNo == 5, "Non-relation member",
+    ReferenceNo == 99, "Data not collected"
   )
 }
 
 enhanced_yes_no_translator <- function(ReferenceNo) {
-  case_when(
-    ReferenceNo == 0 ~ "No",
-    ReferenceNo == 1 ~ "Yes",
-    ReferenceNo == 8 ~ "Client doesn't know",
-    ReferenceNo == 9 ~ "Client declined",
-    ReferenceNo == 99 ~ "Data not collected",
-    TRUE ~ "something's wrong"
+  fcase(
+    ReferenceNo == 0, "No",
+    ReferenceNo == 1, "Yes",
+    ReferenceNo == 8, "Client doesn't know",
+    ReferenceNo == 9, "Client declined",
+    ReferenceNo == 99, "Data not collected",
+    default = "something's wrong"
   )
 }
 
 translate_HUD_yes_no <- function(column_name){
-  case_when(
-    column_name == 1 ~ "Yes", 
-    column_name == 0 ~ "No",
-    column_name %in% c(dkr_dnc) ~ "Unknown",
-    TRUE ~ "something's wrong"
+  fcase(
+    column_name == 1, "Yes", 
+    column_name == 0, "No",
+    column_name %in% c(dkr_dnc), "Unknown",
+    default = "something's wrong"
   )
 }
 
 # Translate to Values -----------------------------------------------------
 
 replace_yes_no <- function(column_name) {
-  case_when(column_name == "No" | is.na(column_name) ~ 0,
-            column_name == "Yes" ~ 1,
-            TRUE ~ "something's wrong")
+  fcase(column_name == "No" | is.na(column_name), 0,
+            column_name == "Yes", 1,
+            default = "something's wrong")
 }
 
 # Import Helper -----------------------------------------------------------
@@ -211,7 +211,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
-      filter(is.na(DateDeleted))
+      fsubset(is.na(DateDeleted))
   }
   
   attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
@@ -227,8 +227,8 @@ get_col_types <- function(upload_filepath, file) {
   # based on the order of the columns in the imported file, rather than the expected order
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
-    filter(File == file) %>%
-    mutate(DataType = data_type_mapping[as.character(DataType)])
+    fsubset(File == file) %>%
+    fmutate(DataType = data_type_mapping[as.character(DataType)])
   
   cols_in_file <- colnames(read.table(
     paste0(tempdir(), "/", file, ".csv"),
@@ -368,15 +368,15 @@ nice_names <- function(df){
 # Old to New Living SItuations --------------------------------------------
 
 fy22_to_fy24_living_situation <- function(value){
-  case_when(
-    value %in% c(3, 19, 20, 28, 31, 33, 34, 38, 39) ~ 435,
-    value %in% c(1, 16, 18) ~ value + 100,
-    value %in% c(4, 5, 6, 7, 15, 25) ~ value + 200,
-    value %in% c(2, 12, 13, 14, 27, 29, 32, 35, 36) ~ value + 300,
-    value %in% c(10, 11, 21, 22, 23, 26) ~ value + 400,
-    value %in% c(8, 9, 17, 24, 30, 37, 99) ~ value,
-    is.na(value) ~ NA,
-    TRUE ~ 0 # 0 would mean something's wrong
+  fcase(
+    value %in% c(3, 19, 20, 28, 31, 33, 34, 38, 39), 435,
+    value %in% c(1, 16, 18), value + 100,
+    value %in% c(4, 5, 6, 7, 15, 25), value + 200,
+    value %in% c(2, 12, 13, 14, 27, 29, 32, 35, 36), value + 300,
+    value %in% c(10, 11, 21, 22, 23, 26), value + 400,
+    value %in% c(8, 9, 17, 24, 30, 37, 99), value,
+    is.na(value), NA,
+    default = 0 # 0 would mean something's wrong
   )
 }
 
@@ -398,7 +398,7 @@ importFileSandbox <- function(csvFile) {
 merge_check_info <- function(data, checkIDs) {
   return(data %>%
     bind_cols(
-      evachecks %>% filter(ID %in% c(checkIDs))
+      evachecks %>% fsubset(ID %in% c(checkIDs))
     )
   )
 }
@@ -406,7 +406,7 @@ merge_check_info_dt <- function(data, checkIDs) {
   return(
     cbind(
       data,
-      as.data.table(evachecks)[ID %in% c(checkIDs)]
+      qDT(evachecks)[ID %in% c(checkIDs)]
     )
   )
 }
@@ -546,7 +546,7 @@ convert_data_to_utf8 <- function(data) {
   file_encoding <- attr(data, "encoding")
   if(file_encoding %in% c("UTF-8","ASCII")) return(data)
   
-  dt <- as.data.table(data)
+  dt <- qDT(data)
   
   # Fix encoding in all character columns in place
   for (col in names(dt)) {
