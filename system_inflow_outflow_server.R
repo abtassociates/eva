@@ -376,17 +376,7 @@ get_inflow_outflow_monthly <- reactive({
       OutflowTypeSummary, 
       month
     ) %>% 
-    funique() %>%
-    # as of 4/9/25 - team decided to only show inflow/outflow (including inactive), 
-    # and Active at Start (stacked) bars
-    # as of 4/28/25 - team decided to show Active at Start: Homeless + Inflow stacked, 
-    # and Active at End: Housed + Outflow stacked
-    fsubset(
-      InflowTypeSummary == "Inflow" |
-        OutflowTypeSummary == "Outflow" |
-        InflowTypeDetail == "Homeless" | 
-        OutflowTypeDetail == "Housed"
-    )
+    funique()
   )
 })
 
