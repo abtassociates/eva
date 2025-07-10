@@ -722,37 +722,35 @@ nav_panel(
         ),
         nav_panel(
           title = "Month-by-Month Chart", 
-                 uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
-                   withSpinner(),
-                 radioGroupButtons(
-                   inputId = "mbm_status_filter",
-                   label = "Flow Type Filters",
-                   choices = c("All", "First-Time Homeless", "Inactive"), #Inactive
-                   selected = "All",
-                   individual = TRUE,
-                   checkIcon = list(yes = icon("check"))
-                 ),
-                 conditionalPanel(
-                   condition = "input.mbm_status_filter == 'Inactive'",
-                   plotOutput("sys_inactive_monthly_ui_chart",
-                              width = "100%",
-                              height = "500")
-                 ),
-                 conditionalPanel(
-                   condition = "input.mbm_status_filter == 'First-Time Homeless'",
-                   plotOutput("sys_fth_monthly_ui_chart",
-                              width = "100%",
-                              height = "500")
-                 ),
-                 conditionalPanel(
-                   condition = "input.mbm_status_filter == 'All'",
-                   plotOutput("sys_inflow_outflow_monthly_ui_chart",
-                              width = "100%",
-                              height = "500") %>%
-                     withSpinner()
-                 ),
-                 DTOutput("sys_inflow_outflow_monthly_table") %>%
-                   withSpinner()
+          uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+           withSpinner(),
+          radioGroupButtons(
+            inputId = "mbm_status_filter",
+            label = "Flow Type Filters",
+            choices = c("All", "First-Time Homeless", "Inactive"),
+            #Inactive
+            selected = "All",
+            individual = TRUE,
+            checkIcon = list(yes = icon("check"))
+          ), 
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'Inactive'",
+            plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
+          ), 
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'First-Time Homeless'",
+            plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
+          ),
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'All'",
+            plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+              withSpinner()
+          ),
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'All'",
+            DTOutput("sys_inflow_outflow_monthly_table") %>%
+              withSpinner()
+          )
         ),
         # nav_panel(
         #   title = "Timeline Chart",
