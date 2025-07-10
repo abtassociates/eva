@@ -58,6 +58,36 @@ observeEvent(input$syso_level_of_detail, {
                     # label = "Special Populations",
                     choices = syso_spec_pops_people)
 })
+observeEvent(
+  list(
+    input$syso_age,
+    input$syso_race_ethnicity,
+    input$syso_spec_pops,
+    
+    # Enrollment-level filters
+    input$syso_hh_type,
+    input$syso_level_of_detail,
+    input$syso_project_type
+  ),
+  {
+    num_people <- fndistinct(period_specific_data()[["Full"]]$PersonalID)
+    shinyjs::toggle(
+      "sys_inflow_outflow_download_btn", 
+      condition = num_people > 10
+    )
+    shinyjs::toggle(
+      "sys_inflow_outflow_download_btn_ppt", 
+      condition = num_people > 10
+    )
+  }
+)
+
+
+# observeEvent(input$syso_level_of_detail, {
+#   updatePickerInput(session, "syso_spec_pops",
+#                     # label = "Special Populations",
+#                     choices = syso_spec_pops_people)
+# })
 
 #### DISPLAY FILTER SELECTIONS ###
 syso_detailBox <- reactive({
@@ -347,15 +377,6 @@ period_specific_data <- reactive({
   universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh)
   universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
   # }, "system_overview_server")
-  
-  shinyjs::toggle(
-    "sys_inflow_outflow_download_btn", 
-    condition = fndistinct(universe_w_ppl_flags[period == "Full", PersonalID]) > 10
-  )
-  shinyjs::toggle(
-    "sys_inflow_outflow_download_btn_ppt", 
-    condition = fndistinct(universe_w_ppl_flags[period == "Full", PersonalID]) > 10
-  )
   
   # Split into months and full-period datasets
   list(
