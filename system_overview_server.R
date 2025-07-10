@@ -53,11 +53,6 @@ observeEvent(input$methodology_type, {
 },
 ignoreInit = TRUE)
 
-observeEvent(input$syso_level_of_detail, {
-  updatePickerInput(session, "syso_spec_pops",
-                    # label = "Special Populations",
-                    choices = syso_spec_pops_people)
-})
 observeEvent(
   list(
     input$syso_age,
