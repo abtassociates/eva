@@ -196,7 +196,7 @@ output$client_level_download_btn <- downloadHandler(
     names(client_level_export_list) = c(
       "Metadata",
       "Data Dictionary",
-      "Details",
+      "Client Details",
       "Monthly Statuses"
     )
     
