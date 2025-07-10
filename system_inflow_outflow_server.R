@@ -654,19 +654,15 @@ sys_monthly_chart_data_wide <- reactive({
 })
 
 ### Inactive + FTH ------------------------
-sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
+sys_inflow_outflow_monthly_single_status_chart_data <- function(monthly_status_data) {
   logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
   
-  monthly_data <- get_inflow_outflow_monthly() 
-  if(nrow(monthly_data) == 0) return(monthly_data)
-  
-  monthly_data %>%
-    fsubset(.[[varname]] == status) %>%
+  monthly_status_data %>%
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month) %>%
     join(
-      data.table(month = unique(monthly_data$month)),
+      data.table(month = unique(monthly_status_data$month)),
       on = "month",
       how = "right"
     ) %>%
@@ -1308,10 +1304,24 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 sys_monthly_single_status_ui_chart <- function(varname, status) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
-  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(
-    varname, 
-    status
-  )
+  monthly_status_data <- get_inflow_outflow_monthly() %>%
+    fsubset(.[[varname]] == status)
+  
+  if(nrow(monthly_status_data) == 0) 
+    return(
+      ggplot() + 
+        labs(title = no_data_msg) + 
+        theme_minimal()
+    )
+  
+  if(fndistinct(monthly_status_data$PersonalID) <= 10) 
+    return(
+      ggplot() + 
+        labs(title = suppression_msg) + 
+        theme_minimal()
+    )
+  
+  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
 
   ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
@@ -1499,7 +1509,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
   content = function(file) {
     logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
     monthly_data <- sys_export_monthly_info()
-    
+
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Flow",
