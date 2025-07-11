@@ -192,31 +192,22 @@ hh_children_only <- base_dq_data %>%
     funique(c('HouseholdID', 'maxAge')) %>% 
     merge_check_info(checkIDs = 86) %>%
     fselect(vars_we_want)
-# hh_no_hoh <- base_dq_data %>%
-#   group_by(HouseholdID) %>%
-#   summarise(hasHoH = if_else(min(RelationshipToHoH) != 1,
-#                              FALSE,
-#                              TRUE),
-#             PersonalID = min(PersonalID)) %>%
-#   filter(hasHoH == FALSE) %>%
-#   ungroup() %>%
-#   left_join(base_dq_data, by = c("PersonalID", "HouseholdID")) %>%
-#   merge_check_info(checkIDs = 2) %>%
-#   select(all_of(vars_we_want))
 
-base_dq_data_dt <- qDT(base_dq_data)
-
-hh_no_hoh_dt <- base_dq_data_dt[, .(hasHoH = ifelse(min(RelationshipToHoH) != 1, FALSE, TRUE),
-                                    PersonalID = min(PersonalID)),
-                                by = HouseholdID]
-hh_no_hoh_dt <- hh_no_hoh_dt[hasHoH == FALSE]
-
-hh_no_hoh <- qDF(
-  join(base_dq_data_dt, hh_no_hoh_dt, on = c('PersonalID','HouseholdID'), how = 'left')
-) %>% 
-  merge_check_info(checkIDs = 2) %>%
+hh_no_hoh <- base_dq_data %>%
+  fgroup_by(HouseholdID) %>%
+  fsummarise(
+    hasHoH = fmin(RelationshipToHoH) == 1,
+    PersonalID = min(PersonalID)
+  ) %>%
+  fungroup() %>%
+  fsubset(!hasHoH) %>%
+  join(
+    base_dq_data, 
+    on = c('PersonalID','HouseholdID'), 
+    how = 'left'
+  ) %>% 
+  merge_check_info_dt(checkIDs = 2) %>%
   fselect(vars_we_want)
-
 
 hh_too_many_hohs <- base_dq_data %>%
   fsubset(RelationshipToHoH == 1) %>% 
@@ -232,7 +223,7 @@ hh_too_many_hohs <- base_dq_data %>%
 
 hh_missing_rel_to_hoh <- base_dq_data %>%
   fsubset(RelationshipToHoH == 99) %>%
-  join(hh_no_hoh["HouseholdID"], on = "HouseholdID", how = 'anti') %>%
+  join(hh_no_hoh, on = "HouseholdID", how = 'anti') %>%
   merge_check_info_dt(checkIDs = 4) %>%
   fselect(vars_we_want)
 
