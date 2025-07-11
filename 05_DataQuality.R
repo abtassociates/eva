@@ -852,8 +852,10 @@ future_exits <- base_dq_data %>%
 
 projects_require_income <- unique(projects_funders_types[inc == 1]$ProjectID)
 
-missing_income_entry <- base_dq_data %>%
-  join(IncomeBenefits, on = c("PersonalID", "EnrollmentID"), how = 'left') %>%
+base_dq_data_inc <- base_dq_data %>%
+  join(IncomeBenefits, on = c("PersonalID", "EnrollmentID"), how = 'left', multiple=TRUE)
+
+missing_income_entry <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'AgeAtEntry',
@@ -909,8 +911,9 @@ smallIncome <- funique(smallIncome) %>%
            "EnrollmentID",
            "DataCollectionStage"))
 
-income_subs <- fselect(base_dq_data, "AgeAtEntry", vars_prep) %>%
-  join(smallIncome, on = c("PersonalID", "EnrollmentID"), how='left',multiple = T) %>%
+income_subs <- base_dq_data %>%
+  fselect(c("AgeAtEntry", vars_prep)) %>%
+  join(smallIncome, on = c("PersonalID", "EnrollmentID"), how='left', multiple = T) %>%
   fmutate(
     IncomeCount =
       Earned +
@@ -945,8 +948,7 @@ conflicting_income_entry <- income_subs %>%
 # Missing Income at Exit --------------------------------------------------
 
 ## CANNOT GET THIS CHUNK TO GO *UNIVERSALLY *FASTER WITH COLLAPSE...works for COHHIO but not for anything smaller
-missing_income_exit <- base_dq_data %>%
-  join(IncomeBenefits, on = c("PersonalID", "EnrollmentID"), how = 'left') %>%
+missing_income_exit <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'AgeAtEntry',
@@ -1335,8 +1337,7 @@ invalid_movein_date <- base_dq_data %>%
 
 projects_require_hi <- unique(projects_funders_types[hi == 1]$ProjectID)
 
-missing_health_insurance <- base_dq_data %>%
-  join(IncomeBenefits, on = c("PersonalID", "EnrollmentID"), how = 'left') %>%
+missing_health_insurance <- base_dq_data_inc %>%
   fselect(vars_prep,
          'AgeAtEntry',
          'DataCollectionStage',
@@ -1354,8 +1355,7 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   merge_check_info(checkIDs = 93) %>%
   fselect(vars_we_want)
 
-health_insurance_subs <- base_dq_data %>%
-  join(IncomeBenefits, on = c("PersonalID", "EnrollmentID"), how = 'left') %>%
+health_insurance_subs <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'DataCollectionStage',
@@ -1468,7 +1468,7 @@ conflicting_ncbs_entry <- base_dq_data %>%
                      "BenefitsFromAnySource",
                      "BenefitCount"),
             on = c("PersonalID",
-                   "EnrollmentID"), how = 'left') %>%
+                   "EnrollmentID"), how = 'left', multiple = TRUE) %>%
   fselect('AgeAtEntry',
          vars_prep,
          'DataCollectionStage',
@@ -1720,7 +1720,7 @@ calculate_outstanding_referrals <- function(dq_data){
   
   dq_data %>%
     join(Event,
-              on = "EnrollmentID", how = 'left') %>%
+              on = "EnrollmentID", how = 'left', multiple=TRUE) %>%
     fselect(funique(c(vars_prep, 'ProjectID', 'EventID', 'EventDate', 'ResultDate', 'Event'))) %>%
     fmutate(
       Days = 
@@ -1767,7 +1767,7 @@ dq_main <- rowbind(
   dkr_residence_prior,
   dkr_ssn,
   dkr_veteran,
-  overlaps_df,
+  overlap_dt,
   duplicate_ees,
   enrollment_after_operating_period,
   enrollment_after_participating_period,

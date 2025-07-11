@@ -329,7 +329,7 @@ validationEnrollment <- Enrollment %>%
 
 #0.006122828 vs 0.0002565384  
 session$userData$validation <- validationProject %>%
-  join(validationEnrollment, on = c("ProjectTimeID", "ProjectID"), how='left') %>%
+  join(validationEnrollment, on = c("ProjectTimeID", "ProjectID"), how='left', multiple=T) %>%
   fselect(
     ProjectID,
     ProjectTimeID,
