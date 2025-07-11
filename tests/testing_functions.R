@@ -224,8 +224,6 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values(
       name = "pdde",
       input = c(
-        #"sidebarCollapsed",
-        #"sidebarItemExpanded",
         "pageid",
         inputs_no_bindings(DTs = c("pdde_guidance_summary", "pdde_summary_table"))
       ),
@@ -239,7 +237,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(tabDQSystem_subtabs = "High Priority Errors")
+    # not needed right now as this is the default subtab
+    #app$set_inputs(tabDQSystem_subtabs = "High Priority Errors")
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(hp_errors_dqsystem_subtabs = "Top 10 Organizations")
     app$wait_for_idle(timeout = 1e+06)
@@ -282,7 +281,8 @@ main_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(tabDQOrg_subtabs = "High Priority Errors")
+    # not needed right now as this is the default subtab
+    #app$set_inputs(tabDQOrg_subtabs = "High Priority Errors")
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(hp_errors_dqorg_subtabs = "Top 10 Projects")
     app$wait_for_idle(timeout = 1e+06)
@@ -300,8 +300,6 @@ main_test_script <- function(test_script_name, test_dataset) {
     app$expect_values(
       name = "dq-org",
       input = c(
-        #"sidebarCollapsed",
-        #"sidebarItemExpanded",
         "pageid",
         "orgList",
         inputs_no_bindings(DTs = c("dq_org_guidance_summary", "dq_organization_summary_table"))
@@ -440,7 +438,7 @@ main_test_script <- function(test_script_name, test_dataset) {
       )
     )
     
-    # go to Inative chart
+    # go to Inactive chart
     app$set_inputs(mbm_status_filter = "Inactive")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
@@ -526,7 +524,7 @@ main_test_script <- function(test_script_name, test_dataset) {
       output = sys_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("VeteranStatus", "All Races/Ethnicities"))
+    app$set_inputs(system_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-comp-all-re-veteran",
