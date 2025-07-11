@@ -179,17 +179,14 @@ missing_enrollment_coc <- base_dq_data %>%
 # Household Issues --------------------------------------------------------
 
 hh_children_only <- base_dq_data %>%
-  group_by(HouseholdID) %>%
-  summarise(
-    hhMembers = n(),
-    maxAge = max(AgeAtEntry),
-  ) %>%
-  filter(maxAge < 12) %>%
-  ungroup() %>%
-  left_join(base_dq_data, by = c("HouseholdID", "maxAge" = "AgeAtEntry")) %>%
-  distinct(HouseholdID, maxAge, .keep_all = TRUE) %>%
-  merge_check_info(checkIDs = 86) %>%
-  select(all_of(vars_we_want))
+  fgroup_by(HouseholdID) %>%
+  fsummarise(maxAge=fmax(AgeAtEntry, na.rm = FALSE)) %>%
+  fungroup() %>%
+  fsubset(maxAge < 12) %>%
+  join(base_dq_data, on = c("HouseholdID", "maxAge" = "AgeAtEntry"), how='left') %>%
+  funique(cols = c("HouseholdID", "maxAge")) %>% 
+  merge_check_info_dt(checkIDs = 86) %>%
+  fselect(vars_we_want)
 
 # hh_no_hoh <- base_dq_data %>%
 #   group_by(HouseholdID) %>%
