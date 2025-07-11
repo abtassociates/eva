@@ -205,9 +205,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     ignore_cols <- unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ","))
     data[, ignore_cols] <- NULL
   }
-  
-  # Convert to dataframe
-  setDF(data)
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
@@ -546,13 +543,11 @@ convert_data_to_utf8 <- function(data) {
   file_encoding <- attr(data, "encoding")
   if(file_encoding %in% c("UTF-8","ASCII")) return(data)
   
-  dt <- qDT(data)
-  
   # Fix encoding in all character columns in place
-  for (col in names(dt)) {
-    if (is.character(dt[[col]])) {
+  for (col in names(data)) {
+    if (is.character(data[[col]])) {
       # Original column before conversion
-      original_col <- dt[[col]]
+      original_col <- data[[col]]
       
       # Interpret characters in a non-UTF-8 encoded file correctly
       # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
@@ -562,7 +557,7 @@ convert_data_to_utf8 <- function(data) {
         converted_col <- iconv(original_col, from = file_encoding, to = "UTF-8")  
         # Identify changes by comparing original and converted values
         if (length(which(original_col != converted_col)) > 0) {
-          dt[[col]] <- converted_col
+          data[[col]] <- converted_col
         }
       }, error = function(e) {
         print("Conversion failed! Unknown encoding!")
@@ -570,5 +565,5 @@ convert_data_to_utf8 <- function(data) {
     }
   }
   
- return(as_tibble(dt))
+ return(data)
 }

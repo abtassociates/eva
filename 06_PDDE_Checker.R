@@ -25,7 +25,7 @@ subpopNotTotal <- Inventory %>%
               OtherBedInventory
            ) != BedInventory
   ) %>%
-  merge_check_info(checkIDs = 46) %>%
+  merge_check_info_dt(checkIDs = 46) %>%
   fmutate(Detail = 
            paste0(
              str_squish("Inventory for CH Vets, Youth vets, Vets, CH Youth, Youth,
@@ -60,7 +60,7 @@ operating_end_missing <- Enrollment %>%
            MostRecentEnrollment < 
            session$userData$meta_HUDCSV_Export_Date - 30 &
            is.null(OperatingEndDate)) %>%
-  merge_check_info(checkIDs = 81) %>%
+  merge_check_info_dt(checkIDs = 81) %>%
   fmutate(Detail = paste(
            "This project has no open enrollments and the most recent Exit was",
            MostRecentEnrollment
@@ -86,7 +86,7 @@ missing_CoC_Info <- session$userData$Project0 %>%
 missing_CoC_Geography <- missing_CoC_Info %>%
   fsubset(is.na(Geocode) | is.na(GeographyType) |
            is.na(CoCCode)) %>%
-  merge_check_info(checkIDs = 5) %>%
+  merge_check_info_dt(checkIDs = 5) %>%
   fmutate(
     Detail = paste0(
       "This project is missing a valid: ",
@@ -108,7 +108,7 @@ missing_CoC_Address <- missing_CoC_Info %>%
       (is.na(Address1) | is.na(City) | is.na(State))
     )
   ) %>%
-  merge_check_info(checkIDs = 42) %>%
+  merge_check_info_dt(checkIDs = 42) %>%
   fmutate(
     Detail = paste0(
       "This project is missing a valid: ",
@@ -129,7 +129,7 @@ missing_inventory_record <- session$userData$Project0 %>%
   fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType)) &
            is.na(InventoryID)) %>% 
-  merge_check_info(checkIDs = 43) %>%
+  merge_check_info_dt(checkIDs = 43) %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols)
 
@@ -150,7 +150,7 @@ inventory_start_precedes_operating_start <- activeInventory %>%
       )
     )
   ) %>% 
-  merge_check_info(checkIDs = 79) %>%
+  merge_check_info_dt(checkIDs = 79) %>%
   fselect(PDDEcols)
 
 
@@ -187,7 +187,7 @@ operating_end_precedes_inventory_end <- activeInventory %>%
         )
     )
   ) %>%
-  merge_check_info(checkIDs = 44) %>%
+  merge_check_info_dt(checkIDs = 44) %>%
   fselect(PDDEcols)
 
 # Active Inventory with No Enrollments ---------
@@ -240,7 +240,7 @@ active_inventory_w_no_enrollments <- get_active_inventory_no_enrollments()
 
 rrh_no_subtype <- session$userData$Project0 %>%
   fsubset(ProjectType == 13 & is.na(RRHSubType)) %>%
-  merge_check_info(checkIDs = 110) %>%
+  merge_check_info_dt(checkIDs = 110) %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols)
 
@@ -264,7 +264,7 @@ vsps_that_are_hmis_participating <-
 
 vsps_in_hmis <- session$userData$Project0 %>%
   fsubset(ProjectID %in% c(vsps_that_are_hmis_participating)) %>%
-  merge_check_info(checkIDs = 133) %>%
+  merge_check_info_dt(checkIDs = 133) %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols)
   
@@ -355,7 +355,7 @@ zero_utilization <- qDT(ProjectSegments) %>%
 #               filter(HMISParticipationType == 1) %>%
 #               distinct(ProjectID), by = "ProjectID") %>%
 #   filter(ProjectID %in% c(res_projects_no_clients)) %>%
-#   merge_check_info(checkIDs = 83) %>%
+#   merge_check_info_dt(checkIDs = 83) %>%
 #   mutate(Detail = "") %>%
 #   select(all_of(PDDEcols))
 
@@ -379,7 +379,7 @@ rrh_so_w_inventory <- activeInventory %>%
   fsubset(RRHSOyn == TRUE & 
            !is.na(BedInventory) & BedInventory > 0 &
            int_overlaps(InventoryActivePeriod, RRHSOActivePeriod)) %>%
-  merge_check_info(checkIDs = 132) %>%
+  merge_check_info_dt(checkIDs = 132) %>%
   fselect(PDDEcols)
 
 # For later.. -------------------------------------------------------------
@@ -425,7 +425,7 @@ overlapping_ce_participation <- CEParticipation %>%
                    "current.",
                    paste0(PreviousCEEnd, "."))
          )) %>%
-  merge_check_info(checkIDs = 128) %>%
+  merge_check_info_dt(checkIDs = 128) %>%
   fselect(PDDEcols)
 
 overlapping_hmis_participation <- HMISParticipation %>%
@@ -477,7 +477,7 @@ ES_BedType_HousingType <- activeInventory %>%
   fsubset(ProjectType %in% c(es_ee_project_type, es_nbn_project_type) &
            ((HousingType %in% c(client_single_site, client_multiple_sites) & !(ESBedType %in% c(1, 3))) | (HousingType==tenant_scattered_site & ESBedType!=2)) 
   ) %>%
-  merge_check_info(checkIDs = 135) %>% 
+  merge_check_info_dt(checkIDs = 135) %>% 
   fmutate(Detail = "Bed Type incompatible with Housing Type:  Facility-based beds should align to the Housing Type of site-based and voucher-based beds should align to the Housing Type of tenant-based."
   ) %>%
   fselect(PDDEcols)
@@ -507,7 +507,7 @@ Active_Inventory_per_COC <- activeInventory_COC_merged %>%
   join(session$userData$Project0 %>% select(ProjectID, ProjectType, RRHSubType), on="ProjectID", how="left") %>%
   fsubset(ProjectType %in% project_types_w_beds &
            (RRHSubType == 2 | is.na(RRHSubType))) %>% 
-  merge_check_info(checkIDs = 136) %>% 
+  merge_check_info_dt(checkIDs = 136) %>% 
   mutate(Detail = "Residential projects must have a bed inventory for each CoC they serve."
   ) %>%
   fselect(PDDEcols) %>%
@@ -517,7 +517,7 @@ Active_Inventory_per_COC <- activeInventory_COC_merged %>%
 
 COC_Records_per_Inventory <- activeInventory_COC_merged %>%
   fsubset(source == "activeInventory") %>%
-  merge_check_info(checkIDs = 137) %>%
+  merge_check_info_dt(checkIDs = 137) %>%
   fmutate(Detail = str_squish("Any CoC represented in a project's active bed 
                              inventory records must also be listed as a CoC 
                              associated with the Project.")) %>%
@@ -527,7 +527,7 @@ COC_Records_per_Inventory <- activeInventory_COC_merged %>%
 # More units than beds in inventory record. -----------------------------------
 more_units_than_beds_inventory <- activeInventory %>%
   fsubset(UnitInventory > BedInventory) %>% 
-merge_check_info(checkIDs = 138) %>%
+merge_check_info_dt(checkIDs = 138) %>%
   fmutate(Detail = "An inventory record cannot have more units than total number of beds. Please update this inventory record in HMIS to ensure that units are less than or equal to the number of beds."
   ) %>%
   fselect(PDDEcols)
@@ -540,7 +540,7 @@ merge_check_info(checkIDs = 138) %>%
 vsp_clients <- session$userData$Project0 %>%
   fsubset(VictimServiceProvider==1) %>%
   join(Enrollment, on = "ProjectID", how = 'inner') %>%
-  merge_check_info(checkIDs = 139) %>%
+  merge_check_info_dt(checkIDs = 139) %>%
   fmutate(Detail = "Projects under Organizations marked as Victim Service Providers should not have client data in HMIS."
   ) %>%
   fselect(PDDEcols) %>% 

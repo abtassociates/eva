@@ -102,54 +102,54 @@ duplicate_ees <- base_dq_data %>%
   fsubset(
     fduplicated(fselect(base_dq_data, PersonalID, ProjectID, EntryDate), all = TRUE)
   ) %>%
-  merge_check_info(checkIDs = 1) %>%
+  merge_check_info_dt(checkIDs = 1) %>%
   fselect(vars_we_want)
 
 # Missing UDEs ------------------------------------------------------------
 
 # missing_name_dataquality <- base_dq_data %>%
 #   filter(is.na(NameDataQuality)) %>%
-#   merge_check_info(checkIDs = 33) %>%
+#   merge_check_info_dt(checkIDs = 33) %>%
 #   select(all_of(vars_we_want))
 
 dkr_name <- base_dq_data %>%
   fsubset(NameDataQuality %in% c(dkr_dnc, 2)) %>%
-  merge_check_info(checkIDs = 78) %>%
+  merge_check_info_dt(checkIDs = 78) %>%
   fselect(vars_we_want)
 
 missing_dob <- base_dq_data %>%
   fsubset(is.na(DOB) & DOBDataQuality %in% c(1, 2)) %>%
-  merge_check_info(checkIDs = 34) %>%
+  merge_check_info_dt(checkIDs = 34) %>%
   fselect(vars_we_want)
 
 # missing_dob_dataquality <- base_dq_data %>%
 #   filter(is.na(DOBDataQuality)) %>%
-#   merge_check_info(checkIDs = 35) %>%
+#   merge_check_info_dt(checkIDs = 35) %>%
 #   select(all_of(vars_we_want))
 
 dkr_dob <- base_dq_data %>%
   fsubset(DOBDataQuality %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 60) %>%
+  merge_check_info_dt(checkIDs = 60) %>%
   fselect(vars_we_want)
 
 incorrect_dob <- base_dq_data %>%
   fsubset(AgeAtEntry < 0 | AgeAtEntry > 100) %>%
-  merge_check_info(checkIDs = 84) %>%
+  merge_check_info_dt(checkIDs = 84) %>%
   fselect(vars_we_want)
 
 # missing_ssn <- base_dq_data %>%
 #   filter((is.na(SSN) & !SSNDataQuality %in% c(dkr_dnc))) %>%
-#   merge_check_info(checkIDs = 85) %>%
+#   merge_check_info_dt(checkIDs = 85) %>%
 #   select(all_of(vars_we_want))
 
 dkr_ssn <- base_dq_data %>%
   fsubset(SSNDataQuality %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 67) %>%
+  merge_check_info_dt(checkIDs = 67) %>%
   fselect(vars_we_want)
 
 dkr_race <- base_dq_data %>%
   fsubset(RaceNone %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 63) %>%
+  merge_check_info_dt(checkIDs = 63) %>%
   fselect(vars_we_want)
 
 # missing_veteran_status <- base_dq_data %>%
@@ -157,7 +157,7 @@ dkr_race <- base_dq_data %>%
 #     (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
 #     (is.na(VeteranStatus))
 #   ) %>%
-#   merge_check_info(checkIDs = 39) %>%
+#   merge_check_info_dt(checkIDs = 39) %>%
 #   select(all_of(vars_we_want))
 
 dkr_veteran <- base_dq_data %>%
@@ -165,14 +165,14 @@ dkr_veteran <- base_dq_data %>%
     (AgeAtEntry >= 18 | is.na(AgeAtEntry)) &
     VeteranStatus %in% c(dkr_dnc)
   ) %>%
-  merge_check_info(checkIDs = 66) %>%
+  merge_check_info_dt(checkIDs = 66) %>%
   fselect(vars_we_want)
 
 # Missing Client Location -------------------------------------------------
 
 missing_enrollment_coc <- base_dq_data %>%
   fsubset(is.na(EnrollmentCoC) & RelationshipToHoH == 1) %>%
-  merge_check_info(checkIDs = 27) %>%
+  merge_check_info_dt(checkIDs = 27) %>%
   fselect(vars_we_want)
 
 # Household Issues --------------------------------------------------------
@@ -226,14 +226,14 @@ hh_too_many_hohs <- base_dq_data %>%
   fungroup() %>%
   fsubset(HoHsinHousehold > 1) %>%
   join(base_dq_data, on=c('PersonalID','HouseholdID'), how='left') %>%
-  merge_check_info(checkIDs = 3) %>%
+  merge_check_info_dt(checkIDs = 3) %>%
   fselect(vars_we_want)
 
 
 hh_missing_rel_to_hoh <- base_dq_data %>%
   fsubset(RelationshipToHoH == 99) %>%
   join(hh_no_hoh["HouseholdID"], on = "HouseholdID", how = 'anti') %>%
-  merge_check_info(checkIDs = 4) %>%
+  merge_check_info_dt(checkIDs = 4) %>%
   fselect(vars_we_want)
 
 hh_issues <- 
@@ -261,7 +261,7 @@ missing_approx_date_homeless <- base_dq_data %>%
            LOSUnderThreshold == 1 &
            PreviousStreetESSH == 1
   ) %>%
-  merge_check_info(checkIDs = 28) %>%
+  merge_check_info_dt(checkIDs = 28) %>%
   fselect(vars_we_want)
 
 missing_previous_street_ESSH <- base_dq_data %>%
@@ -277,7 +277,7 @@ missing_previous_street_ESSH <- base_dq_data %>%
            is.na(PreviousStreetESSH) &
            LOSUnderThreshold == 1
   ) %>%
-  merge_check_info(checkIDs = 29) %>%
+  merge_check_info_dt(checkIDs = 29) %>%
   fselect(vars_we_want)
 
 missing_residence_prior <- base_dq_data %>%
@@ -289,7 +289,7 @@ missing_residence_prior <- base_dq_data %>%
   ) %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            (is.na(LivingSituation))) %>%
-  merge_check_info(checkIDs = 30) %>%
+  merge_check_info_dt(checkIDs = 30) %>%
   fselect(vars_we_want)
 
 dkr_residence_prior <- base_dq_data %>%
@@ -301,7 +301,7 @@ dkr_residence_prior <- base_dq_data %>%
   ) %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LivingSituation %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 64) %>%
+  merge_check_info_dt(checkIDs = 64) %>%
   fselect(vars_we_want)
 
 missing_LoS <- base_dq_data %>%
@@ -313,7 +313,7 @@ missing_LoS <- base_dq_data %>%
   ) %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            (is.na(LengthOfStay))) %>%
-  merge_check_info(checkIDs = 26) %>%
+  merge_check_info_dt(checkIDs = 26) %>%
   fselect(vars_we_want)
 
 dkr_LoS <- base_dq_data %>%
@@ -325,7 +325,7 @@ dkr_LoS <- base_dq_data %>%
   ) %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LengthOfStay %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 73) %>%
+  merge_check_info_dt(checkIDs = 73) %>%
   fselect(vars_we_want)
 
 missing_months_times_homeless <- base_dq_data %>%
@@ -348,7 +348,7 @@ missing_months_times_homeless <- base_dq_data %>%
                is.na(TimesHomelessPastThreeYears)
            )
   ) %>%
-  merge_check_info(checkIDs = 31) %>%
+  merge_check_info_dt(checkIDs = 31) %>%
   fselect(vars_we_want)
 
 dkr_months_times_homeless <- base_dq_data %>%
@@ -366,7 +366,7 @@ dkr_months_times_homeless <- base_dq_data %>%
                TimesHomelessPastThreeYears %in% c(dkr_dnc)
            )
   ) %>%
-  merge_check_info(checkIDs = 61) %>%
+  merge_check_info_dt(checkIDs = 61) %>%
   fselect(vars_we_want)
 
 invalid_months_times_homeless <- base_dq_data %>%
@@ -385,13 +385,13 @@ invalid_months_times_homeless <- base_dq_data %>%
 approx_start_after_entry <- invalid_months_times_homeless %>%
   fsubset(!is.na(DateToStreetESSH) &
            EntryDate < DateToStreetESSH) %>%
-  merge_check_info(checkIDs = 69) %>%
+  merge_check_info_dt(checkIDs = 69) %>%
   fselect(vars_we_want)
 
 no_months_can_be_determined <- invalid_months_times_homeless %>%
   fsubset(MonthsHomelessPastThreeYears %in% c(dkr_dnc) &
            TimesHomelessPastThreeYears == 1) %>%
-  merge_check_info(checkIDs = 70) %>%
+  merge_check_info_dt(checkIDs = 70) %>%
 
   fselect(vars_we_want)
 no_months_v_living_situation_data <-
@@ -412,7 +412,7 @@ no_months_v_living_situation_data <-
   fsubset(TimesHomelessPastThreeYears == 1 &
            !is.na(DateToStreetESSH) &
            DateMonthsMismatch == 1) %>%
-  merge_check_info(checkIDs = 71) %>%
+  merge_check_info_dt(checkIDs = 71) %>%
   fselect(vars_we_want)
 
 approx_start_v_living_situation_data <-
@@ -424,7 +424,7 @@ approx_start_v_living_situation_data <-
       MonthsHomelessPastThreeYears < 112
   ) %>%
   fsubset(HomelessOver3YearsAgo == TRUE & SomethingsNotRight == TRUE) %>%
-  merge_check_info(checkIDs = 105) %>%
+  merge_check_info_dt(checkIDs = 105) %>%
   fselect(vars_we_want)
 
 rm(invalid_months_times_homeless)
@@ -463,7 +463,7 @@ missing_living_situation <- base_dq_data %>%
                )
            )
   ) %>%
-  merge_check_info(checkIDs = 41) %>%
+  merge_check_info_dt(checkIDs = 41) %>%
   fselect(vars_we_want)
 
 dkr_living_situation <- base_dq_data %>%
@@ -483,7 +483,7 @@ dkr_living_situation <- base_dq_data %>%
                LivingSituation %in% c(dkr_dnc)
            )
   ) %>%
-  merge_check_info(checkIDs = 68) %>%
+  merge_check_info_dt(checkIDs = 68) %>%
   fselect(vars_we_want)
 
 # DisablingCondition at Entry
@@ -491,7 +491,7 @@ dkr_disabilities <- base_dq_data %>%
   fselect(vars_prep,
          'DisablingCondition') %>%
   fsubset(DisablingCondition %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 32) %>%
+  merge_check_info_dt(checkIDs = 32) %>%
   fselect(vars_we_want)
 
 # smallDisabilities <- Disabilities %>%
@@ -562,13 +562,14 @@ top_percents_long_stayers <- base_dq_data %>%
       session$userData$meta_HUDCSV_Export_Date, 
       fifelse(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
-  group_by(ProjectType) %>%
-  arrange(desc(Days)) %>%
-  filter(Days > quantile(Days, fifelse(
-    ProjectType %in% c(long_stayer_98_percentile_project_types), .98, .99
+  fgroup_by(ProjectType) %>%
+  roworder(ProjectType, -Days) %>%
+  fmutate(quantDays = quantile(Days, fifelse(
+    ProjectType %in% long_stayer_98_percentile_project_types, .98, .99
   ))) %>%
-  ungroup() %>%
-  merge_check_info(checkIDs = 104) %>%
+  fungroup() %>%
+  fsubset(Days > quantDays) %>%
+  merge_check_info_dt(checkIDs = 104) %>%
   fselect(vars_we_want)
 
 # long stayers flags that come from inputs come from calculate_long_stayers()
@@ -587,25 +588,25 @@ missed_movein_stayers <- base_dq_data %>%
 Top2_movein <- fsubset(missed_movein_stayers,
                       Days > quantile(Days, prob = 1 - 2 / 100, na.rm = TRUE)) %>%
   fselect(vars_prep) %>%
-  merge_check_info(checkIDs = 72) %>%
+  merge_check_info_dt(checkIDs = 72) %>%
   fselect(vars_we_want)
 
 # Project Exit Before Start --------------
 exit_before_start <- base_dq_data %>%
   fsubset(ExitDate < EntryDate & !is.null(ExitDate) & !is.null(EntryDate)) %>% 
-  merge_check_info(checkIDs = 99) %>%
+  merge_check_info_dt(checkIDs = 99) %>%
   fselect(vars_we_want)
 # Missing Destination -----------------------------------------------------
 
 # missing_destination <- base_dq_data %>%
 #   filter(!is.na(ExitDate) &
 #            (is.na(Destination))) %>%
-#   merge_check_info(checkIDs = 74) %>%
+#   merge_check_info_dt(checkIDs = 74) %>%
 #   select(all_of(vars_we_want))
 
 dkr_destination <- base_dq_data %>%
   fsubset(Destination %in% c(dkr_dnc, 30)) %>%
-  merge_check_info(checkIDs = 59) %>%
+  merge_check_info_dt(checkIDs = 59) %>%
   fselect(vars_we_want)
 
 missing_destination_subsidy <- base_dq_data %>%
@@ -613,7 +614,7 @@ missing_destination_subsidy <- base_dq_data %>%
            Destination == 435 &
            (is.na(DestinationSubsidyType) |
            !DestinationSubsidyType %in% c(subsidy_types))) %>%
-  merge_check_info(checkIDs = 121) %>%
+  merge_check_info_dt(checkIDs = 121) %>%
   fselect(vars_we_want)
 
 # Missing ResPrior Subsidy ------------------------------------------------
@@ -624,7 +625,7 @@ missing_res_prior_subsidy <- base_dq_data %>%
   fsubset(LivingSituation == 435 &
            (is.na(RentalSubsidyType) |
            !RentalSubsidyType %in% c(subsidy_types))) %>%
-  merge_check_info(checkIDs = 130) %>%
+  merge_check_info_dt(checkIDs = 130) %>%
   fselect(vars_we_want)
 
 
@@ -637,7 +638,7 @@ missing_cls_subsidy <- base_dq_data %>%
                        !CLSSubsidyType %in% c(subsidy_types))) %>%
               fselect(CurrentLivingSitID, EnrollmentID, CLSSubsidyType),
             on = 'EnrollmentID', how = 'inner') %>%
-  merge_check_info(checkIDs = 129) %>%
+  merge_check_info_dt(checkIDs = 129) %>%
   fselect(vars_we_want)
 
 # Missing PATH Data -------------------------------------------------------
@@ -839,13 +840,13 @@ future_ees <- base_dq_data %>%
               (ProjectType %in% psh_oph_project_types & 
                   EntryDate >= hc_psh_started_collecting_move_in_date
               )))  %>%
-  merge_check_info(checkIDs = 75) %>%
+  merge_check_info_dt(checkIDs = 75) %>%
   fselect(vars_we_want)
 
 future_exits <- base_dq_data %>%
   fsubset(!is.na(ExitDate) &
            ExitDate > as.Date(session$userData$meta_HUDCSV_Export_Date)) %>%
-  merge_check_info(checkIDs = 14) %>%
+  merge_check_info_dt(checkIDs = 14) %>%
   fselect(vars_we_want)
     
 # Missing Income at Entry -------------------------------------------------
@@ -868,7 +869,7 @@ missing_income_entry <- base_dq_data_inc %>%
            (AgeAtEntry > 17 |
               is.na(AgeAtEntry)) &
            (is.na(IncomeFromAnySource))) %>%
-  merge_check_info(checkIDs = 87) %>%
+  merge_check_info_dt(checkIDs = 87) %>%
   fselect(vars_we_want)
 
 # if IncomeFromAnySource is yes then one of these should be a yes, and if it's a 
@@ -942,7 +943,7 @@ conflicting_income_entry <- income_subs %>%
               (IncomeFromAnySource == 0 &
                  IncomeCount > 0)
            )) %>%
-  merge_check_info(checkIDs = 88) %>%
+  merge_check_info_dt(checkIDs = 88) %>%
   fselect(vars_we_want)
 
 # Missing Income at Exit --------------------------------------------------
@@ -961,7 +962,7 @@ missing_income_exit <- base_dq_data_inc %>%
            (AgeAtEntry > 17 |
               is.na(AgeAtEntry)) &
            (is.na(IncomeFromAnySource))) %>%
-  merge_check_info(checkIDs = 89) %>%
+  merge_check_info_dt(checkIDs = 89) %>%
   fselect(vars_we_want)
 
 conflicting_income_exit <- income_subs %>%
@@ -973,7 +974,7 @@ conflicting_income_exit <- income_subs %>%
               (IncomeFromAnySource == 0 &
                  IncomeCount > 0)
            )) %>%
-  merge_check_info(checkIDs = 90) %>%
+  merge_check_info_dt(checkIDs = 90) %>%
   fselect(vars_we_want)
 
 rm(income_subs)
@@ -985,54 +986,54 @@ enrollment_positions <- Enrollment %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left')
 enrollment_after_participating_period <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment After Participating Period") %>%
-  merge_check_info(checkIDs = 111) %>%
+  merge_check_info_dt(checkIDs = 111) %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_start <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start") %>%
-  merge_check_info(checkIDs = 112) %>%
+  merge_check_info_dt(checkIDs = 112) %>%
   fselect(vars_we_want)
 
 enrollment_before_participating_period <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period") %>%
-  merge_check_info(checkIDs = 113) %>%
+  merge_check_info_dt(checkIDs = 113) %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_end <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End") %>%
-  merge_check_info(checkIDs = 114) %>%
+  merge_check_info_dt(checkIDs = 114) %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_period <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participation Period") %>%
-  merge_check_info(checkIDs = 115) %>%
+  merge_check_info_dt(checkIDs = 115) %>%
   fselect(vars_we_want)
 
 # Enrollment v Operating --------------------------------------------------
 
 enrollment_after_operating_period <- enrollment_positions %>%
   fsubset(EnrollmentvOperating == "Enrollment After Operating Period") %>%
-  merge_check_info(checkIDs = 116) %>%
+  merge_check_info_dt(checkIDs = 116) %>%
   fselect(vars_we_want)
 
 enrollment_x_operating_start <- enrollment_positions %>%
   fsubset(EnrollmentvOperating == "Enrollment Crosses Operating Start") %>%
-  merge_check_info(checkIDs = 117) %>%
+  merge_check_info_dt(checkIDs = 117) %>%
   fselect(vars_we_want)
 
 enrollment_before_operating_period <- enrollment_positions %>%
   fsubset(EnrollmentvOperating == "Enrollment Before Operating Period") %>%
-  merge_check_info(checkIDs = 118) %>%
+  merge_check_info_dt(checkIDs = 118) %>%
   fselect(vars_we_want)
 
 enrollment_x_operating_end <- enrollment_positions %>%
   fsubset(EnrollmentvOperating == "Enrollment Crosses Operating End") %>%
-  merge_check_info(checkIDs = 119) %>%
+  merge_check_info_dt(checkIDs = 119) %>%
   fselect(vars_we_want)
 
 enrollment_x_operating_period <- enrollment_positions %>%
   fsubset(EnrollmentvOperating == "Enrollment Crosses Operating Period") %>%
-  merge_check_info(checkIDs = 120) %>%
+  merge_check_info_dt(checkIDs = 120) %>%
   fselect(vars_we_want)
 
 # Overlaps ----------------------------------------------------------------
@@ -1320,8 +1321,7 @@ if(nrow(Services) > 0) {
 
 get_vars(overlap_dt, cols_to_remove) <- NULL
 
-# convert to data.frame to play nice with other data.tables
-overlaps_df <- setDF(overlap_dt[, HouseholdType := NULL])
+overlap_dt[, HouseholdType := NULL]
 
 # Invalid Move-in Date ----------------------------------------------------
 
@@ -1330,7 +1330,7 @@ invalid_movein_date <- base_dq_data %>%
         ((!is.na(MoveInDate) & MoveInDate < EntryDate) | 
         (!is.na(MoveInDate) & !is.na(ExitDate) & MoveInDate > ExitDate))
   ) %>%
-  merge_check_info(checkIDs = 40) %>%
+  merge_check_info_dt(checkIDs = 40) %>%
   fselect(vars_we_want)
 
 # Missing Health Ins ------------------------------------------------------
@@ -1347,12 +1347,12 @@ missing_health_insurance <- base_dq_data_inc %>%
   
 missing_health_insurance_entry <- missing_health_insurance %>%
   fsubset(DataCollectionStage == 1) %>%
-  merge_check_info(checkIDs = 92) %>%
+  merge_check_info_dt(checkIDs = 92) %>%
   fselect(vars_we_want)
 
 missing_health_insurance_exit <- missing_health_insurance %>%
   fsubset(DataCollectionStage == 3) %>%
-  merge_check_info(checkIDs = 93) %>%
+  merge_check_info_dt(checkIDs = 93) %>%
   fselect(vars_we_want)
 
 health_insurance_subs <- base_dq_data_inc %>%
@@ -1384,13 +1384,13 @@ health_insurance_subs <- base_dq_data_inc %>%
 conflicting_health_insurance_entry <- health_insurance_subs %>%
   fsubset(DataCollectionStage == 1 &
            ProjectID %in% c(projects_require_hi)) %>%
-  merge_check_info(checkIDs = 94) %>%
+  merge_check_info_dt(checkIDs = 94) %>%
   fselect(vars_we_want)
 
 conflicting_health_insurance_exit <- health_insurance_subs %>%
   fsubset(DataCollectionStage == 3 &
            ProjectID %in% c(projects_require_hi)) %>%
-  merge_check_info(checkIDs = 95) %>%
+  merge_check_info_dt(checkIDs = 95) %>%
   fselect(vars_we_want)
 
 rm(health_insurance_subs)
@@ -1457,7 +1457,7 @@ missing_ncbs_entry <- ncb_staging %>%
   fsubset((is.na(BenefitsFromAnySource)) &
            ProjectID %in% c(projects_require_ncb)
   ) %>%
-  merge_check_info(checkIDs = 96) %>%
+  merge_check_info_dt(checkIDs = 96) %>%
   fselect(vars_we_want)
 
 conflicting_ncbs_entry <- base_dq_data %>%
@@ -1482,13 +1482,13 @@ conflicting_ncbs_entry <- base_dq_data %>%
               (BenefitsFromAnySource == 0 &
                  BenefitCount > 0)
            )) %>%
-  merge_check_info(checkIDs = 97) %>%
+  merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
 
 # SSVF --------------------------------------------------------------------
 ssvf_base_dq_data <- base_dq_data %>%
   join(
-    qDT(Funder)[Funder %in% ssvf_fund_sources],
+    Funder[Funder %in% ssvf_fund_sources],
     on = "ProjectID",
     how = "inner"
   ) %>%
@@ -1531,25 +1531,25 @@ ssvf_base_dq_data <- base_dq_data %>%
 
 veteran_missing_year_entered <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & is.na(YearEnteredService)) %>%
-  merge_check_info(checkIDs = 15) %>%
+  merge_check_info_dt(checkIDs = 15) %>%
   fsubset(!is.na(Issue)) %>%
   fselect(vars_we_want)
 
 veteran_incorrect_year_entered <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & YearEnteredService > year(today())) %>%
-  merge_check_info(checkIDs = 16) %>%
+  merge_check_info_dt(checkIDs = 16) %>%
   fsubset(!is.na(Issue)) %>%
   fselect(vars_we_want)
 
 veteran_missing_year_separated <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & is.na(YearSeparated)) %>%
-  merge_check_info(checkIDs = 17) %>%
+  merge_check_info_dt(checkIDs = 17) %>%
   fsubset(!is.na(Issue)) %>%
   fselect(vars_we_want)
 
 veteran_incorrect_year_separated <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & YearSeparated > year(today())) %>%
-  merge_check_info(checkIDs = 18) %>%
+  merge_check_info_dt(checkIDs = 18) %>%
   fsubset(!is.na(Issue)) %>%
   fselect(vars_we_want)
 
@@ -1567,29 +1567,29 @@ veteran_missing_wars <- ssvf_base_dq_data %>%
           is.na(OtherTheater)
       )
   ) %>%
-  merge_check_info(checkIDs = 19) %>%
+  merge_check_info_dt(checkIDs = 19) %>%
   fselect(vars_we_want)
 
 veteran_missing_branch <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & is.na(MilitaryBranch)) %>%
-  merge_check_info(checkIDs = 20) %>%
+  merge_check_info_dt(checkIDs = 20) %>%
   fselect(vars_we_want)
 
 veteran_missing_discharge_status <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & is.na(DischargeStatus)) %>%
-  merge_check_info(checkIDs = 21) %>%
+  merge_check_info_dt(checkIDs = 21) %>%
   fselect(vars_we_want)
 
 ssvf_missing_percent_ami <- ssvf_base_dq_data %>%
   fsubset(RelationshipToHoH == 1 &
            is.na(PercentAMI)) %>%
-  merge_check_info(checkIDs = 22) %>%
+  merge_check_info_dt(checkIDs = 22) %>%
   fselect(vars_we_want)
 
 ssvf_missing_vamc <- ssvf_base_dq_data %>%
   fsubset(RelationshipToHoH == 1 &
            is.na(VAMCStation)) %>%
-  merge_check_info(checkIDs = 23) %>%
+  merge_check_info_dt(checkIDs = 23) %>%
   fselect(vars_we_want)
 
 ssvf_hp_screen <- ssvf_base_dq_data %>%
@@ -1598,7 +1598,7 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
            TargetScreenReqd == 1 &
            (is.na(HPScreeningScore) |
               is.na(ThresholdScore))) %>%
-  merge_check_info(checkIDs = 25) %>%
+  merge_check_info_dt(checkIDs = 25) %>%
   fselect(vars_we_want)
 
 dkr_client_veteran_info <- ssvf_base_dq_data %>%
@@ -1606,7 +1606,7 @@ dkr_client_veteran_info <- ssvf_base_dq_data %>%
 
 dkr_client_veteran_discharge <- dkr_client_veteran_info %>%
   fsubset(DischargeStatus %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 56) %>%
+  merge_check_info_dt(checkIDs = 56) %>%
   fselect(vars_we_want)
 
 dkr_client_veteran_wars <- dkr_client_veteran_info %>%
@@ -1619,12 +1619,12 @@ dkr_client_veteran_wars <- dkr_client_veteran_info %>%
         IraqOND %in% c(dkr_dnc) |
         OtherTheater  %in% c(dkr_dnc)
   ) %>%
-  merge_check_info(checkIDs = 57) %>%
+  merge_check_info_dt(checkIDs = 57) %>%
   fselect(vars_we_want)
 
 dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   fsubset(MilitaryBranch %in% c(dkr_dnc)) %>%
-  merge_check_info(checkIDs = 58) %>%
+  merge_check_info_dt(checkIDs = 58) %>%
   fselect(vars_we_want)
 # Long Stayers -------------------------------------------------------------
 # The goal is here to flag "stays" that go beyond the local setting 
