@@ -270,7 +270,9 @@ duplicate_enrollment_id <- Enrollment %>%
         "."
       )
     )
-  )
+  ) %>%
+  fselect(issue_display_cols) %>%
+  funique()
 
 personal_ids_in_client <- Client$PersonalID
 
