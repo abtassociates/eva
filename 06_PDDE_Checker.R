@@ -388,17 +388,16 @@ rrh_so_w_inventory <- activeInventory %>%
 # with Project Type Y. Project Type A can only be used with Funding Source B.
 # (this will need a lot more detail, hold on this one)
 
-
 # Overlapping participations ----------------------------------------------
 overlapping_ce_participation <- CEParticipation %>%
   join(session$userData$Project0 %>% fselect(ProjectID, OrganizationName, ProjectName),
             on = "ProjectID", how = 'left') %>%
-  group_by(ProjectID) %>%
-  arrange(CEParticipationStatusStartDate) %>%
-  mutate(PreviousCEParticipationID = lag(CEParticipationID),
+  fgroup_by(ProjectID) %>%
+  roworder(ProjectID, CEParticipationStatusStartDate) %>%
+  fmutate(PreviousCEParticipationID = lag(CEParticipationID),
          PreviousCEStart = lag(CEParticipationStatusStartDate),
          PreviousCEEnd = lag(CEParticipationStatusEndDate)) %>%
-  ungroup() %>%
+  fungroup() %>%
   fsubset(!is.na(PreviousCEParticipationID)) %>%
   fmutate(ParticipationPeriod =
            interval(
@@ -432,13 +431,13 @@ overlapping_ce_participation <- CEParticipation %>%
 overlapping_hmis_participation <- HMISParticipation %>%
   join(session$userData$Project0 %>% fselect(ProjectID, OrganizationName, ProjectName),
             on = "ProjectID", how = 'left') %>%
-  group_by(ProjectID) %>%
-  arrange(HMISParticipationStatusStartDate) %>%
-  mutate(
-    PreviousHMISParticipationID = lag(HMISParticipationID),
-    PreviousHMISStart = lag(HMISParticipationStatusStartDate),
-    PreviousHMISEnd = lag(HMISParticipationStatusEndDate)) %>%
-  ungroup() %>%
+  fgroup_by(ProjectID) %>%
+  roworder(ProjectID, HMISParticipationStatusStartDate) %>%
+  fmutate(
+    PreviousHMISParticipationID = flag(HMISParticipationID),
+    PreviousHMISStart = flag(HMISParticipationStatusStartDate),
+    PreviousHMISEnd = flag(HMISParticipationStatusEndDate)) %>%
+  fungroup() %>%
   fsubset(!is.na(PreviousHMISParticipationID)) %>%
   fmutate(ParticipationPeriod =
            interval(
@@ -450,23 +449,23 @@ overlapping_hmis_participation <- HMISParticipation %>%
              coalesce(PreviousHMISEnd, no_end_date)
            ),
          OverlapYN = int_overlaps(ParticipationPeriod, PreviousParticipationPeriod)
-         ) %>% 
-         fsubset(OverlapYN) %>%
-         fmutate(Detail = paste(
-           "This project's first HMIS participation period goes from",
-           HMISParticipationStatusStartDate,
-           "to",
-           fifelse(is.na(HMISParticipationStatusEndDate),
-                   "today,",
-                   paste0(HMISParticipationStatusEndDate, ",")),
-           "and the other participation period goes from",
-           PreviousHMISStart,
-           "to",
-           fifelse(is.na(PreviousHMISEnd),
-                   "today.",
-                   paste0(PreviousHMISEnd, "."))
-         )) %>%
-  merge_check_info(checkIDs = 131) %>%
+   ) %>% 
+   fsubset(OverlapYN) %>%
+   fmutate(Detail = paste(
+     "This project's first HMIS participation period goes from",
+     HMISParticipationStatusStartDate,
+     "to",
+     fifelse(is.na(HMISParticipationStatusEndDate),
+             "today,",
+             paste0(HMISParticipationStatusEndDate, ",")),
+     "and the other participation period goes from",
+     PreviousHMISStart,
+     "to",
+     fifelse(is.na(PreviousHMISEnd),
+             "today.",
+             paste0(PreviousHMISEnd, "."))
+   )) %>%
+  merge_check_info_dt(checkIDs = 131) %>%
   fselect(PDDEcols)
 
 
