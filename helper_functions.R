@@ -403,12 +403,12 @@ merge_check_info <- function(data, checkIDs) {
   )
 }
 merge_check_info_dt <- function(data, checkIDs) {
-  return(
-    cbind(
-      data,
-      qDT(evachecks)[ID %in% c(checkIDs)]
-    )
+  m <- cbind(
+    data,
+    qDT(evachecks)[ID %in% c(checkIDs)]
   )
+  if(nrow(data) == 0) m <- m[-1]
+  return(m)
 }
 
 
