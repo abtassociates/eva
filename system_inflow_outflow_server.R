@@ -661,19 +661,15 @@ sys_monthly_chart_data_wide <- reactive({
 })
 
 ### Inactive + FTH ------------------------
-sys_inflow_outflow_monthly_single_status_chart_data <- function(varname, status) {
+sys_inflow_outflow_monthly_single_status_chart_data <- function(monthly_status_data) {
   logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
   
-  monthly_data <- get_inflow_outflow_monthly() 
-  if(nrow(monthly_data) == 0) return(monthly_data)
-  
-  monthly_data %>%
-    fsubset(.[[varname]] == status) %>%
+  monthly_status_data %>%
     fgroup_by(month) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month) %>%
     join(
-      data.table(month = unique(monthly_data$month)),
+      data.table(month = unique(monthly_status_data$month)),
       on = "month",
       how = "right"
     ) %>%
@@ -1312,13 +1308,27 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 })
 
 ### Inactive + FTH chart --------------------------------------
-sys_monthly_single_status_ui_chart <- function(varname, status, isExport = FALSE) {
+sys_monthly_single_status_ui_chart <- function(varname, status) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
-  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(
-    varname, 
-    status
-  )
+  monthly_status_data <- get_inflow_outflow_monthly() %>%
+    fsubset(.[[varname]] == status)
+  
+  if(nrow(monthly_status_data) == 0) 
+    return(
+      ggplot() + 
+        labs(title = no_data_msg) + 
+        theme_minimal()
+    )
+  
+  if(fndistinct(monthly_status_data$PersonalID) <= 10) 
+    return(
+      ggplot() + 
+        labs(title = suppression_msg) + 
+        theme_minimal()
+    )
+  
+  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
 
   ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
@@ -1330,7 +1340,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status, isExport = FALSE
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
-      axis.text.x = if(isExport) element_text(size = sys_axis_text_font, face = "bold") else element_blank(),
+      axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),
       axis.text.y = element_blank(),
       axis.title.y = element_text(size = sys_axis_text_font), 
       axis.title.x = element_blank(),
@@ -1506,7 +1516,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
   content = function(file) {
     logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
     monthly_data <- sys_export_monthly_info()
-    
+
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Flow",
@@ -1528,8 +1538,8 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         ),
         "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
         "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
-        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless", isExport = TRUE),
-        "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive", isExport = TRUE)
+        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless"),
+        "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
       ),
       summary_font_size = 19
     )

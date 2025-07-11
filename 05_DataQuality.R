@@ -183,13 +183,12 @@ missing_enrollment_coc <- base_dq_data %>%
 hh_children_only <- base_dq_data %>%
     fgroup_by(HouseholdID) %>%
     fsummarise(
-      hhMembers=GRPN(),
-      maxAge=fmax(AgeAtEntry)
+      maxAge=fmax(AgeAtEntry, na.rm=FALSE)
     ) %>%
-    fsubset(maxAge < 12) %>%
     fungroup() %>%
+    fsubset(maxAge < 12) %>%
     join(base_dq_data, on = c("HouseholdID", "maxAge" = "AgeAtEntry"), how='left') %>%
-    funique(c('HouseholdID', 'maxAge')) %>% 
+    funique(cols = c("HouseholdID", "maxAge")) %>% 
     merge_check_info(checkIDs = 86) %>%
     fselect(vars_we_want)
 

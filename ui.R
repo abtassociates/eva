@@ -614,50 +614,51 @@ nav_panel(
         id = 'card_filters1',
         style='border-width:0;border-radius:0',
         layout_columns(
-          col_widths = c(4,4,4,6,6),fill = T,
+          col_widths = c(4,4,4,6,6),
+          fill = T,
           
-        pickerInput(
-          label = "Household Type",
-          inputId = "syso_hh_type",
-          choices = syso_hh_types,
-          selected = syso_hh_types[1],
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          label = "Level of Detail",
-          inputId = "syso_level_of_detail",
-          choices = syso_level_of_detail,
-          selected = syso_level_of_detail[1],
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          label = "Project Type Group",
-          inputId = "syso_project_type",
-          choices = syso_project_types,
-          selected = syso_project_types[1],
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          inputId = "syso_age",
-          label = "Age",
-          selected = syso_age_cats,
-          choices = syso_age_cats,
-          multiple = TRUE,
-          options = pickerOptions(
-            actionsBox = TRUE,
-            selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-            countSelectedText = "All Ages",
-            noneSelectedText = "All Ages",
-            container = "body"
+          pickerInput(
+            label = "Household Type",
+            inputId = "syso_hh_type",
+            choices = syso_hh_types,
+            selected = syso_hh_types[1],
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            label = "Level of Detail",
+            inputId = "syso_level_of_detail",
+            choices = syso_level_of_detail,
+            selected = syso_level_of_detail[1],
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            label = "Project Type Group",
+            inputId = "syso_project_type",
+            choices = syso_project_types,
+            selected = syso_project_types[1],
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            inputId = "syso_age",
+            label = "Age",
+            selected = syso_age_cats,
+            choices = syso_age_cats,
+            multiple = TRUE,
+            options = pickerOptions(
+              actionsBox = TRUE,
+              selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+              countSelectedText = "All Ages",
+              noneSelectedText = "All Ages",
+              container = "body"
+            )
+          ),
+          pickerInput(
+            label = "Veteran Status",
+            inputId = "syso_spec_pops",
+            choices = syso_spec_pops_people,
+            selected = syso_spec_pops_people[1],
+            options = pickerOptions(container = "body")
           )
-        ),
-        pickerInput(
-          label = "Veteran Status",
-          inputId = "syso_spec_pops",
-          choices = syso_spec_pops_people,
-          selected = syso_spec_pops_people[1],
-          options = pickerOptions(container = "body")
-        )
         )
       ),
       card(
@@ -665,25 +666,25 @@ nav_panel(
         style="border-width:0;border-left-width: 1px; border-radius:0",
         layout_columns(
           col_widths = c(12,12),
-        pickerInput(
-          label = "Race/Ethnicity Methodology Type",
-          inputId = "methodology_type",
-          multiple = FALSE,
-          selected = syso_methodology_types[1],
-          choices = syso_methodology_types,
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          label = "Race/Ethnicity",
-          inputId = "syso_race_ethnicity",
-          choices = syso_race_ethnicity_method1,
-          selected = syso_race_ethnicity_method1,
-          options = list(
-            `dropdown-align-right` = TRUE,
-            `dropup-auto` = FALSE,
-            container = "body"
+          pickerInput(
+            label = "Race/Ethnicity Methodology Type",
+            inputId = "methodology_type",
+            multiple = FALSE,
+            selected = syso_methodology_types[1],
+            choices = syso_methodology_types,
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            label = "Race/Ethnicity",
+            inputId = "syso_race_ethnicity",
+            choices = syso_race_ethnicity_method1,
+            selected = syso_race_ethnicity_method1,
+            options = list(
+              `dropdown-align-right` = TRUE,
+              `dropup-auto` = FALSE,
+              container = "body"
+            )
           )
-        )
         )
       )
     )
@@ -721,37 +722,35 @@ nav_panel(
         ),
         nav_panel(
           title = "Month-by-Month Chart", 
-                 uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
-                   withSpinner(),
-                 radioGroupButtons(
-                   inputId = "mbm_status_filter",
-                   label = "Flow Type Filters",
-                   choices = c("All", "First-Time Homeless", "Inactive"), #Inactive
-                   selected = "All",
-                   individual = TRUE,
-                   checkIcon = list(yes = icon("check"))
-                 ),
-                 conditionalPanel(
-                   condition = "input.mbm_status_filter == 'Inactive'",
-                   plotOutput("sys_inactive_monthly_ui_chart",
-                              width = "100%",
-                              height = "500")
-                 ),
-                 conditionalPanel(
-                   condition = "input.mbm_status_filter == 'First-Time Homeless'",
-                   plotOutput("sys_fth_monthly_ui_chart",
-                              width = "100%",
-                              height = "500")
-                 ),
-                 conditionalPanel(
-                   condition = "input.mbm_status_filter == 'All'",
-                   plotOutput("sys_inflow_outflow_monthly_ui_chart",
-                              width = "100%",
-                              height = "500") %>%
-                     withSpinner()
-                 ),
-                 DTOutput("sys_inflow_outflow_monthly_table") %>%
-                   withSpinner()
+          uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+           withSpinner(),
+          radioGroupButtons(
+            inputId = "mbm_status_filter",
+            label = "Flow Type Filters",
+            choices = c("All", "First-Time Homeless", "Inactive"),
+            #Inactive
+            selected = "All",
+            individual = TRUE,
+            checkIcon = list(yes = icon("check"))
+          ), 
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'Inactive'",
+            plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
+          ), 
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'First-Time Homeless'",
+            plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
+          ),
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'All'",
+            plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+              withSpinner()
+          ),
+          conditionalPanel(
+            condition = "input.mbm_status_filter == 'All'",
+            DTOutput("sys_inflow_outflow_monthly_table") %>%
+              withSpinner()
+          )
         ),
         # nav_panel(
         #   title = "Timeline Chart",
@@ -912,21 +911,19 @@ nav_panel(
   ),
   nav_spacer(),
   nav_item(
-    #div(
-    #  id = "demo_mode_switch_wrapper",
-      input_switch(
-        id = 'in_demo_mode',
-        label = tooltip(
-          id = "demo_mode_tooltip",
-          trigger = list('DEMO MODE', bs_icon('info-circle')),
-          HTML('
-         <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
-         <strong>On</strong>: Uses a demo HMIS CSV Export.'
-          )
-        ),
-        value=FALSE
+    input_switch(
+      id = 'in_demo_mode',
+      label = tooltip(
+        id = "demo_mode_tooltip",
+        trigger = list('DEMO MODE', bs_icon('info-circle')),
+        HTML('
+       <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
+       <strong>On</strong>: Uses a demo HMIS CSV Export.'
+        )
       ),
-      style="height:22px"
-      #) 
+      value=FALSE
+    ),
+    id="demo_wrapper",
+    style="height:22px; text-align: right;"
   )
 )

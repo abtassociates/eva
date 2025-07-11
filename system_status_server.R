@@ -247,7 +247,7 @@ get_sankey_data <- reactive({
   allu <- plot_df %>%
     count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
     mutate(
-      Begin = factor(Begin, levels = active_at_levels), # Or c("Housed", "Homeless") depending on desired order
+      Begin = factor(Begin, levels = rev(active_at_levels)), # Or c("Housed", "Homeless") depending on desired order
       
       End = str_remove(End, "\n"), # Remove newlines
       End = ifelse( # Prepend "Enrolled, " for specific values

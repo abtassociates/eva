@@ -10,10 +10,12 @@
   margin-right:-12px;
 }
 
-#demo_mode_switch_wrapper {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
+/*Shifting demo switch all the way to the right*/
+#demo_wrapper .shiny-input-container {
+  display: inline;
+}
+#demo_wrapper .bslib-input-switch{
+  display: inline-block;
 }
 
 #in_demo_mode {
