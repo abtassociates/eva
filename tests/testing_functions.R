@@ -632,7 +632,7 @@ accept_helpers <- function(datasetnames = NULL, test_script_name = "main-valid")
     accept_helper(datasetname, test_script_name)
   }
 }
-accept_helper <- function(datasetname, test_script_name) {
+accept_helper <- function(datasetname, test_script_name = "main-valid") {
   helper_data_dir <- glue(here("tests/helper_data/{test_script_name}"))
   
   old_path <- glue("{helper_data_dir}/{datasetname}.csv")
