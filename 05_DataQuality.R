@@ -552,8 +552,8 @@ top_percents_long_stayers <- base_dq_data %>%
       session$userData$meta_HUDCSV_Export_Date, 
       fifelse(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
   ))) %>%
-  fgroup_by(ProjectType) %>%
-  roworder(ProjectType, -Days) %>%
+  fgroup_by(ProjectType, sort = FALSE) %>%
+  roworder(-Days) %>%
   fmutate(quantDays = quantile(Days, fifelse(
     ProjectType %in% long_stayer_98_percentile_project_types, .98, .99
   ))) %>%
@@ -562,6 +562,34 @@ top_percents_long_stayers <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 104) %>%
   fselect(vars_we_want)
 
+top_percents_long_stayers2 <- base_dq_data %>%
+  fselect(vars_prep) %>%
+  fsubset(
+    ProjectType %in% c(long_stayer_percentile_project_types) &
+      is.na(ExitDate) &
+      (
+        !ProjectType %in% c(ph_project_types) |
+          (
+            ProjectType %in% c(ph_project_types) &
+              !is.na(MoveInDateAdjust)
+          )
+      )
+  ) %>%
+  fmutate(Days = as.numeric(difftime(
+    session$userData$meta_HUDCSV_Export_Date, 
+    fifelse(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
+  ))) %>%
+  fgroup_by(ProjectType, sort = FALSE) %>% #, sort = FALSE) %>%
+  roworder(-Days) %>%
+  fmutate(quantDays = quantile(Days, fifelse(
+    ProjectType %in% long_stayer_98_percentile_project_types, .98, .99
+  ))) %>%
+  fungroup() %>%
+  fsubset(Days > quantDays) %>%
+  merge_check_info_dt(checkIDs = 104) %>%
+  fselect(vars_we_want)
+
+print(all.equal(top_percents_long_stayers2, top_percents_long_stayers, check.attributes = FALSE))
 # long stayers flags that come from inputs come from calculate_long_stayers()
 
 # Possible Missing HMID ---------------------------------------------------
