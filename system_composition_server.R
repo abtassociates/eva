@@ -663,20 +663,6 @@ output$sys_comp_download_btn <- downloadHandler(
   }
 )
 
-sys_comp_p <- reactive({
-  req(
-    !is.null(input$system_composition_selections) &
-      session$userData$valid_file() == 1 &
-      between(length(input$system_composition_selections), 1, 2)
-  )
-  
-  if(length(input$system_composition_selections) == 1) {
-    sys_comp_plot_1var()
-  } else {
-    sys_comp_plot_2vars()
-  }
-})
-
 observeEvent(input$system_composition_selections, {
   # they can select up to 2
   #disable all unchecked boxes if they've already selected 2
@@ -703,7 +689,17 @@ output$sys_comp_summary_selections <- renderUI({
 })
 
 output$sys_comp_summary_ui_chart <- renderPlot({
-  sys_comp_p()
+  req(
+    !is.null(input$system_composition_selections) &
+    session$userData$valid_file() == 1 &
+    between(length(input$system_composition_selections), 1, 2)
+  )
+
+  if(length(input$system_composition_selections) == 1) {
+    sys_comp_plot_1var()
+  } else {
+    sys_comp_plot_2vars()
+  }
 }, height = function() {
   ifelse(!is.null(input$system_composition_selections), 700, 100)
 }, width = function() {
