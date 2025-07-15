@@ -78,7 +78,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     logToConsole(session, "Done processing")
     
     # Show successful upload pop-up ----------------------------------------
-    if(in_demo_mode_compare()) {
+    if(input$in_demo_mode) {
       # do not display if in demo mode
     } else if(nrow(session$userData$file_structure_analysis_main()) > 0) {
       msg <- "Congratulations! You have successfully uploaded a hashed HMIS 
