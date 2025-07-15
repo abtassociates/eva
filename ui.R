@@ -924,6 +924,6 @@ nav_panel(
       value=FALSE
     ),
     id="demo_wrapper",
-    style="height:22px; text-align: right;"
+    style="text-align: right;"
   )
 )
