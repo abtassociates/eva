@@ -307,7 +307,7 @@ output$clientCountData <- renderDT({
   datatable(
     x,
     rownames = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )

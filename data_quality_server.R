@@ -96,7 +96,7 @@ output$pdde_guidance_summary <- renderDT({
     guidance, 
     rownames = FALSE,
     escape = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )
@@ -129,7 +129,7 @@ output$dq_organization_summary_table <- renderDT({
   datatable(
     a,
     rownames = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )
@@ -154,7 +154,7 @@ output$dq_org_guidance_summary <- renderDT({
     guidance, 
     rownames = FALSE,
     escape = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )
