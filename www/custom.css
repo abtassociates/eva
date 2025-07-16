@@ -31,7 +31,8 @@
 }
 
 .accordion-title {
-  font-size: 1rem;
+  /* Formula used by bootstrap for h4 size*/ 
+  font-size: calc(1.25625rem + .075vw);
 }
 
 .accordion {
