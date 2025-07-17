@@ -289,7 +289,57 @@ universe_ppl_flags <- function(universe_df) {
   
   if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
     if(in_dev_mode) browser()
-    stop("There's an Inflow-Unknown in the Full Annual data!")
+    logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
+  }
+
+  # First/last month's inflow/outflow status != full inflow/outflow status
+  bad_records <- universe_w_ppl_flags %>%
+    fgroup_by(PersonalID) %>%
+    fsummarize(
+      first_enrl_month_inflow = ffirst(
+        fifelse(eecr & period != "Full", InflowTypeDetail, NA)
+      ),
+      full_period_inflow = ffirst(
+        fifelse(eecr & period == "Full", InflowTypeDetail, NA)
+      ),
+      last_enrl_month_inflow = flast(
+        fifelse(lecr & period != "Full", OutflowTypeDetail, NA)
+      ),
+      full_period_outflow = flast(
+        fifelse(lecr & period == "Full", OutflowTypeDetail, NA)
+      )
+    ) %>%
+    fungroup() %>%
+    fsubset(
+      first_enrl_month_inflow != full_period_inflow |
+      last_enrl_month_outflow != full_period_outflow
+    ) %>%
+    join(
+      universe_w_ppl_flags[, .(period, PersonalID, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, was_lh_at_start, was_lh_at_end, eecr, lecr, InflowTypeDetail, OutflowTypeDetail)],
+      on = "PersonalID",
+      multiple = TRUE
+    ) %>%
+    join(
+      session$userData$lh_non_res[, .(EnrollmentID, InformationDate)],
+      on = "EnrollmentID",
+      multiple = TRUE
+    )
+  if(nrow(bad_records) > 0)  {
+    if(in_dev_mode) browser()
+    # 104510
+    # PersonalID last_enrl_month_inflow     full_period_outflow     period EnrollmentID  EntryDate MoveInDateAdjust ExitAdjust ProjectType lh_prior_livingsituation
+    # <char>                 <fctr>                  <fctr>     <char>       <char>     <Date>           <Date>     <Date>       <num>                   <lgcl>
+    # 1:     104510               Inactive Exited, \nNon-Permanent 2021-10-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
+    # 2:     104510               Inactive Exited, \nNon-Permanent 2021-11-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
+    # 3:     104510               Inactive Exited, \nNon-Permanent 2021-12-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
+    # 4:     104510               Inactive Exited, \nNon-Permanent       Full       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
+    # was_lh_at_start was_lh_at_end   eecr   lecr      InflowTypeDetail       OutflowTypeDetail InformationDate
+    # <lgcl>        <lgcl> <lgcl> <lgcl>                <fctr>                  <fctr>          <Date>
+    # 1:           FALSE          TRUE   TRUE   TRUE First-Time \nHomeless                Homeless      2021-10-05
+    # 2:            TRUE          TRUE   TRUE   TRUE              Homeless                Homeless      2021-10-05
+    # 3:            TRUE         FALSE   TRUE   TRUE              Homeless                Inactive      2021-10-05
+    # 4:           FALSE         FALSE   TRUE   TRUE First-Time \nHomeless Exited, \nNon-Permanent      2021-10-05
+    logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
   }
 
   bad_records <- universe_w_ppl_flags[
@@ -314,7 +364,7 @@ universe_ppl_flags <- function(universe_df) {
     # PersonalID 688880, DEMO mode, Jan 22, Outflow
     # PersonalID 690120, DEMO mode, Apr 22, Outflow
     
-    logToConsole(session, "There are something's wrong records in the universe_ppl_flags data")
+    logToConsole(session, "ERROR: There are something's wrong records in the universe_ppl_flags data")
   }
 
   # PersonalID: 529378, enrollment 825777 - 
