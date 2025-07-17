@@ -138,7 +138,9 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
   all_filtered_w_lh[, `:=`(
     # INFLOW CALCULATOR COLUMNS
     active_at_start_homeless = eecr & was_lh_at_start & (
-      startDate == session$userData$ReportStart | EntryDate <= startDate
+      startDate == session$userData$ReportStart | 
+      EntryDate < startDate |
+      (EntryDate == startDate & days_since_lookback %between% c(0, 14))
     ),
     
     active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
@@ -147,15 +149,18 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     ),
     
     return_from_perm = eecr & 
-      days_since_lookback %between% c(15, 730) & lookback_dest_perm &
-      any_lookbacks_with_exit_to_perm,
+      days_since_lookback %between% c(15, 730) & lookback_dest_perm,
     
     return_from_nonperm = eecr & (
       (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
-      (ProjectType %in% c(es_nbn_project_type, non_res_project_types) & !was_lh_at_start) 
-    ) & (
-      any_lookbacks_with_exit_to_nonperm |
-      was_lh_during_period 
+      (
+        ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+        !was_lh_at_start &
+        straddles_start & (
+          any_lookbacks_with_exit_to_nonperm |
+          was_lh_during_period 
+        )
+      ) 
     ),
     
     first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
@@ -167,7 +172,9 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       !was_lh_at_start,
     
     # OUTFLOW CALCULATOR COLUMNS
-    exited_system = lecr & ExitAdjust %between% list(startDate, endDate) & (!continuous_at_end | is.na(continuous_at_end)),
+    exited_system = lecr & 
+      ExitAdjust %between% list(startDate, endDate) & 
+      (!continuous_at_end | is.na(continuous_at_end)),
     
     homeless_at_end = lecr & was_lh_at_end,
     

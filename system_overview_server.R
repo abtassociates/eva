@@ -605,6 +605,8 @@ add_lh_info <- function(all_filtered) {
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
     ),
     
+    was_lh_during_period = !ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+    
     was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
       ProjectType %in% lh_project_types_nonbn | 
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
@@ -687,7 +689,7 @@ get_lh_non_res_esnbn_info <- function() {
         )
       ) | (
         ProjectType %in% non_res_project_types & (
-          lh_cls_during_period |lh_entry_during_period
+          lh_cls_during_period | lh_entry_during_period
         )
       ),
       
@@ -721,6 +723,15 @@ get_period_specific_enrollment_categories <- reactive({
       get_lh_non_res_esnbn_info(),
       on = c("period","EnrollmentID"),
       how = "left"
+    # flag if enrollment was EVER LH during the full period. 
+    # This will be important for selecting EECRs
+    fgroup_by(EnrollmentID) %>%
+    fmutate(
+      was_lh_during_full_period = anyv(fcoalesce(was_lh_during_period, FALSE) & period == "Full", TRUE)
+    ) %>%
+    fungroup() %>%
+    fsubset(
+      was_lh_during_period | (ExitAdjust %between% list(startDate, endDate) & was_lh_during_full_period)
     )
   
   logToConsole(session, paste0("In get_period_specific_enrollment_categories, num enrollment_categories_period: ", nrow(enrollment_categories_period)))
