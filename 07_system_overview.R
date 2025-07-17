@@ -426,6 +426,8 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       valid_exits <- fifelse(prev_exits <= EntryDate, prev_exits, NA)
       as.integer(difftime(EntryDate, valid_exits, units="days"))
     },
+    # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
+    # then it was clearly not a system exit
     days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
   ) %>%
   fungroup()
