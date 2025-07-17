@@ -96,6 +96,11 @@ EnrollmentStaging <- Enrollment %>%
   fmutate(
     max_AgeAtEntry = fmax(AgeAtEntry),
     min_AgeAtEntry = fmin(AgeAtEntry),
+    # DomesticViolenceCategory = fcase(
+    #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
+    #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
+    #   default = "NotDV"
+    # ),
     HouseholdType = factor(
       fifelse(
         any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
