@@ -715,14 +715,6 @@ get_period_specific_enrollment_categories <- reactive({
   logToConsole(session, "in get_period_specific_enrollment_categories")
   period_enrollments_filtered <- expand_by_periods(enrollments_filtered())
   
-  # enrollment_categories_period <- period_enrollments_filtered %>%
-    # ftransform(
-      # DomesticViolenceCategory = fcase(
-      #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
-      #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
-      #   default = "NotDV"
-      # )
-    # )
   
   enrollment_categories_period <- period_enrollments_filtered %>% 
     join(
