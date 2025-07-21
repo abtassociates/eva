@@ -15,11 +15,15 @@
   display: inline;
 }
 #demo_wrapper .bslib-input-switch{
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Adjust spacing between switch and label */
 }
 
 #in_demo_mode {
-  border-color: white
+  border-color: white;
+  font-size: 1.8em;
+  margin: 0;
 }
 
 #in_demo_mode:checked {
