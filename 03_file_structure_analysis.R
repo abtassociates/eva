@@ -140,7 +140,7 @@ df_unexpected_data_types <- rbindlist(lapply(unique(cols_and_data_types$File), u
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  if (nrow(barefile) > 1) {
+  if (fnrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
       fsubset(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
@@ -152,7 +152,7 @@ check_for_bad_nulls <- function(file) {
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
 
-    if(ncol(barefile) > 0) {
+    if(fncol(barefile) > 0) {
       barefile %>%
         mutate(row_id = row_number()) %>%
         pivot_longer(

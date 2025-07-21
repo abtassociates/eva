@@ -1055,8 +1055,8 @@ overlap_staging <- base_dq_data_dt[
 if(nrow(Services) > 0) {
   services_summary <- Services[
     , .(
-      FirstDateProvided = min(DateProvided, na.rm = TRUE),
-      LastDateProvided = max(DateProvided, na.rm = TRUE)
+      FirstDateProvided = fmin(DateProvided, na.rm = TRUE),
+      LastDateProvided = fmax(DateProvided, na.rm = TRUE)
     ), 
     by = EnrollmentID
   ]
@@ -1068,19 +1068,19 @@ if(nrow(Services) > 0) {
     by = "EnrollmentID", 
     all.x = TRUE
   )
-  
-  overlap_staging[, `:=`(
-    EnrollmentStart = fifelse(
-      ProjectType == es_nbn_project_type, 
-      FirstDateProvided,
-      EnrollmentStart
-    ),
-    EnrollmentEnd = fifelse(
-      ProjectType == es_nbn_project_type, 
-      LastDateProvided,
-      EnrollmentEnd
+  #0.0147s vs 0.011s for main valid
+  overlap_staging <- fmutate(overlap_staging,
+       EnrollmentStart = fifelse(
+         ProjectType == es_nbn_project_type,
+         FirstDateProvided,
+         EnrollmentStart
+       ),
+       EnrollmentEnd = fifelse(
+         ProjectType == es_nbn_project_type,
+         LastDateProvided,
+         EnrollmentEnd
+       )                    
     )
-  )]
 }
 
 # get previous enrollment info using "lag"

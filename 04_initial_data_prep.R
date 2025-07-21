@@ -370,10 +370,10 @@ projects_funders_types <- Funder %>%
          hi = replace_na(hi, FALSE),
          dv = replace_na(dv, FALSE)) %>%
   fgroup_by(ProjectID) %>%
-  fsummarise(inc = max(inc, na.rm = TRUE),
-            ncb = max(ncb, na.rm = TRUE),
-            hi = max(hi, na.rm = TRUE),
-            dv = max(dv, na.rm = TRUE)) %>%
+  fsummarise(inc = fmax(inc, na.rm = TRUE),
+            ncb = fmax(ncb, na.rm = TRUE),
+            hi = fmax(hi, na.rm = TRUE),
+            dv = fmax(dv, na.rm = TRUE)) %>%
   fungroup() %>%
   qDT()
 
