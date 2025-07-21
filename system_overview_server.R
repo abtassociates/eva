@@ -857,9 +857,8 @@ get_period_specific_enrollment_categories <- reactive({
     fmutate(eecr_entrydate = fmax(fifelse(eecr, EntryDate, NA))) %>%
     fungroup() %>%
     fmutate(
-      # 5/15/25: exclude from lookbacks non-res enrollments that didn't exit 
-      # and had no evidence of LH at period start
-      is_lookback = !eecr & !lecr & EntryDate <= eecr_entrydate & !(ProjectType %in% non_res_project_types & is.na(ExitDate)),
+      # 5/15/25: a lookback must have exited before the EECR started
+      is_lookback = ExitAdjust <= eecr_entrydate,
       perm_dest = is_lookback & Destination %in% perm_livingsituation,
       nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
     ) %>%
