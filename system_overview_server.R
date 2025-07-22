@@ -735,7 +735,7 @@ get_eecr_and_lecr <- reactive({
         was_lh_during_period, 
         ProjectType %in% c(lh_project_types_nonbn, ph_project_types)
       )
-    )
+    ) %>% 
     # flag if enrollment was EVER LH during the full period (or was in res project type). 
     # This will be important for selecting EECRs
     fgroup_by(EnrollmentID) %>%
