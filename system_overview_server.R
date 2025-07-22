@@ -750,12 +750,13 @@ get_eecr_and_lecr <- reactive({
       (period != "Full" & ExitAdjust %between% list(startDate, endDate) & was_lh_during_full_period)
     )
   
-  # used in determining lecr if no enrollment straddled end
+  # used in determining lecr if all enrollments straddle the end
+  # non-res enrollments that were not lh_at_end
   e <- e %>%
     fmutate(
       straddle_ends_nonresnbn_not_lh_at_end = straddles_end & 
         ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-        !fcoalesce(was_lh_at_end)
+        !was_lh_at_end
     )
   
   e <- e %>%
@@ -780,20 +781,27 @@ get_eecr_and_lecr <- reactive({
         fifelse(straddles_end, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
-    # flag the first and last enrollments in the report period,
-    # for people that have no straddles,
-    # by EntryDate and (desc) ProjectTypeWeight
-    roworder(period, EntryDate, -ProjectTypeWeight) %>%
+    # flag the first non-straddling enrollments in the report period,
+    # for people that have no eecr_straddles
+    # We prioritize EntryDate over ProjectTypeWeight because we want the earliest
+    roworder(period, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
     fmutate(
       eecr_no_straddle = ffirst(
         fifelse(in_date_range & !any_straddle_start, EnrollmentID, NA)
-      ) == EnrollmentID,
+      ) == EnrollmentID
+    ) %>%
+    # flag last non-straddling enrollments in the report period,
+    # for people that have no lecr_straddles
+    # Since these have ExitDates, given that we want the LECR to represent a 
+    # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
+    roworder(period, -ExitAdjust, -ProjectTypeWeight, -Destination, -EntryDate) %>%
+    fmutate(
       # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
       # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
       lecr_no_straddle = flast(
         fifelse(in_date_range & (
           !any_straddle_end |
-            all_straddle_ends_nonresnbn_not_lh_at_end
+          all_straddle_ends_nonresnbn_not_lh_at_end
         ), EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
