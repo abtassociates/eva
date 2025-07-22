@@ -776,7 +776,7 @@ get_eecr_and_lecr <- reactive({
       eecr_straddle = ffirst(
         fifelse(straddles_start, EnrollmentID, NA)
       ) == EnrollmentID,
-      lecr_straddle = ffirst(
+      lecr_straddle = flast(
         fifelse(straddles_end, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
