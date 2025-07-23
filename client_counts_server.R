@@ -300,8 +300,14 @@ output$clientCountData <- renderDT({
   #   ! `..1` must be of size 292 or 1, not size 0.
   
   x <- client_count_data_df() %>%
-    filter(ProjectName == input$currentProviderList) %>%
-    select(all_of(clientCountDetailCols)) %>%
+    fsubset(ProjectName == input$currentProviderList) %>%
+    fselect(clientCountDetailCols) %>%
+    fmutate(
+      days = as.integer(sub(".*\\((\\d+) days\\).*", "\\1", Status)),
+      RelationshipToHoH = as.factor(RelationshipToHoH),
+      Status = factor(Status, levels = funique(Status[order(days)])),
+      days = NULL
+    ) %>%
     nice_names()
   
   datatable(
