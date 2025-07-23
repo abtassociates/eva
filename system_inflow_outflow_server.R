@@ -306,7 +306,7 @@ universe_ppl_flags <- function(universe_df) {
       full_period_inflow = ffirst(
         fifelse(eecr & period == "Full", InflowTypeDetail, NA)
       ),
-      last_enrl_month_inflow = flast(
+      last_enrl_month_outflow = flast(
         fifelse(lecr & period != "Full", OutflowTypeDetail, NA)
       ),
       full_period_outflow = flast(

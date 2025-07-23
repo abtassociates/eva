@@ -601,12 +601,12 @@ add_lh_info <- function(all_filtered) {
         # and must be within 14 days of previous enrollment, otherwise it would be an exit
       was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
         ProjectType %in% lh_project_types_nonbn | 
-          (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
       ),
-      was_lh_during_period = !ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+
       was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
         ProjectType %in% lh_project_types_nonbn | 
-          (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
       )
     ) %>%
     fselect(
@@ -736,25 +736,34 @@ get_eecr_and_lecr <- reactive({
       on = c("period","EnrollmentID"),
       how = "left"
     ) %>%
-    # flag if enrollment was EVER LH during the full period. 
+    fmutate(
+      was_lh_during_period = fcoalesce(
+        was_lh_during_period, 
+        ProjectType %in% c(lh_project_types_nonbn, ph_project_types)
+      )
+    ) %>% 
+    # flag if enrollment was EVER LH during the full period (or was in res project type). 
     # This will be important for selecting EECRs
     fgroup_by(EnrollmentID) %>%
     fmutate(
-      was_lh_during_full_period = anyv(fcoalesce(was_lh_during_period, FALSE) & period == "Full", TRUE)
+      was_lh_during_full_period = anyv(period == "Full" & was_lh_during_period, TRUE)
     ) %>%
     fungroup() %>%
+    # now ignore (for the purposes of eecr/lecr selection, enrollments that were neither LH during the period nor
+    # exited wihtout being LH but were at least LH during the FULL period
     fsubset(
-      was_lh_during_period | (ExitAdjust %between% list(startDate, endDate) & was_lh_during_full_period)
+      was_lh_during_period | 
+      (period != "Full" & ExitAdjust %between% list(startDate, endDate) & was_lh_during_full_period)
     )
   
-  # used in determining lecr if no enrollment straddled end
+  # used in determining lecr if all enrollments straddle the end
+  # non-res enrollments that were not lh_at_end
   e <- e %>%
     fmutate(
       straddle_ends_nonresnbn_not_lh_at_end = straddles_end & 
         ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-        !fcoalesce(was_lh_at_end)
+        !was_lh_at_end
     )
-  
   
   e <- e %>%
     # Flag if person had any straddling enrollments
@@ -774,24 +783,31 @@ get_eecr_and_lecr <- reactive({
       eecr_straddle = ffirst(
         fifelse(straddles_start, EnrollmentID, NA)
       ) == EnrollmentID,
-      lecr_straddle = ffirst(
+      lecr_straddle = flast(
         fifelse(straddles_end, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
-    # flag the first and last enrollments in the report period,
-    # for people that have no straddles,
-    # by EntryDate and (desc) ProjectTypeWeight
-    roworder(period, EntryDate, -ProjectTypeWeight) %>%
+    # flag the first non-straddling enrollments in the report period,
+    # for people that have no eecr_straddles
+    # We prioritize EntryDate over ProjectTypeWeight because we want the earliest
+    roworder(period, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
     fmutate(
       eecr_no_straddle = ffirst(
         fifelse(in_date_range & !any_straddle_start, EnrollmentID, NA)
-      ) == EnrollmentID,
+      ) == EnrollmentID
+    ) %>%
+    # flag last non-straddling enrollments in the report period,
+    # for people that have no lecr_straddles
+    # Since these have ExitDates, given that we want the LECR to represent a 
+    # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
+    roworder(period, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
+    fmutate(
       # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
       # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
       lecr_no_straddle = flast(
         fifelse(in_date_range & (
           !any_straddle_end |
-            all_straddle_ends_nonresnbn_not_lh_at_end
+          all_straddle_ends_nonresnbn_not_lh_at_end
         ), EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
@@ -855,9 +871,8 @@ get_period_specific_enrollment_categories <- reactive({
     fmutate(eecr_entrydate = fmax(fifelse(eecr, EntryDate, NA))) %>%
     fungroup() %>%
     fmutate(
-      # 5/15/25: exclude from lookbacks non-res enrollments that didn't exit 
-      # and had no evidence of LH at period start
-      is_lookback = !eecr & !lecr & EntryDate <= eecr_entrydate & !(ProjectType %in% non_res_project_types & is.na(ExitDate)),
+      # 5/15/25: a lookback must have exited before the EECR started
+      is_lookback = ExitAdjust <= eecr_entrydate,
       perm_dest = is_lookback & Destination %in% perm_livingsituation,
       nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
     ) %>%
