@@ -1,5 +1,6 @@
 output$changelog <- renderDT({
-  tribble(
+  
+  changelog_dt <- tribble(
     ~ Date,
     ~ Change,
     "07-18-2025",
@@ -437,5 +438,9 @@ output$changelog <- renderDT({
       - Rewrote PDDE issues' Guidance so that it is general guidance,
     then added Details column to include IDs to help admins find specific issues."
     
-  )
-}, rownames = FALSE, escape = FALSE, style = "default")
+  ) %>% 
+   fmutate(Date = as.Date(Date, format='%m-%d-%Y'))
+  
+  datatable(changelog_dt, escape=FALSE, style='default', rownames=FALSE) 
+    
+})
