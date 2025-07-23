@@ -177,20 +177,21 @@ get_selection_cats <- function(selection) {
 # then suppress the next lowest value in that group
 suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   if(length(input$system_composition_selections) > 1) {
-    .data <- .data %>% group_by(!!sym(group_v))
+    .data <- .data %>% fgroup_by(group_v)
   }
+
   return(
     .data %>%
-      mutate(
-        count_redacted = sum(wasRedacted, na.rm = TRUE),
-        next_lowest = min(!!sym(n_v), na.rm = TRUE),
-        wasRedacted = ifelse(count_redacted == 1 & (
-          (wasRedacted & is.na(!!sym(n_v))) |
-            (!wasRedacted & !!sym(n_v) == next_lowest)
+      fmutate(
+        count_redacted = fsum(wasRedacted),
+        next_lowest = fmin(get(n_v)),
+        wasRedacted = fifelse(count_redacted == 1 & (
+          (wasRedacted & is.na(n_v)) |
+          (!wasRedacted & n_v == next_lowest)
         ), TRUE, wasRedacted)
       ) %>%
-      ungroup() %>%
-      select(-c(count_redacted, next_lowest))
+      fungroup() %>%
+      fselect(-c(count_redacted, next_lowest))
   )
 }
 
@@ -574,10 +575,12 @@ output$sys_comp_download_btn <- downloadHandler(
 
       # Create x.y% version
       pct_df <- num_df %>%
-        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
-                        replace_na(0) %>%
-          round(1) %>%
-          paste0("%")))
+        ftransformv(vars = num_vars(., return="names"),  FUN = function(x) {
+          (x / fsum(x) * 100) %>% 
+            replace_na(0) %>%
+            round(1) %>%
+            paste0("%")
+        })
       
       # create totals, but only for Method1
       if(input$methodology_type == 1) { 
@@ -746,9 +749,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
   join(
-    get_period_specific_enrollment_categories() %>%
-      fsubset(period == "Full") %>%
-      fselect(-period, -startDate, -endDate, -days_to_lookahead, -days_since_lookback),
+    get_period_specific_enrollment_categories()[period == "Full", .(PersonalID)],
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%
