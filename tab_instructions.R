@@ -908,6 +908,12 @@ tabDQSystem_instructions <-  HTML("
                your CoC leadership, a broader view of the state of your HMIS
                data quality.</p>")
 
+tabSystemExits_instructions <- HTML("<h2>Placeholder for Instructions</h2>")
+
+tab_syse_types_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
+tab_syse_compare_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
+tab_syse_phd_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
+
 tabGlossary_instructions <- HTML("
                <p>This glossary provides definitions for the terms used throughout 
               Eva's System Performance Overview page. You can review definitions 
