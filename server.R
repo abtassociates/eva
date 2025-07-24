@@ -90,7 +90,7 @@ function(input, output, session) {
   
   output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
-  output$headerSystemExit <- headerGeneric(session, "System Exit")
+  output$headerSystemExit <- headerGeneric(session, "System Exits")
 
   # output$headerUtilization <- renderUI({
   #   list(h2("Bed and Unit Utilization"),
