@@ -957,7 +957,7 @@ nav_menu(
             col_widths = c(12,12),
             pickerInput(
               label = "Race/Ethnicity Methodology Type",
-              inputId = "methodology_type",
+              inputId = "syse_methodology_type",
               multiple = FALSE,
               selected = syse_methodology_types[1],
               choices = syse_methodology_types,
@@ -993,12 +993,15 @@ nav_menu(
               
               nav_panel(
                 title = "Chart",
-                
+                card()  
               ),
               nav_panel(
-                title = "Information"
+                title = "Information",
+                tab_syse_types_subtabs_information
               )
-            )
+            ),
+            downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_types_download_btn_ppt", "Image Download")
           ),
           
           nav_panel(
@@ -1009,13 +1012,15 @@ nav_menu(
               
               nav_panel(
                 title = "Chart",
-                
+                card()
               ),
               nav_panel(
-                title = "Information"
+                title = "Information",
+                tab_syse_compare_subtabs_information
               )
-            )
-            #value = ''
+            ),
+            downloadButton("syse_compare_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_compare_download_btn_ppt", "Image Download")
           ),
           
           nav_panel(
@@ -1026,14 +1031,18 @@ nav_menu(
               
               nav_panel(
                 title = "Chart",
-                
+                card()
               ),
               nav_panel(
-                title = "Information"
+                title = "Information",
+                tab_syse_phd_subtabs_information
               )
-            )
+            ),
+            downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_phd_download_btn_ppt", "Image Download")
           )
-    )
+    ),
+    downloadButton("syse_client_level_download_btn", "Client Level Download")
   )
 ),
 

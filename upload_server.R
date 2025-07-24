@@ -159,6 +159,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     }
     
     toggle_sys_components(session$userData$valid_file() == 1)
+    toggle_syse_components(session$userData$valid_file() == 1)
   })
 }
 

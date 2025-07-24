@@ -105,6 +105,11 @@
   margin-left: auto;
 }
 
+/* move system exit download buttons to the right*/
+.syse_download_tab {
+  margin-left: auto;
+}
+
 /*Center plots*/
 .shiny-plot-output {
   margin: auto;

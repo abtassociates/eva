@@ -231,3 +231,10 @@ get_client_level_export <- reactive({
 })
 
 #source(here("sandbox/timeline_viewer.R"), local=TRUE)
+
+## system exits client-level download handler
+output$syse_client_level_download_btn <- downloadHandler(
+  filename = date_stamped_filename("System Exits Client Level Export - "),
+  content = function(file) {
+  }
+)

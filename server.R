@@ -142,6 +142,8 @@ function(input, output, session) {
 
   source("system_status_server.R", local = TRUE)
   
+  source("system_exits_server.R", local = TRUE)
+  
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
     gc()
