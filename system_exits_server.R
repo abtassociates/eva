@@ -1,3 +1,42 @@
+
+#### DISPLAY FILTER SELECTIONS ###
+syse_detailBox <- reactive({
+  list(
+    br(),
+    strong("Date Range: "),
+    
+    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
+    
+    if (input$syse_project_type != "All")
+      chart_selection_detail_line("Project Type Group", syse_project_types, str_remove(input$syse_project_type, "- ")),
+    
+    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+    HTML(glue(
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syse_methodology_types, input$syse_methodology_type), start = 1, end = 8)} <br>"
+    )),
+    
+    if (length(input$syse_age) != length(syse_age_cats))
+      HTML(glue(
+        "<b>Age:</b> {paste(input$syse_age, collapse = ', ')} <br>"
+      )),
+    
+    if (input$syse_race_ethnicity != "All")
+      chart_selection_detail_line("Race/Ethnicity", syse_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity),
+    
+    if(getNameByValue(syse_spec_pops_people, input$syse_spec_pops) != "All Statuses")
+      HTML(glue(
+        "<b>Veteran Status:</b> {paste(getNameByValue(syse_spec_pops_people, input$syse_spec_pops), '(Adult Only)')} <br>"
+      ))
+    
+  )
+})
+
+output$syse_types_filter_selections <- renderUI({ 
+  req(session$userData$valid_file() == 1)
+  syse_detailBox() 
+})
+
+
 output$syse_types_download_btn <- downloadHandler(filename = 'tmp',{
 
   })

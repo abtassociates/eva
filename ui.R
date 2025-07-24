@@ -993,7 +993,8 @@ nav_menu(
               
               nav_panel(
                 title = "Chart",
-                card()  
+                  uiOutput("syse_types_filter_selections") %>%
+                    withSpinner(),
               ),
               nav_panel(
                 title = "Information",
