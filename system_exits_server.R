@@ -43,6 +43,28 @@ output$syse_types_filter_selections <- renderUI({
   syse_detailBox() 
 })
 
+level_of_detail_text_syse <- reactive({
+  case_when(
+    input$syse_level_of_detail == "All" ~ "People",
+    input$syse_level_of_detail == "HoHsOnly" ~ "Heads of Household",
+    TRUE ~
+      getNameByValue(syse_level_of_detail, input$syse_level_of_detail)
+  )
+})
+
+output$syse_types_ui_chart <- renderPlot({
+  
+  syse_types_chart("Destination Type", input$syse_dest_type_filter)
+})
+
+syse_types_chart <- function(varname, status){
+  ggplot() +
+    labs(title = paste0("System Exits for ", level_of_detail_text_syse(), " in ", 
+                        str_remove(getNameByValue(syse_hh_types, input$syse_hh_type), "- "), 
+                        if_else(getNameByValue(syse_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+         ) +
+    theme_minimal()
+}
 
 output$syse_types_download_btn <- downloadHandler(filename = 'tmp',{
 

@@ -985,8 +985,7 @@ nav_menu(
           
           nav_panel(
             title = 'System Exit Types',
-            value = '',
-            
+
             navset_underline(
               id = "syse_types_subtabs",
               selected = "Chart",
@@ -995,6 +994,20 @@ nav_menu(
                 title = "Chart",
                   uiOutput("syse_types_filter_selections") %>%
                     withSpinner(),
+                radioGroupButtons(
+                  inputId = "syse_dest_type_filter",
+                  label = "Destination Type Filters",
+                  choices = c("Permanent", "Homeless", "Institutional", "Temporary", "Other/Unknown"),
+                  selected = "Permanent",
+                  individual = TRUE,
+                  checkIcon = list(yes = icon("check"))
+                ), 
+               
+                plotOutput("syse_types_ui_chart"#,
+                           #width = "100%",
+                           #height = "500"
+                           ) %>%
+                  withSpinner()
               ),
               nav_panel(
                 title = "Information",
