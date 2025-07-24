@@ -1,4 +1,11 @@
 
+# Set race/ethnicity filter options based on methodology type selection
+# Set special populations options based on level of detail selection
+syse_race_ethnicity_cats <- function(methodology = 1){
+  if(methodology == 1) syse_race_ethnicity_method1 
+  else syse_race_ethnicity_method2
+}
+
 #### DISPLAY FILTER SELECTIONS ###
 syse_detailBox <- reactive({
   list(
@@ -61,6 +68,16 @@ output$syse_phd_download_btn_ppt <- downloadHandler(filename = 'tmp',{
   
 })
 
+observeEvent(input$syse_methodology_type, {
+  
+  updatePickerInput(
+    session, 
+    "syse_race_ethnicity", 
+    choices = syse_race_ethnicity_cats(input$syse_methodology_type)
+  )
+
+},
+ignoreInit = TRUE)
 toggle_syse_components <- function(cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
