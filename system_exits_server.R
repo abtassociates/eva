@@ -15,7 +15,7 @@ syse_detailBox <- reactive({
     format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syse_project_type != "All")
-      chart_selection_detail_line("Project Type Group", syse_project_types, str_remove(input$syse_project_type, "- ")),
+      chart_selection_detail_line("Project Type ", syse_project_types, str_remove(input$syse_project_type, "- ")),
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
@@ -98,17 +98,37 @@ output$syse_types_ui_chart <- renderPlot({
 })
 
 syse_types_chart <- function(varname, status){
-  ggplot() +
-    labs(title = paste0("System Exits for ", level_of_detail_text_syse(), " in ", 
+  
+  tree_colors <- c(
+    "Permanent" = "#16697A",
+    "Homeless" = "#C2462E",
+    "Institutional" = "#C1DDD7",
+    "Temporary" = "#71B4CB",
+    "Other/Unknown" = "#73655E"
+  )
+  
+  
+  
+  ggplot(test_exits_summ, aes(area = Count, fill = `Destination Type`, 
+                              label = str_c(`Destination Type`, ':\n', scales::label_comma()(Count),
+                                            ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
+                                                                                     ))) +
+    labs(title = paste0(scales::label_comma()(sum(test_exits_data$Count)), " System Exits for ", 
+                        level_of_detail_text_syse(), " in ", 
                         str_remove(getNameByValue(syse_hh_types, input$syse_hh_type), "- "), 
                         if_else(getNameByValue(syse_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
          ) +
-    theme_minimal()
+    geom_treemap(start = "left", show.legend = FALSE) +
+    geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
+    scale_color_identity() +
+    scale_fill_manual(values = tree_colors) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+    )
 }
 
-output$syse_types_download_btn <- downloadHandler(filename = 'tmp',{
 
-  })
 # PowerPoint Export -------------------------------------------------------
 sys_exits_ppt_export <- function(file,
                                     title_slide_title,
@@ -196,15 +216,16 @@ sys_exits_ppt_export <- function(file,
 
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
   paste("System Exits_", Sys.Date(), ".pptx", sep = "")
-},
-content = function(file) {
-  logToConsole(session, "In syse_types_download_btn_ppt")
+  },
+  content = function(file) {
+    logToConsole(session, "In syse_types_download_btn_ppt")
   
-  sys_exits_ppt_export(file = file, 
+    sys_exits_ppt_export(file = file, 
                        title_slide_title = "System Exits by Type",
                        summary_items = syse_export_summary_initial_df() %>%
                          filter(Chart != "Start Date" & Chart != "End Date") %>% 
-                         bind_rows(syse_export_filter_selections()),
+                         bind_rows(syse_export_filter_selections(),
+                                   data.frame(Chart="Total System Exits", Value = scales::label_comma()(sum(test_exits_data$Count)))),
                        plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
                        summary_font_size = 19
                        )
