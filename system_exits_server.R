@@ -214,6 +214,27 @@ sys_exits_ppt_export <- function(file,
 }
 
 
+output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits Report - "),
+                                                   content = function(file) 
+    {
+     logToConsole(session, "System Exit Types data download")
+     
+     write_xlsx(
+       list(
+         "ExitsByType Metadata" = syse_export_summary_initial_df() %>%
+           bind_rows(
+             syse_export_filter_selections()
+           ),
+         ## dummy dataset read-in from global.R for now
+         "SystemExitData" = test_exits_data
+       ),
+       path = file,
+       format_headers = FALSE,
+       col_names = TRUE
+     )        
+     
+})
+
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
   paste("System Exits_", Sys.Date(), ".pptx", sep = "")
   },
