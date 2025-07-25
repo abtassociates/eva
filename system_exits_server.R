@@ -38,6 +38,46 @@ syse_detailBox <- reactive({
   )
 })
 
+syse_export_summary_initial_df <- function() {
+  
+  logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  
+  return(data.frame(
+    Chart = c(
+      "Start Date",
+      "End Date",
+      "Methodology Type",
+      "Household Type",
+      "Level of Detail",
+      "Project Type Group"
+    ),
+    Value = c(
+      strftime(session$userData$ReportStart, "%m/%d/%y"),
+      strftime(session$userData$ReportEnd, "%m/%d/%y"),
+      getNameByValue(syse_methodology_types, input$syse_methodology_type),
+      getNameByValue(syse_hh_types, input$syse_hh_type),
+      getNameByValue(syse_level_of_detail, input$syse_level_of_detail),
+      getNameByValue(syse_project_types, input$syse_project_type)
+    )
+  ))
+}
+
+syse_export_filter_selections <- function() {
+  return(tibble(
+    Chart = c(
+      "Age",
+      "Veteran Status",
+      "Race/Ethnicity"
+    ),
+    Value = c(
+      if(identical(syse_age_cats, input$syse_age)) {"All Ages"} else {paste(input$syse_age, collapse=", ")},
+      getNameByValue(syse_spec_pops_people, input$syse_spec_pops),
+      getNameByValue(syse_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
+    )
+  ))
+}
+
 output$syse_types_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
   syse_detailBox() 
@@ -69,9 +109,105 @@ syse_types_chart <- function(varname, status){
 output$syse_types_download_btn <- downloadHandler(filename = 'tmp',{
 
   })
-
-output$syse_types_download_btn_ppt <- downloadHandler(filename = 'tmp', {
+# PowerPoint Export -------------------------------------------------------
+sys_exits_ppt_export <- function(file,
+                                    title_slide_title,
+                                    summary_items,
+                                    plots,
+                                    summary_font_size) {
+  logMetadata(session, paste0("Downloaded System Exits Powerpoint: ", title_slide_title,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
+  loc_title <- ph_location_type(type = "title")
+  loc_footer <- ph_location_type(type = "ftr")
+  loc_dt <- ph_location_type(type = "dt")
+  loc_slidenum <- ph_location_type(type = "sldNum")
+  loc_body <- ph_location_type(type = "body")
+  loc_subtitle <- ph_location_type(type = "subTitle")
+  loc_ctrtitle <- ph_location_type(type = "ctrTitle")
+  
+  fp_normal <- fp_text(font.size = summary_font_size)
+  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
+  fp_bold <- update(fp_normal, bold = TRUE)
+  fp_red <- update(fp_normal, color = "red")
+  
+  ppt <- read_pptx(here("system_pptx_template.pptx"))
+  
+  report_period <- paste0("Report Period: ", 
+                          format(session$userData$ReportStart, "%m/%d/%Y"),
+                          " - ",
+                          format(session$userData$ReportEnd, "%m/%d/%Y")
+  )
+  
+  add_footer <- function(.ppt) {
+    return(
+      .ppt %>%
+        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
+        ph_with(value = report_period, location = loc_dt) %>%
+        ph_with(
+          value = paste0(
+            "Export Generated: ",
+            format(Sys.Date()),
+            "\n",
+            "https://hmis.abtsites.com/eva/"
+          ),
+          location = loc_slidenum
+        )
+    )
+  }
+  
+  # title Slide
+  ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
+    ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
+    ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
+    add_footer()
+  
+  # Summary
+  s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
+    fpar(
+      ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
+    )
+  }))
+  
+  ppt <- add_slide(ppt, layout = "Title and Content") %>%
+    ph_with(value = "Summary", location = loc_title) %>%
+    ph_with(
+      value = s_items,
+      level_list = c(rep(1L, length(s_items))),
+      location = loc_body
+    ) %>% 
+    add_footer()
+  
+  # Chart
+  for(plot_slide_title in names(plots)) {
+    p <- plots[[plot_slide_title]]
+    if(!is.null(p)) {
+      ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+        ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
+        ph_with(value = p, location = loc_body) %>%
+        add_footer()
+    }
+  }
+  
+  # Export the PowerPoint
+  return(print(ppt, target = file))
+}
+
+
+output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
+  paste("System Exits_", Sys.Date(), ".pptx", sep = "")
+},
+content = function(file) {
+  logToConsole(session, "In syse_types_download_btn_ppt")
+  
+  sys_exits_ppt_export(file = file, 
+                       title_slide_title = "System Exits by Type",
+                       summary_items = syse_export_summary_initial_df() %>%
+                         filter(Chart != "Start Date" & Chart != "End Date") %>% 
+                         bind_rows(syse_export_filter_selections()),
+                       plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
+                       summary_font_size = 19
+                       )
 })
 
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
