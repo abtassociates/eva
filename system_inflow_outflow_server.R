@@ -326,6 +326,31 @@ universe_ppl_flags <- function(universe_df) {
     if(in_dev_mode) browser()
     logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
   }
+  
+  bad_records <- universe_w_ppl_flags[
+    InflowTypeSummary == "something's wrong" |
+    OutflowTypeSummary == "something's wrong"
+  ]
+  if(nrow(bad_records) > 0) {
+    if(in_dev_mode) {
+      if(nrow(bad_records[InflowTypeSummary == "something's wrong"]) > 0) view(bad_records[InflowTypeSummary == "something's wrong", c("period", inflow_debug_cols), with=FALSE])
+      if(nrow(bad_records[OutflowTypeSummary == "something's wrong"]) > 0) view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
+      browser()
+    }
+    # e.g. PersonalID 623725 in Nov and 601540 in Dec
+    # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
+    # e.g. PersonalID 14780 in Oct and Nov
+    # 613426 - in Nov, they should be Active at start Homeless but the problem is that the lookback has no exit or destination
+    # If we restrict Return/Re-Engaged to those with lookbacks with Exits to corresponding destination, then:
+    #   PersonalIDs: 306663, 619032, 119222, 11943    
+    # AS 5/12/25: With new was_lh_at_end condition in creating lecr, PersonalID 305204 (ICF-good) is "something's wrong" for annual
+    #
+    # PersonalID 687862 has inflow issue
+    # PersonalID 688880, DEMO mode, Jan 22, Outflow
+    # PersonalID 690120, DEMO mode, Apr 22, Outflow
+    
+    logToConsole(session, "ERROR: There are something's wrong records in the universe_ppl_flags data")
+  }
 
   # First/last month's inflow/outflow status != full inflow/outflow status
   bad_records <- universe_w_ppl_flags %>%
@@ -361,6 +386,16 @@ universe_ppl_flags <- function(universe_df) {
     )
   if(nrow(bad_records) > 0)  {
     if(in_dev_mode) browser()
+    view(bad_records[
+      first_enrl_month_inflow != full_period_inflow, 
+      .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InflowTypeDetail, first_enrl_month_inflow, full_period_inflow)
+    ])
+    view(bad_records[
+      last_enrl_month_outflow != full_period_outflow, 
+      .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, OutflowTypeDetail, last_enrl_month_outflow, full_period_outflow)
+    ])
+    
+
     # 104510
     # PersonalID last_enrl_month_inflow     full_period_outflow     period EnrollmentID  EntryDate MoveInDateAdjust ExitAdjust ProjectType lh_prior_livingsituation
     # <char>                 <fctr>                  <fctr>     <char>       <char>     <Date>           <Date>     <Date>       <num>                   <lgcl>
@@ -378,30 +413,13 @@ universe_ppl_flags <- function(universe_df) {
   }
 
   bad_records <- universe_w_ppl_flags[
-    InflowTypeSummary == "something's wrong" |
-    OutflowTypeSummary == "something's wrong"
-  ]
+    InflowTypeDetail == "Homeless" & 
+    EntryDate == startDate & 
+    startDate != session$userData$ReportStart &
+    (days_since_lookback > 14 | is.na(days_since_lookback))]
   if(nrow(bad_records) > 0) {
-    if(in_dev_mode) {
-      view(bad_records[InflowTypeSummary == "something's wrong", c("period", inflow_debug_cols), with=FALSE])
-      view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
-      browser()
-    }
-    # e.g. PersonalID 623725 in Nov and 601540 in Dec
-    # e.g. PersonalID 305204 and 420232 in Nov and 601540 and 620079 in Dec
-    # e.g. PersonalID 14780 in Oct and Nov
-    # 613426 - in Nov, they should be Active at start Homeless but the problem is that the lookback has no exit or destination
-    # If we restrict Return/Re-Engaged to those with lookbacks with Exits to corresponding destination, then:
-    #   PersonalIDs: 306663, 619032, 119222, 11943    
-    # AS 5/12/25: With new was_lh_at_end condition in creating lecr, PersonalID 305204 (ICF-good) is "something's wrong" for annual
-    #
-    # PersonalID 687862 has inflow issue
-    # PersonalID 688880, DEMO mode, Jan 22, Outflow
-    # PersonalID 690120, DEMO mode, Apr 22, Outflow
-    
-    logToConsole(session, "ERROR: There are something's wrong records in the universe_ppl_flags data")
+    if(in_dev_mode) browser()
   }
-
   # PersonalID: 529378, enrollment 825777 - 
   # Oct - Active at Start Homeless 
   # Nov - Active at Start Homeless
