@@ -482,7 +482,12 @@ lh_non_res_period <- function() {
       lh_cls_during_period = InformationDate %between% list(start_window, endDate + 15),
       entry_in_start_window = EntryDate %between% list(start_window, startDate + 15),
       entry_in_end_window = EntryDate %between% list(end_window, endDate),
-      lh_entry_during_period = EntryDate %between% list(start_window, endDate) & lh_prior_livingsituation
+      # they are LH entry during period if they entered in the window with an LH PLS OR
+      # simply because they were in a SO or ES-NBN project. This is sufficient to mark them as such
+      # because these are LH Project Types.
+      lh_entry_during_period = EntryDate %between% list(start_window, endDate) & (
+        lh_prior_livingsituation | ProjectType == out_project_type
+      )
     )  %>%
     fselect(
       period, EnrollmentID, ProjectType, lh_prior_livingsituation,
