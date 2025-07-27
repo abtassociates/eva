@@ -171,6 +171,32 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
       !was_lh_at_start,
     
+    # Exclude non-res-only clients with incomplete or conflicting LH data
+    non_res_excluded = eecr & 
+      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      !was_lh_at_start & 
+      days_since_lookback %between% c(0,14) &
+      no_lh_lookbacks,
+      
+    # e.g. 421299: all non-res projects (not including SO and ES-NBN) with no 
+    # evidence of homelessness at period start window (and no other types of enrollments)
+    # and within 15 days of another enrollment that has no evidence of homeless during the same period
+    #
+    #
+    # because if they had another enrollment type, then that would have been selected for the eecr, while their non-res enrollments were not eecr-eligible because they were not LH during period
+    # 
+    
+    # we're being too strict with SO by requiring a LH PLS or LH CLS
+    # let's change it now, as opposed to when we get to unsheltered system performance.
+    # we'd probably be pressured later on for these features
+    # because we'll have all these clients getting excluded when they shouldn't be
+    # should be treated NbN
+    #so they 
+    
+    # e.g. a SO used up funds to clients; when they ran performance report, they had 0s in other areas; 
+    #   when they use SO, they use it on people experiencing homelessness at the moment of the project
+    #   so we're looking at PLS but not doing that for ES, is not being helpful.
+    
     # OUTFLOW CALCULATOR COLUMNS
     exited_system = lecr & 
       ExitAdjust %between% list(startDate, endDate) & 
@@ -214,6 +240,7 @@ universe_ppl_flags <- function(universe_df) {
       reengaged_from_temp_client = anyv(return_from_nonperm, TRUE),
       first_time_homeless_client = anyv(first_time_homeless, TRUE),
       unknown_at_start_client = anyv(unknown_at_start, TRUE),
+      non_res_excluded_client = anyv(non_res_excluded, TRUE),
       continuous_at_start_client = anyv(continuous_at_start, TRUE),
       
       # OUTFLOW
@@ -222,7 +249,7 @@ universe_ppl_flags <- function(universe_df) {
       homeless_at_end_client = anyv(homeless_at_end, TRUE),
       housed_at_end_client = anyv(housed_at_end, TRUE),
       unknown_at_end_client = anyv(unknown_at_end, TRUE),
-      continuous_at_end_client = anyv(continuous_at_end , TRUE)
+      continuous_at_end_client = anyv(continuous_at_end, TRUE)
     ) %>%
     fungroup() %>%
     ftransform(
@@ -230,6 +257,7 @@ universe_ppl_flags <- function(universe_df) {
         fcase(
           active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
           first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
+          non_res_excluded_client, "Excluded",
           continuous_at_start_client, "Continuous at Start",
           default = "something's wrong"
         ), levels = inflow_summary_levels
@@ -244,6 +272,7 @@ universe_ppl_flags <- function(universe_df) {
           first_time_homeless_client, "First-Time \nHomeless",
           continuous_at_start_client, "Continuous at Start",
           unknown_at_start_client, "Unknown",
+          non_res_excluded_client, "Excluded",
           default = "something's wrong"
         ), levels = c(active_at_levels, inflow_detail_levels)
       ),
