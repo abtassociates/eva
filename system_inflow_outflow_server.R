@@ -202,7 +202,11 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       ExitAdjust %between% list(startDate, endDate) & 
       (!continuous_at_end | is.na(continuous_at_end)),
     
-    homeless_at_end = lecr & was_lh_at_end,
+    homeless_at_end = lecr & was_lh_at_end & (
+      endDate == session$userData$ReportEnd | 
+      ExitAdjust > endDate |
+      (ExitAdjust == endDate & days_to_lookahead %between% c(0, 14))
+    ),
     
     housed_at_end = lecr & 
       ProjectType %in% ph_project_types & 
