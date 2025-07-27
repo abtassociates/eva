@@ -459,13 +459,12 @@ es_nbn_enrollments <- session$userData$enrollment_categories[
     days_to_lookahead)
 ]
 
-session$userData$lh_nbn <- Services %>%
-  fselect(EnrollmentID, DateProvided) %>%
-  join(
-    es_nbn_enrollments,
-    on="EnrollmentID",
-    how = "inner"
-  )
+session$userData$lh_nbn <- join(
+  es_nbn_enrollments,
+  Services %>% fselect(EnrollmentID, DateProvided),
+  on="EnrollmentID",
+  how = "left"
+)
 
 
   
