@@ -777,11 +777,13 @@ get_eecr_and_lecr <- reactive({
     ) %>%
     # flag the first and last straddling enrollments, 
     # by (desc) ProjectTypeWeight and EntryDate
-    roworder(period, -ProjectTypeWeight, EntryDate) %>%
+    setorder(period, PersonalID, -ProjectTypeWeight, EntryDate) %>%
     fmutate(
       eecr_straddle = ffirst(
         fifelse(straddles_start, EnrollmentID, NA)
-      ) == EnrollmentID,
+      ) == EnrollmentID
+    ) %>%
+    setorder(period, PersonalID, ProjectTypeWeight, EntryDate) %>%
       lecr_straddle = flast(
         fifelse(straddles_end, EnrollmentID, NA)
       ) == EnrollmentID
@@ -789,7 +791,7 @@ get_eecr_and_lecr <- reactive({
     # flag the first non-straddling enrollments in the report period,
     # for people that have no eecr_straddles
     # We prioritize EntryDate over ProjectTypeWeight because we want the earliest
-    roworder(period, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
+    setorder(period, PersonalID, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
     fmutate(
       eecr_no_straddle = ffirst(
         fifelse(in_date_range & !any_straddle_start, EnrollmentID, NA)
@@ -799,7 +801,7 @@ get_eecr_and_lecr <- reactive({
     # for people that have no lecr_straddles
     # Since these have ExitDates, given that we want the LECR to represent a 
     # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
-    roworder(period, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
+    setorder(period, PersonalID, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
     fmutate(
       # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
       # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
