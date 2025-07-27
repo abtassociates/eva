@@ -305,19 +305,21 @@ universe_ppl_flags <- function(universe_df) {
     fselect(-startDate, -endDate)
   
   if(!in_dev_mode) {
-    universe_w_ppl_flags[, .(
-      PersonalID,
-      InflowTypeSummary,
-      InflowTypeDetail,
-      OutflowTypeSummary,
-      OutflowTypeDetail,
-      ProjectType,
-      month,
-      EnrollmentID, 
-      eecr,
-      lecr,
-      MoveInDateAdjust
-    )]
+    universe_w_ppl_flags %>%
+      fselect(
+        PersonalID,
+        InflowTypeSummary,
+        InflowTypeDetail,
+        OutflowTypeSummary,
+        OutflowTypeDetail,
+        ProjectType,
+        month,
+        EnrollmentID, 
+        eecr,
+        lecr,
+        MoveInDateAdjust
+      ) %>%
+      funique()
   }
   
   if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
