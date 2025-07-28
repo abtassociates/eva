@@ -412,11 +412,13 @@ universe_ppl_flags <- function(universe_df) {
     logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
   }
 
-  bad_records <- universe_w_ppl_flags[
-    InflowTypeDetail == "Homeless" & 
-    EntryDate == startDate & 
-    startDate != session$userData$ReportStart &
-    (days_since_lookback > 14 | is.na(days_since_lookback))]
+  bad_records <- universe_w_ppl_flags %>%
+    fsubset(
+      InflowTypeDetail == "Homeless" & 
+      EntryDate == period[1] &
+      EntryDate != session$userData$ReportStart &
+      (days_since_lookback > 14 | is.na(days_since_lookback))
+    )
   if(nrow(bad_records) > 0) {
     if(in_dev_mode) browser()
   }
