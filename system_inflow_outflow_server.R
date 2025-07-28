@@ -385,15 +385,17 @@ universe_ppl_flags <- function(universe_df) {
       multiple = TRUE
     )
   if(nrow(bad_records) > 0)  {
-    if(in_dev_mode) browser()
-    view(bad_records[
-      first_enrl_month_inflow != full_period_inflow, 
-      .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InflowTypeDetail, first_enrl_month_inflow, full_period_inflow)
-    ])
-    view(bad_records[
-      last_enrl_month_outflow != full_period_outflow, 
-      .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, OutflowTypeDetail, last_enrl_month_outflow, full_period_outflow)
-    ])
+    if(in_dev_mode) {
+      browser()
+      view(bad_records[
+        first_enrl_month_inflow != full_period_inflow, 
+        .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InflowTypeDetail, first_enrl_month_inflow, full_period_inflow)
+      ])
+      view(bad_records[
+        last_enrl_month_outflow != full_period_outflow, 
+        .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, OutflowTypeDetail, last_enrl_month_outflow, full_period_outflow)
+      ])
+    }
     
 
     # 104510
