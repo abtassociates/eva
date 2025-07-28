@@ -784,9 +784,12 @@ get_eecr_and_lecr <- reactive({
       ) == EnrollmentID
     ) %>%
     setorder(period, PersonalID, ProjectTypeWeight, EntryDate) %>%
+    fmutate(
       lecr_straddle = flast(
         fifelse(straddles_end, EnrollmentID, NA)
-      ) == EnrollmentID
+      ) == EnrollmentID,
+      lecr_straddle_max_projecttype = fmax(ProjectTypeWeight),
+      any_lecr_straddle = anyv(lecr_straddle, TRUE)
     ) %>%
     # flag the first non-straddling enrollments in the report period,
     # for people that have no eecr_straddles
@@ -803,14 +806,17 @@ get_eecr_and_lecr <- reactive({
     # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
     setorder(period, PersonalID, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
     fmutate(
-      # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR those that do are non-res/NbN that are !was_lh_at_end
+      # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR 
+      # those that do are non-res/NbN that are !was_lh_at_end
       # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
       lecr_no_straddle = flast(
-        fifelse(in_date_range & (
+        fifelse(in_date_range & !straddles_end & (
           !any_straddle_end |
           all_straddle_ends_nonresnbn_not_lh_at_end
         ), EnrollmentID, NA)
-      ) == EnrollmentID
+      ) == EnrollmentID,
+      lecr_no_straddle_higher_projecttype = lecr_no_straddle & ProjectTypeWeight > lecr_straddle_max_projecttype,
+      any_lecr_no_straddle_w_higher_projecttype = anyv(lecr_no_straddle_higher_projecttype, TRUE)
     ) %>%
     fungroup()
   
@@ -820,7 +826,7 @@ get_eecr_and_lecr <- reactive({
       in_nbn_non_res = ProjectType %in% c(es_nbn_project_type, non_res_project_types),
       eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters,
       eecr = fcoalesce(eecr, FALSE),
-      lecr = (lecr_straddle | lecr_no_straddle) & passes_enrollment_filters,
+      lecr = ((lecr_straddle & !any_lecr_no_straddle_w_higher_projecttype) | (lecr_no_straddle & !any_lecr_straddle)) & passes_enrollment_filters,
       lecr = fcoalesce(lecr, FALSE),
       in_nbn_non_res = NULL
     )
@@ -890,12 +896,14 @@ get_period_specific_enrollment_categories <- reactive({
   
   enrollment_categories_period <- enrollment_categories_period %>%
     roworder(period, PersonalID, EntryDate, ExitAdjust) %>%
+    fmutate(no_lh_lookback = is_lookback & (eecr_entrydate - ExitAdjust) %between% c(0,14) & !fcoalesce(was_lh_during_period, FALSE)) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
       first_lookback = flast(fifelse(is_lookback, EnrollmentID, NA)) == EnrollmentID,
       first_lookback_exit = fmax(fifelse(first_lookback, ExitAdjust, NA)),
       first_lookback_destination = fmax(fifelse(first_lookback, Destination, NA)),
-      first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA))
+      first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA)),
+      no_lh_lookbacks = anyv(no_lh_lookback, TRUE)
     ) %>%
     fungroup() %>%
     fmutate(
