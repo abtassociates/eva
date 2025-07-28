@@ -605,7 +605,7 @@ add_lh_info <- function(all_filtered) {
     # must either straddle or otherwise be close to (i.e. 14 days from) 
     # start so we can make claims about status at start
     # and must be within 14 days of previous enrollment, otherwise it would be an exit
-    was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
+    was_lh_at_start = (straddles_start | (entry_in_start_window & days_since_lookback %between% c(0, 14))) & (
       ProjectType %in% lh_project_types_nonbn | 
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
     ),
@@ -726,6 +726,7 @@ get_eecr_and_lecr <- reactive({
   
   if(nrow(period_enrollments_filtered) == 0) return(period_enrollments_filtered)
   
+  # Determine eecr/lecr-eligible records
   # get lh info and  limit to only enrollments that were LH during the given period 
   # or were not, but exited and HAD been LH at some point during the FULL period
   # the exit-but-was-once-LH is important because 
