@@ -753,7 +753,7 @@ get_eecr_and_lecr <- reactive({
     # exited wihtout being LH but were at least LH during the FULL period
     fsubset(
       was_lh_during_period | 
-      (period != "Full" & ExitAdjust %between% list(startDate, endDate) & was_lh_during_full_period)
+      (period != "Full" & (is.na(ExitDate) | ExitAdjust %between% list(startDate, endDate)) & was_lh_during_full_period)
     )
   
   # used in determining lecr if all enrollments straddle the end
