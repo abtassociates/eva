@@ -322,8 +322,21 @@ universe_ppl_flags <- function(universe_df) {
       funique()
   }
   
-  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
-    if(in_dev_mode) browser()
+  bad_records <- universe_w_ppl_flags %>%
+    fsubset(InflowTypeDetail == "Unknown" & period == "Full")
+  if(nrow(bad_records) > 0) {
+    if(in_dev_mode) {
+      bad_records <- bad_records %>%
+        join(
+          enrollment_categories_all[, c(enrollment_cols, non_res_lh_cols), with=FALSE],
+          on = "PersonalID",
+          multiple = TRUE,
+          drop.dup.cols = 'y'
+        ) %>%
+        fselect(inflow_debug_cols)
+      view(bad_records)
+      browser()
+    }
     logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
   }
   
@@ -333,8 +346,30 @@ universe_ppl_flags <- function(universe_df) {
   ]
   if(nrow(bad_records) > 0) {
     if(in_dev_mode) {
-      if(nrow(bad_records[InflowTypeSummary == "something's wrong"]) > 0) view(bad_records[InflowTypeSummary == "something's wrong", c("period", inflow_debug_cols), with=FALSE])
-      if(nrow(bad_records[OutflowTypeSummary == "something's wrong"]) > 0) view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
+      bad_records <- bad_records %>%
+        fselect(PersonalID) %>%
+        funique() %>%
+        join(
+          enrollment_categories_all[, c(enrollment_cols, non_res_lh_cols), with=FALSE],
+          on = c("PersonalID"),
+          multiple=TRUE,
+          drop.dup.cols = 'y'
+        ) %>%
+        join(
+          bad_records,
+          on = c("PersonalID", "EnrollmentID"),
+          multiple=TRUE,
+          drop.dup.cols = 'x'
+        ) %>%
+        fgroup_by(PersonalID) %>%
+        fmutate(
+          has_inflow_wrong = anyv(InflowTypeSummary, "something's wrong"),
+          has_outflow_wrong = anyv(OutflowTypeSummary, "something's wrong")
+        ) %>%
+        fungroup()
+      
+      if(nrow(bad_records[has_inflow_wrong == TRUE]) > 0) view(bad_records[has_inflow_wrong == TRUE, ..inflow_debug_cols])
+      if(nrow(bad_records[has_outflow_wrong == TRUE]) > 0) view(bad_records[has_outflow_wrong == TRUE, ..outflow_debug_cols])
       browser()
     }
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
@@ -356,45 +391,49 @@ universe_ppl_flags <- function(universe_df) {
   bad_records <- universe_w_ppl_flags %>%
     fgroup_by(PersonalID) %>%
     fsummarize(
-      first_enrl_month_inflow = ffirst(
-        fifelse(eecr & period != "Full", InflowTypeDetail, NA)
-      ),
-      full_period_inflow = ffirst(
-        fifelse(eecr & period == "Full", InflowTypeDetail, NA)
-      ),
-      last_enrl_month_outflow = flast(
-        fifelse(lecr & period != "Full", OutflowTypeDetail, NA)
-      ),
-      full_period_outflow = flast(
-        fifelse(lecr & period == "Full", OutflowTypeDetail, NA)
-      )
+      first_enrl_month_inflow = ffirst(fifelse(eecr & period != "Full", InflowTypeDetail, NA)),
+      full_period_inflow = ffirst(fifelse(eecr & period == "Full", InflowTypeDetail, NA)),
+      
+      last_enrl_month_outflow = flast(fifelse(lecr & period != "Full", OutflowTypeDetail, NA)),
+      last_enrl_month_outflow_noninactive = flast(fifelse(lecr & period != "Full" & OutflowTypeDetail != "Inactive", OutflowTypeDetail, NA)),
+      full_period_outflow = flast(fifelse(lecr & period == "Full", OutflowTypeDetail, NA))
     ) %>%
     fungroup() %>%
     fsubset(
       first_enrl_month_inflow != full_period_inflow |
-      last_enrl_month_outflow != full_period_outflow
-    ) %>%
-    join(
-      universe_w_ppl_flags[, .(period, PersonalID, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, was_lh_at_start, was_lh_at_end, eecr, lecr, InflowTypeDetail, OutflowTypeDetail)],
-      on = "PersonalID",
-      multiple = TRUE
-    ) %>%
-    join(
-      session$userData$lh_non_res[, .(EnrollmentID, InformationDate)],
-      on = "EnrollmentID",
-      multiple = TRUE
+      (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
+      (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
     )
   if(nrow(bad_records) > 0)  {
     if(in_dev_mode) {
-      browser()
+      bad_records <- bad_records %>%
+        join(
+          enrollment_categories_all[, c(enrollment_cols, non_res_lh_cols), with=FALSE],
+          on = "PersonalID",
+          multiple=TRUE,
+          drop.dup.cols = 'y'
+        ) %>%
+        join(
+          universe_w_ppl_flags,
+          on = c("PersonalID", "EnrollmentID"),
+          multiple=TRUE,
+          how = "left"
+        ) %>%
+        setorder(PersonalID, period, EntryDate)
+      
       view(bad_records[
         first_enrl_month_inflow != full_period_inflow, 
-        .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InflowTypeDetail, first_enrl_month_inflow, full_period_inflow)
+        c(inflow_debug_cols, "first_enrl_month_inflow", "full_period_inflow"), 
+        with = FALSE
       ])
+      
       view(bad_records[
-        last_enrl_month_outflow != full_period_outflow, 
-        .(PersonalID, EnrollmentID, period, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, OutflowTypeDetail, last_enrl_month_outflow, full_period_outflow)
+        (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
+        (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive"), 
+        c(outflow_debug_cols, "last_enrl_month_outflow", "last_enrl_month_outflow_noninactive", "full_period_outflow"), 
+        with = FALSE
       ])
+      browser()
     }
     
 
