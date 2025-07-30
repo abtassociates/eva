@@ -78,7 +78,9 @@ syse_export_filter_selections <- function() {
   ))
 }
 
-output$syse_types_filter_selections <- renderUI({ 
+output$syse_compare_subpop_filter_selections <- 
+  output$syse_compare_time_filter_selections <- 
+  output$syse_types_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
   syse_detailBox() 
 })

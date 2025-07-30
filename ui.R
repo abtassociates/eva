@@ -995,8 +995,8 @@ nav_menu(
                   uiOutput("syse_types_filter_selections") %>%
                     withSpinner(),
                
-                plotOutput("syse_types_ui_chart"#,
-                           #width = "100%",
+                plotOutput("syse_types_ui_chart",
+                           width = "75%",
                            #height = "500"
                            ) %>%
                   withSpinner()
@@ -1014,11 +1014,22 @@ nav_menu(
             title = 'System Exit Comparisons',
             navset_underline(
               id = "syse_compare_subtabs",
-              selected = "Chart",
+              selected = "Subpopulation Chart",
               
               nav_panel(
-                title = "Chart",
-                card()
+                title = "Subpopulation Chart",
+                uiOutput("syse_compare_subpop_filter_selections") %>%
+                  withSpinner()#,
+                
+                # plotOutput("syse_compare_subpop_ui_chart"#,
+                #            #width = "100%",
+                #            #height = "500"
+                # ) %>% withSpinner()
+              ),
+              nav_panel(
+                title = "Time Chart",
+                uiOutput("syse_compare_time_filter_selections") %>%
+                  withSpinner()#,
               ),
               nav_panel(
                 title = "Information",
