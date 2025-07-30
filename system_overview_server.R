@@ -756,12 +756,15 @@ get_eecr_and_lecr <- reactive({
   
   # used in determining lecr if all enrollments straddle the end
   # non-res enrollments that were not lh_at_end
-  e <- e %>%
-    fmutate(
-      straddle_ends_nonresnbn_not_lh_at_end = straddles_end & 
-        ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-        !was_lh_at_end
-    )
+  # e <- e %>%
+  #   fmutate(
+  #     straddle_ends_nonresnbn_not_lh_at_end = fifelse(
+  #       straddles_end &
+  #       ProjectType %in% c(es_nbn_project_type, non_res_project_types),
+  #       !was_lh_at_end,
+  #       NA
+  #     )
+  #   )
   
   e <- e %>%
     # Flag if person had any straddling enrollments
@@ -771,8 +774,8 @@ get_eecr_and_lecr <- reactive({
   e <- e %>%
     fmutate(
       any_straddle_start = anyv(straddles_start, TRUE),
-      any_straddle_end = anyv(straddles_end, TRUE),
-      all_straddle_ends_nonresnbn_not_lh_at_end = allv(straddle_ends_nonresnbn_not_lh_at_end, TRUE)
+      any_straddle_end = anyv(straddles_end, TRUE)
+      # all_straddle_ends_nonresnbn_not_lh_at_end = !anyv(straddle_ends_nonresnbn_not_lh_at_end, FALSE)
     ) %>%
     # flag the first and last straddling enrollments, 
     # by (desc) ProjectTypeWeight and EntryDate
@@ -787,8 +790,8 @@ get_eecr_and_lecr <- reactive({
       lecr_straddle = flast(
         fifelse(straddles_end, EnrollmentID, NA)
       ) == EnrollmentID,
-      lecr_straddle_max_projecttype = fmax(ProjectTypeWeight),
-      any_lecr_straddle = anyv(lecr_straddle, TRUE)
+      any_lecr_straddle_lh_at_end = anyv(lecr_straddle & was_lh_at_end, TRUE),
+      any_lecr_straddle_housed_at_end = anyv(lecr_straddle & was_housed_at_end, TRUE)
     ) %>%
     # flag the first non-straddling enrollments in the report period,
     # for people that have no eecr_straddles
@@ -809,13 +812,14 @@ get_eecr_and_lecr <- reactive({
       # those that do are non-res/NbN that are !was_lh_at_end
       # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
       lecr_no_straddle = flast(
-        fifelse(in_date_range & !straddles_end & (
-          !any_straddle_end |
-          all_straddle_ends_nonresnbn_not_lh_at_end
-        ), EnrollmentID, NA)
-      ) == EnrollmentID,
-      lecr_no_straddle_higher_projecttype = lecr_no_straddle & ProjectTypeWeight > lecr_straddle_max_projecttype,
-      any_lecr_no_straddle_w_higher_projecttype = anyv(lecr_no_straddle_higher_projecttype, TRUE)
+        fifelse(in_date_range & !straddles_end, EnrollmentID, NA)
+      ) == EnrollmentID
+      # lecr_no_straddle_higher_projecttype = fifelse(
+      #   lecr_no_straddle,
+      #   ProjectTypeWeight > lecr_straddle_max_projecttype & ExitAdjust > lecr_straddle_max_entry,
+      #   NA
+      # ),
+      # any_lecr_no_straddle_w_higher_projecttype = anyv(lecr_no_straddle_higher_projecttype, TRUE)
     ) %>%
     fungroup()
   
@@ -825,7 +829,10 @@ get_eecr_and_lecr <- reactive({
       in_nbn_non_res = ProjectType %in% c(es_nbn_project_type, non_res_project_types),
       eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters,
       eecr = fcoalesce(eecr, FALSE),
-      lecr = ((lecr_straddle & !any_lecr_no_straddle_w_higher_projecttype) | (lecr_no_straddle & !any_lecr_straddle)) & passes_enrollment_filters,
+      lecr = (
+        (lecr_straddle & (was_lh_at_end | was_housed_at_end)) |
+        (lecr_no_straddle & !any_lecr_straddle_lh_at_end & !any_lecr_straddle_housed_at_end)
+      ) & passes_enrollment_filters,
       lecr = fcoalesce(lecr, FALSE),
       in_nbn_non_res = NULL
     )
@@ -895,7 +902,7 @@ get_period_specific_enrollment_categories <- reactive({
   
   enrollment_categories_period <- enrollment_categories_period %>%
     roworder(period, PersonalID, EntryDate, ExitAdjust) %>%
-    fmutate(no_lh_lookback = is_lookback & (eecr_entrydate - ExitAdjust) %between% c(0,14) & !fcoalesce(was_lh_during_period, FALSE)) %>%
+    fmutate(no_lh_lookback = is_lookback & (eecr_entrydate - ExitAdjust) %between% c(0,14) & !was_lh_during_period) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
       first_lookback = flast(fifelse(is_lookback, EnrollmentID, NA)) == EnrollmentID,
