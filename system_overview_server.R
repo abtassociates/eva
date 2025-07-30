@@ -369,8 +369,7 @@ period_specific_data <- reactive({
     how = "inner"
   )
   
-  all_filtered_w_lh <- add_lh_info(all_filtered)
-  universe_w_enrl_flags <- universe_enrl_flags(all_filtered_w_lh)
+  universe_w_enrl_flags <- universe_enrl_flags(all_filtered)
   universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
   # }, "system_overview_server")
   
@@ -573,9 +572,9 @@ lh_nbn_period <- function() {
 }
 
 ## LH info for Other enrollments --------------
-lh_other_period <- function(all_filtered) {
+lh_other_period <- function() {
   logToConsole(session, "in lh_other_period")
-  all_filtered %>%
+  expand_by_periods(session$userData$enrollment_categories) %>%
     fsubset(
       ProjectType %in% lh_project_types_nonbn | 
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
@@ -591,43 +590,6 @@ lh_other_period <- function(all_filtered) {
       days_to_lookahead,
       period, startDate, endDate
     )
-}
-
-# Combine lh_infos and add to filtered universe dataset-------------------
-add_lh_info <- function(all_filtered) {
-  logToConsole(session, "in add_lh_info")
-
-  lh_other_info <- lh_other_period(all_filtered)[, .(
-    EnrollmentID,
-    period,
-    
-    # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
-    # must either straddle or otherwise be close to (i.e. 14 days from) 
-    # start so we can make claims about status at start
-    # and must be within 14 days of previous enrollment, otherwise it would be an exit
-    was_lh_at_start = (straddles_start | (entry_in_start_window & days_since_lookback %between% c(0, 14))) & (
-      ProjectType %in% lh_project_types_nonbn | 
-      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-    ),
-
-    was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
-      ProjectType %in% lh_project_types_nonbn | 
-      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
-    )
-  )]
-  
-  join(
-    all_filtered, 
-    lh_other_info, 
-    on = c("EnrollmentID", "period"), 
-    how = "left",
-    suffix = c("", ".new")
-  ) %>%
-    fmutate(
-      was_lh_at_start = fcoalesce(was_lh_at_start, fcoalesce(was_lh_at_start.new, FALSE)), 
-      was_lh_at_end = fcoalesce(was_lh_at_end, fcoalesce(was_lh_at_end.new, FALSE))
-    ) %>%
-    fselect(-c(was_lh_at_start.new, was_lh_at_end.new))
 }
 
 # Period-Specific Enrollment Categories ----------------------------------------
@@ -718,6 +680,40 @@ get_lh_non_res_esnbn_info <- function() {
   return(lh_non_res_esnbn_info)
 }
 
+get_res_lh_info <- function() {
+  lh_other_period() %>% 
+    fmutate(
+      # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+      # must either straddle or otherwise be close to (i.e. 14 days from) 
+      # start so we can make claims about status at start
+      # and must be within 14 days of previous enrollment, otherwise it would be an exit
+      was_lh_at_start = activeAtStartCondition & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+      ),
+      
+      was_housed_at_start = activeAtStartCondition & ProjectType %in% ph_project_types & (
+        fcoalesce(MoveInDateAdjust, no_end_date) < startDate | 
+        (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
+      ),
+        
+      was_lh_during_period = ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      
+      was_lh_at_end = activeAtEndCondition & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+      ),
+      
+      was_housed_at_end = activeAtEndCondition & (
+        ProjectType %in% ph_project_types & 
+        fcoalesce(MoveInDateAdjust, no_end_date) < endDate
+      )
+    ) %>%
+    fselect(
+      period, EnrollmentID, was_lh_at_start, was_lh_during_period, was_lh_at_end, was_housed_at_end
+    )
+}
+
 get_eecr_and_lecr <- reactive({
   logToConsole(session, "in get_eecr_and_lecr")
   period_enrollments_filtered <- expand_by_periods(enrollments_filtered())
@@ -732,7 +728,9 @@ get_eecr_and_lecr <- reactive({
   # the exit-but-was-once-LH is important because 
   e <- period_enrollments_filtered %>% 
     join(
-      get_lh_non_res_esnbn_info(),
+      rbindlist(
+        list(get_lh_non_res_esnbn_info(), get_res_lh_info())
+      ),
       on = c("period","EnrollmentID"),
       how = "left"
     ) %>%
