@@ -443,8 +443,24 @@ pdde_mirai_dependencies <- c(
   "CEParticipation"
 )
 
+enrollment_cols <- c(
+  "PersonalID",
+  "EnrollmentID",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "lh_prior_livingsituation"
+)
+
+non_res_lh_cols <- c(
+  "InformationDate",
+  "DateProvided"
+)
+
 inflow_debug_cols <- c(
   "PersonalID",
+  "period",
   "EnrollmentID",
   "eecr",
   "ProjectType",
@@ -453,18 +469,16 @@ inflow_debug_cols <- c(
   "ExitAdjust",
   "lh_prior_livingsituation",
   "was_lh_at_start",
-  "days_since_lookback",
-  "straddles_start",
+  "was_housed_at_start",
   "InflowTypeDetail",
-  "first_lookback",
-  "lookback_dest_perm",
-  "lookback_movein_before_start",
-  "any_lookbacks_with_exit_to_perm"
+  "InformationDate", 
+  "DateProvided"
 )
 
 
 outflow_debug_cols <- c(
   "PersonalID",
+  "period",
   "EnrollmentID",
   "lecr",
   "ProjectType",
@@ -473,12 +487,10 @@ outflow_debug_cols <- c(
   "ExitAdjust",
   "lh_prior_livingsituation",
   "was_lh_at_end",
-  "days_since_lookback",
-  "straddles_end",
+  "was_housed_at_end",
   "OutflowTypeDetail",
-  "exited_system",
-  "Destination",
-  "days_to_lookahead"
+  "InformationDate", 
+  "DateProvided"
 )
 
 in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))

@@ -322,54 +322,43 @@ universe_ppl_flags <- function(universe_df) {
       funique()
   }
   
+  
+  ####
+  # ERROR CHECKING------------------
+  ####
+  ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags %>%
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
   if(nrow(bad_records) > 0) {
+    logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
     if(in_dev_mode) {
-      bad_records <- bad_records %>%
-        join(
-          enrollment_categories_all[, c(enrollment_cols, non_res_lh_cols), with=FALSE],
-          on = "PersonalID",
-          multiple = TRUE,
-          drop.dup.cols = 'y'
-        ) %>%
-        fselect(inflow_debug_cols)
+      bad_records <- get_all_enrollments_for_debugging(bad_records) %>% fselect(inflow_debug_cols)
       view(bad_records)
       browser()
     }
-    logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
   }
   
-  bad_records <- universe_w_ppl_flags[
-    InflowTypeSummary == "something's wrong" |
-    OutflowTypeSummary == "something's wrong"
-  ]
+  ## Something's Wrong -------
+  bad_records <- universe_w_ppl_flags %>%
+    fsubset(
+      InflowTypeSummary == "something's wrong" | 
+      OutflowTypeSummary == "something's wrong"
+    )
   if(nrow(bad_records) > 0) {
+    logToConsole(session, "ERROR: There are clients whose Inflow or Outflow is 'something's wrong'")
     if(in_dev_mode) {
-      bad_records <- bad_records %>%
-        fselect(PersonalID) %>%
-        funique() %>%
-        join(
-          enrollment_categories_all[, c(enrollment_cols, non_res_lh_cols), with=FALSE],
-          on = c("PersonalID"),
-          multiple=TRUE,
-          drop.dup.cols = 'y'
-        ) %>%
-        join(
-          bad_records,
-          on = c("PersonalID", "EnrollmentID"),
-          multiple=TRUE,
-          drop.dup.cols = 'x'
-        ) %>%
+      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, multiple=TRUE) %>%
         fgroup_by(PersonalID) %>%
         fmutate(
-          has_inflow_wrong = anyv(InflowTypeSummary, "something's wrong"),
-          has_outflow_wrong = anyv(OutflowTypeSummary, "something's wrong")
+          has_inflow_wrong = anyv(InflowTypeDetail, "something's wrong"),
+          has_outflow_wrong = anyv(OutflowTypeDetail, "something's wrong"),
+          has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start"),
+          has_continuous_at_End = anyv(OutflowTypeDetail, "Continuous at End")
         ) %>%
         fungroup()
       
-      if(nrow(bad_records[has_inflow_wrong == TRUE]) > 0) view(bad_records[has_inflow_wrong == TRUE, ..inflow_debug_cols])
-      if(nrow(bad_records[has_outflow_wrong == TRUE]) > 0) view(bad_records[has_outflow_wrong == TRUE, ..outflow_debug_cols])
+      if(nrow(somethings_wrongs[has_inflow_wrong == TRUE]) > 0) view(somethings_wrongs[has_inflow_wrong == TRUE] %>% fselect(inflow_debug_cols, "has_continuous_at_start"))
+      if(nrow(somethings_wrongs[has_outflow_wrong == TRUE]) > 0) view(somethings_wrongs[has_outflow_wrong == TRUE] %>% fselect(outflow_debug_cols, "has_continuous_at_end"))
       browser()
     }
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
@@ -387,7 +376,7 @@ universe_ppl_flags <- function(universe_df) {
     logToConsole(session, "ERROR: There are something's wrong records in the universe_ppl_flags data")
   }
 
-  # First/last month's inflow/outflow status != full inflow/outflow status
+  ## First/Last Month Inflow/Outflow != Full Inflow/Outflow-------
   bad_records <- universe_w_ppl_flags %>%
     fgroup_by(PersonalID) %>%
     fsummarize(
@@ -405,54 +394,44 @@ universe_ppl_flags <- function(universe_df) {
       (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
     )
   if(nrow(bad_records) > 0)  {
+    logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
     if(in_dev_mode) {
-      bad_records <- bad_records %>%
-        join(
-          enrollment_categories_all[, c(enrollment_cols, non_res_lh_cols), with=FALSE],
-          on = "PersonalID",
-          multiple=TRUE,
-          drop.dup.cols = 'y'
+      bad_first_inflow_records <- get_all_enrollments_for_debugging(
+        bad_records[first_enrl_month_inflow != full_period_inflow],
+        multiple = TRUE
+      ) %>%
+        fgroup_by(PersonalID) %>%
+        fmutate(
+          has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
+                                anyv(OutflowTypeDetail, "something's wrong"),
+          has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start")
         ) %>%
-        join(
-          universe_w_ppl_flags,
-          on = c("PersonalID", "EnrollmentID"),
-          multiple=TRUE,
-          how = "left"
+        fungroup() %>%
+        fsubset(!has_something_wrong)
+      
+      view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
+      
+      bad_last_outflow_records <- get_all_enrollments_for_debugging(
+        bad_records[
+          (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
+          (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
+        ],
+        multiple = TRUE
+      )  %>%
+        fgroup_by(PersonalID) %>%
+        fmutate(
+          has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
+                                anyv(OutflowTypeDetail, "something's wrong"),
+          has_continuous_at_end = anyv(OutflowTypeDetail, "Continuous at End")
         ) %>%
-        setorder(PersonalID, period, EntryDate)
-      
-      view(bad_records[
-        first_enrl_month_inflow != full_period_inflow, 
-        c(inflow_debug_cols, "first_enrl_month_inflow", "full_period_inflow"), 
-        with = FALSE
-      ])
-      
-      view(bad_records[
-        (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
-        (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive"), 
-        c(outflow_debug_cols, "last_enrl_month_outflow", "last_enrl_month_outflow_noninactive", "full_period_outflow"), 
-        with = FALSE
-      ])
+        fungroup() %>%
+        fsubset(!has_something_wrong)
+      view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
       browser()
     }
-    
-
-    # 104510
-    # PersonalID last_enrl_month_inflow     full_period_outflow     period EnrollmentID  EntryDate MoveInDateAdjust ExitAdjust ProjectType lh_prior_livingsituation
-    # <char>                 <fctr>                  <fctr>     <char>       <char>     <Date>           <Date>     <Date>       <num>                   <lgcl>
-    # 1:     104510               Inactive Exited, \nNon-Permanent 2021-10-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # 2:     104510               Inactive Exited, \nNon-Permanent 2021-11-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # 3:     104510               Inactive Exited, \nNon-Permanent 2021-12-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # 4:     104510               Inactive Exited, \nNon-Permanent       Full       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # was_lh_at_start was_lh_at_end   eecr   lecr      InflowTypeDetail       OutflowTypeDetail InformationDate
-    # <lgcl>        <lgcl> <lgcl> <lgcl>                <fctr>                  <fctr>          <Date>
-    # 1:           FALSE          TRUE   TRUE   TRUE First-Time \nHomeless                Homeless      2021-10-05
-    # 2:            TRUE          TRUE   TRUE   TRUE              Homeless                Homeless      2021-10-05
-    # 3:            TRUE         FALSE   TRUE   TRUE              Homeless                Inactive      2021-10-05
-    # 4:           FALSE         FALSE   TRUE   TRUE First-Time \nHomeless Exited, \nNon-Permanent      2021-10-05
-    logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
   }
 
+  ## ASHomeless and EntryDate on first of month with no recent lookback-------
   bad_records <- universe_w_ppl_flags %>%
     fsubset(
       InflowTypeDetail == "Homeless" & 
@@ -461,7 +440,14 @@ universe_ppl_flags <- function(universe_df) {
       (days_since_lookback > 14 | is.na(days_since_lookback))
     )
   if(nrow(bad_records) > 0) {
-    if(in_dev_mode) browser()
+    if(in_dev_mode) {
+      bad_ashomeless <- get_all_enrollments_for_debugging(
+        bad_ashomeless,
+        multiple = TRUE
+      )
+      view(bad_ashomeless)
+      browser()
+    }
   }
   # PersonalID: 529378, enrollment 825777 - 
   # Oct - Active at Start Homeless 
