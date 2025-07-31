@@ -181,7 +181,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       ) 
     ),
     
-    first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
+    first_time_homeless = eecr & (days_since_lookback > 730 | is.na(days_since_lookback)) & 
       EntryDate >= startDate,
     
     unknown_at_start = eecr & 
