@@ -588,7 +588,8 @@ lh_other_period <- function() {
       entry_in_start_window,
       days_since_lookback,
       days_to_lookahead,
-      period, startDate, endDate
+      startDate, endDate,
+      in_date_range
     )
 }
 
@@ -633,21 +634,20 @@ get_lh_non_res_esnbn_info <- function() {
     fill = TRUE
   ) %>% 
     fmutate(
-      was_lh_at_start = (
+      was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
         # Non-Res and LH CLS in 60/90-day window OR 
         # Entry in 60/90 day window and lh_prior_livingsituation
-        (straddles_start | days_since_lookback %between% c(0, 14)) & (
-          (ProjectType %in% non_res_project_types & (
-            lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
-          )) |
-          # ES NbN and Bed Night in 15-day window
-          # we don't need lh_prior_livingsituation here 
-          # because ES NbN enrollment implies homelessness
-          (ProjectType == es_nbn_project_type & (
-            nbn_in_start_window | entry_in_start_window
-          ))
-        )
+        (ProjectType %in% non_res_project_types & (
+          lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
+        )) |
+        # ES NbN and Bed Night in 15-day window
+        # we don't need lh_prior_livingsituation here 
+        # because ES NbN enrollment implies homelessness
+        (ProjectType == es_nbn_project_type & (
+          nbn_in_start_window | entry_in_start_window
+        ))
       ),
+      
       was_lh_during_period = (
         ProjectType == es_nbn_project_type & (
           nbn_during_period | lh_entry_during_period
@@ -687,31 +687,26 @@ get_res_lh_info <- function() {
       # must either straddle or otherwise be close to (i.e. 14 days from) 
       # start so we can make claims about status at start
       # and must be within 14 days of previous enrollment, otherwise it would be an exit
-      was_lh_at_start = activeAtStartCondition & (
+      was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
         ProjectType %in% lh_project_types_nonbn | 
-        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-      ),
-      
-      was_housed_at_start = activeAtStartCondition & ProjectType %in% ph_project_types & (
-        fcoalesce(MoveInDateAdjust, no_end_date) < startDate | 
-        (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
+        (ProjectType %in% ph_project_types & fcoalesce(MoveInDateAdjust, no_end_date) >= startDate)
       ),
         
-      was_lh_during_period = ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      was_lh_during_period = ProjectType %in% c(lh_project_types_nonbn, ph_project_types) & in_date_range,
       
-      was_lh_at_end = activeAtEndCondition & (
+      was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
         ProjectType %in% lh_project_types_nonbn | 
-        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
-      ),
-      
-      was_housed_at_end = activeAtEndCondition & (
-        ProjectType %in% ph_project_types & 
-        fcoalesce(MoveInDateAdjust, no_end_date) < endDate
+        (ProjectType %in% ph_project_types & fcoalesce(MoveInDateAdjust, no_end_date) >= endDate)
       )
     ) %>%
     fselect(
-      period, EnrollmentID, was_lh_at_start, was_lh_during_period, was_lh_at_end, was_housed_at_end
-    )
+      period, 
+      EnrollmentID, 
+      was_lh_at_start, 
+      was_lh_during_period, 
+      was_lh_at_end
+    ) %>%
+    funique()
 }
 
 get_eecr_and_lecr <- reactive({
@@ -735,11 +730,6 @@ get_eecr_and_lecr <- reactive({
       how = "left"
     ) %>%
     fmutate(
-      was_lh_during_period = fcoalesce(
-        was_lh_during_period, 
-        ProjectType %in% c(lh_project_types_nonbn, ph_project_types)
-      )
-    ) %>% 
     # flag if enrollment was EVER LH during the full period (or was in res project type). 
     # This will be important for selecting EECRs
     fgroup_by(EnrollmentID) %>%
