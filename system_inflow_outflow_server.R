@@ -177,6 +177,18 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       !was_lh_at_start & 
       days_since_lookback %between% c(0,14) &
       no_lh_lookbacks,
+    
+    # Beginning with the first month's Outflow and ending after the last month's Inflow, 
+    # there should be "continuous_at_start" and "continuous_at_end" flags that 
+    # capture EECRs/LECRs that begin AFTER period start/end BEFORE period end, 
+    # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
+    # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
+    continuous_at_start = startDate > session$userData$ReportStart &
+      eecr & EntryDate >= startDate & days_since_lookback %between% c(0, 14),
+    
+    continuous_at_end = startDate > session$userData$ReportStart & 
+      endDate < session$userData$ReportEnd &
+      lecr & ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
       
     # e.g. 421299: all non-res projects (not including SO and ES-NBN) with no 
     # evidence of homelessness at period start window (and no other types of enrollments)

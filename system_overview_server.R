@@ -943,17 +943,7 @@ get_period_specific_enrollment_categories <- reactive({
     fungroup() %>%
     fmutate(
       lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
-      lookback_movein_before_start = eecr & first_lookback_movein < startDate,
-      # Beginning with the first month's Outflow and ending after the last month's Inflow, 
-      # there should be "continuous_at_start" and "continuous_at_end" flags that 
-      # capture EECRs/LECRs that begin AFTER period start/end BEFORE period end, 
-      # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
-      # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
-      continuous_at_start = startDate > session$userData$ReportStart &
-        eecr & EntryDate >= startDate & days_since_lookback %between% c(0, 14),
-      continuous_at_end = startDate > session$userData$ReportStart & 
-        endDate < session$userData$ReportEnd &
-        lecr & ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14)
+      lookback_movein_before_start = eecr & first_lookback_movein < startDate
     ) 
   
   logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
