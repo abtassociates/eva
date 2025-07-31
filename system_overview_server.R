@@ -598,7 +598,7 @@ lh_other_period <- function() {
 # then filter based on the period start and end
 expand_by_periods <- function(dt) {
   all_periods <- data.table(
-    period = names(session$userData$report_dates),
+    period = factor(names(session$userData$report_dates)),
     startDate = as.Date(sapply(session$userData$report_dates, `[`, 1)),
     endDate = as.Date(sapply(session$userData$report_dates, `[`, 2))
   ) %>% 
@@ -721,7 +721,7 @@ get_eecr_and_lecr <- reactive({
   # get lh info and  limit to only enrollments that were LH during the given period 
   # or were not, but exited and HAD been LH at some point during the FULL period
   # the exit-but-was-once-LH is important because 
-  e <- period_enrollments_filtered %>% 
+  all_enrollments <- period_enrollments_filtered %>% 
     join(
       rbindlist(
         list(get_lh_non_res_esnbn_info(), get_res_lh_info())
@@ -730,13 +730,29 @@ get_eecr_and_lecr <- reactive({
       how = "left"
     ) %>%
     fmutate(
+      was_housed_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & 
+        ProjectType %in% ph_project_types &
+        fcoalesce(MoveInDateAdjust, no_end_date) < startDate,
+      
+      was_housed_during_period = ProjectType %in% ph_project_types & 
+        in_date_range & 
+        fcoalesce(MoveInDateAdjust, no_end_date) <= endDate,
+      
+      was_housed_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & 
+        ProjectType %in% ph_project_types & 
+        fcoalesce(MoveInDateAdjust, no_end_date) < endDate,
+      
+      was_lh_at_start = fcoalesce(was_lh_at_start, FALSE),
+      was_lh_during_period = fcoalesce(was_lh_during_period, FALSE),
+      was_lh_at_end = fcoalesce(was_lh_at_end, FALSE)
+    ) %>%
     # flag if enrollment was EVER LH during the full period (or was in res project type). 
     # This will be important for selecting EECRs
     fgroup_by(EnrollmentID) %>%
     fmutate(
       was_lh_during_full_period = anyv(period == "Full" & was_lh_during_period, TRUE)
     ) %>%
-    fungroup() %>%
+    fungroup()
   
   
   if(in_dev_mode) {
@@ -763,10 +779,12 @@ get_eecr_and_lecr <- reactive({
       funique()
   }
   
+  potential_eecr_lecr <- all_enrollments %>%
     # now ignore (for the purposes of eecr/lecr selection, enrollments that were neither LH during the period nor
     # exited wihtout being LH but were at least LH during the FULL period
     fsubset(
       was_lh_during_period | 
+      was_housed_during_period |
       (period != "Full" & (is.na(ExitDate) | ExitAdjust %between% list(startDate, endDate)) & was_lh_during_full_period)
     )
   
@@ -782,7 +800,7 @@ get_eecr_and_lecr <- reactive({
   #     )
   #   )
   
-  e <- e %>%
+  e <- potential_eecr_lecr %>%
     # Flag if person had any straddling enrollments
     # to be used when calculating eecr/lecr in no-straddle cases
     fgroup_by(period, PersonalID)
