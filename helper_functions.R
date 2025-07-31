@@ -578,7 +578,7 @@ convert_data_to_utf8 <- function(data) {
 # Debugging Inflow/Outflow-----------------
 # This function pulls in all enrollments and columns for a given set of "bad" records
 # so we can see their "full picture"
-get_all_enrollments_for_debugging <- function(bad_records, multiple=FALSE) {
+get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags, multiple=FALSE) {
   bad_personalIDs <- unique(bad_records$PersonalID)
   enrollment_categories_all %>%
     fsubset(PersonalID %in% bad_personalIDs) %>%

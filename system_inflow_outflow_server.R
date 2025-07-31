@@ -346,7 +346,8 @@ universe_ppl_flags <- function(universe_df) {
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
     if(in_dev_mode) {
-      bad_records <- get_all_enrollments_for_debugging(bad_records) %>% fselect(inflow_debug_cols)
+      bad_records <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags) %>% 
+        fselect(inflow_debug_cols)
       view(bad_records)
       browser()
     }
@@ -361,7 +362,7 @@ universe_ppl_flags <- function(universe_df) {
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There are clients whose Inflow or Outflow is 'something's wrong'")
     if(in_dev_mode) {
-      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, multiple=TRUE) %>%
+      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags, multiple=TRUE) %>%
         fgroup_by(PersonalID) %>%
         fmutate(
           has_inflow_wrong = anyv(InflowTypeDetail, "something's wrong"),
@@ -412,6 +413,7 @@ universe_ppl_flags <- function(universe_df) {
     if(in_dev_mode) {
       bad_first_inflow_records <- get_all_enrollments_for_debugging(
         bad_records[first_enrl_month_inflow != full_period_inflow],
+        universe_w_ppl_flags,
         multiple = TRUE
       ) %>%
         fgroup_by(PersonalID) %>%
@@ -430,6 +432,7 @@ universe_ppl_flags <- function(universe_df) {
           (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
           (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
         ],
+        universe_w_ppl_flags,
         multiple = TRUE
       )  %>%
         fgroup_by(PersonalID) %>%
@@ -457,6 +460,7 @@ universe_ppl_flags <- function(universe_df) {
     if(in_dev_mode) {
       bad_ashomeless <- get_all_enrollments_for_debugging(
         bad_ashomeless,
+        universe_w_ppl_flags,
         multiple = TRUE
       )
       view(bad_ashomeless)
