@@ -857,7 +857,7 @@ get_eecr_and_lecr <- reactive({
     ) %>%
     fungroup()
   
-  e <- e %>%
+  final <- e %>%
     # Create eecr and lecr flags
     fmutate(
       in_nbn_non_res = ProjectType %in% c(es_nbn_project_type, non_res_project_types),
@@ -867,23 +867,18 @@ get_eecr_and_lecr <- reactive({
         (lecr_straddle & (was_lh_at_end | was_housed_at_end)) |
         (lecr_no_straddle & !any_lecr_straddle_lh_at_end & !any_lecr_straddle_housed_at_end)
       ) & passes_enrollment_filters,
-      lecr = fcoalesce(lecr, FALSE),
       in_nbn_non_res = NULL
-    )
-  
-  # people must have an eecr or they can't be counted
-  e %>%
-    fgroup_by(period, PersonalID) %>%
-    fmutate(
-      has_lecr = anyv(lecr, TRUE),
-      has_eecr = anyv(eecr, TRUE)
     ) %>%
+    fgroup_by(PersonalID, period) %>%
+    fmutate(has_lecr = anyv(lecr, TRUE)) %>%
     fungroup() %>%
-    fsubset(has_eecr == TRUE) %>%
-    # "fill in" lecr as TRUE where eecr is the only enrollment
-    ftransform(lecr = lecr | (eecr & !has_lecr)) %>%
-    # only keep if it's an eecr or lecr
-    fsubset(eecr | lecr)
+    fmutate(
+      lecr = fifelse(!has_lecr, eecr, lecr)
+    )
+# browser()
+#debug cols: setdiff(outflow_debug_cols, c(non_res_lh_cols, "OutflowTypeDetail")), with=FALSE
+  # people must have an eecr or they can't be counted
+  final %>% fsubset(eecr | lecr)
 })
 
 get_period_specific_enrollment_categories <- reactive({
