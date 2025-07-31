@@ -452,7 +452,7 @@ universe_ppl_flags <- function(universe_df) {
   bad_records <- universe_w_ppl_flags %>%
     fsubset(
       InflowTypeDetail == "Homeless" & 
-      EntryDate == period[1] &
+      EntryDate == as.Date(period) &
       EntryDate != session$userData$ReportStart &
       (days_since_lookback > 14 | is.na(days_since_lookback))
     )
