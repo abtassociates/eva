@@ -164,11 +164,19 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     return_from_nonperm = eecr & (
       (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
       (
-        ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+        # for non-res projects (excluding SO)
+        # if LH PLS == FALSE and days_to_lookback > 730 | is.na(days_to_lookback) 
+        ProjectType %in% c(es_nbn_project_type, setdiff(non_res_project_types, out_project_type)) & 
         !was_lh_at_start &
         straddles_start & (
           any_lookbacks_with_exit_to_nonperm |
           was_lh_during_period 
+        ) & !(
+          # non-res projects (other than SO) that have no LH PLS and no lookback in the last 2 
+          # years should be FTH, not return from non-perm
+          ProjectType %in% non_res_project_types & ProjectType != out_project_type &
+          !lh_prior_livingsituation &
+          (days_since_lookback > 730 | is.na(days_since_lookback))
         )
       ) 
     ),
