@@ -135,18 +135,28 @@ full_unit_of_analysis_display <- reactive({
 universe_enrl_flags <- function(all_filtered_w_lh) {
   logToConsole(session, "In universe_enrl_flags")
   
-  all_filtered_w_lh[, `:=`(
-    # INFLOW CALCULATOR COLUMNS
-    active_at_start_homeless = eecr & was_lh_at_start & (
-      startDate == session$userData$ReportStart | 
-      EntryDate < startDate |
-      (EntryDate == startDate & days_since_lookback %between% c(0, 14))
-    ),
+  all_filtered_w_lh %>% fmutate(
+    activeAtStartCondition = 
+      ((straddles_start | days_since_lookback %between% c(0, 14)) & startDate == session$userData$ReportStart) | 
+      (straddles_start & (
+        EntryDate < startDate |
+        (EntryDate == startDate & days_since_lookback %between% c(0, 14))
+      )),
     
-    active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
-      (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
+    activeAtEndCondition = 
+      ((straddles_end | days_to_lookahead %between% c(0, 14)) & endDate == session$userData$ReportEnd) |
+      (straddles_end & (
+        ExitAdjust > endDate | 
+        (ExitAdjust == endDate & days_to_lookahead %between% c(0, 14))
+      )),
+    
+    # INFLOW CALCULATOR COLUMNS
+    active_at_start_homeless = eecr & activeAtStartCondition & was_lh_at_start,
+    
+    active_at_start_housed = eecr & activeAtStartCondition & (was_housed_at_start | (
+      ProjectType %in% ph_project_types &
       (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
-    ),
+    )),
     
     return_from_perm = eecr & 
       days_since_lookback %between% c(15, 730) & lookback_dest_perm,
@@ -189,47 +199,21 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     continuous_at_end = startDate > session$userData$ReportStart & 
       endDate < session$userData$ReportEnd &
       lecr & ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
-      
-    # e.g. 421299: all non-res projects (not including SO and ES-NBN) with no 
-    # evidence of homelessness at period start window (and no other types of enrollments)
-    # and within 15 days of another enrollment that has no evidence of homeless during the same period
-    #
-    #
-    # because if they had another enrollment type, then that would have been selected for the eecr, while their non-res enrollments were not eecr-eligible because they were not LH during period
-    # 
-    
-    # we're being too strict with SO by requiring a LH PLS or LH CLS
-    # let's change it now, as opposed to when we get to unsheltered system performance.
-    # we'd probably be pressured later on for these features
-    # because we'll have all these clients getting excluded when they shouldn't be
-    # should be treated NbN
-    #so they 
-    
-    # e.g. a SO used up funds to clients; when they ran performance report, they had 0s in other areas; 
-    #   when they use SO, they use it on people experiencing homelessness at the moment of the project
-    #   so we're looking at PLS but not doing that for ES, is not being helpful.
     
     # OUTFLOW CALCULATOR COLUMNS
     exited_system = lecr & 
       ExitAdjust %between% list(startDate, endDate) & 
       (!continuous_at_end | is.na(continuous_at_end)),
     
-    homeless_at_end = lecr & was_lh_at_end & (
-      endDate == session$userData$ReportEnd | 
-      ExitAdjust > endDate |
-      (ExitAdjust == endDate & days_to_lookahead %between% c(0, 14))
-    ),
+    homeless_at_end = lecr & activeAtEndCondition & was_lh_at_end,
     
-    housed_at_end = lecr & 
-      ProjectType %in% ph_project_types & 
-      fcoalesce(MoveInDateAdjust, no_end_date) < endDate &
-      (straddles_end | days_to_lookahead %between% c(0, 14)),
+    housed_at_end = lecr & activeAtEndCondition & was_housed_at_end,
     
     unknown_at_end = lecr &
       straddles_end & 
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
       !was_lh_at_end
-  )]
+  )
 }
 
 ## People-level flags ------------------------
