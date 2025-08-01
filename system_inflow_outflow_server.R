@@ -157,20 +157,40 @@ full_unit_of_analysis_display <- reactive({
 universe_enrl_flags <- function(all_filtered_w_lh) {
   logToConsole(session, "In universe_enrl_flags")
   
+  # ----|-z---z------a-nov-a------------- ===> ASH
+  # ----|----------a-nov-a--------------- ===> ASH
+  # ----|-z----z---nov-a----------a-------===> continuous
+  # ----|----------nov-a----------a-------===> continuous
+  # ----|-z----z---nova----------a------- ===> continuous
+  # ----|----------nova----------a------- ===> FTH
+  # z---|----------nova----------a------- ===> Re-engaged/returned
   all_filtered_w_lh %>% fmutate(
     activeAtStartCondition = 
-      ((straddles_start | days_since_lookback %between% c(0, 14)) & startDate == session$userData$ReportStart) | 
-      (straddles_start & (
-        EntryDate < startDate |
-        (EntryDate == startDate & days_since_lookback %between% c(0, 14))
-      )),
-    
+      (
+        startDate == session$userData$ReportStart & (
+          straddles_start | (
+            EntryDate %between% list(startDate, startDate + 15) &
+            days_since_lookback %between% c(0, 14)
+          )
+        )
+      ) | (
+        startDate > session$userData$ReportStart & 
+        EntryDate < startDate & ExitAdjust > startDate
+      ),
+
+    # Repeat similar logic to as start
     activeAtEndCondition = 
-      ((straddles_end | days_to_lookahead %between% c(0, 14)) & endDate == session$userData$ReportEnd) |
-      (straddles_end & (
-        ExitAdjust > endDate | 
-        (ExitAdjust == endDate & days_to_lookahead %between% c(0, 14))
-      )),
+      (
+        endDate == session$userData$ReportEnd & (
+          straddles_end | (
+            ExitAdjust %between% list(endDate, endDate - 15) &
+            days_to_lookahead %between% c(0, 14)
+          )
+        )
+      ) | (
+        endDate < session$userData$ReportEnd & 
+        ExitAdjust > endDate & EntryDate < endDate
+      ),
     
     # INFLOW CALCULATOR COLUMNS
     active_at_start_homeless = eecr & activeAtStartCondition & was_lh_at_start,
