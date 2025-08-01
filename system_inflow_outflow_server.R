@@ -257,6 +257,11 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     continuous_at_end = startDate > session$userData$ReportStart & 
       endDate < session$userData$ReportEnd &
       lecr & ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+    # New Inflow category:"first_of_the_month_exit" should not show up in chart 
+    # or export, even though the person's outflow should be counted
+    first_of_the_month_exit = eecr & 
+      startDate > session$userData$ReportStart &
+      ExitAdjust == startDate,
     
     # OUTFLOW CALCULATOR COLUMNS
     exited_system = lecr & 
@@ -307,6 +312,7 @@ universe_ppl_flags <- function(universe_df) {
       unknown_at_start_client = anyv(unknown_at_start, TRUE),
       non_res_excluded_client = anyv(non_res_excluded, TRUE),
       continuous_at_start_client = anyv(continuous_at_start, TRUE),
+      first_of_the_month_exit_client = anyv(first_of_the_month_exit, TRUE),
       
       # OUTFLOW
       perm_dest_client = anyv(exited_perm, TRUE),
@@ -322,8 +328,9 @@ universe_ppl_flags <- function(universe_df) {
         fcase(
           active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
           first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
-          non_res_excluded_client, "Excluded",
           continuous_at_start_client, "Continuous at Start",
+          non_res_excluded_client, "Excluded",
+          first_of_the_month_exit_client, "First-of-Month Exit",
           default = "something's wrong"
         ), levels = inflow_summary_levels
       ),
@@ -338,6 +345,7 @@ universe_ppl_flags <- function(universe_df) {
           continuous_at_start_client, "Continuous at Start",
           unknown_at_start_client, "Unknown",
           non_res_excluded_client, "Excluded",
+          first_of_the_month_exit_client, "First-of-Month Exit",
           default = "something's wrong"
         ), levels = c(active_at_levels, inflow_detail_levels)
       ),
