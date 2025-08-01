@@ -216,25 +216,18 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     # 
     # 637203 (ICF-Good) should NOT show up until May, at which point they should be re-engaged. And also re-egnaged for full period
     
-    return_from_nonperm = eecr & 
-      !(
-        # non-res projects (other than SO) that have no LH PLS and no lookback in the last 2 
-        # years should be FTH, not return from non-perm
-        ProjectType %in% setdiff(non_res_project_types, out_project_type) &
-        !lh_prior_livingsituation &
-        (days_since_lookback > 730 | is.na(days_since_lookback))
-      ) & (
-        (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
-        (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn) |
-        (
-          # for non-res projects (excluding SO), if they straddle, but were not LH at start
-          # and no lookback or a lookback > 2 yrs ago THEN re-engaged
-          ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-          !was_lh_at_start &
-          straddles_start & 
-          was_lh_during_period
-        )
-      ),
+    return_from_nonperm = eecr & (
+      (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
+      (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn) |
+      (
+        # for non-res projects (excluding SO), if they straddle, but were not LH at start
+        # and no lookback or a lookback > 2 yrs ago THEN re-engaged
+        ProjectType %in% nbn_non_res &
+        !was_lh_at_start &
+        straddles_start & 
+        was_lh_during_period
+      )
+    ),
     
     # enrollments can be FTH even if they fully straddle, as long as it's a non-res
     # with no LH PLS. This is because, if they're in the dataset at all, they must have had
