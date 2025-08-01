@@ -21,6 +21,7 @@ outflow_detail_levels <- c(
   "Exited, \nPermanent",
   "Inactive",
   "Continuous at End",
+  "Last-of-Month Entry",
   "something's wrong"
 )
 
@@ -66,7 +67,6 @@ outflow_chart_summary_levels <- c(
 inflow_statuses_to_exclude_from_chart <- c(
   "Continuous at Start",
   "Excluded",
-  "First-of-Month Exit",
   "something's wrong"
 )
 inflow_statuses_to_exclude_from_export <- c(
@@ -80,7 +80,8 @@ outflow_statuses_to_exclude_from_chart <- c(
   "something's wrong"
 )
 outflow_statuses_to_exclude_from_export <- c(
-  "something's wrong"
+  "something's wrong",
+  "Last-of-Month Entry"
 )
 
 collapse_details <- list(
@@ -269,6 +270,11 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       startDate > session$userData$ReportStart &
       ExitAdjust == startDate,
     
+    # similar outflow status
+    last_of_the_month_entry = lecr & 
+      endDate < session$userData$ReportEnd &
+      EntryDate == endDate,
+    
     # OUTFLOW CALCULATOR COLUMNS
     exited_system = lecr & 
       ExitAdjust %between% list(startDate, endDate) & 
@@ -326,7 +332,8 @@ universe_ppl_flags <- function(universe_df) {
       homeless_at_end_client = anyv(homeless_at_end, TRUE),
       housed_at_end_client = anyv(housed_at_end, TRUE),
       unknown_at_end_client = anyv(unknown_at_end, TRUE),
-      continuous_at_end_client = anyv(continuous_at_end, TRUE)
+      continuous_at_end_client = anyv(continuous_at_end, TRUE),
+      last_of_the_month_entry_client = anyv(last_of_the_month_entry, TRUE)
     ) %>%
     fungroup() %>%
     ftransform(
@@ -361,6 +368,7 @@ universe_ppl_flags <- function(universe_df) {
           perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
           homeless_at_end_client | housed_at_end_client, "Active at End",
           continuous_at_end_client, "Continuous at End",
+          last_of_the_month_entry_client, "Last-of-Month Entry",
           default = "something's wrong"
         ), levels = outflow_summary_levels
       ),
@@ -373,6 +381,7 @@ universe_ppl_flags <- function(universe_df) {
           homeless_at_end_client, "Homeless",
           housed_at_end_client, "Housed",
           continuous_at_end_client, "Continuous at End",
+          last_of_the_month_entry_client, "Last-of-Month Entry",
           default = "something's wrong"
         ), levels = c(outflow_detail_levels, rev(active_at_levels))
       )
