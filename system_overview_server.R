@@ -640,7 +640,8 @@ get_lh_non_res_esnbn_info <- function() {
         # Non-Res and LH CLS in 60/90-day window OR 
         # Entry in 60/90 day window and lh_prior_livingsituation
         (ProjectType %in% non_res_project_types & (
-          lh_cls_in_start_window | (entry_in_start_window & lh_prior_livingsituation)
+          lh_cls_in_start_window | 
+          (entry_in_start_window & (ProjectType == out_project_type | lh_prior_livingsituation))
         )) |
         # ES NbN and Bed Night in 15-day window
         # we don't need lh_prior_livingsituation here 
