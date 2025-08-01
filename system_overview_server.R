@@ -922,42 +922,36 @@ get_period_specific_enrollment_categories <- reactive({
     fmutate(
       # 5/15/25: a lookback must have exited before the EECR started
       is_lookback = ExitAdjust <= eecr_entrydate,
-      perm_dest = is_lookback & Destination %in% perm_livingsituation,
-      nonperm_dest = is_lookback & !Destination %in% perm_livingsituation
-    ) %>%
-    fgroup_by(period, PersonalID) %>%
-    fmutate(
-      # To be Return/Re-Engaged, they need a lookback with an exit to the corresponding destination
-      any_lookbacks_with_exit_to_perm = anyv(perm_dest, TRUE),
-      any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)
-    ) %>%
-    fungroup()
+      # pre-compute these so the later by-person-period aggregation is faster
+      lookback_enrollment_id = fifelse(is_lookback, EnrollmentID, NA),
+      lh_lookback = is_lookback & was_lh_during_period
+    )
   
   # need to split here
   if(nrow(enrollment_categories_period) == 0) return(enrollment_categories_period)
   
   enrollment_categories_period <- enrollment_categories_period %>%
     roworder(period, PersonalID, EntryDate, ExitAdjust) %>%
-    fmutate(no_lh_lookback = is_lookback & (eecr_entrydate - ExitAdjust) %between% c(0,14) & !was_lh_during_period) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      first_lookback = flast(fifelse(is_lookback, EnrollmentID, NA)) == EnrollmentID,
-      first_lookback_exit = fmax(fifelse(first_lookback, ExitAdjust, NA)),
+      first_lookback = flast(lookback_enrollment_id) == EnrollmentID,
       first_lookback_destination = fmax(fifelse(first_lookback, Destination, NA)),
       first_lookback_movein = fmax(fifelse(first_lookback, MoveInDateAdjust, NA)),
-      no_lh_lookbacks = anyv(no_lh_lookback, TRUE)
+      no_lh_lookbacks = !anyv(lh_lookback, TRUE),
+      first_lookback_projecttype = fmax(fifelse(first_lookback, ProjectType, NA))
     ) %>%
     fungroup() %>%
     fmutate(
       lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
-      lookback_movein_before_start = eecr & first_lookback_movein < startDate
-    ) 
-  
+      lookback_movein_before_start = eecr & first_lookback_movein < startDate,
+      lookback_is_nonres_or_nbn = eecr & first_lookback_projecttype %in% c(non_res_project_types, es_nbn_project_type)
+    )
+
   logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
   
   enrollment_categories_period <- enrollment_categories_period %>%
     fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,
-               first_lookback_exit, first_lookback_destination, first_lookback_movein
+               first_lookback_exit, first_lookback_destination, first_lookback_movein, first_lookback_projecttype
     ))
   
   enrollment_categories_period %>% 
