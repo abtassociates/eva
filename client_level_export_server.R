@@ -112,7 +112,7 @@ output$client_level_download_btn <- downloadHandler(
       fsubset(
         InflowTypeSummary == "Inflow" |
         OutflowTypeSummary == "Outflow" |
-        OutflowTypeDetail != "Continuous at End"
+        !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_export
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(

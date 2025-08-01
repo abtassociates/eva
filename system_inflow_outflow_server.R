@@ -11,6 +11,8 @@ inflow_detail_levels <- c(
   "Re-engaged from \nNon-Permanent",
   "Unknown",
   "Continuous at Start",
+  "Excluded",
+  "First-of-Month Exit",
   "something's wrong"
 )
 
@@ -59,6 +61,26 @@ inflow_chart_summary_levels <- c(
 outflow_chart_summary_levels <- c(
   "Outflow",
   "Active at End"
+)
+
+inflow_statuses_to_exclude_from_chart <- c(
+  "Continuous at Start",
+  "Excluded",
+  "First-of-Month Exit",
+  "something's wrong"
+)
+inflow_statuses_to_exclude_from_export <- c(
+  "Excluded",
+  "First-of-Month Exit",
+  "something's wrong"
+)
+
+outflow_statuses_to_exclude_from_chart <- c(
+  "Continuous at End",
+  "something's wrong"
+)
+outflow_statuses_to_exclude_from_export <- c(
+  "something's wrong"
 )
 
 collapse_details <- list(
@@ -513,8 +535,8 @@ get_inflow_outflow_full <- reactive({
             OutflowTypeDetail
     ) %>%
     fsubset(
-      InflowTypeDetail != "Continuous at Start" &
-      OutflowTypeDetail != "Continuous at End"
+      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart &
+      !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
     ) %>%
     funique()
 })
@@ -701,7 +723,10 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   
   if(nrow(monthly_data) == 0) return(monthly_data)
   monthly_data <- monthly_data %>%
-    fsubset(InflowTypeDetail != "Continuous at Start" & OutflowTypeDetail != "Continuous at End") %>%
+    fsubset(
+      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart & 
+      !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
+    ) %>%
     fmutate(
       InflowPlotFillGroups = fct_collapse(
         InflowTypeDetail, 
