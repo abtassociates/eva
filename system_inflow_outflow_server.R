@@ -486,17 +486,20 @@ universe_ppl_flags <- function(universe_df) {
         bad_records[first_enrl_month_inflow != full_period_inflow],
         universe_w_ppl_flags,
         multiple = TRUE
-      ) %>%
-        fgroup_by(PersonalID) %>%
-        fmutate(
-          has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
-                                anyv(OutflowTypeDetail, "something's wrong"),
-          has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start")
-        ) %>%
-        fungroup() %>%
-        fsubset(!has_something_wrong)
-      
-      view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
+      )
+      if(nrow(bad_first_inflow_records) > 0) {
+        bad_first_inflow_records <- bad_first_inflow_records %>%
+          fgroup_by(PersonalID) %>%
+          fmutate(
+            has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
+                                  anyv(OutflowTypeDetail, "something's wrong"),
+            has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start")
+          ) %>%
+          fungroup() %>%
+          fsubset(!has_something_wrong)
+        
+        view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
+      }
       
       bad_last_outflow_records <- get_all_enrollments_for_debugging(
         bad_records[
@@ -505,16 +508,20 @@ universe_ppl_flags <- function(universe_df) {
         ],
         universe_w_ppl_flags,
         multiple = TRUE
-      )  %>%
-        fgroup_by(PersonalID) %>%
-        fmutate(
-          has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
-                                anyv(OutflowTypeDetail, "something's wrong"),
-          has_continuous_at_end = anyv(OutflowTypeDetail, "Continuous at End")
-        ) %>%
-        fungroup() %>%
-        fsubset(!has_something_wrong)
-      view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
+      )
+      if(nrow(bad_last_outflow_records) > 0) {
+        bad_last_outflow_records <- bad_last_outflow_records %>%
+          fgroup_by(PersonalID) %>%
+          fmutate(
+            has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
+                                  anyv(OutflowTypeDetail, "something's wrong"),
+            has_continuous_at_end = anyv(OutflowTypeDetail, "Continuous at End")
+          ) %>%
+          fungroup() %>%
+          fsubset(!has_something_wrong)
+        
+        view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
+      }
       browser()
     }
   }
