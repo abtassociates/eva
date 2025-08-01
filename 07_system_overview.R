@@ -303,7 +303,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
   #           by = "EnrollmentID") %>%
   left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>%
+  filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   select(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
