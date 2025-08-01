@@ -243,20 +243,22 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     non_res_excluded = eecr & 
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
       !was_lh_at_start & 
-      days_since_lookback %between% c(0,14) &
+      days_since_lookback %between% c(0, 14) &
       no_lh_lookbacks,
     
     # Beginning with the first month's Outflow and ending after the last month's Inflow, 
     # there should be "continuous_at_start" and "continuous_at_end" flags that 
-    # capture EECRs/LECRs that begin AFTER period start/end BEFORE period end, 
+    # capture EECRs/LECRs that begin AFTER/BEFORE period start/end, 
     # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
     # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
-    continuous_at_start = startDate > session$userData$ReportStart &
-      eecr & EntryDate >= startDate & days_since_lookback %between% c(0, 14),
+    continuous_at_start = eecr & 
+      startDate > session$userData$ReportStart &
+      EntryDate >= startDate & days_since_lookback %between% c(0, 14),
     
-    continuous_at_end = startDate > session$userData$ReportStart & 
+    continuous_at_end = lecr & 
       endDate < session$userData$ReportEnd &
-      lecr & ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+      ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+    
     # New Inflow category:"first_of_the_month_exit" should not show up in chart 
     # or export, even though the person's outflow should be counted
     first_of_the_month_exit = eecr & 
@@ -382,7 +384,7 @@ universe_ppl_flags <- function(universe_df) {
     fungroup() %>%
     fsubset(period == "Full" | (startDate <= max_non_inactive_period & !full_period_inactive)) %>%
     fselect(-max_non_inactive_period, -startDate, -endDate)
-  
+
   if(!in_dev_mode) {
     universe_w_ppl_flags %>%
       fselect(
@@ -392,7 +394,7 @@ universe_ppl_flags <- function(universe_df) {
         OutflowTypeSummary,
         OutflowTypeDetail,
         ProjectType,
-        month,
+        period,
         EnrollmentID, 
         eecr,
         lecr,
@@ -433,7 +435,7 @@ universe_ppl_flags <- function(universe_df) {
           has_inflow_wrong = anyv(InflowTypeDetail, "something's wrong"),
           has_outflow_wrong = anyv(OutflowTypeDetail, "something's wrong"),
           has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start"),
-          has_continuous_at_End = anyv(OutflowTypeDetail, "Continuous at End")
+          has_continuous_at_end = anyv(OutflowTypeDetail, "Continuous at End")
         ) %>%
         fungroup()
       
@@ -1763,91 +1765,3 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     )
   }
 )
-
-qc_checks <- function() {
-  browser()
-
-  # TESTING DIFF BETWEEN FULL AND MBM
-  full <- period_specific_data()[["Full"]]
-  all_months <- period_specific_data()[["Months"]]
-  setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
-  setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
-  # 
-  # 
-  # json_str <- jsonlite::toJSON(
-  #   unique(
-  #     merge(
-  #       enrollment_categories[
-  #         !(PersonalID %in% unique(full$PersonalID)),
-  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
-  #       ],
-  #       homeless_cls[, .(EnrollmentID, InformationDate)],
-  #       by = "EnrollmentID"
-  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
-  #   ),
-  #   null="list",
-  #   na="string",
-  #   pretty = TRUE, auto_unbox = TRUE
-  # )
-  # json_str <- gsub("true", "True", json_str)
-  # json_str <- gsub("false", "False", json_str)
-  # 
-  #
-  # # Check that one enrollment isn't considered an inflow in multiple months
-  # # someone can have an exit in between or they can be active at start
-  #
-  monthly_universe_ppl_flags <- get_inflow_outflow_monthly()
-  
-  # check prior month's status (L() is the collapse package's Lag function)
-  # if they outflowed last month, they should have inflowed this month
-  # and if they were active at end last month, they should be active at start, this month
-  full_combinations <- CJ(
-    PersonalID = unique(monthly_universe_ppl_flags$PersonalID), 
-    month = levels(monthly_universe_ppl_flags$month)
-  )
-  
-  # check for dup First-Time Homeless 
-  first_time_homeless_dups <- all_months[
-    InflowTypeDetail == "First-Time \nHomeless"
-  ][, .N, by = PersonalID][N > 1]
-  if(nrow(first_time_homeless_dups) > 0) {
-    warning(glue("There are people that have multiple First-Time Homeless values in the mbm."))
-    print(all_months[PersonalID %in% first_time_homeless_dups$PersonalID, .(
-      PersonalID, 
-      EnrollmentID,
-      EntryDate,
-      ExitAdjust,
-      month,
-      InflowTypeDetail,
-      active_at_start_homeless,
-      active_at_start_housed,
-      # at_least_14_days_to_eecr_enrl,
-      # first_lookback_perm_dest,
-      # first_lookback_temp_dest,
-      return_from_perm_client,
-      reengaged_from_temp_client,
-      first_time_homeless_client
-      # unknown_at_start
-    )])
-  }
-  
-  qc <- monthly_universe_ppl_flags %>%
-    join(
-      full_combinations,
-      on = c("PersonalID", "month"),
-      how = "full"
-    ) %>%
-    fsubset(order(PersonalID, month)) %>%
-    fmutate(problem = !(
-      (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & Summary == "Inflow") | 
-      (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary %in% c("Inflow","Active at Start")) |
-      (L(OutflowTypeSummary, g = PersonalID) == "Inactive" & InflowTypeSummary %in% c("Inflow","Active at Start"))
-    )) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      has_problem = anyv(problem, TRUE)
-    ) %>%
-    fungroup() %>%
-    fsubset(has_problem)
-
-}

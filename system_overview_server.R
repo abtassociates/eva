@@ -951,7 +951,7 @@ get_period_specific_enrollment_categories <- reactive({
   
   enrollment_categories_period <- enrollment_categories_period %>%
     fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,
-               first_lookback_exit, first_lookback_destination, first_lookback_movein, first_lookback_projecttype
+               first_lookback_destination, first_lookback_movein, first_lookback_projecttype
     ))
   
   enrollment_categories_period %>% 

@@ -46,7 +46,7 @@ session$userData$client_categories <- qDT(Client) %>%
     race_cols,
     "VeteranStatus",
     "AgeCategory"
-  ) %>%
+  )) %>%
   fmutate(
     VeteranStatus = fifelse(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
@@ -256,9 +256,9 @@ session$userData$client_categories <- qDT(Client) %>%
         White +
         MidEastNAfrican +
         BlackAfAmerican == 0, 1, 0
-    )) %>%
-  fselect(race_cols)
-)
+    )
+  )
+session$userData$client_categories[, (race_cols) := NULL]
 
 # Data prep ---------------------------------------------------------------
 
