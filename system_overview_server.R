@@ -944,7 +944,7 @@ get_period_specific_enrollment_categories <- reactive({
     fmutate(
       lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
       lookback_movein_before_start = eecr & first_lookback_movein < startDate,
-      lookback_is_nonres_or_nbn = eecr & first_lookback_projecttype %in% c(non_res_project_types, es_nbn_project_type)
+      lookback_is_nonres_or_nbn = eecr & first_lookback_projecttype %in% nbn_non_res
     )
 
   logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))

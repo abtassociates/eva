@@ -69,11 +69,11 @@ lh_residential_project_types <- c(0, 1, 2, 8)
 
 lh_project_types <- c(0, 1, 2, 4, 8)
 
-psh_oph_project_types <- c(3, 9, 10)
-
-ph_project_types <- c(3, 9, 10, 13)
-
 ph_other_project_types <- c(9, 10)
+
+psh_oph_project_types <- c(psh_project_type, ph_other_project_types)
+
+ph_project_types <- c(psh_oph_project_types, rrh_project_type)
 
 lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
 
@@ -83,7 +83,9 @@ project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
 non_res_project_types <- c(4, 6, 7, 11, 12, 14)
 
-non_res_nonlh_project_types <- c(6, 7, 11, 12, 14)
+non_res_nonlh_project_types <- setdiff(non_res_project_types, out_project_type)
+
+nbn_non_res <- c(es_nbn_project_type, non_res_project_types)
 
 project_types_w_cls <- c(1, 4, 6, 14)
 
@@ -91,7 +93,7 @@ long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
 project_types_enrolled_homeless <- c(lh_project_types, 14)
    
-long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
+long_stayer_percentile_project_types <- c(long_stayer_98_percentile_project_types, psh_oph_project_types)
 
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
 # All means All HUD-defined project types, so it excludes "Other"

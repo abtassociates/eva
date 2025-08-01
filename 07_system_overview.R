@@ -408,7 +408,7 @@ lh_cls <- qDT(CurrentLivingSituation) %>%
 # So any enrollment that is not lh_prior_livingsituation and has no LH CLS
 problematic_nonres_enrollmentIDs <- base::setdiff(
   enrollment_categories[
-    ProjectType %in% setdiff(non_res_project_types, out_project_type) & lh_prior_livingsituation == FALSE
+    ProjectType %in% non_res_nonlh_project_types & lh_prior_livingsituation == FALSE
   ]$EnrollmentID,
   unique(lh_cls$EnrollmentID)
 )

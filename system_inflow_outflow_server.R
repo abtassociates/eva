@@ -236,12 +236,12 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     unknown_at_start = eecr & 
       straddles_start & 
-      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      ProjectType %in% nbn_non_res &
       !was_lh_at_start,
     
     # Exclude non-res-only clients with incomplete or conflicting LH data
     non_res_excluded = eecr & 
-      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      ProjectType %in% nbn_non_res &
       !was_lh_at_start & 
       days_since_lookback %between% c(0, 14) &
       no_lh_lookbacks,
@@ -283,7 +283,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     unknown_at_end = lecr &
       straddles_end & 
-      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      ProjectType %in% nbn_non_res &
       !was_lh_at_end
   )
 }
