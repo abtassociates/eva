@@ -236,8 +236,22 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
         )
       ),
     
-    first_time_homeless = eecr & (days_since_lookback > 730 | is.na(days_since_lookback)) & 
-      EntryDate >= startDate,
+    # enrollments can be FTH even if they fully straddle, as long as it's a non-res
+    # with no LH PLS. This is because, if they're in the dataset at all, they must have had
+    # LH somewhere during the enrollment, and they're already in the period, so the 
+    # LH must have been somewhere 
+    # --L/no L------------------||--x----------x--|-----------------|-------------------|------------||
+    # --L/no L--------x(no LH)--||--x-------------|-----------------|-------------------|------------||
+    # e.g. 614071, ICF-good, should be FTH inflow for Enrollment 837695 in March
+    # we know it's the only enrollment they have an there's lookback within last 2 yrs
+    
+    
+    # in other cases, we have long non-res enrollments and then an LKH CLS pops up and they're re-engaged.
+    # that's because there's a lookback or they were already categorized in a previous month
+    first_time_homeless = eecr & 
+      (days_since_lookback > 730 | is.na(days_since_lookback)) & 
+      # (EntryDate >= startDate |
+      EntryDate > session$userData$ReportStart,
     
     unknown_at_start = eecr & 
       straddles_start & 
