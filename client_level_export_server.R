@@ -190,14 +190,16 @@ output$client_level_download_btn <- downloadHandler(
         c("Column Name", "Variable Type", "Definition")
       ),
       client_level_details = client_level_details,
-      monthly_statuses
+      monthly_statuses,
+      enrollment_info[InflowTypeDetail = "Excluded"]
     )
     
     names(client_level_export_list) = c(
       "Metadata",
       "Data Dictionary",
       "Client Details",
-      "Monthly Statuses"
+      "Monthly Statuses",
+      "Excluded"
     )
     
     write_xlsx(
