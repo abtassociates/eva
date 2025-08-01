@@ -810,24 +810,25 @@ get_eecr_and_lecr <- reactive({
     # by (desc) ProjectTypeWeight and EntryDate
     setorder(period, PersonalID, -ProjectTypeWeight, EntryDate) %>%
     fmutate(
-      eecr_straddle = ffirst(
+      first_straddle_start = ffirst(
         fifelse(straddles_start, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
     setorder(period, PersonalID, ProjectTypeWeight, EntryDate) %>%
     fmutate(
-      lecr_straddle = flast(
+      last_straddle_end = flast(
         fifelse(straddles_end, EnrollmentID, NA)
       ) == EnrollmentID,
-      any_lecr_straddle_lh_at_end = anyv(lecr_straddle & was_lh_at_end, TRUE),
-      any_lecr_straddle_housed_at_end = anyv(lecr_straddle & was_housed_at_end, TRUE)
+      any_straddle_end_lh_at_end = anyv(straddles_end & was_lh_at_end, TRUE),
+      any_straddle_end_housed_at_end = anyv(straddles_end & was_housed_at_end, TRUE),
+      all_straddle_end_nbn_non_res_no_future_lh = allv(straddles_end & nbn_non_res_no_future_lh, TRUE)
     ) %>%
     # flag the first non-straddling enrollments in the report period,
     # for people that have no eecr_straddles
     # We prioritize EntryDate over ProjectTypeWeight because we want the earliest
     setorder(period, PersonalID, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
     fmutate(
-      eecr_no_straddle = ffirst(
+      first_non_straddle_start = ffirst(
         fifelse(in_date_range & !any_straddle_start, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
@@ -845,14 +846,13 @@ get_eecr_and_lecr <- reactive({
   final <- e %>%
     # Create eecr and lecr flags
     fmutate(
-      in_nbn_non_res = ProjectType %in% c(es_nbn_project_type, non_res_project_types),
-      eecr = (eecr_straddle | eecr_no_straddle) & passes_enrollment_filters,
+      eecr = (first_straddle_start | first_non_straddle_start) & passes_enrollment_filters,
       eecr = fcoalesce(eecr, FALSE),
       lecr = (
-        (lecr_straddle & (was_lh_at_end | was_housed_at_end)) |
         (lecr_no_straddle & !any_lecr_straddle_lh_at_end & !any_lecr_straddle_housed_at_end)
       ) & passes_enrollment_filters,
       in_nbn_non_res = NULL
+        (last_straddle_end & (was_lh_at_end | was_housed_at_end)) |
     ) %>%
     fgroup_by(PersonalID, period) %>%
     fmutate(has_lecr = anyv(lecr, TRUE)) %>%
@@ -927,8 +927,9 @@ get_period_specific_enrollment_categories <- reactive({
 
   logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
   
+  # remove temp vars
   enrollment_categories_period <- enrollment_categories_period %>%
-    fselect(-c(any_straddle_start, any_straddle_end, eecr_no_straddle, eecr_straddle, lecr_straddle, lecr_no_straddle,
+    fselect(-c(any_straddle_start, any_straddle_end, first_non_straddle_start, first_straddle_start, last_straddle_end, last_non_straddle_end,
                first_lookback_destination, first_lookback_movein, first_lookback_projecttype
     ))
   
