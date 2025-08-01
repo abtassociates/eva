@@ -838,6 +838,7 @@ get_eecr_and_lecr <- reactive({
     # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
     setorder(period, PersonalID, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
     fmutate(
+      last_non_straddle_end = flast(
         fifelse(in_date_range & !straddles_end, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
