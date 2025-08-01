@@ -448,7 +448,15 @@ session$userData$lh_non_res <- join(
   on = "EnrollmentID",
   how = "left",
   column = TRUE
-)
+) %>% 
+  fgroup_by(EnrollmentID) %>%
+  fmutate(
+    last_lh_info_date = fmax(
+      fifelse(ProjectType != out_project_type, InformationDate, NA)
+    )
+  ) %>%
+  fungroup()
+  
 
 
 # Do something similar for ES NbNs and Services
@@ -464,7 +472,10 @@ session$userData$lh_nbn <- join(
   Services %>% fselect(EnrollmentID, DateProvided),
   on="EnrollmentID",
   how = "left"
-)
+) %>% 
+  fgroup_by(EnrollmentID) %>%
+  fmutate(last_lh_info_date = fmax(DateProvided)) %>%
+  fungroup()
 
 rm(es_nbn_enrollments, non_res_enrollments)
 

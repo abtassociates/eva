@@ -211,7 +211,14 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     # OUTFLOW CALCULATOR COLUMNS
     exited_system = lecr & 
       ExitAdjust %between% list(startDate, endDate) & 
-      (!continuous_at_end | is.na(continuous_at_end)),
+      (
+        (!continuous_at_end | is.na(continuous_at_end)) |
+        (
+          ProjectType %in% setdiff(non_res_project_types, out_project_type) &
+          (is.na(days_to_lookahead) | days_to_lookahead < 0) &
+          (is.na(last_lh_info_date) | last_lh_info_date <= endDate)
+        )
+      ),
     
     homeless_at_end = lecr & activeAtEndCondition & was_lh_at_end,
     

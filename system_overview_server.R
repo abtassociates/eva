@@ -496,7 +496,8 @@ lh_non_res_period <- function() {
       entry_in_start_window,
       entry_in_end_window,
       lh_entry_during_period,
-      straddles_start, straddles_end, days_since_lookback, days_to_lookahead
+      straddles_start, straddles_end, days_since_lookback, days_to_lookahead,
+      last_lh_info_date
     ) %>%
     fsubset(
       lh_cls_in_start_window |
@@ -543,7 +544,8 @@ lh_nbn_period <- function() {
       entry_in_start_window,
       entry_in_end_window,
       lh_entry_during_period,
-      straddles_start, straddles_end, days_since_lookback, days_to_lookahead
+      straddles_start, straddles_end, days_since_lookback, days_to_lookahead,
+      last_lh_info_date
     ) %>%
     fsubset(
       nbn_in_start_window |
@@ -673,7 +675,8 @@ get_lh_non_res_esnbn_info <- function() {
       EnrollmentID,
       was_lh_at_start,
       was_lh_during_period,
-      was_lh_at_end
+      was_lh_at_end,
+      last_lh_info_date
     ) %>%
     funique()
   
@@ -698,13 +701,16 @@ get_res_lh_info <- function() {
         ProjectType %in% lh_project_types_nonbn | 
         (ProjectType %in% ph_project_types & fcoalesce(MoveInDateAdjust, no_end_date) >= endDate)
       )
+      
+      last_lh_info_date = NA
     ) %>%
     fselect(
       period, 
       EnrollmentID, 
       was_lh_at_start, 
       was_lh_during_period, 
-      was_lh_at_end
+      was_lh_at_end,
+      last_lh_info_date
     ) %>%
     funique()
 }
