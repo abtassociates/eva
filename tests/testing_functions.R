@@ -156,9 +156,9 @@ main_test_script <- function(test_script_name, test_dataset) {
     "sys_comp_df",
     "dq_overlaps"
   )
-  if(Sys.info()["sysname"] != "ubuntu")
-    helper_datasets <- c(helper_datasets, "client_level_export_details")
-  
+  # if(Sys.info()["sysname"] != "ubuntu")
+  #   helper_datasets <- c(helper_datasets, "client_level_export_details")
+  # 
   is_gha <- Sys.info()["user"] == "runner"
   if(!is_gha)
     helper_datasets <- c(helper_datasets, "client_level_export_details")
