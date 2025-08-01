@@ -39,28 +39,29 @@ system_person_ages <- EnrollmentAdjustAge[
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
 
-session$userData$client_categories <- as.data.table(Client %>%
-  left_join(system_person_ages, join_by(PersonalID)) %>%
-  select(PersonalID,
-         all_of(race_cols),
-         VeteranStatus,
-         AgeCategory
+session$userData$client_categories <- qDT(Client) %>%
+  join(system_person_ages, on = "PersonalID") %>%
+  fselect(c(
+    "PersonalID",
+    race_cols,
+    "VeteranStatus",
+    "AgeCategory"
   ) %>%
-  mutate(
-    VeteranStatus = if_else(VeteranStatus == 1 &
+  fmutate(
+    VeteranStatus = fifelse(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
     ## Race/Ethnicity
     # flattening the values, eliminating nulls
-    AmIndAKNative = if_else(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
-    Asian = if_else(Asian == 1 & !is.na(Asian), 1, 0),
-    BlackAfAmerican = if_else(BlackAfAmerican == 1 & !is.na(BlackAfAmerican), 1, 0),
-    NativeHIPacific = if_else(NativeHIPacific == 1 & !is.na(NativeHIPacific), 1, 0),
-    White = if_else(White == 1 & !is.na(White), 1, 0),
-    MidEastNAfrican = if_else(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
-    HispanicLatinaeo = if_else(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
+    AmIndAKNative = fifelse(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
+    Asian = fifelse(Asian == 1 & !is.na(Asian), 1, 0),
+    BlackAfAmerican = fifelse(BlackAfAmerican == 1 & !is.na(BlackAfAmerican), 1, 0),
+    NativeHIPacific = fifelse(NativeHIPacific == 1 & !is.na(NativeHIPacific), 1, 0),
+    White = fifelse(White == 1 & !is.na(White), 1, 0),
+    MidEastNAfrican = fifelse(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
+    HispanicLatinaeo = fifelse(HispanicLatinaeo == 1 & !is.na(HispanicLatinaeo), 1, 0),
     # exclusive logic group 1
     AmIndAKNativeAloneMethod1Detailed = 
-      if_else(AmIndAKNative == 1 &
+      fifelse(AmIndAKNative == 1 &
                 Asian +
                 BlackAfAmerican +
                 NativeHIPacific +
@@ -68,14 +69,14 @@ session$userData$client_categories <- as.data.table(Client %>%
                 MidEastNAfrican +
                 HispanicLatinaeo == 0, 1, 0),
     AmIndAKNativeLatineMethod1Detailed = 
-      if_else(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
+      fifelse(AmIndAKNative == 1 & HispanicLatinaeo == 1 &
                 Asian +
                 BlackAfAmerican +
                 NativeHIPacific +
                 White +
                 MidEastNAfrican == 0, 1, 0),
     AsianAloneMethod1Detailed =
-      if_else(Asian == 1 &
+      fifelse(Asian == 1 &
                 AmIndAKNative +
                 BlackAfAmerican +
                 NativeHIPacific +
@@ -83,14 +84,14 @@ session$userData$client_categories <- as.data.table(Client %>%
                 MidEastNAfrican +
                 HispanicLatinaeo == 0, 1, 0),
     AsianLatineMethod1Detailed =
-      if_else(Asian == 1 & HispanicLatinaeo == 1 &
+      fifelse(Asian == 1 & HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 BlackAfAmerican +
                 NativeHIPacific +
                 White +
                 MidEastNAfrican == 0, 1, 0),
     BlackAfAmericanAloneMethod1Detailed =
-      if_else(BlackAfAmerican == 1 &
+      fifelse(BlackAfAmerican == 1 &
                 AmIndAKNative +
                 Asian +
                 NativeHIPacific +
@@ -98,14 +99,14 @@ session$userData$client_categories <- as.data.table(Client %>%
                 MidEastNAfrican +
                 HispanicLatinaeo == 0, 1, 0),
     BlackAfAmericanLatineMethod1Detailed =
-      if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
+      fifelse(BlackAfAmerican == 1 & HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 Asian +
                 NativeHIPacific +
                 White +
                 MidEastNAfrican == 0, 1, 0),
     LatineAloneMethod1Detailed =
-      if_else(HispanicLatinaeo == 1 &
+      fifelse(HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 Asian +
                 NativeHIPacific +
@@ -113,7 +114,7 @@ session$userData$client_categories <- as.data.table(Client %>%
                 MidEastNAfrican +
                 BlackAfAmerican == 0, 1, 0),
     MidEastNAfricanAloneMethod1Detailed =
-      if_else(MidEastNAfrican == 1 &
+      fifelse(MidEastNAfrican == 1 &
                 AmIndAKNative +
                 Asian +
                 NativeHIPacific +
@@ -121,14 +122,14 @@ session$userData$client_categories <- as.data.table(Client %>%
                 HispanicLatinaeo +
                 BlackAfAmerican == 0, 1, 0),
     MidEastNAfricanLatineMethod1Detailed =
-      if_else(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
+      fifelse(MidEastNAfrican == 1 & HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 Asian +
                 NativeHIPacific +
                 White +
                 BlackAfAmerican == 0, 1, 0),
     NativeHIPacificAloneMethod1Detailed =
-      if_else(NativeHIPacific == 1 &
+      fifelse(NativeHIPacific == 1 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
@@ -136,14 +137,14 @@ session$userData$client_categories <- as.data.table(Client %>%
                 HispanicLatinaeo +
                 BlackAfAmerican == 0, 1, 0),
     NativeHIPacificLatineMethod1Detailed =
-      if_else(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
+      fifelse(NativeHIPacific == 1 & HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
                 White +
                 BlackAfAmerican == 0, 1, 0),
     WhiteAloneMethod1Detailed =
-      if_else(White == 1 &
+      fifelse(White == 1 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
@@ -151,14 +152,14 @@ session$userData$client_categories <- as.data.table(Client %>%
                 HispanicLatinaeo +
                 BlackAfAmerican == 0, 1, 0),
     WhiteLatineMethod1Detailed =
-      if_else(White == 1 & HispanicLatinaeo == 1 &
+      fifelse(White == 1 & HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
                 NativeHIPacific +
                 BlackAfAmerican == 0, 1, 0),
     MultipleNotLatineMethod1Detailed =
-      if_else(HispanicLatinaeo == 0 &
+      fifelse(HispanicLatinaeo == 0 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
@@ -166,7 +167,7 @@ session$userData$client_categories <- as.data.table(Client %>%
                 White +
                 BlackAfAmerican > 1, 1, 0),
     MultipleLatineMethod1Detailed =
-      if_else(HispanicLatinaeo == 1 &
+      fifelse(HispanicLatinaeo == 1 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
@@ -174,7 +175,7 @@ session$userData$client_categories <- as.data.table(Client %>%
                 White +
                 BlackAfAmerican > 1, 1, 0),
     RaceEthnicityUnknown =
-      if_else(
+      fifelse(
         HispanicLatinaeo +
           AmIndAKNative +
           Asian +
@@ -204,7 +205,7 @@ session$userData$client_categories <- as.data.table(Client %>%
       MultipleLatineMethod1Detailed +
       RaceEthnicityUnknown, # all should equal 1
     # exclusive logic group 2
-    BILPOCMethod1Summarized = if_else(
+    BILPOCMethod1Summarized = fifelse(
       AmIndAKNative +
         Asian +
         MidEastNAfrican +
@@ -212,7 +213,7 @@ session$userData$client_categories <- as.data.table(Client %>%
         HispanicLatinaeo +
         BlackAfAmerican > 0, 1, 0
     ),
-    WhiteMethod1Summarized = if_else(
+    WhiteMethod1Summarized = fifelse(
       White == 1 &
         AmIndAKNative +
         Asian +
@@ -227,13 +228,13 @@ session$userData$client_categories <- as.data.table(Client %>%
       WhiteMethod1Summarized +
       RaceEthnicityUnknown, # all rows should equal 1
     # Method2 logic group 1
-    AmIndAKNativeMethod2Detailed = if_else(AmIndAKNative == 1, 1, 0),
-    AsianMethod2Detailed = if_else(Asian == 1, 1, 0),
-    BlackAfAmericanMethod2Detailed = if_else(BlackAfAmerican == 1, 1, 0),
-    LatineMethod2Detailed = if_else(HispanicLatinaeo == 1, 1, 0),
-    MidEastNAfricanMethod2Detailed = if_else(MidEastNAfrican == 1, 1, 0),
-    NativeHIPacificMethod2Detailed = if_else(NativeHIPacific == 1, 1, 0),
-    WhiteMethod2Detailed = if_else(White == 1, 1, 0),
+    AmIndAKNativeMethod2Detailed = fifelse(AmIndAKNative == 1, 1, 0),
+    AsianMethod2Detailed = fifelse(Asian == 1, 1, 0),
+    BlackAfAmericanMethod2Detailed = fifelse(BlackAfAmerican == 1, 1, 0),
+    LatineMethod2Detailed = fifelse(HispanicLatinaeo == 1, 1, 0),
+    MidEastNAfricanMethod2Detailed = fifelse(MidEastNAfrican == 1, 1, 0),
+    NativeHIPacificMethod2Detailed = fifelse(NativeHIPacific == 1, 1, 0),
+    WhiteMethod2Detailed = fifelse(White == 1, 1, 0),
     # catches missings, any methodology any group
     # RaceEthnicityNone = if_else(
     #   AmIndAKNative +
@@ -245,9 +246,9 @@ session$userData$client_categories <- as.data.table(Client %>%
     #     HispanicLatinaeo == 0, 1, 0),
     # Method2 logic group 2
     BlackAfAmericanLatineMethod2Summarized =
-      if_else(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
+      fifelse(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
     LatineMethod2Summarized = if_else(HispanicLatinaeo == 1, 1, 0),
-    LatineAloneMethod2Summarized = if_else(
+    LatineAloneMethod2Summarized = fifelse(
       HispanicLatinaeo == 1 &
         AmIndAKNative +
         Asian +
@@ -256,7 +257,7 @@ session$userData$client_categories <- as.data.table(Client %>%
         MidEastNAfrican +
         BlackAfAmerican == 0, 1, 0
     )) %>%
-  select(-all_of(race_cols))
+  fselect(race_cols)
 )
 
 # Data prep ---------------------------------------------------------------
@@ -264,7 +265,7 @@ session$userData$client_categories <- as.data.table(Client %>%
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
 enrollment_prep <- EnrollmentAdjustAge %>%
-  select(EnrollmentID,
+  fselect(EnrollmentID,
          PersonalID,
          ProjectID,
          ProjectType,
@@ -286,25 +287,24 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
          DisablingCondition
-         ) %>%
-  left_join(Project %>% 
-              select(ProjectID,
-                     ProjectName,
-                     OrganizationID,
-                     RRHSubType,
-                     ContinuumProject),
-            join_by(ProjectID)) %>%
-  left_join(Organization %>%
-              select(OrganizationID, OrganizationName) %>%
-              unique(),
-            by = "OrganizationID") %>%
+  ) %>%
+  join(
+    qDT(Project)[, .(ProjectID, ProjectName, OrganizationID, RRHSubType, ContinuumProject)],
+    on = "ProjectID"
+  ) %>%
+  join(
+    Organization %>%
+      fselect(OrganizationID, OrganizationName) %>%
+      funique(),
+    on = "OrganizationID"
+  ) %>%
   # left_join(HealthAndDV %>%
   #             filter(DataCollectionStage == 1) %>%
   #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
   #           by = "EnrollmentID") %>%
-  left_join(system_person_ages, join_by(PersonalID)) %>%
-  filter(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
-  select(-ContinuumProject)
+  join(system_person_ages, on = "PersonalID") %>%
+  fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
+  fselect(-ContinuumProject)
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
 # enrollment_prep %>%
