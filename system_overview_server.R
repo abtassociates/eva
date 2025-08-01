@@ -701,7 +701,7 @@ get_res_lh_info <- function() {
       was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
         ProjectType %in% lh_project_types_nonbn | 
         (ProjectType %in% ph_project_types & fcoalesce(MoveInDateAdjust, no_end_date) >= endDate)
-      )
+      ),
       
       last_lh_info_date = NA
     ) %>%
