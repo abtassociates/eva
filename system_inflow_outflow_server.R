@@ -165,6 +165,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
   # ----|----------nova----------a------- ===> FTH
   # z---|----------nova----------a------- ===> Re-engaged/returned
   all_filtered_w_lh %>% fmutate(
+    # Define Active At Start/End conditions
+    # For full period, they can either straddle or have entered within 2 weeks of 
+    # the start date with a lookback in the last 2 weeks
+    # for the other months, they must have entered BEFORE start and exited AFTER.
     activeAtStartCondition = 
       (
         startDate == session$userData$ReportStart & (
@@ -178,7 +182,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
         EntryDate < startDate & ExitAdjust > startDate
       ),
 
-    # Repeat similar logic to as start
+    # Similarly for Active at End...
     activeAtEndCondition = 
       (
         endDate == session$userData$ReportEnd & (

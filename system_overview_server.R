@@ -795,18 +795,6 @@ get_eecr_and_lecr <- reactive({
       (period != "Full" & (is.na(ExitDate) | ExitAdjust %between% list(startDate, endDate)) & was_lh_during_full_period)
     )
   
-  # used in determining lecr if all enrollments straddle the end
-  # non-res enrollments that were not lh_at_end
-  # e <- e %>%
-  #   fmutate(
-  #     straddle_ends_nonresnbn_not_lh_at_end = fifelse(
-  #       straddles_end &
-  #       ProjectType %in% c(es_nbn_project_type, non_res_project_types),
-  #       !was_lh_at_end,
-  #       NA
-  #     )
-  #   )
-  
   e <- potential_eecr_lecr %>%
     # Flag if person had any straddling enrollments
     # to be used when calculating eecr/lecr in no-straddle cases
@@ -849,18 +837,8 @@ get_eecr_and_lecr <- reactive({
     # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
     setorder(period, PersonalID, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
     fmutate(
-      # AS 5/9/25 TO DO: a non-straddling enrollment can be an lecr if no other enrollments straddle OR 
-      # those that do are non-res/NbN that are !was_lh_at_end
-      # If this works as we'd like/expect, there should be Outflow: Inactives for Annual (maybe for MbM)
-      lecr_no_straddle = flast(
         fifelse(in_date_range & !straddles_end, EnrollmentID, NA)
       ) == EnrollmentID
-      # lecr_no_straddle_higher_projecttype = fifelse(
-      #   lecr_no_straddle,
-      #   ProjectTypeWeight > lecr_straddle_max_projecttype & ExitAdjust > lecr_straddle_max_entry,
-      #   NA
-      # ),
-      # any_lecr_no_straddle_w_higher_projecttype = anyv(lecr_no_straddle_higher_projecttype, TRUE)
     ) %>%
     fungroup()
   
