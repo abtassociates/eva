@@ -280,6 +280,21 @@ headerGeneric <- function(session, tabTitle, extraHTML = NULL) {
   })
 }
 
+## function for sizing headers of within-page cards, tabs, and subtabs
+## easier to define in one place and universally change if needed
+headerTab <- function(tabTitle){
+  h4(tabTitle)
+}
+
+headerCard <- function(cardTitle){
+  h4(cardTitle)
+}
+
+headerSubTab <- function(subtabTitle){
+  h5(subtabTitle)
+}
+
+
 logSessionData <- function(session) {
   d <- data.frame(
     SessionToken = session$token,
