@@ -413,24 +413,31 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
   unique(lh_cls$EnrollmentID)
 )
 
-# Save a final version of the enrollment dataset
-session$userData$enrollment_categories <- enrollment_categories %>%
+# Calculate days_since_lookback, days_to_lookahead, and lookback_enrollment_id
+dt <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs) %>%
-  roworder(PersonalID, EntryDate, ExitAdjust) %>%
+  setkey(PersonalID, EntryDate, ExitAdjust) %>%
   fgroup_by(PersonalID) %>%
   fmutate(
-    # days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
-    days_since_lookback = {
-      # Get cumulative maximum of previous ExitAdjust dates
-      prev_exits <- flag(ExitAdjust)
-      valid_exits <- fifelse(prev_exits <= EntryDate, prev_exits, NA)
-      as.integer(difftime(EntryDate, valid_exits, units="days"))
-    },
-    # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
-    # then it was clearly not a system exit
-    days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
+    days_to_lookahead = L(EntryDate, -1) - ExitAdjust
   ) %>%
   fungroup()
+
+session$userData$enrollment_categories <- dt[dt, 
+   on = list(PersonalID, EntryDate >= ExitAdjust),
+   # mult = "last"]
+   mult = "last", # Key for performance: picks the last match, which is the most recent exit
+   `:=`( # Assign columns by reference
+     days_since_lookback = i.EntryDate - x.ExitAdjust,
+     lookback_enrollment_id = x.EnrollmentID,
+     lookback_dest_perm = x.Destination %in% perm_livingsituation,
+     lookback_movein = x.MoveInDateAdjust,
+     lookback_is_nonres_or_nbn = x.ProjectType %in% nbn_non_res
+   )
+]
+
+# PersonalID 408180, ICF-good
+browser()
 
 # Prepare a dataset of non_res enrollments and corresponding LH info
 # will be used to categorize non-res enrollments/people as active_at_start, 

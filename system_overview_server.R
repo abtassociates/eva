@@ -363,7 +363,7 @@ period_specific_data <- reactive({
   
   # custom_rprof({
   all_filtered <- join( 
-    get_period_specific_enrollment_categories(),
+    get_eecr_and_lecr(),
     client_categories_filtered(),
     on = "PersonalID",
     how = "inner"
@@ -372,7 +372,7 @@ period_specific_data <- reactive({
   universe_w_enrl_flags <- universe_enrl_flags(all_filtered)
   universe_w_ppl_flags <- universe_ppl_flags(universe_w_enrl_flags)
   # }, "system_overview_server")
-  
+browser()
   # Split into months and full-period datasets
   list(
     Full = universe_w_ppl_flags[period == "Full"],
@@ -488,8 +488,14 @@ lh_non_res_period <- function() {
         lh_prior_livingsituation | ProjectType == out_project_type
       )
     )  %>%
-    fselect(
-      period, EnrollmentID, ProjectType, lh_prior_livingsituation,
+    fsubset(
+      lh_cls_in_start_window |
+        lh_cls_in_end_window |
+        lh_cls_during_period |
+        entry_in_start_window |
+        entry_in_end_window |
+        lh_entry_during_period,
+      c(period, EnrollmentID, ProjectType, lh_prior_livingsituation,
       lh_cls_in_start_window,
       lh_cls_in_end_window,
       lh_cls_during_period,
@@ -497,15 +503,7 @@ lh_non_res_period <- function() {
       entry_in_end_window,
       lh_entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead,
-      last_lh_info_date
-    ) %>%
-    fsubset(
-      lh_cls_in_start_window |
-        lh_cls_in_end_window |
-        lh_cls_during_period |
-        entry_in_start_window |
-        entry_in_end_window |
-        lh_entry_during_period
+      last_lh_info_date)
     )
 
   if(nrow(lh_non_res) == 0 ) {
@@ -757,7 +755,16 @@ get_eecr_and_lecr <- reactive({
     # This will be important for selecting EECRs
     fgroup_by(EnrollmentID) %>%
     fmutate(
-      was_lh_during_full_period = anyv(period == "Full" & was_lh_during_period, TRUE)
+      was_lh_during_full_period = anyv(period == "Full" & was_lh_during_period, TRUE),
+      nbn_non_res_no_future_lh = ProjectType %in% c(es_nbn_project_type, non_res_nonlh_project_types) & (is.na(last_lh_info_date) | last_lh_info_date <= endDate) & is.na(ExitDate)
+    ) %>%
+    fungroup() %>%
+    fmutate(
+      lookback_movein_before_start = lookback_movein < startDate
+    ) %>%
+    fgroup_by(period, PersonalID) %>%
+    fmutate(
+      no_lh_lookbacks = !anyv(was_lh_during_period, TRUE)
     ) %>%
     fungroup()
   
@@ -787,8 +794,10 @@ get_eecr_and_lecr <- reactive({
   }
   
   potential_eecr_lecr <- all_enrollments %>%
-    # now ignore (for the purposes of eecr/lecr selection, enrollments that were neither LH during the period nor
-    # exited wihtout being LH but were at least LH during the FULL period
+    # only keep enrollments that were LH or housed during the period, or
+    # neither but Exited in the period and were LH at SOME point during the period
+    # AS 8/1: The problem with this is, e.g. PersonalID 684918 (ICf-good), for the first month, Nov, Enrollment 833423 is picked as the EECR, wehreas the full period picks 817330. 
+    # 817330 it gets dropped here.
     fsubset(
       was_lh_during_period | 
       was_housed_during_period |
@@ -796,47 +805,65 @@ get_eecr_and_lecr <- reactive({
     )
   
   e <- potential_eecr_lecr %>%
+    fmutate(
+      non_straddle_exit_dates = fifelse(!straddles_end, ExitAdjust, NA)
+    ) %>%
+    setorder(PersonalID, period, EntryDate, ExitAdjust) %>%
+    fgroup_by(PersonalID, sort=FALSE) %>%
+    fmutate(
+      prev_non_straddle_exits = flag(na_locf(non_straddle_exit_dates))
+    ) %>%
+    fungroup() %>%
+    fmutate(
+      background_non_res_straddle = fcoalesce(straddles_end & nbn_non_res_no_future_lh & EntryDate < prev_non_straddle_exits, FALSE)
+    )
+  
+  e2 <- e %>%
     # Flag if person had any straddling enrollments
     # to be used when calculating eecr/lecr in no-straddle cases
-    fgroup_by(period, PersonalID)
-  
-  e <- e %>%
+    fgroup_by(period, PersonalID) %>%
     fmutate(
       any_straddle_start = anyv(straddles_start, TRUE),
       any_straddle_end = anyv(straddles_end, TRUE)
       # all_straddle_ends_nonresnbn_not_lh_at_end = !anyv(straddle_ends_nonresnbn_not_lh_at_end, FALSE)
     ) %>%
+    fungroup() %>%
     # flag the first and last straddling enrollments, 
     # by (desc) ProjectTypeWeight and EntryDate
-    setorder(period, PersonalID, -ProjectTypeWeight, EntryDate) %>%
+    roworder(period, PersonalID, -ProjectTypeWeight, EntryDate) %>%
+    fgroup_by(period, PersonalID) %>%
     fmutate(
       first_straddle_start = ffirst(
         fifelse(straddles_start, EnrollmentID, NA)
-      ) == EnrollmentID
+      ) == EnrollmentID,
+      any_straddle_start = anyv(straddles_start, TRUE)
     ) %>%
-    setorder(period, PersonalID, ProjectTypeWeight, EntryDate) %>%
+    fungroup() %>%
+    roworder(period, PersonalID, ProjectTypeWeight, EntryDate) %>%
+    fgroup_by(period, PersonalID) %>%
     fmutate(
       last_straddle_end = flast(
-        fifelse(straddles_end, EnrollmentID, NA)
-      ) == EnrollmentID,
-      any_straddle_end_lh_at_end = anyv(straddles_end & was_lh_at_end, TRUE),
-      any_straddle_end_housed_at_end = anyv(straddles_end & was_housed_at_end, TRUE),
-      all_straddle_end_nbn_non_res_no_future_lh = allv(straddles_end & nbn_non_res_no_future_lh, TRUE)
+        fifelse(straddles_end & !background_non_res_straddle, EnrollmentID, NA)
+      ) == EnrollmentID
     ) %>%
+    fungroup() %>%
     # flag the first non-straddling enrollments in the report period,
     # for people that have no eecr_straddles
     # We prioritize EntryDate over ProjectTypeWeight because we want the earliest
-    setorder(period, PersonalID, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
+    roworder(period, PersonalID, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
+    fgroup_by(period, PersonalID) %>%
     fmutate(
       first_non_straddle_start = ffirst(
-        fifelse(in_date_range & !any_straddle_start, EnrollmentID, NA)
+        fifelse(in_date_range & !straddles_start, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
+    fungroup() %>%
     # flag last non-straddling enrollments in the report period,
     # for people that have no lecr_straddles
     # Since these have ExitDates, given that we want the LECR to represent a 
     # client's latest known Outflow status, we order by ExitAdjust to get the latest Exit
-    setorder(period, PersonalID, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
+    roworder(period, PersonalID, ExitAdjust, ProjectTypeWeight, Destination, EntryDate) %>%
+    fgroup_by(period, PersonalID) %>%
     fmutate(
       last_non_straddle_end = flast(
         fifelse(in_date_range & !straddles_end, EnrollmentID, NA)
@@ -844,27 +871,105 @@ get_eecr_and_lecr <- reactive({
     ) %>%
     fungroup()
   
-  final <- e %>%
+  # In most cases, the EECR should be the first_straddle_start and the LECR should be the last_straddle_end (assuming they pass the enrollment filters).
+  # last_straddle_ends must also be LH or Housed at end (was_lh_at_end or was_housed_at_end).
+  # If there are no straddles, then it should be the first_non_straddle_start. Ditto for (non)straddle_ends.
+  # However, there are lots of exceptions:
+  #   LECR exceptions:
+  #   1. if the straddling enrollment is a non-res (other than SO and nbn) with 
+  #       no end date and no LH info in the current period or in the future, and 
+  #       it starts before the previous period's last_non_straddle_end's exit ==> then it should not be selected (stored under background_non_res_straddle)
+  #
+  #   2. if last_straddle_end is neither LH nor housed at end, then 
+  prep_for_exceptions <- e2 %>% 
+    fgroup_by(period, PersonalID) %>%
+    fmutate(
+      last_straddle_end_lh_or_housed_at_end = anyv(last_straddle_end & (was_lh_at_end | was_housed_at_end), TRUE),
+      only_period_enrollment = GRPN() == 1
+      # all_straddle_end_nbn_non_res_no_future_lh = allv(straddles_end & nbn_non_res_no_future_lh, TRUE),
+    ) %>%
+    fungroup() # %>%
+    # fmutate(
+    #   eligible_for_eecr = (first_straddle_start | first_non_straddle_start) & passes_enrollment_filters,
+    #   eligible_for_lecr = fifelse(
+    #     passes_enrollment_filters,
+    #     fifelse(
+    #       (last_straddle_end & (was_lh_at_end | was_housed_at_end) & !background_non_res_straddle), 2,
+    #       fifelse(
+    #         last_non_straddle_end, 1, 0
+    #       )
+    #     ),
+    #     0
+    #   )
+    # ) %>%
+    # fgroup_by(PersonalID, period) %>%
+    # fmutate(
+    #   eecr = which.max(eligible_for_eecr),
+    #   lecr = which.max(eligible_for_lecr)
+    # ) %>%
+    # fungroup()
+  
+  
+  
+  final <- prep_for_exceptions %>%
     # Create eecr and lecr flags
     fmutate(
-      eecr = (first_straddle_start | first_non_straddle_start) & passes_enrollment_filters,
+      # If we add background_non_res_straddle, this handles 183338, by removing July - September, since they were inactive by then
+      # but then
+      eecr = (first_straddle_start | (first_non_straddle_start & !any_straddle_start)) & !background_non_res_straddle & passes_enrollment_filters,
       eecr = fcoalesce(eecr, FALSE),
       lecr = (
-        (lecr_no_straddle & !any_lecr_straddle_lh_at_end & !any_lecr_straddle_housed_at_end)
-      ) & passes_enrollment_filters,
-      in_nbn_non_res = NULL
-        (last_straddle_end & (was_lh_at_end | was_housed_at_end)) |
+        # If we add (was_lh/housed_at_end), then Personal ID 346740 (Enrollment 846250) is not selected as LECR, and the last month outlfow != full outflow
+        # but if we remove it, both 846250 AND 835362 are selected as the LECRs
+        (last_straddle_end & (
+          !background_non_res_straddle | 
+          only_period_enrollment
+        )) |
+        # (last_straddle_end & (!background_non_res_straddle | only_period_enrollment)) |
+        (fcoalesce(last_non_straddle_end, FALSE) & !last_straddle_end_lh_or_housed_at_end)
+      ) & passes_enrollment_filters
+      # lecr_exit = fifelse(lecr, ExitAdjust, NA)
     ) %>%
-    fgroup_by(PersonalID, period) %>%
-    fmutate(has_lecr = anyv(lecr, TRUE)) %>%
-    fungroup() %>%
+    fgroup_by(period, PersonalID) %>%
     fmutate(
-      lecr = fifelse(!has_lecr, eecr, lecr)
-    )
-# browser()
+      has_eecr = anyv(eecr, TRUE), # This avoids a period with an LECR but no EECR, e.g.
+      has_lecr = anyv(lecr, TRUE)
+      # lecr_exit_date = fmax(lecr_exit),
+      # prev_month_lecr_exit = flag(lecr_exit_date)
+    ) %>%
+    fungroup() %>%
+    # fmutate(
+    #   # This is meant to fix, e.g. PersonalID 183338 (ICF-good), who has an "udnerlying" non-res enrollment with no future LH
+    #   # that's causing them to show up in July and August, after they truly exited in June from their other enrollment, 852184
+    #   #
+    #   # AS 8/1: The problem with this is, e.g. PersonalID 689253 (demo) in June. This will drop 826534 as the EECR and they'll have no other EECR, because the other enrollment is not an eecr
+    #   # eecr = fifelse(eecr, !(startDate != session$userData$ReportStart & EntryDate < prev_month_lecr_exit & nbn_non_res_no_future_lh), FALSE),
+    #   
+    #   # PersonalID 190679 (ICF-good), no LECR at this point?
+    #   # PersonalID 513051     (ICF-good) no LECR at this point? But they weren't LH during many of the periods, even though eecr was being selected for each period
+    #   # PersonalID 533867     (ICF-gooD) no LECR in Nov this point? 
+    #   # PErsonalID 565354       (ICF-good) no LECR in Oct at this point. This is becasue they entered on 8/30 and InfoDate on 11/16. Both are outside the end window
+    #   lecr = fifelse(!has_lecr & !background_non_res_straddle, eecr, lecr)
+    # ) %>%
+    # fgroup_by(period, PersonalID) %>%
+    # fmutate(
+    #   has_lecr = anyv(lecr, TRUE)
+    # ) %>%
+    # fungroup() %>%
+    fsubset(has_eecr & has_lecr)
+  
+  #160649 - ICFgood (getting "something's wrong" inflow) 
+  #689253 - Demo (getting "something's wrong" inflow in June) 
+  # 183338 - ICF good
+  # 540917 - ICF-good 
+  # 123945 - ICF-good (something's wrong)
+  # 104510 last outflow != full
+  # 330303 last outflow != full. Enrollment 859594 should be picked
+  # 346740 last outflow != full
+browser()
 #debug cols: setdiff(outflow_debug_cols, c(non_res_lh_cols, "OutflowTypeDetail")), with=FALSE
   # people must have an eecr or they can't be counted
-  final %>% fsubset(eecr | lecr)
+  final
 })
 
 get_period_specific_enrollment_categories <- reactive({
@@ -890,7 +995,10 @@ get_period_specific_enrollment_categories <- reactive({
         ProjectType
       ),
     how = "right"
-  )
+  ) %>%
+    fmutate(
+      lookback_movein_before_start = eecr & lookback_movein < startDate
+    )
 
   # get lookbacks
   enrollment_categories_period <- enrollment_categories_period %>%
@@ -900,9 +1008,7 @@ get_period_specific_enrollment_categories <- reactive({
     fungroup() %>%
     fmutate(
       # 5/15/25: a lookback must have exited before the EECR started
-      is_lookback = ExitAdjust <= eecr_entrydate,
-      # pre-compute these so the later by-person-period aggregation is faster
-      lookback_enrollment_id = fifelse(is_lookback, EnrollmentID, NA),
+      is_lookback = !is.na(days_since_lookback),
       lh_lookback = is_lookback & was_lh_during_period
     )
   
@@ -921,11 +1027,13 @@ get_period_specific_enrollment_categories <- reactive({
     ) %>%
     fungroup() %>%
     fmutate(
-      lookback_dest_perm = eecr & first_lookback_destination %in% perm_livingsituation,
-      lookback_movein_before_start = eecr & first_lookback_movein < startDate,
+      
       lookback_is_nonres_or_nbn = eecr & first_lookback_projecttype %in% nbn_non_res
     )
 
+  # 599422
+  # lookback_cols =  c("period", enrollment_cols, "eecr","lecr", "first_lookback") 
+  browser()
   logToConsole(session, paste0("About to subset to eecr, lecr, and lookbacks: num enrollment_categories_period records = ", nrow(enrollment_categories_period)))
   
   # remove temp vars
