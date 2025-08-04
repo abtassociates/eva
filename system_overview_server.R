@@ -376,7 +376,7 @@ period_specific_data <- reactive({
   
   # Split into months and full-period datasets
   list(
-    Full = universe_w_ppl_flags[period == "Full"],
+    Full = fsubset(universe_w_ppl_flags,period == "Full"),
     Months = universe_w_ppl_flags %>%
       fsubset(period != "Full") %>%
       fmutate(month = factor(
@@ -406,19 +406,19 @@ period_specific_data <- reactive({
 client_categories_filtered <- reactive({
   logToConsole(session, "In client_categories_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  req(nrow(session$userData$client_categories) > 0)
+  req(fnrow(session$userData$client_categories) > 0)
+ 
+  fsubset(session$userData$client_categories,
+                 AgeCategory %in% input$syso_age &
+                   (if(input$syso_race_ethnicity == "All") rep(TRUE, fnrow(session$userData$client_categories)) else get(input$syso_race_ethnicity) == 1) & 
+                   (
+                     input$syso_spec_pops == "None" |
+                       (input$syso_spec_pops == "Veteran" &
+                          VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
+                       (input$syso_spec_pops == "NonVeteran" &
+                          VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
+                   ))
   
-  session$userData$client_categories[
-    AgeCategory %in% input$syso_age &
-    (if(input$syso_race_ethnicity == "All") rep(TRUE, .N) else get(input$syso_race_ethnicity) == 1) & 
-    (
-      input$syso_spec_pops == "None" |
-      (input$syso_spec_pops == "Veteran" &
-         VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
-      (input$syso_spec_pops == "NonVeteran" &
-         VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
-    )
-  ]
 })
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
@@ -503,7 +503,7 @@ lh_non_res_period <- function() {
         lh_entry_during_period
     )
 
-  if(nrow(lh_non_res) == 0 ) {
+  if(fnrow(lh_non_res) == 0 ) {
     logToConsole(session, "no non-res lh records")
     return(lh_non_res)
   }
@@ -512,9 +512,9 @@ lh_non_res_period <- function() {
     # Group by EnrollmentID and calculate window flags
     fgroup_by(period, EnrollmentID) %>%
     fmutate(
-      lh_cls_in_start_window = anyv(lh_cls_in_start_window, TRUE),
-      lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
-      lh_cls_during_period = anyv(lh_cls_during_period, TRUE)
+      lh_cls_in_start_window = any(lh_cls_in_start_window),#anyv(lh_cls_in_start_window, TRUE),
+      lh_cls_in_end_window = any(lh_cls_in_end_window),#anyv(lh_cls_in_end_window, TRUE),
+      lh_cls_during_period =any(lh_cls_during_period)#anyv(lh_cls_during_period, TRUE)
     ) %>%
     fungroup()
 }
@@ -550,7 +550,7 @@ lh_nbn_period <- function() {
       lh_entry_during_period
     )
   
-  if(nrow(lh_nbn) == 0) {
+  if(fnrow(lh_nbn) == 0) {
     logToConsole(session, "no NbN lh records")
     return(lh_nbn)
   }
@@ -558,11 +558,11 @@ lh_nbn_period <- function() {
   lh_nbn %>%
     fgroup_by(period, EnrollmentID) %>%
     fmutate(
-      nbn_in_start_window = anyv(nbn_in_start_window, TRUE),
-      nbn_in_end_window = anyv(nbn_in_end_window, TRUE),
+      nbn_in_start_window = any(nbn_in_start_window),#anyv(nbn_in_start_window, TRUE),
+      nbn_in_end_window = any(nbn_in_end_window),#anyv(nbn_in_end_window, TRUE),
       entry_in_start_window = entry_in_start_window,
       entry_in_end_window = entry_in_end_window,
-      nbn_during_period = anyv(nbn_during_period, TRUE)
+      nbn_during_period = any(nbn_during_period)#anyv(nbn_during_period, TRUE)
     ) %>%
     fungroup()
 }
@@ -584,7 +584,7 @@ lh_other_period <- function(all_filtered) {
       entry_in_start_window,
       days_since_lookback,
       days_to_lookahead,
-      period, startDate, endDate
+      startDate, endDate
     )
 }
 
@@ -592,25 +592,31 @@ lh_other_period <- function(all_filtered) {
 add_lh_info <- function(all_filtered) {
   logToConsole(session, "in add_lh_info")
 
-  lh_other_info <- lh_other_period(all_filtered)[, .(
-    EnrollmentID,
-    period,
-    
-    # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
-    # must either straddle or otherwise be close to (i.e. 14 days from) 
-    # start so we can make claims about status at start
-    # and must be within 14 days of previous enrollment, otherwise it would be an exit
-    was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
-      ProjectType %in% lh_project_types_nonbn | 
-      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
-    ),
+  lh_other_info <- lh_other_period(all_filtered) %>%
+    fmutate(
+      
+        # For Res projects (lh_project_types 0,2,8 and ph_project_types 3,9,10,13)
+        # must either straddle or otherwise be close to (i.e. 14 days from)
+        # start so we can make claims about status at start
+        # and must be within 14 days of previous enrollment, otherwise it would be an exit
+      was_lh_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
+      ),
 
-    was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
-      ProjectType %in% lh_project_types_nonbn | 
-      (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+      was_lh_at_end = (straddles_end | days_to_lookahead %between% c(0, 14)) & (
+        ProjectType %in% lh_project_types_nonbn | 
+        (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= endDate))
+      )
+    ) %>%
+    fselect(
+      EnrollmentID,
+      period, 
+      was_lh_at_start,
+      was_lh_during_period,
+      was_lh_at_end
     )
-  )]
-  
+
   join(
     all_filtered, 
     lh_other_info, 
@@ -658,7 +664,7 @@ expand_by_periods <- function(dt) {
 
 
 get_lh_non_res_esnbn_info <- function() {
-  lh_non_res_esnbn_info <- rbindlist(
+  lh_non_res_esnbn_info <- rowbind(
     list(
       lh_non_res_period(),
       lh_nbn_period()
@@ -766,9 +772,9 @@ get_eecr_and_lecr <- reactive({
   
   e <- e %>%
     fmutate(
-      any_straddle_start = anyv(straddles_start, TRUE),
-      any_straddle_end = anyv(straddles_end, TRUE),
-      all_straddle_ends_nonresnbn_not_lh_at_end = allv(straddle_ends_nonresnbn_not_lh_at_end, TRUE)
+      any_straddle_start = any(straddles_start),#anyv(straddles_start, TRUE),
+      any_straddle_end = any(straddles_end),#anyv(straddles_end, TRUE),
+      all_straddle_ends_nonresnbn_not_lh_at_end = all(straddle_ends_nonresnbn_not_lh_at_end)#allv(straddle_ends_nonresnbn_not_lh_at_end, TRUE)
     ) %>%
     # flag the first and last straddling enrollments, 
     # by (desc) ProjectTypeWeight and EntryDate
@@ -872,9 +878,11 @@ get_period_specific_enrollment_categories <- reactive({
     ) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
+      has_lecr = any(lecr),#anyv(lecr, TRUE),
+      has_eecr = any(eecr),#anyv(eecr, TRUE),
       # To be Return/Re-Engaged, they need a lookback with an exit to the corresponding destination
-      any_lookbacks_with_exit_to_perm = anyv(perm_dest, TRUE),
-      any_lookbacks_with_exit_to_nonperm = anyv(nonperm_dest, TRUE)
+      any_lookbacks_with_exit_to_perm = any(perm_dest),#anyv(perm_dest, TRUE),
+      any_lookbacks_with_exit_to_nonperm = any(nonperm_dest)#anyv(nonperm_dest, TRUE)
     ) %>%
     fungroup()
   

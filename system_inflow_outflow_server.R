@@ -101,10 +101,10 @@ mbm_bar_width = 0.2
 mbm_export_bar_width = 0.4
 
 level_of_detail_text <- reactive({
-  case_when(
-    input$syso_level_of_detail == "All" ~ "People",
-    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-    TRUE ~
+  fcase(
+    input$syso_level_of_detail == "All", "People",
+    input$syso_level_of_detail == "HoHsOnly", "Heads of Household",
+    default =
       getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
 })
@@ -135,15 +135,16 @@ full_unit_of_analysis_display <- reactive({
 universe_enrl_flags <- function(all_filtered_w_lh) {
   logToConsole(session, "In universe_enrl_flags")
   
-  all_filtered_w_lh[, `:=`(
-    # INFLOW CALCULATOR COLUMNS
-    active_at_start_homeless = eecr & was_lh_at_start & (
+  all_filtered_w_lh <- all_filtered_w_lh %>%
+    fmutate(
+      # INFLOW CALCULATOR COLUMNS
+     active_at_start_homeless = eecr & was_lh_at_start & (
       startDate == session$userData$ReportStart | 
       EntryDate < startDate |
       (EntryDate == startDate & days_since_lookback %between% c(0, 14))
-    ),
-    
-    active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
+      ),
+      
+      active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
       (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
       (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
     ),
@@ -187,7 +188,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       straddles_end & 
       ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
       !was_lh_at_end
-  )]
+    )
+  
+  return(all_filtered_w_lh)
+
 }
 
 ## People-level flags ------------------------
@@ -208,21 +212,21 @@ universe_ppl_flags <- function(universe_df) {
     fgroup_by(period, PersonalID) %>%
     fmutate(
       # INFLOW
-      active_at_start_homeless_client = anyv(active_at_start_homeless, TRUE),
-      active_at_start_housed_client = anyv(active_at_start_housed, TRUE),
-      return_from_perm_client = anyv(return_from_perm, TRUE),
-      reengaged_from_temp_client = anyv(return_from_nonperm, TRUE),
-      first_time_homeless_client = anyv(first_time_homeless, TRUE),
-      unknown_at_start_client = anyv(unknown_at_start, TRUE),
-      continuous_at_start_client = anyv(continuous_at_start, TRUE),
+      active_at_start_homeless_client = any(active_at_start_homeless),#anyv(active_at_start_homeless, TRUE),
+      active_at_start_housed_client = any(active_at_start_housed),#anyv(active_at_start_housed, TRUE),
+      return_from_perm_client = any(return_from_perm),#anyv(return_from_perm, TRUE),
+      reengaged_from_temp_client = any(return_from_nonperm),#anyv(return_from_nonperm, TRUE),
+      first_time_homeless_client = any(first_time_homeless),#anyv(first_time_homeless, TRUE),
+      unknown_at_start_client = any(unknown_at_start),#anyv(unknown_at_start, TRUE),
+      continuous_at_start_client = any(continuous_at_start),#anyv(continuous_at_start, TRUE),
       
       # OUTFLOW
-      perm_dest_client = anyv(exited_perm, TRUE),
-      temp_dest_client = anyv(exited_temp, TRUE),
-      homeless_at_end_client = anyv(homeless_at_end, TRUE),
-      housed_at_end_client = anyv(housed_at_end, TRUE),
-      unknown_at_end_client = anyv(unknown_at_end, TRUE),
-      continuous_at_end_client = anyv(continuous_at_end , TRUE)
+      perm_dest_client = any(exited_perm),#anyv(exited_perm, TRUE),
+      temp_dest_client = any(exited_temp),#anyv(exited_temp, TRUE),
+      homeless_at_end_client = any(homeless_at_end),#anyv(homeless_at_end, TRUE),
+      housed_at_end_client = any(housed_at_end),#anyv(housed_at_end, TRUE),
+      unknown_at_end_client = any(unknown_at_end),#anyv(unknown_at_end, TRUE),
+      continuous_at_end_client = any(continuous_at_end )#anyv(continuous_at_end , TRUE)
     ) %>%
     fungroup() %>%
     ftransform(
@@ -553,19 +557,22 @@ sys_inflow_outflow_annual_chart_data <- reactive({
       OutflowTypeDetail = factor(OutflowTypeDetail, levels = c(outflow_chart_detail_levels, active_at_levels))
     )
 
-  rbind(
-    inflow_outflow_full_data[, .(
-      Detail = InflowTypeDetail,
-      Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
-      InflowOutflow = factor("Inflow", levels = inflow_outflow_levels),
-      PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
-    )],
-    inflow_outflow_full_data[, .(
-      Detail = OutflowTypeDetail,
-      Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
-      InflowOutflow = factor("Outflow", levels = inflow_outflow_levels),
-      PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
-    )]
+   rowbind(
+    inflow_outflow_full_data %>%
+      fcompute(
+        Detail = InflowTypeDetail,
+        Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
+        InflowOutflow = factor("Inflow", levels = inflow_outflow_levels),
+        PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
+      ),
+
+    inflow_outflow_full_data %>%
+      fcompute(
+        Detail = OutflowTypeDetail,
+        Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
+        InflowOutflow = factor("Outflow", levels = inflow_outflow_levels),
+        PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
+      )
   ) %>% 
   fsubset(Detail != "Unknown") %>%
   fcount() %>%
@@ -1478,7 +1485,7 @@ sys_export_monthly_info <- function() {
       Detail = factor(paste0("Total ", Detail))
     )
   
-  monthly_counts <- bind_rows(monthly_counts_detail, monthly_totals) %>%
+  monthly_counts <- rowbind(monthly_counts_detail, monthly_totals) %>%
     roworder(Summary, Detail)
   
   monthly_average_cols <- c("Total Inflow", "Total Outflow", "Monthly Change")

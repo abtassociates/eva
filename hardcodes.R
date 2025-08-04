@@ -118,7 +118,7 @@ dkr <- c(8, 9)
 # Expected upload schema (files, columns, and data types) ------------------
 cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
-  filter(!(File %in% c("Affiliation",
+  fsubset(!(File %in% c("Affiliation",
                        "AssessmentResults",
                        "AssessmentQuestions",
                        "Disabilities")))
@@ -351,7 +351,7 @@ inc_ncb_hi_required_prep <- tribble(
 # this will break out all the project types so they each get a row
 
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
-  unique()
+  funique()
 
 sys_comp_selection_choices = c(
   "Age", 
