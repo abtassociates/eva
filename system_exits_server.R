@@ -266,6 +266,50 @@ get_syse_compare_subpop_data <- reactive({
   )
 
 })
+
+## function to make System Exits comparison subpopulation chart
+syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
+  
+  subgroup_colors <- c(
+   "Subpopulation" = "#136779",
+   "Everyone Else" = "#C1432B"
+  )
+  
+  ## long format needed for plotting points
+  subpop_chart_df <- get_syse_compare_subpop_data() %>% 
+    filter(subpop_summ != "Percent Difference") %>% 
+    pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'subpop_pct') %>% 
+    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) )
+  
+  ## wide format needed for plotting arrows between points
+  subpop_segment_df <- subpop_chart_df %>% 
+    pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct')
+  
+  ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct, color = subpop_summ)) +
+    geom_point(size = 5) +
+    geom_segment(data=subpop_segment_df,
+                 aes(x = dest_type, xend = dest_type, y = Subpopulation, yend = `Everyone Else`),
+                 arrow = arrow(length = unit(0.125, "inches")), color = '#948A84') +
+    scale_color_manual(values=subgroup_colors,guide =  guide_legend(ncol = 2)) +
+    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
+    scale_x_discrete(expand = expansion(mult = 0.03, add = 0)) +
+    labs(x = '', y = '') +
+    theme_minimal() +
+    theme(
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_rect(fill=NA, colour = 'black'),
+          legend.title = element_blank(),
+          legend.justification = 'left',
+          legend.position = 'top',
+          legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
+          axis.text.y = element_text(size = sys_axis_text_font),
+          axis.text.x = element_blank()
+          )
+}
+output$syse_compare_subpop_chart <- renderPlot({
+  syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
+})
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
   
 })

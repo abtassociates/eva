@@ -1025,6 +1025,12 @@ nav_menu(
                 #            #width = "100%",
                 #            #height = "500"
                 # ) %>% withSpinner()
+                  withSpinner(),
+                br(),
+                plotOutput("syse_compare_subpop_chart",
+                           width = "80%",
+                           height = "500"
+                ) %>% withSpinner(),
               ),
               nav_panel(
                 title = "Time Chart",
