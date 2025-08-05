@@ -548,6 +548,7 @@ universe_ppl_flags <- function(universe_df) {
   ## ASHomeless and EntryDate on first of month with no recent lookback-------
   bad_records <- universe_w_ppl_flags %>%
     fsubset(
+      eecr & 
       InflowTypeDetail == "Homeless" & 
       EntryDate == as.Date(period) &
       EntryDate != session$userData$ReportStart &
@@ -556,7 +557,7 @@ universe_ppl_flags <- function(universe_df) {
   if(nrow(bad_records) > 0) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
       bad_ashomeless <- get_all_enrollments_for_debugging(
-        bad_ashomeless,
+        bad_records,
         universe_w_ppl_flags,
         multiple = TRUE
       )
