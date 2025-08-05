@@ -380,6 +380,62 @@ output$syse_compare_subpop_table <- renderDT({
   )
 })
 
+## function for System Exits Comparison subpopulation table (below chart)
+get_syse_compare_time_table <- function(tab){
+  
+  time_colors <- c(
+    "Current Year" = "#72B4CD",
+    "Previous Year" = "#16697A"
+  )
+  
+  datatable(tab, 
+            colnames = c(' ' = 'time_summ',
+                         "<b>Permanent</b>" = "Permanent","<b>Homeless</b>" = "Homeless",
+                         "<b>Institutional</b>" = "Institutional","<b>Temporary</b>" = "Temporary",
+                         "<b>Other/Unknown</b>" = "Other/Unknown"),
+            options = list(
+              dom = 't',
+              ordering = FALSE,
+              columnDefs = list(
+                list(width = "90px", targets = 0), # Set first column width
+                list(className = 'dt-center', targets = '_all') # Center text
+              )
+            ),
+            escape = FALSE,
+            style = "default",
+            rownames = FALSE) %>% DT::formatPercentage(
+              columns = -1 
+            ) %>% 
+    # Highlight only the first column of "Current Year" and "Previous Year" rows
+    formatStyle(
+      columns = 1,  # First column
+      target = "cell",
+      backgroundColor = styleEqual(
+        names(time_colors), unname(time_colors)
+      ),
+      border = styleEqual(
+        names(time_colors),
+        c(rep("2px solid black", 2))
+      )
+    ) %>% 
+    # Contrast font and background colors
+    formatStyle(
+      columns = 1,
+      target = "cell",
+      color = styleEqual(
+        names(time_colors), 
+        rep("white", length(time_colors))
+      )
+    )
+  
+  
+}
+output$syse_compare_time_table <- renderDT({
+  
+  get_syse_compare_time_table(
+    get_syse_compare_time_data()
+  )
+})
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
   
 })

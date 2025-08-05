@@ -1031,7 +1031,9 @@ nav_menu(
               nav_panel(
                 title = "Time Chart",
                 uiOutput("syse_compare_time_filter_selections") %>%
-                  withSpinner()#,
+                  withSpinner(),
+                DTOutput("syse_compare_time_table") %>%
+                  withSpinner()
               ),
               nav_panel(
                 title = "Information",
