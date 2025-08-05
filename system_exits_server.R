@@ -307,9 +307,69 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
           axis.text.x = element_blank()
           )
 }
+  
+## function for System Exits Comparison subpopulation table (below chart)
+get_syse_compare_subpop_table <- function(tab, subpop){
+  
+  subgroup_colors <- c(
+    "Subpopulation" = "#136779",
+    "Everyone Else" = "#C1432B"
+  )
+  
+  datatable(tab, 
+            colnames = c(' ' = 'subpop_summ',
+                         "<b>Permanent</b>" = "Permanent","<b>Homeless</b>" = "Homeless",
+                         "<b>Institutional</b>" = "Institutional","<b>Temporary</b>" = "Temporary",
+                        "<b>Other/Unknown</b>" = "Other/Unknown"),
+            options = list(
+    dom = 't',
+    ordering = FALSE,
+    columnDefs = list(
+      list(width = "48px", targets = 0), # Set first column width
+      list(className = 'dt-center', targets = '_all') # Center text
+    )
+  ),
+  escape = FALSE,
+  style = "default",
+  rownames = FALSE) %>% DT::formatPercentage(
+    columns = -1 
+  ) %>% 
+    # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
+    formatStyle(
+      columns = 1,  # First column
+      target = "cell",
+      backgroundColor = styleEqual(
+        names(subgroup_colors), unname(subgroup_colors)
+      ),
+      border = styleEqual(
+        names(subgroup_colors),
+        c(rep("2px solid black", 2))
+      )
+    ) %>% 
+    # Contrast font and background colors
+    formatStyle(
+      columns = 1,
+      target = "cell",
+      color = styleEqual(
+        names(subgroup_colors), 
+        rep("white", length(subgroup_colors))
+      )
+    )
+  
+  
+}
+
 output$syse_compare_subpop_chart <- renderPlot({
   syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
 })
+
+output$syse_compare_subpop_table <- renderDT({
+  
+  get_syse_compare_subpop_table(
+    get_syse_compare_subpop_data()
+  )
+})
+
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
   
 })

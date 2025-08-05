@@ -1019,18 +1019,14 @@ nav_menu(
               nav_panel(
                 title = "Subpopulation Chart",
                 uiOutput("syse_compare_subpop_filter_selections") %>%
-                  withSpinner()#,
-                
-                # plotOutput("syse_compare_subpop_ui_chart"#,
-                #            #width = "100%",
-                #            #height = "500"
-                # ) %>% withSpinner()
                   withSpinner(),
                 br(),
                 plotOutput("syse_compare_subpop_chart",
                            width = "80%",
                            height = "500"
                 ) %>% withSpinner(),
+                DTOutput("syse_compare_subpop_table") %>%
+                  withSpinner()
               ),
               nav_panel(
                 title = "Time Chart",
