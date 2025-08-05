@@ -41,13 +41,14 @@ system_person_ages <- EnrollmentAdjustAge %>%
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
-session$userData$client_categories <- Client %>%
-  join(system_person_ages, on = 'PersonalID', how='left') %>% 
-   fselect('PersonalID',
-          race_cols,
-          'VeteranStatus',
-          'AgeCategory'
-   ) %>%
+session$userData$client_categories <- qDT(Client) %>%
+  join(system_person_ages, on = "PersonalID") %>%
+  fselect(c(
+    "PersonalID",
+    race_cols,
+    "VeteranStatus",
+    "AgeCategory"
+  )) %>%
   fmutate(
     VeteranStatus = fifelse(VeteranStatus == 1 &
                               !is.na(VeteranStatus), 1, 0),
@@ -257,9 +258,10 @@ session$userData$client_categories <- Client %>%
         White +
         MidEastNAfrican +
         BlackAfAmerican == 0, 1, 0
-    ))
+    )
+  )
+session$userData$client_categories[, (race_cols) := NULL]
 
-  get_vars(session$userData$client_categories, race_cols) <- NULL
 # Data prep ---------------------------------------------------------------
 
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
@@ -299,12 +301,13 @@ enrollment_prep <- EnrollmentAdjustAge %>%
               fselect(OrganizationID, OrganizationName) %>%
               funique(),
             on = "OrganizationID", how = 'left') %>%
+
   # left_join(HealthAndDV %>%
   #             filter(DataCollectionStage == 1) %>%
   #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
   #           by = "EnrollmentID") %>%
-  join(system_person_ages, on = 'PersonalID', how='left') %>%
-  fsubset(ContinuumProject == 1 & EntryDate < fcoalesce(ExitDate, no_end_date)) %>%
+  join(system_person_ages, on = "PersonalID") %>%
+  fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
@@ -363,7 +366,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
       ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
       ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
       ProjectType %in% lh_residential_project_types, 60,
-      ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
+      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40,
       ProjectType == ce_project_type, 30,
       default = 20
     ),
@@ -406,31 +409,54 @@ lh_cls <- CurrentLivingSituation %>%
   fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH)
 
 # Remove "problematic" enrollments ----------------------------------
-# These are non-residential enrollments for which we have no LH evidence: 
+# These are non-residential (other than SO) enrollments for which we have no LH evidence: 
 # So any enrollment that is not lh_prior_livingsituation and has no LH CLS
-problematic_nonres_enrollmentIDs <- base::setdiff(
-  (fsubset(enrollment_categories, ProjectType %in% non_res_project_types & lh_prior_livingsituation == FALSE))$EnrollmentID,
-  unique(lh_cls$EnrollmentID)
+problematic_nonres_enrollmentIDs2 <- base::setdiff(
+  (enrollment_categories %>% 
+     fsubset(ProjectType %in% non_res_nonlh_project_types & !lh_prior_livingsituation)
+  )$EnrollmentID,
+  unique(lh_cls$EnrollmentID))
+
+enrollment_categories <- enrollment_categories %>%
+  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
+
+# Calculate days_since_lookback, days_to_lookahead, and other lookback info
+# First, determine days_to_lookahead
+dt <- enrollment_categories %>%
+  setkey(PersonalID, EntryDate, ExitAdjust) %>%
+  fmutate(
+    days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
+  )
+  
+# I don't understand why/how this non-equi self-join works.
+# In theory, since this is a right-join, for each EntryDate, we're pulling in the 
+# latest record whose ExitAdjust is still before the EntryDate, i.e. the (valid) lookback,
+# then we pull in that lookback's info.
+# It's just surprising which columns are the relevant ones. If you were to look at
+# the dataset before the fmutate, EntryDate and ExitAdjust don't make sense.
+# Ideally we'd create the new variables all in the same right-join, rather than
+# joining back to the full dt later, but this just doesn't yield the desired results.
+lookback_info <- dt[ 
+  dt[, .(PersonalID, EnrollmentID, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
+  on = .(PersonalID, ExitAdjust <= EntryDate),
+  mult = "last"
+] %>% 
+fsummarize(
+  PersonalID = PersonalID,
+  EnrollmentID = i.EnrollmentID,
+  days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
+  lookback_enrollment_id = EnrollmentID,
+  lookback_dest_perm = Destination %in% perm_livingsituation,
+  lookback_movein = MoveInDateAdjust,
+  lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
 )
 
-# Save a final version of the enrollment dataset
-session$userData$enrollment_categories <- enrollment_categories %>%
-  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs) %>%
-  roworder(PersonalID, EntryDate, ExitAdjust) %>%
-  fgroup_by(PersonalID) %>%
-  fmutate(
-    # days_since_lookback = as.integer(difftime(EntryDate, L(ExitAdjust), units="days")),
-    days_since_lookback = {
-      # Get cumulative maximum of previous ExitAdjust dates
-      prev_exits <- flag(ExitAdjust)
-      valid_exits <- fifelse(prev_exits <= EntryDate, prev_exits, NA)
-      as.integer(difftime(EntryDate, valid_exits, units="days"))
-    },
-    # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
-    # then it was clearly not a system exit
-    days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
-  ) %>%
-  fungroup()
+session$userData$enrollment_categories <- join(
+  dt,
+  lookback_info,
+  on = c("PersonalID", "EnrollmentID")
+)
+rm(dt)
 
 # Prepare a dataset of non_res enrollments and corresponding LH info
 # will be used to categorize non-res enrollments/people as active_at_start, 
@@ -448,8 +474,21 @@ session$userData$lh_non_res <- join(
   on = "EnrollmentID",
   how = "left",
   column = TRUE
-)
-
+) %>% 
+  fgroup_by(EnrollmentID) %>%
+  fmutate(
+    last_lh_info_date = fmax(
+      pmax(
+        InformationDate, 
+        fifelse(
+          ProjectType == out_project_type | lh_prior_livingsituation, 
+          EntryDate, 
+          NA
+        )
+      ) 
+    )
+  ) %>%
+  fungroup()
 
 # Do something similar for ES NbNs and Services
 es_nbn_enrollments <- fsubset(session$userData$enrollment_categories, ProjectType == es_nbn_project_type) %>% 
@@ -458,18 +497,19 @@ es_nbn_enrollments <- fsubset(session$userData$enrollment_categories, ProjectTyp
           days_to_lookahead)
 
 
-session$userData$lh_nbn <- Services %>%
-  fselect(EnrollmentID, DateProvided) %>%
-  join(
-    es_nbn_enrollments,
-    on="EnrollmentID",
-    how = "inner"
-  )
-
-
-  
-
-if(in_dev_mode) enrollment_categories_all <<- enrollment_categories
+session$userData$lh_nbn <- join(
+  es_nbn_enrollments,
+  Services %>% fselect(EnrollmentID, DateProvided),
+  on="EnrollmentID",
+  how = "left"
+) %>% 
+  fgroup_by(EnrollmentID) %>%
+  fmutate(
+    last_lh_info_date = fmax(
+      pmax(DateProvided, EntryDate)
+    )
+  ) %>%
+  fungroup()
 
 rm(es_nbn_enrollments, non_res_enrollments)
 
