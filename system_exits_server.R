@@ -254,6 +254,18 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
                        )
 })
 
+
+# System Exit Comparisons  ------------------------------------------------
+
+get_syse_compare_subpop_data <- reactive({
+  ## create placeholder data for chart and table creation
+  tribble(~subpop_summ,~Permanent,~Homeless,~Institutional,~Temporary,~"Other/Unknown",
+         "Subpopulation", 0.15, 0.31, 0.04, 0.10, 0.40,
+         "Everyone Else", 0.25, 0.17, 0.11, 0.14, 0.33,
+         "Percent Difference", -0.1, 0.14, -0.07, -0.04, 0.07
+  )
+
+})
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
   
 })
