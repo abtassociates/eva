@@ -15,7 +15,7 @@ session$userData$meta_HUDCSV_Export_Date <- session$userData$Export$ExportDate
 # other than that, then we want to get the first day of the month and go back 
 # a day so that it cuts off on the last day of the month previous to the raw
 # ExportEndDate
-session$userData$ReportEnd <- if_else(
+session$userData$ReportEnd <- fifelse(
   floor_date(session$userData$meta_HUDCSV_Export_End %m+% months(1), unit = "month") - days(1) ==
     session$userData$meta_HUDCSV_Export_End,
   session$userData$meta_HUDCSV_Export_End,
@@ -23,7 +23,7 @@ session$userData$ReportEnd <- if_else(
 
 session$userData$ReportStart <- session$userData$ReportEnd - years(1) + days(1)
 
-ExportStartAdjusted <- if_else(
+ExportStartAdjusted <- fifelse(
   day(session$userData$meta_HUDCSV_Export_Start) == 1,
   session$userData$meta_HUDCSV_Export_Start,
   floor_date(session$userData$meta_HUDCSV_Export_Start %m+% months(1), unit = "month"))

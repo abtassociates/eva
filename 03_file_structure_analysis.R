@@ -8,30 +8,31 @@ logToConsole(session, "Running file structure analysis")
 
 # Prep --------------------------------------------------------------------
 
-export_id_from_export <- session$userData$Export %>% pull(ExportID)
+export_id_from_export <- session$userData$Export$ExportID
 
 high_priority_columns <- cols_and_data_types %>%
-  filter(DataTypeHighPriority == 1) %>%
+  fsubset(DataTypeHighPriority == 1) %>%
   pull(Column) %>%
-  unique()
+  funique()
 
 # Brackets --------------------------------------------------------------
-files_with_brackets <- data.frame()
+files_with_brackets <- data.table()
 for(file in unique(cols_and_data_types$File)) {
   m <- get(file)  # Load dataset
   char_cols <- which(sapply(m, is.character))
   if (length(char_cols) == 0) next
   
-  m_mat <- as.matrix(m[, char_cols, drop = FALSE])  # Convert relevant columns to matrix
+  m_mat <- as.matrix(m[, ..char_cols, drop = FALSE])  # Convert relevant columns to matrix
+
   if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
-    files_with_brackets <- data.frame(
+    files_with_brackets <- data.table(
       File = file,
       Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
                 See Impermissible Character Detail export for the precise location 
                 of these characters.")
     ) %>%
-      merge_check_info(checkIDs = 134) %>%
-      select(all_of(issue_display_cols))
+      merge_check_info_dt(checkIDs = 134) %>%
+      fselect(issue_display_cols)
     break
   }
 }
@@ -42,25 +43,25 @@ check_columns <- function(file) {
   ImportedColumns <- colnames(get(file))
   
   CorrectColumns <- cols_and_data_types %>%
-      filter(File == {{file}}) %>%
+      fsubset(File == {{file}}) %>%
       pull(Column)
   
   extra_columns <- setdiff(ImportedColumns, CorrectColumns)
   missing_columns <- setdiff(CorrectColumns, ImportedColumns)
   
   if(length(extra_columns) || length(missing_columns)) {
-    col_diffs <- data.frame(
+    col_diffs <- data.table(
       ColumnName = c(missing_columns, extra_columns),
       Status = c(rep("Missing", length(missing_columns)),
                  rep("Extra", length(extra_columns)))
     ) %>%
-    arrange(ColumnName) %>%
-    mutate(
+    roworder(ColumnName) %>% 
+    fmutate(
       Detail = str_squish(paste(
         "In the",
         file,
         "file,",
-        if_else(
+        fifelse(
           Status == "Extra",
           paste(ColumnName, "is an extra column"),
           paste("the", ColumnName, "column is missing")
@@ -69,42 +70,39 @@ check_columns <- function(file) {
     )
     
     col_diffs_hp <- col_diffs %>%
-      filter(ColumnName %in% c(high_priority_columns)) %>%
-      merge_check_info(checkIDs = 12) %>%
-      select(all_of(issue_display_cols)) %>%
-      unique()
-
+      fsubset(ColumnName %in% c(high_priority_columns)) %>%
+      merge_check_info_dt(checkIDs = 12) %>%
+      fselect(issue_display_cols) %>%
+      funique()
 
     col_diffs_error <- col_diffs %>%
-      filter(!(ColumnName %in% c(high_priority_columns))) %>%
-      merge_check_info(checkIDs = 82) %>%
-      select(all_of(issue_display_cols)) %>%
-      unique()
+      fsubset(!(ColumnName %in% c(high_priority_columns))) %>%
+      merge_check_info_dt(checkIDs = 82) %>%
+      fselect(issue_display_cols) %>%
+      funique()
 
     return(
-      rbind(col_diffs_hp, col_diffs_error)
+      rowbind(col_diffs_hp, col_diffs_error)
     )
   }
 }
-df_column_diffs <- map_df(unique(cols_and_data_types$File), check_columns)
+df_column_diffs <- rbindlist(lapply(unique(cols_and_data_types$File), check_columns))
 
 # Unexpected data types -----------------------------------------------------
 # includes date and non-date
 unexpected_data_types <- function(file) {
   data <- get(file)
   cols_and_data_types %>% 
-    filter(File == file, Column %in% colnames(data)) %>%
-    rowwise() %>%
-    mutate(actual_type = class(data[[Column]])[1]) %>%
-    ungroup() %>%
-    filter(
-      DataType != case_when(
-        actual_type == "POSIXct" ~ "datetime",
-        actual_type == "Date" ~ "date",
-        TRUE ~ actual_type
+    fsubset((File == file) & (Column %in% colnames(data))) %>%
+    fmutate(actual_type = sapply(Column, function(col) class(data[[col]])[1])) %>%
+    fsubset(
+      DataType != fcase(
+        actual_type == "POSIXct", "datetime",
+        actual_type == "Date", "date",
+        default = actual_type
       )
     ) %>%
-    mutate(
+    fmutate(
       example_row = {
         # Only relevant if we expect numeric/integer but got character
         if (isTruthy(DataType == "numeric") && isTruthy(actual_type == "character")) {
@@ -117,7 +115,7 @@ unexpected_data_types <- function(file) {
         } else NA_integer_
       },
       
-      Detail = if_else(
+      Detail = fifelse(
         !(DataType %in% c("date", "datetime")),
         glue("In the {file} file, the {Column} column should have a data type of {case_when(
           DataType == 'numeric' ~ 'integer',
@@ -129,32 +127,32 @@ unexpected_data_types <- function(file) {
         )}. See, for example, row {example_row}"),
         glue("Please check that the {Column} column in the {file} file has the correct {DataType} format.")
       ),
-      checkID = if_else(
+      checkID = fifelse(
         DataTypeHighPriority == 1, 
-        if_else(DataType %in% c("date", "datetime"), 11, 13),
-        if_else(DataType %in% c("date", "datetime"), 47, 48)
+        fifelse(DataType %in% c("date", "datetime"), 11, 13),
+        fifelse(DataType %in% c("date", "datetime"), 47, 48)
       )
     ) %>%
-    inner_join(evachecks, join_by(checkID == ID)) %>%
-    select(all_of(issue_display_cols))
+    merge_check_info_dt(checkIDs = funique(.$checkID)) %>%
+    fselect(issue_display_cols)
 }
-df_unexpected_data_types <- map_df(unique(cols_and_data_types$File), unexpected_data_types)
+df_unexpected_data_types <- rbindlist(lapply(unique(cols_and_data_types$File), unexpected_data_types))
 
 check_for_bad_nulls <- function(file) {
   barefile <- get(file)
-  if (nrow(barefile) > 1) {
+  if (fnrow(barefile) > 1) {
     # select nulls-not-allowed columns
     nulls_not_allowed_cols <- cols_and_data_types %>%
-      filter(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
+      fsubset(File == file & NullsAllowed == 0 & Column %in% names(get(file))) %>%
       pull(Column)
 
     # select subset of columns with nulls
     barefile <- barefile %>%
-      select(all_of(nulls_not_allowed_cols)) %>%
+      fselect(nulls_not_allowed_cols) %>%
       mutate_all(~ifelse(is.na(.), 1, 0)) %>%
       select_if(~any(. == 1))
 
-    if(ncol(barefile) > 0) {
+    if(fncol(barefile) > 0) {
       barefile %>%
         mutate(row_id = row_number()) %>%
         pivot_longer(
@@ -171,29 +169,29 @@ check_for_bad_nulls <- function(file) {
         )) %>%
         ungroup() %>%
         distinct(Column, row_ids) %>%
-        select(Column, row_ids) %>% 
-        left_join(cols_and_data_types %>% 
-                    select(Column, DataTypeHighPriority),
-                  by = "Column") %>%
-        merge_check_info(checkIDs = 6) %>%
-        mutate(
-          Type = if_else(DataTypeHighPriority == 1, "High Priority", "Error"),
+        fselect(Column, row_ids) %>% 
+        join(cols_and_data_types %>% 
+                    fselect(Column, DataTypeHighPriority),
+                  on = "Column", how = 'left') %>%
+        merge_check_info_dt(checkIDs = 6) %>%
+        fmutate(
+          Type = fifelse(DataTypeHighPriority == 1, "High Priority", "Error"),
           Detail = str_squish(glue("The {Column} column in the {file} file contains nulls
                         or incorrect data types. {row_ids}"))
         ) %>%
-        select(all_of(issue_display_cols)) %>%
-        unique()
+        fselect(issue_display_cols) %>%
+        funique()
     }
   }
 }
-df_nulls <- map_df(unique(cols_and_data_types$File), check_for_bad_nulls)
+df_nulls <- rbindlist(lapply(unique(cols_and_data_types$File), check_for_bad_nulls))
 
 # Integrity Client --------------------------------------------------------
 # CHECK: export ID differs
 export_id_client <- Client %>%
-  filter(as.character(ExportID) != export_id_from_export) %>%
-  merge_check_info(checkIDs = 49) %>%
-  mutate(
+  fsubset(as.character(ExportID) != export_id_from_export) %>%
+  merge_check_info_dt(checkIDs = 49) %>%
+  fmutate(
     Detail = str_squish(paste(
       "The Export file says the ExportID is",
       export_id_from_export,
@@ -201,8 +199,8 @@ export_id_client <- Client %>%
       ExportID
     ))
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 # CHECK: Invalid demographic values
 # first, get a mapping of variables and their expected values
@@ -225,41 +223,42 @@ valid_values_named <- setNames(valid_values, cols)[existing_cols]
 # The ~ defines an anonymous function, as opposed to creating a specific function
 get_unexpected_count <- function(col_name) {
   unexpected <- !Client[[col_name]] %in% valid_values_named[[col_name]]
-  data.frame(name = col_name, n = sum(unexpected))
+  data.table(name = col_name, n = sum(unexpected))
 }
 
 valid_values_client <- existing_cols %>%
-  map_df(get_unexpected_count) %>%
-  filter(n > 0) %>%
-  merge_check_info(checkIDs = 50) %>%
-  mutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
-  select(all_of(issue_display_cols))
+  lapply(., get_unexpected_count) %>%
+  rbindlist() %>%
+  fsubset(n > 0) %>%
+  merge_check_info_dt(checkIDs = 50) %>%
+  fmutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
+  fselect(issue_display_cols)
 
 # CHECK: duplicate client ID
 duplicate_client_id <- Client %>%
   fcount(PersonalID) %>%
   fsubset(N > 1) %>%
-  merge_check_info(checkIDs = 7) %>%
-  mutate(
+  merge_check_info_dt(checkIDs = 7) %>%
+  fmutate(
     Detail = paste("There are", N, "duplicates for PersonalID", PersonalID)
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 # Integrity Enrollment ----------------------------------------------------
 if (nrow(Enrollment) == 0) {
-  no_enrollment_records <- data.frame(
+  no_enrollment_records <- data.table(
     Detail = "There are 0 enrollment records in the Enrollment.csv file"
   ) %>%
-  merge_check_info(checkIDs = 101)
+  merge_check_info_dt(checkIDs = 101)
 } else {
-  no_enrollment_records <- data.frame()
+  no_enrollment_records <- data.table()
 }
 
 duplicate_enrollment_id <- Enrollment %>%
   fcount(EnrollmentID) %>%
   fsubset(N > 1) %>% 
-  merge_check_info(checkIDs = 8) %>%
+  merge_check_info_dt(checkIDs = 8) %>%
   fmutate(
     Detail = str_squish(
       paste0(
@@ -270,42 +269,44 @@ duplicate_enrollment_id <- Enrollment %>%
         "."
       )
     )
-  )
+  ) %>%
+  fselect(issue_display_cols) %>%
+  funique()
 
-personal_ids_in_client <- Client %>% pull(PersonalID)
+personal_ids_in_client <- Client$PersonalID
 
 foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
-  filter(!PersonalID %in% c(personal_ids_in_client)) %>%
-  merge_check_info(checkIDs = 9) %>%
-  mutate(
+  fsubset(!PersonalID %in% c(personal_ids_in_client)) %>%
+  merge_check_info_dt(checkIDs = 9) %>%
+  fmutate(
     Detail = str_squish(paste(
       "PersonalID",
       PersonalID,
       "is in the Enrollment file but not in the Client file."
     ))
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
-projectids_in_project <- Project %>% pull(ProjectID)
+projectids_in_project <- Project$ProjectID
 
 foreign_key_no_primary_projectid_enrollment <- Enrollment %>%
-  filter(!ProjectID %in% c(projectids_in_project)) %>%
-  merge_check_info(checkIDs = 10) %>%
-  mutate(
+  fsubset(!ProjectID %in% c(projectids_in_project)) %>%
+  merge_check_info_dt(checkIDs = 10) %>%
+  fmutate(
     Detail = str_squish(paste(
       "ProjectID",
       ProjectID,
       "is in the Enrollment file but not in the Project file."
     ))
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 disabling_condition_invalid <- Enrollment %>%
-  filter(!DisablingCondition %in% c(yes_no_enhanced)) %>%
-  merge_check_info(checkIDs = 51) %>%
-  mutate(
+  fsubset(!DisablingCondition %in% c(yes_no_enhanced)) %>%
+  merge_check_info_dt(checkIDs = 51) %>%
+  fmutate(
     Detail = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
@@ -314,14 +315,14 @@ disabling_condition_invalid <- Enrollment %>%
       "which is an invalid value."
     ))
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 living_situation_invalid <- Enrollment %>%
-  filter(!is.na(LivingSituation) &
+  fsubset(!is.na(LivingSituation) &
     !LivingSituation %in% c(allowed_prior_living_sit)) %>%
-  merge_check_info(checkIDs = 52) %>%
-  mutate(
+  merge_check_info_dt(checkIDs = 52) %>%
+  fmutate(
     Detail = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
@@ -330,13 +331,13 @@ living_situation_invalid <- Enrollment %>%
       "which is not a valid value."
     ))
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 rel_to_hoh_invalid <- Enrollment %>%
-  filter(!RelationshipToHoH %in% c(1:5, 99) & !is.na(RelationshipToHoH)) %>%
-  merge_check_info(checkIDs = 53) %>%
-  mutate(
+  fsubset(!RelationshipToHoH %in% c(1:5, 99) & !is.na(RelationshipToHoH)) %>%
+  merge_check_info_dt(checkIDs = 53) %>%
+  fmutate(
     Detail = str_squish(paste(
       "Enrollment ID",
       EnrollmentID,
@@ -345,8 +346,8 @@ rel_to_hoh_invalid <- Enrollment %>%
       "which is invalid value."
     ))
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 # Count (unique) HouseholdIDs within a Project
 duplicate_household_id <- Enrollment %>%
@@ -354,42 +355,42 @@ duplicate_household_id <- Enrollment %>%
   funique() %>%
   fcount(HouseholdID) %>%
   fsubset(N > 1 & !is.na(HouseholdID)) %>%
-  merge_check_info(checkIDs = 98) %>%
-  mutate(
+  merge_check_info_dt(checkIDs = 98) %>%
+  fmutate(
     Detail = paste("HouseholdID", 
                    HouseholdID,
                    "is reused across",
                    N,
                    "Enrollments into different projects.")
   ) %>%
-  select(all_of(issue_display_cols)) %>%
-  unique()
+  fselect(issue_display_cols) %>%
+  funique()
 
 # Integrity Living Situation ----------------------------------------------
 
 nonstandard_destination <- Exit %>%
-  filter(!is.na(Destination) &
+  fsubset(!is.na(Destination) &
            !Destination %in% c(allowed_destinations)) %>%
-  merge_check_info(checkIDs = 54) %>%
-  mutate(
+  merge_check_info_dt(checkIDs = 54) %>%
+  fmutate(
     Detail = str_squish(paste("EnrollmentID",
                      EnrollmentID,
                      "has a Destination value of",
                      Destination,
                      "which is not a valid Destination response."))) %>%
-  select(all_of(issue_display_cols))
+  fselect(issue_display_cols)
 
 nonstandard_CLS <- CurrentLivingSituation %>%
-  filter(!is.na(CurrentLivingSituation) &
+  fsubset(!is.na(CurrentLivingSituation) &
     !CurrentLivingSituation %in% c(allowed_current_living_sit)) %>%
-  merge_check_info(checkIDs = 55) %>%
-  mutate(
+  merge_check_info_dt(checkIDs = 55) %>%
+  fmutate(
     Detail = str_squish(paste("EnrollmentID",
                      EnrollmentID,
                      "has a Current Living Situation value of",
                      CurrentLivingSituation,
                      "which is not a valid response."))) %>%
-  select(all_of(issue_display_cols))
+  fselect(issue_display_cols)
 
 session$userData$file_structure_analysis_main(rbind(
   df_column_diffs,
@@ -408,14 +409,15 @@ session$userData$file_structure_analysis_main(rbind(
   nonstandard_destination,
   rel_to_hoh_invalid,
   valid_values_client,
-  files_with_brackets
+  files_with_brackets,
+  ignore.attr=TRUE
   ) %>%
-  mutate(Type = factor(Type, levels = issue_levels)) %>%
-  arrange(Type)
+  fmutate(Type = factor(Type, levels = issue_levels)) %>%
+  roworder(Type)
 )
 
 if(session$userData$file_structure_analysis_main() %>% 
-   filter(Type == "High Priority") %>%
+   fsubset(Type == "High Priority") %>%
    nrow() > 0) {
   session$userData$valid_file(0)
   

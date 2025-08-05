@@ -1,13 +1,15 @@
 logToConsole(session, "Running system overview")
 
 # Age ---------------------------------------------------------------------
-EnrollmentAdjustAge <- setDT(EnrollmentAdjust)[
-  , AgeAtEntry := fifelse(is.na(AgeAtEntry), -1, AgeAtEntry)
-]
+EnrollmentAdjustAge <- qDT(EnrollmentAdjust) %>% 
+  fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1, AgeAtEntry))
 
-system_person_ages <- EnrollmentAdjustAge[
-    , .(AgeAtEntry = max(AgeAtEntry, na.rm = TRUE)), by = PersonalID
-  ][, AgeCategory := factor(fcase(
+system_person_ages <- EnrollmentAdjustAge %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(AgeAtEntry = fmax(AgeAtEntry, na.rm = TRUE)) %>%
+  fungroup() %>%
+  fmutate(
+    AgeCategory = factor(fcase(
       AgeAtEntry < 0, "Unknown",
       between(AgeAtEntry, 0, 12), "0 to 12",
       between(AgeAtEntry, 13, 17), "13 to 17",
@@ -20,25 +22,25 @@ system_person_ages <- EnrollmentAdjustAge[
       between(AgeAtEntry, 65, 74), "65 to 74",
       AgeAtEntry >= 75, "75 and older",
       default = "Unknown"),
-    levels = c(
-      "0 to 12",
-      "13 to 17",
-      "18 to 21",
-      "22 to 24",
-      "25 to 34",
-      "35 to 44",
-      "45 to 54",
-      "55 to 64",
-      "65 to 74",
-      "75 and older",
-      "Unknown"
-    ))
-  ][, .(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)]
+      levels = c(
+        "0 to 12",
+        "13 to 17",
+        "18 to 21",
+        "22 to 24",
+        "25 to 34",
+        "35 to 44",
+        "45 to 54",
+        "55 to 64",
+        "65 to 74",
+        "75 and older",
+        "Unknown"
+      ))
+  ) %>%
+  fselect(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)
 
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
-
 session$userData$client_categories <- qDT(Client) %>%
   join(system_person_ages, on = "PersonalID") %>%
   fselect(c(
@@ -247,7 +249,7 @@ session$userData$client_categories <- qDT(Client) %>%
     # Method2 logic group 2
     BlackAfAmericanLatineMethod2Summarized =
       fifelse(BlackAfAmerican == 1 & HispanicLatinaeo == 1, 1, 0),
-    LatineMethod2Summarized = if_else(HispanicLatinaeo == 1, 1, 0),
+    LatineMethod2Summarized = fifelse(HispanicLatinaeo == 1, 1, 0),
     LatineAloneMethod2Summarized = fifelse(
       HispanicLatinaeo == 1 &
         AmIndAKNative +
@@ -287,17 +289,19 @@ enrollment_prep <- EnrollmentAdjustAge %>%
          TimesHomelessPastThreeYears,
          MonthsHomelessPastThreeYears,
          DisablingCondition
-  ) %>%
-  join(
-    qDT(Project)[, .(ProjectID, ProjectName, OrganizationID, RRHSubType, ContinuumProject)],
-    on = "ProjectID"
-  ) %>%
-  join(
-    Organization %>%
-      fselect(OrganizationID, OrganizationName) %>%
-      funique(),
-    on = "OrganizationID"
-  ) %>%
+         ) %>%
+  join(Project %>% 
+              fselect(ProjectID,
+                     ProjectName,
+                     OrganizationID,
+                     RRHSubType,
+                     ContinuumProject),
+            on = 'ProjectID', how = 'left') %>%
+  join(Organization %>%
+              fselect(OrganizationID, OrganizationName) %>%
+              funique(),
+            on = "OrganizationID", how = 'left') %>%
+
   # left_join(HealthAndDV %>%
   #             filter(DataCollectionStage == 1) %>%
   #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
@@ -305,6 +309,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   join(system_person_ages, on = "PersonalID") %>%
   fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
+
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
 # enrollment_prep %>%
@@ -315,8 +320,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
 # corrected hohs ----------------------------------------------------------
 
 # preps household data to match the way we need the app to 
-
-hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
+hh_adjustments <- enrollment_prep[, `:=`(
   HoHAlready = fifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
 )][order(-HoHAlready, -AgeAtEntry, PersonalID), 
    CorrectedHoH := fifelse(seq_len(.N) == 1, 1, 0),
@@ -339,8 +343,9 @@ hh_adjustments <- as.data.table(enrollment_prep)[, `:=`(
 
 # adding corrected hoh ----------------------------------------------------
 enrollment_prep_hohs <- enrollment_prep %>%
-  left_join(hh_adjustments, join_by(EnrollmentID)) %>%
-  relocate(CorrectedHoH, .after = RelationshipToHoH)
+  join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
+  colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
+
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
 
@@ -350,7 +355,8 @@ rm(hh_adjustments)
 # which are then used to select the EECR/LECR
 # throws out HP and enrollments outside Report window and 2 years prior
 # limits to only necessary columns
-enrollment_categories <- qDT(enrollment_prep_hohs) %>%
+
+enrollment_categories <- enrollment_prep_hohs %>% 
   fsubset(
     ProjectType != hp_project_type & 
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
@@ -371,47 +377,46 @@ enrollment_categories <- qDT(enrollment_prep_hohs) %>%
             !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
          )
       )
-  ) %>%
-  fselect(
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    ExitAdjust,
-    ProjectType,
-    MostRecentAgeAtEntry,
-    LivingSituation,
-    lh_prior_livingsituation,
-    LOSUnderThreshold,
-    PreviousStreetESSH,
-    Destination,
-    AgeAtEntry,
-    CorrectedHoH,
-    # DomesticViolenceCategory,
-    HouseholdType,
-    ProjectTypeWeight
-  ) %>%
+  ) %>% 
+  fselect(EnrollmentID,
+          PersonalID,
+          HouseholdID,
+          EntryDate,
+          MoveInDateAdjust,
+          ExitDate,
+          ExitAdjust,
+          ProjectType,
+          MostRecentAgeAtEntry,
+          LivingSituation,
+          lh_prior_livingsituation,
+          LOSUnderThreshold,
+          PreviousStreetESSH,
+          Destination,
+          AgeAtEntry,
+          CorrectedHoH,
+          # DomesticViolenceCategory,
+          HouseholdType,
+          ProjectTypeWeight) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
 # Get dataset of literally homeless CLS records. This will be used to:
 # 1. remove problematic enrollments
 # 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
 # and unknown_at_end
-lh_cls <- qDT(CurrentLivingSituation) %>%
+
+lh_cls <- CurrentLivingSituation %>%
   fselect(EnrollmentID, InformationDate, CurrentLivingSituation) %>%
   fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH)
 
 # Remove "problematic" enrollments ----------------------------------
 # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
 # So any enrollment that is not lh_prior_livingsituation and has no LH CLS
-problematic_nonres_enrollmentIDs <- base::setdiff(
-  enrollment_categories[
-    ProjectType %in% non_res_nonlh_project_types & lh_prior_livingsituation == FALSE
-  ]$EnrollmentID,
-  unique(lh_cls$EnrollmentID)
-)
+problematic_nonres_enrollmentIDs2 <- base::setdiff(
+  (enrollment_categories %>% 
+     fsubset(ProjectType %in% non_res_nonlh_project_types & !lh_prior_livingsituation)
+  )$EnrollmentID,
+  unique(lh_cls$EnrollmentID))
+
 enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
 
@@ -456,12 +461,12 @@ rm(dt)
 # Prepare a dataset of non_res enrollments and corresponding LH info
 # will be used to categorize non-res enrollments/people as active_at_start, 
 # homeless_at_end, and unknown_at_end
-non_res_enrollments <- session$userData$enrollment_categories[
-  ProjectType %in% non_res_project_types, 
-  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
-    days_since_lookback,
-    days_to_lookahead)
-]
+non_res_enrollments <- session$userData$enrollment_categories %>% 
+  fsubset(ProjectType %in% non_res_project_types) %>% 
+  fselect(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
+          days_since_lookback,
+          days_to_lookahead)
+
 
 session$userData$lh_non_res <- join(
   non_res_enrollments,
@@ -486,12 +491,11 @@ session$userData$lh_non_res <- join(
   fungroup()
 
 # Do something similar for ES NbNs and Services
-es_nbn_enrollments <- session$userData$enrollment_categories[
-  ProjectType == es_nbn_project_type, 
-  .(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
-    days_since_lookback,
-    days_to_lookahead)
-]
+es_nbn_enrollments <- fsubset(session$userData$enrollment_categories, ProjectType == es_nbn_project_type) %>% 
+  fselect(EnrollmentID,EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
+          days_since_lookback, 
+          days_to_lookahead)
+
 
 session$userData$lh_nbn <- join(
   es_nbn_enrollments,

@@ -375,7 +375,7 @@ period_specific_data <- reactive({
 
   # Split into months and full-period datasets
   list(
-    Full = universe_w_ppl_flags[period == "Full"],
+    Full = fsubset(universe_w_ppl_flags,period == "Full"),
     Months = universe_w_ppl_flags %>%
       fsubset(period != "Full") %>%
       fmutate(month = factor(
@@ -405,19 +405,19 @@ period_specific_data <- reactive({
 client_categories_filtered <- reactive({
   logToConsole(session, "In client_categories_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  req(nrow(session$userData$client_categories) > 0)
+  req(fnrow(session$userData$client_categories) > 0)
+ 
+  fsubset(session$userData$client_categories,
+                 AgeCategory %in% input$syso_age &
+                   (if(input$syso_race_ethnicity == "All") rep(TRUE, fnrow(session$userData$client_categories)) else get(input$syso_race_ethnicity) == 1) & 
+                   (
+                     input$syso_spec_pops == "None" |
+                       (input$syso_spec_pops == "Veteran" &
+                          VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
+                       (input$syso_spec_pops == "NonVeteran" &
+                          VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
+                   ))
   
-  session$userData$client_categories[
-    AgeCategory %in% input$syso_age &
-    (if(input$syso_race_ethnicity == "All") rep(TRUE, .N) else get(input$syso_race_ethnicity) == 1) & 
-    (
-      input$syso_spec_pops == "None" |
-      (input$syso_spec_pops == "Veteran" &
-         VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
-      (input$syso_spec_pops == "NonVeteran" &
-         VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
-    )
-  ]
 })
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
@@ -506,7 +506,7 @@ lh_non_res_period <- function() {
       last_lh_info_date)
     )
 
-  if(nrow(lh_non_res) == 0 ) {
+  if(fnrow(lh_non_res) == 0 ) {
     logToConsole(session, "no non-res lh records")
     return(lh_non_res)
   }
@@ -515,9 +515,9 @@ lh_non_res_period <- function() {
     # Group by EnrollmentID and calculate window flags
     fgroup_by(period, EnrollmentID) %>%
     fmutate(
-      lh_cls_in_start_window = anyv(lh_cls_in_start_window, TRUE),
-      lh_cls_in_end_window = anyv(lh_cls_in_end_window, TRUE),
-      lh_cls_during_period = anyv(lh_cls_during_period, TRUE)
+      lh_cls_in_start_window = any(lh_cls_in_start_window),#anyv(lh_cls_in_start_window, TRUE),
+      lh_cls_in_end_window = any(lh_cls_in_end_window),#anyv(lh_cls_in_end_window, TRUE),
+      lh_cls_during_period =any(lh_cls_during_period)#anyv(lh_cls_during_period, TRUE)
     ) %>%
     fungroup()
 }
@@ -554,7 +554,7 @@ lh_nbn_period <- function() {
       lh_entry_during_period
     )
   
-  if(nrow(lh_nbn) == 0) {
+  if(fnrow(lh_nbn) == 0) {
     logToConsole(session, "no NbN lh records")
     return(lh_nbn)
   }
@@ -562,11 +562,11 @@ lh_nbn_period <- function() {
   lh_nbn %>%
     fgroup_by(period, EnrollmentID) %>%
     fmutate(
-      nbn_in_start_window = anyv(nbn_in_start_window, TRUE),
-      nbn_in_end_window = anyv(nbn_in_end_window, TRUE),
+      nbn_in_start_window = any(nbn_in_start_window),#anyv(nbn_in_start_window, TRUE),
+      nbn_in_end_window = any(nbn_in_end_window),#anyv(nbn_in_end_window, TRUE),
       entry_in_start_window = entry_in_start_window,
       entry_in_end_window = entry_in_end_window,
-      nbn_during_period = anyv(nbn_during_period, TRUE)
+      nbn_during_period = any(nbn_during_period)#anyv(nbn_during_period, TRUE)
     ) %>%
     fungroup()
 }
@@ -626,7 +626,7 @@ expand_by_periods <- function(dt) {
 
 
 get_lh_non_res_esnbn_info <- function() {
-  lh_non_res_esnbn_info <- rbindlist(
+  lh_non_res_esnbn_info <- rowbind(
     list(
       lh_non_res_period(),
       lh_nbn_period()
@@ -828,9 +828,8 @@ get_eecr_and_lecr <- reactive({
     # to be used when calculating eecr/lecr in no-straddle cases
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      any_straddle_start = anyv(straddles_start, TRUE),
-      any_straddle_end = anyv(straddles_end, TRUE)
-      # all_straddle_ends_nonresnbn_not_lh_at_end = !anyv(straddle_ends_nonresnbn_not_lh_at_end, FALSE)
+      any_straddle_start = any(straddles_start),#anyv(straddles_start, TRUE),
+      any_straddle_end = any(straddles_end),#anyv(straddles_end, TRUE),
     ) %>%
     fungroup() %>%
     # flag the first and last straddling enrollments, 
@@ -918,8 +917,8 @@ get_eecr_and_lecr <- reactive({
     ) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      has_eecr = anyv(eecr, TRUE),
-      has_lecr = anyv(lecr, TRUE)
+      has_eecr = any(eecr, TRUE),
+      has_lecr = any(lecr, TRUE)
     ) %>%
     fungroup()
   

@@ -67,7 +67,7 @@ function(input, output, session) {
   output$headerClientCounts_supp <- renderUI({ 
     req(session$userData$valid_file() == 1)
     organization <- session$userData$Project0 %>%
-      filter(ProjectName == input$currentProviderList) %>%
+      fsubset(ProjectName == input$currentProviderList) %>%
       pull(OrganizationName)
     
     h4(organization, "|", input$currentProviderList)
