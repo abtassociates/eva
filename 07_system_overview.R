@@ -360,7 +360,7 @@ enrollment_categories <- qDT(enrollment_prep_hohs) %>%
       ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
       ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
       ProjectType %in% lh_residential_project_types, 60,
-      ProjectType %in% non_res_project_types & ProjectType != ce_project_type, 40,
+      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40,
       ProjectType == ce_project_type, 30,
       default = 20
     ),
@@ -412,32 +412,46 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
   ]$EnrollmentID,
   unique(lh_cls$EnrollmentID)
 )
+enrollment_categories <- enrollment_categories %>%
+  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
 
-# Calculate days_since_lookback, days_to_lookahead, and lookback_enrollment_id
+# Calculate days_since_lookback, days_to_lookahead, and other lookback info
+# First, determine days_to_lookahead
 dt <- enrollment_categories %>%
-  fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs) %>%
   setkey(PersonalID, EntryDate, ExitAdjust) %>%
-  fgroup_by(PersonalID) %>%
   fmutate(
-    days_to_lookahead = L(EntryDate, -1) - ExitAdjust
-  ) %>%
-  fungroup()
+    days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
+  )
+  
+# I don't understand why/how this non-equi self-join works.
+# In theory, since this is a right-join, for each EntryDate, we're pulling in the 
+# latest record whose ExitAdjust is still before the EntryDate, i.e. the (valid) lookback,
+# then we pull in that lookback's info.
+# It's just surprising which columns are the relevant ones. If you were to look at
+# the dataset before the fmutate, EntryDate and ExitAdjust don't make sense.
+# Ideally we'd create the new variables all in the same right-join, rather than
+# joining back to the full dt later, but this just doesn't yield the desired results.
+lookback_info <- dt[ 
+  dt[, .(PersonalID, EnrollmentID, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
+  on = .(PersonalID, ExitAdjust <= EntryDate),
+  mult = "last"
+] %>% 
+fsummarize(
+  PersonalID = PersonalID,
+  EnrollmentID = i.EnrollmentID,
+  days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
+  lookback_enrollment_id = EnrollmentID,
+  lookback_dest_perm = Destination %in% perm_livingsituation,
+  lookback_movein = MoveInDateAdjust,
+  lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
+)
 
-session$userData$enrollment_categories <- dt[dt, 
-   on = list(PersonalID, EntryDate >= ExitAdjust),
-   # mult = "last"]
-   mult = "last", # Key for performance: picks the last match, which is the most recent exit
-   `:=`( # Assign columns by reference
-     days_since_lookback = i.EntryDate - x.ExitAdjust,
-     lookback_enrollment_id = x.EnrollmentID,
-     lookback_dest_perm = x.Destination %in% perm_livingsituation,
-     lookback_movein = x.MoveInDateAdjust,
-     lookback_is_nonres_or_nbn = x.ProjectType %in% nbn_non_res
-   )
-]
-
-# PersonalID 408180, ICF-good
-browser()
+session$userData$enrollment_categories <- join(
+  dt,
+  lookback_info,
+  on = c("PersonalID", "EnrollmentID")
+)
+rm(dt)
 
 # Prepare a dataset of non_res enrollments and corresponding LH info
 # will be used to categorize non-res enrollments/people as active_at_start, 
