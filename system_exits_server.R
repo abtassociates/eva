@@ -267,6 +267,16 @@ get_syse_compare_subpop_data <- reactive({
 
 })
 
+get_syse_compare_time_data <- reactive({
+  ## create placeholder data for chart and table creation
+  tribble(~time_summ,~Permanent,~Homeless,~Institutional,~Temporary,~"Other/Unknown",
+          "Current Year", 0.17, 0.20, 0.08, 0.26, 0.29,
+          "Previous Year", 0.25, 0.17, 0.11, 0.14, 0.33,
+          "Percent Change", -0.08, 0.03, -0.03, 0.12, -0.04
+  )
+  
+})
+
 ## function to make System Exits comparison subpopulation chart
 syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   
