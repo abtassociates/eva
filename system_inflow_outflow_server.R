@@ -396,16 +396,16 @@ universe_ppl_flags <- function(universe_df) {
         ), levels = c(outflow_detail_levels, rev(active_at_levels))
       )
     )
-  
+# browser()
   # drop the last months that are Outflow Inactive (i.e. if no months after are non-Inactive)
   universe_w_ppl_flags <- universe_w_ppl_flags %>%
     fgroup_by(PersonalID) %>%
     fmutate(
       max_non_inactive_period = fmax(fifelse(OutflowTypeDetail != "Inactive", startDate, NA)),
-      full_period_inactive = anyv(period == "Full" & OutflowTypeDetail == "Inactive", TRUE)
+      full_period_inactive_outflow = anyv(period == "Full" & OutflowTypeDetail == "Inactive", TRUE)
     ) %>%
     fungroup() %>%
-    fsubset(period == "Full" | (startDate <= max_non_inactive_period & !full_period_inactive)) %>%
+    fsubset(period == "Full" | full_period_inactive_outflow | (startDate <= max_non_inactive_period)) %>%
     fselect(-max_non_inactive_period, -startDate, -endDate)
 
   if(!in_dev_mode) {
