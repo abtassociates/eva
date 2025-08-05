@@ -1032,6 +1032,10 @@ nav_menu(
                 title = "Time Chart",
                 uiOutput("syse_compare_time_filter_selections") %>%
                   withSpinner(),
+                plotOutput("syse_compare_time_chart",
+                           width = "80%",
+                           height = "500"
+                ) %>% withSpinner(),
                 DTOutput("syse_compare_time_table") %>%
                   withSpinner()
               ),

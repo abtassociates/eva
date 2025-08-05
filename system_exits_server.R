@@ -380,6 +380,48 @@ output$syse_compare_subpop_table <- renderDT({
   )
 })
 
+
+## function to make System Exits comparison subpopulation chart
+syse_compare_time_chart <- function( isExport = FALSE){
+  
+  time_colors <- c(
+    "Current Year" = "#72B4CD",
+    "Previous Year" = "#16697A"
+  )
+  
+  ## long format needed for plotting points
+  time_chart_df <- get_syse_compare_time_data() %>% 
+    filter(time_summ != "Percent Change") %>% 
+    pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'time_pct') %>% 
+    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) )
+  
+  ## wide format needed for plotting arrows between points
+  time_segment_df <- time_chart_df %>% 
+    pivot_wider(names_from = 'time_summ', values_from = 'time_pct')
+  
+  ggplot(time_chart_df, aes(x = dest_type, y = time_pct, color = time_summ)) +
+    geom_point(size = 5) +
+    geom_segment(data=time_segment_df,
+                 aes(x = dest_type, xend = dest_type, y = `Previous Year`, yend = `Current Year`),
+                 arrow = arrow(length = unit(0.125, "inches")), color = '#948A84') +
+    scale_color_manual(values=time_colors,guide =  guide_legend(ncol = 2)) +
+    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
+    scale_x_discrete(expand = expansion(mult = 0.03, add = 0)) +
+    labs(x = '', y = '') +
+    theme_minimal() +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_rect(fill=NA, colour = 'black'),
+      legend.title = element_blank(),
+      legend.justification = 'left',
+      legend.position = 'top',
+      legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
+      axis.text.y = element_text(size = sys_axis_text_font),
+      axis.text.x = element_blank()
+    )
+}
+
 ## function for System Exits Comparison subpopulation table (below chart)
 get_syse_compare_time_table <- function(tab){
   
@@ -430,12 +472,18 @@ get_syse_compare_time_table <- function(tab){
   
   
 }
+
+output$syse_compare_time_chart <- renderPlot({
+  syse_compare_time_chart()
+})
+
 output$syse_compare_time_table <- renderDT({
   
   get_syse_compare_time_table(
     get_syse_compare_time_data()
   )
 })
+
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
   
 })
