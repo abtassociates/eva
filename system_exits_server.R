@@ -257,6 +257,26 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
 
 # System Exit Comparisons  ------------------------------------------------
 
+subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE) {
+  logToConsole(session, "In subpop_chart_validation")
+ 
+  cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(syse_age_cats)
+  
+  ## whether to show validate message or not
+  if(show){
+    validate(
+      need(
+        cond,#"All Ages",
+        message = "Please select one or more demographic filters to generate the subpopulation chart and table."
+      )
+    )
+  } else {
+    ## otherwise, just hide but do not show a duplicate validate message
+    req(cond)
+  }
+ 
+}
+
 get_syse_compare_subpop_data <- reactive({
   ## create placeholder data for chart and table creation
   tribble(~subpop_summ,~Permanent,~Homeless,~Institutional,~Temporary,~"Other/Unknown",
@@ -370,11 +390,14 @@ get_syse_compare_subpop_table <- function(tab, subpop){
 }
 
 output$syse_compare_subpop_chart <- renderPlot({
+  ## check if filters have been changed from defaults before showing 
+  subpop_chart_validation(input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age)
   syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
 })
 
 output$syse_compare_subpop_table <- renderDT({
-  
+  ## check if filters have been changed from defaults before showing 
+  subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE)
   get_syse_compare_subpop_table(
     get_syse_compare_subpop_data()
   )
