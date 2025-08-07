@@ -768,8 +768,7 @@ get_eecr_and_lecr <- reactive({
         !was_lh_at_start & !was_lh_at_end & !was_lh_during_period &
         is.na(ExitDate),
       nbn_non_res_no_future_lh = ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
-        (is.na(last_lh_info_date) | last_lh_info_date <= endDate) &
-        is.na(ExitDate)
+        (is.na(last_lh_info_date) | last_lh_info_date <= endDate)
     ) %>%
     fungroup() %>%
     fgroup_by(period, PersonalID) %>%
