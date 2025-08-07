@@ -489,7 +489,7 @@ session$userData$lh_non_res <- join(
       pmax(InformationDate, lh_entry_date, na.rm=TRUE) 
     ),
     first_lh_info_date = fmin(
-      pmin(InformationDate, lh_entry_date, na.rm=TRUE) 
+      pmin(fifelse(InformationDate >= EntryDate, InformationDate, NA), lh_entry_date, na.rm=TRUE) 
     )
   ) %>%
   fungroup()
