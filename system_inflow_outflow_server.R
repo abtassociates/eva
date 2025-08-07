@@ -243,7 +243,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     # that's because there's a lookback or they were already categorized in a previous month
     first_time_homeless = eecr & 
       (days_since_lookback > 730 | is.na(days_since_lookback)) & 
-      # first_lh_info_date >= startDate &
+      first_lh_info_date >= startDate &
       EntryDate > session$userData$ReportStart,
     
     unknown_at_start = eecr & 
