@@ -817,16 +817,18 @@ get_eecr_and_lecr <- reactive({
   
   e <- potential_eecr_lecr %>%
     fmutate(
-      non_straddle_exit_dates = fifelse(!straddles_end, ExitAdjust, NA)
+      non_straddle_exit = fifelse(!straddles_end, ExitAdjust, NA),
+      non_straddle_entry = fifelse(!straddles_end, EntryDate, NA)
     ) %>%
-    setorder(PersonalID, period, EntryDate, ExitAdjust) %>%
-    fgroup_by(PersonalID, sort=FALSE) %>%
+    setorder(PersonalID, period, straddles_end, EntryDate, ExitAdjust) %>%
+    fgroup_by(PersonalID) %>%
     fmutate(
-      prev_non_straddle_exits = flag(na_locf(non_straddle_exit_dates))
+      max_non_straddle_exit = fmax(fifelse(non_straddle_exit <= endDate, non_straddle_exit, NA)),
+      max_non_straddle_entry = fmax(fifelse(non_straddle_entry <= endDate, non_straddle_entry, NA))
     ) %>%
     fungroup() %>%
     fmutate(
-      background_non_res_straddle = fcoalesce(straddles_end & nbn_non_res_no_future_lh & EntryDate < prev_non_straddle_exits, FALSE)
+      background_non_res_straddle_end = fcoalesce(straddles_end & nbn_non_res_no_future_lh & is.na(ExitDate) & last_lh_info_date < max_non_straddle_exit & max_non_straddle_entry <= endDate, FALSE)
     )
   
   e2 <- e %>%
