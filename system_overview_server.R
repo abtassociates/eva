@@ -765,7 +765,7 @@ get_eecr_and_lecr <- reactive({
       was_lh_during_full_period = anyv(period == "Full" & was_lh_during_period, TRUE),
       # Should the below include SO or not (i.e. use non_res_project_types or non_res_nonlh_project_types)
       last_non_res_lh_info_out_of_window = ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-        (is.na(last_lh_info_date) | last_lh_info_date <= startDate - fifelse(ProjectType == ce_project_type, 90, 60)) & 
+        !was_lh_at_start & !was_lh_at_end & !was_lh_during_period &
         is.na(ExitDate),
       nbn_non_res_no_future_lh = ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
         (is.na(last_lh_info_date) | last_lh_info_date <= endDate) &
