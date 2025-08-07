@@ -701,7 +701,7 @@ get_res_lh_info <- function() {
         (ProjectType %in% ph_project_types & fcoalesce(MoveInDateAdjust, no_end_date) >= endDate)
       ),
       
-      last_lh_info_date = NA,
+      last_lh_info_date = fcoalesce(MoveInDateAdjust, ExitAdjust),
       first_lh_info_date = EntryDate
     ) %>%
     fselect(
