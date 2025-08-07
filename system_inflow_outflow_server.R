@@ -332,6 +332,8 @@ universe_ppl_flags <- function(universe_df) {
       reengaged_from_temp_client = any(return_from_nonperm),#anyv(return_from_nonperm, TRUE),
       first_time_homeless_client = any(first_time_homeless),#anyv(first_time_homeless, TRUE),
       unknown_at_start_client = any(unknown_at_start),#anyv(unknown_at_start, TRUE),
+      non_res_excluded_client = any(non_res_excluded),
+      first_of_the_month_exit_client = any(first_of_the_month_exit),
       continuous_at_start_client = any(continuous_at_start),#anyv(continuous_at_start, TRUE),
       
       # OUTFLOW
@@ -340,6 +342,7 @@ universe_ppl_flags <- function(universe_df) {
       homeless_at_end_client = any(homeless_at_end),#anyv(homeless_at_end, TRUE),
       housed_at_end_client = any(housed_at_end),#anyv(housed_at_end, TRUE),
       unknown_at_end_client = any(unknown_at_end),#anyv(unknown_at_end, TRUE),
+      last_of_the_month_entry_client = any(last_of_the_month_entry),
       continuous_at_end_client = any(continuous_at_end )#anyv(continuous_at_end , TRUE)
     ) %>%
     fungroup() %>%
