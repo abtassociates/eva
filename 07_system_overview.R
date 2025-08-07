@@ -476,17 +476,20 @@ session$userData$lh_non_res <- join(
   how = "left",
   column = TRUE
 ) %>% 
+  fmutate(
+    lh_entry_date = fifelse(
+      ProjectType == out_project_type | lh_prior_livingsituation, 
+      EntryDate, 
+      NA
+    )
+  ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(
     last_lh_info_date = fmax(
-      pmax(
-        InformationDate, 
-        fifelse(
-          ProjectType == out_project_type | lh_prior_livingsituation, 
-          EntryDate, 
-          NA
-        )
-      ) 
+      pmax(InformationDate, lh_entry_date, na.rm=TRUE) 
+    ),
+    first_lh_info_date = fmin(
+      pmin(InformationDate, lh_entry_date, na.rm=TRUE) 
     )
   ) %>%
   fungroup()
@@ -507,7 +510,10 @@ session$userData$lh_nbn <- join(
   fgroup_by(EnrollmentID) %>%
   fmutate(
     last_lh_info_date = fmax(
-      pmax(DateProvided, EntryDate)
+      pmax(DateProvided, EntryDate, na.rm=TRUE)
+    ),
+    first_lh_info_date = fmin(
+      pmin(DateProvided, EntryDate, na.rm=TRUE)
     )
   ) %>%
   fungroup()

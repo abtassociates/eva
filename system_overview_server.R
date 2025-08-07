@@ -503,7 +503,7 @@ lh_non_res_period <- function() {
       entry_in_end_window,
       lh_entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead,
-      last_lh_info_date)
+      last_lh_info_date, first_lh_info_date)
     )
 
   if(fnrow(lh_non_res) == 0 ) {
@@ -543,7 +543,7 @@ lh_nbn_period <- function() {
       entry_in_end_window,
       lh_entry_during_period,
       straddles_start, straddles_end, days_since_lookback, days_to_lookahead,
-      last_lh_info_date
+      last_lh_info_date, first_lh_info_date
     ) %>%
     fsubset(
       nbn_in_start_window |
@@ -583,7 +583,7 @@ lh_other_period <- function() {
       entry_in_start_window = EntryDate %between% list(startDate, startDate + 15)
     ) %>%
     fselect(
-      period, EnrollmentID, ProjectType, MoveInDateAdjust,
+      period, EnrollmentID, EntryDate, ProjectType, MoveInDateAdjust,
       straddles_start, straddles_end,
       entry_in_start_window,
       days_since_lookback,
@@ -675,7 +675,7 @@ get_lh_non_res_esnbn_info <- function() {
       was_lh_at_start,
       was_lh_during_period,
       was_lh_at_end,
-      last_lh_info_date
+      last_lh_info_date, first_lh_info_date
     ) %>%
     funique()
   
@@ -701,7 +701,8 @@ get_res_lh_info <- function() {
         (ProjectType %in% ph_project_types & fcoalesce(MoveInDateAdjust, no_end_date) >= endDate)
       ),
       
-      last_lh_info_date = NA
+      last_lh_info_date = NA,
+      first_lh_info_date = EntryDate
     ) %>%
     fselect(
       period, 
@@ -709,7 +710,7 @@ get_res_lh_info <- function() {
       was_lh_at_start, 
       was_lh_during_period, 
       was_lh_at_end,
-      last_lh_info_date
+      last_lh_info_date, first_lh_info_date
     ) %>%
     funique()
 }
@@ -734,6 +735,12 @@ get_eecr_and_lecr <- reactive({
       on = c("period","EnrollmentID"),
       how = "left"
     ) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(
+      last_lh_info_date = na_locf(last_lh_info_date),
+      first_lh_info_date = na_focb(first_lh_info_date)
+    ) %>%
+    fungroup() %>%
     fmutate(
       was_housed_at_start = (straddles_start | days_since_lookback %between% c(0, 14)) & 
         ProjectType %in% ph_project_types &
