@@ -407,17 +407,20 @@ client_categories_filtered <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   req(fnrow(session$userData$client_categories) > 0)
  
-  fsubset(session$userData$client_categories,
-                 AgeCategory %in% input$syso_age &
-                   (if(input$syso_race_ethnicity == "All") rep(TRUE, fnrow(session$userData$client_categories)) else get(input$syso_race_ethnicity) == 1) & 
-                   (
-                     input$syso_spec_pops == "None" |
-                       (input$syso_spec_pops == "Veteran" &
-                          VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
-                       (input$syso_spec_pops == "NonVeteran" &
-                          VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
-                   ))
-  
+  session$userData$client_categories %>%
+    fsubset(
+      AgeCategory %in% input$syso_age &
+      (if(input$syso_race_ethnicity == "All") rep(TRUE, fnrow(session$userData$client_categories)) else get(input$syso_race_ethnicity) == 1) & 
+      (
+        input$syso_spec_pops == "None" | (
+          input$syso_spec_pops == "Veteran" &
+          VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")
+        ) | (
+          input$syso_spec_pops == "NonVeteran" &
+          VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17")
+        )
+      )
+    )
 })
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
@@ -918,8 +921,8 @@ get_eecr_and_lecr <- reactive({
     ) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      has_eecr = any(eecr),
-      has_lecr = any(lecr)
+      has_eecr = any(eecr, na.rm=TRUE),
+      has_lecr = any(lecr, na.rm=TRUE)
     ) %>%
     fungroup()
   
