@@ -411,11 +411,12 @@ lh_cls <- CurrentLivingSituation %>%
 # Remove "problematic" enrollments ----------------------------------
 # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
 # So any enrollment that is not lh_prior_livingsituation and has no LH CLS
-problematic_nonres_enrollmentIDs2 <- base::setdiff(
+problematic_nonres_enrollmentIDs <- base::setdiff(
   (enrollment_categories %>% 
      fsubset(ProjectType %in% non_res_nonlh_project_types & !lh_prior_livingsituation)
   )$EnrollmentID,
-  unique(lh_cls$EnrollmentID))
+  unique(lh_cls$EnrollmentID)
+)
 
 enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
