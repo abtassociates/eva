@@ -364,7 +364,10 @@ period_specific_data <- reactive({
   # custom_rprof({
   all_filtered <- join( 
     get_eecr_and_lecr(),
-    client_categories_filtered(),
+    if(in_dev_mode) 
+      client_categories_filtered() 
+    else 
+      client_categories_filtered()[, .(PersonalID)],
     on = "PersonalID",
     how = "inner"
   )
@@ -962,7 +965,9 @@ browser()
         "straddles_start", "straddles_end",
         "startDate","endDate",
         "lookback_dest_perm", "lookback_movein_before_start", "lookback_is_nonres_or_nbn",
-        "was_lh_at_start", "was_lh_during_period", "was_lh_at_end"
+        "was_lh_at_start", "was_lh_during_period", "was_lh_at_end", "was_housed_at_start", "was_housed_at_end",
+        "first_lh_info_date", "no_lh_lookbacks",
+        "Destination"
       )) %>%
       funique()
   }
