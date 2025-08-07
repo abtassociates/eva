@@ -812,7 +812,7 @@ get_eecr_and_lecr <- reactive({
     fsubset(
       was_lh_during_period | 
       was_housed_during_period |
-      (period != "Full" & (is.na(ExitDate) | ExitAdjust %between% list(startDate, endDate)) & was_lh_during_full_period)
+      (period != "Full" & (ExitAdjust >= session$userData$ReportEnd | ExitAdjust %between% list(startDate, endDate)) & was_lh_during_full_period)
     )
   
   e <- potential_eecr_lecr %>%
