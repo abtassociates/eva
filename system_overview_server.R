@@ -735,7 +735,7 @@ get_eecr_and_lecr <- reactive({
       on = c("period","EnrollmentID"),
       how = "left"
     ) %>%
-    fgroup_by(PersonalID) %>%
+    fgroup_by(EnrollmentID) %>%
     fmutate(
       last_lh_info_date = na_locf(last_lh_info_date),
       first_lh_info_date = na_focb(first_lh_info_date)
