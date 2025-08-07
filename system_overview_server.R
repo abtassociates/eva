@@ -583,7 +583,7 @@ lh_other_period <- function() {
       entry_in_start_window = EntryDate %between% list(startDate, startDate + 15)
     ) %>%
     fselect(
-      period, EnrollmentID, EntryDate, ProjectType, MoveInDateAdjust,
+      period, EnrollmentID, EntryDate, ExitAdjust, ProjectType, MoveInDateAdjust,
       straddles_start, straddles_end,
       entry_in_start_window,
       days_since_lookback,
