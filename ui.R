@@ -1056,7 +1056,32 @@ nav_menu(
               
               nav_panel(
                 title = "Chart",
-                card()
+                card(
+                 
+                  strong("Select Demographic Crosstab Categories (up to 2)"),
+                  p(str_glue(
+                    "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+                  )),
+                  checkboxGroupInput(
+                    "syse_phd_selections",
+                    label = "",
+                    choices = sys_heatmap_selection_choices,
+                    selected = c("All Races/Ethnicities", "Age"),
+                    inline = TRUE
+                  ),
+                  width = 12
+                ),
+                br(),
+                uiOutput("syse_phd_summary_selections",inline = TRUE) %>%
+                  withSpinner(),
+                plotOutput("syse_phd_chart") %>% withSpinner()
               ),
               nav_panel(
                 title = "Information",

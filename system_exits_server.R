@@ -34,13 +34,59 @@ syse_detailBox <- reactive({
 
 
 
+
 output$syse_compare_subpop_filter_selections <- 
   output$syse_compare_time_filter_selections <- 
   output$syse_types_filter_selections <- renderUI({ 
-  req(session$userData$valid_file() == 1)
-  syse_detailBox() 
+    req(session$userData$valid_file() == 1)
+    syse_detailBox() 
+  })
+sys_phd_selections_info <- reactive({
+  data.frame(
+    Chart = c(
+      "Demographic Selection 1",
+      "Demographic Selection 2",
+      "Total Served People"
+    ),
+    Value = c(
+      input$system_phd_selections[1],
+      input$system_phd_selections[2],
+      nrow(get_people_universe_filtered() %>% remove_non_applicables(selection = input$system_phd_selections))
+    )
+  )
 })
+syse_phd_detailBox <- function() {
+  return(
+    list(
+      strong("Date Range: "),
+      
+      format(session$userData$ReportStart, "%m-%d-%Y"),
+      " to ",
+      format(session$userData$ReportEnd, "%m-%d-%Y"),
+      br(),
+      
+      if (input$syse_project_type != "All")
+        chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(input$syse_project_type, "- ")),
+      
+      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+      HTML(glue(
+        "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, input$syse_methodology_type), start = 1, end = 8)} <br>"
+      )),
+      
+      HTML(
+        glue(
+          "<strong>Selections</strong>: {paste(input$system_phd_selections, collapse=' and ')} <br>"
+        )
+      )
+    )
+  )
+}
 
+output$syse_phd_summary_selections <- renderUI({
+  req(!is.null(input$system_phd_selections) & session$userData$valid_file() == 1)
+  syse_phd_detailBox()
+})
+  
 sys_comp_selections_summary <- function() {
   return(
     sys_export_summary_initial_df(type = 'exits') %>%
@@ -472,12 +518,53 @@ output$syse_compare_time_table <- renderDT({
 })
 
 output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
+## hide demographic filters when on PHD subtab
+observeEvent(input$syse_tabbox, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
+  if(input$syse_tabbox == 'Permanent Housing Demographics'){
+    shinyjs::hide('syse_spec_pops')
+    shinyjs::hide('syse_age')
+    shinyjs::hide('syse_race_ethnicity')
+  } else {
+    shinyjs::show('syse_spec_pops')
+    shinyjs::show('syse_age')
+    shinyjs::show('syse_race_ethnicity')
+  }
+ 
 })
 
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = 'tmp',{
   
 })
+
+
+# System Exits Permanent Housing Demographics (PHD) -----------------------
+
+output$syse_phd_chart <- renderPlot({
+  req(
+    !is.null(input$syse_phd_selections) &
+      session$userData$valid_file() == 1 &
+      between(length(input$syse_phd_selections), 1, 2)
+  )
+  
+  if(length(input$syse_phd_selections) == 1) {
+    sys_comp_plot_1var()
+  } else {
+    sys_comp_plot_2vars()
+  }
+}, height = function() {
+  ifelse(!is.null(input$syse_phd_selections), 700, 100)
+}, width = function() {
+  if (length(input$syse_phd_selections) == 1 |
+      isTRUE(getOption("shiny.testmode"))) {
+    500
+  } else {
+    "auto"
+  }
+}, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 output$syse_phd_download_btn <- downloadHandler(filename = 'tmp',{
   

@@ -101,12 +101,7 @@
 }
 
 /* move syso download buttons to the right*/
-.syso_download_tab {
-  margin-left: auto;
-}
-
-/* move system exit download buttons to the right*/
-.syse_download_tab {
+.sys_download_tab {
   margin-left: auto;
 }
 
@@ -131,6 +126,10 @@
   height:100% !important; 
 }
 
+#syse_phd_chart {
+  height:100% !important; 
+}
+
 /* vertical bar and spacing of sys demographic selections, 
 to group All + Grouped Race selections*/
 #system_composition_selections label.checkbox-inline {
@@ -139,6 +138,15 @@ to group All + Grouped Race selections*/
 
 #system_composition_selections label.checkbox-inline:nth-child(1),
 #system_composition_selections label.checkbox-inline:nth-child(3) {
+  border-right: 1px solid lightgray;
+}
+
+#syse_phd_selections label.checkbox-inline {
+  padding-right: 10px;
+}
+
+#syse_phd_selections label.checkbox-inline:nth-child(1),
+#syse_phd_selections label.checkbox-inline:nth-child(3) {
   border-right: 1px solid lightgray;
 }
 
@@ -151,6 +159,14 @@ to group All + Grouped Race selections*/
   margin: 0 auto;
 }
 
+/*center Sys Exits PHD chart*/
+#sys_phd_chart {
+  display: flex;
+}
+
+#sys_phd_chart > img {
+  margin: 0 auto;
+}
 
 /* MbM*/
 /*reduce horizontal padding to better align datatable with chart*/
