@@ -36,16 +36,16 @@ observeEvent(input$sys_comp_subtabs, {
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
-observeEvent(input$methodology_type, {
+observeEvent(input$syso_methodology_type, {
   
   updatePickerInput(
     session, 
     "syso_race_ethnicity", 
-    choices = syso_race_ethnicity_cats(input$methodology_type)
+    choices = syso_race_ethnicity_cats(input$syso_methodology_type)
   )
 
   # update System Composition Grouped Races/Ethnicities label
-  grouped_re_lbl_new <- ifelse(input$methodology_type == 1, "Grouped", "Hispanic-Focused")
+  grouped_re_lbl_new <- ifelse(input$syso_methodology_type == 1, "Grouped", "Hispanic-Focused")
   shinyjs::runjs(
     glue("
       $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
@@ -82,7 +82,7 @@ observeEvent(
 # observeEvent(input$syso_level_of_detail, {
 #   updatePickerInput(session, "syso_spec_pops",
 #                     # label = "Special Populations",
-#                     choices = syso_spec_pops_people)
+#                     choices = sys_spec_pops_people)
 # })
 
 #### DISPLAY FILTER SELECTIONS ###
@@ -107,11 +107,11 @@ syso_detailBox <- reactive({
       )),
     
     if (input$syso_race_ethnicity != "All")
-      chart_selection_detail_line("Race/Ethnicity", syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity),
+      chart_selection_detail_line("Race/Ethnicity", syso_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity),
     
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "All Statuses")
+    if(getNameByValue(sys_spec_pops_people, input$syso_spec_pops) != "All Statuses")
       HTML(glue(
-        "<b>Veteran Status:</b> {paste(getNameByValue(syso_spec_pops_people, input$syso_spec_pops), '(Adult Only)')} <br>"
+        "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, input$syso_spec_pops), '(Adult Only)')} <br>"
       ))
     
   )
@@ -297,8 +297,6 @@ sys_overview_ppt_export <- function(file,
   return(print(ppt, target = file))
 }
 
-suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
-no_data_msg <- "No data to show."
 
 # Display Filter Selection in Detail Box ----------------------------------
 

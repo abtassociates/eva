@@ -339,7 +339,7 @@ main_test_script <- function(test_script_name, test_dataset) {
     sys_flow_filters <- c(
       "syso_hh_type",
       "syso_level_of_detail",
-      "methodology_type",
+      "syso_methodology_type",
       "syso_project_type"
     )
     

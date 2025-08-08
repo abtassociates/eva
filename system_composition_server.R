@@ -23,11 +23,11 @@ syscomp_detailBox <- function() {
       br(),
       
       if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
+        chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(input$syso_project_type, "- ")),
       
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
       HTML(glue(
-        "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 8)} <br>"
+        "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$syso_methodology_type), start = 1, end = 8)} <br>"
       )),
       
       HTML(
@@ -157,17 +157,17 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
 get_selection_cats <- function(selection) {
   return(switch(
     selection,
-    "Age" = syso_age_cats,
     "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
     "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    #"Domestic Violence" = syso_dv_pops, VL 9/20/24: Not including for launch
+    "Age" = sys_age_cats,
+    #"Domestic Violence" = sys_dv_pops, VL 9/20/24: Not including for launch
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 
     # because the character versions are needed for the waterfall chart
     "Veteran Status (Adult Only)" = {
-      syso_veteran_pops$Veteran <- 1
-      syso_veteran_pops$`Non-Veteran/Unknown` <- 0
-      syso_veteran_pops
+      sys_veteran_pops$Veteran <- 1
+      sys_veteran_pops$`Non-Veteran/Unknown` <- 0
+      sys_veteran_pops
     }
     # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
   ))
@@ -370,7 +370,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     ) %>%
     replace(is.na(.), 0)
   
-  if(input$methodology_type == 1) {
+  if(input$syso_methodology_type == 1) {
     h_total <- plot_df %>%
       group_by(!!!syms(selections[[2]])) %>%
       summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
@@ -432,7 +432,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   y_labels <- rev(selection_cats2_labels)
   y_limits <- rev(levels(plot_df[[selections[2]]]))
   
-  if(input$methodology_type == 1) {
+  if(input$syso_methodology_type == 1) {
     x_labels <- c(x_labels, "Total")
     x_limits <- c(x_limits, "Total")
     y_labels <- c("Total", y_labels)
@@ -583,7 +583,7 @@ output$sys_comp_download_btn <- downloadHandler(
         })
       
       # create totals, but only for Method1
-      if(input$methodology_type == 1) { 
+      if(input$syso_methodology_type == 1) { 
         # create total row
         total_num_row <- num_df %>%
           summarise(!!selections[1] := "Total",
@@ -627,7 +627,7 @@ output$sys_comp_download_btn <- downloadHandler(
                         paste0("%")))  %>% 
         rename("pct" = n)
       
-      if(input$methodology_type == 1) { 
+      if(input$syso_methodology_type == 1) { 
         pct_df <- pct_df %>%
           bind_rows(
             setNames(

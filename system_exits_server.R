@@ -15,14 +15,14 @@ syse_detailBox <- reactive({
     format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syse_project_type != "All")
-      chart_selection_detail_line("Project Type ", syse_project_types, str_remove(input$syse_project_type, "- ")),
+      chart_selection_detail_line("Project Type ", sys_project_types, str_remove(input$syse_project_type, "- ")),
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(syse_methodology_types, input$syse_methodology_type), start = 1, end = 8)} <br>"
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, input$syse_methodology_type), start = 1, end = 8)} <br>"
     )),
     
-    if (length(input$syse_age) != length(syse_age_cats))
+    if (length(input$syse_age) != length(sys_age_cats))
       HTML(glue(
         "<b>Age:</b> {paste(input$syse_age, collapse = ', ')} <br>"
       )),
@@ -30,9 +30,9 @@ syse_detailBox <- reactive({
     if (input$syse_race_ethnicity != "All")
       chart_selection_detail_line("Race/Ethnicity", syse_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity),
     
-    if(getNameByValue(syse_spec_pops_people, input$syse_spec_pops) != "All Statuses")
+    if(getNameByValue(sys_spec_pops_people, input$syse_spec_pops) != "All Statuses")
       HTML(glue(
-        "<b>Veteran Status:</b> {paste(getNameByValue(syse_spec_pops_people, input$syse_spec_pops), '(Adult Only)')} <br>"
+        "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, input$syse_spec_pops), '(Adult Only)')} <br>"
       ))
     
   )
@@ -90,7 +90,7 @@ level_of_detail_text_syse <- reactive({
     input$syse_level_of_detail == "All" ~ "People",
     input$syse_level_of_detail == "HoHsOnly" ~ "Heads of Household",
     TRUE ~
-      getNameByValue(syse_level_of_detail, input$syse_level_of_detail)
+      getNameByValue(sys_level_of_detail, input$syse_level_of_detail)
   )
 })
 
@@ -117,8 +117,8 @@ syse_types_chart <- function(varname, status){
                                                                                      ))) +
     labs(title = paste0(scales::label_comma()(sum(test_exits_data$Count)), " System Exits for ", 
                         level_of_detail_text_syse(), " in ", 
-                        str_remove(getNameByValue(syse_hh_types, input$syse_hh_type), "- "), 
-                        if_else(getNameByValue(syse_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+                        str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "), 
+                        if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
          ) +
     geom_treemap(start = "left", show.legend = FALSE) +
     geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
@@ -260,7 +260,7 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
 subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In subpop_chart_validation")
  
-  cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(syse_age_cats)
+  cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
   
   ## whether to show validate message or not
   if(show){

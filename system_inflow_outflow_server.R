@@ -105,7 +105,7 @@ level_of_detail_text <- reactive({
     input$syso_level_of_detail == "All" ~ "People",
     input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
     TRUE ~
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+      getNameByValue(sys_level_of_detail, input$syso_level_of_detail)
   )
 })
 
@@ -117,7 +117,7 @@ full_unit_of_analysis_display <- reactive({
       input$syso_hh_type == "All",
       "",
       paste0(" in ",
-             str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+             str_remove(getNameByValue(sys_hh_types, input$syso_hh_type), "- "),
              " Households")
     )
   )
@@ -1001,8 +1001,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
           "Average Monthly Outflow: -", scales::comma(averages["Outflow"], accuracy = 0.1), "\n",
           "Average Monthly Change in ", 
           level_of_detail_text(), " in ", 
-          str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "), 
-          if_else(getNameByValue(syso_hh_types, input$syso_hh_type) == "All Household Types", "", " Households"),
+          str_remove(getNameByValue(sys_hh_types, input$syso_hh_type), "- "), 
+          if_else(getNameByValue(sys_hh_types, input$syso_hh_type) == "All Household Types", "", " Households"),
           ": ", 
           scales::comma(avg_monthly_change, accuracy = 0.1)
         )

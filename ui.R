@@ -625,33 +625,33 @@ nav_menu(
             pickerInput(
               label = "Household Type",
               inputId = "syso_hh_type",
-              choices = syso_hh_types,
-              selected = syso_hh_types[1],
+              choices = sys_hh_types,
+              selected = sys_hh_types[1],
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               label = "Level of Detail",
               inputId = "syso_level_of_detail",
-              choices = syso_level_of_detail,
-              selected = syso_level_of_detail[1],
+              choices = sys_level_of_detail,
+              selected = sys_level_of_detail[1],
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               label = "Project Type Group",
               inputId = "syso_project_type",
-              choices = syso_project_types,
-              selected = syso_project_types[1],
+              choices = sys_project_types,
+              selected = sys_project_types[1],
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               inputId = "syso_age",
               label = "Age",
-              selected = syso_age_cats,
-              choices = syso_age_cats,
+              selected = sys_age_cats,
+              choices = sys_age_cats,
               multiple = TRUE,
               options = pickerOptions(
                 actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syso_age_cats)-1),
+                selectedTextFormat = paste("count >", length(sys_age_cats)-1),
                 countSelectedText = "All Ages",
                 noneSelectedText = "All Ages",
                 container = "body"
@@ -660,8 +660,8 @@ nav_menu(
             pickerInput(
               label = "Veteran Status",
               inputId = "syso_spec_pops",
-              choices = syso_spec_pops_people,
-              selected = syso_spec_pops_people[1],
+              choices = sys_spec_pops_people,
+              selected = sys_spec_pops_people[1],
               options = pickerOptions(container = "body")
             )
           )
@@ -673,17 +673,17 @@ nav_menu(
             col_widths = c(12,12),
             pickerInput(
               label = "Race/Ethnicity Methodology Type",
-              inputId = "methodology_type",
+              inputId = "syso_methodology_type",
               multiple = FALSE,
-              selected = syso_methodology_types[1],
-              choices = syso_methodology_types,
+              selected = sys_methodology_types[1],
+              choices = sys_methodology_types,
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               label = "Race/Ethnicity",
               inputId = "syso_race_ethnicity",
-              choices = syso_race_ethnicity_method1,
-              selected = syso_race_ethnicity_method1,
+              choices = sys_race_ethnicity_method1,
+              selected = sys_race_ethnicity_method1,
               options = list(
                 `dropdown-align-right` = TRUE,
                 `dropup-auto` = FALSE,
@@ -848,7 +848,7 @@ nav_menu(
               checkboxGroupInput(
                 "system_composition_selections",
                 label = "",
-                choices = sys_comp_selection_choices,
+                choices = sys_heatmap_selection_choices,
                 selected = c("All Races/Ethnicities", "Age"),
                 inline = TRUE
               ),
@@ -909,33 +909,33 @@ nav_menu(
             pickerInput(
               label = "Household Type",
               inputId = "syse_hh_type",
-              choices = syse_hh_types,
-              selected = syse_hh_types[1],
+              choices = sys_hh_types,
+              selected = sys_hh_types[1],
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               label = "Level of Detail",
               inputId = "syse_level_of_detail",
-              choices = syse_level_of_detail,
-              selected = syse_level_of_detail[1],
+              choices = sys_level_of_detail,
+              selected = sys_level_of_detail[1],
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               label = "Project Type Group",
               inputId = "syse_project_type",
-              choices = syse_project_types,
-              selected = syse_project_types[1],
+              choices = sys_project_types,
+              selected = sys_project_types[1],
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               inputId = "syse_age",
               label = "Age",
-              selected = syse_age_cats,
-              choices = syse_age_cats,
+              selected = sys_age_cats,
+              choices = sys_age_cats,
               multiple = TRUE,
               options = pickerOptions(
                 actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syse_age_cats)-1),
+                selectedTextFormat = paste("count >", length(sys_age_cats)-1),
                 countSelectedText = "All Ages",
                 noneSelectedText = "All Ages",
                 container = "body"
@@ -944,8 +944,8 @@ nav_menu(
             pickerInput(
               label = "Veteran Status",
               inputId = "syse_spec_pops",
-              choices = syse_spec_pops_people,
-              selected = syse_spec_pops_people[1],
+              choices = sys_spec_pops_people,
+              selected = sys_spec_pops_people[1],
               options = pickerOptions(container = "body")
             )
           )
@@ -959,15 +959,15 @@ nav_menu(
               label = "Race/Ethnicity Methodology Type",
               inputId = "syse_methodology_type",
               multiple = FALSE,
-              selected = syse_methodology_types[1],
-              choices = syse_methodology_types,
+              selected = sys_methodology_types[1],
+              choices = sys_methodology_types,
               options = pickerOptions(container = "body")
             ),
             pickerInput(
               label = "Race/Ethnicity",
               inputId = "syse_race_ethnicity",
-              choices = syse_race_ethnicity_method1,
-              selected = syse_race_ethnicity_method1,
+              choices = sys_race_ethnicity_method1,
+              selected = sys_race_ethnicity_method1,
               options = list(
                 `dropdown-align-right` = TRUE,
                 `dropup-auto` = FALSE,
