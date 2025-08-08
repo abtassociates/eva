@@ -103,6 +103,48 @@ sys_export_filter_selections <- function(type = 'overview') {
   
   return(selections)
 }
+
+
+get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
+  # if number of variables associated with selection > 1, then they're dummies
+
+  if (length(var_col) > 1) {
+    plot_df <- comp_df %>%
+      pivot_longer(
+        cols = -PersonalID,
+        names_to = selection,
+        values_to = "value"
+      ) %>%
+      group_by(!!sym(selection)) %>%
+      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
+  } else {
+    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    names(plot_df) <- c(selection, "n")
+    
+    if(selection == "Domestic Violence Status") {
+      plot_df <- plot_df %>% bind_rows(tibble(
+        `Domestic Violence Status` = "DVTotal",
+        n = sum(plot_df %>% 
+                  filter(`Domestic Violence Status` != "NotDV") %>%
+                  pull(n), na.rm = TRUE)))
+    }
+  }
+  return(plot_df)
+}
+
+remove_non_applicables <- function(.data, selection = input$system_composition_selections) {
+  # remove children when vets is selected - since Vets can't be children
+  if("Veteran Status (Adult Only)" %in% selection) {
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+  } 
+  # filter to just HoHs and Adults for DV
+  else if ("Domestic Violence status" %in% selection) {
+    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+  } else {
+    .data
+  }
+}
+
 toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded

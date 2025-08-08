@@ -43,46 +43,9 @@ get_var_cols <- function() {
     )
   )
 }
-remove_non_applicables <- function(.data) {
-  # remove children when vets is selected - since Vets can't be children
-  if("Veteran Status (Adult Only)" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
-  } 
-  # filter to just HoHs and Adults for DV
-  else if ("Domestic Violence status" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
-  } else {
-    .data
-  }
-}
 
-get_sys_comp_plot_df_1var <- function(comp_df, var_col) {
-  # if number of variables associated with selection > 1, then they're dummies
-  selection <- input$system_composition_selections
-  
-  if (length(var_col) > 1) {
-    plot_df <- comp_df %>%
-      pivot_longer(
-        cols = -PersonalID,
-        names_to = selection,
-        values_to = "value"
-      ) %>%
-      group_by(!!sym(selection)) %>%
-      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-  } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]]))
-    names(plot_df) <- c(selection, "n")
-    
-    if(selection == "Domestic Violence Status") {
-      plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence Status` = "DVTotal",
-        n = sum(plot_df %>% 
-                  filter(`Domestic Violence Status` != "NotDV") %>%
-                  pull(n), na.rm = TRUE)))
-    }
-  }
-  return(plot_df)
-}
+
+
 
 get_sys_comp_plot_df_2vars <- function(comp_df) {
   # named list of all selected options and
@@ -199,7 +162,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   selection <- input$system_composition_selections
 
   comp_df <- get_people_universe_filtered() %>%
-    remove_non_applicables() %>%
+    remove_non_applicables(selection = selection) %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
   validate(
@@ -215,7 +178,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
     )
   )
  
-  plot_df <- get_sys_comp_plot_df_1var(comp_df, var_cols[[selection]])
+  plot_df <- get_sys_plot_df_1var(comp_df, var_cols[[selection]], selection = input$system_composition_selections)
   
   # hide download buttons if not enough data
   toggle_download_buttons(plot_df)
@@ -308,7 +271,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   # get dataset underlying the freqs we will produce below
   comp_df <- get_people_universe_filtered() %>%
-    remove_non_applicables() %>%
+    remove_non_applicables(selection = selections) %>%
     select(
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
@@ -529,7 +492,7 @@ sys_comp_selections_info <- reactive({
     Value = c(
       input$system_composition_selections[1],
       input$system_composition_selections[2],
-      nrow(get_people_universe_filtered() %>% remove_non_applicables())
+      nrow(get_people_universe_filtered() %>% remove_non_applicables(selection = input$system_composition_selections))
     )
   )
 })
