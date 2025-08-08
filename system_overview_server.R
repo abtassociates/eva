@@ -41,7 +41,7 @@ observeEvent(input$syso_methodology_type, {
   updatePickerInput(
     session, 
     "syso_race_ethnicity", 
-    choices = syso_race_ethnicity_cats(input$syso_methodology_type)
+    choices = sys_race_ethnicity_cats(input$syso_methodology_type)
   )
 
   # update System Composition Grouped Races/Ethnicities label
@@ -94,20 +94,20 @@ syso_detailBox <- reactive({
     format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     if (input$syso_project_type != "All")
-      chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
+      chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(input$syso_project_type, "- ")),
     
     #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
     HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 8)} <br>"
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$syso_methodology_type), start = 1, end = 8)} <br>"
     )),
     
-    if (length(input$syso_age) != length(syso_age_cats))
+    if (length(input$syso_age) != length(sys_age_cats))
       HTML(glue(
         "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
       )),
     
     if (input$syso_race_ethnicity != "All")
-      chart_selection_detail_line("Race/Ethnicity", syso_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity),
+      chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity),
     
     if(getNameByValue(sys_spec_pops_people, input$syso_spec_pops) != "All Statuses")
       HTML(glue(
@@ -205,13 +205,6 @@ sys_export_filter_selections <- function() {
 
 # Population reactives ----------------------------------------------------
 
-# Set race/ethnicity filter options based on methodology type selection
-# Set special populations options based on level of detail selection
-syso_race_ethnicity_cats <- function(methodology = 1){
-  if(methodology == 1) syso_race_ethnicity_method1 
-  else syso_race_ethnicity_method2
-}
-
 # PowerPoint Export -------------------------------------------------------
 sys_overview_ppt_export <- function(file,
                                     title_slide_title,
@@ -298,17 +291,6 @@ sys_overview_ppt_export <- function(file,
 }
 
 
-# Display Filter Selection in Detail Box ----------------------------------
-
-chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
-  return(
-    HTML(glue(
-      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
-    ))
-  )
-}
-
-
 # Total Count Above Chart -------------------------------------------------
 
 sys_total_count_display <- function(total_count) {
@@ -325,11 +307,7 @@ sys_total_count_display <- function(total_count) {
   )
 }
 
-get_adj_font_size <- function(font_size, isExport) {
-  return(
-    font_size*ifelse(isExport, sys_chart_export_font_reduction, 1)
-  )
-}
+
 
 observe({
   windowSize(input$dimension)
