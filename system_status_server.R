@@ -178,8 +178,8 @@ output$sys_status_download_btn <- downloadHandler(
       select("Status at Period End", everything())
     
     tab_names <- list(
-      "System Status Metadata" = sys_export_summary_initial_df() %>%
-        bind_rows(sys_export_filter_selections()) %>%
+      "System Status Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
+        bind_rows(sys_export_filter_selections(type = 'overview')) %>%
         bind_rows(sys_status_export_info(get_sankey_data())) %>%
         rename("System Status" = Value),
       "System Status Detail" = spd
@@ -207,9 +207,9 @@ output$sys_status_download_btn_ppt <- downloadHandler(
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "Client System Status",
-      summary_items = sys_export_summary_initial_df() %>%
+      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
-        bind_rows(sys_export_filter_selections()) %>%
+        bind_rows(sys_export_filter_selections(type = 'overview')) %>%
         bind_rows(sys_status_export_info(get_sankey_data())),
       plots = list(
         "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)

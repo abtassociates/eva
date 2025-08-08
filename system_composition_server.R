@@ -535,7 +535,7 @@ sys_comp_selections_info <- reactive({
 })
 sys_comp_selections_summary <- function() {
   return(
-    sys_export_summary_initial_df() %>%
+    sys_export_summary_initial_df(type = 'overview') %>%
       bind_rows(sys_comp_selections_info()) %>%
       rename("System Demographics" = Value)
   )
@@ -717,7 +717,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Demographics",
-      summary_items = sys_export_summary_initial_df() %>%
+      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),
       plots = setNames(

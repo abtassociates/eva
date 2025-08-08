@@ -118,45 +118,6 @@ syso_detailBox <- reactive({
 })
 
 
-sys_export_summary_initial_df <- function() {
-  
-  logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
-  return(data.frame(
-    Chart = c(
-      "Start Date",
-      "End Date",
-      "Methodology Type",
-      "Household Type",
-      "Level of Detail",
-      "Project Type Group"
-    ),
-    Value = c(
-      strftime(session$userData$ReportStart, "%m/%d/%y"),
-      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-      getNameByValue(syso_methodology_types, input$methodology_type),
-      getNameByValue(syso_hh_types, input$syso_hh_type),
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-      getNameByValue(syso_project_types, input$syso_project_type)
-    )
-  ))
-}
-
-sys_export_filter_selections <- function() {
-  return(tibble(
-    Chart = c(
-      "Age",
-      "Veteran Status",
-      "Race/Ethnicity"
-    ),
-    Value = c(
-      if(identical(syso_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
-      getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
-      getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
-    )
-  ))
-}
 toggle_sys_components(prefix = 'sys', FALSE, init=TRUE) # initially hide them
 
 #### FILTERS ###

@@ -32,45 +32,7 @@ syse_detailBox <- reactive({
   )
 })
 
-syse_export_summary_initial_df <- function() {
-  
-  logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
-  return(data.frame(
-    Chart = c(
-      "Start Date",
-      "End Date",
-      "Methodology Type",
-      "Household Type",
-      "Level of Detail",
-      "Project Type Group"
-    ),
-    Value = c(
-      strftime(session$userData$ReportStart, "%m/%d/%y"),
-      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-      getNameByValue(syse_methodology_types, input$syse_methodology_type),
-      getNameByValue(syse_hh_types, input$syse_hh_type),
-      getNameByValue(syse_level_of_detail, input$syse_level_of_detail),
-      getNameByValue(syse_project_types, input$syse_project_type)
-    )
-  ))
-}
 
-syse_export_filter_selections <- function() {
-  return(tibble(
-    Chart = c(
-      "Age",
-      "Veteran Status",
-      "Race/Ethnicity"
-    ),
-    Value = c(
-      if(identical(syse_age_cats, input$syse_age)) {"All Ages"} else {paste(input$syse_age, collapse=", ")},
-      getNameByValue(syse_spec_pops_people, input$syse_spec_pops),
-      getNameByValue(syse_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
-    )
-  ))
-}
 
 output$syse_compare_subpop_filter_selections <- 
   output$syse_compare_time_filter_selections <- 
@@ -78,6 +40,14 @@ output$syse_compare_subpop_filter_selections <-
   req(session$userData$valid_file() == 1)
   syse_detailBox() 
 })
+
+sys_comp_selections_summary <- function() {
+  return(
+    sys_export_summary_initial_df(type = 'exits') %>%
+      bind_rows(sys_comp_selections_info()) %>%
+      rename("System Demographics" = Value)
+  )
+}
 
 level_of_detail_text_syse <- reactive({
   case_when(
@@ -217,9 +187,9 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
      
      write_xlsx(
        list(
-         "ExitsByType Metadata" = syse_export_summary_initial_df() %>%
+         "ExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
            bind_rows(
-             syse_export_filter_selections()
+             sys_export_filter_selections(type = 'exits')
            ),
          ## dummy dataset read-in from global.R for now
          "SystemExitData" = test_exits_data
@@ -239,9 +209,9 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
   
     sys_exits_ppt_export(file = file, 
                        title_slide_title = "System Exits by Type",
-                       summary_items = syse_export_summary_initial_df() %>%
+                       summary_items = sys_export_summary_initial_df(type = 'exits') %>%
                          filter(Chart != "Start Date" & Chart != "End Date") %>% 
-                         bind_rows(syse_export_filter_selections(),
+                         bind_rows(sys_export_filter_selections(type = 'exits'),
                                    data.frame(Chart="Total System Exits", Value = scales::label_comma()(sum(test_exits_data$Count)))),
                        plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
                        summary_font_size = 19
@@ -527,46 +497,5 @@ observeEvent(input$syse_methodology_type, {
 
 },
 ignoreInit = TRUE)
-toggle_syse_components <- function(cond, init=FALSE) {
-  # 1. toggles the filters (disabled for Composition)
-  # 2. toggles subtabs and download button based if valid file has been uploaded
-  # 3. moves download button to be in line with subtabs
-  tabs <- c(
-    "System Exit Types" = "types",
-    "System Exit Comparisons" = "compare",
-    "Permanent Housing Demographics" = "phd"
-  )
-  
-  for (tab in tabs) {
-    shinyjs::toggle(glue('syse_{tab}_subtabs'), condition = cond)
-    shinyjs::toggle(selector = glue('#syse_{tab}_subtabs + div.tab-content'), condition = cond)
-    shinyjs::toggle(glue('syse_{tab}_download_btn'), condition = cond)
-    shinyjs::toggle(glue('syse_{tab}_download_btn_ppt'), condition = cond)
-    
-    # move download button to subtab row and only show if there's data
-    if(init) {
-      shinyjs::runjs(
-        glue("
-            document.getElementById('syse_{tab}_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li class=\"syse_download_tab\" id=\"syse_{tab}_download_tab\"></li>');
-            $('#syse_{tab}_download_btn').appendTo('#syse_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-            $('#syse_{tab}_download_btn_ppt').appendTo('#syse_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-          ")
-      )
-    }
-  }
-  
-  shinyjs::toggle('syse_client_level_download_btn', condition = cond)
-  if(init) {
-    shinyjs::runjs("
-      document.getElementById('syse_tabbox')
-        .insertAdjacentHTML('beforeEnd', '<li class=\"syse_download_tab\" id=\"syse_client_level_download_tab\"></li>');
-      $('#syse_client_level_download_btn').appendTo('#syse_client_level_download_tab')
-        .toggle('{cond}' == 'TRUE');
-    ")
-  }
-  
-}
-toggle_syse_components(FALSE, init=TRUE) # initially hide them
+
+toggle_sys_components(prefix='syse', FALSE, init=TRUE) # initially hide them

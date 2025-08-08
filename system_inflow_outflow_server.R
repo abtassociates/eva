@@ -1530,9 +1530,9 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
 
     write_xlsx(
       list(
-        "System Flow Metadata" = sys_export_summary_initial_df() %>%
+        "System Flow Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
           bind_rows(
-            sys_export_filter_selections(),
+            sys_export_filter_selections(type = 'overview'),
             sys_inflow_outflow_totals(),
             monthly_data$monthly_averages
           ) %>%
@@ -1570,10 +1570,10 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     sys_overview_ppt_export(
       file = file,
       title_slide_title = "System Flow",
-      summary_items = sys_export_summary_initial_df() %>%
+      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(
-          sys_export_filter_selections(),
+          sys_export_filter_selections(type = 'overview'),
           sys_inflow_outflow_totals(),
           monthly_data$monthly_averages
         ),

@@ -37,6 +37,72 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
+sys_export_summary_initial_df <- function(type = 'overview', tabbox) {
+  
+  
+  logMetadata(session, glue("Downloaded System {ttype} Tabular Data: {tabbox}{demotext}", 
+                            ttype=str_to_title(type),
+                            demotext = if_else(isTruthy(T), " - DEMO MODE", "")))
+  
+  df <- data.frame(
+    Chart = c(
+      "Start Date",
+      "End Date",
+      "Methodology Type",
+      "Household Type",
+      "Level of Detail",
+      "Project Type Group"
+    )
+  )
+  
+  values <- switch(type,
+                   'overview' = c(
+                     strftime(session$userData$ReportStart, "%m/%d/%y"),
+                     strftime(session$userData$ReportEnd, "%m/%d/%y"),
+                     getNameByValue(sys_methodology_types, input$syso_methodology_type),
+                     getNameByValue(sys_hh_types, input$syso_hh_type),
+                     getNameByValue(sys_level_of_detail, input$syso_level_of_detail),
+                     getNameByValue(sys_project_types, input$syso_project_type)
+                   ),
+                   'exits' = c(
+                     strftime(session$userData$ReportStart, "%m/%d/%y"),
+                     strftime(session$userData$ReportEnd, "%m/%d/%y"),
+                     getNameByValue(sys_methodology_types, input$syse_methodology_type),
+                     getNameByValue(sys_hh_types, input$syse_hh_type),
+                     getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
+                     getNameByValue(sys_project_types, input$syse_project_type)
+                   ))
+    
+  df$Value <- values
+  return(df)
+}
+
+sys_export_filter_selections <- function(type = 'overview') {
+  
+  selections <- tibble(
+    Chart = c(
+      "Age",
+      "Veteran Status",
+      "Race/Ethnicity"
+    ))
+  
+  values <- switch(type,
+      'overview' = c(
+          if(identical(sys_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
+          getNameByValue(sys_spec_pops_people, input$syso_spec_pops),
+          getNameByValue(sys_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity)
+        ),
+      'exits' = c(
+          if(identical(sys_age_cats, input$syse_age)) {"All Ages"} else {paste(input$syse_age, collapse=", ")},
+          getNameByValue(sys_spec_pops_people, input$syse_spec_pops),
+          getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
+      )
+  )
+  
+  selections$Value <- values
+  
+  return(selections)
+}
 toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
