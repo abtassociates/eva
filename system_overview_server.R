@@ -770,9 +770,6 @@ get_eecr_and_lecr <- reactive({
     fmutate(
       was_lh_during_full_period = anyv(period == "Full" & was_lh_during_period, TRUE),
       # Should the below include SO or not (i.e. use non_res_project_types or non_res_nonlh_project_types)
-      last_non_res_lh_info_out_of_window = ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
-        !was_lh_at_start & !was_lh_at_end & !was_lh_during_period &
-        is.na(ExitDate),
       nbn_non_res_no_future_lh = ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
         (is.na(last_lh_info_date) | last_lh_info_date <= endDate)
     ) %>%
@@ -834,7 +831,14 @@ get_eecr_and_lecr <- reactive({
     ) %>%
     fungroup() %>%
     fmutate(
-      background_non_res_straddle_end = fcoalesce(straddles_end & nbn_non_res_no_future_lh & is.na(ExitDate) & last_lh_info_date < max_non_straddle_exit & max_non_straddle_entry <= endDate, FALSE)
+      background_non_res_straddle_end = fcoalesce(
+        straddles_end & 
+        nbn_non_res_no_future_lh & 
+        is.na(ExitDate) & 
+        last_lh_info_date < max_non_straddle_exit & 
+        max_non_straddle_entry <= endDate, 
+        FALSE
+      )
     )
   
   e2 <- e %>%
@@ -843,11 +847,10 @@ get_eecr_and_lecr <- reactive({
     roworder(period, PersonalID, -ProjectTypeWeight, EntryDate) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      first_valid_straddle_start = ffirst(
-        # We don't exclude background_non_res_straddle because...
-        fifelse(straddles_start & !last_non_res_lh_info_out_of_window, EnrollmentID, NA)
+      first_straddle_start = ffirst(
+        fifelse(straddles_start, EnrollmentID, NA)
       ) == EnrollmentID,
-      any_valid_straddle_start = any(first_valid_straddle_start, na.rm=TRUE) #,#anyv(straddles_start, TRUE)
+      any_straddle_start = any(first_straddle_start, na.rm=TRUE) #,#anyv(straddles_start, TRUE)
     ) %>%
     fungroup() %>%
     roworder(period, PersonalID, ProjectTypeWeight, EntryDate) %>%
@@ -865,8 +868,8 @@ get_eecr_and_lecr <- reactive({
     roworder(period, PersonalID, EntryDate, -ProjectTypeWeight, ExitAdjust) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      first_valid_non_straddle_start = ffirst(
-        fifelse(in_date_range & !straddles_start & !last_non_res_lh_info_out_of_window, EnrollmentID, NA)
+      first_non_straddle_start = ffirst(
+        fifelse(in_date_range & !straddles_start, EnrollmentID, NA)
       ) == EnrollmentID
     ) %>%
     fungroup() %>%
@@ -907,7 +910,7 @@ get_eecr_and_lecr <- reactive({
   final <- prep_for_exceptions %>%
     # Create eecr and lecr flags
     fmutate(
-      eecr = (first_valid_straddle_start | (first_valid_non_straddle_start & !any_valid_straddle_start)) & passes_enrollment_filters,
+      eecr = (first_straddle_start | (first_non_straddle_start & !any_straddle_start)) & passes_enrollment_filters,
       lecr = (
         # If we add (was_lh/housed_at_end), then Personal ID 346740 (ICF-good, Enrollment 846250) is not selected as LECR, and the last month outlfow != full outflow
         # but if we remove it, both 846250 AND 835362 are selected as the LECRs
@@ -949,7 +952,7 @@ get_eecr_and_lecr <- reactive({
   
   # QC checks ---------------
   
-browser()
+# browser()
 #debug cols: final[PersonalID == 595646, c("period", enrollment_cols, "eecr", "lecr"), with=FALSE]
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
