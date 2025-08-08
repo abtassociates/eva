@@ -285,6 +285,25 @@ subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE) {
     req(cond)
   }
  
+time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
+  logToConsole(session, "In time_chart_validation")
+  
+  cond <- interval(startDate, endDate) > years(2)
+  #cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
+  
+  ## whether to show validate message or not
+  if(show){
+    validate(
+      need(
+        cond,
+        message = "Data will not be shown for reporting periods of less than 2 years."
+      )
+    )
+  } else {
+    ## otherwise, just hide but do not show a duplicate validate message
+    req(cond)
+  }
+  
 }
 
 get_syse_compare_subpop_data <- reactive({
@@ -507,11 +526,16 @@ get_syse_compare_time_table <- function(tab){
 }
 
 output$syse_compare_time_chart <- renderPlot({
+  time_chart_validation(startDate = session$userData$meta_HUDCSV_Export_Start, endDate = session$userData$meta_HUDCSV_Export_End,
+                        input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
+                        show = TRUE)
   syse_compare_time_chart()
 })
 
 output$syse_compare_time_table <- renderDT({
-  
+  time_chart_validation(startDate = session$userData$ReportStart, endDate = session$userData$ReportEnd,
+                        input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
+                        show = FALSE)
   get_syse_compare_time_table(
     get_syse_compare_time_data()
   )
