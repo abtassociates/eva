@@ -1,10 +1,4 @@
 
-# Set race/ethnicity filter options based on methodology type selection
-# Set special populations options based on level of detail selection
-syse_race_ethnicity_cats <- function(methodology = 1){
-  if(methodology == 1) syse_race_ethnicity_method1 
-  else syse_race_ethnicity_method2
-}
 
 #### DISPLAY FILTER SELECTIONS ###
 syse_detailBox <- reactive({
@@ -28,7 +22,7 @@ syse_detailBox <- reactive({
       )),
     
     if (input$syse_race_ethnicity != "All")
-      chart_selection_detail_line("Race/Ethnicity", syse_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity),
+      chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity),
     
     if(getNameByValue(sys_spec_pops_people, input$syse_spec_pops) != "All Statuses")
       HTML(glue(
@@ -528,7 +522,7 @@ observeEvent(input$syse_methodology_type, {
   updatePickerInput(
     session, 
     "syse_race_ethnicity", 
-    choices = syse_race_ethnicity_cats(input$syse_methodology_type)
+    choices = sys_race_ethnicity_cats(input$syse_methodology_type)
   )
 
 },

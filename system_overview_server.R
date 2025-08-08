@@ -117,49 +117,6 @@ syso_detailBox <- reactive({
   )
 })
 
-toggle_sys_components <- function(cond, init=FALSE) {
-  # 1. toggles the filters (disabled for Composition)
-  # 2. toggles subtabs and download button based if valid file has been uploaded
-  # 3. moves download button to be in line with subtabs
-  tabs <- c(
-    "System Flow" = "inflow_outflow",
-    "Client System Status" = "status",
-    "System Demographics" = "comp"
-  )
-  
-  for (tab in tabs) {
-    shinyjs::toggle(glue('sys_{tab}_subtabs'), condition = cond)
-    shinyjs::toggle(selector = glue('#sys_{tab}_subtabs + div.tab-content'), condition = cond)
-    shinyjs::toggle(glue('sys_{tab}_download_btn'), condition = cond)
-    shinyjs::toggle(glue('sys_{tab}_download_btn_ppt'), condition = cond)
-    
-    # move download button to subtab row and only show if there's data
-    if(init) {
-      shinyjs::runjs(
-        glue("
-            document.getElementById('sys_{tab}_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"sys_{tab}_download_tab\"></li>');
-            $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-            $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-          ")
-      )
-    }
-  }
-  
-  shinyjs::toggle('client_level_download_btn', condition = cond)
-  if(init) {
-    shinyjs::runjs("
-      document.getElementById('syso_tabbox')
-        .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"client_level_download_tab\"></li>');
-      $('#client_level_download_btn').appendTo('#client_level_download_tab')
-        .toggle('{cond}' == 'TRUE');
-    ")
-  }
-  
-}
-toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
 sys_export_summary_initial_df <- function() {
   
@@ -200,6 +157,7 @@ sys_export_filter_selections <- function() {
     )
   ))
 }
+toggle_sys_components(prefix = 'sys', FALSE, init=TRUE) # initially hide them
 
 #### FILTERS ###
 

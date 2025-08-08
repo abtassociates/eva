@@ -1,16 +1,6 @@
 sys_comp_plot_df <- reactiveVal()
 
-get_race_ethnicity_vars <- function(v) {
-  if (v == "All") {
-    syso_race_ethnicities_all <- unlist(c(syso_race_ethnicity_cats(input$methodology_type)["Detailed"],"Unknown" = "RaceEthnicityUnknown"))
-    names(syso_race_ethnicities_all) <- gsub("Detailed.", "", names(syso_race_ethnicities_all))
-    return(syso_race_ethnicities_all)
-  } else if (v %in% c("Grouped")) {
-    syso_race_ethnicities_grouped <- unlist(c(syso_race_ethnicity_cats(input$methodology_type)["Summarized"], "Unknown" = "RaceEthnicityUnknown"))
-    names(syso_race_ethnicities_grouped) <- gsub("Summarized.", "", names(syso_race_ethnicities_grouped))
-    return(syso_race_ethnicities_grouped)
-  }
-}
+
 
 syscomp_detailBox <- function() {
   return(
@@ -43,8 +33,10 @@ get_var_cols <- function() {
   return(
     list(
       "Age" = "AgeCategory",
-      "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
-      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
+      "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = input$syso_methodology_type, 
+                                                        race_ethnicity_func = sys_race_ethnicity_cats),
+      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = input$syso_methodology_type, 
+                                                            race_ethnicity_func = sys_race_ethnicity_cats),
       #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
       # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
       "Veteran Status (Adult Only)" =  "VeteranStatus"
@@ -157,9 +149,11 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
 get_selection_cats <- function(selection) {
   return(switch(
     selection,
-    "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
-    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
     "Age" = sys_age_cats,
+    "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = input$syso_methodology_type, 
+                                                      race_ethnicity_func = sys_race_ethnicity_cats),
+    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = input$syso_methodology_type, 
+                                                          race_ethnicity_func = sys_race_ethnicity_cats),
     #"Domestic Violence" = sys_dv_pops, VL 9/20/24: Not including for launch
     # Update Veteran status codes to 1/0, because that's how the underlying data are
     # we don't do that in the original hardcodes.R list 

@@ -158,8 +158,8 @@ process_upload <- function(upload_filename, upload_filepath) {
                            end = session$userData$meta_HUDCSV_Export_End)
     }
     
-    toggle_sys_components(session$userData$valid_file() == 1)
-    toggle_syse_components(session$userData$valid_file() == 1)
+    toggle_sys_components(prefix='sys', session$userData$valid_file() == 1)
+    toggle_sys_components(prefix = 'syse', session$userData$valid_file() == 1)
   })
 }
 
