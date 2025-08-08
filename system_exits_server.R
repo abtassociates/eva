@@ -33,14 +33,13 @@ syse_detailBox <- reactive({
 })
 
 
-
-
 output$syse_compare_subpop_filter_selections <- 
   output$syse_compare_time_filter_selections <- 
   output$syse_types_filter_selections <- renderUI({ 
     req(session$userData$valid_file() == 1)
     syse_detailBox() 
   })
+
 sys_phd_selections_info <- reactive({
   data.frame(
     Chart = c(
@@ -55,6 +54,7 @@ sys_phd_selections_info <- reactive({
     )
   )
 })
+
 syse_phd_detailBox <- function() {
   return(
     list(
@@ -87,6 +87,7 @@ output$syse_phd_summary_selections <- renderUI({
   syse_phd_detailBox()
 })
   
+
 sys_comp_selections_summary <- function() {
   return(
     sys_export_summary_initial_df(type = 'exits') %>%

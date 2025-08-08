@@ -37,8 +37,9 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
-sys_export_summary_initial_df <- function(type = 'overview', tabbox) {
+sys_export_summary_initial_df <- function(type = 'overview') {
   
+  tabbox <- ifelse(type == 'overview', input$syso_tabbox, input$syse_tabbox)
   
   logMetadata(session, glue("Downloaded System {ttype} Tabular Data: {tabbox}{demotext}", 
                             ttype=str_to_title(type),
