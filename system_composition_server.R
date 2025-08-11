@@ -17,7 +17,7 @@ syscomp_detailBox <- function() {
       
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
       HTML(glue(
-        "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$syso_methodology_type), start = 1, end = 8)} <br>"
+        "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, input$syso_methodology_type), start = 1, end = 8)} <br>"
       )),
       
       HTML(
