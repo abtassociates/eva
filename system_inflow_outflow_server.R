@@ -553,6 +553,7 @@ universe_ppl_flags <- function(universe_df) {
       eecr & 
       InflowTypeDetail == "Homeless" & 
       EntryDate == as.Date(period) &
+      EntryDate != session$userData$ReportStart &
       (days_since_lookback > 14 | is.na(days_since_lookback))
     )
   if(nrow(bad_records) > 0) {
