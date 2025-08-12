@@ -144,7 +144,7 @@ inputs_no_bindings <- function(DTs=NULL, plotlys=NULL, htmlWidgets=NULL) {
   )
 }
 
-main_test_script <- function(test_script_name, test_dataset) {
+main_test_script <- function(test_script_name = "main-valid", test_dataset = "tests/temp/FY24-ICF-main-valid.zip") {
   non_download_exports <- c()
   
   helper_datasets <- c(
