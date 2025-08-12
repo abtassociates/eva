@@ -191,7 +191,7 @@ output$client_level_download_btn <- downloadHandler(
       ),
       client_level_details = client_level_details,
       monthly_statuses,
-      enrollment_info[InflowTypeDetail = "Excluded"]
+      enrollment_info[InflowTypeDetail == "Excluded"]
     )
     
     names(client_level_export_list) = c(
