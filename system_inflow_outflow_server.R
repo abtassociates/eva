@@ -431,6 +431,35 @@ universe_ppl_flags <- function(universe_df) {
   ####
   # ERROR CHECKING------------------
   ####
+  ## Multiple Inactives in a row --------
+  bad_records <- universe_w_ppl_flags %>%
+    fselect(PersonalID,
+            InflowTypeSummary,
+            InflowTypeDetail,
+            OutflowTypeSummary,
+            OutflowTypeDetail,
+            period
+    ) %>%
+    funique() %>%
+    roworder(PersonalID, period) %>%
+    fmutate(is_inactive = OutflowTypeDetail == "Inactive")
+  
+  # 3. Identify consecutive blocks of status (active or inactive)
+  #    rleid() assigns a unique ID to consecutive runs of identical values
+  bad_records[, block_id := rleid(is_inactive), by = PersonalID]
+  
+  # 4. Calculate the length of each block
+  bad_records[, block_length := .N, by = .(PersonalID, block_id)]
+  
+  bad_records <- bad_records[is_inactive == TRUE & block_length > 1]
+  if(nrow(bad_records) > 0) {
+    logToConsole(session, "ERROR: Multiple Inactives in a row")
+    bad_records_multiple_inactives <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags) %>% 
+      fselect(outflow_debug_cols)
+    view(bad_records_multiple_inactives)
+  }
+  
+  
   ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags %>%
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
@@ -518,7 +547,8 @@ universe_ppl_flags <- function(universe_df) {
           fungroup() %>%
           fsubset(!has_something_wrong)
         
-        view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
+        if(nrow(bad_first_inflow_records) > 0)
+          view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
       }
       
       bad_last_outflow_records <- get_all_enrollments_for_debugging(
@@ -540,7 +570,8 @@ universe_ppl_flags <- function(universe_df) {
           fungroup() %>%
           fsubset(!has_something_wrong)
         
-        view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
+        if(nrow(bad_last_outflow_records) > 0)
+          view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
       }
       browser()
     }
@@ -593,8 +624,6 @@ get_inflow_outflow_full <- reactive({
   
   if(nrow(full_data) == 0) return(full_data)
   
-  if(in_dev_mode) export_bad_records("Full", full_data)
-  
   # AS 6/8/25: Do we want to remove *people* that are Continuous? Or just exclude from those Inflow/Outflow bars?
   # ditto for Inflow = Unknown
   # 637203 is an example of someone with Inflow = Unknown but has a regular Outflow
@@ -622,8 +651,6 @@ get_inflow_outflow_monthly <- reactive({
   
   if(nrow(months_data) == 0) return(months_data)
   
-  if(in_dev_mode) export_bad_records("Month", months_data)
-  
   data.table::copy(months_data %>%
     fselect(
       PersonalID, 
@@ -636,55 +663,6 @@ get_inflow_outflow_monthly <- reactive({
     funique()
   )
 })
-
-export_bad_records <- function(period, df) {
-  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
-  if(period == "Month") {
-    df_multiple_inactives <- df %>%
-      fselect(PersonalID,
-              InflowTypeSummary,
-              InflowTypeDetail,
-              OutflowTypeSummary,
-              OutflowTypeDetail,
-              month
-      ) %>%
-      funique() %>%
-      roworder(PersonalID, month) %>%
-      fmutate(is_inactive = OutflowTypeDetail == "Inactive")
-    
-    # 3. Identify consecutive blocks of status (active or inactive)
-    #    rleid() assigns a unique ID to consecutive runs of identical values
-    df_multiple_inactives[, block_id := rleid(is_inactive), by = PersonalID]
-    
-    # 4. Calculate the length of each block
-    df_multiple_inactives[, block_length := .N, by = .(PersonalID, block_id)]
-    
-    df_multiple_inactives <- df_multiple_inactives[is_inactive == TRUE & block_length > 1]
-    if(nrow(df_multiple_inactives) > 0)
-      write_xlsx(
-        df_multiple_inactives[is_inactive == TRUE & block_length > 1],
-        path = glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-multiple-inactives-in-a-row-for-{period}-{today()}.xlsx")
-      )
-  }
-  
-  df <- df[InflowTypeSummary == "something's wrong" | OutflowTypeSummary == "something's wrong"]
-  
-  if(nrow(df) == 0) return(NULL)
-
-  dfs <- list(
-    "Inflows" = df %>%
-      fsubset(InflowTypeSummary == "something's wrong") %>% 
-      fselect(inflow_debug_cols, if(period == "Month") "month"),
-    "Outflows" = df %>%
-      fsubset(OutflowTypeSummary == "something's wrong") %>% 
-      fselect(outflow_debug_cols, if(period == "Month") "month")
-  )
-
-  write_xlsx(
-    dfs, 
-    glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-somethings-wrongs-for-{period}-{today()}.xlsx")
-  )
-}
 
 # Filter Selections UI -----------------------------------------------------------
 # (Reported above the chart)
