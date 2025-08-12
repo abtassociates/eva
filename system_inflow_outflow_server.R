@@ -406,7 +406,7 @@ universe_ppl_flags <- function(universe_df) {
       full_period_inactive_outflow = anyv(period == "Full" & OutflowTypeDetail == "Inactive", TRUE)
     ) %>%
     fungroup() %>%
-    fsubset(period == "Full" | full_period_inactive_outflow | (startDate <= max_non_inactive_period & min_inactive_period < max_non_inactive_period)) %>%
+    fsubset(period == "Full" | full_period_inactive_outflow | is.na(min_inactive_period) | (startDate <= max_non_inactive_period & min_inactive_period < max_non_inactive_period)) %>%
     fselect(-max_non_inactive_period, -min_inactive_period, -startDate, -endDate)
 
   if(!in_dev_mode) {
