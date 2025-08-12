@@ -548,11 +548,11 @@ universe_ppl_flags <- function(universe_df) {
 
   ## ASHomeless and EntryDate on first of month with no recent lookback-------
   bad_records <- universe_w_ppl_flags %>%
+    fsubset(period != "Full") %>%
     fsubset(
       eecr & 
       InflowTypeDetail == "Homeless" & 
       EntryDate == as.Date(period) &
-      EntryDate != session$userData$ReportStart &
       (days_since_lookback > 14 | is.na(days_since_lookback))
     )
   if(nrow(bad_records) > 0) {
