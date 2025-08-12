@@ -13,7 +13,8 @@ output$changelog <- renderDT({
       - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
     <b>Miscellaneous</b> <br>
       - Updated System Overview instruction text. <br>
-      - Streamlined System Flow export",
+      - Streamlined System Flow export. <br>
+      - Fix typo is glossay (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
     "07-22-2025",
     "<b>Bug Fixes</b> <br>
       - Fix SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>).",
