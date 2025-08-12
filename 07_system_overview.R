@@ -522,6 +522,30 @@ rm(es_nbn_enrollments, non_res_enrollments)
 
 session$userData$report_dates <- get_report_dates()
 
+
+if(in_dev_mode) {
+  lh_non_res_agg <- if(nrow(session$userData$lh_non_res) > 0) {
+    collap(
+      session$userData$lh_non_res, 
+      InformationDate ~ EnrollmentID, 
+      FUN = function(x) paste(x[!is.na(x)], collapse = ", ")
+    ) %>% fsubset(!is.na(InformationDate))
+  } else data.table(EnrollmentID = NA, InformationDate = NA)
+  
+  lh_nbn_agg <- if(nrow(session$userData$lh_nbn) > 0) {
+    collap(
+      session$userData$lh_nbn, 
+      DateProvided ~ EnrollmentID, 
+      FUN = function(x) paste(x[!is.na(x)], collapse = ", ")
+    ) %>% fsubset(!is.na(DateProvided))
+  } else data.table(EnrollmentID = NA, DateProvided = NA)
+  
+  enrollment_categories_all <<- session$userData$enrollment_categories %>%
+    join(lh_non_res_agg, on = "EnrollmentID") %>%
+    join(lh_nbn_agg, on = "EnrollmentID") %>%
+    fselect(c(enrollment_cols, non_res_lh_cols)) %>%
+    funique()
+}
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
 period_specific_data()

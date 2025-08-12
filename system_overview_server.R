@@ -782,30 +782,6 @@ get_eecr_and_lecr <- reactive({
       lookback_movein_before_start = lookback_movein < startDate
     )
   
-  if(in_dev_mode) {
-    lh_non_res_agg <- if(nrow(session$userData$lh_non_res) > 0) {
-      collap(
-        session$userData$lh_non_res, 
-        InformationDate ~ EnrollmentID, 
-        FUN = function(x) paste(x[!is.na(x)], collapse = ", ")
-      ) %>% fsubset(!is.na(InformationDate))
-    } else data.table(EnrollmentID = NA, InformationDate = NA)
-    
-    lh_nbn_agg <- if(nrow(session$userData$lh_nbn) > 0) {
-      collap(
-        session$userData$lh_nbn, 
-        DateProvided ~ EnrollmentID, 
-        FUN = function(x) paste(x[!is.na(x)], collapse = ", ")
-      ) %>% fsubset(!is.na(DateProvided))
-    } else data.table(EnrollmentID = NA, DateProvided = NA)
-
-    enrollment_categories_all <<- all_enrollments %>%
-      join(lh_non_res_agg, on = "EnrollmentID") %>%
-      join(lh_nbn_agg, on = "EnrollmentID") %>%
-      fselect(c(enrollment_cols, non_res_lh_cols)) %>%
-      funique()
-  }
-  
   potential_eecr_lecr <- all_enrollments %>%
     # only keep enrollments that were LH or housed during the period, or
     # neither but Exited in the period and were LH at SOME point during the period
