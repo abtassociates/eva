@@ -373,7 +373,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "sys_inflow_outflow_detail_filter_selections",
       "sys_inflow_outflow_detail_ui_chart"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h4>Detail Chart</h4>")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-detail",
@@ -401,7 +401,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     )
     
     # go back to summary tab
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h4>Summary Chart</h4>")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary-w-AO-Residential-PH",
@@ -414,7 +414,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "headerSystemOverview",
       "sys_inflow_outflow_monthly_filter_selections"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h4>Month-by-Month Chart</h4>")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-mbm-w-AO-Residential-PH",
@@ -451,7 +451,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     )
     
     # go to information
-    app$set_inputs(sys_inflow_outflow_subtabs = "Information")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-information",
@@ -474,7 +474,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "sankey_filter_selections",
       "sankey_ui_chart"
     )
-    app$set_inputs(syso_tabbox = "Client System Status")
+    app$set_inputs(syso_tabbox = "<h4>Client System Status</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-status-chart",
@@ -482,7 +482,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_status_outputs
     )
     
-    app$set_inputs(sys_status_subtabs = "Information")
+    app$set_inputs(sys_status_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-status-information",
@@ -508,7 +508,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "sys_comp_summary_ui_chart"
     )
     
-    app$set_inputs(syso_tabbox = "System Demographics")
+    app$set_inputs(syso_tabbox = "<h4>System Demographics</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-chart-default",
@@ -532,7 +532,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_comp_outputs
     )
     
-    app$set_inputs(sys_comp_subtabs = "Information")
+    app$set_inputs(sys_comp_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-information",
