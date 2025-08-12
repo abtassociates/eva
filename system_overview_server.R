@@ -437,29 +437,28 @@ enrollments_filtered <- reactive({
     on = "PersonalID", 
     how = "inner"
   ) %>%
-    fmutate(
-      passes_enrollment_filters =
-        # Household type filter
-        (input$syso_hh_type == "All" |
-        (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-        (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-        (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-        (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-        input$syso_hh_type == HouseholdType
-        ) &
-        # Level of detail filter
-        (input$syso_level_of_detail == "All" |
-        (input$syso_level_of_detail == "HoHsAndAdults" &
-           (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-        (input$syso_level_of_detail == "HoHsOnly" &
-           CorrectedHoH == 1)) &
-        # Project type filter
-        (input$syso_project_type == "All" |
-        (input$syso_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-        (input$syso_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-        (input$syso_project_type == "SO" & ProjectType == out_project_type) |
-        (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
-        )
+    fsubset(
+      # Household type filter
+      (input$syso_hh_type == "All" |
+      (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+      (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+      (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+      (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+      input$syso_hh_type == HouseholdType
+      ) &
+      # Level of detail filter
+      (input$syso_level_of_detail == "All" |
+      (input$syso_level_of_detail == "HoHsAndAdults" &
+         (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+      (input$syso_level_of_detail == "HoHsOnly" &
+         CorrectedHoH == 1)) &
+      # Project type filter
+      (input$syso_project_type == "All" |
+      (input$syso_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
+      (input$syso_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
+      (input$syso_project_type == "SO" & ProjectType == out_project_type) |
+      (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
+      )
     ) %>%
     fselect(-VeteranStatus)
 })
@@ -910,7 +909,7 @@ get_eecr_and_lecr <- reactive({
   final <- prep_for_exceptions %>%
     # Create eecr and lecr flags
     fmutate(
-      eecr = (first_straddle_start | (first_non_straddle_start & !any_straddle_start)) & passes_enrollment_filters,
+      eecr = (first_straddle_start | (first_non_straddle_start & !any_straddle_start)),
       lecr = (
         # If we add (was_lh/housed_at_end), then Personal ID 346740 (ICF-good, Enrollment 846250) is not selected as LECR, and the last month outlfow != full outflow
         # but if we remove it, both 846250 AND 835362 are selected as the LECRs
@@ -923,7 +922,7 @@ get_eecr_and_lecr <- reactive({
           #   4:     688880 2021-11-01       826045           4 2021-09-28 2022-01-07   TRUE   TRUE             2022-01-07
           (EntryDate >= last_valid_straddle_end_exit | is.na(last_valid_straddle_end_exit))
         )
-      ) & passes_enrollment_filters
+      )
     ) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
@@ -949,7 +948,10 @@ get_eecr_and_lecr <- reactive({
   # 140224 (ICF-good) last outflow != full. EnrollmentID 848355 has a last_lh_info_date ini itlaly, but then it's NA
   # 423741 (ICF-good) last outflow != full
   # 596228 (ICF-good) last outflow != full
+  # 531816 (ICf-good) first inflow != full (when HHType == "AO" and PrjectType == "LHRes")
+  # 425572 (ICF-good) last outflow != full (when HHType == "AO")
   
+  # 607965
   # QC checks ---------------
   
 # browser()
