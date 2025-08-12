@@ -71,7 +71,7 @@ output$client_level_download_btn <- downloadHandler(
     )
     
     enrollment_info <- get_client_level_export()[
-      , ..enrollment_fields
+      , c(..enrollment_fields, "InflowTypeDetail")
     ][, `:=`(
       Destination = living_situation(Destination),
       LivingSituation = living_situation(LivingSituation),
@@ -191,7 +191,7 @@ output$client_level_download_btn <- downloadHandler(
       ),
       client_level_details = client_level_details,
       monthly_statuses,
-      enrollment_info[InflowTypeDetail == "Excluded"]
+      enrollment_info[InflowTypeDetail == "Excluded"][ , InflowTypeDetail := NULL]
     )
     
     names(client_level_export_list) = c(
