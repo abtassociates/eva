@@ -96,7 +96,7 @@ sys_comp_selections_summary <- function() {
   )
 }
 
-level_of_detail_text_syse <- reactive({
+syse_level_of_detail_text <- reactive({
   case_when(
     input$syse_level_of_detail == "All" ~ "People",
     input$syse_level_of_detail == "HoHsOnly" ~ "Heads of Household",
@@ -127,7 +127,7 @@ syse_types_chart <- function(varname, status){
                                             ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
                                                                                      ))) +
     labs(title = paste0(scales::label_comma()(sum(test_exits_data$Count)), " System Exits for ", 
-                        level_of_detail_text_syse(), " in ", 
+                        syse_level_of_detail_text(), " in ", 
                         str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "), 
                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
          ) +

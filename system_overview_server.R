@@ -259,7 +259,7 @@ period_specific_data <- reactive({
   # custom_rprof({
   all_filtered <- join( 
     get_period_specific_enrollment_categories(),
-    client_categories_filtered(),
+    syso_client_categories_filtered(),
     on = "PersonalID",
     how = "inner"
   )
@@ -298,8 +298,10 @@ period_specific_data <- reactive({
   )
 
 # Client-level flags, filtered ----------------------------------------------------
-client_categories_filtered <- reactive({
-  logToConsole(session, "In client_categories_filtered")
+syso_client_categories_filtered <- reactive({
+  
+  
+  logToConsole(session, "In syso_client_categories_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   req(nrow(session$userData$client_categories) > 0)
   
