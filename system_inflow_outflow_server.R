@@ -1567,8 +1567,9 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
     monthly_data <- sys_export_monthly_info()
 
-    sys_overview_ppt_export(
+    sys_perf_ppt_export(
       file = file,
+      type = 'overview',
       title_slide_title = "System Flow",
       summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
@@ -1591,7 +1592,11 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless"),
         "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
       ),
-      summary_font_size = 19
+      summary_font_size = 19,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
     )
   }
 )

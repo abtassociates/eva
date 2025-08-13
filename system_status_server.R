@@ -204,8 +204,9 @@ output$sys_status_download_btn_ppt <- downloadHandler(
     paste("System Status_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    sys_overview_ppt_export(
+    sys_perf_ppt_export(
       file = file,
+      type = 'overview',
       title_slide_title = "Client System Status",
       summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
@@ -214,7 +215,11 @@ output$sys_status_download_btn_ppt <- downloadHandler(
       plots = list(
         "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
       ),
-      summary_font_size = 21
+      summary_font_size = 21,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
     )
   }
 )

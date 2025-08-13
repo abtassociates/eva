@@ -483,7 +483,12 @@ observeEvent(input$system_composition_selections, {
 
 output$sys_comp_summary_selections <- renderUI({
   req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
-  syscomp_detailBox()
+  sys_detailBox( selection = input$system_composition_selections,
+                 all_filters = FALSE,
+                 methodology_type = input$syso_methodology_type,
+                 cur_project_types = input$syso_project_type,
+                 startDate = session$userData$ReportStart,
+                 endDate = session$userData$ReportEnd)
 })
 
 output$sys_comp_summary_ui_chart <- renderPlot({
@@ -515,8 +520,9 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     paste("System Demographics_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    sys_overview_ppt_export(
+    sys_perf_ppt_export(
       file = file,
+      type = 'overview',
       title_slide_title = "System Demographics",
       summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
@@ -536,7 +542,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
           input$system_composition_selections[2]
         )
       ),
-      summary_font_size = 28
+      summary_font_size = 28,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
     )
   }
 )

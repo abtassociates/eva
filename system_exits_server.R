@@ -92,91 +92,6 @@ syse_types_chart <- function(varname, status){
 }
 
 
-# PowerPoint Export -------------------------------------------------------
-sys_exits_ppt_export <- function(file,
-                                    title_slide_title,
-                                    summary_items,
-                                    plots,
-                                    summary_font_size) {
-  logMetadata(session, paste0("Downloaded System Exits Powerpoint: ", title_slide_title,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
-  loc_title <- ph_location_type(type = "title")
-  loc_footer <- ph_location_type(type = "ftr")
-  loc_dt <- ph_location_type(type = "dt")
-  loc_slidenum <- ph_location_type(type = "sldNum")
-  loc_body <- ph_location_type(type = "body")
-  loc_subtitle <- ph_location_type(type = "subTitle")
-  loc_ctrtitle <- ph_location_type(type = "ctrTitle")
-  
-  fp_normal <- fp_text(font.size = summary_font_size)
-  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
-  fp_bold <- update(fp_normal, bold = TRUE)
-  fp_red <- update(fp_normal, color = "red")
-  
-  ppt <- read_pptx(here("system_pptx_template.pptx"))
-  
-  report_period <- paste0("Report Period: ", 
-                          format(session$userData$ReportStart, "%m/%d/%Y"),
-                          " - ",
-                          format(session$userData$ReportEnd, "%m/%d/%Y")
-  )
-  
-  add_footer <- function(.ppt) {
-    return(
-      .ppt %>%
-        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
-        ph_with(value = report_period, location = loc_dt) %>%
-        ph_with(
-          value = paste0(
-            "Export Generated: ",
-            format(Sys.Date()),
-            "\n",
-            "https://hmis.abtsites.com/eva/"
-          ),
-          location = loc_slidenum
-        )
-    )
-  }
-  
-  # title Slide
-  ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
-    ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
-    ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
-    add_footer()
-  
-  # Summary
-  s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
-    fpar(
-      ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
-    )
-  }))
-  
-  ppt <- add_slide(ppt, layout = "Title and Content") %>%
-    ph_with(value = "Summary", location = loc_title) %>%
-    ph_with(
-      value = s_items,
-      level_list = c(rep(1L, length(s_items))),
-      location = loc_body
-    ) %>% 
-    add_footer()
-  
-  # Chart
-  for(plot_slide_title in names(plots)) {
-    p <- plots[[plot_slide_title]]
-    if(!is.null(p)) {
-      ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-        ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
-        ph_with(value = p, location = loc_body) %>%
-        add_footer()
-    }
-  }
-  
-  # Export the PowerPoint
-  return(print(ppt, target = file))
-}
-
-
 output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits Report - "),
                                                    content = function(file) 
     {
@@ -204,14 +119,19 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
   content = function(file) {
     logToConsole(session, "In syse_types_download_btn_ppt")
   
-    sys_exits_ppt_export(file = file, 
+    sys_perf_ppt_export(file = file, 
+                         type = 'exits',
                        title_slide_title = "System Exits by Type",
                        summary_items = sys_export_summary_initial_df(type = 'exits') %>%
                          filter(Chart != "Start Date" & Chart != "End Date") %>% 
                          bind_rows(sys_export_filter_selections(type = 'exits'),
                                    data.frame(Chart="Total System Exits", Value = scales::label_comma()(sum(test_exits_data$Count)))),
                        plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
-                       summary_font_size = 19
+                       summary_font_size = 19,
+                       startDate = session$userData$ReportStart, 
+                       endDate = session$userData$ReportEnd, 
+                       sourceID = session$userData$Export$SourceID,
+                       in_demo_mode = input$in_demo_mode
                        )
 })
 

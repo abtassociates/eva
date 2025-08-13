@@ -257,6 +257,103 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
   }
   
 }
+# PowerPoint Export -------------------------------------------------------
+## joint ppt export function for System Overview and System Exits
+sys_perf_ppt_export <- function(file,
+                                type = 'overview',
+                                title_slide_title,
+                                summary_items,
+                                plots,
+                                summary_font_size,
+                                startDate = session$userData$ReportStart, 
+                                endDate = session$userData$ReportEnd, 
+                                sourceID = session$userData$Export$SourceID,
+                                in_demo_mode = input$in_demo_mode) {
+  
+  if(type == 'overview'){
+    logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  } else if (type == 'exits'){
+    logMetadata(session, paste0("Downloaded System Exits Powerpoint: ", title_slide_title,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  }
+  
+  #NEED TO UPDATE - if want to get more granular, need to detect with title slide
+  
+  report_period <- paste0("Report Period: ", 
+                          format(startDate, "%m/%d/%Y"),
+                          " - ",
+                          format(endDate, "%m/%d/%Y")
+  )
+  loc_title <- ph_location_type(type = "title")
+  loc_footer <- ph_location_type(type = "ftr")
+  loc_dt <- ph_location_type(type = "dt")
+  loc_slidenum <- ph_location_type(type = "sldNum")
+  loc_body <- ph_location_type(type = "body")
+  loc_subtitle <- ph_location_type(type = "subTitle")
+  loc_ctrtitle <- ph_location_type(type = "ctrTitle")
+  
+  fp_normal <- fp_text(font.size = summary_font_size)
+  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
+  fp_bold <- update(fp_normal, bold = TRUE)
+  fp_red <- update(fp_normal, color = "red")
+  
+  ppt <- read_pptx(here("system_pptx_template.pptx"))
+  
+  add_footer <- function(.ppt) {
+    return(
+      .ppt %>%
+        ph_with(value = paste0("CoC Code: ", sourceID), location = loc_footer) %>%
+        ph_with(value = report_period, location = loc_dt) %>%
+        ph_with(
+          value = paste0(
+            "Export Generated: ",
+            format(Sys.Date()),
+            "\n",
+            "https://hmis.abtsites.com/eva/"
+          ),
+          location = loc_slidenum
+        )
+    )
+  }
+  
+  # title Slide
+  ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
+    ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
+    ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
+    add_footer()
+  
+  # Summary
+  s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
+    fpar(
+      ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
+    )
+  }))
+  
+  ppt <- add_slide(ppt, layout = "Title and Content") %>%
+    ph_with(value = "Summary", location = loc_title) %>%
+    ph_with(
+      value = s_items,
+      level_list = c(rep(1L, length(s_items))),
+      location = loc_body
+    ) %>% 
+    add_footer()
+  
+  # Chart
+  for(plot_slide_title in names(plots)) {
+    p <- plots[[plot_slide_title]]
+    if(!is.null(p)) {
+      ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+        ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
+        ph_with(value = p, location = loc_body) %>%
+        add_footer()
+    }
+  }
+  
+  # Export the PowerPoint
+  return(print(ppt, target = file))
+}
+
 #### DISPLAY FILTER SELECTIONS ###
 sys_detailBox <- function(
                               selection = NULL,
