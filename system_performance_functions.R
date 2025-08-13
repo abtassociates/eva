@@ -105,6 +105,64 @@ sys_export_filter_selections <- function(type = 'overview') {
   return(selections)
 }
 
+suppress_values <- function(.data, count_var) {
+  return(mutate(
+    .data,
+    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
+  ))
+}
+
+# Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed,
+# then suppress the next lowest value in that group
+suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
+  if(length(input$system_composition_selections) > 1) {
+    .data <- .data %>% fgroup_by(group_v)
+  }
+  
+  return(
+    .data %>%
+      fmutate(
+        count_redacted = fsum(wasRedacted),
+        next_lowest = fmin(get(n_v)),
+        wasRedacted = fifelse(count_redacted == 1 & (
+          (wasRedacted & is.na(n_v)) |
+            (!wasRedacted & n_v == next_lowest)
+        ), TRUE, wasRedacted)
+      ) %>%
+      fungroup() %>%
+      fselect(-c(count_redacted, next_lowest))
+  )
+}
+
+# this gets all the categories of the selected variable
+# this is used to make sure even empty categories are included in the chart
+get_selection_cats <- function(selection,type = 'overview') {
+  
+  methodology_type <- switch(type,
+                             'overview' = input$syso_methodology_type,
+                             'exits' = input$syse_methodology_type)
+  return(
+    switch(
+      selection,
+      "Age" = sys_age_cats,
+      "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = methodology_type, 
+                                                        race_ethnicity_func = sys_race_ethnicity_cats),
+      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = methodology_type, 
+                                                            race_ethnicity_func = sys_race_ethnicity_cats),
+      #"Domestic Violence" = sys_dv_pops, VL 9/20/24: Not including for launch
+      # Update Veteran status codes to 1/0, because that's how the underlying data are
+      # we don't do that in the original hardcodes.R list 
+      # because the character versions are needed for the waterfall chart
+      "Veteran Status (Adult Only)" = {
+        sys_veteran_pops$Veteran <- 1
+        sys_veteran_pops$`Non-Veteran/Unknown` <- 0
+        sys_veteran_pops
+      }
+      # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
+    )
+  
+  )
+}
 
 get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
   # if number of variables associated with selection > 1, then they're dummies
@@ -198,4 +256,23 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
     "))
   }
   
+}
+toggle_download_buttons <- function(subtab = 'comp',plot_df) {
+  shinyjs::toggle(glue("sys_{subtab}_download_btn"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+  shinyjs::toggle(glue("sys_{subtab}_download_btn_ppt"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+}
+
+get_var_cols <- function(methodology_type) {
+  return(
+    list(
+      "Age" = "AgeCategory",
+      "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = methodology_type, 
+                                                        race_ethnicity_func = sys_race_ethnicity_cats),
+      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = methodology_type, 
+                                                            race_ethnicity_func = sys_race_ethnicity_cats),
+      #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
+      # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
+      "Veteran Status (Adult Only)" =  "VeteranStatus"
+    )
+  )
 }
