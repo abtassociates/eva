@@ -483,9 +483,47 @@ observeEvent(input$syse_phd_selections, {
   "))
 }, ignoreNULL = FALSE)
 
-output$syse_phd_download_btn_ppt <- downloadHandler(filename = 'tmp',{
-  
-})
+output$syse_phd_download_btn_ppt <- downloadHandler(
+  filename = function() {
+    paste("System Exits PHD_", Sys.Date(), ".pptx", sep = "")
+  },
+  content = function(file) {
+    sys_perf_ppt_export(
+      file = file,
+      type = 'exits',
+      title_slide_title = "System Exits PHD",
+      summary_items = sys_export_summary_initial_df(type = 'exits') %>%
+        filter(Chart != "Start Date" & Chart != "End Date") %>% 
+        bind_rows(sys_phd_selections_info()),
+      plots = setNames(
+        list(
+          if (length(input$system_phd_selections) == 1) {
+            sys_heatmap_plot_1var(subtab = 'phd', 
+                                  methodology_type = input$syse_methodology_type, 
+                                  selection = input$syse_phd_selections, 
+                                  isExport = TRUE)
+          } else {
+            sys_heatmap_plot_2vars(subtab = 'phd', 
+                                   methodology_type = input$syse_methodology_type, 
+                                   selection = input$syse_phd_selections, 
+                                   isExport = TRUE)
+          }
+        ),
+        paste0(
+          "System Exits PHD: ",
+          input$syse_phd_selections[1],
+          " by ",
+          input$syse_phd_selections[2]
+        )
+      ),
+      summary_font_size = 28,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
+    )
+  }
+)
 
 observeEvent(input$syse_methodology_type, {
   
