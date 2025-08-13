@@ -78,7 +78,8 @@ bslib_eva_theme <- bs_theme(
 )
 
 ## dummy dataset for testing system exits functionality
-test_exits_data <- read_csv('sandbox/system_exits_dummy_data.csv')
+test_exits_data <- read_csv('sandbox/system_exits_dummy_data.csv') %>% 
+  fmutate(Destination = str_remove_all(Destination, '\xa0'))
 
 ## dummy dataset summarized for treemaps
 test_exits_summ <- test_exits_data %>% 
