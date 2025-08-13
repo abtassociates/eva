@@ -418,56 +418,15 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
   unique(lh_cls$EnrollmentID)
 )
 
-enrollment_categories <- enrollment_categories %>%
+session$userData$enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
-
-# Calculate days_since_lookback, days_to_lookahead, and other lookback info
-# First, determine days_to_lookahead
-dt <- enrollment_categories %>%
-  setkey(PersonalID, EntryDate, ExitAdjust) %>%
-  fmutate(
-    days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
-  )
-  
-# I don't understand why/how this non-equi self-join works.
-# In theory, since this is a right-join, for each EntryDate, we're pulling in the 
-# latest record whose ExitAdjust is still before the EntryDate, i.e. the (valid) lookback,
-# then we pull in that lookback's info.
-# It's just surprising which columns are the relevant ones. If you were to look at
-# the dataset before the fmutate, EntryDate and ExitAdjust don't make sense.
-# Ideally we'd create the new variables all in the same right-join, rather than
-# joining back to the full dt later, but this just doesn't yield the desired results.
-lookback_info <- dt[ 
-  dt[, .(PersonalID, EnrollmentID, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
-  on = .(PersonalID, ExitAdjust <= EntryDate),
-  mult = "last"
-] %>% 
-fsummarize(
-  PersonalID = PersonalID,
-  EnrollmentID = i.EnrollmentID,
-  days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
-  lookback_enrollment_id = EnrollmentID,
-  lookback_dest_perm = Destination %in% perm_livingsituation,
-  lookback_movein = MoveInDateAdjust,
-  lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
-)
-
-session$userData$enrollment_categories <- join(
-  dt,
-  lookback_info,
-  on = c("PersonalID", "EnrollmentID")
-)
-rm(dt)
 
 # Prepare a dataset of non_res enrollments and corresponding LH info
 # will be used to categorize non-res enrollments/people as active_at_start, 
 # homeless_at_end, and unknown_at_end
 non_res_enrollments <- session$userData$enrollment_categories %>% 
   fsubset(ProjectType %in% non_res_project_types) %>% 
-  fselect(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
-          days_since_lookback,
-          days_to_lookahead)
-
+  fselect(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
 
 session$userData$lh_non_res <- join(
   non_res_enrollments,
@@ -496,10 +455,7 @@ session$userData$lh_non_res <- join(
 
 # Do something similar for ES NbNs and Services
 es_nbn_enrollments <- fsubset(session$userData$enrollment_categories, ProjectType == es_nbn_project_type) %>% 
-  fselect(EnrollmentID,EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation,
-          days_since_lookback, 
-          days_to_lookahead)
-
+  fselect(EnrollmentID,EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
 
 session$userData$lh_nbn <- join(
   es_nbn_enrollments,
@@ -522,30 +478,6 @@ rm(es_nbn_enrollments, non_res_enrollments)
 
 session$userData$report_dates <- get_report_dates()
 
-
-if(in_dev_mode) {
-  lh_non_res_agg <- if(nrow(session$userData$lh_non_res) > 0) {
-    collap(
-      session$userData$lh_non_res, 
-      InformationDate ~ EnrollmentID, 
-      FUN = function(x) paste(x[!is.na(x)], collapse = ", ")
-    ) %>% fsubset(!is.na(InformationDate))
-  } else data.table(EnrollmentID = NA, InformationDate = NA)
-  
-  lh_nbn_agg <- if(nrow(session$userData$lh_nbn) > 0) {
-    collap(
-      session$userData$lh_nbn, 
-      DateProvided ~ EnrollmentID, 
-      FUN = function(x) paste(x[!is.na(x)], collapse = ", ")
-    ) %>% fsubset(!is.na(DateProvided))
-  } else data.table(EnrollmentID = NA, DateProvided = NA)
-  
-  enrollment_categories_all <<- session$userData$enrollment_categories %>%
-    join(lh_non_res_agg, on = "EnrollmentID") %>%
-    join(lh_nbn_agg, on = "EnrollmentID") %>%
-    fselect(c(enrollment_cols, non_res_lh_cols)) %>%
-    funique()
-}
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
 period_specific_data()
