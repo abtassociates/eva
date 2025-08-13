@@ -709,7 +709,13 @@ sys_heatmap_plot_1var <- function(subtab = 'comp', methodology_type, selection, 
   # hide download buttons if not enough data
   toggle_download_buttons(subtab,plot_df)
   
-  selection_cats1 <- get_selection_cats(selection, type = 'overview')
+  if(subtab == 'comp'){
+    type <- 'overview'
+  } else if (subtab == 'phd'){
+    type <- 'exits'
+  }
+  
+  selection_cats1 <- get_selection_cats(selection, type = type)
   selection_cats1_labels <- ifelse(is.null(names(selection_cats1)),
                                    selection_cats1,
                                    names(selection_cats1)
@@ -818,7 +824,12 @@ sys_heatmap_plot_2vars <- function(subtab = 'comp', methodology_type, selections
   
   toggle_download_buttons(subtab, plot_df)
   
-  selection_cats1 <- get_selection_cats(selections[1], type = 'overview')
+  if(subtab == 'comp'){
+    type <- 'overview'
+  } else if (subtab == 'phd'){
+    type <- 'exits'
+  }
+  selection_cats1 <- get_selection_cats(selections[1], type = type)
   
   if (is.null(names(selection_cats1))) {
     selection_cats1_labels <- selection_cats1
@@ -826,7 +837,7 @@ sys_heatmap_plot_2vars <- function(subtab = 'comp', methodology_type, selections
     selection_cats1_labels <- names(selection_cats1)
   }
   
-  selection_cats2 <- get_selection_cats(selections[2], type = 'overview')
+  selection_cats2 <- get_selection_cats(selections[2], type = type)
   if (is.null(names(selection_cats2))) {
     selection_cats2_labels <- selection_cats2
   } else {

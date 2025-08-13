@@ -155,6 +155,7 @@ subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE) {
     ## otherwise, just hide but do not show a duplicate validate message
     req(cond)
   }
+}
  
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
