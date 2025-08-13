@@ -232,6 +232,149 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
   }
   
 }
+
+sys_heatmap_xl_export <- function(file, 
+                                  type = 'overview',
+                                  methodology_type,
+                                  selections,
+                                  plot_df = sys_comp_plot_df,
+                                  in_demo_mode = input$in_demo_mode
+                                  ){
+ 
+  #selections <- input$system_composition_selections
+  v1 <- gsub("Races/Ethnicities", "Race", selections[1])
+  v1 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v1)
+  
+  # multiple selections
+  # reshape so the values of v1 are the column headers and v2 are the "row headers"
+  # though technically just a column
+  if(length(selections) > 1) {
+    v2 <- gsub("Races/Ethnicities", "Race", selections[2])
+    v2 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v2)
+    
+    # make sure R/E is the rows, not the columns
+    if (v1 %in% c("All Race", "Grouped Race")) {
+      selections <- c(selections[2], selections[1])
+    }
+    
+    num_df <- plot_df() %>% #sys_comp_plot_df() %>%
+      pivot_wider(
+        names_from = selections[1],
+        values_from = n,
+        values_fill = list(n = 0)
+      )
+    
+    # Create x.y% version
+    pct_df <- num_df %>%
+      ftransformv(vars = num_vars(., return="names"),  FUN = function(x) {
+        (x / fsum(x) * 100) %>% 
+          replace_na(0) %>%
+          round(1) %>%
+          paste0("%")
+      })
+    
+    # create totals, but only for Method1
+    if(methodology_type == 1) { 
+      # create total row
+      total_num_row <- num_df %>%
+        summarise(!!selections[1] := "Total",
+                  across(where(is.numeric), \(x) sum(x, na.rm = TRUE))) %>%
+        rename(!!selections[2] := !!selections[1])
+      
+      total_n <- sum(plot_df()$n, na.rm = TRUE)
+      
+      total_pct_row <- total_num_row %>% 
+        mutate(
+          across(where(is.numeric), ~ (. / total_n * 100) %>%
+                   replace_na(0) %>%
+                   round(1) %>%
+                   paste0("%")))
+      
+      # Add Total Row and create a total column
+      num_df <- num_df %>%
+        bind_rows(total_num_row) %>%
+        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+      
+      pct_df <- pct_df %>% 
+        bind_rows(total_pct_row) %>%
+        mutate(
+          Total =  paste0(
+            round(
+              replace_na(num_df$Total / total_n * 100, 0),
+              1
+            ),
+            "%"
+          )
+        )
+    }
+  } 
+  # single selection
+  else {
+    num_df <- plot_df()
+    
+    pct_df <- num_df %>%
+      mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+                      round(1) %>%
+                      paste0("%")))  %>% 
+      rename("pct" = n)
+    
+    if(methodology_type == 1) { 
+      pct_df <- pct_df %>%
+        bind_rows(
+          setNames(
+            data.frame("Total", "100%"), 
+            c(selections, "pct")
+          )
+        )
+      num_df <- num_df %>%
+        bind_rows(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
+    }
+  }
+  
+  if (length(selections) > 1) {
+    num_tab_name <- glue("{v1} By {v2} #")
+    pct_tab_name <- glue("{v1} By {v2} %")
+  } else {
+    num_tab_name <- glue("{v1} #")
+    pct_tab_name <- glue("{v1} %")
+  }
+  
+  if(type == 'overview'){
+    write_xlsx(
+      setNames(
+        list(sys_comp_selections_summary(), num_df, pct_df),
+        c("System Demographics Metadata", num_tab_name, pct_tab_name)
+      ),
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    exportTestValues(sys_comp_df = get_people_universe_filtered())
+    exportTestValues(sys_comp_report_num_df = num_df)
+    exportTestValues(sys_comp_report_pct_df = pct_df)
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  } else {
+    write_xlsx(
+      setNames(
+        list(sys_phd_selections_summary(), num_df, pct_df),
+        c("System Exits Metadata", num_tab_name, pct_tab_name)
+      ),
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    exportTestValues(sys_phd_df = get_people_universe_filtered())
+    exportTestValues(sys_phd_report_num_df = num_df)
+    exportTestValues(sys_phd_report_pct_df = pct_df)
+    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  }
+  
+}
+
 # PowerPoint Export -------------------------------------------------------
 ## joint ppt export function for System Overview and System Exits
 sys_perf_ppt_export <- function(file,

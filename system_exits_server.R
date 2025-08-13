@@ -437,6 +437,7 @@ output$syse_compare_download_btn_ppt <- downloadHandler(filename = 'tmp',{
 
 
 # System Exits Permanent Housing Demographics (PHD) -----------------------
+sys_phd_plot_df <- reactiveVal()
 
 output$syse_phd_chart <- renderPlot({
   req(
@@ -461,9 +462,6 @@ output$syse_phd_chart <- renderPlot({
   }
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
-output$syse_phd_download_btn <- downloadHandler(filename = 'tmp',{
-  
-})
 observeEvent(input$syse_phd_selections, {
   # they can select up to 2
   #disable all unchecked boxes if they've already selected 2
@@ -522,6 +520,18 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
       sourceID = session$userData$Export$SourceID,
       in_demo_mode = input$in_demo_mode
     )
+  }
+)
+
+output$syse_phd_download_btn <- downloadHandler(
+  filename = date_stamped_filename("System Exits PHD Report - "),
+  content = function(file) {
+    sys_heatmap_xl_export(file, 
+                          type = 'exits',
+                          methodology_type = input$syse_methodology_type,
+                          selections = input$syse_phd_selections,
+                          plot_df = sys_phd_plot_df,
+                          in_demo_mode = input$in_demo_mode)
   }
 )
 
