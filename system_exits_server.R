@@ -446,9 +446,9 @@ output$syse_phd_chart <- renderPlot({
   )
   
   if(length(input$syse_phd_selections) == 1) {
-    sys_comp_plot_1var()
+    sys_heatmap_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   } else {
-    sys_comp_plot_2vars()
+    sys_heatmap_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   }
 }, height = function() {
   ifelse(!is.null(input$syse_phd_selections), 700, 100)

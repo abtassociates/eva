@@ -164,32 +164,7 @@ get_selection_cats <- function(selection,type = 'overview') {
   )
 }
 
-get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
-  # if number of variables associated with selection > 1, then they're dummies
 
-  if (length(var_col) > 1) {
-    plot_df <- comp_df %>%
-      pivot_longer(
-        cols = -PersonalID,
-        names_to = selection,
-        values_to = "value"
-      ) %>%
-      group_by(!!sym(selection)) %>%
-      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-  } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]]))
-    names(plot_df) <- c(selection, "n")
-    
-    if(selection == "Domestic Violence Status") {
-      plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence Status` = "DVTotal",
-        n = sum(plot_df %>% 
-                  filter(`Domestic Violence Status` != "NotDV") %>%
-                  pull(n), na.rm = TRUE)))
-    }
-  }
-  return(plot_df)
-}
 
 remove_non_applicables <- function(.data, selection = input$system_composition_selections) {
   # remove children when vets is selected - since Vets can't be children
@@ -462,6 +437,89 @@ sys_perf_selection_info <- function(type = 'overview', selection = input$sys_com
   return(df)
 }
 
+get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
+  # if number of variables associated with selection > 1, then they're dummies
+  
+  if (length(var_col) > 1) {
+    plot_df <- comp_df %>%
+      pivot_longer(
+        cols = -PersonalID,
+        names_to = selection,
+        values_to = "value"
+      ) %>%
+      group_by(!!sym(selection)) %>%
+      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
+  } else {
+    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    names(plot_df) <- c(selection, "n")
+    
+    if(selection == "Domestic Violence Status") {
+      plot_df <- plot_df %>% bind_rows(tibble(
+        `Domestic Violence Status` = "DVTotal",
+        n = sum(plot_df %>% 
+                  filter(`Domestic Violence Status` != "NotDV") %>%
+                  pull(n), na.rm = TRUE)))
+    }
+  }
+  return(plot_df)
+}
+
+get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_composition_selections) {
+
+  # Function to process each combination of the variables underlying the all-served
+  # selections E.g. if Age and Race (and Method 1),
+  # then we'd combine 0 to 12 with White, 0 to 12 with Black,
+  # 13 to 24 with White, etc.
+  process_combination <- function(v1, v2, comp_df) {
+    logToConsole(session, glue("processing combination of {v1} and {v2}"))
+    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
+    names(freq_df) <- c(
+      selections[1],
+      selections[2],
+      "n"
+    )
+    
+    # for selections comprised of multiple (binary/dummy) vars (e.g. Race), 
+    # filter to the 1s and change the 1 to the variable name
+    for (i in seq_along(selections)) {
+      v <- get(paste0("v", i))
+      vname <- sym(selections[i])
+      var_cats <- var_cols[[vname]]
+      if (length(var_cats) > 1) {
+        freq_df <- freq_df %>%
+          filter(!!vname == 1) %>%
+          mutate(!!vname := v)
+      }
+    }
+    return(freq_df)
+  }
+  
+  # Get a dataframe of the freqs of all combinations
+  # along with percents
+  freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
+    pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
+  # mutate(pct = (n / sum(n, na.rm = TRUE)))
+  
+  # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
+  if ("Domestic Violence Status" %in% selections) {
+    dv_totals <- freqs %>%
+      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      group_by(!!sym(
+        ifelse(
+          selections[1] == "Domestic Violence Status",
+          selections[2],
+          selections[1]
+        )
+      )) %>%
+      summarize(`Domestic Violence Status` = "DVTotal",
+                n = sum(n, na.rm = TRUE)) #,
+    # pct = sum(pct, na.rm = TRUE))
+    freqs <- bind_rows(freqs, dv_totals)
+  }
+  
+  return(freqs)
+}
+
 toggle_download_buttons <- function(subtab = 'comp',plot_df) {
   shinyjs::toggle(glue("sys_{subtab}_download_btn"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
   shinyjs::toggle(glue("sys_{subtab}_download_btn_ppt"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
@@ -480,4 +538,330 @@ get_var_cols <- function(methodology_type) {
       "Veteran Status (Adult Only)" =  "VeteranStatus"
     )
   )
+}
+
+sys_heatmap_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
+  var_cols <- get_var_cols(methodology_type)
+  
+  #browser()
+  comp_df <- get_people_universe_filtered() %>%
+    remove_non_applicables(selection = selection) %>%
+    select(PersonalID, unname(var_cols[[selection]]))
+  
+  validate(
+    need(
+      nrow(comp_df) > 0,
+      message = no_data_msg
+    )
+  )
+  validate(
+    need(
+      nrow(comp_df) > 10,
+      message = suppression_msg
+    )
+  )
+  
+  plot_df <- get_sys_plot_df_1var(comp_df, var_cols[[selection]], selection = selection)
+  
+  # hide download buttons if not enough data
+  toggle_download_buttons(subtab,plot_df)
+  
+  selection_cats1 <- get_selection_cats(selection, type = 'overview')
+  selection_cats1_labels <- ifelse(is.null(names(selection_cats1)),
+                                   selection_cats1,
+                                   names(selection_cats1)
+  )
+  
+  plot_df[selection] <- factor(
+    plot_df[[selection]], 
+    levels = selection_cats1, 
+    labels = selection_cats1_labels,
+    ordered = TRUE)
+  
+  if(subtab == 'comp'){
+    sys_comp_plot_df(plot_df)
+  } else if(subtab == 'phd'){
+    sys_phd_plot_df(plot_df)
+  }
+  
+  
+  plot_df <- plot_df %>%
+    suppress_values("n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selection, "n")
+  
+  return(
+    ggplot(plot_df, aes("", .data[[selection]])) +
+      # main data into cells for each cross-combination
+      geom_tile(
+        color = '#f0f0f0',
+        lwd = 0.5,
+        linetype = 1,
+        aes(fill = n)
+      ) +
+      scale_fill_gradient(
+        low = "#D2E3D9",
+        high = "#084954",
+        na.value = ifelse(
+          is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
+          "white",
+          "#D2E3D9"
+        )
+      ) +
+      # set text color to be 508 compliant contrasting
+      geom_text(
+        aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
+        size = sys_chart_text_font,
+        color = ifelse(
+          plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
+          'white',
+          'black'
+        )
+      ) +
+      scale_y_discrete(
+        labels = label_wrap(30),
+        limits = rev(levels(plot_df[[selection]])),
+      ) +
+      # other stuff
+      theme_bw() +
+      ggtitle(sys_total_count_display(
+        nrow(comp_df)
+      )) +
+      labs(caption = "*** indicates the value is suppressed") +
+      theme(
+        text = element_text(size = sys_chart_text_font_pts),
+        legend.position = "none",
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
+      )
+  )
+}
+
+sys_heatmap_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
+  # race/ethnicity, if selected, should always be on the row
+  var_cols <- get_var_cols(methodology_type)
+  
+  if (selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
+    selections <- c(selections[2], selections[1])
+  }
+  
+  # get dataset underlying the freqs we will produce below
+  comp_df <- get_people_universe_filtered() %>%
+    remove_non_applicables(selection = selections) %>%
+    select(
+      PersonalID, 
+      unname(var_cols[[selections[1]]]), 
+      unname(var_cols[[selections[2]]])
+    ) %>%
+    funique()
+  
+  validate(
+    need(
+      nrow(comp_df) > 0,
+      message = no_data_msg
+    )
+  )
+  validate(
+    need(
+      nrow(comp_df) > 10,
+      message = suppression_msg
+    )
+  )
+  
+  plot_df <- get_sys_plot_df_2vars(comp_df, var_cols, selections = selections)
+  
+  toggle_download_buttons(subtab, plot_df)
+  
+  selection_cats1 <- get_selection_cats(selections[1], type = 'overview')
+  
+  if (is.null(names(selection_cats1))) {
+    selection_cats1_labels <- selection_cats1
+  } else {
+    selection_cats1_labels <- names(selection_cats1)
+  }
+  
+  selection_cats2 <- get_selection_cats(selections[2], type = 'overview')
+  if (is.null(names(selection_cats2))) {
+    selection_cats2_labels <- selection_cats2
+  } else {
+    selection_cats2_labels <- names(selection_cats2)
+  }
+  
+  plot_df[selections[1]] <- factor(
+    plot_df[[selections[1]]], 
+    levels = selection_cats1, 
+    labels = selection_cats1_labels)
+  
+  plot_df[selections[2]] <- factor(
+    plot_df[[selections[2]]], 
+    levels = selection_cats2, 
+    labels = selection_cats2_labels)
+  
+  plot_df <- plot_df %>%
+    complete(
+      !!sym(selections[1]),
+      !!sym(selections[2])
+    ) %>%
+    replace(is.na(.), 0)
+  
+  if(methodology_type == 1) {
+    h_total <- plot_df %>%
+      group_by(!!!syms(selections[[2]])) %>%
+      summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
+      mutate(!!selections[[1]] := 'Total') %>%
+      suppress_values("N") %>%
+      suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
+    
+    v_total <- plot_df %>%
+      group_by(!!!syms(selections[[1]])) %>%
+      summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
+      mutate(!!selections[[2]] := 'Total') %>%
+      suppress_values("N") %>%
+      suppress_next_val_if_one_suppressed_in_group(selections[2], "N")
+  }
+  
+  # save before supressing the values
+  # this will be used for the download/export
+  if(subtab == 'comp'){
+    sys_comp_plot_df(plot_df)
+  } else {
+    sys_phd_plot_df(plot_df)
+  }
+  
+  # Suppress values <= 10
+  plot_df <- plot_df %>%
+    suppress_values("n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
+    suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
+  
+  
+  g <- ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
+    # main data into cells for each cross-combination
+    geom_tile(
+      color = '#f0f0f0',
+      lwd = 0.5,
+      linetype = 1,
+      aes(fill = n)
+    ) +
+    scale_fill_gradient(
+      low = "#D2E3D9",
+      high = "#084954",
+      na.value = ifelse(
+        is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
+        "white",
+        "#D2E3D9"
+      )
+    ) + # na.value makes 0s invisible
+    # set text color to be 508 compliant contrasting
+    geom_text(
+      # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
+      aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
+      size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
+      color = ifelse(
+        plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
+        'white',
+        'black'
+      )
+    )
+  
+  
+  x_labels <- selection_cats1_labels
+  x_limits <- levels(plot_df[[selections[1]]])
+  y_labels <- rev(selection_cats2_labels)
+  y_limits <- rev(levels(plot_df[[selections[2]]]))
+  
+  if(methodology_type == 1) {
+    x_labels <- c(x_labels, "Total")
+    x_limits <- c(x_limits, "Total")
+    y_labels <- c("Total", y_labels)
+    y_limits <- c("Total", y_limits)
+    g <- g + 
+      ggnewscale::new_scale("fill") +
+      # Row totals
+      geom_tile(
+        data = h_total,
+        color = "white",
+        lwd = 0.5,
+        linetype = 1,
+        aes(fill = N)
+      ) +
+      
+      scale_fill_gradient(
+        low = "#ede7e3",
+        high = "#73655e",
+        na.value = ifelse(h_total$wasRedacted, "#ede7e3", 'white')
+      ) +
+      
+      geom_text(
+        aes(label = ifelse(wasRedacted, "***",
+                           scales::comma(N))),
+        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
+        color = ifelse(
+          h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
+          'white',
+          'black'
+        ),
+        data = h_total
+      ) +
+      
+      # column totals
+      ggnewscale::new_scale("fill") +
+      geom_tile(
+        data = v_total,
+        color = "white",
+        lwd = 0.5,
+        linetype = 1,
+        aes(fill = N)
+      ) +
+      scale_fill_gradient(
+        low = "#ede7e3",
+        high = "#73655e",
+        na.value = ifelse(v_total$wasRedacted, "#ede7e3", 'white')
+      ) +
+      
+      geom_text(
+        aes(label = ifelse(wasRedacted, "***",
+                           scales::comma(N))),
+        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
+        color = ifelse(
+          v_total$N > mean(v_total$N, na.rm = TRUE) & !v_total$wasRedacted,
+          'white',
+          'black'
+        ),
+        data = v_total
+      )
+  }
+  g + 
+    # axis labels
+    scale_x_discrete(
+      labels = str_wrap(x_labels, width = 20),
+      limits = x_limits,
+      position = "top"
+    ) +
+    scale_y_discrete(
+      labels = str_wrap(y_labels, width = 30),
+      limits = y_limits
+    ) +
+    
+    # other stuff
+    theme_bw() +
+    
+    ggtitle(sys_total_count_display(
+      nrow(comp_df)
+    )) +
+    labs(caption = "*** indicates the value is suppressed") +
+    
+    theme(
+      legend.position = "none",
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
+      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
+    )
 }
