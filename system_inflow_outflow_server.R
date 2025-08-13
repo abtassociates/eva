@@ -398,19 +398,28 @@ universe_ppl_flags <- function(universe_df) {
     )
 # browser()
   # drop the last months that are Outflow Inactive (i.e. if no months after are non-Inactive)
-  universe_w_ppl_flags <- universe_w_ppl_flags %>%
+  universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
+    fmutate(
+      active_start = fifelse(OutflowTypeDetail != "Inactive" & period != "Full", startDate, NA),
+      inactive = OutflowTypeDetail == "Inactive" & period != "Full"
+    ) %>%
     fgroup_by(PersonalID) %>%
     fmutate(
-      min_inactive_period = fmax(fifelse(OutflowTypeDetail == "Inactive", startDate, NA)),
-      max_non_inactive_period = fmax(fifelse(OutflowTypeDetail != "Inactive", startDate, NA)),
-      full_period_inactive_outflow = anyv(period == "Full" & OutflowTypeDetail == "Inactive", TRUE)
+      max_active_start = fmax(active_start),
+      min_inactive_after_active_start = fmin(
+        fifelse(inactive & (is.na(max_active_start) | startDate > max_active_start), startDate, NA)
+      )
     ) %>%
     fungroup() %>%
-    fsubset(period == "Full" | full_period_inactive_outflow | is.na(min_inactive_period) | (startDate <= max_non_inactive_period & min_inactive_period < max_non_inactive_period)) %>%
-    fselect(-max_non_inactive_period, -min_inactive_period, -startDate, -endDate)
+    fsubset(
+      period == "Full" | # keep full period record
+      startDate <= min_inactive_after_active_start | # keep records before the first-inactive-after-last-active
+      is.na(min_inactive_after_active_start) # keep all records if there are no inactives
+    )
 
   if(!in_dev_mode) {
-    universe_w_ppl_flags %>%
+    rm(universe_w_ppl_flags)
+    universe_w_ppl_flags_clean <- universe_w_ppl_flags_clean %>%
       fselect(
         PersonalID,
         InflowTypeSummary,
@@ -432,8 +441,8 @@ universe_ppl_flags <- function(universe_df) {
   # ERROR CHECKING------------------
   ####
   ## Multiple Inactives in a row --------
-  bad_records <- universe_w_ppl_flags %>%
-    fselect(PersonalID,
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(period != "Full", PersonalID,
             InflowTypeSummary,
             InflowTypeDetail,
             OutflowTypeSummary,
@@ -454,19 +463,22 @@ universe_ppl_flags <- function(universe_df) {
   bad_records <- bad_records[is_inactive == TRUE & block_length > 1]
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: Multiple Inactives in a row")
-    bad_records_multiple_inactives <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags) %>% 
-      fselect(outflow_debug_cols)
-    view(bad_records_multiple_inactives)
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      bad_records_multiple_inactives <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean) %>% 
+        fselect(outflow_debug_cols)
+      view(bad_records_multiple_inactives)
+      browser()
+    }
   }
   
   
   ## Inflow Unknown in Full Period -------
-  bad_records <- universe_w_ppl_flags %>%
+  bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
-      bad_records <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags) %>% 
+      bad_records <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean) %>% 
         fselect(inflow_debug_cols)
       view(bad_records)
       browser()
@@ -474,7 +486,7 @@ universe_ppl_flags <- function(universe_df) {
   }
   
   ## Something's Wrong -------
-  bad_records <- universe_w_ppl_flags %>%
+  bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(
       InflowTypeSummary == "something's wrong" | 
       OutflowTypeSummary == "something's wrong"
@@ -482,7 +494,7 @@ universe_ppl_flags <- function(universe_df) {
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There are clients whose Inflow or Outflow is 'something's wrong'")
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
-      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags, multiple=TRUE) %>%
+      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean, multiple=TRUE) %>%
         fgroup_by(PersonalID) %>%
         fmutate(
           has_inflow_wrong = anyv(InflowTypeDetail, "something's wrong"),
@@ -512,7 +524,7 @@ universe_ppl_flags <- function(universe_df) {
   }
 
   ## First/Last Month Inflow/Outflow != Full Inflow/Outflow-------
-  bad_records <- universe_w_ppl_flags %>%
+  bad_records <- universe_w_ppl_flags_clean %>%
     fgroup_by(PersonalID) %>%
     fsummarize(
       first_enrl_month_inflow = ffirst(fifelse(eecr & period != "Full", InflowTypeDetail, NA)),
@@ -533,7 +545,7 @@ universe_ppl_flags <- function(universe_df) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
       bad_first_inflow_records <- get_all_enrollments_for_debugging(
         bad_records[first_enrl_month_inflow != full_period_inflow],
-        universe_w_ppl_flags,
+        universe_w_ppl_flags_clean,
         multiple = TRUE
       )
       if(nrow(bad_first_inflow_records) > 0) {
@@ -556,7 +568,7 @@ universe_ppl_flags <- function(universe_df) {
           (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
           (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
         ],
-        universe_w_ppl_flags,
+        universe_w_ppl_flags_clean,
         multiple = TRUE
       )
       if(nrow(bad_last_outflow_records) > 0) {
@@ -578,7 +590,7 @@ universe_ppl_flags <- function(universe_df) {
   }
 
   ## ASHomeless and EntryDate on first of month with no recent lookback-------
-  bad_records <- universe_w_ppl_flags %>%
+  bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(period != "Full") %>%
     fsubset(
       eecr & 
@@ -591,7 +603,7 @@ universe_ppl_flags <- function(universe_df) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
       bad_ashomeless <- get_all_enrollments_for_debugging(
         bad_records,
-        universe_w_ppl_flags,
+        universe_w_ppl_flags_clean,
         multiple = TRUE
       )
       view(bad_ashomeless)
@@ -610,7 +622,7 @@ universe_ppl_flags <- function(universe_df) {
   # print(
   #   universe_w_ppl_flags[PersonalID == 613426, .(EnrollmentID, eecr, lecr, period[1])]
   # )
-  universe_w_ppl_flags
+  universe_w_ppl_flags_clean
 }
 
 # Inflow/Outflow Client-Level Data ---------------------------
