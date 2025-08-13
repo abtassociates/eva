@@ -87,34 +87,17 @@ observeEvent(
 
 #### DISPLAY FILTER SELECTIONS ###
 syso_detailBox <- reactive({
-  list(
-    br(),
-    strong("Date Range: "),
-    
-    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
-    
-    if (input$syso_project_type != "All")
-      chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(input$syso_project_type, "- ")),
-    
-    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
-    HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, input$syso_methodology_type), start = 1, end = 8)} <br>"
-    )),
-    
-    if (length(input$syso_age) != length(sys_age_cats))
-      HTML(glue(
-        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
-      )),
-    
-    if (input$syso_race_ethnicity != "All")
-      chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity),
-    
-    if(getNameByValue(sys_spec_pops_people, input$syso_spec_pops) != "All Statuses")
-      HTML(glue(
-        "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, input$syso_spec_pops), '(Adult Only)')} <br>"
-      ))
-    
-  )
+  
+  sys_detailBox(
+    all_filters = TRUE,
+    methodology_type = input$syso_methodology_type,
+    cur_project_types = input$syso_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syso_age,
+    spec_pops = input$syso_spec_pops,
+    race_eth = input$syso_race_ethnicity
+    )
 })
 
 

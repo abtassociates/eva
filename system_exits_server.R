@@ -2,34 +2,17 @@
 
 #### DISPLAY FILTER SELECTIONS ###
 syse_detailBox <- reactive({
-  list(
-    br(),
-    strong("Date Range: "),
-    
-    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
-    
-    if (input$syse_project_type != "All")
-      chart_selection_detail_line("Project Type ", sys_project_types, str_remove(input$syse_project_type, "- ")),
-    
-    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
-    HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, input$syse_methodology_type), start = 1, end = 8)} <br>"
-    )),
-    
-    if (length(input$syse_age) != length(sys_age_cats))
-      HTML(glue(
-        "<b>Age:</b> {paste(input$syse_age, collapse = ', ')} <br>"
-      )),
-    
-    if (input$syse_race_ethnicity != "All")
-      chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity),
-    
-    if(getNameByValue(sys_spec_pops_people, input$syse_spec_pops) != "All Statuses")
-      HTML(glue(
-        "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, input$syse_spec_pops), '(Adult Only)')} <br>"
-      ))
-    
-  )
+  
+  sys_detailBox(
+    all_filters = TRUE,
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+    )
 })
 
 
@@ -37,61 +20,28 @@ output$syse_compare_subpop_filter_selections <-
   output$syse_compare_time_filter_selections <- 
   output$syse_types_filter_selections <- renderUI({ 
     req(session$userData$valid_file() == 1)
-    syse_detailBox() 
+    syse_detailBox()
   })
 
 sys_phd_selections_info <- reactive({
-  data.frame(
-    Chart = c(
-      "Demographic Selection 1",
-      "Demographic Selection 2",
-      "Total Served People"
-    ),
-    Value = c(
-      input$system_phd_selections[1],
-      input$system_phd_selections[2],
-      nrow(get_people_universe_filtered() %>% remove_non_applicables(selection = input$system_phd_selections))
-    )
-  )
+  sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)
 })
 
-syse_phd_detailBox <- function() {
-  return(
-    list(
-      strong("Date Range: "),
-      
-      format(session$userData$ReportStart, "%m-%d-%Y"),
-      " to ",
-      format(session$userData$ReportEnd, "%m-%d-%Y"),
-      br(),
-      
-      if (input$syse_project_type != "All")
-        chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(input$syse_project_type, "- ")),
-      
-      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
-      HTML(glue(
-        "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, input$syse_methodology_type), start = 1, end = 8)} <br>"
-      )),
-      
-      HTML(
-        glue(
-          "<strong>Selections</strong>: {paste(input$system_phd_selections, collapse=' and ')} <br>"
-        )
-      )
-    )
-  )
-}
-
 output$syse_phd_summary_selections <- renderUI({
-  req(!is.null(input$system_phd_selections) & session$userData$valid_file() == 1)
-  syse_phd_detailBox()
+  req(!is.null(input$syse_phd_selections) & session$userData$valid_file() == 1)
+  sys_detailBox(selection = input$syse_phd_selections,
+                all_filters = FALSE,
+                methodology_type = input$syse_methodology_type,
+                cur_project_types = input$syse_project_type,
+                startDate = session$userData$ReportStart,
+                endDate = session$userData$ReportEnd)
 })
   
 
-sys_comp_selections_summary <- function() {
+sys_phd_selections_summary <- function() {
   return(
     sys_export_summary_initial_df(type = 'exits') %>%
-      bind_rows(sys_comp_selections_info()) %>%
+      bind_rows(sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)) %>%
       rename("System Demographics" = Value)
   )
 }
@@ -594,6 +544,24 @@ output$syse_phd_chart <- renderPlot({
 output$syse_phd_download_btn <- downloadHandler(filename = 'tmp',{
   
 })
+observeEvent(input$syse_phd_selections, {
+  # they can select up to 2
+  #disable all unchecked boxes if they've already selected 2
+  shinyjs::runjs(str_glue("
+    var numSelected = {length(input$syse_phd_selections)};
+    $('input[name=syse_phd_selections]:not(\":checked\")')
+      .attr('disabled', numSelected == 2);
+
+    var reSelected = \"{
+      \"All Races/Ethnicities\" %in% input$syse_phd_selections |
+      \"Grouped Races/Ethnicities\" %in% input$syse_phd_selections
+    }\";
+    
+    if(numSelected == 1)
+      $('input[name=syse_phd_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+        .attr('disabled', reSelected == 'TRUE');
+  "))
+}, ignoreNULL = FALSE)
 
 output$syse_phd_download_btn_ppt <- downloadHandler(filename = 'tmp',{
   
