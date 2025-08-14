@@ -427,6 +427,7 @@ universe_ppl_flags <- function(universe_df) {
         eecr,
         lecr,
         EntryDate,
+        days_since_lookback,
         MoveInDateAdjust
       ) %>%
       funique()
