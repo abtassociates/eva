@@ -1079,8 +1079,7 @@ nav_menu(
                   width = 12
                 ),
                 br(),
-                uiOutput("syse_phd_summary_selections",inline = TRUE) %>%
-                  withSpinner(),
+                uiOutput("syse_phd_summary_selections",inline = TRUE),
                 plotOutput("syse_phd_chart") %>% withSpinner()
               ),
               nav_panel(

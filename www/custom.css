@@ -160,11 +160,11 @@ to group All + Grouped Race selections*/
 }
 
 /*center Sys Exits PHD chart*/
-#sys_phd_chart {
+#syse_phd_chart {
   display: flex;
 }
 
-#sys_phd_chart > img {
+#syse_phd_chart > img {
   margin: 0 auto;
 }
 
