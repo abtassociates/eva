@@ -432,6 +432,75 @@ observeEvent(input$syse_tabbox, {
  
 })
 
+# Client-level flags, filtered ----------------------------------------------------
+syse_client_categories_filtered <- reactive({
+  
+  logToConsole(session, "In syse_client_categories_filtered")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  req(nrow(session$userData$client_categories) > 0)
+  
+  session$userData$client_categories[
+    AgeCategory %in% input$syse_age &
+      (if(input$syse_race_ethnicity == "All") rep(TRUE, .N) else get(input$syse_race_ethnicity) == 1) & 
+      (
+        input$syse_spec_pops == "None" |
+          (input$syse_spec_pops == "Veteran" &
+             VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
+          (input$syse_spec_pops == "NonVeteran" &
+             VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17"))
+      )
+  ]
+})
+
+
+# Create passes-enrollment-filter flag to exclude enrollments from eecr -------
+enrollments_filtered_syse <- reactive({
+  logToConsole(session, "in enrollments_filtered")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  
+  join(
+    session$userData$enrollment_categories,
+    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
+    on = "PersonalID", 
+    how = "inner"
+  ) %>%
+    fmutate(
+      passes_enrollment_filters =
+        # Household type filter
+        (input$syse_hh_type == "All" |
+           (input$syse_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+           (input$syse_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+           (input$syse_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+           (input$syse_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+           input$syse_hh_type == HouseholdType
+        ) &
+        # Level of detail filter
+        (input$syse_level_of_detail == "All" |
+           (input$syse_level_of_detail == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (input$syse_level_of_detail == "HoHsOnly" &
+              CorrectedHoH == 1)) &
+        # Project type filter
+        (input$syse_project_type == "All" |
+           (input$syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
+           (input$syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
+           (input$syse_project_type == "SO" & ProjectType == out_project_type) |
+           (input$syse_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
+        )
+    ) %>%
+    fselect(-VeteranStatus)
+})
+
+all_filtered_syse <- reactive({
+  join(
+  ## filter in same way as enrollments_filtered
+    enrollments_filtered_syse(),
+    syse_client_categories_filtered(),
+    on = "PersonalID",
+    how = "inner"
+  )
+})
+
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = 'tmp',{
   
 })
@@ -448,9 +517,9 @@ output$syse_phd_chart <- renderPlot({
   )
   
   if(length(input$syse_phd_selections) == 1) {
-    sys_heatmap_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+    sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   } else {
-    sys_heatmap_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+    sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   }
 }, height = function() {
   ifelse(!is.null(input$syse_phd_selections), 700, 100)
@@ -497,12 +566,12 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
       plots = setNames(
         list(
           if (length(input$system_phd_selections) == 1) {
-            sys_heatmap_plot_1var(subtab = 'phd', 
+            sys_phd_plot_1var(subtab = 'phd', 
                                   methodology_type = input$syse_methodology_type, 
                                   selection = input$syse_phd_selections, 
                                   isExport = TRUE)
           } else {
-            sys_heatmap_plot_2vars(subtab = 'phd', 
+            sys_phd_plot_2vars(subtab = 'phd', 
                                    methodology_type = input$syse_methodology_type, 
                                    selection = input$syse_phd_selections, 
                                    isExport = TRUE)

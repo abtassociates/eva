@@ -63,12 +63,12 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   )
 
   if(length(input$system_composition_selections) == 1) {
-    sys_heatmap_plot_1var(subtab = 'comp', 
+    sys_comp_plot_1var(subtab = 'comp', 
                           methodology_type = input$syso_methodology_type, 
                           selection = input$system_composition_selections, 
                           isExport = FALSE)
   } else {
-    sys_heatmap_plot_2vars(subtab = 'comp', 
+    sys_comp_plot_2vars(subtab = 'comp', 
                            methodology_type = input$syso_methodology_type, 
                            selections = input$system_composition_selections, 
                            isExport = FALSE)
@@ -101,12 +101,12 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
       plots = setNames(
         list(
           if (length(input$system_composition_selections) == 1) {
-            sys_heatmap_plot_1var(subtab = 'comp', 
+            sys_comp_plot_1var(subtab = 'comp', 
                                   methodology_type = input$syso_methodology_type, 
                                   selection = input$system_composition_selections, 
                                   isExport = TRUE)
           } else {
-            sys_heatmap_plot_2vars(subtab = 'comp', 
+            sys_comp_plot_2vars(subtab = 'comp', 
                                   methodology_type = input$syso_methodology_type, 
                                   selection = input$system_composition_selections, 
                                   isExport = TRUE)
