@@ -413,7 +413,25 @@ output$syse_compare_time_table <- renderDT({
   )
 })
 
-output$syse_compare_download_btn <- downloadHandler(filename = 'tmp',{
+output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits Report - "),
+                                                    content = function(file) {
+      logToConsole(session, "System Exit Types data download")
+                                                      
+      write_xlsx(
+        list(
+          "ExitsComparison Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
+            bind_rows(
+              sys_export_filter_selections(type = 'exits')
+            ),
+          ## dummy dataset read-in from global.R for now
+          "SystemExitData" = test_exits_data
+        ),
+        path = file,
+        format_headers = FALSE,
+        col_names = TRUE
+      )        
+})
+
 ## hide demographic filters when on PHD subtab
 observeEvent(input$syse_tabbox, {
   req(session$userData$valid_file() == 1)
@@ -531,6 +549,7 @@ output$syse_phd_chart <- renderPlot({
     "auto"
   }
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
+
 
 observeEvent(input$syse_phd_selections, {
   # they can select up to 2
