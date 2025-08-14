@@ -1012,7 +1012,6 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
   
   # 607965
   # QC checks ---------------
-  browser()
 #debug cols: final[PersonalID == 595646, c("period", enrollment_cols, "eecr", "lecr"), with=FALSE]
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
