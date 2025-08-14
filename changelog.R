@@ -2,7 +2,7 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
-    "07-11-2025",
+    "07-22-2025",
     "<b>Bug Fixes</b> <br>
       - Fix SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>).",
     "04-24-2025",
