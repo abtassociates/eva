@@ -406,7 +406,7 @@ universe_ppl_flags <- function(universe_df) {
     fmutate(keep_flag = !(
       OutflowTypeDetail == "Inactive" &
       flag(OutflowTypeDetail) == "Inactive" &
-        flag(PersonalID) == PersonalID &
+      flag(PersonalID) == PersonalID &
       flag(lecr) == TRUE
     )) %>%
     fsubset(keep_flag) %>%
@@ -426,6 +426,7 @@ universe_ppl_flags <- function(universe_df) {
         EnrollmentID, 
         eecr,
         lecr,
+        EntryDate,
         MoveInDateAdjust
       ) %>%
       funique()
