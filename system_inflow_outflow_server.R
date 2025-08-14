@@ -396,26 +396,21 @@ universe_ppl_flags <- function(universe_df) {
         ), levels = c(outflow_detail_levels, rev(active_at_levels))
       )
     )
-# browser()
-  # drop the last months that are Outflow Inactive (i.e. if no months after are non-Inactive)
+
+  ####
+  # DROPPING UNWANTED INACTIVES ----------------
+  ####
+  ## Multiple Inactives in a row --------
   universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
-    fmutate(
-      active_start = fifelse(OutflowTypeDetail != "Inactive" & period != "Full", startDate, NA),
-      inactive = OutflowTypeDetail == "Inactive" & period != "Full"
-    ) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      max_active_start = fmax(active_start),
-      min_inactive_after_active_start = fmin(
-        fifelse(inactive & (is.na(max_active_start) | startDate > max_active_start), startDate, NA)
-      )
-    ) %>%
-    fungroup() %>%
-    fsubset(
-      period == "Full" | # keep full period record
-      startDate <= min_inactive_after_active_start | # keep records before the first-inactive-after-last-active
-      is.na(min_inactive_after_active_start) # keep all records if there are no inactives
-    )
+    setorder(PersonalID, period) %>%
+    fmutate(keep_flag = !(
+      OutflowTypeDetail == "Inactive" &
+      flag(OutflowTypeDetail) == "Inactive" &
+        flag(PersonalID) == PersonalID &
+      flag(lecr) == TRUE
+    )) %>%
+    fsubset(keep_flag) %>%
+    fselect(-keep_flag)
 
   if(!in_dev_mode) {
     rm(universe_w_ppl_flags)
@@ -440,38 +435,6 @@ universe_ppl_flags <- function(universe_df) {
   ####
   # ERROR CHECKING------------------
   ####
-  ## Multiple Inactives in a row --------
-  bad_records <- universe_w_ppl_flags_clean %>%
-    fsubset(period != "Full", PersonalID,
-            InflowTypeSummary,
-            InflowTypeDetail,
-            OutflowTypeSummary,
-            OutflowTypeDetail,
-            period
-    ) %>%
-    funique() %>%
-    roworder(PersonalID, period) %>%
-    fmutate(is_inactive = OutflowTypeDetail == "Inactive")
-  
-  # 3. Identify consecutive blocks of status (active or inactive)
-  #    rleid() assigns a unique ID to consecutive runs of identical values
-  bad_records[, block_id := rleid(is_inactive), by = PersonalID]
-  
-  # 4. Calculate the length of each block
-  bad_records[, block_length := .N, by = .(PersonalID, block_id)]
-  
-  bad_records <- bad_records[is_inactive == TRUE & block_length > 1]
-  if(nrow(bad_records) > 0) {
-    logToConsole(session, "ERROR: Multiple Inactives in a row")
-    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
-      bad_records_multiple_inactives <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean) %>% 
-        fselect(outflow_debug_cols)
-      view(bad_records_multiple_inactives)
-      browser()
-    }
-  }
-  
-  
   ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
