@@ -436,6 +436,47 @@ tl_df_cls <- reactive({
     )
   
 })
+
+# TIMELINESS - value boxes ------------------------------------------------
+cc_project_type <- reactive({
+  req(session$userData$valid_file() == 1)
+  cur_project_type <- (client_count_data_df() %>% 
+    filter(ProjectName == input$currentProviderList) %>% pull(ProjectType))[1]
+})
+
+output$timeliness_vb1_val <- renderText({
+  req(session$userData$valid_file() == 1)
+  tl_df_project_start() %>% pull(mdn)
+})
+
+output$timeliness_vb2_val <- renderText({
+  req(session$userData$valid_file() == 1)
+  tl_df_project_exit() %>% pull(mdn)
+})
+
+output$timeliness_vb3 <- renderUI({
+  
+  if(cc_project_type() %in% c(0,1,4,14)){
+    num_hours <- 24
+    val <- tl_df_cls() %>% pull(pct_lt24)
+  } else {
+    num_hours <- 48
+    val <- tl_df_cls() %>% pull(pct_lt48)
+  }
+  if(is.nan(val)){
+    val <- "-"
+  } else {
+    val <- scales::percent(val,accuracy = 1)
+  }
+ 
+  value_box(
+    title = paste0("Percent of Records Entered within ",num_hours," Hours"),
+    value = val,
+    showcase = bs_icon("clock"),
+    theme = "text-primary",
+    class = "border"
+  )
+})
 # CLIENT COUNT DOWNLOAD ---------------------------------------------------
 
 output$downloadClientCountsReportButton  <- renderUI({

@@ -348,6 +348,28 @@ page_navbar(
           id = "client_count_ti_subtabs",
           nav_panel(
             title = headerSubTab("Record Entry"),
+            layout_column_wrap(
+              width = "250px",
+              fill = FALSE,
+
+              value_box(
+                title = "Median Days to Project Start Data Entry",
+                value = textOutput("timeliness_vb1_val"),
+                showcase = bs_icon("calendar-plus"),
+                theme = "bg-primary"
+              ),
+              value_box(
+                title = "Median Days to Project Exit Data Entry",
+                value = textOutput("timeliness_vb2_val"),
+                showcase = bs_icon("calendar-minus"),
+                theme = "bg-primary"
+              ),
+              uiOutput("timeliness_vb3")
+            ),
+            br(),
+            DTOutput("timelinessStartTable"),
+            DTOutput("timelinessExitTable")
+          )
         )
         
       ),
