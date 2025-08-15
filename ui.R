@@ -327,13 +327,31 @@ page_navbar(
       id = 'client_count_subtabs',
       
       nav_panel(
-        title = headerTab("Client Counts Summary"),
-        DTOutput("clientCountSummary")
+        title = headerTab("Client Counts"),
+        
+        navset_card_underline(
+          id = "client_count_cc_subtabs",
+          nav_panel(
+            title = headerSubTab("Client Counts Summary"),
+            DTOutput("clientCountSummary")
+          ),
+          nav_panel(
+            title = headerSubTab("Client Counts Detail"),
+            DTOutput("clientCountData")
+          ),
+        )
       ),
+      
       nav_panel(
-        title = headerTab("Client Counts Detail"),
-        DTOutput("clientCountData")
+        title = headerTab("Timeliness"),
+        navset_card_underline(
+          id = "client_count_ti_subtabs",
+          nav_panel(
+            title = headerSubTab("Record Entry"),
+        )
+        
       ),
+      
       nav_spacer(),
       nav_item(
         uiOutput("downloadClientCountsReportButton", inline = TRUE)
