@@ -428,7 +428,12 @@ universe_ppl_flags <- function(universe_df) {
         lecr,
         EntryDate,
         days_since_lookback,
-        MoveInDateAdjust
+        MoveInDateAdjust,
+        HouseholdType, 
+        CorrectedHoH, 
+        LivingSituation, 
+        ExitAdjust, 
+        Destination
       ) %>%
       funique()
   }

@@ -1029,7 +1029,8 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
         "lookback_dest_perm", "lookback_movein_before_start", "lookback_is_nonres_or_nbn",
         "was_lh_at_start", "was_lh_during_period", "was_lh_at_end", "was_housed_at_start", "was_housed_at_end",
         "first_lh_info_date", "no_lh_lookbacks",
-        "Destination"
+        "Destination", "LivingSituation",
+        "HouseholdType", "CorrectedHoH"
       )) %>%
       funique()
   }
