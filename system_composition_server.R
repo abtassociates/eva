@@ -750,7 +750,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
   join(
-    get_eecr_and_lecr()[period == "Full", .(PersonalID)],
+    period_specific_data()[["Full"]] %>% fselect(PersonalID),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%
