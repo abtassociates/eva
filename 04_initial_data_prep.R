@@ -294,7 +294,7 @@ EnrollmentAdjust <- Enrollment %>%
 
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
-  fselect(EnrollmentID, DateProvided, PersonalID) %>%
+  fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
 
 # Build validation df for app ---------------------------------------------
