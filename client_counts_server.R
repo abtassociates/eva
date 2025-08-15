@@ -338,6 +338,104 @@ output$clientCountSummary <- renderDT({
 })
 
 
+# TIMELINESS - reactive data frames ---------------------------------------
+
+tl_df_project_start <- reactive({
+  ## Time to Entry - Project Start
+  left_join(
+    client_count_data_df() %>% 
+      filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectStartDate = EntryDate,
+                    ProjectExitDate = ExitDate),
+    Enrollment %>% select(PersonalID,EnrollmentID,Enrollment.EntryDate = EntryDate, Enrollment.DateCreated = DateCreated)
+    
+  ) %>% 
+    filter(ProjectStartDate >=  input$dateRangeCount[1], ProjectStartDate <=  input$dateRangeCount[2]) %>% 
+    mutate(TimeToEntry = as.numeric(as.Date(Enrollment.DateCreated) - ProjectStartDate)) %>% 
+    summarize(
+      mdn = median(TimeToEntry, na.rm=T),
+      nlt0 = sum(TimeToEntry < 0, na.rm=T),
+      n0 = sum(TimeToEntry == 0, na.rm=T),
+      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
+      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
+      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
+      n11p = sum(TimeToEntry >= 11, na.rm=T)
+    )
+})
+
+tl_df_project_exit <- reactive({
+  ## Time to Entry - Project Exit
+  left_join(
+    client_count_data_df() %>% 
+      filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectStartDate = EntryDate,
+                                                    ProjectExitDate = ExitDate),
+    Exit %>% select(PersonalID,EnrollmentID, Exit.ExitDate = ExitDate, Exit.DateCreated = DateCreated)
+  ) %>%  
+    filter(ProjectExitDate >=  input$dateRangeCount[1], ProjectExitDate <=  input$dateRangeCount[2]) %>% 
+    mutate(TimeToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) )) %>% 
+    summarize(
+      mdn = median(TimeToEntry,na.rm=T),
+      nlt0 = sum(TimeToEntry < 0, na.rm=T),
+      n0 = sum(TimeToEntry == 0, na.rm=T),
+      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
+      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
+      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
+      n11p = sum(TimeToEntry >= 11, na.rm=T)
+    ) 
+})
+
+tl_df_nbn <- reactive({
+  ## Time to Entry - Night by Night
+  left_join(
+    client_count_data_df() %>% 
+      filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectStartDate = EntryDate,
+                    ProjectExitDate = ExitDate),
+    Services %>% rename(Services.DateCreated = DateCreated, Services.DateProvided = DateProvided)
+  ) %>% 
+    #filter(!is.na(Services.DateCreated)) %>% 
+    filter(Services.DateProvided >=  input$dateRangeCount[1], Services.DateProvided <=  input$dateRangeCount[2]) %>% 
+    mutate(TimeToEntry = as.numeric(as.Date(Services.DateCreated) - as.Date(Services.DateProvided)),
+           diff = as.numeric(difftime(Services.DateCreated, Services.DateProvided, units="hours"))) %>% 
+    summarize(
+      pct_lt24 = mean(diff < 24, na.rm=T),
+      pct_lt48 = mean(diff < 48, na.rm=T),
+      nlt0 = sum(TimeToEntry < 0, na.rm=T),
+      n0 = sum(TimeToEntry == 0, na.rm=T),
+      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
+      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
+      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
+      n11p = sum(TimeToEntry >= 11, na.rm=T)
+    )
+})
+
+tl_df_cls <- reactive({
+  ## Time to Entry - CLS
+  left_join(
+    client_count_data_df() %>% 
+      filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectStartDate = EntryDate,
+                    ProjectExitDate = ExitDate),
+    CurrentLivingSituation %>% 
+      select(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate)
+    
+  ) %>% filter(!is.na(CurrentLivingSituation.DateCreated)) %>% 
+    filter(CurrentLivingSituation.InformationDate >=  input$dateRangeCount[1], CurrentLivingSituation.InformationDate <=  input$dateRangeCount[2]) %>% 
+    mutate(TimeToEntry = as.numeric(as.Date(CurrentLivingSituation.DateCreated) - as.Date(CurrentLivingSituation.InformationDate)),
+           diff = as.numeric(difftime(CurrentLivingSituation.DateCreated, CurrentLivingSituation.InformationDate, units="hours"))) %>% 
+    summarize(
+      pct_lt24 = mean(diff < 24, na.rm=T),
+      pct_lt48 = mean(diff < 48, na.rm=T),
+      nlt0 = sum(TimeToEntry < 0, na.rm=T),
+      n0 = sum(TimeToEntry == 0, na.rm=T),
+      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
+      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
+      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
+      n11p = sum(TimeToEntry >= 11, na.rm=T)
+    )
+  
+})
 # CLIENT COUNT DOWNLOAD ---------------------------------------------------
 
 output$downloadClientCountsReportButton  <- renderUI({
