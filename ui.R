@@ -367,8 +367,7 @@ page_navbar(
               uiOutput("timeliness_vb3")
             ),
             br(),
-            DTOutput("timelinessStartTable"),
-            DTOutput("timelinessExitTable")
+            DTOutput("timelinessTable")
           )
         )
         

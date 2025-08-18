@@ -478,23 +478,12 @@ output$timeliness_vb3 <- renderUI({
   )
 })
 
-# TIMELINESS - Project Start ----------------------------------------------
+# TIMELINESS DT table ----------------------------------------------
 
-output$timelinessStartTable <- renderDT({
+output$timelinessTable <- renderDT({
   req(session$userData$valid_file() == 1)
-  datatable(
-    mtcars,
-    rownames = FALSE,
-    filter = list(position = 'top', plain = TRUE),
-    options = list(dom = 'ltpi'),
-    style = "default"
-  )
 })
 
-# TIMELINESS - Project Exit -----------------------------------------------
-
-output$timelinessExitTable <- renderDT({
-  req(session$userData$valid_file() == 1)
   datatable(
     mtcars,
     rownames = FALSE,
