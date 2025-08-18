@@ -411,6 +411,10 @@ Event <- Event %>%
     ResultDate
   )
 
+session$userData$Services <- Services
+session$userData$Exit <- Exit
+session$userData$Enrollment <- Enrollment
+session$userData$CurrentLivingSituation <- CurrentLivingSituation
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
