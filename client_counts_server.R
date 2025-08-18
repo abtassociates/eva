@@ -477,6 +477,33 @@ output$timeliness_vb3 <- renderUI({
     class = "border"
   )
 })
+
+# TIMELINESS - Project Start ----------------------------------------------
+
+output$timelinessStartTable <- renderDT({
+  req(session$userData$valid_file() == 1)
+  datatable(
+    mtcars,
+    rownames = FALSE,
+    filter = list(position = 'top', plain = TRUE),
+    options = list(dom = 'ltpi'),
+    style = "default"
+  )
+})
+
+# TIMELINESS - Project Exit -----------------------------------------------
+
+output$timelinessExitTable <- renderDT({
+  req(session$userData$valid_file() == 1)
+  datatable(
+    mtcars,
+    rownames = FALSE,
+    filter = list(position = 'top', plain = TRUE),
+    options = list(dom = 'ltpi'),
+    style = "default"
+  )
+})
+
 # CLIENT COUNT DOWNLOAD ---------------------------------------------------
 
 output$downloadClientCountsReportButton  <- renderUI({
