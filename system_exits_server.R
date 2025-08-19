@@ -60,7 +60,6 @@ output$syse_types_ui_chart <- renderPlot({
   syse_types_chart("Destination Type", input$syse_dest_type_filter)
 })
 
-syse_types_chart <- function(varname, status){
 tree_exits_data <- reactive({
   all_filtered_syse()  %>% 
     fselect( Destination, PersonalID, EnrollmentID) %>% 
@@ -73,6 +72,8 @@ tree_exits_data <- reactive({
       default = 'Other/Unknown'
     )) 
 })
+
+syse_types_chart <- function(varname, status, show_legend = FALSE){
   
   tree_colors <- c(
     "Permanent" = "#16697A",
@@ -81,7 +82,10 @@ tree_exits_data <- reactive({
     "Temporary" = "#71B4CB",
     "Other/Unknown" = "#73655E"
   )
+  nr <- nrow(tree_exits_data())
   
+  validate(need(nr > 0, no_data_msg))
+  validate(need(nr > 10, suppression_msg))
   
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 
@@ -94,23 +98,44 @@ tree_exits_data <- reactive({
                          ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
            ))
   
-  ggplot(test_exits_summ, aes(area = Count, fill = `Destination Type`, 
-                              label = str_c(`Destination Type`, ':\n', scales::label_comma()(Count),
-                                            ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
-                                                                                     ))) +
-    labs(title = paste0(scales::label_comma()(sum(test_exits_data$Count)), " System Exits for ", 
-                        syse_level_of_detail_text(), " in ", 
-                        str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "), 
-                        if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
-         ) +
-    geom_treemap(start = "left", show.legend = FALSE) +
-    geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
-    scale_color_identity() +
-    scale_fill_manual(values = tree_colors) +
-    theme_minimal() +
-    theme(
-      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
-    )
+
+    if(show_legend == FALSE){
+      ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
+                                  label = label)) +
+        labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+                            syse_level_of_detail_text(), " in ",
+                            str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                            if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+        ) +
+        geom_treemap(start = "left", show.legend = FALSE) +
+        geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
+        scale_color_identity() +
+        scale_fill_manual(values = tree_colors) +
+        theme_minimal() +
+        theme(
+          plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+        )
+  
+    } else if (show_legend == TRUE){
+    ggplot(tree_exits_summ, aes(area = Count, fill = label,
+                                label = label)) +
+      labs(title = paste0(scales::label_comma()(nr), " System Exits for ", 
+                          syse_level_of_detail_text(), " in ", 
+                          str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "), 
+                          if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+      ) +
+      geom_treemap(start = "left", show.legend = TRUE) +
+      geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
+      scale_color_identity() +
+      scale_fill_manual("",breaks = tree_exits_summ$label, values = setNames(tree_colors, tree_exits_summ$label)) +
+      theme_minimal() +
+      theme(
+        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
+        legend.text = element_text(size = sys_chart_text_font),
+        legend.position = 'bottom'
+      )
+  }
+  
 }
 
 
