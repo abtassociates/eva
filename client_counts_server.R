@@ -340,101 +340,103 @@ output$clientCountSummary <- renderDT({
 
 # TIMELINESS - reactive data frames ---------------------------------------
 
+calc_time_to_entry <- function(df){
+  df %>% 
+  fgroup_by(ProjectID) %>% 
+    fsummarize(
+      OrganizationName = ffirst(OrganizationName),
+      ProjectName = ffirst(ProjectName),
+      ProjectType = ffirst(ProjectType),
+      n_records = GRPN(),
+      n_lt24 = fsum(HoursToEntry < 24),
+      n_lt48 = fsum(HoursToEntry < 48),
+      mdn = fmedian(DaysToEntry,na.rm=T),
+      nlt0 = fsum(DaysToEntry < 0, na.rm=T),
+      n0 = fsum(DaysToEntry == 0, na.rm=T),
+      n1_3 = fsum(DaysToEntry >= 1 & DaysToEntry <= 3, na.rm=T),
+      n4_6 = fsum(DaysToEntry >= 4 & DaysToEntry <= 6, na.rm=T),
+      n7_10 = fsum(DaysToEntry >= 7 & DaysToEntry <= 10, na.rm=T),
+      n11p = fsum(DaysToEntry >= 11, na.rm=T)
+    ) %>% 
+    fungroup()
+}
+
 tl_df_project_start <- reactive({
+  req(session$userData$valid_file() == 1)
+  
   ## Time to Entry - Project Start
-  left_join(
+  join(
     client_count_data_df() %>% 
-      filter(ProjectName == input$currentProviderList) %>% 
-      rename(ProjectStartDate = EntryDate,
-                    ProjectExitDate = ExitDate),
-    Enrollment %>% select(PersonalID,EnrollmentID,Enrollment.EntryDate = EntryDate, Enrollment.DateCreated = DateCreated)
-    
+     #filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectStartDate = EntryDate),
+    session$userData$Enrollment %>% fselect(PersonalID,EnrollmentID, Enrollment.DateCreated = DateCreated),
+    how = "left"
   ) %>% 
-    filter(ProjectStartDate >=  input$dateRangeCount[1], ProjectStartDate <=  input$dateRangeCount[2]) %>% 
-    mutate(TimeToEntry = as.numeric(as.Date(Enrollment.DateCreated) - ProjectStartDate)) %>% 
-    summarize(
-      mdn = median(TimeToEntry, na.rm=T),
-      nlt0 = sum(TimeToEntry < 0, na.rm=T),
-      n0 = sum(TimeToEntry == 0, na.rm=T),
-      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
-      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
-      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
-      n11p = sum(TimeToEntry >= 11, na.rm=T)
-    )
+    fsubset(between(ProjectStartDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(Enrollment.DateCreated) - ProjectStartDate),
+            HoursToEntry = as.numeric(difftime(Enrollment.DateCreated, ProjectStartDate, units="hours"))) %>% 
+    calc_time_to_entry()
 })
 
 tl_df_project_exit <- reactive({
+  req(session$userData$valid_file() == 1)
+  
   ## Time to Entry - Project Exit
-  left_join(
+  join(
     client_count_data_df() %>% 
-      filter(ProjectName == input$currentProviderList) %>% 
-      rename(ProjectStartDate = EntryDate,
-                                                    ProjectExitDate = ExitDate),
-    Exit %>% select(PersonalID,EnrollmentID, Exit.ExitDate = ExitDate, Exit.DateCreated = DateCreated)
+      #filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectExitDate = ExitDate),
+    session$userData$Exit %>% fselect(PersonalID, EnrollmentID, Exit.DateCreated = DateCreated),
+    how = "left"
   ) %>%  
-    filter(ProjectExitDate >=  input$dateRangeCount[1], ProjectExitDate <=  input$dateRangeCount[2]) %>% 
-    mutate(TimeToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) )) %>% 
-    summarize(
-      mdn = median(TimeToEntry,na.rm=T),
-      nlt0 = sum(TimeToEntry < 0, na.rm=T),
-      n0 = sum(TimeToEntry == 0, na.rm=T),
-      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
-      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
-      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
-      n11p = sum(TimeToEntry >= 11, na.rm=T)
-    ) 
+    fsubset(between(ProjectExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) ),
+            HoursToEntry = as.numeric(difftime(Exit.DateCreated, ProjectExitDate, units="hours"))) %>% 
+    calc_time_to_entry()
 })
 
 tl_df_nbn <- reactive({
+  req(session$userData$valid_file() == 1)
   ## Time to Entry - Night by Night
-  left_join(
-    client_count_data_df() %>% 
-      filter(ProjectName == input$currentProviderList) %>% 
-      rename(ProjectStartDate = EntryDate,
-                    ProjectExitDate = ExitDate),
-    Services %>% rename(Services.DateCreated = DateCreated, Services.DateProvided = DateProvided)
+  nbn_df <- join(
+    client_count_data_df(),
+    #filter(ProjectName == input$currentProviderList) %>% 
+    session$userData$Services %>% rename(Services.DateCreated = DateCreated, Services.DateProvided = DateProvided),
+    how = "left"
   ) %>% 
     #filter(!is.na(Services.DateCreated)) %>% 
-    filter(Services.DateProvided >=  input$dateRangeCount[1], Services.DateProvided <=  input$dateRangeCount[2]) %>% 
-    mutate(TimeToEntry = as.numeric(as.Date(Services.DateCreated) - as.Date(Services.DateProvided)),
-           diff = as.numeric(difftime(Services.DateCreated, Services.DateProvided, units="hours"))) %>% 
-    summarize(
-      pct_lt24 = mean(diff < 24, na.rm=T),
-      pct_lt48 = mean(diff < 48, na.rm=T),
-      nlt0 = sum(TimeToEntry < 0, na.rm=T),
-      n0 = sum(TimeToEntry == 0, na.rm=T),
-      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
-      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
-      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
-      n11p = sum(TimeToEntry >= 11, na.rm=T)
-    )
+    fsubset(between(Services.DateProvided, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(Services.DateCreated) - as.Date(Services.DateProvided)),
+           HoursToEntry = as.numeric(difftime(Services.DateCreated, Services.DateProvided, units="hours"))) 
+  
+  if(nrow(nbn_df) > 0){
+    calc_time_to_entry(nbn_df) 
+  } else {
+     NULL
+  }
+  
 })
 
 tl_df_cls <- reactive({
+  req(session$userData$valid_file() == 1)
   ## Time to Entry - CLS
-  left_join(
-    client_count_data_df() %>% 
-      filter(ProjectName == input$currentProviderList) %>% 
-      rename(ProjectStartDate = EntryDate,
-                    ProjectExitDate = ExitDate),
-    CurrentLivingSituation %>% 
-      select(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate)
+  cls_df <- join(
+    client_count_data_df(), 
+      #fsubset(ProjectName == input$currentProviderList) %>% 
+    session$userData$CurrentLivingSituation %>% 
+      fselect(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate),
+    how = "left"
+  ) %>% 
+    fsubset(!is.na(CurrentLivingSituation.DateCreated)) %>% 
+    fsubset(between(CurrentLivingSituation.InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(CurrentLivingSituation.DateCreated) - as.Date(CurrentLivingSituation.InformationDate)),
+           HoursToEntry = as.numeric(difftime(CurrentLivingSituation.DateCreated, CurrentLivingSituation.InformationDate, units="hours"))) 
     
-  ) %>% filter(!is.na(CurrentLivingSituation.DateCreated)) %>% 
-    filter(CurrentLivingSituation.InformationDate >=  input$dateRangeCount[1], CurrentLivingSituation.InformationDate <=  input$dateRangeCount[2]) %>% 
-    mutate(TimeToEntry = as.numeric(as.Date(CurrentLivingSituation.DateCreated) - as.Date(CurrentLivingSituation.InformationDate)),
-           diff = as.numeric(difftime(CurrentLivingSituation.DateCreated, CurrentLivingSituation.InformationDate, units="hours"))) %>% 
-    summarize(
-      pct_lt24 = mean(diff < 24, na.rm=T),
-      pct_lt48 = mean(diff < 48, na.rm=T),
-      nlt0 = sum(TimeToEntry < 0, na.rm=T),
-      n0 = sum(TimeToEntry == 0, na.rm=T),
-      n1_3 = sum(TimeToEntry >= 1 & TimeToEntry <= 3, na.rm=T),
-      n4_6 = sum(TimeToEntry >= 4 & TimeToEntry <= 6, na.rm=T),
-      n7_10 = sum(TimeToEntry >= 7 & TimeToEntry <= 10, na.rm=T),
-      n11p = sum(TimeToEntry >= 11, na.rm=T)
-    )
-  
+    if(nrow(cls_df) > 0){
+      calc_time_to_entry(cls_df) 
+    } else {
+      NULL
+    }
 })
 
 # TIMELINESS - value boxes ------------------------------------------------
