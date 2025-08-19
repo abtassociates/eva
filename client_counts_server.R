@@ -522,13 +522,36 @@ output$timeliness_vb3 <- renderUI({
 
 output$timelinessTable <- renderDT({
   req(session$userData$valid_file() == 1)
-})
 
+  time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
+  
+  dat <-  data.frame(
+    time_period = c("< 0 days", "0 days", "1-3 days", "4-6 days", "7-10 days", "11+ days"),
+    proj_start = tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist,
+    proj_exit = tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  )
+  
+  if(cc_project_type() == 1){
+    dat$nbn = tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>%  fselect(time_cols) %>% unlist
+  } else {
+    dat$nbn <- NULL
+  }
+  
+  if(cc_project_type() %in% c(0,1,6,14)){
+    dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$cls <- NULL
+  }
+  
+  tbl_names <- c("Time for Record Entry" = "time_period", "Number of Project Start Records" = "proj_start", 
+                 "Number of Project Exit Records" = "proj_exit", 
+                     "Number of Bed Night Records" = "nbn", "Number of Current Living Situation Records" = "cls")
+  dat <- dat %>% rename(any_of(tbl_names))
   datatable(
-    mtcars,
+    dat,
     rownames = FALSE,
-    filter = list(position = 'top', plain = TRUE),
-    options = list(dom = 'ltpi'),
+    filter = "none",
+    options = list(dom = 't'),
     style = "default"
   )
 })
