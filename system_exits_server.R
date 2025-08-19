@@ -150,8 +150,11 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
            bind_rows(
              sys_export_filter_selections(type = 'exits')
            ),
-         ## dummy dataset read-in from global.R for now
-         "SystemExitData" = tree_exits_data()
+         
+         "SystemExitData" = tree_exits_data() %>% 
+           mutate(Destination = living_situation(Destination)) %>% 
+           group_by(`Destination Type`,Destination) %>% 
+           summarize(Count = n())
        ),
        path = file,
        format_headers = FALSE,
@@ -172,7 +175,7 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
                        summary_items = sys_export_summary_initial_df(type = 'exits') %>%
                          filter(Chart != "Start Date" & Chart != "End Date") %>% 
                          bind_rows(sys_export_filter_selections(type = 'exits'),
-                                   data.frame(Chart="Total System Exits", Value = scales::label_comma()(sum(tree_exits_data()$Count)))),
+                                   data.frame(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
                        plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
                        summary_font_size = 19,
                        startDate = session$userData$ReportStart, 
@@ -471,7 +474,9 @@ output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_file
               sys_export_filter_selections(type = 'exits')
             ),
           ## dummy dataset read-in from global.R for now
-          "SystemExitData" = tree_exits_data()
+          "SystemExitData" = tree_exits_data() %>% mutate(Destination = living_situation(Destination)) %>% 
+            group_by(`Destination Type`,Destination) %>% 
+            summarize(Count = n())
         ),
         path = file,
         format_headers = FALSE,
