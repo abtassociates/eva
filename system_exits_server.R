@@ -471,12 +471,12 @@ syse_client_categories_filtered <- reactive({
 })
 
 
-# Create passes-enrollment-filter flag to exclude enrollments from eecr -------
+# Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
 enrollments_filtered_syse <- reactive({
   logToConsole(session, "in enrollments_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  join(
+  en_filt <- join(
     session$userData$enrollment_categories,
     session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
     on = "PersonalID", 
@@ -507,6 +507,17 @@ enrollments_filtered_syse <- reactive({
         )
     ) %>%
     fselect(-VeteranStatus)
+  en_filt %>% 
+    roworder(PersonalID, EntryDate, ExitAdjust) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(
+      # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
+      # then it was clearly not a system exit
+      days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
+    ) %>%
+    fungroup() %>% 
+    fsubset(!is.na(days_to_lookahead ) & days_to_lookahead > 14 & passes_enrollment_filters)
+  
 })
 
 all_filtered_syse <- reactive({
