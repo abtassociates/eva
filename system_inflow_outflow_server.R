@@ -401,17 +401,19 @@ universe_ppl_flags <- function(universe_df) {
   # DROPPING UNWANTED INACTIVES ----------------
   ####
   ## Multiple Inactives in a row --------
-  universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
+  period_level_data <- universe_w_ppl_flags %>%
+    fselect(PersonalID, period, OutflowTypeDetail) %>%
+    funique() %>%
     setorder(PersonalID, period) %>%
-    fmutate(keep_flag = !(
-      OutflowTypeDetail == "Inactive" &
-      flag(OutflowTypeDetail) == "Inactive" &
-      flag(PersonalID) == PersonalID &
-      flag(lecr) == TRUE
-    )) %>%
-    fsubset(keep_flag) %>%
-    fselect(-keep_flag)
+    fmutate(prev_period_outflow = flag(OutflowTypeDetail, g = PersonalID)) %>%
+    fsubset(OutflowTypeDetail == "Inactive" & prev_period_outflow == "Inactive") %>%
+    fselect(PersonalID, period)
+  
+  universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
+    join(period_level_data, on = c("PersonalID", "period"), how="anti")
 
+  rm(period_level_data, universe_w_ppl_flags)
+  
   if(!in_dev_mode) {
     rm(universe_w_ppl_flags)
     universe_w_ppl_flags_clean <- universe_w_ppl_flags_clean %>%
@@ -438,7 +440,7 @@ universe_ppl_flags <- function(universe_df) {
       funique()
   }
   
-  
+  # universe_w_ppl_flags_clean[PersonalID == 576213, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, eecr, lecr, InflowTypeDetail, OutflowTypeDetail, keep_flag)]
   ####
   # ERROR CHECKING------------------
   ####
