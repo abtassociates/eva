@@ -61,6 +61,18 @@ output$syse_types_ui_chart <- renderPlot({
 })
 
 syse_types_chart <- function(varname, status){
+tree_exits_data <- reactive({
+  all_filtered_syse()  %>% 
+    fselect( Destination, PersonalID, EnrollmentID) %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    )) 
+})
   
   tree_colors <- c(
     "Permanent" = "#16697A",
@@ -71,6 +83,16 @@ syse_types_chart <- function(varname, status){
   )
   
   
+  tree_exits_summ <- tree_exits_data() %>% 
+    fgroup_by(`Destination Type`) %>% 
+    fsummarize(Count = GRPN(), 
+              Percent = GRPN() / nr) %>% 
+    fungroup() %>% 
+    fmutate(Percent = Count/fsum(Count),
+           text_color = fifelse(`Destination Type` == 'Institutional', 'black', 'white'),
+           label = str_c(`Destination Type`, ':\n', scales::label_comma()(Count),
+                         ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
+           ))
   
   ggplot(test_exits_summ, aes(area = Count, fill = `Destination Type`, 
                               label = str_c(`Destination Type`, ':\n', scales::label_comma()(Count),
@@ -104,7 +126,7 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
              sys_export_filter_selections(type = 'exits')
            ),
          ## dummy dataset read-in from global.R for now
-         "SystemExitData" = test_exits_data
+         "SystemExitData" = tree_exits_data()
        ),
        path = file,
        format_headers = FALSE,
@@ -125,7 +147,7 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
                        summary_items = sys_export_summary_initial_df(type = 'exits') %>%
                          filter(Chart != "Start Date" & Chart != "End Date") %>% 
                          bind_rows(sys_export_filter_selections(type = 'exits'),
-                                   data.frame(Chart="Total System Exits", Value = scales::label_comma()(sum(test_exits_data$Count)))),
+                                   data.frame(Chart="Total System Exits", Value = scales::label_comma()(sum(tree_exits_data()$Count)))),
                        plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
                        summary_font_size = 19,
                        startDate = session$userData$ReportStart, 
@@ -424,7 +446,7 @@ output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_file
               sys_export_filter_selections(type = 'exits')
             ),
           ## dummy dataset read-in from global.R for now
-          "SystemExitData" = test_exits_data
+          "SystemExitData" = tree_exits_data()
         ),
         path = file,
         format_headers = FALSE,

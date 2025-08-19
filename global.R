@@ -76,16 +76,3 @@ bslib_eva_theme <- bs_theme(
   #bg = '#ecf0f5',fg='black',
   font_scale = 0.875 # units are rem, 1rem = 16px
 )
-
-## dummy dataset for testing system exits functionality
-test_exits_data <- read_csv('sandbox/system_exits_dummy_data.csv') %>% 
-  fmutate(Destination = str_remove_all(Destination, '\xa0'))
-
-## dummy dataset summarized for treemaps
-test_exits_summ <- test_exits_data %>% 
-  mutate(`Destination Type` = str_replace(`Destination Type`, " Housing", "")) %>% 
-  group_by(`Destination Type`) %>% 
-  summarize(Count = sum(Count)) %>% 
-  ungroup() %>% 
-  mutate(Percent = Count/sum(Count),
-         text_color = ifelse(`Destination Type` == 'Institutional', 'black', 'white'))
