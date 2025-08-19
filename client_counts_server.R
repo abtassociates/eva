@@ -442,30 +442,68 @@ tl_df_cls <- reactive({
 # TIMELINESS - value boxes ------------------------------------------------
 cc_project_type <- reactive({
   req(session$userData$valid_file() == 1)
-  cur_project_type <- (client_count_data_df() %>% 
-    filter(ProjectName == input$currentProviderList) %>% pull(ProjectType))[1]
+  (client_count_data_df() %>% 
+    fsubset(ProjectName == input$currentProviderList) %>% pull(ProjectType))[1]
 })
 
 output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
-  tl_df_project_start() %>% pull(mdn)
+  
+  tl_df_project_start() %>%  
+    fsubset(ProjectName == input$currentProviderList) %>% 
+    pull(mdn)
 })
 
 output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
-  tl_df_project_exit() %>% pull(mdn)
+  tl_df_project_exit() %>% 
+    fsubset(ProjectName == input$currentProviderList) %>% 
+    pull(mdn)
 })
 
 output$timeliness_vb3 <- renderUI({
+  req(session$userData$valid_file() == 1)
+ 
+  num_hours <- ifelse(cc_project_type() %in% c(0,1,4,14), 24, 48)
+  num_hours_var <- ifelse(cc_project_type() %in% c(0,1,4,14), "n_lt24", "n_lt48")
   
-  if(cc_project_type() %in% c(0,1,4,14)){
-    num_hours <- 24
-    val <- tl_df_cls() %>% pull(pct_lt24)
+  if(cc_project_type() == 1 & !is.null(tl_df_nbn())){
+    num_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
+    den_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
   } else {
-    num_hours <- 48
-    val <- tl_df_cls() %>% pull(pct_lt48)
+    num_nbn <- 0
+    den_nbn <- 0
   }
-  if(is.nan(val)){
+  
+  if(cc_project_type() %in% c(0,1,6,14) & !is.null(tl_df_cls())){
+    num_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
+    den_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+  } else {
+    num_cls <- 0
+    den_cls <- 0
+  }
+    
+    num <- sum(
+      c(
+      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
+      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
+      num_nbn,
+      num_cls
+      ), 
+      na.rm = TRUE
+    )
+    den <-  sum(
+      c(
+      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
+      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
+      den_nbn,
+      den_cls
+      ), 
+      na.rm = TRUE
+    )
+    val <- ifelse(den == 0, 0, num / den)
+ 
+  if(is.nan(val) | is.na(val)){
     val <- "-"
   } else {
     val <- scales::percent(val,accuracy = 1)
