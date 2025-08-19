@@ -188,16 +188,28 @@ get_clientcount_download_info <- function(file) {
     select(!!keepCols, !!clientCountDetailCols) %>%
     arrange(OrganizationName, ProjectName, EntryDate)
   
+  validationStart <- tl_df_project_start() %>% 
+    select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
+    nice_names_timeliness(record_type = 'start')
+  
+  validationExit <- tl_df_project_exit() %>% 
+    select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>% 
+    nice_names_timeliness(record_type = 'exit')
+  
   exportDFList <- list(
     validationCurrent = validationCurrent %>% nice_names(),
     validationDateRange = validationDateRange %>% nice_names(),
-    validationDetail = validationDetail %>% nice_names()
+    validationDetail = validationDetail %>% nice_names(),
+    validationStart = validationStart,
+    validationExit = validationExit
   )
   
   names(exportDFList) = c(
     "validation - Current",
     "validation - Date Range",
-    "validation - Detail"
+    "validation - Detail",
+    "validation - Timeliness Start",
+    "validation - Timeliness Exit"
   )
   
   exportTestValues(
@@ -208,6 +220,14 @@ get_clientcount_download_info <- function(file) {
   )
   exportTestValues(
     client_count_download_detail = validationDetail %>% nice_names()
+  )
+  
+  exportTestValues(
+    client_count_download_timeliness_start = validationStart %>% nice_names_timeliness()
+  )
+  
+  exportTestValues(
+    client_count_download_timeliness_exit = validationExit %>% nice_names_timeliness()
   )
   
   write_xlsx(exportDFList,
