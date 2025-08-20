@@ -447,6 +447,22 @@ ES_BedType_HousingType <- activeInventory %>%
   ) %>%
   select(all_of(PDDEcols))
 
+# New PDDE check - Sara Soko ----------------------
+#For each ProjectID where ProjectType == es_nbn_project_type and HMISParticipationType == 1 and count of EnrollmentIDs > 0
+#Check Services.csv file for EnrollmentIDs that are associated with the ProjectID(s) in the previous step where RecordType == 200
+#If there is at least one match in Services.csv, this check should not trigger for that ProjectID
+
+services_chk <- Services %>% filter(RecordType==200) %>% select(ProjectID, EnrollmentID) %>% 
+  group_by(ProjectID) %>% summarise(countEnroll = length(unique(EnrollmentID)))
+
+nbn_noenrolls <- activeInventory %>%
+  left_join(Project0() %>% select(ProjectID, ProjectType), by = "ProjectID") %>% filter(ProjectType == es_nbn_project_type ) %>%
+  left_join(HMISParticipation %>% select(ProjectID, HMISParticipationType), by = "ProjectID") %>% filter(HMISParticipationType == 1)  %>%
+  left_join(services_chk, by = "ProjectID") %>% filter(is.na(countEnroll) & countEnroll==0)  %>% 
+  merge_check_info(checkIDs = ) %>% 
+  select(all_of(PDDEcols)) %>%
+  unique()
+
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
@@ -526,6 +542,7 @@ pdde_main(bind_rows(
   vsps_in_hmis,
   zero_utilization,
   ES_BedType_HousingType,
+  nbn_noenrolls,
   Active_Inventory_per_COC,
   COC_Records_per_Inventory,
   more_units_than_beds_inventory,
