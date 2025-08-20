@@ -373,21 +373,43 @@ get_lookbacks <- function(filtered_enrollments) {
   # the dataset before the fmutate, EntryDate and ExitAdjust don't make sense.
   # Ideally we'd create the new variables all in the same right-join, rather than
   # joining back to the full dt later, but this just doesn't yield the desired results.
-  lookback_info <- dt[ 
-    dt[, .(PersonalID, EnrollmentID, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
-    on = .(PersonalID, ExitAdjust <= EntryDate),
-    mult = "last"
-  ] %>% 
-    fsummarize(
-      PersonalID = PersonalID,
-      EnrollmentID = i.EnrollmentID,
-      days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
-      lookback_enrollment_id = EnrollmentID,
-      lookback_dest_perm = Destination %in% perm_livingsituation,
-      lookback_movein = MoveInDateAdjust,
-      lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
-    )
+  dt_starts <- dt[, .(PersonalID, EnrollmentID, EntryDate, Date = EntryDate, Type = "start")]
+  dt_ends <- dt[, .(PersonalID, EnrollmentID,  Destination, MoveInDateAdjust, ProjectType, ExitAdjust, Date = ExitAdjust, Type = "end")]
+  setkey(dt_ends, PersonalID, Date)
+  setkey(dt_starts, PersonalID, Date)
   
+  # Rolling join to find the most recent end date before each start date
+  lookback_info <- dt_ends[dt_starts, roll = TRUE][, .(
+    PersonalID,
+    EnrollmentID = i.EnrollmentID,
+    days_since_lookback = EntryDate - ExitAdjust, # ExitDate is the lookup's ExitDate
+    lookback_des = Destination,
+    lookback_ptype = ProjectType,
+    lookback_enrollment_id = EnrollmentID,
+    lookback_dest_perm = Destination %in% perm_livingsituation,
+    lookback_movein = MoveInDateAdjust,
+    lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
+  )]
+  # 
+  # lookback_info <- dt[ 
+  #   dt[, .(PersonalID, EnrollmentID, DestinationTemp = Destination, Destination, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
+  #   on = .(PersonalID, ExitAdjust <= EntryDate),
+  #   mult = "last"
+  # ] %>% 
+  #   fsummarize(
+  #     PersonalID = PersonalID,
+  #     EnrollmentID = i.EnrollmentID,
+  #     days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
+  #     lookback_des = Destination,
+  #     Destination = DestinationTemp,
+  #     Destination2 = i.Destination,
+  #     lookback_ptype = ProjectType,
+  #     lookback_enrollment_id = EnrollmentID,
+  #     lookback_dest_perm = Destination %in% perm_livingsituation,
+  #     lookback_movein = MoveInDateAdjust,
+  #     lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
+  #   )
+
   return(join(
     dt,
     lookback_info,
@@ -805,8 +827,6 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
   
   if(nrow(period_enrollments_filtered) == 0) return(period_enrollments_filtered)
   
-  lookbacks <- get_lookbacks(period_enrollments_filtered)
-  
   # Determine eecr/lecr-eligible records
   # get lh info and  limit to only enrollments that were LH during the given period 
   # or were not, but exited and HAD been LH at some point during the FULL period
@@ -1012,6 +1032,7 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
   
   # 607965
   # QC checks ---------------
+  # browser()
 #debug cols: final[PersonalID == 595646, c("period", enrollment_cols, "eecr", "lecr"), with=FALSE]
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
