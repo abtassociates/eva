@@ -18,7 +18,7 @@
     "accordion_upload": null,
     "card_filters1_full_screen": false,
     "card_filters2_full_screen": false,
-    "client_count_subtabs": "Client Counts Detail",
+    "client_count_subtabs": "<h4>Client Counts Detail<\/h4>",
     "currentProviderList": null,
     "dateRangeCount": [
       "2023-10-05",
@@ -29,11 +29,11 @@
       1920,
       1080
     ],
-    "dq_summary_subtabs": "Data Quality Guidance",
-    "g_errors_dqorg_subtabs": "Top 10 Projects",
-    "g_errors_dqsystem_subtabs": "Top 10 Organizations",
-    "hp_errors_dqorg_subtabs": "Top 10 Projects",
-    "hp_errors_dqsystem_subtabs": "Top 10 Organizations",
+    "dq_summary_subtabs": "<h4>Data Quality Guidance<\/h4>",
+    "g_errors_dqorg_subtabs": "<h5>Top 10 Projects<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top 10 Organizations<\/h5>",
+    "hp_errors_dqorg_subtabs": "<h5>Top 10 Projects<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Top 10 Organizations<\/h5>",
     "imported": {
       "name": [
         "FY24-ICF-missing-export.zip"
@@ -53,10 +53,10 @@
     "methodology_type": "1",
     "orgList": null,
     "pageid": "tabDQOrg",
-    "pdde_subtabs": "Guidance",
-    "sys_comp_subtabs": "Chart",
-    "sys_inflow_outflow_subtabs": "Summary Chart",
-    "sys_status_subtabs": "Chart",
+    "pdde_subtabs": "<h4>Guidance<\/h4>",
+    "sys_comp_subtabs": "<h5>Chart<\/h5>",
+    "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
+    "sys_status_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -75,15 +75,15 @@
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "System Flow",
+    "syso_tabbox": "<h4>System Flow<\/h4>",
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
     ],
-    "tabDQOrg_subtabs": "Warnings",
-    "tabDQSystem_subtabs": "Warnings",
-    "warnings_dqorg_subtabs": "Top 10 Projects",
-    "warnings_dqsystem_subtabs": "Top 10 Organizations"
+    "tabDQOrg_subtabs": "<h4>Warnings<\/h4>",
+    "tabDQSystem_subtabs": "<h4>Warnings<\/h4>",
+    "warnings_dqorg_subtabs": "<h5>Top 10 Projects<\/h5>",
+    "warnings_dqsystem_subtabs": "<h5>Top 10 Organizations<\/h5>"
   },
   "output": {
     "clientCountData": [
