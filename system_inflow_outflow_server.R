@@ -444,6 +444,22 @@ universe_ppl_flags <- function(universe_df) {
   ####
   # ERROR CHECKING------------------
   ####
+  ## Random 10 people from each group
+  # sampled <- universe_w_ppl_flags_clean[period == "Full"][
+  #   , .SD[sample(.N, min(10, .N))],
+  #   by = .(InflowTypeDetail, OutflowTypeDetail)
+  # ]
+  # 
+  # sampled_final <- sampled %>%
+  #   fselect(PersonalID) %>%
+  #   funique() %>%
+  #   join(enrollment_categories_all, on = "PersonalID", multiple=T) %>%
+  #   join(universe_w_ppl_flags_clean, on = "EnrollmentID", multiple=TRUE) %>%
+  #   fselect(PersonalID, period, eecr, lecr, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InformationDate, DateProvided, InflowTypeDetail, OutflowTypeDetail) %>%
+  #   setorder(PersonalID, period, eecr, lecr)
+  # 
+  # fwrite(sampled_final, "/media/sdrive/projects/CE_Data_Toolkit/QC_Inflow_Outflow_Statuses_8.20.25_v2.csv")
+
   ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
