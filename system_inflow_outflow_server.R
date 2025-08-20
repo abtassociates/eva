@@ -402,7 +402,7 @@ universe_ppl_flags <- function(universe_df) {
   ####
   ## Multiple Inactives in a row --------
   period_level_data <- universe_w_ppl_flags %>%
-    fselect(PersonalID, period, OutflowTypeDetail) %>%
+    fsubset(period != "Full", PersonalID, period, OutflowTypeDetail) %>%
     funique() %>%
     setorder(PersonalID, period) %>%
     fmutate(prev_period_outflow = flag(OutflowTypeDetail, g = PersonalID)) %>%
