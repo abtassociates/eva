@@ -47,9 +47,25 @@ mbm_outflow_levels <- c("Outflow", "Active at End: Housed")
 inflow_summary_levels <- c(
   "Active at Start",
   "Inflow",
+  "Continuous at Start",
+  "Excluded",
+  "First-of-Month Exit",
+  "something's wrong"
+)
+inflow_summary_chart_levels <- c(
+  "Active at Start",
+  "Inflow",
   "something's wrong"
 )
 outflow_summary_levels <- c(
+  "Outflow",
+  "Active at End",
+  "Continuous at End",
+  "Last-of-Month Entry",
+  "something's wrong"
+)
+
+outflow_summary_chart_levels <- c(
   "Outflow",
   "Active at End",
   "something's wrong"
@@ -635,7 +651,7 @@ get_inflow_outflow_full <- reactive({
             OutflowTypeDetail
     ) %>%
     fsubset(
-      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart &
+      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart |
       !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
     ) %>%
     funique()
@@ -776,7 +792,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   if(nrow(monthly_data) == 0) return(monthly_data)
   monthly_data <- monthly_data %>%
     fsubset(
-      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart & 
+      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart | 
       !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
     ) %>%
     fmutate(
@@ -1120,8 +1136,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
         Summary,
-        Inflow = inflow_summary_levels,
-        Outflow = outflow_summary_levels
+        Inflow = inflow_summary_chart_levels,
+        Outflow = outflow_summary_chart_levels
       ))
     
     # Get Average Info for Title Display
