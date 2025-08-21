@@ -643,7 +643,7 @@ get_inflow_outflow_full <- reactive({
   # AS 6/8/25: Do we want to remove *people* that are Continuous? Or just exclude from those Inflow/Outflow bars?
   # ditto for Inflow = Unknown
   # 637203 is an example of someone with Inflow = Unknown but has a regular Outflow
-  full_data %>%
+  data <- full_data %>%
     fselect(PersonalID,
             InflowTypeSummary,
             InflowTypeDetail,
@@ -655,6 +655,14 @@ get_inflow_outflow_full <- reactive({
       !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
     ) %>%
     funique()
+  
+  if(
+    (data %>% fsubset(InflowTypeDetail == "Excluded" | OutflowTypeDetail == "Excluded") %>% nrow() > 0) &
+    in_dev_mode
+  ) {
+    browser()
+  }
+  data
 })
 
 ## Monthly ---------------------------------
@@ -810,6 +818,13 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       )
     )
   
+  if(
+    (monthly_data %>% fsubset(InflowTypeDetail == "Excluded" | OutflowTypeDetail == "Excluded") %>% nrow() > 0) &
+    in_dev_mode
+  ) {
+    browser()
+  }
+  
   get_counts_by_month_for_mbm(monthly_data)
 })
 
@@ -836,7 +851,7 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
     fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
-
+browser()
   all_months <- data.table(month = get_months_in_report_period()) %>%
     fmutate(month = factor(format(month, "%b %y")))
   # PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &
