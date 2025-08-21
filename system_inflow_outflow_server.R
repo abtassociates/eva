@@ -1440,7 +1440,8 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       )
     ),
     style = "default",
-    rownames = FALSE
+    rownames = FALSE,
+    selection = "none"
   )  %>%
     # Highlight only the first column of "Inflow" and "Outflow" rows
     formatStyle(
