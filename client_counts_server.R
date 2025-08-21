@@ -411,7 +411,7 @@ tl_df_project_exit <- reactive({
   ) %>%  
     fsubset(between(ProjectExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
     fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) ),
-            HoursToEntry = as.numeric(difftime(Exit.DateCreated, ProjectExitDate, units="hours"))) %>% 
+            HoursToEntry = as.numeric(difftime(ProjectExitDate, Exit.DateCreated, units="hours"))) %>% 
     calc_time_to_entry()
 })
 
