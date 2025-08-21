@@ -16,12 +16,28 @@ syse_detailBox <- reactive({
 })
 
 
+
+
 output$syse_compare_subpop_filter_selections <- 
-  output$syse_compare_time_filter_selections <- 
   output$syse_types_filter_selections <- renderUI({ 
     req(session$userData$valid_file() == 1)
     syse_detailBox()
   })
+
+## separate info for time chart tab since report period covers 2 years before ReportEnd
+output$syse_compare_time_filter_selections <- renderUI({
+  req(session$userData$valid_file() == 1)
+  sys_detailBox(
+    all_filters = TRUE,
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportEnd - years(2) + 1,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+  )
+})
 
 sys_phd_selections_info <- reactive({
   sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)
