@@ -229,21 +229,109 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 }
 
 get_syse_compare_subpop_data <- reactive({
-  ## create placeholder data for chart and table creation
-  tribble(~subpop_summ,~Permanent,~Homeless,~Institutional,~Temporary,~"Other/Unknown",
-         "Subpopulation", 0.15, 0.31, 0.04, 0.10, 0.40,
-         "Everyone Else", 0.25, 0.17, 0.11, 0.14, 0.33,
-         "Percent Difference", -0.1, 0.14, -0.07, -0.04, 0.07
+  
+  validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
+  validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
+  
+  everyone_else <- all_unfiltered_syse() %>% 
+    roworder(PersonalID, EntryDate, ExitAdjust) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(
+      # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
+      # then it was clearly not a system exit
+      days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
+    ) %>%
+    fungroup() %>% 
+    fsubset(days_to_lookahead > 14 ) %>% 
+    ## drop rows that are in the filtered version - (everyone minus subpop)
+    fsubset(!(EnrollmentID %in% all_filtered_syse()$EnrollmentID)) %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    )) %>% 
+    fmutate(
+      `Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown'))
+    )
+  
+  pct_subpop <- tree_exits_data() %>% summarize(
+    'Permanent' = mean(`Destination Type` == 'Permanent'),
+    'Homeless'= mean(`Destination Type` == 'Homeless'),
+    'Institutional' = mean(`Destination Type` == 'Institutional'),
+    'Temporary' = mean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  )
+  
+  pct_everyone_else <- everyone_else %>% summarize(
+    'Permanent' = mean(`Destination Type` == 'Permanent'),
+    'Homeless' = mean(`Destination Type` == 'Homeless'),
+    'Institutional' = mean(`Destination Type` == 'Institutional'),
+    'Temporary' = mean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  )
+  tibble(
+    subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
+  round(
+    rowbind(
+      pct_subpop,
+      pct_everyone_else,
+      pct_subpop - pct_everyone_else
+    ),
+  2)
   )
 
 })
 
 get_syse_compare_time_data <- reactive({
-  ## create placeholder data for chart and table creation
-  tribble(~time_summ,~Permanent,~Homeless,~Institutional,~Temporary,~"Other/Unknown",
-          "Current Year", 0.17, 0.20, 0.08, 0.26, 0.29,
-          "Previous Year", 0.25, 0.17, 0.11, 0.14, 0.33,
-          "Percent Change", -0.08, 0.03, -0.03, 0.12, -0.04
+  
+  validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
+  validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
+  
+  everyone <- all_filtered_syse() %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    )) %>% 
+    fmutate(
+      `Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown'))
+    )
+  
+  prev_year <- everyone %>% 
+    fsubset(ExitDate >= (session$userData$ReportEnd - years(1)))
+  
+  current_year <- everyone %>% 
+    fsubset(between(ExitDate, session$userData$ReportEnd - years(2), session$userData$ReportEnd - years(1)))
+  
+  pct_prev_year <- prev_year %>% summarize(
+    'Permanent' = mean(`Destination Type` == 'Permanent'),
+    'Homeless'= mean(`Destination Type` == 'Homeless'),
+    'Institutional' = mean(`Destination Type` == 'Institutional'),
+    'Temporary' = mean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  )
+  
+  pct_current_year <- current_year %>% summarize(
+    'Permanent' = mean(`Destination Type` == 'Permanent'),
+    'Homeless' = mean(`Destination Type` == 'Homeless'),
+    'Institutional' = mean(`Destination Type` == 'Institutional'),
+    'Temporary' = mean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  )
+  
+  tibble(
+    time_summ = c("Current Year","Previous Year","Percent Change"),
+    round(rowbind(
+      pct_current_year,
+      pct_prev_year,
+      pct_current_year - pct_prev_year
+    ),2)
   )
   
 })
@@ -455,9 +543,9 @@ output$syse_compare_time_chart <- renderPlot({
 })
 
 output$syse_compare_time_table <- renderDT({
-  time_chart_validation(startDate = session$userData$ReportStart, endDate = session$userData$ReportEnd,
-                        input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
-                        show = FALSE)
+  # time_chart_validation(startDate = session$userData$ReportStart, endDate = session$userData$ReportEnd,
+  #                       input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
+  #                       show = FALSE)
   get_syse_compare_time_table(
     get_syse_compare_time_data()
   )
@@ -522,18 +610,22 @@ syse_client_categories_filtered <- reactive({
   ]
 })
 
+all_unfiltered_syse <- reactiveVal(NULL)
 
 # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
 enrollments_filtered_syse <- reactive({
   logToConsole(session, "in enrollments_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  en_filt <- join(
+  en_unfilt <-  join(
     session$userData$enrollment_categories,
     session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
     on = "PersonalID", 
     how = "inner"
-  ) %>%
+  )
+  all_unfiltered_syse(en_unfilt)
+  
+  en_filt <- en_unfilt %>%
     fmutate(
       passes_enrollment_filters =
         # Household type filter
@@ -559,6 +651,7 @@ enrollments_filtered_syse <- reactive({
         )
     ) %>%
     fselect(-VeteranStatus)
+  
   en_filt %>% 
     roworder(PersonalID, EntryDate, ExitAdjust) %>%
     fgroup_by(PersonalID) %>%
