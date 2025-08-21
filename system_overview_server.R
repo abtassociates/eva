@@ -66,7 +66,7 @@ observeEvent(
     input$syso_project_type
   ),
   {
-    num_people <- fndistinct(period_specific_data()[["Full"]]$PersonalID)
+    num_people <- fndistinct(period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID))
     shinyjs::toggle(
       "sys_inflow_outflow_download_btn", 
       condition = num_people > 10
@@ -469,7 +469,7 @@ period_specific_data <- reactive({
 
   # Split into months and full-period datasets
   list(
-    Full = fsubset(universe_w_ppl_flags,period == "Full"),
+    Full = fsubset(universe_w_ppl_flags, period == "Full"),
     Months = universe_w_ppl_flags %>%
       fsubset(period != "Full") %>%
       fmutate(month = factor(

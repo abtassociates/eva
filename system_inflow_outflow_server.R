@@ -71,18 +71,11 @@ outflow_summary_chart_levels <- c(
   "something's wrong"
 )
 
-inflow_chart_summary_levels <- c(
-  "Active at Start",
-  "Inflow"
-)
-outflow_chart_summary_levels <- c(
-  "Outflow",
-  "Active at End"
-)
-
 inflow_statuses_to_exclude_from_chart <- c(
   "Continuous at Start",
+  "Unknown",
   "Excluded",
+  "First-of-Month Exit",
   "something's wrong"
 )
 inflow_statuses_to_exclude_from_export <- c(
@@ -93,11 +86,11 @@ inflow_statuses_to_exclude_from_export <- c(
 
 outflow_statuses_to_exclude_from_chart <- c(
   "Continuous at End",
+  "Last-of-Month Entry",
   "something's wrong"
 )
 outflow_statuses_to_exclude_from_export <- c(
-  "something's wrong",
-  "Last-of-Month Entry"
+  "something's wrong"
 )
 
 collapse_details <- list(
@@ -634,7 +627,7 @@ universe_ppl_flags <- function(universe_df) {
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
   logToConsole(session, "In get_inflow_outflow_full")
-  full_data <- period_specific_data()[["Full"]]
+  full_data <- period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail != "Excluded")
   
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
   
@@ -650,18 +643,8 @@ get_inflow_outflow_full <- reactive({
             OutflowTypeSummary,
             OutflowTypeDetail
     ) %>%
-    fsubset(
-      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart |
-      !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
-    ) %>%
     funique()
   
-  if(
-    (data %>% fsubset(InflowTypeDetail == "Excluded" | OutflowTypeDetail == "Excluded") %>% nrow() > 0) &
-    in_dev_mode
-  ) {
-    browser()
-  }
   data
 })
 
@@ -669,7 +652,7 @@ get_inflow_outflow_full <- reactive({
 # combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
   logToConsole(session, paste0("In get_inflow_outflow_monthly"))
-  months_data <- period_specific_data()[["Months"]]
+  months_data <- period_specific_data()[["Months"]] %>% fsubset(InflowTypeDetail !=" Excluded")
   
   logToConsole(session, paste0("In get_inflow_outflow_monthly, num months_data records: ", nrow(months_data)))
   
@@ -772,7 +755,7 @@ sys_inflow_outflow_annual_chart_data <- reactive({
         PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
       )
   ) %>% 
-  fsubset(Detail != "Unknown") %>%
+  fsubset(!Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)) %>%
   fcount() %>%
   join(full_combinations, how="full", on=names(full_combinations), overid=0) %>%
   collapse::replace_na(cols = "N", value = 0) %>%
@@ -799,10 +782,6 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   
   if(nrow(monthly_data) == 0) return(monthly_data)
   monthly_data <- monthly_data %>%
-    fsubset(
-      !InflowTypeDetail %in% inflow_statuses_to_exclude_from_chart | 
-      !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_chart
-    ) %>%
     fmutate(
       InflowPlotFillGroups = fct_collapse(
         InflowTypeDetail, 
@@ -817,13 +796,6 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         Outflow = outflow_detail_levels
       )
     )
-  
-  if(
-    (monthly_data %>% fsubset(InflowTypeDetail == "Excluded" | OutflowTypeDetail == "Excluded") %>% nrow() > 0) &
-    in_dev_mode
-  ) {
-    browser()
-  }
   
   get_counts_by_month_for_mbm(monthly_data)
 })
@@ -847,11 +819,11 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
     )]
   ) %>%
     funique() %>%
-    fsubset(Detail != "Unknown" | is.na(Detail)) %>%
+    fsubset(!Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)) %>%
     fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
-browser()
+
   all_months <- data.table(month = get_months_in_report_period()) %>%
     fmutate(month = factor(format(month, "%b %y")))
   # PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels) &

@@ -750,7 +750,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
   join(
-    period_specific_data()[["Full"]] %>% fselect(PersonalID),
+    period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%
