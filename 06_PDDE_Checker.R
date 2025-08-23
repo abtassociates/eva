@@ -452,14 +452,15 @@ ES_BedType_HousingType <- activeInventory %>%
 #Check Services.csv file for EnrollmentIDs that are associated with the ProjectID(s) in the previous step where RecordType == 200
 #If there is at least one match in Services.csv, this check should not trigger for that ProjectID
 
-services_chk <- Services %>% filter(RecordType==200) %>% select(ProjectID, EnrollmentID) %>% 
+services_chk <- services() %>% filter(RecordType==200) %>% select(EnrollmentID) %>% left_join(Enrollment %>% select(ProjectID, EnrollmentID)) %>%
   group_by(ProjectID) %>% summarise(countEnroll = length(unique(EnrollmentID)))
 
 nbn_noenrolls <- activeInventory %>%
   left_join(Project0() %>% select(ProjectID, ProjectType), by = "ProjectID") %>% filter(ProjectType == es_nbn_project_type ) %>%
   left_join(HMISParticipation %>% select(ProjectID, HMISParticipationType), by = "ProjectID") %>% filter(HMISParticipationType == 1)  %>%
-  left_join(services_chk, by = "ProjectID") %>% filter(is.na(countEnroll) & countEnroll==0)  %>% 
-  merge_check_info(checkIDs = ) %>% 
+  left_join(services_chk, by = "ProjectID") %>% filter(is.na(countEnroll) | countEnroll==0)  %>% 
+  merge_check_info(checkIDs = 106) %>% 
+  mutate(Detail = ""  ) %>%
   select(all_of(PDDEcols)) %>%
   unique()
 
