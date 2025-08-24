@@ -188,8 +188,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
           )
         )
       ) | (
-        startDate > session$userData$ReportStart & 
-        EntryDate < startDate & ExitAdjust > startDate
+        startDate > session$userData$ReportStart & (
+          EntryDate < startDate & ExitAdjust > startDate |
+          EntryDate == startDate & has_recent_lh_info
+        )
       ),
 
     # Similarly for Active at End...
@@ -594,7 +596,7 @@ universe_ppl_flags <- function(universe_df) {
       InflowTypeDetail == "Homeless" & 
       EntryDate == as.Date(period) &
       EntryDate != session$userData$ReportStart &
-      (days_since_lookback > 14 | is.na(days_since_lookback))
+      (days_since_lookback > 14 | is.na(days_since_lookback)) & !has_recent_lh_info
     )
   if(nrow(bad_records) > 0) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {

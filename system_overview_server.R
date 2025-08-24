@@ -1005,9 +1005,11 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
     fgroup_by(period, PersonalID) %>%
     fmutate(
       has_eecr = any(eecr, na.rm=TRUE),
-      has_lecr = any(lecr, na.rm=TRUE)
+      has_lecr = any(lecr, na.rm=TRUE),
+      person_last_lh_info_date = as.Date(cummax(fcoalesce(as.numeric(last_lh_info_date), 0)))
     ) %>%
-    fungroup()
+    fungroup() %>%
+    fmutate(has_recent_lh_info = eecr & (EntryDate - person_last_lh_info_date) %between% c(1, 14))
   
   #160649 - ICFgood (getting "something's wrong" inflow) 
   #689253 - Demo (getting "something's wrong" inflow in June) 
