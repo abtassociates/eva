@@ -441,6 +441,7 @@ universe_ppl_flags <- function(universe_df) {
         lecr,
         EntryDate,
         days_since_lookback,
+        has_recent_lh_info,
         MoveInDateAdjust,
         HouseholdType, 
         CorrectedHoH, 
