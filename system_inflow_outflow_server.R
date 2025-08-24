@@ -218,7 +218,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     return_from_perm = eecr & (
       (days_since_lookback %between% c(15, 730) & lookback_dest_perm) |
-      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_is_nonres_or_nbn)
+      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_is_nonres_or_nbn & (EntryDate - lookback_last_lh_date) >= 15)
     ),
     
     # if it's non-res (or nbn) and they straddle but are not was_lh_at_start but are LH later in the period, they should be re-engaged
@@ -229,10 +229,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     return_from_nonperm = eecr & (
       (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
-      (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn) |
+      # This condition is meant to capture cases where Inactive nonres/nbn enrollments 
+      # are exited and then immediately followed up with a new enrollment.
+      (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & (EntryDate - lookback_last_lh_date) >= 15) |
       (
-        # for non-res projects (excluding SO), if they straddle, but were not LH at start
-        # and no lookback or a lookback > 2 yrs ago THEN re-engaged
         ProjectType %in% nbn_non_res &
         !was_lh_at_start &
         straddles_start & 

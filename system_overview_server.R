@@ -363,18 +363,17 @@ get_lookbacks <- function(filtered_enrollments) {
     setkey(PersonalID, EntryDate, ExitAdjust) %>%
     fmutate(
       days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
+    ) %>%
+    join(
+      rbind(
+        session$userData$lh_non_res %>% fselect(EnrollmentID, last_lh_info_date),
+        session$userData$lh_nbn %>% fselect(EnrollmentID, last_lh_info_date)
+      ),
+      on = "EnrollmentID"
     )
-  
-  # I don't understand why/how this non-equi self-join works.
-  # In theory, since this is a right-join, for each EntryDate, we're pulling in the 
-  # latest record whose ExitAdjust is still before the EntryDate, i.e. the (valid) lookback,
-  # then we pull in that lookback's info.
-  # It's just surprising which columns are the relevant ones. If you were to look at
-  # the dataset before the fmutate, EntryDate and ExitAdjust don't make sense.
-  # Ideally we'd create the new variables all in the same right-join, rather than
-  # joining back to the full dt later, but this just doesn't yield the desired results.
+
   dt_starts <- dt[, .(PersonalID, EnrollmentID, EntryDate, Date = EntryDate, Type = "start")]
-  dt_ends <- dt[, .(PersonalID, EnrollmentID,  Destination, MoveInDateAdjust, ProjectType, ExitAdjust, Date = ExitAdjust, Type = "end")]
+  dt_ends <- dt[, .(PersonalID, EnrollmentID,  Destination, last_lh_info_date, MoveInDateAdjust, ProjectType, ExitAdjust, Date = ExitAdjust, Type = "end")]
   setkey(dt_ends, PersonalID, Date)
   setkey(dt_starts, PersonalID, Date)
   
@@ -388,7 +387,8 @@ get_lookbacks <- function(filtered_enrollments) {
     lookback_enrollment_id = EnrollmentID,
     lookback_dest_perm = Destination %in% perm_livingsituation,
     lookback_movein = MoveInDateAdjust,
-    lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
+    lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res,
+    lookback_last_lh_date = last_lh_info_date
   )]
   # 
   # lookback_info <- dt[ 
