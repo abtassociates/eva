@@ -66,7 +66,14 @@ observeEvent(
     input$syso_project_type
   ),
   {
-    num_people <- fndistinct(period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID))
+    num_rows <- nrow(period_specific_data()[["Full"]])
+    
+    num_people <- ifelse(
+      num_rows > 0,
+      fndistinct(period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID)),
+      0
+    )
+
     shinyjs::toggle(
       "sys_inflow_outflow_download_btn", 
       condition = num_people > 10
@@ -465,6 +472,11 @@ period_specific_data <- reactive({
     on = "PersonalID",
     how = "inner"
   )
+  
+  if(nrow(all_filtered) == 0) {
+    return(list(Full = data.table(), Months = data.table()))
+  }
+  
   rm(eecrs_and_lecrs)
   rm(filtered_clients)
   

@@ -668,9 +668,14 @@ universe_ppl_flags <- function(universe_df) {
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
   logToConsole(session, "In get_inflow_outflow_full")
-  full_data <- period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail != "Excluded")
-  
+
+  full_data <- period_specific_data()[["Full"]]
+  if(nrow(full_data) == 0) return(full_data)
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
+  
+  full_data <- full_data %>% fsubset(InflowTypeDetail != "Excluded")
+  
+  logToConsole(session, paste0("In get_inflow_outflow_full, num non-Excluded full_data records: ", nrow(full_data)))
   
   if(nrow(full_data) == 0) return(full_data)
   

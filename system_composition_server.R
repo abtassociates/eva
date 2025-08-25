@@ -205,7 +205,16 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
 
-  comp_df <- get_people_universe_filtered() %>%
+  universe <- get_people_universe_filtered()
+  
+  validate(
+    need(
+      nrow(universe) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  comp_df <- universe %>%
     remove_non_applicables() %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
@@ -312,9 +321,17 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   if (selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
     selections <- c(selections[2], selections[1])
   }
-  
+
   # get dataset underlying the freqs we will produce below
-  comp_df <- get_people_universe_filtered() %>%
+  universe <- get_people_universe_filtered()
+  validate(
+    need(
+      nrow(universe) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  comp_df <- universe %>%
     remove_non_applicables() %>%
     select(
       PersonalID, 
@@ -751,6 +768,9 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
+  full_data <- period_specific_data()[["Full"]]
+  req(nrow(full_data) > 0)
+  
   join(
     period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
     session$userData$client_categories,
