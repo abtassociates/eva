@@ -1474,6 +1474,47 @@ conflicting_ncbs_entry <- base_dq_data %>%
            )) %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
+    
+# Missing bed night for NBN Enrollment Entry ---------------------------------------
+services_chk <- Services %>% filter(RecordType==200) %>% 
+  select(EnrollmentID, DateProvided)  %>% 
+  left_join(Enrollment %>% select(ProjectID, EnrollmentID)) %>% unique()
+services_sum <- services_chk %>% group_by(ProjectID, DateProvided) %>% 
+  summarise(countEnroll = length(unique(EnrollmentID)))
+
+missing_bn1 <- base_dq_data %>%
+  filter(ProjectType == es_nbn_project_type) %>%
+  left_join(services_chk %>% mutate(DateProvided = 1) %>% unique(), by = c("ProjectID", "EnrollmentID"))
+missing_bn1 <- missing_bn1 %>% filter(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
+  select(-DateProvided) 
+ 
+missing_bn2 <- base_dq_data %>%
+  filter(ProjectType == es_nbn_project_type) %>%
+  filter(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
+  left_join(services_sum, by = c("ProjectID" = "ProjectID", "EntryDate" = "DateProvided")) %>% # but,
+  filter(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their entry date
+  select(colnames(missing_bn1))
+
+missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
+  merge_check_info(checkIDs = 107) %>% 
+  select(all_of(vars_we_want)) %>%
+  unique()
+
+# Missing bed night for NBN Enrollment Exit ---------------------------------------
+
+missing_bn2 <- base_dq_data %>%
+  filter(ProjectType == es_nbn_project_type & !is.na(ExitDate)) %>%
+  filter(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
+  left_join(services_sum, by = c("ProjectID" = "ProjectID", "ExitDate" = "DateProvided")) %>% # but,
+  filter(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their exit date
+  select(colnames(missing_bn1))
+
+missing_bn_exit <- missing_bn1 %>% rbind(missing_bn2) %>%
+  merge_check_info(checkIDs = 108) %>% 
+  select(all_of(vars_we_want)) %>%
+  unique()
+
+rm(missing_bn1, missing_bn2, services_chk, services_sum)
 
 # SSVF --------------------------------------------------------------------
 ssvf_base_dq_data <- base_dq_data %>%
@@ -1623,7 +1664,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
 # How we determine the last time we heard from an enrollment differs by Project Type
 
 # Non-Residential Long Stayers --------------------------------------------
-
 calculate_long_stayers_local_settings_dt <- function(projecttype){
   # get non-exited enrollments for projecttype
   logToConsole(session, glue::glue("In calculate long stayers: projecttype = {projecttype}"))
@@ -1736,7 +1776,7 @@ calculate_outstanding_referrals <- function(dq_data){
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 # All together now --------------------------------------------------------
-dq_main <- rowbind(
+dq_main <- as.data.table(rbind(
   approx_start_after_entry,
   approx_start_v_living_situation_data,
   conflicting_health_insurance_entry,
@@ -1780,6 +1820,8 @@ dq_main <- rowbind(
   # missing_destination,
   missing_destination_subsidy,
   dkr_disabilities,
+  missing_bn_entry,
+  missing_bn_exit,
   missing_dob,
   # missing_dob_dataquality,
   missing_enrollment_coc,
@@ -1811,7 +1853,7 @@ dq_main <- rowbind(
   veteran_missing_wars,
   veteran_missing_year_entered,
   veteran_missing_year_separated
-)
+))
 
 dq_main <- dq_main %>% 
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
