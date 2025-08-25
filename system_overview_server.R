@@ -370,7 +370,12 @@ get_lookbacks <- function(filtered_enrollments) {
         session$userData$lh_nbn %>% fselect(EnrollmentID, last_lh_info_date)
       ),
       on = "EnrollmentID"
-    )
+    ) %>%
+    fmutate(last_lh_info_date = fifelse(
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      fcoalesce(MoveInDateAdjust, ExitAdjust),
+      last_lh_info_date
+    ))
 
   dt_starts <- dt[, .(PersonalID, EnrollmentID, EntryDate, Date = EntryDate, Type = "start")]
   dt_ends <- dt[, .(PersonalID, EnrollmentID,  Destination, last_lh_info_date, MoveInDateAdjust, ProjectType, ExitAdjust, Date = ExitAdjust, Type = "end")]
@@ -411,7 +416,7 @@ get_lookbacks <- function(filtered_enrollments) {
   #   )
 
   return(join(
-    dt,
+    dt %>% fselect(-last_lh_info_date),
     lookback_info,
     on = c("PersonalID", "EnrollmentID")
   ))
@@ -1052,11 +1057,12 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
         "lookback_dest_perm", "lookback_movein_before_start", "lookback_is_nonres_or_nbn", "lookback_last_lh_date",
         "has_recent_lh_info",
         "was_lh_at_start", "was_lh_during_period", "was_lh_at_end", "was_housed_at_start", "was_housed_at_end",
-        "first_lh_info_date", "no_lh_lookbacks",
+        "first_lh_info_date", "last_lh_info_indate", "no_lh_lookbacks",
         "Destination", "LivingSituation",
         "HouseholdType", "CorrectedHoH"
       )) %>%
       funique()
   }
+
   return(final)
 }
