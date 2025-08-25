@@ -425,7 +425,6 @@ universe_ppl_flags <- function(universe_df) {
   rm(period_level_data, universe_w_ppl_flags)
   
   if(!in_dev_mode) {
-    rm(universe_w_ppl_flags)
     universe_w_ppl_flags_clean <- universe_w_ppl_flags_clean %>%
       fselect(
         PersonalID,
@@ -648,7 +647,7 @@ universe_ppl_flags <- function(universe_df) {
       browser()
     }
   }
-  browser()
+
   # PersonalID: 529378, enrollment 825777 - 
   # Oct - Active at Start Homeless 
   # Nov - Active at Start Homeless
