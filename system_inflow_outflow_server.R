@@ -609,6 +609,46 @@ universe_ppl_flags <- function(universe_df) {
       browser()
     }
   }
+  
+  ## Re-Engaged/Return after Exit
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
+    funique() %>%
+    setorder(PersonalID, period) %>%
+    fmutate(
+      inflow_flag = grepl("Return|Re-engaged", InflowTypeDetail),
+      prev_outflow = flag(OutflowTypeDetail, g=PersonalID), 
+      prev_outflow_flag = !grepl("Exited|Inactive", prev_outflow) & !is.na(prev_outflow)
+    ) %>%
+    fgroup_by(PersonalID) %>%
+    fsummarize(has_issue = any(inflow_flag & prev_outflow_flag, na.rm=TRUE)) %>%
+    fungroup() %>%
+    fsubset(has_issue)
+  if(nrow(bad_records) > 0) {
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      browser()
+      bad_return_after_nonexit <- get_all_enrollments_for_debugging(
+        bad_records,
+        universe_w_ppl_flags_clean,
+        multiple = TRUE,
+        extra_cols = c("lookback_last_lh_date")
+      ) %>%
+        fsubset(period != "Full") %>%
+        fmutate(
+          days_since_last_lh = fifelse(grepl("Return|Re-engaged", InflowTypeDetail) & eecr, EntryDate - lookback_last_lh_date, NA),
+          day_check = fifelse(ProjectType == ce_project_type, 90, 60)
+        ) %>%
+        fgroup_by(PersonalID) %>%
+        fmutate(has_long_bout_since_lh = any(days_since_last_lh > day_check, na.rm=TRUE)) %>%
+        fungroup() %>%
+        fselect(
+          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, InformationDate, DateProvided, InflowTypeDetail, OutflowTypeDetail, days_since_last_lh, has_long_bout_since_lh
+        )
+      view(bad_return_after_nonexit)
+      browser()
+    }
+  }
+  browser()
   # PersonalID: 529378, enrollment 825777 - 
   # Oct - Active at Start Homeless 
   # Nov - Active at Start Homeless
