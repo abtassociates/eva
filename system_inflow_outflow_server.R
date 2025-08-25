@@ -337,24 +337,24 @@ universe_ppl_flags <- function(universe_df) {
     fgroup_by(period, PersonalID) %>%
     fmutate(
       # INFLOW
-      active_at_start_homeless_client = any(active_at_start_homeless),#anyv(active_at_start_homeless, TRUE),
-      active_at_start_housed_client = any(active_at_start_housed),#anyv(active_at_start_housed, TRUE),
-      return_from_perm_client = any(return_from_perm),#anyv(return_from_perm, TRUE),
-      reengaged_from_temp_client = any(return_from_nonperm),#anyv(return_from_nonperm, TRUE),
-      first_time_homeless_client = any(first_time_homeless),#anyv(first_time_homeless, TRUE),
-      unknown_at_start_client = any(unknown_at_start),#anyv(unknown_at_start, TRUE),
+      active_at_start_homeless_client = any(active_at_start_homeless),
+      active_at_start_housed_client = any(active_at_start_housed),
+      return_from_perm_client = any(return_from_perm),
+      reengaged_from_temp_client = any(return_from_nonperm),
+      first_time_homeless_client = any(first_time_homeless),
+      unknown_at_start_client = any(unknown_at_start),
       non_res_excluded_client = any(non_res_excluded),
       first_of_the_month_exit_client = any(first_of_the_month_exit),
-      continuous_at_start_client = any(continuous_at_start),#anyv(continuous_at_start, TRUE),
+      continuous_at_start_client = any(continuous_at_start),
       
       # OUTFLOW
-      perm_dest_client = any(exited_perm),#anyv(exited_perm, TRUE),
-      temp_dest_client = any(exited_temp),#anyv(exited_temp, TRUE),
-      homeless_at_end_client = any(homeless_at_end),#anyv(homeless_at_end, TRUE),
-      housed_at_end_client = any(housed_at_end),#anyv(housed_at_end, TRUE),
-      unknown_at_end_client = any(unknown_at_end),#anyv(unknown_at_end, TRUE),
+      perm_dest_client = any(exited_perm),
+      temp_dest_client = any(exited_temp),
+      homeless_at_end_client = any(homeless_at_end),
+      housed_at_end_client = any(housed_at_end),
+      unknown_at_end_client = any(unknown_at_end),
       last_of_the_month_entry_client = any(last_of_the_month_entry),
-      continuous_at_end_client = any(continuous_at_end )#anyv(continuous_at_end , TRUE)
+      continuous_at_end_client = any(continuous_at_end)
     ) %>%
     fungroup() %>%
     ftransform(
@@ -409,9 +409,8 @@ universe_ppl_flags <- function(universe_df) {
     )
 
   ####
-  # DROPPING UNWANTED INACTIVES ----------------
+  # Dropping Unwanted Inactives ----------------
   ####
-  ## Multiple Inactives in a row --------
   period_level_data <- universe_w_ppl_flags %>%
     fsubset(period != "Full", PersonalID, period, OutflowTypeDetail) %>%
     funique() %>%
@@ -454,7 +453,7 @@ universe_ppl_flags <- function(universe_df) {
   
   # universe_w_ppl_flags_clean[PersonalID == 576213, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, eecr, lecr, InflowTypeDetail, OutflowTypeDetail, keep_flag)]
   ####
-  # ERROR CHECKING------------------
+  # Error Checking ------------------
   ####
   ## Random 10 people from each group
   # sampled <- universe_w_ppl_flags_clean[period == "Full"][
