@@ -75,7 +75,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
 
 handle_helper_data <- function(app, test_script_name, datasetname) {
   helper_data_dir <- here(glue("tests/helper_data/{gsub('test-','',test_script_name)}"))
-  print(paste0("helper data folder = ", helper_data_dir))
+  # print(paste0("helper data folder = ", helper_data_dir))
   if(!dir.exists(helper_data_dir)) {
     print("creating helper data folder")
     dir.create(helper_data_dir)
@@ -566,6 +566,9 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       print(paste0("handling ", df_name))
       handle_helper_data(app, test_script_name, df_name)
     })
+    
+    print("saving shiny log")
+    view(app$get_logs())
   })
 }
 
