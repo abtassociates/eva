@@ -54,11 +54,11 @@ get_var_cols <- function() {
 remove_non_applicables <- function(.data) {
   # remove children when vets is selected - since Vets can't be children
   if("Veteran Status (Adult Only)" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
   } 
   # filter to just HoHs and Adults for DV
   else if ("Domestic Violence status" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
   } else {
     .data
   }
