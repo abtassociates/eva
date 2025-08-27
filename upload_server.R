@@ -150,12 +150,17 @@ process_upload <- function(upload_filename, upload_filepath) {
                         inputId = "orgList",
                         choices = c(unique(sort(Organization$OrganizationName))))
       
+      updatePickerInput(session = session,
+                        inputId = 'dq_export_orgList',
+                        choices = c('All Organizations',unique(sort(Organization$OrganizationName))))
+      
       updateDateRangeInput(session = session,
                            inputId = "dateRangeCount",
                            min = session$userData$meta_HUDCSV_Export_Start,
                            start = session$userData$meta_HUDCSV_Export_Start,
                            max = session$userData$meta_HUDCSV_Export_End,
                            end = session$userData$meta_HUDCSV_Export_End)
+      
     }
     
     toggle_sys_components(session$userData$valid_file() == 1)

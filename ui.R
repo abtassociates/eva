@@ -613,6 +613,31 @@ page_navbar(
         br(),
           uiOutput('dq_export_date_selection')
       ),
+      br(),
+      card(
+        card_title(headerCard('Select Export Type')),
+        p("Please select whether you would like DQ exports by organization-level or system-level (or both)."),
+        br(),
+        checkboxGroupInput(
+          inputId = 'dq_export_export_types',
+          label = NULL,
+          choices = c('Organization-level (multi-select)', 'System-level'),
+          inline = TRUE
+        ),
+        br(),
+        
+        pickerInput(
+          inputId = "dq_export_orgList",
+          choices = NULL,
+          options = pickerOptions(liveSearch = TRUE,
+                                  liveSearchStyle = 'contains',
+                                  container = 'body'),
+          width = "100%",
+          selected = "All Organizations"
+        )
+        
+       
+      ),
     )
 ),
 
