@@ -617,13 +617,13 @@ page_navbar(
       card(
         card_title(headerCard('Select Export Type')),
         card_body(
-          #fillable = FALSE,
           p("Please select whether you would like DQ exports by organization-level or system-level (or both)."),
           br(),
           checkboxGroupInput(
             inputId = 'dq_export_export_types',
             label = NULL,
             choices = c('Organization-level (multi-select)', 'System-level'),
+            selected = c('Organization-level (multi-select)', 'System-level'),
             inline = TRUE
           ),
           br(),
@@ -631,9 +631,16 @@ page_navbar(
           pickerInput(
             inputId = "dq_export_orgList",
             choices = NULL,
+            multiple = TRUE,
             options = pickerOptions(liveSearch = TRUE,
                                     liveSearchStyle = 'contains',
-                                    container = 'body'),
+                                    container = 'body',
+                                    selectAllText = 'All Organizations',
+                                    noneSelectedText = "Select Organization(s)",
+                                    #selectedTextFormat = 'count > x',
+                                    countSelectedText = 'All Organizations',
+                                    actionsBox = TRUE
+            ),
             selected = NULL
           )
           

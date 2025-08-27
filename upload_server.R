@@ -152,8 +152,10 @@ process_upload <- function(upload_filename, upload_filepath) {
       
       updatePickerInput(session = session,
                         inputId = 'dq_export_orgList',
-                        choices = c('All Organizations',unique(sort(Organization$OrganizationName))),
-                        selected = "All Organizations")
+                        choices = sort(unique(Organization$OrganizationName)),
+                        options = pickerOptions(
+                          selectedTextFormat = paste("count >", length(unique(Organization$OrganizationName))-1),
+                        ))
       
       updateDateRangeInput(session = session,
                            inputId = "dateRangeCount",
