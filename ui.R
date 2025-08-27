@@ -599,6 +599,20 @@ page_navbar(
           tabDQExport_instructions
         )
       ),  
+      br(),
+      card(
+        card_title(headerCard('Select Dates')),
+        p("This filter is only applicable for the Project Dashboard Report. All other reports will utilize the date range of the entire HMIS CSV export."),
+        br(),
+        radioButtons(
+          inputId = 'dq_export_date_options',
+          label=NULL,
+          choices = c('Date Range', 'Single Date'),
+          inline = TRUE,
+        ),
+        br(),
+          uiOutput('dq_export_date_selection')
+      ),
     )
 ),
 

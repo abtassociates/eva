@@ -576,6 +576,30 @@ dqDownloadInfo <- reactive({
   )
 })
 
+output$dq_export_date_selection <- renderUI({
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  
+  if(input$dq_export_date_options == 'Date Range'){
+    dateRangeInput(
+      inputId = 'dq_export_date_multiple',
+      label = NULL,
+      start = session$userData$meta_HUDCSV_Export_Start,
+      end = session$userData$meta_HUDCSV_Export_End,
+      min = session$userData$meta_HUDCSV_Export_Start,
+      max = session$userData$meta_HUDCSV_Export_End
+    )
+  } else if(input$dq_export_date_options == 'Single Date'){
+    dateInput(
+      inputId = 'dq_export_date_single',
+      label = NULL,
+      value = session$userData$meta_HUDCSV_Export_Start,
+      min = session$userData$meta_HUDCSV_Export_Start,
+      max = session$userData$meta_HUDCSV_Export_End
+      
+    )
+  }
+ 
+})
 # # System Data Quality Overview --------------------------------------------
 # empty_dq_overview_plot <- function(currPlot) {
 #   return(currPlot + 

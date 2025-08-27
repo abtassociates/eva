@@ -88,6 +88,8 @@ function(input, output, session) {
   output$headerDataQuality <- headerGeneric(session, "Organization-level Data Quality",
                                             htmlOutput("headerDQOrg_supp"))
   
+  output$headerDQExport <- headerGeneric(session, "Data Quality Export Interface")
+  
   output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
   output$headerSystemExit <- headerGeneric(session, "System Exit")
