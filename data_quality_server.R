@@ -602,8 +602,7 @@ output$dq_export_date_selection <- renderUI({
 })
 
 observe({
-  req(session$userData$dq_pdde_mirai_complete() == 1)
-  
+
   if('Organization-level (multi-select)' %in% input$dq_export_export_types){
     shinyjs::show(id = 'dq_export_orgList')
   } else {
