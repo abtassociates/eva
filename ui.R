@@ -640,15 +640,20 @@ page_navbar(
       ),
       
       card(
+        
         card_title(headerCard("Select Data Quality Exports")),
-        treeInput(
-          inputId = 'dq_export_files',
-          label = NULL,
-          choices = create_tree(dq_file_options),
-          selected = 'none'
-        ),
-        downloadButton('dq_export_download_btn', 
-                       label = 'Download')
+        card_body(
+          fillable = FALSE,
+          treeInput(
+            inputId = 'dq_export_files',
+            label = NULL,
+            choices = create_tree(dq_file_options),
+            selected = NULL
+          ),
+          downloadButton('dq_export_download_btn', 
+                         label = 'Download')
+        )
+      
       )
     )
 ),

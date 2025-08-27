@@ -611,6 +611,13 @@ observe({
   }
 })
 
+output$dq_export_download_btn <- downloadHandler(
+  filename = date_stamped_filename('Data Quality Exports', ext='.zip'),
+  content = function(file){
+                                                    
+  }
+)
+
 # # System Data Quality Overview --------------------------------------------
 # empty_dq_overview_plot <- function(currPlot) {
 #   return(currPlot + 

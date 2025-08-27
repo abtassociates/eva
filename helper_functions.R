@@ -340,8 +340,9 @@ logToConsoleFull <- function(session, msg) {
   capture.output(d, file = stderr())
 }
   
-date_stamped_filename <- function(filename) {
-  paste(filename, Sys.Date(), ".xlsx", sep = "")
+date_stamped_filename <- function(filename, ext = '.xlsx') {
+  
+  paste(filename, Sys.Date(), ext, sep = "")
 }
 
 nice_names <- function(df){
