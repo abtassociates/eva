@@ -468,17 +468,28 @@ cc_project_type <- reactive({
 
 output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
+
+  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+    tl_df_project_start() %>%  
+      fsubset(ProjectName == input$currentProviderList) %>% 
+      pull(mdn)
+  } else {
+    '-'
+  }
   
-  tl_df_project_start() %>%  
-    fsubset(ProjectName == input$currentProviderList) %>% 
-    pull(mdn)
 })
 
 output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
-  tl_df_project_exit() %>% 
-    fsubset(ProjectName == input$currentProviderList) %>% 
-    pull(mdn)
+  
+  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+    tl_df_project_exit() %>% 
+      fsubset(ProjectName == input$currentProviderList) %>% 
+      pull(mdn)
+  } else {
+    '-'
+  }
+ 
 })
 
 output$timeliness_vb3 <- renderUI({
@@ -546,18 +557,28 @@ output$timelinessTable <- renderDT({
   time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
   
   dat <-  data.frame(
-    time_period = c("< 0 days", "0 days", "1-3 days", "4-6 days", "7-10 days", "11+ days"),
-    proj_start = tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist,
-    proj_exit = tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
-  )
+    time_period = c("< 0 days", "0 days", "1-3 days", "4-6 days", "7-10 days", "11+ days")
+    )
   
-  if(cc_project_type() == 1){
+  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+    dat$proj_start <- tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$proj_start <- 0
+  }
+  
+  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+    dat$proj_exit <- tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$proj_exit <- 0
+  }
+  
+  if(cc_project_type() == 1 & input$currentProviderList %in% tl_df_nbn()$ProjectName){
     dat$nbn = tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>%  fselect(time_cols) %>% unlist
   } else {
     dat$nbn <- NULL
   }
-  
-  if(cc_project_type() %in% c(0,1,6,14)){
+  browser()
+  if(cc_project_type() %in% c(0,1,6,14) & input$currentProviderList %in% tl_df_cls()$ProjectName){
     dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$cls <- NULL
