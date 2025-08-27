@@ -534,7 +534,7 @@ output$timeliness_vb3 <- renderUI({
     value = val,
     showcase = bs_icon("clock"),
     theme = "text-primary",
-    class = "border"
+    class = "border-primary"
   )
 })
 
@@ -571,7 +571,8 @@ output$timelinessTable <- renderDT({
     dat,
     rownames = FALSE,
     filter = "none",
-    options = list(dom = 't'),
+    selection = "none",
+    options = list(dom = 't', ordering = FALSE),
     style = "default"
   )
 })

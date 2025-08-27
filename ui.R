@@ -356,18 +356,22 @@ page_navbar(
                 title = "Median Days to Project Start Data Entry",
                 value = textOutput("timeliness_vb1_val"),
                 showcase = bs_icon("calendar-plus"),
-                theme = "bg-primary"
+                theme = "text-primary",
+                class = "border-primary"
               ),
               value_box(
                 title = "Median Days to Project Exit Data Entry",
                 value = textOutput("timeliness_vb2_val"),
                 showcase = bs_icon("calendar-minus"),
-                theme = "bg-primary"
+                theme = "text-primary",
+                class = "border-primary"
               ),
-              uiOutput("timeliness_vb3")
+              uiOutput("timeliness_vb3", fill = TRUE)
+              
             ),
             br(),
             DTOutput("timelinessTable")
+            
           )
         )
         
