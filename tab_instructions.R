@@ -914,6 +914,8 @@ tabDQSystem_instructions <-  HTML("
                your CoC leadership, a broader view of the state of your HMIS
                data quality.</p>")
 
+tabDQExport_instructions <- HTML("<h4>Placeholder for Instructions</h4>")
+
 tabGlossary_instructions <- HTML("
                <p>This glossary provides definitions for the terms used throughout 
               Eva's System Performance Overview page. You can review definitions 

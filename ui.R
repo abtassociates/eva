@@ -583,6 +583,22 @@ page_navbar(
       #   DTOutput("dq_org_guidance_summary")
       #   
       # )
+    ),
+    
+    nav_panel(
+      title = "Data Quality Export Interface",
+      value = "tabDQExport",
+      card(
+        card_title(htmlOutput("headerDQExport"))#,
+      ),
+      accordion(
+        id = 'accordion_dqexport',
+        open = FALSE,
+        accordion_panel(
+          title = "Instructions",
+          tabDQExport_instructions
+        )
+      ),  
     )
 ),
 
