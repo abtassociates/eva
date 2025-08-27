@@ -300,26 +300,26 @@ page_navbar(
     ),
     br(),
     card(
-      card_header(headerCard("Date Range")),
+      card_header(headerCard("Filters")),
+      layout_columns(#fixed_width = T,
+        col_widths=c(3, 4),
+        gap = '20px',
       dateRangeInput(
         "dateRangeCount",
-        labe = NULL,
+        label = 'Date Range',
         format = "mm/dd/yyyy",
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         width = 300
-      )
-    ),
-    
-    card(
-      card_header(headerCard("Select Project")),
+      ),
       pickerInput(
-        label = NULL,
+        label = 'Select Project',
         inputId = "currentProviderList",
         choices = NULL,
         options = pickerOptions(liveSearch = TRUE,
                                 liveSearchStyle = 'contains', 
                                 container = 'body')
+      )
       )
     ),
     
