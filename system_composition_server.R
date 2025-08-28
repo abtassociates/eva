@@ -80,6 +80,7 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, width = function() {
   input$sys_comp_subtabs
   input$syso_tabbox
+  input$pageid
   if (length(input$system_composition_selections) == 1 |
       isTRUE(getOption("shiny.testmode"))) {
     500

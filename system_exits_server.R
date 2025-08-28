@@ -716,6 +716,7 @@ output$syse_phd_chart <- renderPlot({
 }, width = function() {
   input$syse_phd_subtabs
   input$syse_tabbox
+  input$pageid
   if (length(input$syse_phd_selections) == 1 |
       isTRUE(getOption("shiny.testmode"))) {
     500
