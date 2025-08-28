@@ -133,7 +133,7 @@ mbm_bar_width = 0.2
 mbm_export_bar_width = 0.4
 
 
-level_of_detail_text <- reactive({
+syso_level_of_detail_text <- reactive({
   fcase(
     input$syso_level_of_detail == "All", "People",
     input$syso_level_of_detail == "HoHsOnly", "Heads of Household",

@@ -248,7 +248,7 @@ period_specific_data <- reactive({
   eecrs_and_lecrs <- get_eecr_and_lecr(enrollments_filtered_w_lookbacks)
   rm(enrollments_filtered_w_lookbacks)
   
-  filtered_clients <- client_categories_filtered() 
+  filtered_clients <- syso_client_categories_filtered() 
   if(!in_dev_mode) filtered_clients <- fselect(filtered_clients, PersonalID)
   
   all_filtered <- join( 
