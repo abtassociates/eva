@@ -69,11 +69,11 @@ lh_residential_project_types <- c(0, 1, 2, 8)
 
 lh_project_types <- c(0, 1, 2, 4, 8)
 
-psh_oph_project_types <- c(3, 9, 10)
-
-ph_project_types <- c(3, 9, 10, 13)
-
 ph_other_project_types <- c(9, 10)
+
+psh_oph_project_types <- c(psh_project_type, ph_other_project_types)
+
+ph_project_types <- c(psh_oph_project_types, rrh_project_type)
 
 lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
 
@@ -83,7 +83,9 @@ project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
 non_res_project_types <- c(4, 6, 7, 11, 12, 14)
 
-non_res_nonlh_project_types <- c(6, 7, 11, 12, 14)
+non_res_nonlh_project_types <- setdiff(non_res_project_types, out_project_type)
+
+nbn_non_res <- c(es_nbn_project_type, non_res_project_types)
 
 project_types_w_cls <- c(1, 4, 6, 14)
 
@@ -91,7 +93,7 @@ long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
 project_types_enrolled_homeless <- c(lh_project_types, 14)
    
-long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
+long_stayer_percentile_project_types <- c(long_stayer_98_percentile_project_types, psh_oph_project_types)
 
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
 # All means All HUD-defined project types, so it excludes "Other"
@@ -118,7 +120,7 @@ dkr <- c(8, 9)
 # Expected upload schema (files, columns, and data types) ------------------
 cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
-  filter(!(File %in% c("Affiliation",
+  fsubset(!(File %in% c("Affiliation",
                        "AssessmentResults",
                        "AssessmentQuestions",
                        "Disabilities")))
@@ -351,7 +353,7 @@ inc_ncb_hi_required_prep <- tribble(
 # this will break out all the project types so they each get a row
 
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
-  unique()
+  funique()
 
 ## System Exit Perm. Housing Demographic display options
 sys_heatmap_selection_choices = c(
@@ -444,8 +446,24 @@ pdde_mirai_dependencies <- c(
   "CEParticipation"
 )
 
+enrollment_cols <- c(
+  "PersonalID",
+  "EnrollmentID",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "lh_prior_livingsituation"
+)
+
+non_res_lh_cols <- c(
+  "InformationDate",
+  "DateProvided"
+)
+
 inflow_debug_cols <- c(
   "PersonalID",
+  "period",
   "EnrollmentID",
   "eecr",
   "ProjectType",
@@ -454,18 +472,16 @@ inflow_debug_cols <- c(
   "ExitAdjust",
   "lh_prior_livingsituation",
   "was_lh_at_start",
-  "days_since_lookback",
-  "straddles_start",
+  "was_housed_at_start",
   "InflowTypeDetail",
-  "first_lookback",
-  "lookback_dest_perm",
-  "lookback_movein_before_start",
-  "any_lookbacks_with_exit_to_perm"
+  "InformationDate", 
+  "DateProvided"
 )
 
 
 outflow_debug_cols <- c(
   "PersonalID",
+  "period",
   "EnrollmentID",
   "lecr",
   "ProjectType",
@@ -474,15 +490,14 @@ outflow_debug_cols <- c(
   "ExitAdjust",
   "lh_prior_livingsituation",
   "was_lh_at_end",
-  "days_since_lookback",
-  "straddles_end",
+  "was_housed_at_end",
   "OutflowTypeDetail",
-  "exited_system",
-  "Destination",
-  "days_to_lookahead"
+  "InformationDate", 
+  "DateProvided"
 )
 
 in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
 
 suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
 no_data_msg <- "No data to show."
+

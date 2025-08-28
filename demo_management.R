@@ -70,7 +70,12 @@ observeEvent(input$pageid, {
   req(msg)
   req(!isTruthy(seen_message[[selectedTabId]]))
   seen_message[[selectedTabId]] <- TRUE
-  showModal(modalDialog(msg))
+  ## added a div with an ID to target the CSS for just this modal
+  showModal(
+    tags$div(id='modal_demo_tour',
+              modalDialog(msg)
+             )
+  )
 }) 
 
 

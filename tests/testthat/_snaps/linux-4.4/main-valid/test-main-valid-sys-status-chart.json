@@ -2,7 +2,7 @@
   "input": {
     "methodology_type": "1",
     "pageid": "tabSystemOverview",
-    "sys_status_subtabs": "Chart",
+    "sys_status_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -21,7 +21,7 @@
     "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "Client System Status"
+    "syso_tabbox": "<h4>Client System Status<\/h4>"
   },
   "output": {
     "headerSystemOverview": {
@@ -37,7 +37,7 @@
       ]
     },
     "sankey_ui_chart": {
-      "src": "[image data hash: 2b4471d60aba2f9aaaa32e65d472a889]",
+      "src": "[image data hash: 345be6c243911dcfbd67fa410e7be98f]",
       "width": 1113,
       "height": 400,
       "alt": "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",

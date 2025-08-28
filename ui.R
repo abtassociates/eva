@@ -61,12 +61,12 @@ page_navbar(
         $(document).on('shiny:connected', function(e) {
           dimension[0] = window.innerWidth;
           dimension[1] = window.innerHeight;
-          Shiny.onInputChange('dimension', dimension);
+          Shiny.setInputValue('dimension', dimension);
         });
         $(window).resize(function(e) {
           dimension[0] = window.innerWidth;
           dimension[1] = window.innerHeight;
-          Shiny.onInputChange('dimension', dimension);
+          Shiny.setInputValue('dimension', dimension);
         });
         "
       ))
@@ -162,7 +162,7 @@ page_navbar(
       uiOutput("fileInfo") %>% withSpinner()
     ),
     card(
-      card_title("HMIS CSV Export File Structure Analysis"),
+      card_title(headerCard("HMIS CSV Export File Structure Analysis")),
       
       DTOutput("fileStructureAnalysis"),
       br(),
@@ -300,7 +300,7 @@ page_navbar(
     ),
     br(),
     card(
-      card_header("Date Range"),
+      card_header(headerCard("Date Range")),
       dateRangeInput(
         "dateRangeCount",
         labe = NULL,
@@ -312,7 +312,7 @@ page_navbar(
     ),
     
     card(
-      card_header("Select Project"),
+      card_header(headerCard("Select Project")),
       pickerInput(
         label = NULL,
         inputId = "currentProviderList",
@@ -327,11 +327,11 @@ page_navbar(
       id = 'client_count_subtabs',
       
       nav_panel(
-        title = "Client Counts Summary",
+        title = headerTab("Client Counts Summary"),
         DTOutput("clientCountSummary")
       ),
       nav_panel(
-        title = "Client Counts Detail",
+        title = headerTab("Client Counts Detail"),
         DTOutput("clientCountData")
       ),
       nav_spacer(),
@@ -375,13 +375,13 @@ page_navbar(
         id = "pdde_subtabs",
         ### PDDE Summary table-------
         nav_panel(
-          title = 'PDDE Check Summary',
+          title = headerTab('PDDE Check Summary'),
           DTOutput("pdde_summary_table"),
           br()
         ),
         ### PDDE Guidance table ---------
         nav_panel(
-          title = 'Guidance',
+          title = headerTab('Guidance'),
           DTOutput("pdde_guidance_summary")
         ),
         nav_spacer(),
@@ -413,17 +413,17 @@ page_navbar(
         ### HP Errors - System ----
         nav_panel(
           id = 'hp_errors_dqsystem',
-          title = 'High Priority Errors',
+          title = headerTab('High Priority Errors'),
           
           navset_underline(
             id = 'hp_errors_dqsystem_subtabs',
-            selected = "Issues",
+            selected = headerSubTab("Issues"),
             nav_panel(
-              title = 'Issues',
+              title = headerSubTab('Issues'),
               uiOutput("sysDQHighPriorityByIssue_ui")
             ),
             nav_panel(
-              title = 'Top 10 Organizations',
+              title = headerSubTab('Top 10 Organizations'),
               uiOutput("sysDQHighPriorityByOrg_ui")
             )
           )
@@ -431,17 +431,17 @@ page_navbar(
         ### General Errors - System -----
         nav_panel(
           id = 'g_errors_dqsystem',
-          title = 'General Errors',
+          title = headerTab('General Errors'),
           
           navset_underline(
             id = 'g_errors_dqsystem_subtabs',
-            selected = "Top 10 Issues",
+            selected = headerSubTab("Top 10 Issues"),
             nav_panel(
-              title = 'Top 10 Issues',
+              title = headerSubTab('Top 10 Issues'),
               uiOutput("sysDQErrorByIssue_ui")
             ),
             nav_panel(
-              title = 'Top 10 Organizations',
+              title = headerSubTab('Top 10 Organizations'),
               uiOutput("sysDQErrorByOrg_ui")
             )
           )
@@ -449,16 +449,16 @@ page_navbar(
         ### Warnings - System -------
         nav_panel(
           id = 'warnings_dqsystem',
-          title = 'Warnings',
+          title = headerTab('Warnings'),
           navset_underline(
             id = 'warnings_dqsystem_subtabs',
-            selected = "Top 10 Issues",
+            selected = headerSubTab("Top 10 Issues"),
             nav_panel(
-              title = "Top 10 Issues", 
+              title = headerSubTab("Top 10 Issues"), 
               uiOutput("sysDQWarningByIssue_ui")
             ),
             nav_panel(
-              title = "Top 10 Organizations", 
+              title = headerSubTab("Top 10 Organizations"), 
               uiOutput("sysDQWarningByOrg_ui")
             )
           )
@@ -485,7 +485,7 @@ page_navbar(
       ), 
       br(),
       card(
-        card_header("Select Organization"),
+        card_header(headerCard("Select Organization")),
         pickerInput(
           inputId = "orgList",
           choices = NULL,
@@ -502,17 +502,17 @@ page_navbar(
         ### HP Errors - Org ------------
         nav_panel(
           id = 'hp_errors',
-          title = 'High Priority Errors',
+          title = headerTab('High Priority Errors'),
           
           navset_underline(
             id = 'hp_errors_dqorg_subtabs',
-            selected = "Issues",
+            selected = headerSubTab("Issues"),
             nav_panel(
-              title = 'Issues',
+              title = headerSubTab('Issues'),
               uiOutput("orgDQHighPriorityByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = 'Top 10 Projects',
+              title = headerSubTab('Top 10 Projects'),
               uiOutput("orgDQHighPriorityByProject_ui")  %>% withSpinner()
             )
           )
@@ -520,17 +520,17 @@ page_navbar(
         ### General Errors - Org ---------------
         nav_panel(
           id = 'g_errors',
-          title = 'General Errors',
+          title = headerTab('General Errors'),
           
           navset_underline(
             id = 'g_errors_dqorg_subtabs',
-            selected = "Top 10 Issues",
+            selected = headerSubTab("Top 10 Issues"),
             nav_panel(
-              title = 'Top 10 Issues',
+              title = headerSubTab('Top 10 Issues'),
               uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = 'Top 10 Projects',
+              title = headerSubTab('Top 10 Projects'),
               uiOutput("orgDQErrorByProject_ui")  %>% withSpinner()
             )
           )
@@ -538,16 +538,16 @@ page_navbar(
         ### Warnings - Org --------------
         nav_panel(
           id = 'warnings',
-          title = 'Warnings',
+          title = headerTab('Warnings'),
           navset_underline(
             id = 'warnings_dqorg_subtabs',
-            selected = "Top 10 Issues",
+            selected = headerSubTab("Top 10 Issues"),
             nav_panel(
-              title = "Top 10 Issues", 
+              title = headerSubTab("Top 10 Issues"), 
               uiOutput("orgDQWarningByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = "Top 10 Projects", 
+              title = headerSubTab("Top 10 Projects"), 
               uiOutput("orgDQWarningByProject_ui") %>% withSpinner()
             )
           )
@@ -562,11 +562,11 @@ page_navbar(
         id = 'dq_summary_subtabs',
         
         nav_panel(
-          title = "Data Quality Summary",
+          title = headerTab("Data Quality Summary"),
           DTOutput("dq_organization_summary_table")
         ),
         nav_panel(
-          title = "Data Quality Guidance",
+          title = headerTab("Data Quality Guidance"),
           DTOutput("dq_org_guidance_summary")
         )
       )
@@ -611,7 +611,7 @@ nav_menu(
     br(),
     ## Filters --------------
     card(
-      card_header('Filters'),
+      card_header(headerCard('Filters')),
       layout_columns(
         col_widths=c(6,6),
         gap = 0,
@@ -693,7 +693,7 @@ nav_menu(
           )
         )
       )
-      
+
     ),
     
     navset_card_underline(
@@ -702,13 +702,13 @@ nav_menu(
       ## System Flow -------------
       nav_panel(
         id = 'syso_inflowoutflow',
-        title = 'System Flow',
+        title = headerTab('System Flow'),
         
         navset_underline(
           id = "sys_inflow_outflow_subtabs",
-          selected = "Summary Chart",
+          selected = headerSubTab("Summary Chart"),
           nav_panel(
-            title = 'Summary Chart',
+            title = headerSubTab('Summary Chart'),
             uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
               withSpinner(),
             plotOutput("sys_inflow_outflow_summary_ui_chart",
@@ -717,7 +717,7 @@ nav_menu(
               withSpinner()
           ),
           nav_panel(
-            title = 'Detail Chart',
+            title = headerSubTab('Detail Chart'),
             uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
               withSpinner(),
             plotOutput("sys_inflow_outflow_detail_ui_chart",
@@ -726,7 +726,7 @@ nav_menu(
               withSpinner()
           ),
           nav_panel(
-            title = "Month-by-Month Chart", 
+            title = headerSubTab("Month-by-Month Chart"), 
             uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
              withSpinner(),
             radioGroupButtons(
@@ -790,7 +790,7 @@ nav_menu(
           #          
           # ),
           nav_panel(
-            title = "Information",
+            title = headerSubTab("Information"),
             br(),
             tab_sys_inflow_outflow_subtabs_information
           )
@@ -802,18 +802,18 @@ nav_menu(
       ## System Status/Sankey ----------------
       nav_panel(
         id = 'syso_systemstatus',
-        title = "Client System Status",
+        title = headerTab("Client System Status"),
         navset_underline(
           id = 'sys_status_subtabs',
-          selected = "Chart",
+          selected = headerSubTab("Chart"),
           
           nav_panel(
-            title = "Chart",   
+            title = headerSubTab("Chart"),   
             uiOutput("sankey_filter_selections") %>% withSpinner(),
             plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
           ),
           nav_panel(
-            title = "Information",
+            title = headerSubTab("Information"),
             br(),
             tab_sys_status_subtabs_information
           )
@@ -825,13 +825,13 @@ nav_menu(
       ## System Demographics/Composition --------------
       nav_panel(
         id = 'syso_composition',
-        title = "System Demographics",
+        title = headerTab("System Demographics"),
         
         navset_underline(
           id = 'sys_comp_subtabs',
-          selected = "Chart",
+          selected = headerSubTab("Chart"),
           nav_panel(
-            title = "Chart",
+            title = headerSubTab("Chart"),
             card(
               br(),
               strong("Select Demographic Crosstab Categories (up to 2)"),
@@ -859,7 +859,7 @@ nav_menu(
             plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
           ),
           nav_panel(
-            title = "Information",
+            title = headerSubTab("Information"),
             br(),
             tab_sys_comp_subtabs_information
             
@@ -895,7 +895,7 @@ nav_menu(
     br(),
     ## Filters --------------
     card(
-      card_header('Filters'),
+      card_header(headerCard('Filters')),
       layout_columns(
         col_widths=c(6,6),
         gap = 0,
@@ -984,14 +984,14 @@ nav_menu(
           id = 'syse_tabbox',
           
           nav_panel(
-            title = 'System Exit Types',
+            title = headerTab('System Exit Types'),
 
             navset_underline(
               id = "syse_types_subtabs",
-              selected = "Chart",
+              selected = headerSubTab("Chart"),
               
               nav_panel(
-                title = "Chart",
+                title = headerSubTab("Chart"),
                   uiOutput("syse_types_filter_selections") %>%
                     withSpinner(),
                
@@ -1002,7 +1002,7 @@ nav_menu(
                   withSpinner()
               ),
               nav_panel(
-                title = "Information",
+                title = headerSubTab("Information"),
                 tab_syse_types_subtabs_information
               )
             ),
@@ -1011,13 +1011,13 @@ nav_menu(
           ),
           
           nav_panel(
-            title = 'System Exit Comparisons',
+            title = headerTab('System Exit Comparisons'),
             navset_underline(
               id = "syse_compare_subtabs",
-              selected = "Subpopulation Chart",
+              selected = headerSubTab("Subpopulation Chart"),
               
               nav_panel(
-                title = "Subpopulation Chart",
+                title = headerSubTab("Subpopulation Chart"),
                 uiOutput("syse_compare_subpop_filter_selections") %>%
                   withSpinner(),
                 br(),
@@ -1029,7 +1029,7 @@ nav_menu(
                   withSpinner()
               ),
               nav_panel(
-                title = "Time Chart",
+                title = headerSubTab("Time Chart"),
                 uiOutput("syse_compare_time_filter_selections") %>%
                   withSpinner(),
                 plotOutput("syse_compare_time_chart",
@@ -1040,7 +1040,7 @@ nav_menu(
                   withSpinner()
               ),
               nav_panel(
-                title = "Information",
+                title = headerSubTab("Information"),
                 tab_syse_compare_subtabs_information
               )
             ),
@@ -1049,13 +1049,13 @@ nav_menu(
           ),
           
           nav_panel(
-            title = 'Permanent Housing Demographics',
+            title = headerTab('Permanent Housing Demographics'),
             navset_underline(
               id = "syse_phd_subtabs",
-              selected = "Chart",
+              selected = headerSubTab("Chart"),
               
               nav_panel(
-                title = "Chart",
+                title = headerSubTab("Chart"),
                 card(
                  
                   strong("Select Demographic Crosstab Categories (up to 2)"),
@@ -1083,7 +1083,7 @@ nav_menu(
                 plotOutput("syse_phd_chart") %>% withSpinner()
               ),
               nav_panel(
-                title = "Information",
+                title = headerSubTab("Information"),
                 tab_syse_phd_subtabs_information
               )
             ),

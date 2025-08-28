@@ -31,7 +31,7 @@ logToConsole(session, "Running initial data prep")
 project_prep <- Project %>%
   join(
     Organization %>%
-      select(OrganizationID, OrganizationName, VictimServiceProvider),
+      fselect(OrganizationID, OrganizationName, VictimServiceProvider),
     how = "left",
     on = "OrganizationID"
   )
@@ -39,13 +39,13 @@ project_prep <- Project %>%
 ProjectSegments <- project_prep %>%
   join(
     HMISParticipation %>%
-      select(
+      fselect(
         ProjectID,
         HMISParticipationType,
         HMISParticipationStatusStartDate,
         HMISParticipationStatusEndDate
       ) %>%
-      unique(),
+      funique(),
     how = "left",
     multiple = T,
     on = "ProjectID"
@@ -68,7 +68,7 @@ ProjectSegments <- project_prep %>%
 #     not in Project0 or ProjectSegments
 
 session$userData$Project0 <- project_prep %>%
-  select(ProjectID,
+  fselect(ProjectID,
          ProjectName,
          OrganizationID,
          OrganizationName,
@@ -78,7 +78,7 @@ session$userData$Project0 <- project_prep %>%
          RRHSubType,
          HousingType,
          VictimServiceProvider) %>%
-  unique()
+  funique()
 
 rm(project_prep)
 
@@ -133,7 +133,7 @@ EnrollmentStaging <- Enrollment %>%
 EnrollmentOutside <- qDT(EnrollmentStaging) %>%
   fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust) %>%
   join(ProjectSegments %>%
-              select(ProjectID,
+              fselect(ProjectID,
                      ProjectTimeID,
                      ProjectType,
                      HMISParticipationStatusStartDate,
@@ -174,17 +174,18 @@ Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, 
   )
 }
 
-EnrollmentOutside[, `:=`(
-  EnrollmentvParticipating = Enrollmentvs(
-    EntryDate, ExitAdjust, 
-    HMISParticipationStatusStartDate, HMISParticipationStatusEndDate, 
-    "Participating"
-    ),
-  EnrollmentvOperating = Enrollmentvs(
-    EntryDate, ExitAdjust, 
-    OperatingStartDate, OperatingEndDate, 
-    "Operating")
-  )]
+EnrollmentOutside <- EnrollmentOutside %>% 
+  fmutate(
+    EnrollmentvParticipating = Enrollmentvs(
+      EntryDate, ExitAdjust, 
+      HMISParticipationStatusStartDate, HMISParticipationStatusEndDate, 
+      "Participating"
+      ),
+    EnrollmentvOperating = Enrollmentvs(
+      EntryDate, ExitAdjust, 
+      OperatingStartDate, OperatingEndDate, 
+      "Operating")
+  )
 
 # Get First HMIS span for each Project (technically, the enrollment record)
 EnrollmentOutside <- EnrollmentOutside %>%
@@ -299,7 +300,7 @@ Services <- Services %>%
 # Build validation df for app ---------------------------------------------
 # this contains Project and Org info together
 validationProject <- ProjectSegments %>%
-  select(
+  fselect(
     ProjectID,
     ProjectTimeID,
     OrganizationName,
@@ -308,7 +309,7 @@ validationProject <- ProjectSegments %>%
   )
 
 validationEnrollment <- Enrollment %>% 
-  select(
+  fselect(
     EnrollmentID,
     PersonalID,
     HouseholdID,
@@ -330,66 +331,69 @@ validationEnrollment <- Enrollment %>%
 
 # to be used for more literal, data-quality-based analyses. contains enrollments
 # that do not intersect any period of HMIS participation or project operation
+
+#0.006122828 vs 0.0002565384  
 session$userData$validation <- validationProject %>%
-    left_join(validationEnrollment, by = c("ProjectTimeID", "ProjectID")) %>%
-    select(
-      ProjectID,
-      ProjectTimeID,
-      OrganizationName,
-      ProjectName,
-      ProjectType,
-      EnrollmentID,
-      PersonalID,
-      HouseholdID,
-      RelationshipToHoH,
-      EntryDate,
-      MoveInDateAdjust,
-      ExitDate,
-      LivingSituation,
-      Destination,
-      DestinationSubsidyType,
-      DateCreated
-    ) %>%
-    filter(!is.na(EntryDate))
+  join(validationEnrollment, on = c("ProjectTimeID", "ProjectID"), how='left', multiple=T) %>%
+  fselect(
+    ProjectID,
+    ProjectTimeID,
+    OrganizationName,
+    ProjectName,
+    ProjectType,
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    RelationshipToHoH,
+    EntryDate,
+    MoveInDateAdjust,
+    ExitDate,
+    LivingSituation,
+    Destination,
+    DestinationSubsidyType,
+    DateCreated
+  ) %>%
+  fsubset(!is.na(EntryDate))
 
 # Checking requirements by projectid --------------------------------------
 
 projects_funders_types <- Funder %>%
-  left_join(Project %>%
-              select(ProjectID, ProjectType),
-            join_by(ProjectID)) %>%
-  filter(is.na(EndDate) | EndDate > session$userData$meta_HUDCSV_Export_Start) %>%
-  select(ProjectID, ProjectType, Funder) %>%
-  unique() %>%
-  left_join(inc_ncb_hi_required, join_by(ProjectType, Funder)) %>%
-  mutate(inc = replace_na(inc, FALSE),
+  join(Project %>%
+              fselect(ProjectID, ProjectType),
+            on = 'ProjectID', how='left') %>%
+  fsubset(is.na(EndDate) | EndDate > session$userData$meta_HUDCSV_Export_Start) %>%
+  fselect(ProjectID, ProjectType, Funder) %>%
+  funique() %>%
+  join(inc_ncb_hi_required, on=c('ProjectType', 'Funder')) %>%
+  fmutate(inc = replace_na(inc, FALSE),
          ncb = replace_na(ncb, FALSE),
          hi = replace_na(hi, FALSE),
          dv = replace_na(dv, FALSE)) %>%
-  group_by(ProjectID) %>%
-  summarise(inc = max(inc, na.rm = TRUE),
-            ncb = max(ncb, na.rm = TRUE),
-            hi = max(hi, na.rm = TRUE),
-            dv = max(dv, na.rm = TRUE)) %>%
-  ungroup() %>%
+  fgroup_by(ProjectID) %>%
+  fsummarise(inc = fmax(inc, na.rm = TRUE),
+            ncb = fmax(ncb, na.rm = TRUE),
+            hi = fmax(hi, na.rm = TRUE),
+            dv = fmax(dv, na.rm = TRUE)) %>%
+  fungroup() %>%
   qDT()
 
 # Active Inventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
-  left_join(
+  join(
     session$userData$Project0 %>%
-      select(
+      fselect(
         ProjectID,
         OrganizationName,
         ProjectName,
         OperatingStartDate,
         OperatingEndDate
       ) %>%
-      unique(),
-    by = "ProjectID"
+      funique(),
+    on = "ProjectID",
+    how = 'left'
   ) %>%
-  filter(
-    coalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
+  fsubset(
+    fcoalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 

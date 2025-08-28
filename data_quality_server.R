@@ -96,7 +96,7 @@ output$pdde_guidance_summary <- renderDT({
     guidance, 
     rownames = FALSE,
     escape = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )
@@ -129,7 +129,7 @@ output$dq_organization_summary_table <- renderDT({
   datatable(
     a,
     rownames = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )
@@ -140,13 +140,13 @@ output$dq_organization_summary_table <- renderDT({
 output$dq_org_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
   guidance <- session$userData$dq_main %>%
-    filter(OrganizationName %in% c(input$orgList)) %>%
-    select(Type, Issue, Guidance) %>%
-    mutate(Type = factor(Type, levels = c("High Priority",
+    fsubset(OrganizationName %in% c(input$orgList)) %>%
+    fselect(Type, Issue, Guidance) %>%
+    fmutate(Type = factor(Type, levels = c("High Priority",
                                           "Error",
                                           "Warning"))) %>%
-    arrange(Type, Issue) %>%
-    unique()
+    roworder(Type, Issue) %>%
+    funique()
   
   exportTestValues(dq_org_guidance_summary = summarize_df(guidance))
   
@@ -154,7 +154,7 @@ output$dq_org_guidance_summary <- renderDT({
     guidance, 
     rownames = FALSE,
     escape = FALSE,
-    filter = 'top',
+    filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
   )
@@ -489,13 +489,15 @@ getDQReportDataList <- function(
     mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
     arrange(Type)
   
-  exportDetail <- data.frame(c("Export Start", "Export End", "Export Date"),
-                             c(session$userData$meta_HUDCSV_Export_Start,
-                               session$userData$meta_HUDCSV_Export_End,
-                               session$userData$meta_HUDCSV_Export_Date))
-  
-  colnames(exportDetail) <- c("Export Field", "Value")
-  
+  exportDetail <- data.table(
+    `Export Field` = c("Export Start", "Export End", "Export Date"),
+    Value = c(
+      session$userData$meta_HUDCSV_Export_Start,
+      session$userData$meta_HUDCSV_Export_End,
+      session$userData$meta_HUDCSV_Export_Date
+    )
+  )
+
   exportDFList <- list(
     exportDetail = exportDetail %>% nice_names(),
     mainsummary = mainsummary %>% nice_names(),

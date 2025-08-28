@@ -11,6 +11,8 @@ inflow_detail_levels <- c(
   "Re-engaged from \nNon-Permanent",
   "Unknown",
   "Continuous at Start",
+  "Excluded",
+  "First-of-Month Exit",
   "something's wrong"
 )
 
@@ -19,6 +21,7 @@ outflow_detail_levels <- c(
   "Exited, \nPermanent",
   "Inactive",
   "Continuous at End",
+  "Last-of-Month Entry",
   "something's wrong"
 )
 
@@ -44,21 +47,50 @@ mbm_outflow_levels <- c("Outflow", "Active at End: Housed")
 inflow_summary_levels <- c(
   "Active at Start",
   "Inflow",
+  "Continuous at Start",
+  "Excluded",
+  "First-of-Month Exit",
+  "something's wrong"
+)
+inflow_summary_chart_levels <- c(
+  "Active at Start",
+  "Inflow",
   "something's wrong"
 )
 outflow_summary_levels <- c(
   "Outflow",
   "Active at End",
+  "Continuous at End",
+  "Last-of-Month Entry",
   "something's wrong"
 )
 
-inflow_chart_summary_levels <- c(
-  "Active at Start",
-  "Inflow"
-)
-outflow_chart_summary_levels <- c(
+outflow_summary_chart_levels <- c(
   "Outflow",
-  "Active at End"
+  "Active at End",
+  "something's wrong"
+)
+
+inflow_statuses_to_exclude_from_chart <- c(
+  "Continuous at Start",
+  "Unknown",
+  "Excluded",
+  "First-of-Month Exit",
+  "something's wrong"
+)
+inflow_statuses_to_exclude_from_export <- c(
+  "Excluded",
+  "First-of-Month Exit",
+  "something's wrong"
+)
+
+outflow_statuses_to_exclude_from_chart <- c(
+  "Continuous at End",
+  "Last-of-Month Entry",
+  "something's wrong"
+)
+outflow_statuses_to_exclude_from_export <- c(
+  "something's wrong"
 )
 
 collapse_details <- list(
@@ -100,12 +132,13 @@ mbm_single_status_chart_colors <- c(
 mbm_bar_width = 0.2
 mbm_export_bar_width = 0.4
 
-syso_level_of_detail_text <- reactive({
-  case_when(
-    input$syso_level_of_detail == "All" ~ "People",
-    input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
-    TRUE ~
-      getNameByValue(sys_level_of_detail, input$syso_level_of_detail)
+
+level_of_detail_text <- reactive({
+  fcase(
+    input$syso_level_of_detail == "All", "People",
+    input$syso_level_of_detail == "HoHsOnly", "Heads of Household",
+    default =
+      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
   )
 })
 
@@ -135,59 +168,156 @@ full_unit_of_analysis_display <- reactive({
 universe_enrl_flags <- function(all_filtered_w_lh) {
   logToConsole(session, "In universe_enrl_flags")
   
-  all_filtered_w_lh[, `:=`(
+  # ----|-z---z------a-nov-a------------- ===> ASH
+  # ----|----------a-nov-a--------------- ===> ASH
+  # ----|-z----z---nov-a----------a-------===> continuous
+  # ----|----------nov-a----------a-------===> continuous
+  # ----|-z----z---nova----------a------- ===> continuous
+  # ----|----------nova----------a------- ===> FTH
+  # z---|----------nova----------a------- ===> Re-engaged/returned
+  all_filtered_w_lh %>% fmutate(
+    # Define Active At Start/End conditions
+    # For full period, they can either straddle or have entered within 2 weeks of 
+    # the start date with a lookback in the last 2 weeks
+    # for the other months, they must have entered BEFORE start and exited AFTER.
+    activeAtStartCondition = 
+      (
+        startDate == session$userData$ReportStart & (
+          straddles_start | (
+            EntryDate %between% list(startDate, startDate + 15) &
+            days_since_lookback %between% c(0, 14)
+          )
+        )
+      ) | (
+        startDate > session$userData$ReportStart & (
+          EntryDate < startDate & ExitAdjust > startDate |
+          EntryDate == startDate & has_recent_lh_info
+        )
+      ),
+
+    # Similarly for Active at End...
+    activeAtEndCondition = 
+      (
+        endDate == session$userData$ReportEnd & (
+          straddles_end | (
+            ExitAdjust %between% list(endDate, endDate - 15) &
+            days_to_lookahead %between% c(0, 14)
+          )
+        )
+      ) | (
+        endDate < session$userData$ReportEnd & 
+        ExitAdjust > endDate & EntryDate < endDate
+      ),
+    
     # INFLOW CALCULATOR COLUMNS
-    active_at_start_homeless = eecr & was_lh_at_start & (
-      startDate == session$userData$ReportStart | 
-      EntryDate < startDate |
-      (EntryDate == startDate & days_since_lookback %between% c(0, 14))
-    ),
+    active_at_start_homeless = eecr & activeAtStartCondition & was_lh_at_start,
     
-    active_at_start_housed = eecr & ProjectType %in% ph_project_types & (
-      (fcoalesce(MoveInDateAdjust, no_end_date) < startDate) | 
+    active_at_start_housed = eecr & activeAtStartCondition & (was_housed_at_start | (
+      ProjectType %in% ph_project_types &
       (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
+    )),
+    
+    return_from_perm = eecr & (
+      (days_since_lookback %between% c(15, 730) & lookback_dest_perm) |
+      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_is_nonres_or_nbn & (EntryDate - lookback_last_lh_date) >= 15)
     ),
     
-    return_from_perm = eecr & 
-      days_since_lookback %between% c(15, 730) & lookback_dest_perm,
+    # if it's non-res (or nbn) and they straddle but are not was_lh_at_start but are LH later in the period, they should be re-engaged
+    #   for nbn and SO, was_lh_at_start is not necessarilly inclusiv eof LH PLS
+    # for NbN and SO, we know that they're LH at entry
+    # 
+    # 637203 (ICF-Good) should NOT show up until May, at which point they should be re-engaged. And also re-egnaged for full period
     
     return_from_nonperm = eecr & (
       (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
+      # This condition is meant to capture cases where Inactive nonres/nbn enrollments 
+      # are exited and then immediately followed up with a new enrollment.
+      (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & (EntryDate - lookback_last_lh_date) >= 15) |
       (
-        ProjectType %in% c(es_nbn_project_type, non_res_project_types) & 
+        ProjectType %in% nbn_non_res &
         !was_lh_at_start &
-        straddles_start & (
-          any_lookbacks_with_exit_to_nonperm |
-          was_lh_during_period 
-        )
-      ) 
+        straddles_start & 
+        was_lh_during_period
+      )
     ),
     
-    first_time_homeless = (days_since_lookback > 730 | is.na(days_since_lookback)) & 
-      EntryDate >= startDate,
+    # enrollments can be FTH even if they fully straddle, as long as it's a non-res
+    # with no LH PLS. This is because, if they're in the dataset at all, they must have had
+    # LH somewhere during the enrollment, and they're already in the period, so the 
+    # LH must have been somewhere 
+    # --L/no L------------------||--x----------x--|-----------------|-------------------|------------||
+    # --L/no L--------x(no LH)--||--x-------------|-----------------|-------------------|------------||
+    # e.g. 614071, ICF-good, should be FTH inflow for Enrollment 837695 in March
+    # we know it's the only enrollment they have an there's lookback within last 2 yrs
+    
+    
+    # in other cases, we have long non-res enrollments and then an LKH CLS pops up and they're re-engaged.
+    # that's because there's a lookback or they were already categorized in a previous month
+    first_time_homeless = eecr & 
+      (days_since_lookback > 730 | is.na(days_since_lookback)) & 
+      first_lh_info_date >= startDate &
+      EntryDate > session$userData$ReportStart,
     
     unknown_at_start = eecr & 
       straddles_start & 
-      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      ProjectType %in% nbn_non_res &
       !was_lh_at_start,
     
+    # Exclude non-res-only clients with incomplete or conflicting LH data
+    non_res_excluded = eecr & 
+      ProjectType %in% nbn_non_res &
+      !was_lh_at_start & 
+      days_since_lookback %between% c(0, 14) &
+      no_lh_lookbacks,
+    
+    # Beginning with the first month's Outflow and ending after the last month's Inflow, 
+    # there should be "continuous_at_start" and "continuous_at_end" flags that 
+    # capture EECRs/LECRs that begin AFTER/BEFORE period start/end, 
+    # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
+    # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
+    continuous_at_start = eecr & 
+      startDate > session$userData$ReportStart &
+      EntryDate >= startDate & days_since_lookback %between% c(0, 14),
+    
+    continuous_at_end = lecr & 
+      endDate < session$userData$ReportEnd &
+      ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+    
+    # New Inflow category:"first_of_the_month_exit" should not show up in chart 
+    # or export, even though the person's outflow should be counted
+    first_of_the_month_exit = eecr & 
+      startDate > session$userData$ReportStart &
+      ExitAdjust == startDate,
+    
+    # similar outflow status
+    last_of_the_month_entry = lecr & 
+      endDate < session$userData$ReportEnd &
+      EntryDate == endDate,
+    
     # OUTFLOW CALCULATOR COLUMNS
-    exited_system = lecr & 
-      ExitAdjust %between% list(startDate, endDate) & 
+    # exited_system = lecr & 
+    #   ExitAdjust %between% list(startDate, endDate) & 
+    #   (
+    #     (!continuous_at_end | is.na(continuous_at_end)) |
+    #     (
+    #       ProjectType %in% setdiff(non_res_project_types, out_project_type) &
+    #       (is.na(days_to_lookahead) | days_to_lookahead < 0) &
+    #       (is.na(last_lh_info_date) | last_lh_info_date <= endDate)
+    #     )
+    #   ),
+    exited_system = lecr &
+      ExitAdjust %between% list(startDate, endDate) &
       (!continuous_at_end | is.na(continuous_at_end)),
     
-    homeless_at_end = lecr & was_lh_at_end,
+    homeless_at_end = lecr & activeAtEndCondition & was_lh_at_end,
     
-    housed_at_end = lecr & 
-      ProjectType %in% ph_project_types & 
-      fcoalesce(MoveInDateAdjust, no_end_date) < endDate &
-      (straddles_end | days_to_lookahead %between% c(0, 14)),
+    housed_at_end = lecr & activeAtEndCondition & was_housed_at_end,
     
     unknown_at_end = lecr &
       straddles_end & 
-      ProjectType %in% c(es_nbn_project_type, non_res_project_types) &
+      ProjectType %in% nbn_non_res &
       !was_lh_at_end
-  )]
+  )
 }
 
 ## People-level flags ------------------------
@@ -208,21 +338,24 @@ universe_ppl_flags <- function(universe_df) {
     fgroup_by(period, PersonalID) %>%
     fmutate(
       # INFLOW
-      active_at_start_homeless_client = anyv(active_at_start_homeless, TRUE),
-      active_at_start_housed_client = anyv(active_at_start_housed, TRUE),
-      return_from_perm_client = anyv(return_from_perm, TRUE),
-      reengaged_from_temp_client = anyv(return_from_nonperm, TRUE),
-      first_time_homeless_client = anyv(first_time_homeless, TRUE),
-      unknown_at_start_client = anyv(unknown_at_start, TRUE),
-      continuous_at_start_client = anyv(continuous_at_start, TRUE),
+      active_at_start_homeless_client = any(active_at_start_homeless),
+      active_at_start_housed_client = any(active_at_start_housed),
+      return_from_perm_client = any(return_from_perm),
+      reengaged_from_temp_client = any(return_from_nonperm),
+      first_time_homeless_client = any(first_time_homeless),
+      unknown_at_start_client = any(unknown_at_start),
+      non_res_excluded_client = any(non_res_excluded),
+      first_of_the_month_exit_client = any(first_of_the_month_exit),
+      continuous_at_start_client = any(continuous_at_start),
       
       # OUTFLOW
-      perm_dest_client = anyv(exited_perm, TRUE),
-      temp_dest_client = anyv(exited_temp, TRUE),
-      homeless_at_end_client = anyv(homeless_at_end, TRUE),
-      housed_at_end_client = anyv(housed_at_end, TRUE),
-      unknown_at_end_client = anyv(unknown_at_end, TRUE),
-      continuous_at_end_client = anyv(continuous_at_end , TRUE)
+      perm_dest_client = any(exited_perm),
+      temp_dest_client = any(exited_temp),
+      homeless_at_end_client = any(homeless_at_end),
+      housed_at_end_client = any(housed_at_end),
+      unknown_at_end_client = any(unknown_at_end),
+      last_of_the_month_entry_client = any(last_of_the_month_entry),
+      continuous_at_end_client = any(continuous_at_end)
     ) %>%
     fungroup() %>%
     ftransform(
@@ -231,6 +364,8 @@ universe_ppl_flags <- function(universe_df) {
           active_at_start_homeless_client | active_at_start_housed_client, "Active at Start",
           first_time_homeless_client | return_from_perm_client | reengaged_from_temp_client | unknown_at_start_client, "Inflow",
           continuous_at_start_client, "Continuous at Start",
+          non_res_excluded_client, "Excluded",
+          first_of_the_month_exit_client, "First-of-Month Exit",
           default = "something's wrong"
         ), levels = inflow_summary_levels
       ),
@@ -239,11 +374,13 @@ universe_ppl_flags <- function(universe_df) {
         fcase(
           active_at_start_homeless_client, "Homeless",
           active_at_start_housed_client, "Housed",
+          first_time_homeless_client, "First-Time \nHomeless",
           return_from_perm_client, "Returned from \nPermanent",
           reengaged_from_temp_client, "Re-engaged from \nNon-Permanent",
-          first_time_homeless_client, "First-Time \nHomeless",
           continuous_at_start_client, "Continuous at Start",
           unknown_at_start_client, "Unknown",
+          non_res_excluded_client, "Excluded",
+          first_of_the_month_exit_client, "First-of-Month Exit",
           default = "something's wrong"
         ), levels = c(active_at_levels, inflow_detail_levels)
       ),
@@ -253,6 +390,7 @@ universe_ppl_flags <- function(universe_df) {
           perm_dest_client | temp_dest_client | unknown_at_end_client, "Outflow",
           homeless_at_end_client | housed_at_end_client, "Active at End",
           continuous_at_end_client, "Continuous at End",
+          last_of_the_month_entry_client, "Last-of-Month Entry",
           default = "something's wrong"
         ), levels = outflow_summary_levels
       ),
@@ -265,91 +403,108 @@ universe_ppl_flags <- function(universe_df) {
           homeless_at_end_client, "Homeless",
           housed_at_end_client, "Housed",
           continuous_at_end_client, "Continuous at End",
+          last_of_the_month_entry_client, "Last-of-Month Entry",
           default = "something's wrong"
         ), levels = c(outflow_detail_levels, rev(active_at_levels))
       )
-    ) %>%
-    fselect(-startDate, -endDate)
+    )
+
+  ####
+  # Dropping Unwanted Inactives ----------------
+  ####
+  period_level_data <- universe_w_ppl_flags %>%
+    fsubset(period != "Full", PersonalID, period, OutflowTypeDetail) %>%
+    funique() %>%
+    setorder(PersonalID, period) %>%
+    fmutate(prev_period_outflow = flag(OutflowTypeDetail, g = PersonalID)) %>%
+    fsubset(OutflowTypeDetail == "Inactive" & prev_period_outflow == "Inactive") %>%
+    fselect(PersonalID, period)
+  
+  universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
+    join(period_level_data, on = c("PersonalID", "period"), how="anti")
+
+  rm(period_level_data, universe_w_ppl_flags)
   
   if(!in_dev_mode) {
-    universe_w_ppl_flags[, .(
-      PersonalID,
-      InflowTypeSummary,
-      InflowTypeDetail,
-      OutflowTypeSummary,
-      OutflowTypeDetail,
-      ProjectType,
-      month,
-      EnrollmentID, 
-      eecr,
-      lecr,
-      MoveInDateAdjust
-    )]
+    universe_w_ppl_flags_clean <- universe_w_ppl_flags_clean %>%
+      fselect(
+        PersonalID,
+        InflowTypeSummary,
+        InflowTypeDetail,
+        OutflowTypeSummary,
+        OutflowTypeDetail,
+        ProjectType,
+        period,
+        EnrollmentID, 
+        eecr,
+        lecr,
+        EntryDate,
+        days_since_lookback,
+        has_recent_lh_info,
+        MoveInDateAdjust,
+        HouseholdType, 
+        CorrectedHoH, 
+        LivingSituation, 
+        ExitAdjust, 
+        Destination
+      ) %>%
+      funique()
   }
   
-  if(nrow(universe_w_ppl_flags[InflowTypeDetail == "Unknown" & period == "Full"]) > 0) {
-    if(in_dev_mode) browser()
-    logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
-  }
+  # universe_w_ppl_flags_clean[PersonalID == 576213, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, eecr, lecr, InflowTypeDetail, OutflowTypeDetail, keep_flag)]
+  ####
+  # Error Checking ------------------
+  ####
+  ## Random 10 people from each group
+  # sampled <- universe_w_ppl_flags_clean[period == "Full"][
+  #   , .SD[sample(.N, min(10, .N))],
+  #   by = .(InflowTypeDetail, OutflowTypeDetail)
+  # ]
+  # 
+  # sampled_final <- sampled %>%
+  #   fselect(PersonalID) %>%
+  #   funique() %>%
+  #   join(enrollment_categories_all, on = "PersonalID", multiple=T) %>%
+  #   join(universe_w_ppl_flags_clean, on = "EnrollmentID", multiple=TRUE) %>%
+  #   fselect(PersonalID, period, eecr, lecr, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InformationDate, DateProvided, InflowTypeDetail, OutflowTypeDetail) %>%
+  #   setorder(PersonalID, period, eecr, lecr)
+  # 
+  # fwrite(sampled_final, "/media/sdrive/projects/CE_Data_Toolkit/QC_Inflow_Outflow_Statuses_8.20.25_v2.csv")
 
-  # First/last month's inflow/outflow status != full inflow/outflow status
-  bad_records <- universe_w_ppl_flags %>%
-    fgroup_by(PersonalID) %>%
-    fsummarize(
-      first_enrl_month_inflow = ffirst(
-        fifelse(eecr & period != "Full", InflowTypeDetail, NA)
-      ),
-      full_period_inflow = ffirst(
-        fifelse(eecr & period == "Full", InflowTypeDetail, NA)
-      ),
-      last_enrl_month_outflow = flast(
-        fifelse(lecr & period != "Full", OutflowTypeDetail, NA)
-      ),
-      full_period_outflow = flast(
-        fifelse(lecr & period == "Full", OutflowTypeDetail, NA)
-      )
-    ) %>%
-    fungroup() %>%
-    fsubset(
-      first_enrl_month_inflow != full_period_inflow |
-      last_enrl_month_outflow != full_period_outflow
-    ) %>%
-    join(
-      universe_w_ppl_flags[, .(period, PersonalID, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, was_lh_at_start, was_lh_at_end, eecr, lecr, InflowTypeDetail, OutflowTypeDetail)],
-      on = "PersonalID",
-      multiple = TRUE
-    ) %>%
-    join(
-      session$userData$lh_non_res[, .(EnrollmentID, InformationDate)],
-      on = "EnrollmentID",
-      multiple = TRUE
-    )
-  if(nrow(bad_records) > 0)  {
-    if(in_dev_mode) browser()
-    # 104510
-    # PersonalID last_enrl_month_inflow     full_period_outflow     period EnrollmentID  EntryDate MoveInDateAdjust ExitAdjust ProjectType lh_prior_livingsituation
-    # <char>                 <fctr>                  <fctr>     <char>       <char>     <Date>           <Date>     <Date>       <num>                   <lgcl>
-    # 1:     104510               Inactive Exited, \nNon-Permanent 2021-10-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # 2:     104510               Inactive Exited, \nNon-Permanent 2021-11-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # 3:     104510               Inactive Exited, \nNon-Permanent 2021-12-01       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # 4:     104510               Inactive Exited, \nNon-Permanent       Full       827158 2021-10-05             <NA> 2022-03-04           4                     TRUE
-    # was_lh_at_start was_lh_at_end   eecr   lecr      InflowTypeDetail       OutflowTypeDetail InformationDate
-    # <lgcl>        <lgcl> <lgcl> <lgcl>                <fctr>                  <fctr>          <Date>
-    # 1:           FALSE          TRUE   TRUE   TRUE First-Time \nHomeless                Homeless      2021-10-05
-    # 2:            TRUE          TRUE   TRUE   TRUE              Homeless                Homeless      2021-10-05
-    # 3:            TRUE         FALSE   TRUE   TRUE              Homeless                Inactive      2021-10-05
-    # 4:           FALSE         FALSE   TRUE   TRUE First-Time \nHomeless Exited, \nNon-Permanent      2021-10-05
-    logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
-  }
-
-  bad_records <- universe_w_ppl_flags[
-    InflowTypeSummary == "something's wrong" |
-    OutflowTypeSummary == "something's wrong"
-  ]
+  ## Inflow Unknown in Full Period -------
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(InflowTypeDetail == "Unknown" & period == "Full")
   if(nrow(bad_records) > 0) {
-    if(in_dev_mode) {
-      view(bad_records[InflowTypeSummary == "something's wrong", c("period", inflow_debug_cols), with=FALSE])
-      view(bad_records[OutflowTypeSummary == "something's wrong", c("period", outflow_debug_cols), with=FALSE])
+    logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      bad_records <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean) %>% 
+        fselect(inflow_debug_cols)
+      view(bad_records)
+      browser()
+    }
+  }
+  
+  ## Something's Wrong -------
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(
+      InflowTypeSummary == "something's wrong" | 
+      OutflowTypeSummary == "something's wrong"
+    )
+  if(nrow(bad_records) > 0) {
+    logToConsole(session, "ERROR: There are clients whose Inflow or Outflow is 'something's wrong'")
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean, multiple=TRUE) %>%
+        fgroup_by(PersonalID) %>%
+        fmutate(
+          has_inflow_wrong = anyv(InflowTypeDetail, "something's wrong"),
+          has_outflow_wrong = anyv(OutflowTypeDetail, "something's wrong"),
+          has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start"),
+          has_continuous_at_end = anyv(OutflowTypeDetail, "Continuous at End")
+        ) %>%
+        fungroup()
+      
+      if(nrow(somethings_wrongs[has_inflow_wrong == TRUE]) > 0) view(somethings_wrongs[has_inflow_wrong == TRUE] %>% fselect(inflow_debug_cols, "has_continuous_at_start"))
+      if(nrow(somethings_wrongs[has_outflow_wrong == TRUE]) > 0) view(somethings_wrongs[has_outflow_wrong == TRUE] %>% fselect(outflow_debug_cols, "has_continuous_at_end"))
       browser()
     }
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
@@ -367,6 +522,133 @@ universe_ppl_flags <- function(universe_df) {
     logToConsole(session, "ERROR: There are something's wrong records in the universe_ppl_flags data")
   }
 
+  ## First/Last Month Inflow/Outflow != Full Inflow/Outflow-------
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fgroup_by(PersonalID) %>%
+    fsummarize(
+      first_enrl_month_inflow = ffirst(fifelse(eecr & period != "Full", InflowTypeDetail, NA)),
+      full_period_inflow = ffirst(fifelse(eecr & period == "Full", InflowTypeDetail, NA)),
+      
+      last_enrl_month_outflow = flast(fifelse(lecr & period != "Full", OutflowTypeDetail, NA)),
+      last_enrl_month_outflow_noninactive = flast(fifelse(lecr & period != "Full" & OutflowTypeDetail != "Inactive", OutflowTypeDetail, NA)),
+      full_period_outflow = flast(fifelse(lecr & period == "Full", OutflowTypeDetail, NA))
+    ) %>%
+    fungroup() %>%
+    fsubset(
+      first_enrl_month_inflow != full_period_inflow |
+      (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
+      (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
+    )
+  if(nrow(bad_records) > 0)  {
+    logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      bad_first_inflow_records <- get_all_enrollments_for_debugging(
+        bad_records[first_enrl_month_inflow != full_period_inflow],
+        universe_w_ppl_flags_clean,
+        multiple = TRUE
+      )
+      if(nrow(bad_first_inflow_records) > 0) {
+        bad_first_inflow_records <- bad_first_inflow_records %>%
+          fgroup_by(PersonalID) %>%
+          fmutate(
+            has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
+                                  anyv(OutflowTypeDetail, "something's wrong"),
+            has_continuous_at_start = anyv(InflowTypeDetail, "Continuous at Start")
+          ) %>%
+          fungroup() %>%
+          fsubset(!has_something_wrong)
+        
+        if(nrow(bad_first_inflow_records) > 0)
+          view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
+      }
+      
+      bad_last_outflow_records <- get_all_enrollments_for_debugging(
+        bad_records[
+          (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
+          (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
+        ],
+        universe_w_ppl_flags_clean,
+        multiple = TRUE
+      )
+      if(nrow(bad_last_outflow_records) > 0) {
+        bad_last_outflow_records <- bad_last_outflow_records %>%
+          fgroup_by(PersonalID) %>%
+          fmutate(
+            has_something_wrong = anyv(InflowTypeDetail, "something's wrong") | 
+                                  anyv(OutflowTypeDetail, "something's wrong"),
+            has_continuous_at_end = anyv(OutflowTypeDetail, "Continuous at End")
+          ) %>%
+          fungroup() %>%
+          fsubset(!has_something_wrong)
+        
+        if(nrow(bad_last_outflow_records) > 0)
+          view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
+      }
+      browser()
+    }
+  }
+
+  ## ASHomeless and EntryDate on first of month with no recent lookback-------
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(period != "Full") %>%
+    fsubset(
+      eecr & 
+      InflowTypeDetail == "Homeless" & 
+      EntryDate == as.Date(period) &
+      EntryDate != session$userData$ReportStart &
+      (days_since_lookback > 14 | is.na(days_since_lookback)) & !has_recent_lh_info
+    )
+  if(nrow(bad_records) > 0) {
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      bad_ashomeless <- get_all_enrollments_for_debugging(
+        bad_records,
+        universe_w_ppl_flags_clean,
+        multiple = TRUE
+      )
+      view(bad_ashomeless)
+      browser()
+    }
+  }
+  
+  ## Re-Engaged/Return after Exit
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
+    funique() %>%
+    setorder(PersonalID, period) %>%
+    fmutate(
+      inflow_flag = grepl("Return|Re-engaged", InflowTypeDetail),
+      prev_outflow = flag(OutflowTypeDetail, g=PersonalID), 
+      prev_outflow_flag = !grepl("Exited|Inactive", prev_outflow) & !is.na(prev_outflow)
+    ) %>%
+    fgroup_by(PersonalID) %>%
+    fsummarize(has_issue = any(inflow_flag & prev_outflow_flag, na.rm=TRUE)) %>%
+    fungroup() %>%
+    fsubset(has_issue)
+  if(nrow(bad_records) > 0) {
+    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+      browser()
+      bad_return_after_nonexit <- get_all_enrollments_for_debugging(
+        bad_records,
+        universe_w_ppl_flags_clean,
+        multiple = TRUE,
+        extra_cols = c("lookback_last_lh_date")
+      ) %>%
+        fsubset(period != "Full") %>%
+        fmutate(
+          days_since_last_lh = fifelse(grepl("Return|Re-engaged", InflowTypeDetail) & eecr, EntryDate - lookback_last_lh_date, NA),
+          day_check = fifelse(ProjectType == ce_project_type, 90, 60)
+        ) %>%
+        fgroup_by(PersonalID) %>%
+        fmutate(has_long_bout_since_lh = any(days_since_last_lh > day_check, na.rm=TRUE)) %>%
+        fungroup() %>%
+        fselect(
+          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, InformationDate, DateProvided, InflowTypeDetail, OutflowTypeDetail, days_since_last_lh, has_long_bout_since_lh
+        )
+      view(bad_return_after_nonexit)
+      browser()
+    }
+  }
+
   # PersonalID: 529378, enrollment 825777 - 
   # Oct - Active at Start Homeless 
   # Nov - Active at Start Homeless
@@ -379,7 +661,7 @@ universe_ppl_flags <- function(universe_df) {
   # print(
   #   universe_w_ppl_flags[PersonalID == 613426, .(EnrollmentID, eecr, lecr, period[1])]
   # )
-  universe_w_ppl_flags
+  universe_w_ppl_flags_clean
 }
 
 # Inflow/Outflow Client-Level Data ---------------------------
@@ -387,42 +669,36 @@ universe_ppl_flags <- function(universe_df) {
 # This also gets used by the Status chart
 get_inflow_outflow_full <- reactive({
   logToConsole(session, "In get_inflow_outflow_full")
-  full_data <- period_specific_data()[["Full"]]
+  full_data <- period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail != "Excluded")
   
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
   
   if(nrow(full_data) == 0) return(full_data)
   
-  if(in_dev_mode) export_bad_records("Full", full_data)
-  
   # AS 6/8/25: Do we want to remove *people* that are Continuous? Or just exclude from those Inflow/Outflow bars?
   # ditto for Inflow = Unknown
   # 637203 is an example of someone with Inflow = Unknown but has a regular Outflow
-  full_data %>%
+  data <- full_data %>%
     fselect(PersonalID,
             InflowTypeSummary,
             InflowTypeDetail,
             OutflowTypeSummary,
             OutflowTypeDetail
     ) %>%
-    fsubset(
-      InflowTypeDetail != "Continuous at Start" &
-      OutflowTypeDetail != "Continuous at End"
-    ) %>%
     funique()
+  
+  data
 })
 
 ## Monthly ---------------------------------
 # combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
   logToConsole(session, paste0("In get_inflow_outflow_monthly"))
-  months_data <- period_specific_data()[["Months"]]
+  months_data <- period_specific_data()[["Months"]] %>% fsubset(InflowTypeDetail !=" Excluded")
   
   logToConsole(session, paste0("In get_inflow_outflow_monthly, num months_data records: ", nrow(months_data)))
   
   if(nrow(months_data) == 0) return(months_data)
-  
-  if(in_dev_mode) export_bad_records("Month", months_data)
   
   data.table::copy(months_data %>%
     fselect(
@@ -436,55 +712,6 @@ get_inflow_outflow_monthly <- reactive({
     funique()
   )
 })
-
-export_bad_records <- function(period, df) {
-  ds_name <- ifelse(isTRUE(input$in_demo_mode), "DEMO", input$imported$name)
-  if(period == "Month") {
-    df_multiple_inactives <- df %>%
-      fselect(PersonalID,
-              InflowTypeSummary,
-              InflowTypeDetail,
-              OutflowTypeSummary,
-              OutflowTypeDetail,
-              month
-      ) %>%
-      funique() %>%
-      roworder(PersonalID, month) %>%
-      fmutate(is_inactive = OutflowTypeDetail == "Inactive")
-    
-    # 3. Identify consecutive blocks of status (active or inactive)
-    #    rleid() assigns a unique ID to consecutive runs of identical values
-    df_multiple_inactives[, block_id := rleid(is_inactive), by = PersonalID]
-    
-    # 4. Calculate the length of each block
-    df_multiple_inactives[, block_length := .N, by = .(PersonalID, block_id)]
-    
-    df_multiple_inactives <- df_multiple_inactives[is_inactive == TRUE & block_length > 1]
-    if(nrow(df_multiple_inactives) > 0)
-      write_xlsx(
-        df_multiple_inactives[is_inactive == TRUE & block_length > 1],
-        path = glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-multiple-inactives-in-a-row-for-{period}-{today()}.xlsx")
-      )
-  }
-  
-  df <- df[InflowTypeSummary == "something's wrong" | OutflowTypeSummary == "something's wrong"]
-  
-  if(nrow(df) == 0) return(NULL)
-
-  dfs <- list(
-    "Inflows" = df %>%
-      fsubset(InflowTypeSummary == "something's wrong") %>% 
-      fselect(inflow_debug_cols, if(period == "Month") "month"),
-    "Outflows" = df %>%
-      fsubset(OutflowTypeSummary == "something's wrong") %>% 
-      fselect(outflow_debug_cols, if(period == "Month") "month")
-  )
-
-  write_xlsx(
-    dfs, 
-    glue::glue("/media/sdrive/projects/CE_Data_Toolkit/debugs/{ds_name}-somethings-wrongs-for-{period}-{today()}.xlsx")
-  )
-}
 
 # Filter Selections UI -----------------------------------------------------------
 # (Reported above the chart)
@@ -553,21 +780,24 @@ sys_inflow_outflow_annual_chart_data <- reactive({
       OutflowTypeDetail = factor(OutflowTypeDetail, levels = c(outflow_chart_detail_levels, active_at_levels))
     )
 
-  rbind(
-    inflow_outflow_full_data[, .(
-      Detail = InflowTypeDetail,
-      Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
-      InflowOutflow = factor("Inflow", levels = inflow_outflow_levels),
-      PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
-    )],
-    inflow_outflow_full_data[, .(
-      Detail = OutflowTypeDetail,
-      Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
-      InflowOutflow = factor("Outflow", levels = inflow_outflow_levels),
-      PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
-    )]
+   rowbind(
+    inflow_outflow_full_data %>%
+      fcompute(
+        Detail = InflowTypeDetail,
+        Summary = fct_collapse(InflowTypeDetail, `Active at Start` = active_at_levels),
+        InflowOutflow = factor("Inflow", levels = inflow_outflow_levels),
+        PlotFillGroups = fct_collapse(InflowTypeDetail, Inflow = inflow_chart_detail_levels)
+      ),
+
+    inflow_outflow_full_data %>%
+      fcompute(
+        Detail = OutflowTypeDetail,
+        Summary = fct_collapse(OutflowTypeDetail, `Active at End` = active_at_levels),
+        InflowOutflow = factor("Outflow", levels = inflow_outflow_levels),
+        PlotFillGroups = fct_collapse(OutflowTypeDetail, Outflow = outflow_chart_detail_levels)
+      )
   ) %>% 
-  fsubset(Detail != "Unknown") %>%
+  fsubset(!Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)) %>%
   fcount() %>%
   join(full_combinations, how="full", on=names(full_combinations), overid=0) %>%
   collapse::replace_na(cols = "N", value = 0) %>%
@@ -594,7 +824,6 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
   
   if(nrow(monthly_data) == 0) return(monthly_data)
   monthly_data <- monthly_data %>%
-    fsubset(InflowTypeDetail != "Continuous at Start" & OutflowTypeDetail != "Continuous at End") %>%
     fmutate(
       InflowPlotFillGroups = fct_collapse(
         InflowTypeDetail, 
@@ -632,7 +861,7 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
     )]
   ) %>%
     funique() %>%
-    fsubset(Detail != "Unknown" | is.na(Detail)) %>%
+    fsubset(!Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)) %>%
     fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
@@ -936,8 +1165,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
         Summary,
-        Inflow = inflow_summary_levels,
-        Outflow = outflow_summary_levels
+        Inflow = inflow_summary_chart_levels,
+        Outflow = outflow_summary_chart_levels
       ))
     
     # Get Average Info for Title Display
@@ -1253,7 +1482,8 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       )
     ),
     style = "default",
-    rownames = FALSE
+    rownames = FALSE,
+    selection = "none"
   )  %>%
     # Highlight only the first column of "Inflow" and "Outflow" rows
     formatStyle(
@@ -1478,7 +1708,7 @@ sys_export_monthly_info <- function() {
       Detail = factor(paste0("Total ", Detail))
     )
   
-  monthly_counts <- bind_rows(monthly_counts_detail, monthly_totals) %>%
+  monthly_counts <- rowbind(monthly_counts_detail, monthly_totals) %>%
     roworder(Summary, Detail)
   
   monthly_average_cols <- c("Total Inflow", "Total Outflow", "Monthly Change")
@@ -1600,91 +1830,3 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     )
   }
 )
-
-qc_checks <- function() {
-  browser()
-
-  # TESTING DIFF BETWEEN FULL AND MBM
-  full <- period_specific_data()[["Full"]]
-  all_months <- period_specific_data()[["Months"]]
-  setdiff(sort(unique(full$PersonalID)), sort(unique(all_months$PersonalID)))
-  setdiff(sort(unique(all_months$PersonalID)), sort(unique(full$PersonalID)))
-  # 
-  # 
-  # json_str <- jsonlite::toJSON(
-  #   unique(
-  #     merge(
-  #       enrollment_categories[
-  #         !(PersonalID %in% unique(full$PersonalID)),
-  #         .(EnrollmentID, PersonalID, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)
-  #       ],
-  #       homeless_cls[, .(EnrollmentID, InformationDate)],
-  #       by = "EnrollmentID"
-  #     )[, .(PersonalID, InformationDate, EntryDate, ExitAdjust, ProjectType, lh_prior_livingsituation)]
-  #   ),
-  #   null="list",
-  #   na="string",
-  #   pretty = TRUE, auto_unbox = TRUE
-  # )
-  # json_str <- gsub("true", "True", json_str)
-  # json_str <- gsub("false", "False", json_str)
-  # 
-  #
-  # # Check that one enrollment isn't considered an inflow in multiple months
-  # # someone can have an exit in between or they can be active at start
-  #
-  monthly_universe_ppl_flags <- get_inflow_outflow_monthly()
-  
-  # check prior month's status (L() is the collapse package's Lag function)
-  # if they outflowed last month, they should have inflowed this month
-  # and if they were active at end last month, they should be active at start, this month
-  full_combinations <- CJ(
-    PersonalID = unique(monthly_universe_ppl_flags$PersonalID), 
-    month = levels(monthly_universe_ppl_flags$month)
-  )
-  
-  # check for dup First-Time Homeless 
-  first_time_homeless_dups <- all_months[
-    InflowTypeDetail == "First-Time \nHomeless"
-  ][, .N, by = PersonalID][N > 1]
-  if(nrow(first_time_homeless_dups) > 0) {
-    warning(glue("There are people that have multiple First-Time Homeless values in the mbm."))
-    print(all_months[PersonalID %in% first_time_homeless_dups$PersonalID, .(
-      PersonalID, 
-      EnrollmentID,
-      EntryDate,
-      ExitAdjust,
-      month,
-      InflowTypeDetail,
-      active_at_start_homeless,
-      active_at_start_housed,
-      # at_least_14_days_to_eecr_enrl,
-      # first_lookback_perm_dest,
-      # first_lookback_temp_dest,
-      return_from_perm_client,
-      reengaged_from_temp_client,
-      first_time_homeless_client
-      # unknown_at_start
-    )])
-  }
-  
-  qc <- monthly_universe_ppl_flags %>%
-    join(
-      full_combinations,
-      on = c("PersonalID", "month"),
-      how = "full"
-    ) %>%
-    fsubset(order(PersonalID, month)) %>%
-    fmutate(problem = !(
-      (L(OutflowTypeSummary, g = PersonalID) == "Outflow" & Summary == "Inflow") | 
-      (L(OutflowTypeSummary, g = PersonalID) == "Active at End" & InflowTypeSummary %in% c("Inflow","Active at Start")) |
-      (L(OutflowTypeSummary, g = PersonalID) == "Inactive" & InflowTypeSummary %in% c("Inflow","Active at Start"))
-    )) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      has_problem = anyv(problem, TRUE)
-    ) %>%
-    fungroup() %>%
-    fsubset(has_problem)
-
-}

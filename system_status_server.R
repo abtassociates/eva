@@ -5,18 +5,18 @@ output$sankey_filter_selections <- renderUI({
 
 render_sankey_plot <- function(plot_data, isExport = FALSE) {
   begin_labels <- plot_data %>%
-    group_by(Begin) %>%
-    summarize(freq = sum(freq)) %>%
-    arrange(desc(Begin)) %>%
-    mutate(label_pos = cumsum(freq) - freq/2,
+    fgroup_by(Begin) %>%
+    fsummarize(freq = fsum(freq)) %>%
+    roworder(-Begin) %>%
+    fmutate(label_pos = fcumsum(freq) - freq/2,
            End = 0,
            Begin = glue("{freq} {Begin}"))
   
   end_labels <- plot_data %>%
-    group_by(End) %>%
-    summarize(freq = sum(freq)) %>%
-    arrange(desc(End)) %>%
-    mutate(label_pos = cumsum(freq) - freq/2,
+    fgroup_by(End) %>%
+    fsummarize(freq = fsum(freq)) %>%
+    roworder(-End) %>%
+    fmutate(label_pos = fcumsum(freq) - freq/2,
            Begin = 0,
            End = glue("{freq} {End}"))
   
@@ -25,17 +25,17 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
   # this way, if there's only one End gorup for a Begin group, the Begin bar
   # will remain gray, not take on the color of the End group
   plot_data <- plot_data %>%
-    left_join(
+    join(
       plot_data %>%
-        group_by(Begin) %>%
-        summarise(cumfreq = sum(freq)) %>%
-        ungroup() %>%
-        arrange(desc(Begin)) %>%
-        mutate(
-          ystart = lag(cumfreq, default = 0),
+        fgroup_by(Begin) %>%
+        fsummarise(cumfreq = fsum(freq)) %>%
+        fungroup() %>%
+        roworder(-Begin) %>%
+        fmutate(
+          ystart = flag(cumfreq, fill = 0),
           yend = ystart + cumfreq
         ),
-      by = "Begin"
+      on = "Begin", how = 'left'
     )
   
   bar_colors <- c(

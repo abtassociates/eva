@@ -453,8 +453,8 @@ tabDQOrg_instructions <-  HTML("
 
 tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
                 <p>The System Performance Overview page in Eva features three system 
-                performance charts: the System Flow Chart, the Client System Status 
-                Chart, and the System Demographics Chart. The charts display system 
+                performance panels, each with their own set of charts: the System Flow Panel, the Client System Status 
+                Panel, and the System Demographics Panel. The charts on these panels display system 
                 performance data, pulled from your uploaded HMIS CSV export, from 
                 all HMIS Continuum projects, excluding homeless prevention projects. 
                 Eva uses the last 12 full months of data in the upload, which constitutes 
@@ -465,27 +465,22 @@ tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
                 data to (1) evaluate how effective your homeless system is in moving 
                 clients through the system and helping them reach permanent housing, 
                 and (2) help you understand the demographic composition of all clients 
-                served in your homeless system. Explore each of the charts using 
-                chart tabs beneath the Filters Menu. Under each chart tab is a Chart 
-                subtab for viewing the chart itself and an Information subtab. The 
-                Information subtab includes a \"Chart Overview” section that provides 
-                guidance on how to read the chart, and some charts additionally have 
-                an \"Interpretation Tips” section that can help you interpret their output.</p>
+                served in your homeless system.</p>
                 
                 <p>Use the Filters Menu to explore system performance trends of 
                 clients in your homeless system with specific characteristics. 
                 This has two components: </p>
                 
-                <ol>
-                  <li><b>The universal filters</b>, the top row of the Filters Menu, 
+                <ul style='list-style-type:none'>
+                  <li>1) <b>The universal filters</b>, the top row of the Filters Menu, 
                   impact the data shown on all three visualizations on this page. 
                   Universal filters include Household Type, Level of Detail, Project 
                   Type Group, and Race/Ethnicity Methodology Type.</li>
-                  <li><b>The demographic filters</b>, the bottom row of the Filters Menu, 
+                  <li>2) <b>The demographic filters</b>, the bottom row of the Filters Menu, 
                   only impact the data shown in the System Flow and Client System 
                   Status charts. Demographic filters include Age, Veteran Status, 
                   and Race/Ethnicity.</li>
-                </ol>
+                </ul>
                 
                 <p>Use the drop-down menus to select the characteristics of the 
                 system subpopulation you want to analyze. The default selection 
@@ -508,12 +503,20 @@ tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
                 Race/Ethnicity filters. To learn more about methodology and demographic 
                 categories, please visit the Glossary accessible on Eva's Navigation Menu.</p>
                 
+                <p>The system performance panels are beneath the Filters Menu. Under each Panel tab are Chart subtabs and an Information subtab. 
+                The Information subtab includes a “Chart Overview” section that provides guidance on how to read the charts. Additionally, some 
+                panels have an “Interpretation Tips” section that can help you interpret their output. </p>
+                
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes two download options. To generate an Excel workbook 
-                with the data for a specific chart, click the \"Data Download\" button 
-                while viewing the chart. To generate a PowerPoint slide deck with 
-                the chart image, click the \"Image Download\" button while viewing the chart. </p>
+                Eva includes three System Performance Overview export options. The data in these exports reflect the clients that meet the 
+                characteristics of the system subpopulation you selected with the Filters Menu.<p>
+                <ul style='list-style-type:none'>
+                <li>(1) To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.  </li>
+                <li>(2) To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel. </li>
+                </ul>
+                
+                <p>To generate an Excel workbook with all client data used for all of the System Performance Overview Charts, click the \"Client Level Download\" button. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -521,23 +524,24 @@ tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
                 If the total number of clients within a chart is less than 11, the 
                 chart will not display. When this happens, you may need to broaden 
                 your filter selections or upload a larger dataset to ensure there 
-                is enough data to view the chart. A chart that is not displayed 
-                cannot be exported in Excel or PowerPoint.</p>
+                is enough data to view the chart. Image and Data Downloads are unavailable for charts that are fully suppressed.</p>
                 
-                <p>The data in the data download of a chart’s export <b>will not be 
-                suppressed</b>. Be careful how you save and share the tabular export. 
-                With smaller numbers, clients can become more identifiable in the 
-                data. Before you share the Excel export, feel free to modify, add, 
-                or remove anything as you see fit to preserve client anonymity. </p>
+                <p>The Client Level Download is always available with unsuppressed data, even when the total number of clients across all charts is less than 11.</p> 
+
+                <p>Use caution when saving and sharing the Excel workbooks. Clients can become more identifiable in the data with smaller numbers, even if the data is in aggregate. 
+                Before sharing, feel free to modify, add, or remove anything as you see fit to preserve client anonymity. </p>
+
+                <p>The client data in the Client Level Download is easily identifiable as it contains Personal IDs, demographic information, and enrollment dates. 
+                We recommend not sharing this Excel workbook with anyone who does not have permission to view client PII.</p>   
                ")
 
 tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview</h4>
-                                <p>The System Flow charts show your homeless system's inflow and outflow during the period, 
+                                <p>The System Flow panel shows your homeless system's inflow and outflow during the period, 
                                 helping you assess the effectiveness of your homeless system. 
-                                The client universe for this chart is the number of clients identified as active in your system 
+                                The client universe for this panel is the number of clients identified as active in your system 
                                 at the start of the report period plus the number of clients that inflowed into your system 
-                                during the period. There are three System Flow charts: the Summary Chart, the Detail Chart, 
-                                and the Month-by-Month Chart. 
+                                during the period. The System Flow panel contains a set of three charts: the Summary Chart, 
+                                the Detail Chart, and the Month-by-Month Chart.
                                 The charts are read from left to right. </p>
                                 <br>
                                 <h4>Summary and Detail Charts</h4>
@@ -551,29 +555,31 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                   \"Exited, Non-Permanent,\" \"Exited, Permanent,\" and \"Inactive.\"</li>
                                 </ul>
                                 
-                                <p>In the Summary and Detail Charts, the Total Change value represents the Outflow value(s) minus Inflow value(s). A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
+                                <p>In the Summary and Detail Charts, the Total Change value: </p><br>
+                                <pre><code>Total Change = Inflow value(s) - Outflow value(s)</code></pre><br>
+
+                                <p>represents the Outflow value(s) minus Inflow value(s). A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
                                 <br>
                                 <h4>Month-by-Month Chart</h4>
-                                <p>The Month-by-Month Chart shows Inflow and Outflow counts over a 12-month period. The actual counts are listed in a table below the chart. The chart includes monthly \"baseline\" numbers for Inflow and Outflow. These \"baseline\" numbers are defined as:
-                                <ul>
-                                <li>Clients experiencing homelessness at the start of each month for Inflow</li>
-                                <li>Clients that are enrolled and permanently housed at the end of each month for Outflow</li>
-                                </ul>
-                                <p>A client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March.
-
-The Month-by-Month Chart also has Flow Type Filters for viewing \"First-Time Homeless\" and \"Inactive\" client counts. The default Flow Type Filter is \"All\" which shows the Inflow, Outflow, and baseline numbers together.</p>
-In the Month-by-Month Chart, the Monthly Change value in the chart’s table is calculated by</p> <br>
-<pre><code>(Inflow + Active at Start: Homeless) - (Outflow + Active at End: Housed)</code></pre><br>
-<p>The Monthly Change values are then added together and divided by 12 to give the Average Monthly Change value. A negative Average Monthly Change value means, on average, more clients left your system than flowed into your system each month. A positive Average Monthly Change value means, on average, more clients flowed into your system than left your system each month.</p>
-  <p>The System Flow chart is read from 
-                                left to right. The Total Change value represents 
-                                the Outflow value(s) minus Inflow value(s). The 
-                                Total Change value can be positive or negative. 
-                                A negative change value means more clients left 
-                                your system than flowed into your system. A positive 
-                                change value means more clients flowed into your 
-                                system than left your system.</p>
+                                <p>The Month-by-Month Chart, which includes a stacked bar chart and a data table, shows Inflow and Outflow counts by month over a 12-month period. The stacked bar chart visually compares, by month, the total count of people that enter the homeless system <b>(Inflow)</b> or are continuingly experiencing homelessness in the system <b>(Active at Start: Homeless)</b> with the total count of people that exited the system <b>(Outflow)</b> or are permanently housed within the system <b>(Active at End: Housed)</b></p>
+                                
+                                <p>The actual counts of each category in a given month are listed in a table below the chart, including the Monthly Change value. The <b>Monthly Change</b> value:</p>
                                 <br>
+                                <pre><code>Monthly Change = Inflow (for a given month) - Outflow (for a given month)</code></pre>
+                                <br>
+                                <p>A negative Monthly Change value means more clients left your system than flowed into your system during a given month. A positive Monthly Change value means more clients flowed into your system than left your system during a given month. The months that have the most inflow and the most outflow are colored in the table.</p>
+                                
+                                <p>The <b>Average Monthly Change, Average Monthly Inflow, and Average Monthly Outflow</b> values have the same underlying calculation represented by:</p>
+                                <br>
+                                <pre><code>Average Monthly [Value] = (Month Value 1 + Month Value 2 + ...) / 12</code></pre>
+                                <br>
+                                <p>A negative Average Monthly Change value means, on average, more clients left your system than flowed into your system each month. A positive Average Monthly Change value means, on average, more clients flowed into your system than left your system each month. </p>
+                                <br>
+                                <p>Note: A client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March.</p>
+                                <br>
+                                <p>The Month-by-Month Chart also has Flow Type Filters for viewing \"First-Time Homeless\" and \"Inactive\" client counts. The default Flow Type Filter is \"All\" which shows the Inflow, Outflow, and baseline numbers together.</p>
+                                <br>
+                                
                                 <h4>Interpretation Tips</h4>
                                 <p>This section provides general tips on how to 
                                 interpret the chart. Depending on the data you uploaded, 

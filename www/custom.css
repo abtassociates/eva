@@ -35,7 +35,8 @@
 }
 
 .accordion-title {
-  font-size: 1rem;
+  /* Formula used by bootstrap for h4 size*/ 
+  font-size: calc(1.25625rem + .075vw);
 }
 
 .accordion {
@@ -193,4 +194,12 @@ to group All + Grouped Race selections*/
 
 .sys_info_table td {
   vertical-align: top;
+}
+
+#modal_demo_tour .modal-body {
+  padding-bottom: 0.5rem;
+}
+
+#modal_demo_tour .modal-footer {
+ padding: 0.5rem;
 }
