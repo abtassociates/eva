@@ -180,7 +180,7 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
 })
 
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
-  paste("System Exits_", Sys.Date(), ".pptx", sep = "")
+  paste("System Exits by Types_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     logToConsole(session, "In syse_types_download_btn_ppt")
@@ -663,7 +663,7 @@ output$syse_compare_time_table <- renderDT({
 
 output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits Report - "),
                                                     content = function(file) {
-      logToConsole(session, "System Exit Types data download")
+      logToConsole(session, "System Exit Comparisons data download")
                                                       
       write_xlsx(
         list(
@@ -785,8 +785,34 @@ all_filtered_syse <- reactive({
   )
 })
 
-output$syse_compare_download_btn_ppt <- downloadHandler(filename = 'tmp',{
+output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){
+  paste("System Exits Comparisons", Sys.Date(), ".pptx", sep = "")
+},
+content = function(file) {
+  logToConsole(session, "In syse_compare_download_btn_ppt")
   
+  sys_perf_ppt_export(file = file, 
+                      type = 'exits',
+                      title_slide_title = "System Exits Comparisons",
+                      summary_items = sys_export_summary_initial_df(type = 'exits') %>%
+                        filter(Chart != "Start Date" & Chart != "End Date") %>% 
+                        bind_rows(sys_export_filter_selections(type = 'exits')),
+                      plots = list(
+                        "System Exits - Subpopulation Chart" =  syse_compare_subpop_chart(isExport = TRUE),
+                        "System Exits - Subpopulation Table" = get_syse_compare_subpop_flextable(
+                          get_syse_compare_subpop_data()
+                        ),
+                        "System Exits - Time Chart" = syse_compare_time_chart(isExport = TRUE),
+                        "System Exits - Time Table" = get_syse_compare_time_flextable(
+                          get_syse_compare_time_data()
+                        )
+                      ),
+                      summary_font_size = 19,
+                      startDate = session$userData$ReportStart, 
+                      endDate = session$userData$ReportEnd, 
+                      sourceID = session$userData$Export$SourceID,
+                      in_demo_mode = input$in_demo_mode
+  )
 })
 
 
