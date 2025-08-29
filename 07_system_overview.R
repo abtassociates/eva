@@ -362,6 +362,13 @@ enrollment_categories <- enrollment_prep_hohs %>%
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
   ) %>%
   fmutate(
+    during_period = EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
+  ) %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(has_enrl_in_date_range = anyv(during_period, TRUE)) %>%
+  fungroup() %>%
+  fsubset(has_enrl_in_date_range) %>%
+  fmutate(
     ProjectTypeWeight = fcase(
       ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
       ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
