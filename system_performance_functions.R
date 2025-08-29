@@ -519,7 +519,7 @@ sys_detailBox <- function(
       format(startDate, "%m-%d-%Y"), " to ", format(endDate, "%m-%d-%Y"), br(),
       
       if (cur_project_types != "All")
-        chart_selection_detail_line("Project Type ", sys_project_types, str_remove(cur_project_types, "- ")),
+        chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")),
       
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
       HTML(glue(
