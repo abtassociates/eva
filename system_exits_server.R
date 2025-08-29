@@ -394,7 +394,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
 }
   
 ## function for System Exits Comparison subpopulation table (below chart)
-get_syse_compare_subpop_table <- function(tab, subpop){
+get_syse_compare_subpop_table <- function(tab){
   
   subgroup_colors <- c(
     "Subpopulation" = "#136779",
@@ -440,7 +440,89 @@ get_syse_compare_subpop_table <- function(tab, subpop){
         rep("white", length(subgroup_colors))
       )
     )
+}
+
+get_syse_compare_subpop_flextable <- function(tab) {
+  logToConsole(session, "In get_syse_compare_subpop_flextable")
+ 
   
+  ft <- flextable(tab %>%
+                    frename("subpop_summ" = " ")) %>%
+    width(j = 1, width = 0.9) %>% # make first col narrower
+    bold(part = "header") %>%
+    align(align = "center", part = "all") %>%
+    border(border.top = fp_border(), part = "header") %>%
+    border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
+  
+  ## formatting function for percentages with 0 decimal places and % sign
+  fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
+  
+  ft <- set_formatter(
+    x = ft,
+    Permanent = fmt_func_pct,
+    Homeless = fmt_func_pct,
+    Institutional = fmt_func_pct,
+    Temporary = fmt_func_pct,
+    `Other/Unknown` = fmt_func_pct
+  )
+  
+  row_labels <- tab[[1]]
+  
+  # Formatting the subpopulation row labels
+  subgroup_colors <- c(
+    "Subpopulation" = "#136779",
+    "Everyone Else" = "#C1432B"
+  )
+  
+  ft <- ft %>%
+    # Background colors from datatable's formatStyle
+    bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
+    # thick borders for the first column
+    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2))
+  
+  ft
+  
+}
+
+get_syse_compare_time_flextable <- function(tab) {
+  logToConsole(session, "In get_syse_compare_time_flextable")
+  
+  
+  ft <- flextable(tab%>%
+                    frename("time_summ" = " ")) %>%
+    width(j = 1, width = 0.9) %>% # make first col narrower
+    bold(part = "header") %>%
+    align(align = "center", part = "all") %>%
+    border(border.top = fp_border(), part = "header") %>%
+    border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
+  
+  ## formatting function for percentages with 0 decimal places and % sign
+  fmt_func_pct <- function(x) sprintf("%.0f%%", x*100)
+  
+  ft <- set_formatter(
+    x = ft,
+    Permanent = fmt_func_pct,
+    Homeless = fmt_func_pct,
+    Institutional = fmt_func_pct,
+    Temporary = fmt_func_pct,
+    `Other/Unknown` = fmt_func_pct
+  )
+  
+  row_labels <- tab[[1]]
+  
+  ## formatting the time row labels
+  time_colors <- c(
+    "Current Year" = "#72B4CD",
+    "Previous Year" = "#16697A"
+  )
+  
+  ft <- ft %>%
+    # Background colors from datatable's formatStyle
+    bg(i = 1:2, j = 1, bg = time_colors) %>%
+    # thick borders for the first column
+    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2)) 
+  
+  ft
   
 }
 
