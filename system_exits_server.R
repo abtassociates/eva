@@ -370,7 +370,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   subpop_segment_df <- subpop_chart_df %>% 
     pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct')
   
-  ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct, color = subpop_summ)) +
+  g <- ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct, color = subpop_summ)) +
     geom_point(size = 5) +
     geom_segment(data=subpop_segment_df,
                  aes(x = dest_type, xend = dest_type, y = Subpopulation, yend = `Everyone Else`),
@@ -388,9 +388,15 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
           legend.justification = 'left',
           legend.position = 'top',
           legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
-          axis.text.y = element_text(size = sys_axis_text_font),
-          axis.text.x = element_blank()
-          )
+          axis.text.y = element_text(size = sys_axis_text_font)
+        )
+  if(isExport){
+    g + theme(
+      axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
+    )
+  } else {
+    g + theme(axis.text.x = element_blank())
+  }
 }
   
 ## function for System Exits Comparison subpopulation table (below chart)
@@ -559,7 +565,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
   time_segment_df <- time_chart_df %>% 
     pivot_wider(names_from = 'time_summ', values_from = 'time_pct')
   
-  ggplot(time_chart_df, aes(x = dest_type, y = time_pct, color = time_summ)) +
+  g <- ggplot(time_chart_df, aes(x = dest_type, y = time_pct, color = time_summ)) +
     geom_point(size = 5) +
     geom_segment(data=time_segment_df,
                  aes(x = dest_type, xend = dest_type, y = `Previous Year`, yend = `Current Year`),
@@ -578,8 +584,14 @@ syse_compare_time_chart <- function( isExport = FALSE){
       legend.position = 'top',
       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       axis.text.y = element_text(size = sys_axis_text_font),
-      axis.text.x = element_blank()
     )
+  if(isExport){
+    g + theme(
+          axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
+        )
+    } else {
+      g + theme(axis.text.x = element_blank())
+    }
 }
 
 ## function for System Exits Comparison subpopulation table (below chart)
