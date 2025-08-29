@@ -484,7 +484,9 @@ get_syse_compare_subpop_flextable <- function(tab) {
     # Background colors from datatable's formatStyle
     bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
     # thick borders for the first column
-    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2))
+    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2)) %>% 
+    # expand to better fit slide width
+    autofit()
   
   ft
   
@@ -526,7 +528,10 @@ get_syse_compare_time_flextable <- function(tab) {
     # Background colors from datatable's formatStyle
     bg(i = 1:2, j = 1, bg = time_colors) %>%
     # thick borders for the first column
-    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2)) 
+    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2)) %>% 
+    # expand to better fit slide width
+    autofit()
+    
   
   ft
   
