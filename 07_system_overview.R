@@ -440,7 +440,7 @@ session$userData$lh_non_res <- join(
   lh_cls,
   on = "EnrollmentID",
   how = "left",
-  column = TRUE
+  multiple = TRUE
 ) %>% 
   fmutate(
     lh_entry_date = fifelse(
