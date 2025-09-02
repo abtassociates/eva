@@ -383,27 +383,39 @@ enrollment_categories <- enrollment_prep_hohs %>%
             LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
             !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
          )
-      )
+      ),
+    days_lh_entry_valid = fcase(
+      ProjectType == ce_project_type, 90,
+      ProjectType %in% non_res_project_types, 60,
+      ProjectType == es_nbn_project_type, 15,
+      default = 0
+    ),
+    lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
+      (ProjectType %in% non_res_project_types & lh_prior_livingsituation)
   ) %>% 
-  fselect(EnrollmentID,
-          PersonalID,
-          HouseholdID,
-          EntryDate,
-          MoveInDateAdjust,
-          ExitDate,
-          ExitAdjust,
-          ProjectType,
-          MostRecentAgeAtEntry,
-          LivingSituation,
-          lh_prior_livingsituation,
-          LOSUnderThreshold,
-          PreviousStreetESSH,
-          Destination,
-          AgeAtEntry,
-          CorrectedHoH,
-          # DomesticViolenceCategory,
-          HouseholdType,
-          ProjectTypeWeight) %>% 
+  fselect(
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    EntryDate,
+    MoveInDateAdjust,
+    ExitDate,
+    ExitAdjust,
+    ProjectType,
+    MostRecentAgeAtEntry,
+    LivingSituation,
+    lh_prior_livingsituation,
+    LOSUnderThreshold,
+    PreviousStreetESSH,
+    Destination,
+    AgeAtEntry,
+    CorrectedHoH,
+    # DomesticViolenceCategory,
+    HouseholdType,
+    ProjectTypeWeight,
+    days_lh_entry_valid,
+    lh_at_entry
+  ) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
 # Get dataset of literally homeless CLS records. This will be used to:
@@ -433,9 +445,11 @@ session$userData$enrollment_categories <- enrollment_categories %>%
 # Prepare a dataset of non_res enrollments and corresponding LH info
 # will be used to categorize non-res enrollments/people as active_at_start, 
 # homeless_at_end, and unknown_at_end
-non_res_enrollments <- session$userData$enrollment_categories %>% 
-  fsubset(ProjectType %in% non_res_project_types) %>% 
-  fselect(EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+non_res_enrollments <- enrollment_categories %>% 
+  fsubset(
+    ProjectType %in% non_res_project_types,
+    PersonalID, EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation, days_lh_entry_valid, lh_at_entry
+  )
 
 session$userData$lh_non_res <- join(
   non_res_enrollments,
@@ -463,8 +477,11 @@ session$userData$lh_non_res <- join(
   fungroup()
 
 # Do something similar for ES NbNs and Services
-es_nbn_enrollments <- fsubset(session$userData$enrollment_categories, ProjectType == es_nbn_project_type) %>% 
-  fselect(EnrollmentID,EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation)
+es_nbn_enrollments <- enrollment_categories %>%
+  fsubset(
+    ProjectType == es_nbn_project_type, 
+    PersonalID, EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation, days_lh_entry_valid, lh_at_entry
+  )
 
 session$userData$lh_nbn <- join(
   es_nbn_enrollments,
