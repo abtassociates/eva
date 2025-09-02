@@ -485,7 +485,7 @@ es_nbn_enrollments <- enrollment_categories %>%
 
 session$userData$lh_nbn <- join(
   es_nbn_enrollments,
-  Services %>% fselect(EnrollmentID, DateProvided),
+  Services %>% fselect(EnrollmentID, DateProvided) %>% funique(),
   on="EnrollmentID",
   how = "left"
 ) %>% 
