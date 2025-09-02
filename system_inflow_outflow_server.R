@@ -641,7 +641,7 @@ universe_ppl_flags <- function(universe_df) {
         fmutate(has_long_bout_since_lh = any(days_since_last_lh > day_check, na.rm=TRUE)) %>%
         fungroup() %>%
         fselect(
-          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, InformationDate, DateProvided, InflowTypeDetail, OutflowTypeDetail, days_since_last_lh, has_long_bout_since_lh
+          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, InformationDates, DateProvideds, InflowTypeDetail, OutflowTypeDetail, days_since_last_lh, most_recent_lh_enrl
         )
       view(bad_return_after_nonexit)
       browser()

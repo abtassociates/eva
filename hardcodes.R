@@ -473,8 +473,8 @@ inflow_debug_cols <- c(
   "was_lh_at_start",
   "was_housed_at_start",
   "InflowTypeDetail",
-  "InformationDate", 
-  "DateProvided"
+  "InformationDates", 
+  "DateProvideds"
 )
 
 
@@ -491,8 +491,8 @@ outflow_debug_cols <- c(
   "was_lh_at_end",
   "was_housed_at_end",
   "OutflowTypeDetail",
-  "InformationDate", 
-  "DateProvided"
+  "InformationDates", 
+  "DateProvideds"
 )
 
 in_dev_mode <- FALSE
