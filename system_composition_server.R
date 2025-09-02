@@ -707,6 +707,8 @@ output$sys_comp_summary_ui_chart <- renderPlot({
 }, height = function() {
   ifelse(!is.null(input$system_composition_selections), 700, 100)
 }, width = function() {
+  input$sys_comp_subtabs
+  input$syso_tabbox
   if (length(input$system_composition_selections) == 1 |
       isTRUE(getOption("shiny.testmode"))) {
     500
@@ -750,7 +752,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
   join(
-    get_eecr_and_lecr()[period == "Full", .(PersonalID)],
+    period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%

@@ -66,7 +66,7 @@ observeEvent(
     input$syso_project_type
   ),
   {
-    num_people <- fndistinct(period_specific_data()[["Full"]]$PersonalID)
+    num_people <- fndistinct(period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID))
     shinyjs::toggle(
       "sys_inflow_outflow_download_btn", 
       condition = num_people > 10
@@ -363,33 +363,60 @@ get_lookbacks <- function(filtered_enrollments) {
     setkey(PersonalID, EntryDate, ExitAdjust) %>%
     fmutate(
       days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
-    )
+    ) %>%
+    join(
+      rbind(
+        session$userData$lh_non_res %>% fselect(EnrollmentID, last_lh_info_date),
+        session$userData$lh_nbn %>% fselect(EnrollmentID, last_lh_info_date)
+      ),
+      on = "EnrollmentID"
+    ) %>%
+    fmutate(last_lh_info_date = fifelse(
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      fcoalesce(MoveInDateAdjust, ExitAdjust),
+      last_lh_info_date
+    ))
+
+  dt_starts <- dt[, .(PersonalID, EnrollmentID, EntryDate, Date = EntryDate, Type = "start")]
+  dt_ends <- dt[, .(PersonalID, EnrollmentID,  Destination, last_lh_info_date, MoveInDateAdjust, ProjectType, ExitAdjust, Date = ExitAdjust, Type = "end")]
+  setkey(dt_ends, PersonalID, Date)
+  setkey(dt_starts, PersonalID, Date)
   
-  # I don't understand why/how this non-equi self-join works.
-  # In theory, since this is a right-join, for each EntryDate, we're pulling in the 
-  # latest record whose ExitAdjust is still before the EntryDate, i.e. the (valid) lookback,
-  # then we pull in that lookback's info.
-  # It's just surprising which columns are the relevant ones. If you were to look at
-  # the dataset before the fmutate, EntryDate and ExitAdjust don't make sense.
-  # Ideally we'd create the new variables all in the same right-join, rather than
-  # joining back to the full dt later, but this just doesn't yield the desired results.
-  lookback_info <- dt[ 
-    dt[, .(PersonalID, EnrollmentID, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
-    on = .(PersonalID, ExitAdjust <= EntryDate),
-    mult = "last"
-  ] %>% 
-    fsummarize(
-      PersonalID = PersonalID,
-      EnrollmentID = i.EnrollmentID,
-      days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
-      lookback_enrollment_id = EnrollmentID,
-      lookback_dest_perm = Destination %in% perm_livingsituation,
-      lookback_movein = MoveInDateAdjust,
-      lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
-    )
-  
+  # Rolling join to find the most recent end date before each start date
+  lookback_info <- dt_ends[dt_starts, roll = TRUE][, .(
+    PersonalID,
+    EnrollmentID = i.EnrollmentID,
+    days_since_lookback = EntryDate - ExitAdjust, # ExitDate is the lookup's ExitDate
+    lookback_des = Destination,
+    lookback_ptype = ProjectType,
+    lookback_enrollment_id = EnrollmentID,
+    lookback_dest_perm = Destination %in% perm_livingsituation,
+    lookback_movein = MoveInDateAdjust,
+    lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res,
+    lookback_last_lh_date = last_lh_info_date
+  )]
+  # 
+  # lookback_info <- dt[ 
+  #   dt[, .(PersonalID, EnrollmentID, DestinationTemp = Destination, Destination, EntryDate, EntryTemp = EntryDate)], # This is the i. prefix dataset
+  #   on = .(PersonalID, ExitAdjust <= EntryDate),
+  #   mult = "last"
+  # ] %>% 
+  #   fsummarize(
+  #     PersonalID = PersonalID,
+  #     EnrollmentID = i.EnrollmentID,
+  #     days_since_lookback = EntryTemp - ExitDate, # ExitDate is the lookup's ExitDate
+  #     lookback_des = Destination,
+  #     Destination = DestinationTemp,
+  #     Destination2 = i.Destination,
+  #     lookback_ptype = ProjectType,
+  #     lookback_enrollment_id = EnrollmentID,
+  #     lookback_dest_perm = Destination %in% perm_livingsituation,
+  #     lookback_movein = MoveInDateAdjust,
+  #     lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
+  #   )
+
   return(join(
-    dt,
+    dt %>% fselect(-last_lh_info_date),
     lookback_info,
     on = c("PersonalID", "EnrollmentID")
   ))
@@ -447,7 +474,7 @@ period_specific_data <- reactive({
 
   # Split into months and full-period datasets
   list(
-    Full = fsubset(universe_w_ppl_flags,period == "Full"),
+    Full = fsubset(universe_w_ppl_flags, period == "Full"),
     Months = universe_w_ppl_flags %>%
       fsubset(period != "Full") %>%
       fmutate(month = factor(
@@ -805,8 +832,6 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
   
   if(nrow(period_enrollments_filtered) == 0) return(period_enrollments_filtered)
   
-  lookbacks <- get_lookbacks(period_enrollments_filtered)
-  
   # Determine eecr/lecr-eligible records
   # get lh info and  limit to only enrollments that were LH during the given period 
   # or were not, but exited and HAD been LH at some point during the FULL period
@@ -985,9 +1010,11 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
     fgroup_by(period, PersonalID) %>%
     fmutate(
       has_eecr = any(eecr, na.rm=TRUE),
-      has_lecr = any(lecr, na.rm=TRUE)
+      has_lecr = any(lecr, na.rm=TRUE),
+      person_last_lh_info_date = as.Date(cummax(fcoalesce(as.numeric(last_lh_info_date), 0)))
     ) %>%
-    fungroup()
+    fungroup() %>%
+    fmutate(has_recent_lh_info = eecr & (EntryDate - person_last_lh_info_date) %between% c(1, 14))
   
   #160649 - ICFgood (getting "something's wrong" inflow) 
   #689253 - Demo (getting "something's wrong" inflow in June) 
@@ -1012,6 +1039,7 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
   
   # 607965
   # QC checks ---------------
+  # browser()
 #debug cols: final[PersonalID == 595646, c("period", enrollment_cols, "eecr", "lecr"), with=FALSE]
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
@@ -1026,12 +1054,15 @@ get_eecr_and_lecr <- function(enrollments_filtered_w_lookbacks) {
         "days_since_lookback", "days_to_lookahead",
         "straddles_start", "straddles_end",
         "startDate","endDate",
-        "lookback_dest_perm", "lookback_movein_before_start", "lookback_is_nonres_or_nbn",
+        "lookback_dest_perm", "lookback_movein_before_start", "lookback_is_nonres_or_nbn", "lookback_last_lh_date",
+        "has_recent_lh_info",
         "was_lh_at_start", "was_lh_during_period", "was_lh_at_end", "was_housed_at_start", "was_housed_at_end",
-        "first_lh_info_date", "no_lh_lookbacks",
-        "Destination"
+        "first_lh_info_date", "last_lh_info_date", "no_lh_lookbacks",
+        "Destination", "LivingSituation",
+        "HouseholdType", "CorrectedHoH"
       )) %>%
       funique()
   }
+
   return(final)
 }
