@@ -410,10 +410,12 @@ enrollment_categories <- enrollment_prep_hohs %>%
 # 1. remove problematic enrollments
 # 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
 # and unknown_at_end
-
 lh_cls <- CurrentLivingSituation %>%
-  fselect(EnrollmentID, InformationDate, CurrentLivingSituation) %>%
-  fsubset(CurrentLivingSituation %in% homeless_livingsituation_incl_TH)
+  fsubset(
+    CurrentLivingSituation %in% homeless_livingsituation_incl_TH, 
+    EnrollmentID, InformationDate
+  ) %>%
+  funique()
 
 # Remove "problematic" enrollments ----------------------------------
 # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
