@@ -577,7 +577,7 @@ output$timelinessTable <- renderDT({
   } else {
     dat$nbn <- NULL
   }
-  browser()
+  
   if(cc_project_type() %in% c(0,1,6,14) & input$currentProviderList %in% tl_df_cls()$ProjectName){
     dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
