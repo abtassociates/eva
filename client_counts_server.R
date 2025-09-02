@@ -223,11 +223,11 @@ get_clientcount_download_info <- function(file) {
   )
   
   exportTestValues(
-    client_count_download_timeliness_start = validationStart %>% nice_names_timeliness()
+    client_count_download_timeliness_start = summarize_df(validationStart %>% nice_names_timeliness(record_type = 'start'))
   )
   
   exportTestValues(
-    client_count_download_timeliness_exit = validationExit %>% nice_names_timeliness()
+    client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
   
   write_xlsx(exportDFList,
@@ -554,6 +554,7 @@ output$timeliness_vb3 <- renderUI({
 output$timelinessTable <- renderDT({
   req(session$userData$valid_file() == 1)
 
+  
   time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
   
   dat <-  data.frame(
@@ -588,6 +589,9 @@ output$timelinessTable <- renderDT({
                  "Number of Project Exit Records" = "proj_exit", 
                      "Number of Bed Night Records" = "nbn", "Number of Current Living Situation Records" = "cls")
   dat <- dat %>% rename(any_of(tbl_names))
+ 
+  exportTestValues(timelinessTable = dat)
+  
   datatable(
     dat,
     rownames = FALSE,
