@@ -190,7 +190,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       ) | (
         startDate > session$userData$ReportStart & (
           EntryDate < startDate & ExitAdjust > startDate |
-          EntryDate == startDate & has_recent_lh_info
+          EntryDate == startDate & days_since_last_lh %between% c(0, 14)
         )
       ),
 
@@ -216,10 +216,11 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
     )),
     
-    return_from_perm = eecr & (
-      (days_since_lookback %between% c(15, 730) & lookback_dest_perm) |
-      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_is_nonres_or_nbn & (EntryDate - lookback_last_lh_date) >= 15)
-    ),
+    return_from_perm = eecr & 
+      ((startDate == session$userData$ReportStart) | (ExitAdjust != startDate)) & (
+        (days_since_lookback %between% c(15, 730) & lookback_dest_perm) |
+        (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_is_nonres_or_nbn & !days_since_last_lh %between% c(0, 14))
+      ),
     
     # if it's non-res (or nbn) and they straddle but are not was_lh_at_start but are LH later in the period, they should be re-engaged
     #   for nbn and SO, was_lh_at_start is not necessarilly inclusiv eof LH PLS
@@ -227,18 +228,19 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     # 
     # 637203 (ICF-Good) should NOT show up until May, at which point they should be re-engaged. And also re-egnaged for full period
     
-    return_from_nonperm = eecr & (
-      (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
-      # This condition is meant to capture cases where Inactive nonres/nbn enrollments 
-      # are exited and then immediately followed up with a new enrollment.
-      (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & (EntryDate - lookback_last_lh_date) >= 15) |
-      (
-        ProjectType %in% nbn_non_res &
-        !was_lh_at_start &
-        straddles_start & 
-        was_lh_during_period
-      )
-    ),
+    return_from_nonperm = eecr & 
+      ((startDate == session$userData$ReportStart) | (ExitAdjust != startDate)) & (
+        (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
+        # This condition is meant to capture cases where Inactive nonres/nbn enrollments 
+        # are exited and then immediately followed up with a new enrollment.
+        (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & !days_since_last_lh %between% c(0, 14)) |
+        (
+          ProjectType %in% nbn_non_res &
+          !was_lh_at_start &
+          straddles_start & 
+          was_lh_during_period
+        )
+      ),
     
     # enrollments can be FTH even if they fully straddle, as long as it's a non-res
     # with no LH PLS. This is because, if they're in the dataset at all, they must have had
@@ -254,7 +256,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     # that's because there's a lookback or they were already categorized in a previous month
     first_time_homeless = eecr & 
       (days_since_lookback > 730 | is.na(days_since_lookback)) & 
-      first_lh_info_date >= startDate &
+      first_lh_date >= startDate &
       EntryDate > session$userData$ReportStart,
     
     unknown_at_start = eecr & 
@@ -301,7 +303,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     #     (
     #       ProjectType %in% setdiff(non_res_project_types, out_project_type) &
     #       (is.na(days_to_lookahead) | days_to_lookahead < 0) &
-    #       (is.na(last_lh_info_date) | last_lh_info_date <= endDate)
+    #       (is.na(last_lh_date) | last_lh_date <= endDate)
     #     )
     #   ),
     exited_system = lecr &
@@ -439,7 +441,7 @@ universe_ppl_flags <- function(universe_df) {
         lecr,
         EntryDate,
         days_since_lookback,
-        has_recent_lh_info,
+        days_since_last_lh,
         MoveInDateAdjust,
         HouseholdType, 
         CorrectedHoH, 
@@ -584,6 +586,7 @@ universe_ppl_flags <- function(universe_df) {
           view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
       }
       browser()
+      # universe_w_ppl_flags_clean[PersonalID == 565354, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
     }
   }
 
@@ -595,7 +598,8 @@ universe_ppl_flags <- function(universe_df) {
       InflowTypeDetail == "Homeless" & 
       EntryDate == as.Date(period) &
       EntryDate != session$userData$ReportStart &
-      (days_since_lookback > 14 | is.na(days_since_lookback)) & !has_recent_lh_info
+      (days_since_lookback > 14 | is.na(days_since_lookback)) & 
+      !days_since_last_lh %between% c(0, 14)
     )
   if(nrow(bad_records) > 0) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
@@ -609,7 +613,7 @@ universe_ppl_flags <- function(universe_df) {
     }
   }
   
-  ## Re-Engaged/Return after Exit
+  ## Re-Engaged/Return after Exit ---
   bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
     funique() %>%
@@ -625,21 +629,12 @@ universe_ppl_flags <- function(universe_df) {
     fsubset(has_issue)
   if(nrow(bad_records) > 0) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
-      browser()
       bad_return_after_nonexit <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
-        multiple = TRUE,
-        extra_cols = c("lookback_last_lh_date")
+        extra_cols = c("days_since_last_lh", "most_recent_lh_enrl"),
+        multiple = TRUE
       ) %>%
-        fsubset(period != "Full") %>%
-        fmutate(
-          days_since_last_lh = fifelse(grepl("Return|Re-engaged", InflowTypeDetail) & eecr, EntryDate - lookback_last_lh_date, NA),
-          day_check = fifelse(ProjectType == ce_project_type, 90, 60)
-        ) %>%
-        fgroup_by(PersonalID) %>%
-        fmutate(has_long_bout_since_lh = any(days_since_last_lh > day_check, na.rm=TRUE)) %>%
-        fungroup() %>%
         fselect(
           PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, InformationDates, DateProvideds, InflowTypeDetail, OutflowTypeDetail, days_since_last_lh, most_recent_lh_enrl
         )

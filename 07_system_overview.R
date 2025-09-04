@@ -439,7 +439,7 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
   unique(lh_cls$EnrollmentID)
 )
 
-session$userData$enrollment_categories <- enrollment_categories %>%
+enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
 
 # Prepare a dataset of non_res enrollments and corresponding LH info
@@ -457,24 +457,7 @@ session$userData$lh_non_res <- join(
   on = "EnrollmentID",
   how = "left",
   multiple = TRUE
-) %>% 
-  fmutate(
-    lh_entry_date = fifelse(
-      ProjectType == out_project_type | lh_prior_livingsituation, 
-      EntryDate, 
-      NA
-    )
-  ) %>%
-  fgroup_by(EnrollmentID) %>%
-  fmutate(
-    last_lh_info_date = fmax(
-      pmax(InformationDate, lh_entry_date, na.rm=TRUE) 
-    ),
-    first_lh_info_date = fmin(
-      pmin(fifelse(InformationDate >= EntryDate, InformationDate, NA), lh_entry_date, na.rm=TRUE) 
-    )
-  ) %>%
-  fungroup()
+)
 
 # Do something similar for ES NbNs and Services
 es_nbn_enrollments <- enrollment_categories %>%
@@ -487,17 +470,6 @@ session$userData$lh_nbn <- join(
   es_nbn_enrollments,
   Services %>% fselect(EnrollmentID, DateProvided) %>% funique(),
   on="EnrollmentID",
-) %>% 
-  fgroup_by(EnrollmentID) %>%
-  fmutate(
-    last_lh_info_date = fmax(
-      pmax(DateProvided, EntryDate, na.rm=TRUE)
-    ),
-    first_lh_info_date = fmin(
-      pmin(DateProvided, EntryDate, na.rm=TRUE)
-    )
-  ) %>%
-  fungroup()
   how = "left",
   multiple = TRUE
 )
@@ -505,6 +477,8 @@ session$userData$lh_nbn <- join(
 rm(es_nbn_enrollments, non_res_enrollments)
 
 session$userData$report_dates <- get_report_dates()
+
+session$userData$enrollment_categories <- enrollment_categories
 
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
