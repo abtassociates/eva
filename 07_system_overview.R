@@ -487,7 +487,6 @@ session$userData$lh_nbn <- join(
   es_nbn_enrollments,
   Services %>% fselect(EnrollmentID, DateProvided) %>% funique(),
   on="EnrollmentID",
-  how = "left"
 ) %>% 
   fgroup_by(EnrollmentID) %>%
   fmutate(
@@ -499,6 +498,9 @@ session$userData$lh_nbn <- join(
     )
   ) %>%
   fungroup()
+  how = "left",
+  multiple = TRUE
+)
 
 rm(es_nbn_enrollments, non_res_enrollments)
 
