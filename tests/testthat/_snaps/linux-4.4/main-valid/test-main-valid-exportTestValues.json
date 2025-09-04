@@ -203,7 +203,7 @@
         ],
         [
           null,
-          "Mean   : 23.13  ",
+          "Mean   : 23.17  ",
           null
         ],
         [
@@ -219,14 +219,14 @@
       ],
       "Project Summary": [
         [
-          "Length:121        ",
+          "Length:122        ",
           "High Priority: 5  ",
           "Min.   :  1.000  ",
-          "Length:121        "
+          "Length:122        "
         ],
         [
           "Class :character  ",
-          "Error        :51  ",
+          "Error        :52  ",
           "1st Qu.:  1.000  ",
           "Class :character  "
         ],
@@ -239,7 +239,7 @@
         [
           null,
           null,
-          "Mean   :  8.793  ",
+          "Mean   :  8.738  ",
           null
         ],
         [
@@ -342,14 +342,14 @@
       ],
       "Errors": [
         [
-          "Length:203        ",
-          "Length:203        ",
-          "Length:203        ",
-          "Length:203        ",
-          "Length:203        ",
-          "Length:203        ",
-          "Length:203        ",
-          "Length:203        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
+          "Length:205        ",
           "Min.   :2018-06-27  "
         ],
         [
@@ -361,7 +361,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2021-01-16  "
+          "1st Qu.:2021-01-18  "
         ],
         [
           "Mode  :character  ",
@@ -383,7 +383,7 @@
           null,
           null,
           null,
-          "Mean   :2021-06-11  "
+          "Mean   :2021-06-16  "
         ],
         [
           null,
@@ -851,33 +851,71 @@
         "Hispanic/Latina/e/o alone",
         "Middle Eastern or North African alone",
         "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial & Hispanic/Latina/e/o",
         "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
         "Native Hawaiian or Pacific Islander alone",
         "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
-        "Unknown",
         "White alone",
         "White & Hispanic/Latina/e/o",
+        "Unknown",
         "Total"
       ],
-      "n": [
-        74,
+      "Veteran": [
+        16,
+        1,
+        0,
+        0,
+        85,
+        1,
+        0,
+        0,
+        0,
+        11,
+        2,
+        0,
+        0,
+        358,
         19,
-        23,
+        2,
+        495
+      ],
+      "Non-Veteran/Unknown": [
+        11,
+        5,
+        6,
+        0,
+        284,
+        7,
+        1,
+        0,
+        0,
+        63,
         4,
-        1035,
-        26,
-        12,
         0,
-        0,
-        15,
-        181,
-        9,
+        2,
+        1007,
+        54,
         3,
-        19,
-        2984,
-        205,
-        4609
+        1447
+      ],
+      "Total": [
+        27,
+        6,
+        6,
+        0,
+        369,
+        8,
+        1,
+        0,
+        0,
+        74,
+        6,
+        0,
+        2,
+        1365,
+        73,
+        5,
+        1942
       ]
     },
     "sys_comp_report_pct_df": {
@@ -891,164 +929,177 @@
         "Hispanic/Latina/e/o alone",
         "Middle Eastern or North African alone",
         "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial & Hispanic/Latina/e/o",
         "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
         "Native Hawaiian or Pacific Islander alone",
         "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
-        "Unknown",
         "White alone",
         "White & Hispanic/Latina/e/o",
+        "Unknown",
         "Total"
       ],
-      "pct": [
-        "1.6%",
+      "Veteran": [
+        "3.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "17.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "0%",
+        "2.2%",
         "0.4%",
+        "0%",
+        "0%",
+        "72.3%",
+        "3.8%",
+        "0.4%",
+        "25.5%"
+      ],
+      "Non-Veteran/Unknown": [
+        "0.8%",
+        "0.3%",
+        "0.4%",
+        "0%",
+        "19.6%",
         "0.5%",
         "0.1%",
-        "22.5%",
-        "0.6%",
-        "0.3%",
         "0%",
         "0%",
-        "0.3%",
-        "3.9%",
-        "0.2%",
-        "0.1%",
-        "0.4%",
-        "64.7%",
         "4.4%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "69.6%",
+        "3.7%",
+        "0.2%",
+        "74.5%"
+      ],
+      "Total": [
+        "1.4%",
+        "0.3%",
+        "0.3%",
+        "0%",
+        "19%",
+        "0.4%",
+        "0.1%",
+        "0%",
+        "0%",
+        "3.8%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "70.3%",
+        "3.8%",
+        "0.3%",
         "100%"
       ]
     },
     "sys_inflow_outflow_report": {
-      "PersonalID": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "active_at_start_homeless_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1369060533738338,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "active_at_start_housed_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1245389455413322,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "return_from_perm_client": {
-        "Mode": "logical",
-        "FALSE": "4320",
-        "TRUE": "289"
-      },
-      "reengaged_from_temp_client": {
-        "Mode": "logical",
-        "FALSE": "4072",
-        "TRUE": "537"
-      },
-      "InflowTypeSummary": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "InflowTypeDetail": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "perm_dest_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.3300065090041224,
-        "3rd Qu.": 1,
-        "Max.": 1
-      },
-      "temp_dest_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.3862009112605772,
-        "3rd Qu.": 1,
-        "Max.": 1
-      },
-      "homeless_at_end_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1657626383163376,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "housed_at_end_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1180299414189629,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "unknown_at_end_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.008895638967238013,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "OutflowTypeSummary": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "OutflowTypeDetail": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      }
-    },
-    "sys_status_report": {
-      "Begin": [
-        "Homeless",
-        "Homeless",
-        "Homeless",
-        "Homeless",
-        "Homeless",
+      "Detail": [
         "Housed",
-        "Housed",
-        "Housed",
-        "Housed",
-        "Housed"
-      ],
-      "End": [
-        "Enrolled, Homeless",
-        "Enrolled, Housed",
+        "Homeless",
+        "First-Time Homeless",
+        "Returned from Permanent",
+        "Re-engaged from Non-Permanent",
         "Exited, Non-Permanent",
         "Exited, Permanent",
         "Inactive",
+        "Homeless",
+        "Housed"
+      ],
+      "Summary": [
+        "Active at Start",
+        "Active at Start",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Active at End",
+        "Active at End"
+      ],
+      "InflowOutflow": [
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow"
+      ],
+      "PlotFillGroups": [
+        "Housed",
+        "Homeless",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Homeless",
+        "Housed"
+      ],
+      "N": [
+        575,
+        301,
+        970,
+        61,
+        35,
+        288,
+        663,
+        0,
+        344,
+        647
+      ],
+      "order": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "sys_status_report": {
+      "Begin": [
+        "Housed",
+        "Housed",
+        "Housed",
+        "Housed",
+        "Homeless",
+        "Homeless",
+        "Homeless",
+        "Homeless"
+      ],
+      "End": [
+        "Exited, Non-Permanent",
+        "Exited, Permanent",
         "Enrolled, Homeless",
         "Enrolled, Housed",
         "Exited, Non-Permanent",
         "Exited, Permanent",
-        "Inactive"
+        "Enrolled, Homeless",
+        "Enrolled, Housed"
       ],
       "freq": [
-        127,
-        47,
-        217,
-        239,
-        1,
-        23,
-        249,
-        67,
-        231,
-        4
+        59,
+        240,
+        14,
+        262,
+        72,
+        118,
+        73,
+        38
       ]
     },
     "systemDQ_download": {
@@ -1082,26 +1133,26 @@
         [
           "High Priority: 3  ",
           "Min.   :    2.0  ",
-          "Length:67         "
+          "Length:68         "
         ],
         [
-          "Error        :35  ",
-          "1st Qu.:   29.0  ",
+          "Error        :36  ",
+          "1st Qu.:   20.5  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-          "Median :  139.0  ",
+          "Median :  137.5  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  833.1  ",
+          "Mean   :  821.7  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  519.0  ",
+          "3rd Qu.:  511.5  ",
           null
         ],
         [
@@ -1112,27 +1163,27 @@
       ],
       "Organization Summary": [
         [
-          "Length:993        ",
+          "Length:999        ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:993        "
+          "Length:999        "
         ],
         [
           "Class :character  ",
-          "Error        :432  ",
+          "Error        :435  ",
           "1st Qu.:   3.00  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :505  ",
+          "Warning      :508  ",
           "Median :   8.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  56.21  ",
+          "Mean   :  55.93  ",
           null
         ],
         [
@@ -1151,11 +1202,11 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:67         ",
-          "Length:67         "
+          "Length:68         ",
+          "Length:68         "
         ],
         [
-          "Error        :35  ",
+          "Error        :36  ",
           "Class :character  ",
           "Class :character  "
         ],
@@ -1235,14 +1286,14 @@
       ],
       "Errors": [
         [
-          "Length:8049       ",
-          "Length:8049       ",
-          "Length:8049       ",
-          "Length:8049       ",
-          "Length:8049       ",
-          "Length:8049       ",
-          "Length:8049       ",
-          "Length:8049       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
+          "Length:8170       ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1303,14 +1354,14 @@
       ],
       "Warnings": [
         [
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1322,7 +1373,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-10  "
+          "1st Qu.:2020-06-09  "
         ],
         [
           "Mode  :character  ",
@@ -1344,7 +1395,7 @@
           null,
           null,
           null,
-          "Mean   :2021-02-14  "
+          "Mean   :2021-02-13  "
         ],
         [
           null,
@@ -1355,7 +1406,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-07  "
+          "3rd Qu.:2022-01-06  "
         ],
         [
           null,
