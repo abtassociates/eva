@@ -51,9 +51,7 @@
       41,
       42,
       43,
-      44,
-      45,
-      46
+      44
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -241,10 +239,7 @@
       115,
       116,
       117,
-      118,
-      119,
-      120,
-      121
+      118
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -318,9 +313,7 @@
       ]
     },
     "orgList": "Organization A‰",
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQOrg"
+    "pageid": "tabDQOrg"
   },
   "output": {
     "downloadOrgDQReportButton": {
@@ -348,7 +341,7 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
@@ -470,7 +463,7 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"181\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"181\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Project Name<\/th>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Clients<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
@@ -597,13 +590,13 @@
       ]
     },
     "headerDataQuality": {
-      "html": "<h2>Organization-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "html": "<h2>Organization-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerDQOrg_supp\" class=\"shiny-html-output\"><\/div>",
       "deps": [
 
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 6f44710c298cd2004064fada9c63ecc2]",
+      "src": "[image data hash: 3bb38b71f865ce2c18f87e79f719e596]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -632,9 +625,9 @@
                 "y": [
                   "Enrollment Crosses Operating Start",
                   "Conflicting Health Insurance yes/no at Exit",
-                  "Missing Length of Stay",
                   "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
+                  "Missing Length of Stay",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
@@ -661,7 +654,99 @@
         }
       }
     },
-    "orgDQHighPriorityErrorsByIssue": {
+    "orgDQErrorByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQErrorByProject": {
+      "src": "[image data hash: 1bb7447594d3079e4ce75b434d4f8aa7]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the organization's projects with the most General Errors.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 80.3,
+              "bottom": 0.4,
+              "top": 7.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Organization A - HP - 2",
+                  "Organization A - PSH",
+                  "Organization A - ES - 2",
+                  "Organization A - ES",
+                  "Organization A - HP",
+                  "Organization A - SO",
+                  "Organization A - RRH - 2"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(ProjectName, countVar)"
+            },
+            "range": {
+              "left": 209.603809931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQErrorByProject_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQErrorByProject\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQHighPriorityByIssue": {
       "src": "[image data hash: 8fcc992418956267a2eb4f684ceefa88]",
       "width": 1640,
       "height": 400,
@@ -713,8 +798,96 @@
         }
       }
     },
+    "orgDQHighPriorityByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQHighPriorityByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQHighPriorityByProject": {
+      "src": "[image data hash: d5c6137f46496fd689c5871d98dac8f8]",
+      "width": 1640,
+      "height": 400,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 13.2,
+              "bottom": 0.4,
+              "top": 3.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Organization A - RRH - 2",
+                  "Organization A - SO",
+                  "Organization A - HP - 2"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(ProjectName, countVar)"
+            },
+            "range": {
+              "left": 209.603809931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQHighPriorityByProject_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQHighPriorityByProject\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: b0a9e401d38a25adc8ae7b30535dcfc8]",
+      "src": "[image data hash: c6f3027a0ee121a8ee9a42381b595f6d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -741,13 +914,13 @@
 
                 ],
                 "y": [
-                  "Unknown Disabling Condition",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Incomplete or Unknown Name",
                   "Overlap with a Emergency Shelter (E/E) project",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
+                  "Days since Most Recent CLS Exceeds Local Settings",
                   "Unknown Destination",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Unknown SSN"
@@ -772,8 +945,84 @@
         }
       }
     },
-    "orgDQWarningsByIssue_ui": {
+    "orgDQWarningByIssue_ui": {
       "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "orgDQWarningByProject": {
+      "src": "[image data hash: b33166bb046c6c53dd342bb1f900504d]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the organization's projects with the most Warnings.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 261.8,
+              "bottom": 0.4,
+              "top": 9.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Organization A - RRH - 3",
+                  "Organization A - PSH",
+                  "Organization A - RRH",
+                  "Organization A - HP",
+                  "Organization A - HP - 2",
+                  "Organization A - RRH - 2",
+                  "Organization A - SO",
+                  "Organization A - ES - 2",
+                  "Organization A - ES"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(ProjectName, countVar)"
+            },
+            "range": {
+              "left": 209.603809931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQWarningByProject_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByProject\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -796,32 +1045,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 22
+        "Warning": 20
       },
       "Issue": {
-        "Length": "46",
+        "Length": "44",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "46",
+        "Length": "44",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "121",
+        "Length": "118",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
-        "Error": 51,
-        "Warning": 65
+        "Error": 52,
+        "Warning": 61
       },
       "Issue": {
-        "Length": "121",
+        "Length": "118",
         "Class": "character",
         "Mode": "character"
       },
@@ -829,7 +1078,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.793388429752065,
+        "Mean": 8.40677966101695,
         "3rd Qu.": 7,
         "Max.": 181
       }

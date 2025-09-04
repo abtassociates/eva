@@ -1,186 +1,90 @@
-/* || TABLE OF CONTENTS - use ctrl + f */
-/* || HEADER */
-/* || MAIN SIDEBAR */
-/* || SUBMENU AKA TREEVIEW MENU */
-/* || DROP DOWN MENUS */
-/* || BOXES */
-/* || BUTTONS */
-/* || HYPERLINKS*/
-/* || HELP TEXT CIRCLE*/
-/* || VALIDATION MESSAGES FOR PLOTS */
-/* || CHANGELOG */
-/* || DEMO MODE */
-/* || SYSTEM OVERVIEW FILTERS */
-/* || CHART INFORMATION TABLES */
 
-.content-wrapper {
-  overflow: auto;
-}
-
-/* || HEADER */
-.skin-black .main-header>.logo:hover {
-    color: white; /*text color*/
-    background-color: #16697A; /*dark blue*/
-}
-
-.skin-black .main-header .navbar {
-    background-color: #16697A; /*dark blue*/
-}
-
-.skin-black .main-header>.logo {
-    background-color: #16697A; /*dark blue*/
-    color: white; /*text color*/
-    border-bottom: 0 solid transparent;
-    border-right: 1px solid #eee;
-}
-
-/* menu toggle button */
-.skin-black .main-header .navbar>.sidebar-toggle {
-    color: white; /*icon color*/
-    background-color: #16697A; /*dark blue*/
-    border-right: 1px solid #eee;
-}
-
-/* toggle button hover */
-.skin-black .main-header .navbar .sidebar-toggle:hover {
-    color: #16697A; /*icon color - dark blue*/
-    background: white;
-}
-
-/* toggle button focus */
-.skin-black .main-header .navbar .sidebar-toggle:focus {
-    color: #16697A; /*icon color - dark blue*/
-    background: white;
-}
-
-/* || MAIN SIDEBAR */
-
-/*sidebar color*/
-.skin-black .main-sidebar {
-  background-color: white;
-}
-
-/*text color of sidebar menu options*/
-.skin-black .sidebar a {
-  color: black; /*text color*/
-}
-
-/*sets sidebar visible focus when tabbing over with keyboard*/
-.skin-black .sidebar-menu>li>a:focus-visible {
-    outline: -webkit-focus-ring-color auto 1px;
-}
-
-/*sidebar color when menu option with no submenu is selected*/
-.skin-black .main-sidebar .active {
-  background-color: white; /*text color*/
+/** DEMO MODE **/
+#demo_banner {
+  text-align:center;
+  background-color: var(--bs-warning); /* Orange background */
   color: black;
+  margin-top:-1px;
+  /* may need to adjust for larger screens */
+  margin-left:-12px;
+  margin-right:-12px;
 }
 
-/*sidebar color when menu option with a submenu is selected*/
-.skin-black .sidebar-menu>li.active>a, 
-.skin-black .sidebar-menu>li:hover>a
-{
-    color: black; /*text color*/
-    background: #D0E7EC; /*sky*/
-    border-left-color: white;
+/*Shifting demo switch all the way to the right*/
+#demo_wrapper .shiny-input-container {
+  display: inline;
+}
+#demo_wrapper .bslib-input-switch{
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Adjust spacing between switch and label */
 }
 
-.a:focus {
-    color: black; /*text color*/
-    background: #D0E7EC; /*sky*/
-    border-left-color: white;
+#in_demo_mode {
+  border-color: white;
+  font-size: 1.8em;
+  margin: 0;
 }
 
-/* || SUBMENU AKA TREEVIEW MENU */
-
-/*Opened submenu*/
-.skin-black .sidebar-menu>li>.treeview-menu {
-    margin: 0 1px;
-    background: white; 
-    color: black; /*text color*/
+#in_demo_mode:checked {
+  background-color: var(--bs-warning);
 }
 
-/*text color of submenu options when submenu is open*/
-.skin-black .treeview-menu>li>a {
-    color: black; /*text color*/
+.accordion .accordion-heading { 
+  font-size: 24px;
 }
 
-/*sets submenu visible focus when tabbing over with keyboard*/
-.skin-black .treeview-menu>li>a:focus-visible {
-    outline: -webkit-focus-ring-color auto 1px;
+.accordion-title {
+  /* Formula used by bootstrap for h4 size*/ 
+  font-size: calc(1.25625rem + .075vw);
 }
 
-/*active and hover actions for submenu options*/
-.skin-black .treeview-menu>li.active>a, 
-.skin-black .treeview-menu>li>a:hover {
-    color: black; /*text color*/
-    background: #D0E7EC; /*sky*/
+.accordion {
+  border-width: var(--bs-border-width);
+  border-color: var(--bs-card-border-color, transparent);
+  box-shadow: var(--bslib-card-box-shadow, 0px 0px 2px 0px RGBA(var(--bslib-box-shadow-color-rgb), 0.14), 0px 2px 4px 0px RGBA(var(--bslib-box-shadow-color-rgb), 0.16));
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
 }
 
-/* || DROP DOWN MENUS */
-
-/*drop down select menu after data is uploaded*/
-.bootstrap-select>.dropdown-toggle {
-    width: 100%;
-    border-color: #D0E7EC; /*sky*/
-    color: black;
-    background-color: white;
+.accordion-item {
+  border: var(--bs-accordion-border-width) solid var(--bs-card-border-color, transparent);
 }
 
-/*drop down select menu when data is not uploaded*/
-.bootstrap-select>.dropdown-toggle.bs-placeholder {
-    width: 100%;
-    border-color: #D0E7EC; /*sky*/
-    color: black;
-    background-color: white;
+#accordion_home > div:nth-child(2) > div.accordion-header > button{
+  border-top-left-radius:8px;
+  border-top-right-radius:8px;
+}
+.accordion-item[data-value="home_demo_instructions"] {
+  border: 2px solid var(--bs-warning);
+  border-top-left-radius: var(--bs-accordion-border-radius);
+  border-top-right-radius: var(--bs-accordion-border-radius);
 }
 
-/* || BOXES */
-
-/*box titles*/
-.box-title {
-  color: black; /*text colors*/
+/*Remove extra space below tables*/
+.html-fill-container > .html-fill-item .datatables {
+  flex-basis: auto !important;
+}
+/* Put border around form controls so they stand out on white-background cards*/
+.form-group .bootstrap-select {
+    margin-bottom: 0;
+    border: 1px solid #D0E7EC;
 }
 
-/*fill and text color for box with positive/neutral information*/
-.box.box-solid.box-info>.box-header {
-    color: black; /*text color*/
-    background: #D0E7EC; /*sky*/
-    background-color: #D0E7EC; /*sky*/
-}
-
-/*outline color for box with positive/neutral information*/
-.box.box-solid.box-info {
-    border: 1px solid #D0E7EC; /*sky*/
-}
-/*box with negative alert or error info*/
-.box.box-solid.box-danger>.box-header {
-    color: black; /*text color*/
-    background: #C2462E; /*coral*/
-    background-color: #C2462E; /*coral*/
-}
-
-/*box with warning info*/
-.box.box-solid.box-warning>.box-header {
-    color: black; /*text color*/
-    background: #FCB248; /*orange*/
-    background-color: #FCB248; /*orange*/
-}
-
-/*color of tab for boxes*/
-.nav-tabs-custom>.nav-tabs>li.active {
-    border-top-color: #16697A; /*dark blue*/
+/* Remove extra vertical spacing within cards*/
+.bslib-gap-spacing {
+    gap: 0;
 }
 
 /* || BUTTONS */
-.btn, .btn-default {
+.btn-default {
   color: white; /*text color*/
   background-color:#C2462E; /*coral*/
   border-color: #C2462E; /*coral*/
 }
 
 /*button hover and focus*/
-.btn:hover, .btn:focus {
+.btn-default:hover, .btn-default:focus {
   color: #C2462E; /*text color - coral*/
   background-color: white;
   border-color: #C2462E; /*text color - coral*/
@@ -193,286 +97,38 @@
     color: black; /*text color*/
 }
 
-/*|| HYPERLINKS*/
-
-/*inactive hyperlink color*/
-a {
-    color: #16697A; /*text color - dark blue*/
+.btn:has(.disabled) {
+  cursor: not-allowed;
 }
 
-/*hyperlink hover*/
-a:hover {
-    outline: 0;
-    text-decoration: none;
-    color: #C2462E; /*text color - coral*/
+/* move syso download buttons to the right*/
+.syso_download_tab {
+  margin-left: auto;
 }
 
-/*progress bar*/
-.progress-bar {
-    float: left;
-    width: 0%;
-    height: 100%;
-    font-size: 12px;
-    line-height: 20px;
-    color: white; /*text color*/
-    text-align: center;
-    background-color: #16697A; /*dark blue*/
+/*Center plots*/
+.shiny-plot-output {
+  margin: auto;
 }
 
-/* || HELP TEXT CIRCLE*/
-#shiny-tab-tabHome .fa-info-circle {
-  position:absolute;
-  top:1em;
-  right:1em;
+/* make sure download buttons don't span full width*/
+.download-btn-container {
+  display: block;
 }
 
-/* || VALIDATION MESSAGES FOR PLOTS */
-.shiny-output-error-validation {
-  font-size: 20px;
-  text-align: center;
-  color: black; /*text color*/
-}
-
-/* || CHANGELOG */
-#shiny-tab-tabChangelog td:first-child {
-  white-space:nowrap;
-  padding-right: 10px;
-  padding-bottom:10px;
-  vertical-align: top;
-}
-
-#shiny-tab-tabChangelog td:nth-child(2) {
-  padding-bottom: 10px;;
-}
-
-#fileInfo.recalculating::before {
-  content: "Your file is being processed";
-}
-#fileInfo.recalculating p {
-  display: none;
-}
-
-/* DEMO MODE*/
-#demo_toggle.pill-60, #demo_toggle.pill-60:hover {
-  background: #000000
-}
-#demo_toggle-stateText {
-  color: white;
-}
-.container-55 {
-  padding: 11px;
-}
-.toggle-button-cover {
-  display: table-cell;
-  position: relative;
-  width: 200px;
-  box-sizing: border-box;
-}
-
-.button-cover {
-  height: 13px;
-  margin: 20px;
-  box-shadow: 0 10px 20px -8px #c5d6d6;
-  border-radius: 4px;
-}
-/*
-.button-cover:before {
-  counter-increment: button-counter;
-  content: counter(button-counter);
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  color: #d7e3e3;
-  font-size: 12px;
-  line-height: 1;
-  padding: 5px;
-}*/
-
-.button-cover,
-.knobs,
-.layer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-.button {
-  position: relative;
-  top: 50%;
-  width: 74px;
-  height: 36px;
-  margin: -20px auto 0 auto;
-  overflow: hidden;
-}
-
-.button.r,
-.button.r .layer {
-  border-radius: 100px;
-}
-
-.button.b2 {
-  border-radius: 2px;
-}
-
-.checkbox {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 3;
-}
-
-.knobs {
-  z-index: 2;
-}
-
-.layer {
-  width: 100%;
-  background-color: #ececec;
-  transition: 0.3s ease all;
-  z-index: 1;
-}
-/* Demo Mode - OFF */
-#button-1 .knobs:before {
-  content: "OFF";
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 33px;
-  height: 28px;
-  color: #fff;
-  font-size: 10px;
-  font-weight: bold;
-  text-align: center;
-  line-height: 1;
-  padding: 9px 4px;
-  background-color: #a6a6a6;
-  border-radius: 50%;
-  transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
-}
-/* Demo Mode - ON */
-#button-1 .checkbox:checked + .knobs:before {
-  content: "ON";
-  left: 37px;
-  background-color: #FCB248;
-  color: #000000;
-}
-
-#button-1 .checkbox:checked ~ .layer {
-  background-color:#fef1de;
-}
-
-#button-1 .knobs,
-#button-1 .knobs:before,
-#button-1 .layer {
-  transition: 0.3s ease all;
-}
-
-#demo-label {
-  color: white;
-  position: absolute;
-  left: -53px;
-  top: -4px;
-}
-
-/* Tooltip container */
-.demo-tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-/* Tooltip text */
-.demo-tooltip .demo-tooltiptext {
-  visibility: hidden;
-  width: 200px;
-  background-color: white;
-  border: 1px solid black;
-  font-family: Arial;
+/* Make card headers look like Accordion headers*/
+.bslib-card .card-header {
   font-weight: normal;
-  color: black;
-  padding: 5px;
-  border-radius: 6px;
-  position: absolute;
-  z-index: 3;
-  margin-left: -120px;
-  top: 20px;
-  opacity: 0;
-  transition: opacity 0.3s;
+  font-size: 1rem;
 }
 
-/* Tooltip arrow */
-.demo-tooltip .demo-tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.demo-tooltip:hover .demo-tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-#demo_banner {
-  background-color: #FCB248;
-  color: #000000; 
-  text-align:center;
-  height: 1.5em;
-}
-
-/* || SYSTEM OVERVIEW FILTERS */
-.light-left-border {
-  border-left: 1px solid lightgray;
-}
-.light-right-border {
-  border-right: 1px solid lightgray;
-}
-
-#syso_date_range {
-  display: inline-block;
-}
-
-#syso_header {
-  background-color: #16697A;
-  color: white;
-  font-size: 1.4em;
-}
-
-.nav-tabs-custom>.tab-content[data-tabsetid="6238"] {
-    padding: 0;
-}
-
+/*otherwise, we get a 2nd scrollbar on sys overview page*/
 #sys_comp_summary_ui_chart {
-  height:100% !important; /*otherwise, we get a 2nd scrollbar on sys overview page*/
+  height:100% !important; 
 }
 
-/* DISABLE FILTERS*/
-#syso_inflowoutflow_filters.filter-hidden {
-  display: none;
-}
-
-#sys_inflow_outflow_download_tab,
-#sys_status_download_tab,
-#sys_comp_download_tab,
-#client_level_download_tab {
-  float:right;
-}
-
-#system_composition_selections-label {
-  display: none;
-}
-
+/* vertical bar and spacing of sys demographic selections, 
+to group All + Grouped Race selections*/
 #system_composition_selections label.checkbox-inline {
   padding-right: 10px;
 }
@@ -482,27 +138,20 @@ a:hover {
   border-right: 1px solid lightgray;
 }
 
-#sys_comp_download_btn_ppt, #sys_comp_download_btn,
-#sys_status_download_btn_ppt, #sys_status_download_btn,
-#sys_inflow_outflow_download_btn_ppt, #sys_inflow_outflow_download_btn,
-#client_level_download_btn {
-  display: inline-block;
-}
-
-/*center chart*/
-#sys_comp_summary_ui_chart,
-#sankey_ui_chart,
-#sys_act_summary_ui_chart, 
-#sys_act_detail_ui_chart {
+/*center Sys Comp/Demographics chart*/
+#sys_comp_summary_ui_chart {
   display: flex;
+}
+
+#sys_comp_summary_ui_chart > img {
   margin: 0 auto;
 }
 
-#sys_comp_summary_ui_chart > img,
-#sankey_ui_chart > img,
-#sys_act_summary_ui_chart > img, 
-#sys_act_detail_ui_chart > img {
-  margin: 0 auto;
+
+/* MbM*/
+/*reduce horizontal padding to better align datatable with chart*/
+#sys_inflow_outflow_monthly_table  table.dataTable tbody td {
+  padding: 8px 5px;
 }
 
 /* || CHART INFORMATION TABLES */
@@ -526,31 +175,10 @@ a:hover {
   vertical-align: top;
 }
 
-.nav-tabs-custom > #syso_tabbox + .tab-content,
-.nav-tabs-custom > #sys_comp_subtabs + .tab-content,
-#syso_tabbox + .tab-content > .tab-pane > div {
-  padding: 0px;
+#modal_demo_tour .modal-body {
+  padding-bottom: 0.5rem;
 }
 
-
-.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a, 
-.nav-tabs-custom>.nav-tabs>li.syso_download_tab>a:hover,
-.nav-tabs-custom>.nav-tabs>li.client_level_download_tab>a, 
-.nav-tabs-custom>.nav-tabs>li.client_level_download_tab>a:hover{
-  margin-right: 2px;
-  line-height: 1.42857143;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn, 
-.nav-tabs-custom>.nav-tabs>li.syso_download_tab .btn-default,
-.nav-tabs-custom>.nav-tabs>li.client_level_download_tab .btn {
-  color: white;
-  background-color: #C2462E;
-  border-color: #C2462E;
-}
-
-/*Hide "Eva has crashed..." pop-up when timeout occurs*/
-body.idle-timeout-occurred #ss-connect-dialog {
-  display: none !important;
+#modal_demo_tour .modal-footer {
+ padding: 0.5rem;
 }

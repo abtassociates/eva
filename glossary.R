@@ -456,7 +456,7 @@ output$glossary <- renderDataTable({
     "This inflow system status indicates a client who entered the system after
     the report period’s start date and who had a previous exit to a homeless,
     temporary, institutional destination or unknown destination within the 24
-    months prior to their entry. A temporary destination could be a hotel or model
+    months prior to their entry. A temporary destination could be a hotel or motel
     paid for without an ES voucher. An institutional destination refers to
     group/assisted living, a medical facility, or incarceration. An unknown
     destination often refers to when a client does not report their exit
@@ -481,7 +481,7 @@ output$glossary <- renderDataTable({
     "Exited, Non-Permanent",
     "This outflow system status indicates a client exited the system to a homeless,
     temporary, institutional, or unknown destination as defined in the HMIS Data
-    Standards. A temporary destination could be a hotel or model paid for without
+    Standards. A temporary destination could be a hotel or motel paid for without
     an ES voucher. An institutional destination refers to group/assisted living,
     a medical facility, or incarceration. An unknown destination often refers to
     when a client does not report their exit destination. Only the client’s last
@@ -552,7 +552,7 @@ output$glossary <- renderDataTable({
     "Exited, Non-Permanent",
     "This status indicates that the client’s last exit in the report period was
     to a homeless, temporary, institutional, or unknown destination. A temporary
-    destination could be a hotel or model paid for without an ES voucher. An
+    destination could be a hotel or motel paid for without an ES voucher. An
     institutional destination refers to group/assisted living, a medical facility,
     or incarceration. An unknown destination often refers to when a client does
     not report their exit destination.",
@@ -604,7 +604,8 @@ output$glossary <- renderDataTable({
     options = list(
       searchHighlight = TRUE,
       order = list(list(0, 'asc'), list(1, 'asc'))
-    )
+    ),
+    style = "default"
   )
   
 })
