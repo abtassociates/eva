@@ -768,26 +768,51 @@ enrollments_filtered_syse <- reactive({
     fselect(-VeteranStatus)
   
   en_filt %>% 
-    roworder(PersonalID, EntryDate, ExitAdjust) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
-      # then it was clearly not a system exit
-      days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
-    ) %>%
-    fungroup() %>% 
-    fsubset(!is.na(days_to_lookahead ) & days_to_lookahead > 14 & passes_enrollment_filters)
+    fsubset(passes_enrollment_filters)
+  #   roworder(PersonalID, EntryDate, ExitAdjust) %>%
+  #   fgroup_by(PersonalID) %>%
+  #   fmutate(
+  #     # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
+  #     # then it was clearly not a system exit
+  #     days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
+  #   ) %>%
+  #   flast() %>% 
+  #   fungroup() %>% 
+  #   fsubset(is.na(days_to_lookahead ) | days_to_lookahead > 14) %>% 
+   
   
 })
 
 all_filtered_syse <- reactive({
-  join(
-  ## filter in same way as enrollments_filtered
-    enrollments_filtered_syse(),
+  eecr_and_lecr <- enrollments_filtered_syse() %>%
+    get_syse_lookbacks() %>% 
+    get_syse_eecr_and_lecr()
+    
+  join( 
+    eecr_and_lecr,
     syse_client_categories_filtered(),
     on = "PersonalID",
     how = "inner"
-  )
+  ) %>% 
+    fmutate(
+      continuous_at_end = lecr & 
+        endDate < session$userData$ReportEnd &
+        ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+      exited_system = lecr &
+        ExitAdjust %between% list(startDate, endDate) &
+        (!continuous_at_end | is.na(continuous_at_end))
+    ) %>% 
+    # universe_enrl_flags() %>% 
+    # universe_ppl_flags() %>% 
+    fsubset(period == 'Full' & exited_system) 
+  # join(
+  # ## filter in same way as enrollments_filtered
+  #   enrollments_filtered_syse(),
+  #   syse_client_categories_filtered(),
+  #   on = "PersonalID",
+  #   how = "inner"
+  # ) %>% 
+  #   fsubset(ExitDate %between% c(session$userData$ReportStart,session$userData$ReportEnd))
 })
 
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){
