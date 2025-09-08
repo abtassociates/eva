@@ -1478,28 +1478,35 @@ conflicting_ncbs_entry <- base_dq_data %>%
 # Missing bed night for NBN Enrollment Entry ---------------------------------------
 services_chk <- Services %>%
   fselect(EnrollmentID, DateProvided)  %>% 
-  join(Enrollment %>% fselect(ProjectID, EnrollmentID), on = "EnrollmentID", how = 'left') %>% 
-  unique
+  join(Enrollment %>% fselect(EnrollmentID, EntryDate, ExitAdjust), on = "EnrollmentID", how = 'left') %>% 
+  fmutate(# Flag if DateProvided is same as EntryDate/ExitAdjust
+    bn_eq_entry = DateProvided == EntryDate,
+    bn_eq_exit = DateProvided == ExitAdjust
+  ) %>%  
+  fgroup_by(EnrollmentID) %>% # For each enrollment,
+  fsummarise( # flag if it has any Service records where DateProvided == EntryDate/ExitAdjust
+    has_bn_eq_entry = any(bn_eq_entry, na.rm=TRUE),
+    has_bn_eq_exit = any(bn_eq_exit, na.rm=TRUE)
+  ) 
 
 missing_bn0 <- base_dq_data %>% 
   fsubset(ProjectType == es_nbn_project_type) %>%
   join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
   fsubset(HMISParticipationType == 1 ) %>%
-  join(services_chk, on = c("EnrollmentID", "ProjectID"), how = 'left')
+  join(Services %>% fselect(EnrollmentID, DateProvided), on = "EnrollmentID", how = 'left')
 
 missing_bn1 <- missing_bn0 %>%
-  fsubset(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
+  fsubset(is.na(DateProvided)) %>% # EnrollmentID does NOT appear in services
   fselect(-DateProvided)
 
 missing_bn2 <- missing_bn0 %>% 
-  fsubset(!is.na(DateProvided)) %>% # EnrollmentID/ProjectID appears in services
+  fsubset(!is.na(DateProvided)) %>% # EnrollmentID appears in services
   fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
-  # rejoin with EntryDate = DateProvided, adding a flag that will be NA if the EntryDate does not appear
-  join(services_chk %>% fmutate(services_flag=1), on = c("EnrollmentID", "ProjectID", "EntryDate" = "DateProvided"), how = 'left')
+  join(services_chk, on = "EnrollmentID", how = 'left')
   
 missing_bn2 <- missing_bn2 %>% 
-  fsubset(is.na(services_flag)) %>% # but it does not appear on EntryDate
-  fselect(-services_flag)
+  fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
+  fselect(-has_bn_eq_entry, has_bn_eq_exit)
 
 missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 107) %>% 
@@ -1508,14 +1515,13 @@ missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
 
 # Bed night available for NBN Enrollment Exit ---------------------------------------
 missing_bn2 <- missing_bn0 %>% 
-  fsubset(!is.na(DateProvided)) %>% # EnrollmentID/ProjectID appears in services
+  fsubset(!is.na(DateProvided)) %>% # EnrollmentID appears in services
   fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
-  # rejoin with EntryDate = DateProvided, adding a flag that will be 1 if the ExitDate does appear
-  join(services_chk %>% fmutate(services_flag=1), on = c("EnrollmentID", "ProjectID", "ExitDate" = "DateProvided"), how = 'left')
+  join(services_chk, on = "EnrollmentID", how = 'left')
 
 missing_bn2 <- missing_bn2 %>% 
-  fsubset(services_flag==1) %>% # but it is appearing on ExitDate
-  fselect(-DateProvided)
+  fsubset(has_bn_eq_exit) %>% # but it does appear on ExitDate
+  fselect(-has_bn_eq_entry, has_bn_eq_exit)
 
 bn_on_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 108) %>% 
