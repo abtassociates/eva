@@ -446,7 +446,7 @@ missing_living_situation <- base_dq_data %>%
                     is.na(PreviousStreetESSH))
              ) |
                (
-                 LivingSituation %in% c(perm_livingsituation, temp_livingsituation, other_livingsitutation) &
+                 LivingSituation %in% c(perm_livingsituation, temp_livingsituation, other_livingsituation) &
                    LengthOfStay %in% c(10, 11) & # <= 7 days
                    (is.na(LOSUnderThreshold) |
                       is.na(PreviousStreetESSH))
