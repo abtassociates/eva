@@ -1506,7 +1506,7 @@ missing_bn2 <- missing_bn0 %>%
   
 missing_bn2 <- missing_bn2 %>% 
   fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
-  fselect(-has_bn_eq_entry, has_bn_eq_exit)
+  fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
 missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 107) %>% 
@@ -1521,7 +1521,7 @@ missing_bn2 <- missing_bn0 %>%
 
 missing_bn2 <- missing_bn2 %>% 
   fsubset(has_bn_eq_exit) %>% # but it does appear on ExitDate
-  fselect(-has_bn_eq_entry, has_bn_eq_exit)
+  fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
 bn_on_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 108) %>% 
