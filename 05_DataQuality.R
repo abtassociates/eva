@@ -1481,52 +1481,49 @@ services_chk <- Services %>%
   join(Enrollment %>% fselect(ProjectID, EnrollmentID), on = "EnrollmentID", how = 'left') %>% 
   unique
 
-services_sum <- services_chk %>% fgroup_by(ProjectID, DateProvided) %>% 
-  fsummarise("countEnroll" = length(unique(EnrollmentID)))
-
-missing_bn1 <- base_dq_data %>% 
+missing_bn0 <- base_dq_data %>% 
   fsubset(ProjectType == es_nbn_project_type) %>%
   join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
   fsubset(HMISParticipationType == 1 ) %>%
   join(services_chk, on = c("EnrollmentID", "ProjectID"), how = 'left')
 
-missing_bn1 <- missing_bn1 %>% fsubset(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
-  fselect(-DateProvided) 
- 
-missing_bn2 <- base_dq_data %>%
-  fsubset(ProjectType == es_nbn_project_type) %>%
-  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) %>%
-  fsubset(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
-  join(services_sum, on = c("ProjectID" = "ProjectID", "EntryDate" = "DateProvided"), how = 'left')
+missing_bn1 <- missing_bn0 %>%
+  fsubset(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
+  fselect(-DateProvided)
 
-missing_bn2 <- missing_bn2 %>%
-  fsubset(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their entry date
-  fselect(colnames(missing_bn1))
+missing_bn2 <- missing_bn0 %>% 
+  fsubset(!is.na(DateProvided)) %>% # EnrollmentID/ProjectID appears in services
+  fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
+  # rejoin with EntryDate = DateProvided, adding a flag that will be NA if the EntryDate does not appear
+  join(services_chk %>% fmutate(services_flag=1), on = c("EnrollmentID", "ProjectID", "EntryDate" = "DateProvided"), how = 'left')
+  
+missing_bn2 <- missing_bn2 %>% 
+  fsubset(is.na(services_flag)) %>% # but it does not appear on EntryDate
+  fselect(-services_flag)
 
 missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 107) %>% 
   fselect(all_of(vars_we_want)) %>%
   unique()
 
-# Missing bed night for NBN Enrollment Exit ---------------------------------------
-missing_bn2 <- base_dq_data %>%
-  fsubset(ProjectType == es_nbn_project_type & !is.na(ExitDate)) %>%
-  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) %>%
-  fsubset(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
-  join(services_sum, on = c("ProjectID" = "ProjectID", "ExitDate" = "DateProvided"), how = 'left')
+# Bed night available for NBN Enrollment Exit ---------------------------------------
+missing_bn2 <- missing_bn0 %>% 
+  fsubset(!is.na(DateProvided)) %>% # EnrollmentID/ProjectID appears in services
+  fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
+  # rejoin with EntryDate = DateProvided, adding a flag that will be 1 if the ExitDate does appear
+  join(services_chk %>% fmutate(services_flag=1), on = c("EnrollmentID", "ProjectID", "ExitDate" = "DateProvided"), how = 'left')
 
-missing_bn2 <- missing_bn2 %>%
-  fsubset(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their exit date
-  fselect(colnames(missing_bn1))
+missing_bn2 <- missing_bn2 %>% 
+  fsubset(services_flag==1) %>% # but it is appearing on ExitDate
+  fselect(-DateProvided)
 
-missing_bn_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+bn_on_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 108) %>% 
   fselect(all_of(vars_we_want)) %>%
   unique()
 
-rm(missing_bn1, missing_bn2, services_chk, services_sum)
+rm(missing_bn0, missing_bn1, missing_bn2, services_chk)
+
 
 # SSVF --------------------------------------------------------------------
 ssvf_base_dq_data <- base_dq_data %>%
@@ -1833,7 +1830,7 @@ dq_main <- as.data.table(rbind(
   missing_destination_subsidy,
   dkr_disabilities,
   missing_bn_entry,
-  missing_bn_exit,
+  bn_on_exit,
   missing_dob,
   # missing_dob_dataquality,
   missing_enrollment_coc,
