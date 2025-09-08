@@ -1484,7 +1484,10 @@ services_chk <- Services %>%
 services_sum <- services_chk %>% fgroup_by(ProjectID, DateProvided) %>% 
   fsummarise("countEnroll" = length(unique(EnrollmentID)))
 
-missing_bn1 <- base_dq_data %>% fsubset(ProjectType == es_nbn_project_type) %>%
+missing_bn1 <- base_dq_data %>% 
+  fsubset(ProjectType == es_nbn_project_type) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) %>%
   join(services_chk, on = c("EnrollmentID", "ProjectID"), how = 'left')
 
 missing_bn1 <- missing_bn1 %>% fsubset(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
@@ -1492,6 +1495,8 @@ missing_bn1 <- missing_bn1 %>% fsubset(is.na(DateProvided)) %>% # EnrollmentID/P
  
 missing_bn2 <- base_dq_data %>%
   fsubset(ProjectType == es_nbn_project_type) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) %>%
   fsubset(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
   join(services_sum, on = c("ProjectID" = "ProjectID", "EntryDate" = "DateProvided"), how = 'left')
 
@@ -1507,6 +1512,8 @@ missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
 # Missing bed night for NBN Enrollment Exit ---------------------------------------
 missing_bn2 <- base_dq_data %>%
   fsubset(ProjectType == es_nbn_project_type & !is.na(ExitDate)) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) %>%
   fsubset(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
   join(services_sum, on = c("ProjectID" = "ProjectID", "ExitDate" = "DateProvided"), how = 'left')
 
