@@ -1476,42 +1476,47 @@ conflicting_ncbs_entry <- base_dq_data %>%
   fselect(vars_we_want)
     
 # Missing bed night for NBN Enrollment Entry ---------------------------------------
-services_chk <- Services %>% filter(RecordType==200) %>% 
-  select(EnrollmentID, DateProvided)  %>% 
-  left_join(Enrollment %>% select(ProjectID, EnrollmentID)) %>% unique()
-services_sum <- services_chk %>% group_by(ProjectID, DateProvided) %>% 
-  summarise(countEnroll = length(unique(EnrollmentID)))
+services_chk <- Services %>%
+  fselect(EnrollmentID, DateProvided)  %>% 
+  join(Enrollment %>% fselect(ProjectID, EnrollmentID), on = "EnrollmentID", how = 'left') %>% 
+  unique
 
-missing_bn1 <- base_dq_data %>%
-  filter(ProjectType == es_nbn_project_type) %>%
-  left_join(services_chk %>% mutate(DateProvided = 1) %>% unique(), by = c("ProjectID", "EnrollmentID"))
-missing_bn1 <- missing_bn1 %>% filter(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
-  select(-DateProvided) 
+services_sum <- services_chk %>% fgroup_by(ProjectID, DateProvided) %>% 
+  fsummarise("countEnroll" = length(unique(EnrollmentID)))
+
+missing_bn1 <- base_dq_data %>% fsubset(ProjectType == es_nbn_project_type) %>%
+  join(services_chk, on = c("EnrollmentID", "ProjectID"), how = 'left')
+
+missing_bn1 <- missing_bn1 %>% fsubset(is.na(DateProvided)) %>% # EnrollmentID/ProjectID does NOT appear in services
+  fselect(-DateProvided) 
  
 missing_bn2 <- base_dq_data %>%
-  filter(ProjectType == es_nbn_project_type) %>%
-  filter(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
-  left_join(services_sum, by = c("ProjectID" = "ProjectID", "EntryDate" = "DateProvided")) %>% # but,
-  filter(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their entry date
-  select(colnames(missing_bn1))
+  fsubset(ProjectType == es_nbn_project_type) %>%
+  fsubset(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
+  join(services_sum, on = c("ProjectID" = "ProjectID", "EntryDate" = "DateProvided"), how = 'left')
 
-missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
-  merge_check_info(checkIDs = 107) %>% 
-  select(all_of(vars_we_want)) %>%
+missing_bn2 <- missing_bn2 %>%
+  fsubset(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their entry date
+  fselect(colnames(missing_bn1))
+
+missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+  merge_check_info_dt(checkIDs = 107) %>% 
+  fselect(all_of(vars_we_want)) %>%
   unique()
 
 # Missing bed night for NBN Enrollment Exit ---------------------------------------
-
 missing_bn2 <- base_dq_data %>%
-  filter(ProjectType == es_nbn_project_type & !is.na(ExitDate)) %>%
-  filter(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
-  left_join(services_sum, by = c("ProjectID" = "ProjectID", "ExitDate" = "DateProvided")) %>% # but,
-  filter(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their exit date
-  select(colnames(missing_bn1))
+  fsubset(ProjectType == es_nbn_project_type & !is.na(ExitDate)) %>%
+  fsubset(EnrollmentID %in% services_chk$EnrollmentID) %>% # EnrollmentID appears in services 
+  join(services_sum, on = c("ProjectID" = "ProjectID", "ExitDate" = "DateProvided"), how = 'left')
 
-missing_bn_exit <- missing_bn1 %>% rbind(missing_bn2) %>%
-  merge_check_info(checkIDs = 108) %>% 
-  select(all_of(vars_we_want)) %>%
+missing_bn2 <- missing_bn2 %>%
+  fsubset(is.na(countEnroll) | countEnroll==0)  %>%  # the project did not have any enrollments on their exit date
+  fselect(colnames(missing_bn1))
+
+missing_bn_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+  merge_check_info_dt(checkIDs = 108) %>% 
+  fselect(all_of(vars_we_want)) %>%
   unique()
 
 rm(missing_bn1, missing_bn2, services_chk, services_sum)

@@ -482,23 +482,32 @@ ES_BedType_HousingType <- activeInventory %>%
   ) %>%
   fselect(PDDEcols)
 
-# New PDDE check - Sara Soko ----------------------
-#For each ProjectID where ProjectType == es_nbn_project_type and HMISParticipationType == 1 and count of EnrollmentIDs > 0
-#Check Services.csv file for EnrollmentIDs that are associated with the ProjectID(s) in the previous step where RecordType == 200
-#If there is at least one match in Services.csv, this check should not trigger for that ProjectID
+# No Enrollments in Services for NbN Project ------------------------------------
+services_chk <- Services %>%  fselect(EnrollmentID) %>%
+  join(as.data.table(Enrollment) %>% fselect(ProjectID, EnrollmentID), on = "EnrollmentID", how = 'left') %>%
+  as.data.table() 
 
-services_chk <- services() %>% filter(RecordType==200) %>% select(EnrollmentID) %>% left_join(Enrollment %>% select(ProjectID, EnrollmentID)) %>%
-  group_by(ProjectID) %>% summarise(countEnroll = length(unique(EnrollmentID)))
+services_chk <- services_chk %>%
+  fgroup_by(ProjectID) %>% 
+  fsummarise("countEnroll" = length(unique(EnrollmentID)))
 
 nbn_noenrolls <- activeInventory %>%
-  left_join(Project0() %>% select(ProjectID, ProjectType), by = "ProjectID") %>% filter(ProjectType == es_nbn_project_type ) %>%
-  left_join(HMISParticipation %>% select(ProjectID, HMISParticipationType), by = "ProjectID") %>% filter(HMISParticipationType == 1)  %>%
-  left_join(services_chk, by = "ProjectID") %>% filter(is.na(countEnroll) | countEnroll==0)  %>% 
-  merge_check_info(checkIDs = 106) %>% 
-  mutate(Detail = ""  ) %>%
-  select(all_of(PDDEcols)) %>%
-  unique()
+  join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on = "ProjectID", how = 'left') %>%
+  fsubset(ProjectType == es_nbn_project_type ) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 )
 
+if(nrow(services_chk) > 0){ # filter to rows where ProjectID was missing from Services
+  nbn_noenrolls <- nbn_noenrolls %>%
+    join(services_chk , on = "ProjectID", how = 'left') %>% 
+    fsubset(is.na(countEnroll) | countEnroll==0)
+} # if services_chk is empty, flag all the rows of nbn_noenrolls
+
+nbn_noenrolls  <- nbn_noenrolls %>%
+  merge_check_info_dt(checkIDs = 106) %>% 
+  fmutate(Detail = ""  ) %>%
+  fselect(all_of(PDDEcols)) %>%
+  unique()
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
