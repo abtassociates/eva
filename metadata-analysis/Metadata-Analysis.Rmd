@@ -325,7 +325,7 @@ The reasons Eva will reject an export are if the export:
 counts_by_week %>%
   fsubset(str_detect(Event, "Unsuccessful upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(na.rm = FALSE, size=0.8) +
+  geom_line(na.rm = FALSE, linewidth=0.8) +
   geom_point(na.rm = FALSE, size=1) +
   geom_text(nudge_x = 0.75, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -344,7 +344,7 @@ counts_by_week %>%
 counts_category_week %>%
   fsubset(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Set1") +
@@ -364,7 +364,7 @@ counts_category_week %>%
 counts_by_month %>%
   fsubset(str_detect(Event, "Unsuccessful upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -384,7 +384,7 @@ counts_by_month %>%
 counts_category_month %>%
   fsubset(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = 1, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Set1") +
@@ -413,7 +413,7 @@ counts_by_week %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.75) +
+  geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -437,7 +437,7 @@ counts_by_week %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.75) +
+  geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -462,14 +462,15 @@ counts_by_week_download_types <- counts_by_week %>%
   fmutate(Event2 = fcase((!str_detect(Event, "System Overview")), "DQ download",
                               (str_detect(Event, "Powerpoint")) , "System Overview image/ppt download",
                               (str_detect(Event, "Tabular Data")) , "System Overview tabular data download")) %>% 
-  group_by(WeekEnding, Event2) %>%
-  summarise(n2 = sum(n)) %>%
+  fgroup_by(WeekEnding, Event2) %>%
+  fsummarise(n2 = sum(n)) %>%
+  fungroup() %>% 
   roworder(WeekEnding, -n2)
   
   
 counts_by_week_download_types %>% 
   ggplot(aes(x = WeekEnding, y = n2, group = Event2, color = Event2, label = n2)) +
-  geom_line(size=0.75) +
+  geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -491,7 +492,7 @@ counts_by_week_download_types %>%
 counts_category_week %>%
   fsubset(str_detect(EventCategory, "Download")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .75, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -517,7 +518,7 @@ counts_by_month %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -540,7 +541,7 @@ counts_by_month %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -563,7 +564,7 @@ counts_category_month %>%
   fsubset(str_detect(EventCategory, "Download")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -625,7 +626,7 @@ staging_last6months %>%
   mutate(`System Overview Description` = fcase(
     str_detect(Event, "Client System Status"), "Client System Status",
     str_detect(Event, "System Demographics") , "System Demographics",
-    str_detect(Event, "Client Level Export") ~ "System Demographics",
+    str_detect(Event, "Client Level Export") , "System Demographics",
     str_detect(Event, "System Flow") , "System Flow"
     )) %>% 
   ggplot(aes(fill=`System Overview Description`, y=n, x=EventType)) + 
@@ -646,7 +647,7 @@ staging_last6months %>%
 counts_by_week %>%
   fsubset(str_detect(Event, "Switched to demo mode")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(na.rm = FALSE, size=0.8) +
+  geom_line(na.rm = FALSE, linewidth=0.8) +
   geom_point(na.rm = FALSE, size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -709,7 +710,7 @@ counts_by_week %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -732,7 +733,7 @@ counts_by_week %>%
   fsubset(str_detect(Event, "Downloaded System Overview")) %>%
   fsubset(str_detect(Event, "DEMO MODE")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
