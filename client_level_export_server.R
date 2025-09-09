@@ -119,8 +119,7 @@ output$client_level_download_btn <- downloadHandler(
         `Moved into Housing During Report` = anyv(
           lecr & 
           ProjectType %in% ph_project_types & 
-          session$userData$ReportStart < fcoalesce(MoveInDateAdjust, no_end_date) & 
-          fcoalesce(MoveInDateAdjust, no_end_date) < session$userData$ReportEnd,
+          between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE),
           TRUE
         ),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
