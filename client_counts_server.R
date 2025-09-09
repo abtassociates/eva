@@ -188,16 +188,28 @@ get_clientcount_download_info <- function(file) {
     select(!!keepCols, !!clientCountDetailCols) %>%
     arrange(OrganizationName, ProjectName, EntryDate)
   
+  validationStart <- tl_df_project_start() %>% 
+    select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
+    nice_names_timeliness(record_type = 'start')
+  
+  validationExit <- tl_df_project_exit() %>% 
+    select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>% 
+    nice_names_timeliness(record_type = 'exit')
+  
   exportDFList <- list(
     validationCurrent = validationCurrent %>% nice_names(),
     validationDateRange = validationDateRange %>% nice_names(),
-    validationDetail = validationDetail %>% nice_names()
+    validationDetail = validationDetail %>% nice_names(),
+    validationStart = validationStart,
+    validationExit = validationExit
   )
   
   names(exportDFList) = c(
     "validation - Current",
     "validation - Date Range",
-    "validation - Detail"
+    "validation - Detail",
+    "validation - Timeliness Start",
+    "validation - Timeliness Exit"
   )
   
   exportTestValues(
@@ -208,6 +220,14 @@ get_clientcount_download_info <- function(file) {
   )
   exportTestValues(
     client_count_download_detail = validationDetail %>% nice_names()
+  )
+  
+  exportTestValues(
+    client_count_download_timeliness_start = summarize_df(validationStart %>% nice_names_timeliness(record_type = 'start'))
+  )
+  
+  exportTestValues(
+    client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
   
   write_xlsx(exportDFList,
@@ -337,6 +357,250 @@ output$clientCountSummary <- renderDT({
   )
 })
 
+
+# TIMELINESS - reactive data frames ---------------------------------------
+
+calc_time_to_entry <- function(df){
+  df %>% 
+  fgroup_by(ProjectID) %>% 
+    fsummarize(
+      OrganizationName = ffirst(OrganizationName),
+      ProjectName = ffirst(ProjectName),
+      ProjectType = ffirst(ProjectType),
+      n_records = GRPN(),
+      n_lt24 = fsum(HoursToEntry < 24),
+      n_lt48 = fsum(HoursToEntry < 48),
+      mdn = fmedian(DaysToEntry,na.rm=T),
+      nlt0 = fsum(DaysToEntry < 0, na.rm=T),
+      n0 = fsum(DaysToEntry == 0, na.rm=T),
+      n1_3 = fsum(DaysToEntry >= 1 & DaysToEntry <= 3, na.rm=T),
+      n4_6 = fsum(DaysToEntry >= 4 & DaysToEntry <= 6, na.rm=T),
+      n7_10 = fsum(DaysToEntry >= 7 & DaysToEntry <= 10, na.rm=T),
+      n11p = fsum(DaysToEntry >= 11, na.rm=T)
+    ) %>% 
+    fungroup()
+}
+
+tl_df_project_start <- reactive({
+  req(session$userData$valid_file() == 1)
+  
+  ## Time to Entry - Project Start
+  join(
+    client_count_data_df() %>% 
+     #filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectStartDate = EntryDate),
+    session$userData$Enrollment %>% fselect(PersonalID,EnrollmentID, Enrollment.DateCreated = DateCreated),
+    how = "left"
+  ) %>% 
+    fsubset(between(ProjectStartDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(Enrollment.DateCreated) - ProjectStartDate),
+            HoursToEntry = as.numeric(difftime(Enrollment.DateCreated, ProjectStartDate, units="hours"))) %>% 
+    calc_time_to_entry()
+})
+
+tl_df_project_exit <- reactive({
+  req(session$userData$valid_file() == 1)
+  
+  ## Time to Entry - Project Exit
+  join(
+    client_count_data_df() %>% 
+      #filter(ProjectName == input$currentProviderList) %>% 
+      rename(ProjectExitDate = ExitDate),
+    session$userData$Exit %>% fselect(PersonalID, EnrollmentID, Exit.DateCreated = DateCreated),
+    how = "left"
+  ) %>%  
+    fsubset(between(ProjectExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) ),
+            HoursToEntry = as.numeric(difftime(ProjectExitDate, Exit.DateCreated, units="hours"))) %>% 
+    calc_time_to_entry()
+})
+
+tl_df_nbn <- reactive({
+  req(session$userData$valid_file() == 1)
+  ## Time to Entry - Night by Night
+  nbn_df <- join(
+    client_count_data_df(),
+    #filter(ProjectName == input$currentProviderList) %>% 
+    session$userData$Services %>% rename(Services.DateCreated = DateCreated, Services.DateProvided = DateProvided),
+    how = "left"
+  ) %>% 
+    #filter(!is.na(Services.DateCreated)) %>% 
+    fsubset(between(Services.DateProvided, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(Services.DateCreated) - as.Date(Services.DateProvided)),
+           HoursToEntry = as.numeric(difftime(Services.DateCreated, Services.DateProvided, units="hours"))) 
+  
+  if(nrow(nbn_df) > 0){
+    calc_time_to_entry(nbn_df) 
+  } else {
+     NULL
+  }
+  
+})
+
+tl_df_cls <- reactive({
+  req(session$userData$valid_file() == 1)
+  ## Time to Entry - CLS
+  cls_df <- join(
+    client_count_data_df(), 
+      #fsubset(ProjectName == input$currentProviderList) %>% 
+    session$userData$CurrentLivingSituation %>% 
+      fselect(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate),
+    how = "left"
+  ) %>% 
+    fsubset(!is.na(CurrentLivingSituation.DateCreated)) %>% 
+    fsubset(between(CurrentLivingSituation.InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(CurrentLivingSituation.DateCreated) - as.Date(CurrentLivingSituation.InformationDate)),
+           HoursToEntry = as.numeric(difftime(CurrentLivingSituation.DateCreated, CurrentLivingSituation.InformationDate, units="hours"))) 
+    
+    if(nrow(cls_df) > 0){
+      calc_time_to_entry(cls_df) 
+    } else {
+      NULL
+    }
+})
+
+# TIMELINESS - value boxes ------------------------------------------------
+cc_project_type <- reactive({
+  req(session$userData$valid_file() == 1)
+  (client_count_data_df() %>% 
+    fsubset(ProjectName == input$currentProviderList) %>% pull(ProjectType))[1]
+})
+
+output$timeliness_vb1_val <- renderText({
+  req(session$userData$valid_file() == 1)
+
+  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+    tl_df_project_start() %>%  
+      fsubset(ProjectName == input$currentProviderList) %>% 
+      pull(mdn)
+  } else {
+    '-'
+  }
+  
+})
+
+output$timeliness_vb2_val <- renderText({
+  req(session$userData$valid_file() == 1)
+  
+  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+    tl_df_project_exit() %>% 
+      fsubset(ProjectName == input$currentProviderList) %>% 
+      pull(mdn)
+  } else {
+    '-'
+  }
+ 
+})
+
+output$timeliness_vb3 <- renderUI({
+  req(session$userData$valid_file() == 1)
+ 
+  num_hours <- ifelse(cc_project_type() %in% c(0,1,4,14), 24, 48)
+  num_hours_var <- ifelse(cc_project_type() %in% c(0,1,4,14), "n_lt24", "n_lt48")
+  
+  if(cc_project_type() == 1 & !is.null(tl_df_nbn())){
+    num_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
+    den_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+  } else {
+    num_nbn <- 0
+    den_nbn <- 0
+  }
+  
+  if(cc_project_type() %in% c(0,1,6,14) & !is.null(tl_df_cls())){
+    num_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
+    den_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+  } else {
+    num_cls <- 0
+    den_cls <- 0
+  }
+    
+    num <- sum(
+      c(
+      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
+      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
+      num_nbn,
+      num_cls
+      ), 
+      na.rm = TRUE
+    )
+    den <-  sum(
+      c(
+      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
+      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
+      den_nbn,
+      den_cls
+      ), 
+      na.rm = TRUE
+    )
+    val <- ifelse(den == 0, 0, num / den)
+ 
+  if(is.nan(val) | is.na(val)){
+    val <- "-"
+  } else {
+    val <- scales::percent(val,accuracy = 1)
+  }
+ 
+  value_box(
+    title = paste0("Percent of Records Entered within ",num_hours," Hours"),
+    value = val,
+    showcase = bs_icon("clock"),
+    theme = "text-primary",
+    class = "border-primary"
+  )
+})
+
+# TIMELINESS DT table ----------------------------------------------
+
+output$timelinessTable <- renderDT({
+  req(session$userData$valid_file() == 1)
+
+  
+  time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
+  
+  dat <-  data.frame(
+    time_period = c("< 0 days", "0 days", "1-3 days", "4-6 days", "7-10 days", "11+ days")
+    )
+  
+  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+    dat$proj_start <- tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$proj_start <- 0
+  }
+  
+  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+    dat$proj_exit <- tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$proj_exit <- 0
+  }
+  
+  if(cc_project_type() == 1 & input$currentProviderList %in% tl_df_nbn()$ProjectName){
+    dat$nbn = tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>%  fselect(time_cols) %>% unlist
+  } else {
+    dat$nbn <- NULL
+  }
+  
+  if(cc_project_type() %in% c(0,1,6,14) & input$currentProviderList %in% tl_df_cls()$ProjectName){
+    dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$cls <- NULL
+  }
+  
+  tbl_names <- c("Time for Record Entry" = "time_period", "Number of Project Start Records" = "proj_start", 
+                 "Number of Project Exit Records" = "proj_exit", 
+                     "Number of Bed Night Records" = "nbn", "Number of Current Living Situation Records" = "cls")
+  dat <- dat %>% rename(any_of(tbl_names))
+ 
+  exportTestValues(timelinessTable = dat)
+  
+  datatable(
+    dat,
+    rownames = FALSE,
+    filter = "none",
+    selection = "none",
+    options = list(dom = 't', ordering = FALSE),
+    style = "default"
+  )
+})
 
 # CLIENT COUNT DOWNLOAD ---------------------------------------------------
 

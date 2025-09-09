@@ -300,26 +300,26 @@ page_navbar(
     ),
     br(),
     card(
-      card_header(headerCard("Date Range")),
+      card_header(headerCard("Filters")),
+      layout_columns(#fixed_width = T,
+        col_widths=c(3, 4),
+        gap = '20px',
       dateRangeInput(
         "dateRangeCount",
-        labe = NULL,
+        label = 'Date Range',
         format = "mm/dd/yyyy",
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
         width = 300
-      )
-    ),
-    
-    card(
-      card_header(headerCard("Select Project")),
+      ),
       pickerInput(
-        label = NULL,
+        label = 'Select Project',
         inputId = "currentProviderList",
         choices = NULL,
         options = pickerOptions(liveSearch = TRUE,
                                 liveSearchStyle = 'contains', 
                                 container = 'body')
+      )
       )
     ),
     
@@ -327,13 +327,56 @@ page_navbar(
       id = 'client_count_subtabs',
       
       nav_panel(
-        title = headerTab("Client Counts Summary"),
-        DTOutput("clientCountSummary")
+        title = headerTab("Client Counts"),
+        
+        navset_card_underline(
+          id = "client_count_cc_subtabs",
+          nav_panel(
+            title = headerSubTab("Client Counts Summary"),
+            DTOutput("clientCountSummary")
+          ),
+          nav_panel(
+            title = headerSubTab("Client Counts Detail"),
+            DTOutput("clientCountData")
+          ),
+        )
       ),
+      
       nav_panel(
-        title = headerTab("Client Counts Detail"),
-        DTOutput("clientCountData")
+        title = headerTab("Timeliness"),
+        navset_card_underline(
+          id = "client_count_ti_subtabs",
+          nav_panel(
+            title = headerSubTab("Record Entry"),
+            layout_column_wrap(
+              width = "250px",
+              fill = FALSE,
+
+              value_box(
+                title = "Median Days to Project Start Data Entry",
+                value = textOutput("timeliness_vb1_val"),
+                showcase = bs_icon("calendar-plus"),
+                theme = "text-primary",
+                class = "border-primary"
+              ),
+              value_box(
+                title = "Median Days to Project Exit Data Entry",
+                value = textOutput("timeliness_vb2_val"),
+                showcase = bs_icon("calendar-minus"),
+                theme = "text-primary",
+                class = "border-primary"
+              ),
+              uiOutput("timeliness_vb3", fill = TRUE)
+              
+            ),
+            br(),
+            DTOutput("timelinessTable")
+            
+          )
+        )
+        
       ),
+      
       nav_spacer(),
       nav_item(
         uiOutput("downloadClientCountsReportButton", inline = TRUE)
