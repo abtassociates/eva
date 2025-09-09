@@ -447,43 +447,88 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
 enrollment_categories <- enrollment_categories %>%
   fsubset(!EnrollmentID %in% problematic_nonres_enrollmentIDs)
 
-# Prepare a dataset of non_res enrollments and corresponding LH info
-# will be used to categorize non-res enrollments/people as active_at_start, 
-# homeless_at_end, and unknown_at_end
-non_res_enrollments <- enrollment_categories %>% 
-  fsubset(
-    ProjectType %in% non_res_project_types,
-    PersonalID, EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation, days_lh_entry_valid, lh_at_entry
+# Set MoveInDateAdjust to no_end_date if NA. 
+# This will allow us to just use MoveInDateAdjust without also checking for NA
+# MoveInDateAdjust is used to determine if/when a person was Housed.
+enrollment_categories <- enrollment_categories %>%
+  ftransform(MoveInDateAdjust = MoveInDateAdjust)
+
+# This step does 2 things:
+#  1. Compute lh_date, first_lh_date. and last_lh_date
+#  2. Modify EntryDate and ExitAdjust to be these first and last LH dates. 
+#     (Only applicable to non-res projects with no LH PLS or no ExitDate, but with an LH CLS)
+# lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
+# first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
+session$userData$lh_info <- enrollment_categories %>%
+  join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  fmutate(
+    lh_date = fcoalesce(lh_date, lh_date_s),
+    first_lh_compare_date = pmin(
+      fifelse(MoveInDateAdjust <= session$userData$ReportStart, NA, ExitAdjust),
+      fifelse(
+        lh_at_entry,
+        EntryDate,
+        fifelse(lh_date < EntryDate, ExitAdjust, lh_date)
+      ),
+      na.rm=TRUE
+    ),
+    last_lh_compare_date = pmax(
+      lh_date,
+      ExitDate,
+      fifelse(
+        lh_at_entry,
+        pmin(EntryDate + days_lh_valid, ExitAdjust, na.rm = TRUE),
+        NA
+      ),
+      na.rm=TRUE
+    )
+  ) %>%
+  fgroup_by(EnrollmentID) %>%
+  fmutate(
+    first_lh_date = fmin(first_lh_compare_date),
+    last_lh_date = fmax(last_lh_compare_date)
+  ) %>%
+  ftransform(
+    last_lh_date = fifelse(
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      fcoalesce(MoveInDateAdjust, ExitAdjust),
+      last_lh_date
+    ),
+    EntryDate = fifelse(
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      EntryDate,
+      first_lh_date
+    ),
+    ExitAdjust = fifelse(
+      ProjectType %in% nbn_non_res & ExitAdjust == no_end_date,
+      last_lh_date + days_lh_valid,
+      ExitAdjust
+    )
+  ) %>%
+  fungroup() %>%
+  fselect(
+    PersonalID, 
+    EnrollmentID,
+    ProjectType, 
+    EntryDate,
+    MoveInDateAdjust,
+    ExitAdjust, 
+    lh_prior_livingsituation, 
+    days_lh_valid, 
+    lh_at_entry,
+    lh_date,
+    first_lh_date,
+    last_lh_date
   )
-
-session$userData$lh_non_res <- join(
-  non_res_enrollments,
-  lh_cls,
-  on = "EnrollmentID",
-  how = "left",
-  multiple = TRUE
-)
-
-# Do something similar for ES NbNs and Services
-es_nbn_enrollments <- enrollment_categories %>%
-  fsubset(
-    ProjectType == es_nbn_project_type, 
-    PersonalID, EnrollmentID, EntryDate, ProjectType, ExitAdjust, lh_prior_livingsituation, days_lh_entry_valid, lh_at_entry
-  )
-
-session$userData$lh_nbn <- join(
-  es_nbn_enrollments,
-  Services %>% fselect(EnrollmentID, DateProvided) %>% funique(),
-  on="EnrollmentID",
-  how = "left",
-  multiple = TRUE
-)
-
-rm(es_nbn_enrollments, non_res_enrollments)
 
 session$userData$report_dates <- get_report_dates()
 
-session$userData$enrollment_categories <- enrollment_categories
+session$userData$enrollment_categories <- enrollment_categories %>%
+  join(
+    session$userData$lh_info %>% fselect(EnrollmentID, first_lh_date, last_lh_date) %>% funique(),
+    on = "EnrollmentID"
+  )
 
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading

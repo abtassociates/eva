@@ -363,6 +363,48 @@ get_report_dates <- function() {
   )
 }
 
+get_days_since_last_lh <- function(all_filtered) {
+  lh_info_all_enrl <- all_filtered %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust) %>%
+    join(
+      session$userData$lh_info %>% fselect(EnrollmentID, lh_date, first_lh_date, last_lh_date),
+      on="EnrollmentID",
+      multiple=T
+    ) %>%
+    fmutate(EntryDateTemp = EntryDate) %>%
+    setorder(PersonalID, EntryDate)
+
+  lh_info_dates <- lh_info_all_enrl[
+    lh_info_all_enrl,
+    on = .(PersonalID, first_lh_date <= EntryDate)
+  ] %>%
+    fsubset(EnrollmentID != i.EnrollmentID & EntryDate != i.EntryDateTemp) %>%
+    fmutate(
+      days_since_lh = i.EntryDateTemp - fifelse(
+        last_lh_date <= i.EntryDateTemp,
+        last_lh_date,
+        fifelse(
+          ProjectType %in% c(lh_project_types_nonbn, ph_project_types), # if comparison project type is a lh-entire-time one (and we already know last_lh_date is <= the current enrollment's EntryDate), then we can assume they were LH up to and/or beyond the current EntryDate, so we'll take the min
+          pmin(i.EntryDateTemp, last_lh_date, na.rm=TRUE),
+          fifelse(lh_date <= i.EntryDateTemp, lh_date, NA)
+        ),
+        NA
+      ),
+      EnrollmentID = i.EnrollmentID
+    ) %>%
+    fgroup_by(PersonalID, EnrollmentID) %>%
+    fsummarize(
+      days_since_last_lh = fmin(days_since_lh)
+    )
+  
+  join(
+    all_filtered,
+    lh_info_dates,
+    on = c("PersonalID", "EnrollmentID")
+  )
+}
+
+
 get_lookbacks <- function(all_filtered) {
   # Calculate days_since_lookback, days_to_lookahead, and other lookback info
   # First, determine days_to_lookahead
@@ -412,145 +454,6 @@ get_lookbacks <- function(all_filtered) {
   ))
 }
 
-get_recent_lh_info <- function(all_filtered) {
-  cols_to_keep <- c(
-    "PersonalID", 
-    "EnrollmentID", 
-    "EntryDate", 
-    "ExitAdjust", 
-    "ProjectType", 
-    "days_lh_entry_valid", 
-    "lh_at_entry"
-  )
-  lh_nonres_esnbn_info <- rbind(
-    session$userData$lh_non_res %>% fselect(c(cols_to_keep, "lh_info_date" = "InformationDate")),
-    session$userData$lh_nbn %>% fselect(c(cols_to_keep, "lh_info_date" = "DateProvided"))
-  ) %>%
-    fmutate(
-      first_lh_compare_date = fifelse(
-        lh_at_entry,
-        EntryDate,
-        fifelse(lh_info_date < EntryDate, NA, lh_info_date)
-      ),
-      last_lh_compare_date = pmax(
-        lh_info_date,
-        fifelse(
-          lh_at_entry,
-          pmin(EntryDate + days_lh_entry_valid, ExitAdjust, na.rm = TRUE),
-          NA
-        ),
-        na.rm=TRUE
-      )
-    ) %>%
-    fgroup_by(EnrollmentID) %>%
-    fmutate(
-      first_lh_date = fmin(first_lh_compare_date),
-      last_lh_date = fmax(last_lh_compare_date)
-    ) %>%
-    fungroup() %>%
-    fselect(EnrollmentID, lh_info_date, first_lh_date, last_lh_date)
-    
-  lh_info_all_enrl <- all_filtered %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust) %>%
-    join(
-      lh_nonres_esnbn_info,
-      on="EnrollmentID",
-      multiple=T
-    ) %>%
-    fmutate(
-      first_lh_date = fifelse(
-        ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
-        EntryDate,
-        first_lh_date
-      ),
-      last_lh_date = fifelse(
-        ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
-        fcoalesce(MoveInDateAdjust, ExitAdjust),
-        last_lh_date
-      ),
-      EntryDateTemp = EntryDate,
-      ExitAdjustTemp = ExitAdjust,
-      is_lh_during_entire_enrl = ProjectType %in% c(lh_project_types_nonbn, ph_project_types)
-    ) %>%
-    fselect(-MoveInDateAdjust, -ExitAdjust) %>%
-    setorder(PersonalID, EntryDate)
-  
-  lh_info_dates <- lh_info_all_enrl[
-    lh_info_all_enrl,
-    on = .(PersonalID, first_lh_date <= EntryDate)
-  ] %>%
-    fsubset(EnrollmentID != i.EnrollmentID & EntryDate != i.EntryDateTemp) %>%
-    fmutate(
-      compare_lh_date = fifelse(
-        last_lh_date <= i.EntryDateTemp,
-        last_lh_date,
-        fifelse(
-          is_lh_during_entire_enrl,
-          pmin(i.EntryDateTemp, last_lh_date, na.rm=TRUE),
-          fifelse(lh_info_date <= i.EntryDateTemp, lh_info_date, NA)
-        ),
-        NA
-      )
-    ) %>%
-    fselect(
-      PersonalID, 
-      compare_enrl = EnrollmentID,
-      EnrollmentID = i.EnrollmentID,
-      lh_info_date,
-      first_lh_date = i.first_lh_date,
-      last_lh_date = i.last_lh_date,
-      EntryDate = i.EntryDateTemp,
-      ExitAdjust = i.ExitAdjustTemp,
-      compare_lh_date
-    ) %>%
-    funique()
-
-  if(in_dev_mode) {
-    lh_info_dates <- lh_info_dates %>%
-      fgroup_by(EnrollmentID) %>%
-      fmutate(
-        most_recent_lh = fmax(compare_lh_date)
-      ) %>%
-      fmutate(
-        most_recent_lh_enrl = ffirst(fifelse(compare_lh_date == most_recent_lh, compare_enrl, NA))
-      ) %>%
-      fungroup() %>%
-      fmutate(
-        days_since_last_lh = EntryDate - most_recent_lh
-      ) %>%
-      fselect(PersonalID, EnrollmentID, days_since_last_lh,first_lh_date, last_lh_date, most_recent_lh, most_recent_lh_enrl) %>%
-      funique() %>%
-      fmutate(
-        days_to_next_lh = L(first_lh_date, -1) - last_lh_date
-      )
-  } else {
-    lh_info_dates <- lh_info_dates %>%
-      fgroup_by(EnrollmentID, last_lh_date) %>%
-      fsummarise(
-        days_since_last_lh = fmin(EntryDate - compare_lh_date)
-      ) %>% 
-      fgroup_by(EnrollmentID) %>%
-      fmutate(
-        days_to_next_lh = L(first_lh_date, -1) - last_lh_date
-      ) %>%
-      fungroup()
-  }
-
-  join(
-    all_filtered,
-    lh_info_dates %>%
-      join(
-        lh_info_all_enrl %>% 
-          fselect(PersonalID, EnrollmentID, first_lh_date, last_lh_date) %>% 
-          funique(),
-        on = c("PersonalID", "EnrollmentID"),
-        how = "full",
-        drop.dup.cols = "x"
-      ),
-    on = c("PersonalID", "EnrollmentID")
-  )
-}
-
 # Get period-specific universe_ppl_flag datasets ---------------------------
 period_specific_data <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
@@ -572,8 +475,8 @@ period_specific_data <- reactive({
       on = "PersonalID",
       how = "inner"
     ) %>%
-    get_recent_lh_info() %>% # Add days_since_last_lh
-    get_lookbacks() # add lookback info
+    get_lookbacks() %>% # add lookback info
+    get_days_since_last_lh() #
   
   if(in_dev_mode) store_enrollment_categories_all_for_qc(all_filtered)
 
@@ -1008,10 +911,8 @@ browser()
         "days_since_lookback", "days_to_lookahead",
         "straddles_start", "straddles_end",
         "startDate","endDate",
-        "lookback_dest_perm", "lookback_movein_before_start", "lookback_is_nonres_or_nbn",
-        "days_since_last_lh",
+        "lookback_dest_perm", "lookback_is_nonres_or_nbn",
         "was_lh_at_start", "was_lh_during_period", "was_lh_at_end", "was_housed_at_start", "was_housed_at_end",
-        "no_lh_lookbacks",
         "Destination", "LivingSituation",
         "HouseholdType", "CorrectedHoH"
       )) %>%
@@ -1024,26 +925,16 @@ browser()
 store_enrollment_categories_all_for_qc <- function(all_filtered) {
   # Get an enrollment-level dataset with all enrollments and LH dates, for QC purposes
   # Get all InformationDates for a given enrollment in one cell
-  lh_non_res_agg <- if(nrow(session$userData$lh_non_res) > 0) {
-    session$userData$lh_non_res %>% 
+  lh_agg <- if(nrow(session$userData$lh_info) > 0) {
+    session$userData$lh_info %>% 
       fgroup_by(EnrollmentID) %>% 
-      fsummarise(InformationDates = paste(InformationDate, collapse = ",")) %>% 
+      fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
       fungroup() %>%
-      fsubset(InformationDates != "NA")
-  } else data.table(EnrollmentID = NA, InformationDates = NA)
+      fsubset(lh_dates != "NA")
+  } else data.table(EnrollmentID = NA, lh_dates = NA)
   
-  # Get all DatedProvideds for a given enrollment in one cell
-  lh_nbn_agg <- if(nrow(session$userData$lh_nbn) > 0) {
-    session$userData$lh_nbn %>% 
-      fgroup_by(EnrollmentID) %>% 
-      fsummarise(DateProvideds = paste(DateProvided, collapse = ",")) %>% 
-      fungroup() %>%
-      fsubset(DateProvideds != "NA")
-  } else data.table(EnrollmentID = NA, DateProvideds = NA)
-
   enrollment_categories_all <<- all_filtered %>%
-    join(lh_non_res_agg, on = "EnrollmentID") %>%
-    join(lh_nbn_agg, on = "EnrollmentID") %>%
-    fselect(c(enrollment_cols, "InformationDates", "DateProvideds")) %>%
+    join(lh_agg, on = "EnrollmentID") %>%
+    fselect(c(enrollment_cols, "lh_dates")) %>%
     funique()
 }

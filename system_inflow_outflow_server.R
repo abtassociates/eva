@@ -216,24 +216,18 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
     )),
     
-    return_from_perm = eecr & 
-      ((startDate == session$userData$ReportStart) | (ExitAdjust != startDate)) & (
-        (days_since_lookback %between% c(15, 730) & lookback_dest_perm) |
-        (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_is_nonres_or_nbn & !days_since_last_lh %between% c(0, 14))
+    return_from_perm = eecr & lookback_dest_perm &
+      (startDate == session$userData$ReportStart | ExitAdjust != startDate) & (
+        days_since_lookback %between% c(15, 730) |
+        (days_since_lookback %between% c(0, 14) & lookback_is_nonres_or_nbn & fcoalesce(days_since_last_lh, 9999) >= 15)
       ),
     
-    # if it's non-res (or nbn) and they straddle but are not was_lh_at_start but are LH later in the period, they should be re-engaged
-    #   for nbn and SO, was_lh_at_start is not necessarilly inclusiv eof LH PLS
-    # for NbN and SO, we know that they're LH at entry
-    # 
-    # 637203 (ICF-Good) should NOT show up until May, at which point they should be re-engaged. And also re-egnaged for full period
-    
     return_from_nonperm = eecr & 
-      ((startDate == session$userData$ReportStart) | (ExitAdjust != startDate)) & (
+      (startDate == session$userData$ReportStart | ExitAdjust != startDate) & (
         (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
+        (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & fcoalesce(days_since_last_lh, 9999) >= 15) |
         # This condition is meant to capture cases where Inactive nonres/nbn enrollments 
         # are exited and then immediately followed up with a new enrollment.
-        (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & !days_since_last_lh %between% c(0, 14)) |
         (
           ProjectType %in% nbn_non_res &
           !was_lh_at_start &
@@ -269,7 +263,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       ProjectType %in% nbn_non_res &
       !was_lh_at_start & 
       days_since_lookback %between% c(0, 14) &
-      no_lh_lookbacks,
+      (is.na(days_since_last_lh) | days_since_last_lh < 0),
     
     # Beginning with the first month's Outflow and ending after the last month's Inflow, 
     # there should be "continuous_at_start" and "continuous_at_end" flags that 
@@ -441,7 +435,6 @@ universe_ppl_flags <- function(universe_df) {
         lecr,
         EntryDate,
         days_since_lookback,
-        days_since_last_lh,
         MoveInDateAdjust,
         HouseholdType, 
         CorrectedHoH, 
@@ -590,7 +583,7 @@ universe_ppl_flags <- function(universe_df) {
     }
   }
 
-  ## ASHomeless and EntryDate on first of month with no recent lookback-------
+  ## ASHomeless and EntryDate on first of month with no recent days_since_last_lh -------
   bad_records <- universe_w_ppl_flags_clean %>%
     fsubset(period != "Full") %>%
     fsubset(
@@ -598,8 +591,7 @@ universe_ppl_flags <- function(universe_df) {
       InflowTypeDetail == "Homeless" & 
       EntryDate == as.Date(period) &
       EntryDate != session$userData$ReportStart &
-      (days_since_lookback > 14 | is.na(days_since_lookback)) & 
-      !days_since_last_lh %between% c(0, 14)
+      (days_since_last_lh > 14 | is.na(days_since_last_lh))
     )
   if(nrow(bad_records) > 0) {
     if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
@@ -632,11 +624,11 @@ universe_ppl_flags <- function(universe_df) {
       bad_return_after_nonexit <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
-        extra_cols = c("days_since_last_lh", "most_recent_lh_enrl"),
+        extra_cols = "days_since_lookback",
         multiple = TRUE
       ) %>%
         fselect(
-          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, InformationDates, DateProvideds, InflowTypeDetail, OutflowTypeDetail, days_since_last_lh, most_recent_lh_enrl
+          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, lh_dates, InflowTypeDetail, OutflowTypeDetail, days_since_lookback
         )
       view(bad_return_after_nonexit)
       browser()
