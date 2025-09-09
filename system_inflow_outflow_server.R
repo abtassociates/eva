@@ -175,46 +175,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
   # ----|----------nova----------a------- ===> FTH
   # z---|----------nova----------a------- ===> Re-engaged/returned
   all_filtered_w_lh %>% fmutate(
-    # Define Active At Start/End conditions
-    # For full period, they can either straddle or have entered within 2 weeks of 
-    # the start date with a lookback in the last 2 weeks
-    # for the other months, they must have entered BEFORE start and exited AFTER.
-    activeAtStartCondition = 
-      (
-        startDate == session$userData$ReportStart & (
-          straddles_start | (
-            EntryDate %between% list(startDate, startDate + 15) &
-            days_since_lookback %between% c(0, 14)
-          )
-        )
-      ) | (
-        startDate > session$userData$ReportStart & (
-          EntryDate < startDate & ExitAdjust > startDate |
-          EntryDate == startDate & days_since_last_lh %between% c(0, 14)
-        )
-      ),
-
-    # Similarly for Active at End...
-    activeAtEndCondition = 
-      (
-        endDate == session$userData$ReportEnd & (
-          straddles_end | (
-            ExitAdjust %between% list(endDate, endDate - 15) &
-            days_to_lookahead %between% c(0, 14)
-          )
-        )
-      ) | (
-        endDate < session$userData$ReportEnd & 
-        ExitAdjust > endDate & EntryDate < endDate
-      ),
-    
     # INFLOW CALCULATOR COLUMNS
-    active_at_start_homeless = eecr & activeAtStartCondition & was_lh_at_start,
+    active_at_start_homeless = eecr & was_lh_at_start,
     
-    active_at_start_housed = eecr & activeAtStartCondition & (was_housed_at_start | (
-      ProjectType %in% ph_project_types &
-      (days_since_lookback %between% c(0, 14) & lookback_dest_perm & lookback_movein_before_start)
-    )),
+    active_at_start_housed = eecr & was_housed_at_start,
     
     return_from_perm = eecr & lookback_dest_perm &
       (startDate == session$userData$ReportStart | ExitAdjust != startDate) & (
@@ -290,23 +254,13 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
       EntryDate == endDate,
     
     # OUTFLOW CALCULATOR COLUMNS
-    # exited_system = lecr & 
-    #   ExitAdjust %between% list(startDate, endDate) & 
-    #   (
-    #     (!continuous_at_end | is.na(continuous_at_end)) |
-    #     (
-    #       ProjectType %in% setdiff(non_res_project_types, out_project_type) &
-    #       (is.na(days_to_lookahead) | days_to_lookahead < 0) &
-    #       (is.na(last_lh_date) | last_lh_date <= endDate)
-    #     )
-    #   ),
     exited_system = lecr &
       ExitAdjust %between% list(startDate, endDate) &
       (!continuous_at_end | is.na(continuous_at_end)),
     
-    homeless_at_end = lecr & activeAtEndCondition & was_lh_at_end,
+    homeless_at_end = lecr & was_lh_at_end,
     
-    housed_at_end = lecr & activeAtEndCondition & was_housed_at_end,
+    housed_at_end = lecr & was_housed_at_end,
     
     unknown_at_end = lecr &
       straddles_end & 
@@ -405,20 +359,28 @@ universe_ppl_flags <- function(universe_df) {
     )
 
   ####
-  # Dropping Unwanted Inactives ----------------
+  # Dropping first period Unknowns + multiple Inactives in a row ----------------
   ####
-  period_level_data <- universe_w_ppl_flags %>%
-    fsubset(period != "Full", PersonalID, period, OutflowTypeDetail) %>%
+  enrollments_to_remove <- universe_w_ppl_flags %>%
+    fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
     funique() %>%
     setorder(PersonalID, period) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(first_inflow = ffirst(InflowTypeDetail)) %>%
+    fungroup() %>%
     fmutate(prev_period_outflow = flag(OutflowTypeDetail, g = PersonalID)) %>%
-    fsubset(OutflowTypeDetail == "Inactive" & prev_period_outflow == "Inactive") %>%
+    fsubset(
+      # Remove first Unknown
+      first_inflow == "Unknown" |
+      # Remove multiple inactives
+      (OutflowTypeDetail == "Inactive" & prev_period_outflow == "Inactive")
+    ) %>%
     fselect(PersonalID, period)
   
   universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
-    join(period_level_data, on = c("PersonalID", "period"), how="anti")
+    join(enrollments_to_remove, on = c("PersonalID", "period"), how="anti")
 
-  rm(period_level_data, universe_w_ppl_flags)
+  rm(enrollments_to_remove, universe_w_ppl_flags)
   
   if(!in_dev_mode) {
     universe_w_ppl_flags_clean <- universe_w_ppl_flags_clean %>%
