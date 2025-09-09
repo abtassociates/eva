@@ -384,7 +384,12 @@ enrollment_categories <- enrollment_prep_hohs %>%
             !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
          )
       ),
-    days_lh_entry_valid = fcase(
+    # The purpose of this variable is to capture the idea that an LH date (LH PLS, LH CLS, or Bed Night)
+    # Can tell us something about a person's LH status for some time beyond that particular date
+    # In this way, it will help us construct an enrollment's last LH date
+    # It also helps us determine if an enrollment is LH at period start/end, 
+    # by looking back from the period start/end this number of days to see if there's an LH date
+    days_lh_valid = fcase(
       ProjectType == ce_project_type, 90,
       ProjectType %in% non_res_project_types, 60,
       ProjectType == es_nbn_project_type, 15,
@@ -413,7 +418,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     # DomesticViolenceCategory,
     HouseholdType,
     ProjectTypeWeight,
-    days_lh_entry_valid,
+    days_lh_valid,
     lh_at_entry
   ) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
