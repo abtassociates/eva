@@ -78,12 +78,12 @@ output$client_level_download_btn <- downloadHandler(
       HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
     )]
     
-    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
+    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr", "InflowTypeDetail") := NULL]
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
              new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
     
-    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr") := NULL]
+    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr", "InflowTypeDetail") := NULL]
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
