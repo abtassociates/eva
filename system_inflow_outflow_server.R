@@ -570,8 +570,19 @@ universe_ppl_flags <- function(universe_df) {
   
   ## Re-Engaged/Return after Exit ---
   bad_records <- universe_w_ppl_flags_clean %>%
-    fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
-    funique() %>%
+    fmutate(
+      non_res_reengage = grepl("Return|Re-engaged", InflowTypeDetail) & 
+        eecr &
+        ProjectType %in% nbn_non_res &
+        !was_lh_at_start &
+        straddles_start & 
+        was_lh_during_period
+    ) %>%
+    fsubset(
+      period != "Full" & eecr, 
+      PersonalID, period, InflowTypeDetail, OutflowTypeDetail, non_res_reengage
+    ) %>%
+    funique(cols=c("PersonalID", "period", "InflowTypeDetail", "OutflowTypeDetail")) %>%
     setorder(PersonalID, period) %>%
     fmutate(
       inflow_flag = grepl("Return|Re-engaged", InflowTypeDetail),
@@ -579,7 +590,7 @@ universe_ppl_flags <- function(universe_df) {
       prev_outflow_flag = !grepl("Exited|Inactive", prev_outflow) & !is.na(prev_outflow)
     ) %>%
     fgroup_by(PersonalID) %>%
-    fsummarize(has_issue = any(inflow_flag & prev_outflow_flag, na.rm=TRUE)) %>%
+    fsummarize(has_issue = any(inflow_flag & prev_outflow_flag & !non_res_reengage, na.rm=TRUE)) %>%
     fungroup() %>%
     fsubset(has_issue)
   if(nrow(bad_records) > 0) {
@@ -587,14 +598,17 @@ universe_ppl_flags <- function(universe_df) {
       bad_return_after_nonexit <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
-        extra_cols = "days_since_lookback",
+        extra_cols = c("straddles_start", "days_since_lookback", "was_lh_during_period"),
         multiple = TRUE
       ) %>%
         fselect(
           PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, lh_dates, InflowTypeDetail, OutflowTypeDetail, days_since_lookback
         )
-      view(bad_return_after_nonexit)
-      browser()
+      if(nrow(bad_return_after_nonexit) > 0) {
+        view(bad_return_after_nonexit)
+        browser()
+      }
+
     }
   }
 
