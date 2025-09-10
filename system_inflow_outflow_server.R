@@ -423,10 +423,10 @@ universe_ppl_flags <- function(universe_df) {
   #   funique() %>%
   #   join(enrollment_categories_all, on = "PersonalID", multiple=T) %>%
   #   join(universe_w_ppl_flags_clean, on = "EnrollmentID", multiple=TRUE) %>%
-  #   fselect(PersonalID, period, eecr, lecr, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, InformationDate, DateProvided, InflowTypeDetail, OutflowTypeDetail) %>%
+  #   fselect(PersonalID, period, eecr, lecr, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, lh_dates, InflowTypeDetail, OutflowTypeDetail) %>%
   #   setorder(PersonalID, period, eecr, lecr)
   # 
-  # fwrite(sampled_final, "/media/sdrive/projects/CE_Data_Toolkit/QC_Inflow_Outflow_Statuses_8.20.25_v2.csv")
+  # fwrite(sampled_final, "/media/sdrive/projects/CE_Data_Toolkit/QC_Inflow_Outflow_Statuses_9.10.25.csv")
 
   ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags_clean %>%
