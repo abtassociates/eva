@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 95cdf5f3db38edccd2bb4f4f71f90e0b]",
+      "src": "[image data hash: 0b33da4b9a492e249bf7340eb956779c]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -71,10 +71,10 @@
 
                 ],
                 "y": [
-                  "Missing Non-cash Benefits at Entry",
                   "Invalid Move-In Date",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
+                  "Incomplete Living Situation Data",
                   "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
