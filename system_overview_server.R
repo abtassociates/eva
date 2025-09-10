@@ -384,11 +384,18 @@ get_days_since_last_lh <- function(all_filtered) {
         last_lh_date <= i.EntryDateTemp,
         last_lh_date,
         fifelse(
-          ProjectType %in% c(lh_project_types_nonbn, ph_project_types), # if comparison project type is a lh-entire-time one (and we already know last_lh_date is <= the current enrollment's EntryDate), then we can assume they were LH up to and/or beyond the current EntryDate, so we'll take the min
-          pmin(i.EntryDateTemp, last_lh_date, na.rm=TRUE),
-          fifelse(lh_date <= i.EntryDateTemp, lh_date, NA)
-        ),
-        NA
+          first_lh_date_temp + days_lh_valid >= i.EntryDateTemp, 
+          i.EntryDateTemp,
+          fifelse(
+            ProjectType %in% c(lh_project_types_nonbn, ph_project_types), # if comparison project type is a lh-entire-time one (and we already know last_lh_date is <= the current enrollment's EntryDate), then we can assume they were LH up to and/or beyond the current EntryDate, so we'll take the min
+            pmin(i.EntryDateTemp, last_lh_date, na.rm=TRUE),
+            fifelse(
+              fcoalesce(lh_date, no_end_date) + days_lh_valid >= i.EntryDateTemp, 
+              i.EntryDateTemp,
+              lh_date + days_lh_valid
+            )
+          )
+        )
       ),
       EnrollmentID = i.EnrollmentID
     ) %>%
@@ -712,15 +719,15 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
         (EntryDate %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0) & lh_at_entry)
       ),
         
-      # These are*definitely* lh during period
+      # These are *definitely* lh during period
       was_lh_during_period_def = in_date_range & (
         ProjectType %in% c(lh_project_types_nonbn, ph_project_types) |
         lh_date %between% list(start_minus_15_60_90_or_0, endDate) | 
         (EntryDate %between% list(start_minus_15_60_90_or_0, endDate) & lh_at_entry)
       ),
       
-      # An enrollment can be LH during period if the ExitAdjust is the only LH date during that period
-      # However, we'll drop if the ExitAdjust is the *ONLY* LH date in the *Full* Period, then we will drop the enrollment
+      # An enrollment can also be LH during period if the ExitAdjust is the only LH date during a non-Full period
+      # as long as it's not the only LH date in the Full period. If it is, we'll drop as not being "lh during full period"
       was_lh_during_period = was_lh_during_period_def | ExitAdjust %between% list(startDate, endDate),
       
       was_lh_at_end = active_at_end & (
