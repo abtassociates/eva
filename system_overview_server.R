@@ -365,13 +365,13 @@ get_report_dates <- function() {
 
 get_days_since_last_lh <- function(all_filtered) {
   lh_info_all_enrl <- all_filtered %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust) %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, days_lh_valid) %>%
     join(
       session$userData$lh_info %>% fselect(EnrollmentID, lh_date, first_lh_date, last_lh_date),
       on="EnrollmentID",
       multiple=T
     ) %>%
-    fmutate(EntryDateTemp = EntryDate) %>%
+    fmutate(EntryDateTemp = EntryDate, first_lh_date_temp = first_lh_date) %>%
     setorder(PersonalID, EntryDate)
 
   lh_info_dates <- lh_info_all_enrl[
@@ -759,7 +759,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
     ) %>%
     fungroup()
-browser()
+# browser()
   # We only want enrollments that were:
   # LH during Full Period AND (LH/Housed during the given period or Exited in the future)
   # This will end up including a lot of enrollments that were Inactive
@@ -768,12 +768,7 @@ browser()
 # all_filtered_w_lh[PersonalID == 612386, c("period", enrollment_cols, "was_lh_during_full_period", "was_lh_during_period", "was_housed_during_period"), with=FALSE]
   all_filtered_w_lh <- all_filtered_w_lh %>%
     fsubset(
-      was_lh_during_full_period & (
-        was_lh_during_period |
-        was_housed_during_period |
-        (period != "Full" & ExitAdjust >= startDate)
-      ),
-      
+      was_lh_during_full_period == TRUE,
       period, EnrollmentID, PersonalID,
       was_lh_at_start,
       was_lh_during_period_def,
@@ -810,6 +805,13 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   logToConsole(session, paste0("In get_eecr_and_lecr, num period_enrollments_filtered: ", nrow(period_enrollments_filtered_was_lh)))
 
   e <- period_enrollments_filtered_was_lh %>%
+    fsubset(
+      was_lh_during_period |
+      was_housed_during_period |
+      (ExitAdjust %between% list(startDate, endDate) | (endDate == session$userData$ReportEnd & ExitAdjust > endDate))
+    )
+  
+  e2 <- e %>%
     # flag the first and last straddling enrollments, 
     # by (desc) ProjectTypeWeight and EntryDate
     roworder(period, PersonalID, -ProjectTypeWeight, EntryDate) %>%
@@ -864,7 +866,7 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   #     then it should NOT be selected
   #
   #   2. if last_straddle_end is neither LH nor housed at period end, then take the non-straddle
-  prep_for_exceptions <- e %>% 
+  prep_for_exceptions <- e2 %>% 
     fgroup_by(period, PersonalID) %>%
     fmutate(
       last_straddle_end_lh_or_housed_at_end = any(last_valid_straddle_end & (was_lh_at_end | was_housed_at_end), na.rm=TRUE),
@@ -921,7 +923,6 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   
   # 607965
   # QC checks ---------------
-browser()
 #debug cols: final[PersonalID == 595646, c("period", enrollment_cols, "eecr", "lecr"), with=FALSE]
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
