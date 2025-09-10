@@ -7,5 +7,5 @@ if (create_datasets || Sys.info()["user"] == "runner") {
 }
 
 source(here("tests/testing_functions.R"))
-in_dev_mode <<- FALSE
+
 shinytest2::load_app_env()
