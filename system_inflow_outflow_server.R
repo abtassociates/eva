@@ -181,15 +181,16 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     active_at_start_housed = eecr & was_housed_at_start,
     
     return_from_perm = eecr & lookback_dest_perm &
-      (startDate == session$userData$ReportStart | ExitAdjust != startDate) & (
+      (startDate == session$userData$ReportStart | ExitAdjust != startDate) & 
+      !(EntryDate < startDate & ProjectType %in% nbn_non_res) & (
         days_since_lookback %between% c(15, 730) |
-        (days_since_lookback %between% c(0, 14) & lookback_is_nonres_or_nbn & fcoalesce(days_since_last_lh, 9999) >= 15)
+        (days_since_lookback %between% c(0, 14) & lookback_is_nonres_or_nbn & (days_since_last_lh >= 15 | is.na(days_since_last_lh)))
       ),
     
     return_from_nonperm = eecr & 
       (startDate == session$userData$ReportStart | ExitAdjust != startDate) & (
-        (days_since_lookback %between% c(15, 730) & !lookback_dest_perm) |
-        (days_since_lookback %between% c(0, 14) & !lookback_dest_perm & lookback_is_nonres_or_nbn & fcoalesce(days_since_last_lh, 9999) >= 15) |
+        (days_since_lookback %between% c(15, 730) & !lookback_dest_perm & !(EntryDate < startDate & ProjectType %in% nbn_non_res)) |
+        (days_since_lookback %between% c(0, 14) & !(EntryDate < startDate & ProjectType %in% nbn_non_res) & lookback_is_nonres_or_nbn &  (days_since_last_lh >= 15 | is.na(days_since_last_lh))) |
         # This condition is meant to capture cases where Inactive nonres/nbn enrollments 
         # are exited and then immediately followed up with a new enrollment.
         (
