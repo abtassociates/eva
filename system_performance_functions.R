@@ -45,16 +45,34 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                             ttype=str_to_title(type),
                             demotext = if_else(isTruthy(T), " - DEMO MODE", "")))
   
-  df <- data.frame(
-    Chart = c(
-      "Start Date",
-      "End Date",
-      "Methodology Type",
-      "Household Type",
-      "Level of Detail",
-      "Project Type Group"
+  if(type == 'exits_comparison'){
+   
+    df <- data.frame(
+      Chart = c(
+        "Current Year Start Date",
+        "Current Year End Date",
+        "Previous Year Start Date",
+        "Previous Year End Date",
+        "Methodology Type",
+        "Household Type",
+        "Level of Detail",
+        "Project Type Group"
+      )
+    ) 
+  } else {
+  
+    df <- data.frame(
+      Chart = c(
+        "Start Date",
+        "End Date",
+        "Methodology Type",
+        "Household Type",
+        "Level of Detail",
+        "Project Type Group"
+      )
     )
-  )
+  
+  }
   
   values <- switch(type,
                    'overview' = c(
@@ -68,6 +86,16 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                    'exits' = c(
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
+                     getNameByValue(sys_methodology_types, input$syse_methodology_type),
+                     getNameByValue(sys_hh_types, input$syse_hh_type),
+                     getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
+                     getNameByValue(sys_project_types, input$syse_project_type)
+                   ),
+                   'exits_comparison' = c(
+                     strftime(session$userData$ReportStart, "%m/%d/%y"),
+                     strftime(session$userData$ReportEnd, "%m/%d/%y"),
+                     strftime(session$userData$ReportStart - years(1), "%m/%d/%y"),
+                     strftime(session$userData$ReportEnd - years(1), "%m/%d/%y"),
                      getNameByValue(sys_methodology_types, input$syse_methodology_type),
                      getNameByValue(sys_hh_types, input$syse_hh_type),
                      getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
@@ -542,6 +570,82 @@ sys_detailBox <- function(
     )
   }
 
+  
+  return(l1)
+}
+
+syse_time_detailBox <- function(
+    selection = NULL,
+    all_filters = FALSE,
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+) {
+  
+  
+  
+  if(!all_filters){
+    l1 <- 
+      list(
+        strong("Date Range: "),
+        
+        format(startDate, "%m-%d-%Y"),
+        " to ",
+        format(endDate, "%m-%d-%Y"),
+        br(),
+        
+        if (cur_project_types != "All")
+          chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")),
+        
+        #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+        HTML(glue(
+          "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, methodology_type), start = 1, end = 8)} <br>"
+        )),
+        
+        HTML(
+          glue(
+            "<strong>Selections</strong>: {paste(selection, collapse=' and ')} <br>"
+          )
+        )
+      )
+  } else {
+    l1 <- list(
+      br(),
+      strong("Current Year Date Range: "),
+      
+      format(startDate - years(1) , "%m-%d-%Y"), " to ", format(endDate - years(1), "%m-%d-%Y"), br(),
+      strong("Previous Year Date Range: "),
+      
+      format(startDate, "%m-%d-%Y"), " to ", format(endDate, "%m-%d-%Y"), br(),
+      
+      if (cur_project_types != "All")
+        chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")),
+      
+      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+      HTML(glue(
+        "<b>Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types, methodology_type), start = 1, end = 8)} <br>"
+      )),
+      
+      if (length(age) != length(sys_age_cats))
+        HTML(glue(
+          "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
+        )),
+      
+      if (race_eth != "All")
+        chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
+      
+      if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
+        HTML(glue(
+          "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')} <br>"
+        ))
+      
+    )
+  }
+  
   
   return(l1)
 }
