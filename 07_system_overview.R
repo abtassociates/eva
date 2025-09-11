@@ -446,7 +446,7 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
 
 enrollment_categories <- enrollment_categories %>%
   fsubset(
-    !EnrollmentID %in% problematic_nonres_enrollmentIDs |
+    !EnrollmentID %in% problematic_nonres_enrollmentIDs &
     EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
   )
 
