@@ -205,7 +205,7 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
 
 # System Exit Comparisons  ------------------------------------------------
 
-subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE) {
+subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
  
   cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
@@ -218,9 +218,12 @@ subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE) {
         message = "Please select one or more demographic filters to generate the subpopulation chart and table."
       )
     )
-  } else {
-    ## otherwise, just hide but do not show a duplicate validate message
+  } else if (req){
+    ##  just hide but do not show a duplicate validate message
     req(cond)
+  } else {
+    ## otherwise, just return TRUE/VALSE of condition
+    return(cond)
   }
 }
  
@@ -244,6 +247,8 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
   }
   
 }
+
+syse_subpop_export <- reactiveVal(NULL)
 
 get_syse_compare_subpop_data <- reactive({
   
@@ -289,6 +294,30 @@ get_syse_compare_subpop_data <- reactive({
     'Temporary' = mean(`Destination Type` == 'Temporary'),
     'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
   )
+  ## compute subcategories of destination types for data export - not shown in chart or table
+  pct_subpop_sub <- tree_exits_data() %>% 
+    mutate(Destination = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, Destination) %>% 
+    summarize(count_subpop = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_subpop = round(100*count_subpop /sum(count_subpop, na.rm=T), 0))
+  
+  pct_comparison_sub <- everyone_else %>% 
+    mutate(Destination = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, Destination) %>% 
+    summarize(count_comparison = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_comparison = round(100*count_comparison/sum(count_comparison, na.rm=T), 0))
+  
+  syse_subpop_export(
+    full_join(pct_subpop_sub, pct_comparison_sub) %>% 
+      replace_na(value = 0) %>% 
+      mutate(pct_diff =  round(pct_subpop - pct_comparison,2),
+             total_count = count_subpop + count_comparison) %>% 
+      select(`Destination Type`, 'Destination Type Detail' = Destination, 'Subpopulation %' = pct_subpop, 'Comparison Group %' = pct_comparison, 
+             'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Comparison Group Count' = count_comparison, 'Total Count' = total_count)
+  )
+  
   tibble(
     subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
   round(
@@ -342,6 +371,29 @@ get_syse_compare_time_data <- reactive({
     'Institutional' = mean(`Destination Type` == 'Institutional'),
     'Temporary' = mean(`Destination Type` == 'Temporary'),
     'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  )
+  
+  ## compute subcategories of destination types for data export - not shown in chart or table
+  pct_prev_year_sub <- prev_year %>% 
+    mutate(Destination = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, Destination) %>% 
+    summarize(count_prev_year = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_prev_year = round(100*count_prev_year /sum(count_prev_year, na.rm=T),0))
+  
+  pct_current_year_sub <- current_year %>% 
+    mutate(Destination = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, Destination) %>% 
+    summarize(count_cur_year = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_cur_year = round(100*count_cur_year/sum(count_cur_year, na.rm=T),0))
+  
+  syse_time_export(
+    full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
+      replace_na(value = 0) %>% 
+      mutate(pct_change = pct_cur_year - pct_prev_year) %>% 
+      select(`Destination Type`, 'Destination Type Detail' = Destination, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
+             'Percent Change' = pct_change, 'Previous Year Count' = count_prev_year, 'Current Year Count' = count_cur_year)
   )
   
   tibble(
@@ -542,13 +594,13 @@ get_syse_compare_time_flextable <- function(tab) {
 
 output$syse_compare_subpop_chart <- renderPlot({
   ## check if filters have been changed from defaults before showing 
-  subpop_chart_validation(input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age)
+  subpop_chart_validation(input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age, show=TRUE, req=FALSE)
   syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
 })
 
 output$syse_compare_subpop_table <- renderDT({
   ## check if filters have been changed from defaults before showing 
-  subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE)
+  subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
   get_syse_compare_subpop_table(
     get_syse_compare_subpop_data()
   )
@@ -672,18 +724,30 @@ output$syse_compare_time_table <- renderDT({
 output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits Report - "),
                                                     content = function(file) {
       logToConsole(session, "System Exit Comparisons data download")
-                                                      
-      write_xlsx(
-        list(
-          "ExitsComparison Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-            bind_rows(
-              sys_export_filter_selections(type = 'exits')
-            ),
-          ## dummy dataset read-in from global.R for now
-          "SystemExitData" = tree_exits_data() %>% mutate(Destination = living_situation(Destination)) %>% 
-            group_by(`Destination Type`,Destination) %>% 
-            summarize(Count = n())
-        ),
+
+    if(subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req = FALSE)){
+      sheets <- list(
+        "SystemExitComparisons Metadata" = sys_export_summary_initial_df(type = 'exits_comparison') %>%
+          bind_rows(
+            sys_export_filter_selections(type = 'exits')
+          ) %>% 
+          rename("System Exit Comparisons" = Value),
+        "Time" = syse_time_export(),
+        "Subpopulation" = syse_subpop_export()
+      )
+    } else {
+      sheets <- list(
+        "SystemExitComparisons Metadata" = sys_export_summary_initial_df(type = 'exits_comparison') %>%
+          bind_rows(
+            sys_export_filter_selections(type = 'exits')
+          ) %>% 
+          rename("System Exit Comparisons" = Value),
+        "Time" = syse_time_export()
+      )
+    }
+                                                    
+    write_xlsx(
+        sheets,     
         path = file,
         format_headers = FALSE,
         col_names = TRUE
