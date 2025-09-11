@@ -1014,8 +1014,18 @@ nav_menu(
             title = headerTab('System Exit Comparisons'),
             navset_underline(
               id = "syse_compare_subtabs",
-              selected = headerSubTab("Subpopulation Chart"),
-              
+              selected = headerSubTab("Time Chart"),
+              nav_panel(
+                title = headerSubTab("Time Chart"),
+                uiOutput("syse_compare_time_filter_selections") %>%
+                  withSpinner(),
+                plotOutput("syse_compare_time_chart",
+                           width = "80%",
+                           height = "500"
+                ) %>% withSpinner(),
+                DTOutput("syse_compare_time_table") %>%
+                  withSpinner()
+              ),
               nav_panel(
                 title = headerSubTab("Subpopulation Chart"),
                 uiOutput("syse_compare_subpop_filter_selections") %>%
@@ -1028,17 +1038,7 @@ nav_menu(
                 DTOutput("syse_compare_subpop_table") %>%
                   withSpinner()
               ),
-              nav_panel(
-                title = headerSubTab("Time Chart"),
-                uiOutput("syse_compare_time_filter_selections") %>%
-                  withSpinner(),
-                plotOutput("syse_compare_time_chart",
-                           width = "80%",
-                           height = "500"
-                ) %>% withSpinner(),
-                DTOutput("syse_compare_time_table") %>%
-                  withSpinner()
-              ),
+              
               nav_panel(
                 title = headerSubTab("Information"),
                 tab_syse_compare_subtabs_information
