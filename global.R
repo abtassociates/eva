@@ -25,7 +25,7 @@ library(collapse)
 library(flextable)
 library(promises)
 
-options(shiny.maxRequestSize = 210763776) # was 190MB, is now 201 MB, aka 201*1024^2=210763776
+options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
 options(shiny.fullstacktrace = TRUE)
 options(shiny.stacktraceon = TRUE)
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
