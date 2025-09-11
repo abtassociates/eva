@@ -362,9 +362,15 @@ enrollments_filtered <- reactive({
 # from the period start/end
 # we then merge this with enrollment_categories to fully replace the homeless_cls_finder function
 # this avoids having to re-filter and do the check for each enrollment
-lh_non_res_period <- function() {
+lh_non_res_period <- function(time_chart = FALSE) {
+  
+  if(time_chart) {
+    lh_non_res <- expand_by_periods_syse(session$userData$lh_non_res, time_chart = time_chart) 
+  } else {
+    lh_non_res <- expand_by_periods(session$userData$lh_non_res) 
+  }
   logToConsole(session, "in lh_non_res_period")
-  lh_non_res <- expand_by_periods(session$userData$lh_non_res) %>%
+  lh_non_res <- lh_non_res %>% 
     # Calculate time windows
     ftransform(
       start_window = startDate - fifelse(ProjectType == ce_project_type, 90, 60),
@@ -418,9 +424,15 @@ lh_non_res_period <- function() {
 }
 
 ## LH info for NbN enrollments--------------
-lh_nbn_period <- function() {
+lh_nbn_period <- function(time_chart = FALSE) {
+  
+  if(time_chart) {
+    lh_nbn <- expand_by_periods_syse(session$userData$lh_nbn, time_chart = time_chart) 
+  } else {
+    lh_nbn <- expand_by_periods(session$userData$lh_nbn) 
+  }
   logToConsole(session, "in lh_nbn_period")
-  lh_nbn <- expand_by_periods(session$userData$lh_nbn) %>%
+  lh_nbn <- lh_nbn %>%
     ftransform(
       nbn_in_start_window = DateProvided %between% list(startDate - 15, startDate + 15),
       nbn_in_end_window = DateProvided %between% list(endDate - 15, endDate + 15),
@@ -467,9 +479,16 @@ lh_nbn_period <- function() {
 }
 
 ## LH info for Other enrollments --------------
-lh_other_period <- function() {
+lh_other_period <- function(time_chart = FALSE) {
   logToConsole(session, "in lh_other_period")
-  expand_by_periods(session$userData$enrollment_categories) %>%
+  
+  if(time_chart) {
+    lh_other <- expand_by_periods_syse(session$userData$enrollment_categories, time_chart = time_chart) 
+  } else {
+    lh_other <- expand_by_periods(session$userData$enrollment_categories)
+  }
+  
+  lh_other %>%
     fsubset(
       ProjectType %in% lh_project_types_nonbn | 
       (ProjectType %in% ph_project_types & (is.na(MoveInDateAdjust) | MoveInDateAdjust >= startDate))
@@ -518,11 +537,11 @@ expand_by_periods <- function(dt) {
 }
 
 
-get_lh_non_res_esnbn_info <- function(enrollments_filtered_w_lookbacks) {
+get_lh_non_res_esnbn_info <- function(enrollments_filtered_w_lookbacks, time_chart = FALSE) {
   lh_non_res_esnbn_info <- rowbind(
     list(
-      lh_non_res_period(),
-      lh_nbn_period()
+      lh_non_res_period(time_chart = time_chart),
+      lh_nbn_period(time_chart = time_chart)
     ),
     fill = TRUE
   ) %>% 
@@ -580,8 +599,8 @@ get_lh_non_res_esnbn_info <- function(enrollments_filtered_w_lookbacks) {
   return(lh_non_res_esnbn_info)
 }
 
-get_res_lh_info <- function(enrollments_filtered_w_lookbacks) {
-  lh_other_period() %>% 
+get_res_lh_info <- function(enrollments_filtered_w_lookbacks, time_chart = FALSE) {
+  lh_other_period(time_chart = time_chart) %>% 
     join(
       enrollments_filtered_w_lookbacks %>% fselect(EnrollmentID, days_since_lookback, days_to_lookahead),
       on = "EnrollmentID",

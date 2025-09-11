@@ -786,7 +786,7 @@ enrollments_filtered_syse <- reactive({
 all_filtered_syse <- reactive({
   eecr_and_lecr <- enrollments_filtered_syse() %>%
     get_syse_lookbacks() %>% 
-    get_syse_eecr_and_lecr()
+    get_syse_eecr_and_lecr(time_chart = FALSE)
     
   join( 
     eecr_and_lecr,
