@@ -302,12 +302,14 @@ get_syse_compare_subpop_data <- reactive({
 
 })
 
+syse_time_export <- reactiveVal(NULL)
+
 get_syse_compare_time_data <- reactive({
   
-  validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
-  
-  everyone <- all_filtered_syse() %>% 
+  validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
+  validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
+
+  everyone <- all_filtered_syse_time() %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -321,11 +323,11 @@ get_syse_compare_time_data <- reactive({
     )
   
   prev_year <- everyone %>% 
-    fsubset(ExitDate >= (session$userData$ReportEnd - years(1)))
-  
+    fsubset(period == 'Previous Year')
+
   current_year <- everyone %>% 
-    fsubset(between(ExitDate, session$userData$ReportEnd - years(2), session$userData$ReportEnd - years(1)))
-  
+    fsubset(period == 'Current Year')
+    
   pct_prev_year <- prev_year %>% summarize(
     'Permanent' = mean(`Destination Type` == 'Permanent'),
     'Homeless'= mean(`Destination Type` == 'Homeless'),
@@ -803,17 +805,32 @@ all_filtered_syse <- reactive({
         ExitAdjust %between% list(startDate, endDate) &
         (!continuous_at_end | is.na(continuous_at_end))
     ) %>% 
-    # universe_enrl_flags() %>% 
-    # universe_ppl_flags() %>% 
     fsubset(period == 'Full' & exited_system) 
-  # join(
-  # ## filter in same way as enrollments_filtered
-  #   enrollments_filtered_syse(),
-  #   syse_client_categories_filtered(),
-  #   on = "PersonalID",
-  #   how = "inner"
-  # ) %>% 
-  #   fsubset(ExitDate %between% c(session$userData$ReportStart,session$userData$ReportEnd))
+  
+})
+
+all_filtered_syse_time <- reactive({
+  
+  eecr_and_lecr <- enrollments_filtered_syse() %>%
+    get_syse_lookbacks() %>% 
+    get_syse_eecr_and_lecr(time_chart = TRUE)
+  
+  join( 
+    eecr_and_lecr,
+    syse_client_categories_filtered(),
+    on = "PersonalID",
+    how = "inner"
+  ) %>% 
+    fmutate(
+      continuous_at_end = lecr & 
+        endDate < session$userData$ReportEnd &
+        ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+      exited_system = lecr &
+        ExitAdjust %between% list(startDate - years(1), endDate) &
+        (!continuous_at_end | is.na(continuous_at_end))
+    ) %>% 
+    fsubset(exited_system) 
+ 
 })
 
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){
