@@ -483,30 +483,22 @@ ES_BedType_HousingType <- activeInventory %>%
   fselect(PDDEcols)
 
 # No Enrollments in Services for NbN Project ------------------------------------
-services_chk <- Services %>%  fselect(EnrollmentID) %>%
-  join(as.data.table(Enrollment) %>% fselect(ProjectID, EnrollmentID), on = "EnrollmentID", how = 'left') %>%
-  as.data.table() 
 
-services_chk <- services_chk %>%
-  fgroup_by(ProjectID) %>% 
-  fsummarise("countEnroll" = length(unique(EnrollmentID)))
-
-nbn_noenrolls <- activeInventory %>%
-  join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on = "ProjectID", how = 'left') %>%
+nbn_nobns <- Enrollment %>% # Get enrollments whose projects were NBN and had HMIS Participation
+  fselect(EnrollmentID, ProjectID) %>%
+  join(session$userData$Project0, on = "ProjectID", how = 'left') %>%
   fsubset(ProjectType == es_nbn_project_type ) %>%
-  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 )
+  fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
+  join(HMISParticipation, on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) %>% 
+  fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
+  unique()
 
-if(nrow(services_chk) > 0){ # filter to rows where ProjectID was missing from Services
-  nbn_noenrolls <- nbn_noenrolls %>%
-    join(services_chk , on = "ProjectID", how = 'left') %>% 
-    fsubset(is.na(countEnroll) | countEnroll==0)
-} # if services_chk is empty, flag all the rows of nbn_noenrolls
-
-nbn_noenrolls  <- nbn_noenrolls %>%
-  merge_check_info_dt(checkIDs = 106) %>% 
-  fmutate(Detail = ""  ) %>%
-  fselect(all_of(PDDEcols)) %>%
+nbn_nobns <- nbn_nobns %>% # anti-join gives all enrollments that have no corresponding Service records
+  join(Services, on = "EnrollmentID", how = "anti" ) %>%
+  merge_check_info(checkIDs = 106) %>% 
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>%
   unique()
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
@@ -591,7 +583,7 @@ pdde_main <- rowbind(
   vsps_in_hmis,
   zero_utilization,
   ES_BedType_HousingType,
-  nbn_noenrolls,
+  nbn_nobns,
   Active_Inventory_per_COC,
   COC_Records_per_Inventory,
   more_units_than_beds_inventory,
