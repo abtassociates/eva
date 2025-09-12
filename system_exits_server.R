@@ -122,7 +122,7 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
         labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
                             syse_level_of_detail_text(), " in ",
                             str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-                            if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+                            if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
         ) +
         geom_treemap(start = "left", show.legend = FALSE) +
         geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
