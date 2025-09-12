@@ -165,13 +165,17 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
        list(
          "ExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
            bind_rows(
-             sys_export_filter_selections(type = 'exits')
-           ),
+             sys_export_filter_selections(type = 'exits'),
+              data.frame(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+           ) %>% 
+           rename('System Exits by Type' = Value),
          
          "SystemExitData" = tree_exits_data() %>% 
            mutate(Destination = living_situation(Destination)) %>% 
            group_by(`Destination Type`,Destination) %>% 
-           summarize(Count = n())
+           summarize(Count = n()) %>% 
+           ungroup() %>% 
+           mutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / sum(Count)))
        ),
        path = file,
        format_headers = FALSE,
