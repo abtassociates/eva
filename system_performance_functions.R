@@ -1444,8 +1444,8 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
   }
   
   # Suppress values <= 10
-  plot_df <- plot_df %>%
-    suppress_values("n") %>%
+  plot_df_supp <- plot_df %>%
+    suppress_values("n", keep_orig_var = TRUE) %>%
     suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
     suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
@@ -1454,8 +1454,22 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
   #   suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
   #   suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
-  plot_df_joined <- left_join(plot_df,plot_df_phd %>% rename(num = n), by=c(selections[1],selections[2])) %>% 
-    mutate(frac = ifelse(n == 0 | is.na(n), NA, num / n))
+  plot_df_joined <- left_join(plot_df_supp,plot_df_phd %>% rename(num = n), by=c(selections[1],selections[2])) %>% 
+    mutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
+           frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
+  
+  export_label1 <- paste0(selections[2], ' (Demographic Section 1)')
+  export_label2 <- paste0(selections[1], ' (Demographic Section 2)')
+ 
+  export_df <- plot_df_joined %>% 
+    left_join(plot_df_supp %>% 
+                mutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% select(-n, -wasRedacted)) %>% 
+    mutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
+    select(selections[2], selections[1], 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
+    arrange(!!sym(selections[2]))
+  names(export_df)[1:2] <- c(export_label1, export_label2)
+  
+  sys_phd_export(export_df)
   
   if(methodology_type == 1){
     h_total_joined <- left_join(h_total,h_total_phd %>% rename(num = N), by=c(selections[1],selections[2])) %>% 
@@ -1466,17 +1480,8 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
     
   }
   
-  export_label1 <- paste0(selections[2], ' (Demographic Section 1)')
-  export_label2 <- paste0(selections[1], ' (Demographic Section 2)')
- 
-  export_df <- plot_df_joined %>% left_join(plot_df %>% 
-                                              mutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% select(-n, -wasRedacted)) %>% 
-    mutate(frac = scales::percent(frac, accuracy=0.1)) %>% 
-    select(selections[2], selections[1], 'Total Count' = n, 'Permanent Count' = num, 'Percent in Permanent' = frac, `Suppression Flag`) %>% 
-    arrange(!!sym(selections[2]))
-  names(export_df)[1:2] <- c(export_label1, export_label2)
-  
-  sys_phd_export(export_df)
+  plot_df_joined <- plot_df_joined %>% select(-n_orig, -frac_export)
+  plot_df <- plot_df_supp %>% select(-n_orig)
   
   g <- ggplot(plot_df_joined, aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
