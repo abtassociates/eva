@@ -171,10 +171,11 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
            rename('System Exits by Type' = Value),
          
          "SystemExitData" = tree_exits_data() %>% 
-           mutate(Destination = living_situation(Destination)) %>% 
-           group_by(`Destination Type`,Destination) %>% 
+           mutate(`Destination Type Detail` = living_situation(Destination)) %>% 
+           group_by(`Destination Type`,`Destination Type Detail`) %>% 
            summarize(Count = n()) %>% 
            ungroup() %>% 
+           list_all_destinations(fill_zero = TRUE) %>% 
            mutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / sum(Count)))
        ),
        path = file,
