@@ -133,11 +133,25 @@ sys_export_filter_selections <- function(type = 'overview') {
   return(selections)
 }
 
-suppress_values <- function(.data, count_var) {
+suppress_values <- function(.data, count_var, keep_orig_var = FALSE) {
+  
+  if(keep_orig_var){
+    count_var_orig <- paste0(count_var, '_orig')
+    #browser()
+    return(
+      .data %>% 
+        mutate(
+          !! count_var_orig := !!sym(count_var),
+          wasRedacted = between(!!sym(count_var), 1, 10),
+          !!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
+        )
+    )
+  } else {
   return(mutate(
     .data,
     wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
   ))
+  }
 }
 
 # Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed,
