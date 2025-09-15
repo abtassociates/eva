@@ -1233,12 +1233,29 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
   }
   
   
-  plot_df <- plot_df %>%
-    suppress_values("n") %>%
+  plot_df_supp <- plot_df %>%
+    suppress_values("n",keep_orig_var = TRUE) %>%
     suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
-  plot_df_joined <- left_join(plot_df,plot_df_phd %>% rename(num = n), by=c(selection)) %>% 
-    mutate(frac = ifelse(n == 0 | is.na(n), NA, num / n))
+  plot_df_joined <- left_join(plot_df_supp,plot_df_phd %>% rename(num = n), by=c(selection)) %>% 
+    mutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
+           frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
+  
+  export_label1 <- paste0(selection, ' (Demographic Section 1)')
+
+  export_df <- plot_df_joined %>% 
+    left_join(plot_df_supp %>% 
+                mutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% select(-n, -wasRedacted)) %>% 
+    mutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
+    select(selection, 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
+    arrange(!!sym(selection))
+  names(export_df)[1] <- export_label1
+  
+  sys_phd_export(export_df)
+  
+  plot_df_joined <- plot_df_joined %>% select(-n_orig, -frac_export)
+  plot_df <- plot_df_supp %>% select(-n_orig)
+  
   #browser()
   return(
     ggplot(plot_df_joined, aes("", .data[[selection]])) +
