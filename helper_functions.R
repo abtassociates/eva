@@ -611,3 +611,41 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     setorder(PersonalID, period, EntryDate) %>%
     fselect(c(base_cols, non_res_lh_cols))
 }
+
+## list all destination types and subtypes based on allowed_destinations vector
+## used for systems exit data downloads
+list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
+  destinations_df <- data.frame(Destination = allowed_destinations) %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    )) %>% 
+    fmutate(`Destination Type Detail`= living_situation(Destination)) %>% 
+    fselect(-Destination)
+  
+  if(add_totals){
+    destinations_df <- bind_rows(destinations_df,
+                                 data.frame(
+                                   dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
+                                 ) %>% fmutate(dest_type = factor(dest_type, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')),
+                                               `Destination Type Detail` = paste0('Total ', dest_type)) %>% rename('Destination Type' = dest_type)
+    ) %>% arrange(factor(`Destination Type`,levels=c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
+   
+  }
+  
+  ## assumes you are passing a df with columns for Destination Type (Homeless, Temporary, Permanent, Institutionl, Other/Unknown)
+  joined_df <- left_join(destinations_df, df, 
+                         by=c('Destination Type','Destination Type Detail')) 
+  
+  if(fill_zero){
+   joined_df %>% 
+    replace_na(0)
+  } else {
+    joined_df 
+  }
+  
+}
