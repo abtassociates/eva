@@ -359,15 +359,15 @@ sys_heatmap_xl_export <- function(file,
     }
   }
   
-  if (length(selections) > 1) {
-    num_tab_name <- glue("{v1} By {v2} #")
-    pct_tab_name <- glue("{v1} By {v2} %")
-  } else {
-    num_tab_name <- glue("{v1} #")
-    pct_tab_name <- glue("{v1} %")
-  }
-  
   if(type == 'overview'){
+    if (length(selections) > 1) {
+      num_tab_name <- glue("{v1} By {v2} #")
+      pct_tab_name <- glue("{v1} By {v2} %")
+    } else {
+      num_tab_name <- glue("{v1} #")
+      pct_tab_name <- glue("{v1} %")
+    }
+    
     write_xlsx(
       setNames(
         list(sys_comp_selections_summary(), num_df, pct_df),
@@ -384,19 +384,24 @@ sys_heatmap_xl_export <- function(file,
     logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                                 if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
   } else {
+    if (length(selections) > 1) {
+      
+      tab_name <- glue(str_remove_all("{v2}By{v1}CrossTab", ' '))
+    } else {
+      tab_name <- glue(str_remove_all("{v1}CrossTab",' '))
+    }
     write_xlsx(
       setNames(
-        list(sys_phd_selections_summary(), num_df, pct_df),
-        c("System Exits Metadata", num_tab_name, pct_tab_name)
+        list(sys_phd_selections_summary(), sys_phd_export()),
+        c("System Exits Metadata", tab_name)
       ),
       path = file,
       format_headers = FALSE,
       col_names = TRUE
     )
     
-    exportTestValues(sys_phd_df = get_people_universe_filtered())
-    exportTestValues(sys_phd_report_num_df = num_df)
-    exportTestValues(sys_phd_report_pct_df = pct_df)
+    exportTestValues(sys_phd_df = sys_phd_export())
+    
     logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
                                 if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
   }
