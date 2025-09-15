@@ -358,14 +358,59 @@ get_syse_compare_subpop_data <- reactive({
 
 })
 
-syse_time_export <- reactiveVal(NULL)
-
-get_syse_compare_time_data <- reactive({
+syse_time_export <- reactive({
   
-  validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
+  prev_year <- everyone() %>% 
+    fsubset(period == 'Previous Year')
+  
+  current_year <- everyone() %>% 
+    fsubset(period == 'Current Year')
+  
+  ## compute subcategories of destination types for data export - not shown in chart or table
+  pct_prev_year_sub <- prev_year %>% 
+    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, `Destination Type Detail`) %>% 
+    summarize(count_prev_year = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_prev_year = count_prev_year/sum(count_prev_year, na.rm=T))
+  
+  pct_current_year_sub <- current_year %>% 
+    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, `Destination Type Detail`) %>% 
+    summarize(count_cur_year = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_cur_year = count_cur_year/sum(count_cur_year, na.rm=T))
 
-  everyone <- all_filtered_syse_time() %>% 
+ 
+ pct_prev_year_totals <- pct_prev_year_sub %>% 
+   group_by(`Destination Type`) %>% 
+   summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+             count_prev_year = sum(count_prev_year), 
+             pct_prev_year = sum(pct_prev_year)) 
+ 
+ pct_current_year_totals <- pct_current_year_sub %>% 
+   group_by(`Destination Type`) %>% 
+   summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+             count_cur_year = sum(count_cur_year), 
+             pct_cur_year = sum(pct_cur_year)) 
+ 
+    #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
+ full_join(pct_prev_year_sub %>% 
+             bind_rows(pct_prev_year_totals), 
+           pct_current_year_sub %>% 
+             bind_rows(pct_current_year_totals), 
+           by=c('Destination Type','Destination Type Detail')) %>%    
+      list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
+      mutate(pct_change = scales::percent(pct_cur_year - pct_prev_year, accuracy=0.1, scale=100),
+             pct_cur_year = scales::percent(pct_cur_year, accuracy=0.1, scale=100), 
+             pct_prev_year = scales::percent(pct_prev_year, accuracy=0.1, scale=100)) %>% 
+      select(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
+             'Percent Change' = pct_change, 'Previous Year Count' = count_prev_year, 'Current Year Count' = count_cur_year)
+  
+})
+
+everyone <- reactive({
+  all_filtered_syse_time() %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -377,11 +422,17 @@ get_syse_compare_time_data <- reactive({
     fmutate(
       `Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown'))
     )
+})
+
+get_syse_compare_time_data <- reactive({
   
-  prev_year <- everyone %>% 
+  validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
+  validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
+  
+  prev_year <- everyone() %>% 
     fsubset(period == 'Previous Year')
 
-  current_year <- everyone %>% 
+  current_year <- everyone() %>% 
     fsubset(period == 'Current Year')
     
   pct_prev_year <- prev_year %>% summarize(
@@ -398,29 +449,6 @@ get_syse_compare_time_data <- reactive({
     'Institutional' = mean(`Destination Type` == 'Institutional'),
     'Temporary' = mean(`Destination Type` == 'Temporary'),
     'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
-  )
-  
-  ## compute subcategories of destination types for data export - not shown in chart or table
-  pct_prev_year_sub <- prev_year %>% 
-    mutate(Destination = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, Destination) %>% 
-    summarize(count_prev_year = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_prev_year = round(100*count_prev_year /sum(count_prev_year, na.rm=T),0))
-  
-  pct_current_year_sub <- current_year %>% 
-    mutate(Destination = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, Destination) %>% 
-    summarize(count_cur_year = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_cur_year = round(100*count_cur_year/sum(count_cur_year, na.rm=T),0))
-  
-  syse_time_export(
-    full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
-      replace_na(value = 0) %>% 
-      mutate(pct_change = pct_cur_year - pct_prev_year) %>% 
-      select(`Destination Type`, 'Destination Type Detail' = Destination, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
-             'Percent Change' = pct_change, 'Previous Year Count' = count_prev_year, 'Current Year Count' = count_cur_year)
   )
   
   tibble(
