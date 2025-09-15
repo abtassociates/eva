@@ -142,18 +142,54 @@
     },
     "file_structure_analysis_main": {
       "Issue": [
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
+        "Incorrect Columns",
         "Nulls not allowed or incorrect data type",
         "Impermissible characters"
       ],
       "Type": [
         "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
         "Error"
       ],
       "Guidance": [
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Either there is a column with nulls where they are not allowed, or there is a column with an incorrect data type. Please review the HMIS CSV Format Specifications for the data types and null requirements associated with the file and column listed in the detail and make the necessary updates.",
         "The HMIS CSV Specs restrict the use of some characters in string fields. To locate the character(s) that are flagging this issue, please run and download the Impermissible Character Detail export. Contact your vendor to ensure impermissible characters are excluded from your export."
       ],
       "Detail": [
+        "In the Client file, CulturallySpecific is an extra column",
+        "In the Client file, DifferentIdentity is an extra column",
+        "In the Client file, DifferentIdentityText is an extra column",
+        "In the Client file, GenderNone is an extra column",
+        "In the Client file, Man is an extra column",
+        "In the Client file, NonBinary is an extra column",
+        "In the Client file, Questioning is an extra column",
+        "In the Client file, Transgender is an extra column",
+        "In the Client file, Woman is an extra column",
         "The CoCCode column in the ProjectCoC file contains nulls or incorrect data types. See rows: 1, 28",
         "Found one or more brackets in your HMIS CSV Export. See Impermissible Character Detail export for the precise location of these characters."
       ]
@@ -765,6 +801,7 @@
         "Missing Address",
         "Missing Geography Information",
         "No Inventory Records",
+        "No bed nights entered for ES - NbN project",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
         "Project CoC missing bed inventory",
@@ -780,6 +817,7 @@
         "Error",
         "High Priority",
         "Error",
+        "High Priority",
         "Error",
         "High Priority",
         "Warning",
@@ -795,6 +833,7 @@
         2,
         5,
         11,
+        1,
         6,
         1,
         2,
@@ -805,38 +844,38 @@
     },
     "pdde_guidance_summary": {
       "Type": {
-        "High Priority": 3,
+        "High Priority": 4,
         "Error": 6,
         "Warning": 4
       },
       "Issue": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
-        "High Priority": 3,
+        "High Priority": 4,
         "Error": 6,
         "Warning": 4
       },
       "Count": {
         "Min.": 1,
         "1st Qu.": 2,
-        "Median": 3,
-        "Mean": 15.30769230769231,
-        "3rd Qu.": 11,
+        "Median": 2.5,
+        "Mean": 14.28571428571429,
+        "3rd Qu.": 9.75,
         "Max.": 138
       }
     },
@@ -1133,26 +1172,26 @@
         [
           "High Priority: 3  ",
           "Min.   :    2.0  ",
-          "Length:68         "
+          "Length:70         "
         ],
         [
-          "Error        :36  ",
-          "1st Qu.:   20.5  ",
+          "Error        :38  ",
+          "1st Qu.:   23.0  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-          "Median :  145.5  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  827.4  ",
+          "Mean   :  861.7  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  526.5  ",
+          "3rd Qu.:  595.5  ",
           null
         ],
         [
@@ -1163,14 +1202,14 @@
       ],
       "Organization Summary": [
         [
-          "Length:1004       ",
+          "Length:1006       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:1004       "
+          "Length:1006       "
         ],
         [
           "Class :character  ",
-          "Error        :440  ",
+          "Error        :442  ",
           "1st Qu.:   3.00  ",
           "Class :character  "
         ],
@@ -1183,7 +1222,7 @@
         [
           null,
           null,
-          "Mean   :  56.04  ",
+          "Mean   :  59.96  ",
           null
         ],
         [
@@ -1202,11 +1241,11 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:68         ",
-          "Length:68         "
+          "Length:70         ",
+          "Length:70         "
         ],
         [
-          "Error        :36  ",
+          "Error        :38  ",
           "Class :character  ",
           "Class :character  "
         ],
@@ -1286,14 +1325,14 @@
       ],
       "Errors": [
         [
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1305,7 +1344,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-05-08  "
+          "1st Qu.:2020-05-27  "
         ],
         [
           "Mode  :character  ",
@@ -1316,7 +1355,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-01  "
+          "Median :2021-03-09  "
         ],
         [
           null,
@@ -1327,7 +1366,7 @@
           null,
           null,
           null,
-          "Mean   :2020-12-13  "
+          "Mean   :2021-01-23  "
         ],
         [
           null,
@@ -1338,7 +1377,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-11-16  "
+          "3rd Qu.:2021-12-14  "
         ],
         [
           null,
