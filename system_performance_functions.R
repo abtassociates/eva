@@ -1277,6 +1277,8 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
   )
 }
 
+sys_phd_export <- reactiveVal()
+
 sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   var_cols <- get_var_cols(methodology_type)
@@ -1449,6 +1451,18 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
       mutate(frac = ifelse(N == 0 | is.na(N), NA, num / N))
     
   }
+  
+  export_label1 <- paste0(selections[2], ' (Demographic Section 1)')
+  export_label2 <- paste0(selections[1], ' (Demographic Section 2)')
+ 
+  export_df <- plot_df_joined %>% left_join(plot_df %>% 
+                                              mutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% select(-n, -wasRedacted)) %>% 
+    mutate(frac = scales::percent(frac, accuracy=0.1)) %>% 
+    select(selections[2], selections[1], 'Total Count' = n, 'Permanent Count' = num, 'Percent in Permanent' = frac, `Suppression Flag`) %>% 
+    arrange(!!sym(selections[2]))
+  names(export_df)[1:2] <- c(export_label1, export_label2)
+  
+  sys_phd_export(export_df)
   
   g <- ggplot(plot_df_joined, aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
