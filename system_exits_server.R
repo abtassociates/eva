@@ -906,6 +906,9 @@ enrollments_filtered_syse <- reactive({
 })
 
 all_filtered_syse <- reactive({
+  logToConsole(session, "in all_filtered_syse")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  
   eecr_and_lecr <- enrollments_filtered_syse() %>%
     get_syse_lookbacks() %>% 
     get_syse_eecr_and_lecr(time_chart = FALSE)
@@ -929,6 +932,8 @@ all_filtered_syse <- reactive({
 })
 
 all_filtered_syse_time <- reactive({
+  logToConsole(session, "in all_filtered_syse_time")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode)) 
   
   eecr_and_lecr <- enrollments_filtered_syse() %>%
     get_syse_lookbacks() %>% 
