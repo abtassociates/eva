@@ -253,14 +253,51 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
   
 }
 
-syse_subpop_export <- reactiveVal(NULL)
+syse_subpop_export <- reactive({
+  ## compute subcategories of destination types for data export - not shown in chart or table
+  pct_subpop_sub <- tree_exits_data() %>% 
+    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, `Destination Type Detail`) %>% 
+    summarize(count_subpop = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_subpop = count_subpop /sum(count_subpop, na.rm=T))
+  
+  pct_comparison_sub <- everyone_else() %>% 
+    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    group_by(`Destination Type`, `Destination Type Detail`) %>% 
+    summarize(count_comparison = n()) %>% 
+    ungroup() %>% 
+    mutate(pct_comparison = count_comparison/sum(count_comparison, na.rm=T))
+ 
+  pct_subpop_totals <- pct_subpop_sub %>% 
+    group_by(`Destination Type`) %>% 
+    summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+              count_subpop = sum(count_subpop), 
+              pct_subpop = sum(pct_subpop)) 
+  
+  pct_comparison_totals <- pct_comparison_sub %>% 
+    group_by(`Destination Type`) %>% 
+    summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+              count_comparison = sum(count_comparison), 
+              pct_comparison = sum(pct_comparison)) 
 
-get_syse_compare_subpop_data <- reactive({
-  
-  validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
-  
-  everyone_else <- all_unfiltered_syse() %>% 
+  #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
+  full_join(pct_subpop_sub %>% 
+              bind_rows(pct_subpop_totals), 
+            pct_comparison_sub %>% 
+              bind_rows(pct_comparison_totals), 
+            by=c('Destination Type','Destination Type Detail')) %>%    
+    list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
+      mutate(pct_diff =  scales::percent(pct_subpop - pct_comparison,accuracy = 0.1, scale = 100),
+             total_count = count_subpop + count_comparison,
+             pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
+             pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
+      select(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Comparison Group %' = pct_comparison, 
+             'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Comparison Group Count' = count_comparison, 'Total Count' = total_count)
+})
+
+everyone_else <- reactive({
+  all_unfiltered_syse() %>% 
     roworder(PersonalID, EntryDate, ExitAdjust) %>%
     fgroup_by(PersonalID) %>%
     fmutate(
@@ -284,6 +321,14 @@ get_syse_compare_subpop_data <- reactive({
       `Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown'))
     )
   
+})
+
+get_syse_compare_subpop_data <- reactive({
+  
+  validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
+  validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
+  
+  
   pct_subpop <- tree_exits_data() %>% summarize(
     'Permanent' = mean(`Destination Type` == 'Permanent'),
     'Homeless'= mean(`Destination Type` == 'Homeless'),
@@ -292,35 +337,12 @@ get_syse_compare_subpop_data <- reactive({
     'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
   )
   
-  pct_everyone_else <- everyone_else %>% summarize(
+  pct_everyone_else <- everyone_else() %>% summarize(
     'Permanent' = mean(`Destination Type` == 'Permanent'),
     'Homeless' = mean(`Destination Type` == 'Homeless'),
     'Institutional' = mean(`Destination Type` == 'Institutional'),
     'Temporary' = mean(`Destination Type` == 'Temporary'),
     'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
-  )
-  ## compute subcategories of destination types for data export - not shown in chart or table
-  pct_subpop_sub <- tree_exits_data() %>% 
-    mutate(Destination = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, Destination) %>% 
-    summarize(count_subpop = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_subpop = round(100*count_subpop /sum(count_subpop, na.rm=T), 0))
-  
-  pct_comparison_sub <- everyone_else %>% 
-    mutate(Destination = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, Destination) %>% 
-    summarize(count_comparison = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_comparison = round(100*count_comparison/sum(count_comparison, na.rm=T), 0))
-  
-  syse_subpop_export(
-    full_join(pct_subpop_sub, pct_comparison_sub) %>% 
-      replace_na(value = 0) %>% 
-      mutate(pct_diff =  round(pct_subpop - pct_comparison,2),
-             total_count = count_subpop + count_comparison) %>% 
-      select(`Destination Type`, 'Destination Type Detail' = Destination, 'Subpopulation %' = pct_subpop, 'Comparison Group %' = pct_comparison, 
-             'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Comparison Group Count' = count_comparison, 'Total Count' = total_count)
   )
   
   tibble(
