@@ -239,7 +239,8 @@
       115,
       116,
       117,
-      118
+      118,
+      119
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -596,7 +597,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 3bb38b71f865ce2c18f87e79f719e596]",
+      "src": "[image data hash: 22ffde027d014ad91f13098152a14a03]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -615,7 +616,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 25.3,
+              "right": 45.1,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -623,7 +624,6 @@
 
                 ],
                 "y": [
-                  "Enrollment Crosses Operating Start",
                   "Conflicting Health Insurance yes/no at Exit",
                   "Oldest Household Member Under 12",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -632,7 +632,8 @@
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
                   "Missing Months or Times Homeless",
-                  "Conflicting Income yes/no at Exit"
+                  "Conflicting Income yes/no at Exit",
+                  "Incomplete Living Situation Data"
                 ]
               }
             },
@@ -673,7 +674,7 @@
       ]
     },
     "orgDQErrorByProject": {
-      "src": "[image data hash: 1bb7447594d3079e4ce75b434d4f8aa7]",
+      "src": "[image data hash: 37bbe64ba305c1e91046a48ad5bdb37d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most General Errors.",
@@ -692,7 +693,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 80.3,
+              "right": 102.3,
               "bottom": 0.4,
               "top": 7.6,
               "discrete_limits": {
@@ -1060,17 +1061,17 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "118",
+        "Length": "119",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
-        "Error": 52,
+        "Error": 53,
         "Warning": 61
       },
       "Issue": {
-        "Length": "118",
+        "Length": "119",
         "Class": "character",
         "Mode": "character"
       },
@@ -1078,7 +1079,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.40677966101695,
+        "Mean": 8.61344537815126,
         "3rd Qu.": 7,
         "Max.": 181
       }
