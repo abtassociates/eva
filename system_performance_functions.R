@@ -666,19 +666,38 @@ sys_perf_selection_info <- function(type = 'overview', selection = input$sys_com
       )
     )
   } else if (type == 'exits'){
+    if(length(selection) == 1){
+      df <- data.frame(
+        Chart = c(
+          "Demographic Selection 1",
+          "Total People with System Exit",
+          "Total People with PH System Exit"
+        ),
+        Value = c(
+          selection[1],
+          nrow(tree_exits_data()),
+          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          
+        )
+      )
+    } else if(length(selection) == 2){
+      
     df <- data.frame(
       Chart = c(
         "Demographic Selection 1",
         "Demographic Selection 2",
-        "Total Served People"
+        "Total People with System Exit",
+        "Total People with PH System Exit"
       ),
       Value = c(
         selection[1],
         selection[2],
-        ## placeholder - need to update with system exits filtering functionality
-        nrow(get_people_universe_filtered() %>% remove_non_applicables(selection = selection))
+        nrow(tree_exits_data()),
+        nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+        
       )
     )
+    }
   }
   
   return(df)
