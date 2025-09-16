@@ -39,11 +39,13 @@
     "fileStructureAnalysis_columns_selected": null,
     "fileStructureAnalysis_rows_all": [
       1,
-      2
+      2,
+      3
     ],
     "fileStructureAnalysis_rows_current": [
       1,
-      2
+      2,
+      3
     ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
