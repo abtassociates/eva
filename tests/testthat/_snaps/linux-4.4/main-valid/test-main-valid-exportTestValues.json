@@ -805,6 +805,7 @@
         "Overlapping HMIS Participation Records",
         "Project CoC missing bed inventory",
         "RRH-SO has active bed inventory",
+        "Residential Project Missing Housing Type",
         "VSP participating in HMIS",
         "Zero Utilization"
       ],
@@ -820,6 +821,7 @@
         "High Priority",
         "Warning",
         "Error",
+        "High Priority",
         "Error",
         "Warning"
       ],
@@ -835,44 +837,45 @@
         1,
         2,
         1,
+        1,
         13,
         2
       ]
     },
     "pdde_guidance_summary": {
       "Type": {
-        "High Priority": 3,
+        "High Priority": 4,
         "Error": 6,
         "Warning": 4
       },
       "Issue": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "13",
+        "Length": "14",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
-        "High Priority": 3,
+        "High Priority": 4,
         "Error": 6,
         "Warning": 4
       },
       "Count": {
         "Min.": 1,
         "1st Qu.": 2,
-        "Median": 3,
-        "Mean": 15.30769230769231,
-        "3rd Qu.": 11,
+        "Median": 2.5,
+        "Mean": 14.28571428571429,
+        "3rd Qu.": 9.75,
         "Max.": 138
       }
     },
