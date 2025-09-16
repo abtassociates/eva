@@ -548,8 +548,7 @@ vsp_clients <- session$userData$Project0 %>%
 
 
 
-# Project Missing in ProjectCoC file --------------
-
+# Project Missing in ProjectCoC file --------------------------------------
 project_no_coc <- session$userData$Project0 %>%
   fsubset(ContinuumProject==1) %>%
   join(ProjectCoC, on = "ProjectID", how = 'anti') %>%
@@ -558,8 +557,7 @@ project_no_coc <- session$userData$Project0 %>%
   fselect(PDDEcols) %>% 
   funique()
 
-# Residential Project Missing Housing Type -----------------
-
+# Residential Project Missing Housing Type --------------------------------
 res_no_house_type <- session$userData$Project0 %>% # filter to residential projects
   fsubset(ProjectType %in% c(0,1,2,3,8,9,10,13)) %>% 
   fsubset(ProjectType != 13 | # take all that aren't 13 or
@@ -567,6 +565,23 @@ res_no_house_type <- session$userData$Project0 %>% # filter to residential proje
   fsubset(is.na(HousingType) | is.null(HousingType)) %>%  # but HousingType is missing / null
   merge_check_info_dt(checkIDs = 36) %>%
   fmutate(Detail = "" ) %>%
+  fselect(PDDEcols) %>% 
+  funique()
+
+# Long-Term Seasonal Inventory --------------------------------------------
+
+lt_seas_inv <- session$userData$Project0 %>% 
+  join(Inventory, on = "ProjectID", how = 'inner') %>% # inner join gets only ProjectID in Inventory
+  fsubset(!is.na(InventoryID)) %>% # filter to those with InventoryID not missing
+  fsubset(is.na(Availability) | Availability == 2) %>% # filter to missing or seasonal availability
+  fmutate(avail_days = InventoryEndDate - InventoryStartDate) %>% # calculate available days
+  fsubset(is.na(InventoryEndDate) | avail_days > 365) # filter to missing end date or avail_days over 365
+
+lt_seas_inv <- lt_seas_inv %>% fgroup_by(ProjectID) %>%
+  fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
+                          paste0(unique(InventoryID), collapse = ", ") ))  %>%
+  fungroup %>%
+  merge_check_info_dt(checkIDs = 37) %>%
   fselect(PDDEcols) %>% 
   funique()
 
@@ -593,7 +608,8 @@ pdde_main <- rowbind(
   more_units_than_beds_inventory,
   vsp_clients,
   project_no_coc,
-  res_no_house_type
+  res_no_house_type,
+  lt_seas_inv
 ) %>%
   funique() %>%
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
