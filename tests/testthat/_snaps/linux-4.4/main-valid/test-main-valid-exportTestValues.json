@@ -798,6 +798,7 @@
         "Client-level data in VSP organization",
         "Incorrect CoC in bed inventory",
         "Inventory Start Precedes Operating Start",
+        "Long-Term Seasonal Inventory",
         "Missing Address",
         "Missing Geography Information",
         "No Inventory Records",
@@ -813,6 +814,7 @@
         "Warning",
         "High Priority",
         "Error",
+        "Warning",
         "Warning",
         "Error",
         "High Priority",
@@ -830,6 +832,7 @@
         13,
         2,
         138,
+        111,
         2,
         5,
         11,
@@ -846,36 +849,36 @@
       "Type": {
         "High Priority": 4,
         "Error": 6,
-        "Warning": 4
+        "Warning": 5
       },
       "Issue": {
-        "Length": "14",
+        "Length": "15",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "14",
+        "Length": "15",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "14",
+        "Length": "15",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 4,
         "Error": 6,
-        "Warning": 4
+        "Warning": 5
       },
       "Count": {
         "Min.": 1,
         "1st Qu.": 2,
-        "Median": 2.5,
-        "Mean": 14.28571428571429,
-        "3rd Qu.": 9.75,
+        "Median": 3,
+        "Mean": 20.73333333333333,
+        "3rd Qu.": 12,
         "Max.": 138
       }
     },
