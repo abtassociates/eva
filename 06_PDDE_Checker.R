@@ -547,6 +547,17 @@ vsp_clients <- session$userData$Project0 %>%
   funique()
 
 
+
+# Project Missing COC --------------
+
+project_no_coc <- session$userData$Project0 %>%
+  fsubset(ContinuumProject==1) %>%
+  join(ProjectCoC, on = "ProjectID", how = 'anti') %>%
+  merge_check_info_dt(checkIDs = 35) %>%
+  fmutate(Detail = "" ) %>%
+  fselect(PDDEcols) %>% 
+  funique()
+
 # Put it all together -----------------------------------------------------
 
 pdde_main <- rowbind(
@@ -568,7 +579,8 @@ pdde_main <- rowbind(
   Active_Inventory_per_COC,
   COC_Records_per_Inventory,
   more_units_than_beds_inventory,
-  vsp_clients
+  vsp_clients,
+  project_no_coc
 ) %>%
   funique() %>%
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
