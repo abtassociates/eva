@@ -612,6 +612,46 @@ observe({
   shinyjs::toggle("dq_export_download_btn", condition = (session$userData$dq_pdde_mirai_complete() == 1))
 })
 
+# list of data frames to include in DQ Org Report
+get_dqDownloadInfo_export <- function(org_name, value = "org"){
+  logToConsole(session, "in dqDownloadInfo_export")
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  
+  exportTestValues(dq_main = dq_full() %>% nice_names())
+  exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
+  
+  orgDQData <- dq_full() %>%
+    filter(OrganizationName %in% c(org_name))
+  
+  orgDQoverlapDetails <- session$userData$overlap_details %>% 
+    filter(OrganizationName %in% c(org_name) | 
+             PreviousOrganizationName %in% c(org_name))
+  
+  orgDQReferrals <- 
+    session$userData$outstanding_referrals %>%
+    filter(OrganizationName %in% c(org_name))
+  
+  # return a list for reference in downloadHandler
+  
+  if(value == "org"){
+    return(
+      getDQReportDataList(orgDQData,
+                          orgDQoverlapDetails,
+                          "ProjectName",
+                          orgDQReferrals
+      )
+    )
+  } else if(value == "system"){
+    return(
+      getDQReportDataList(dq_full(),
+                          session$userData$overlap_details,
+                          "OrganizationName",
+                          session$userData$outstanding_referrals
+      )
+    )
+  }
+  
+}
 output$dq_export_download_btn <- downloadHandler(
   filename = date_stamped_filename('Data Quality Exports', ext='.zip'),
   content = function(file){
