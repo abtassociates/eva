@@ -660,6 +660,37 @@ output$dq_export_download_btn <- downloadHandler(
     req(session$userData$dq_pdde_mirai_complete() == 1)
     
     zip_files <- c()
+    
+    if('Organization-level (multi-select)' %in% input$dq_export_export_types){
+      
+      if("Data Quality Report" %in% input$dq_export_files){
+        req(session$userData$dq_pdde_mirai_complete() == 1)
+        req(
+          nrow(session$userData$dq_main) > 0 || 
+            nrow(session$userData$long_stayers) > 0 || 
+            nrow(session$userData$outstanding_referrals) > 0
+        )
+
+        orgs_to_save <- input$dq_export_orgList
+        
+        for(i in orgs_to_save){
+          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          zip_prefix <- str_glue('{i}/')
+          if(!dir.exists(path_prefix)){
+            dir.create(path_prefix)
+          }
+          dq_org_filename <- date_stamped_filename(str_glue('{i} - Data Quality Report-'))
+          write_xlsx(get_dqDownloadInfo_export(i, value = "org"), 
+                     path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename))
+                     )
+          zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
+         
+        }
+    
+      }
+     
+    }
+    
     if ('System-level' %in% input$dq_export_export_types){
       
       path_prefix <- file.path(tempdir(), 'System-level')
