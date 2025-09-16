@@ -54,11 +54,11 @@ get_var_cols <- function() {
 remove_non_applicables <- function(.data) {
   # remove children when vets is selected - since Vets can't be children
   if("Veteran Status (Adult Only)" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
   } 
   # filter to just HoHs and Adults for DV
   else if ("Domestic Violence status" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
   } else {
     .data
   }
@@ -205,7 +205,16 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
 
-  comp_df <- get_people_universe_filtered() %>%
+  universe <- get_people_universe_filtered()
+  
+  validate(
+    need(
+      nrow(universe) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  comp_df <- universe %>%
     remove_non_applicables() %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
@@ -312,9 +321,17 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   if (selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
     selections <- c(selections[2], selections[1])
   }
-  
+
   # get dataset underlying the freqs we will produce below
-  comp_df <- get_people_universe_filtered() %>%
+  universe <- get_people_universe_filtered()
+  validate(
+    need(
+      nrow(universe) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  comp_df <- universe %>%
     remove_non_applicables() %>%
     select(
       PersonalID, 
@@ -588,7 +605,7 @@ output$sys_comp_download_btn <- downloadHandler(
         # create total row
         total_num_row <- num_df %>%
           summarise(!!selections[1] := "Total",
-                    across(where(is.numeric), sum, na.rm = TRUE)) %>%
+                    across(where(is.numeric), ~ sum(., na.rm = TRUE))) %>%
           rename(!!selections[2] := !!selections[1])
         
         total_n <- sum(sys_comp_plot_df()$n, na.rm = TRUE)
@@ -623,7 +640,7 @@ output$sys_comp_download_btn <- downloadHandler(
       num_df <- sys_comp_plot_df()
       
       pct_df <- num_df %>%
-        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+        fmutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
                         round(1) %>%
                         paste0("%")))  %>% 
         rename("pct" = n)
@@ -751,6 +768,9 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
+  full_data <- period_specific_data()[["Full"]]
+  req(nrow(full_data) > 0)
+  
   join(
     period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
     session$userData$client_categories,

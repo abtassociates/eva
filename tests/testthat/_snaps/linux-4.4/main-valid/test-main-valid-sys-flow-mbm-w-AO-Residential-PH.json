@@ -124,7 +124,7 @@
           "processing": true
         },
         "selection": {
-          "mode": "multiple",
+          "mode": "none",
           "selected": null,
           "target": "row",
           "selectable": null
@@ -184,7 +184,7 @@
       ]
     },
     "sys_inflow_outflow_monthly_ui_chart": {
-      "src": "[image data hash: 867517fa19246e158ec632e7444a22dc]",
+      "src": "[image data hash: edfa93f0fa578568c75db1a61b9137ad]",
       "width": 1847,
       "height": 500,
       "alt": "Plot object",

@@ -473,8 +473,7 @@ inflow_debug_cols <- c(
   "was_lh_at_start",
   "was_housed_at_start",
   "InflowTypeDetail",
-  "InformationDate", 
-  "DateProvided"
+  "lh_dates"
 )
 
 
@@ -491,8 +490,7 @@ outflow_debug_cols <- c(
   "was_lh_at_end",
   "was_housed_at_end",
   "OutflowTypeDetail",
-  "InformationDate", 
-  "DateProvided"
+  "lh_dates"
 )
 
 ## files included in DQ Export Interface
@@ -503,3 +501,4 @@ dq_file_options <- data.frame(
 
 in_dev_mode <- FALSE
 # in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
+
