@@ -182,3 +182,13 @@ to group All + Grouped Race selections*/
 #modal_demo_tour .modal-footer {
  padding: 0.5rem;
 }
+
+.treejs .treejs-node__checked > .treejs-checkbox:before {
+  background-color: #16697A;
+  border-color: #16697A;
+}
+
+.treejs .treejs-node__halfchecked > .treejs-checkbox:before {
+  background-color: #16697A;
+  border-color: #16697A;
+}
