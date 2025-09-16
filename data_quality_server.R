@@ -652,10 +652,71 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   }
   
 }
+
 output$dq_export_download_btn <- downloadHandler(
-  filename = date_stamped_filename('Data Quality Exports', ext='.zip'),
+  filename = date_stamped_filename('Data Quality Exports-', ext='.zip'),
   content = function(file){
-                                                    
+    
+    req(session$userData$dq_pdde_mirai_complete() == 1)
+    
+    zip_files <- c()
+    if ('System-level' %in% input$dq_export_export_types){
+      
+      path_prefix <- file.path(tempdir(), 'System-level')
+      zip_prefix <- 'System-level/'
+      if(!dir.exists(path_prefix)){
+        dir.create(path_prefix)
+      }
+      
+      if("PDDE Report" %in% input$dq_export_files){
+        
+        req(session$userData$valid_file() == 1)
+        
+        pdde_filename <- date_stamped_filename("System-level PDDE Report-")
+        
+        summary_df <- session$userData$pdde_main %>% 
+          group_by(Issue, Type) %>%
+          summarise(Count = n()) %>%
+          ungroup()
+        
+        write_xlsx(
+          list("Summary" = summary_df,
+               "Data" = session$userData$pdde_main %>% 
+                 left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+                 nice_names()
+          ),
+          path = file.path(path_prefix,pdde_filename))
+        zip_files <- c(zip_files, paste0(zip_prefix, pdde_filename))
+        logMetadata(session, paste0("Downloaded PDDE Report",
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+    
+      }
+      if("Data Quality Report" %in% input$dq_export_files){
+        
+        req(session$userData$dq_pdde_mirai_complete() == 1)
+        req(
+          nrow(session$userData$dq_main) > 0 || 
+            nrow(session$userData$long_stayers) > 0 || 
+            nrow(session$userData$outstanding_referrals) > 0
+        )
+       
+        dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
+        
+        write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
+        logMetadata(session, paste0("Downloaded System-level DQ Report",
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        zip_files <- c(zip_files, paste0(zip_prefix, dq_system_filename))
+      } 
+      
+    }
+    
+    
+    
+   
+      
+    
+    zip::zip(file, files = zip_files, root = tempdir())
+                                                     
   }
 )
 
