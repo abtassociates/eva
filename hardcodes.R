@@ -496,7 +496,7 @@ outflow_debug_cols <- c(
 ## files included in DQ Export Interface
 dq_file_options <- data.frame(
   all = "All Data Quality Reports",
-  report = c("Project Dashboard Report", "PDDE Report", "Data Quality Report", "Bed & Unit Utilization Report")
+  report = c("Project Dashboard Report", "PDDE Report", "Data Quality Report")#, "Bed & Unit Utilization Report")
 )
 
 in_dev_mode <- FALSE

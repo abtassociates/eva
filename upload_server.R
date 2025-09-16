@@ -155,7 +155,7 @@ process_upload <- function(upload_filename, upload_filepath) {
                         choices = sort(unique(Organization$OrganizationName)),
                         options = pickerOptions(
                           selectedTextFormat = paste("count >", length(unique(Organization$OrganizationName))-1),
-                        ))
+                        ), selected = "All Organizations")
       
       updateDateRangeInput(session = session,
                            inputId = "dateRangeCount",

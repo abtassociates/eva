@@ -656,7 +656,7 @@ page_navbar(
             inputId = 'dq_export_files',
             label = NULL,
             choices = create_tree(dq_file_options),
-            selected = NULL
+            selected = "All Data Quality Reports"
           ),
           downloadButton('dq_export_download_btn', 
                          label = 'Download')

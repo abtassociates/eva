@@ -608,6 +608,8 @@ observe({
   } else {
     shinyjs::hide(id = 'dq_export_orgList')
   }
+  
+  shinyjs::toggle("dq_export_download_btn", condition = (session$userData$dq_pdde_mirai_complete() == 1))
 })
 
 output$dq_export_download_btn <- downloadHandler(
