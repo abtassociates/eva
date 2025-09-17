@@ -661,6 +661,7 @@ output$dq_export_download_btn <- downloadHandler(
     
     zip_files <- c()
     
+    ## org-level downloads
     if('Organization-level (multi-select)' %in% input$dq_export_export_types){
       
       if("Data Quality Report" %in% input$dq_export_files){
@@ -687,6 +688,43 @@ output$dq_export_download_btn <- downloadHandler(
          
         }
     
+      }
+      
+      if("PDDE Report" %in% input$dq_export_files){
+        
+        req(session$userData$valid_file() == 1)
+        
+        orgs_to_save <- input$dq_export_orgList
+        
+        for(i in orgs_to_save){
+          
+          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          zip_prefix <- str_glue('{i}/')
+          if(!dir.exists(path_prefix)){
+            dir.create(path_prefix)
+          }
+          
+          pdde_filename <- date_stamped_filename(str_glue("{i} - System-level PDDE Report-"))
+          
+          summary_df <- session$userData$pdde_main %>% 
+            filter(OrganizationName == i) %>% 
+            group_by(Issue, Type) %>%
+            summarise(Count = n()) %>%
+            ungroup()
+          
+          write_xlsx(
+            list("Summary" = summary_df,
+                 "Data" = session$userData$pdde_main %>% 
+                   filter(OrganizationName == i) %>% 
+                   left_join(session$userData$Project0 %>% filter(OrganizationName == i) %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+                   nice_names()
+            ),
+            path = file.path(tempdir(), str_glue(zip_prefix, pdde_filename))
+          )
+          
+          zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+        }  
+        
       }
      
     }

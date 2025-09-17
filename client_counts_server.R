@@ -150,9 +150,10 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
   return(pivoted)
 }
 
-get_clientcount_download_info <- function(file) {
+get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName)) {
   # initial dataset that will make summarizing easier
-  validationDF <- client_count_data_df()
+  validationDF <- client_count_data_df() %>% 
+    fsubset(OrganizationName %in% orgList)
   
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
@@ -189,10 +190,12 @@ get_clientcount_download_info <- function(file) {
     arrange(OrganizationName, ProjectName, EntryDate)
   
   validationStart <- tl_df_project_start() %>% 
+    fsubset(OrganizationName %in% orgList) %>% 
     select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
     nice_names_timeliness(record_type = 'start')
   
   validationExit <- tl_df_project_exit() %>% 
+    fsubset(OrganizationName %in% orgList) %>% 
     select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>% 
     nice_names_timeliness(record_type = 'exit')
   
