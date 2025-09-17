@@ -140,6 +140,168 @@
         "Max.": 632
       }
     },
+    "client_count_download_timeliness_exit": {
+      "Organization Name": {
+        "Length": "197",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "197",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "197",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 6,
+        "Mean": 7.081218274111675,
+        "3rd Qu.": 13,
+        "Max.": 14
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 28.50253807106599,
+        "3rd Qu.": 15,
+        "Max.": 705
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 13.21827411167513,
+        "3rd Qu.": 5,
+        "Max.": 474
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 24.91878172588833,
+        "3rd Qu.": 4,
+        "Max.": 1097
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 14.87817258883249,
+        "3rd Qu.": 3,
+        "Max.": 749
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 15.76649746192893,
+        "3rd Qu.": 6,
+        "Max.": 1030
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 11,
+        "Median": 40,
+        "Mean": 219.5837563451777,
+        "3rd Qu.": 122,
+        "Max.": 19327
+      },
+      "Median Days to Project Exit Record Entry": {
+        "Min.": -218,
+        "1st Qu.": 24,
+        "Median": 83,
+        "Mean": 149.6522842639594,
+        "3rd Qu.": 167,
+        "Max.": 1778
+      }
+    },
+    "client_count_download_timeliness_start": {
+      "Organization Name": {
+        "Length": "201",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "201",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "201",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 6,
+        "Mean": 7.029850746268656,
+        "3rd Qu.": 13,
+        "Max.": 14
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 1.940298507462687,
+        "3rd Qu.": 1,
+        "Max.": 117
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 3,
+        "Median": 15,
+        "Mean": 168.2388059701493,
+        "3rd Qu.": 42,
+        "Max.": 20892
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 13,
+        "Mean": 83.58706467661692,
+        "3rd Qu.": 55,
+        "Max.": 3104
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 5,
+        "Mean": 28.40298507462687,
+        "3rd Qu.": 20,
+        "Max.": 961
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 2,
+        "Mean": 15.46766169154229,
+        "3rd Qu.": 11,
+        "Max.": 458
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 9,
+        "Mean": 38.90049751243781,
+        "3rd Qu.": 37,
+        "Max.": 1127
+      },
+      "Median Days to Project Start Record Entry": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 13.53233830845771,
+        "3rd Qu.": 7,
+        "Max.": 308
+      }
+    },
     "file_structure_analysis_main": {
       "Issue": [
         "Nulls not allowed or incorrect data type",
@@ -1698,6 +1860,40 @@
           null,
           "Max.   :1394.0  "
         ]
+      ]
+    },
+    "timelinessTable": {
+      "Time for Record Entry": [
+        "< 0 days",
+        "0 days",
+        "1-3 days",
+        "4-6 days",
+        "7-10 days",
+        "11+ days"
+      ],
+      "Number of Project Start Records": [
+        1,
+        18,
+        139,
+        58,
+        31,
+        84
+      ],
+      "Number of Project Exit Records": [
+        94,
+        9,
+        34,
+        20,
+        25,
+        143
+      ],
+      "Number of Current Living Situation Records": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0
       ]
     }
   }
