@@ -726,15 +726,48 @@ output$dq_export_download_btn <- downloadHandler(
         }  
         
       }
+      
+      if("Project Dashboard Report" %in% input$dq_export_files){
+        req(session$userData$valid_file() == 1)
+        
+        orgs_to_save <- input$dq_export_orgList
+        
+        for(i in orgs_to_save){
+          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          zip_prefix <- str_glue('{i}/')
+          if(!dir.exists(path_prefix)){
+            dir.create(path_prefix)
+          }
+          proj_dash_filename <- date_stamped_filename(str_glue('{i} - Project Dashboard Report-'))
+          get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), orgList = i)
+          zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
+          
+        }
+        
+      }
      
     }
     
+    ## system-level downloads
     if ('System-level' %in% input$dq_export_export_types){
       
       path_prefix <- file.path(tempdir(), 'System-level')
       zip_prefix <- 'System-level/'
       if(!dir.exists(path_prefix)){
         dir.create(path_prefix)
+      }
+      
+      if("Project Dashboard Report" %in% input$dq_export_files){
+        req(session$userData$valid_file() == 1)
+        browser()
+        proj_dash_filename <- date_stamped_filename('Project Dashboard Report-')
+        
+        get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename))
+        
+        zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
+        
+        logMetadata(session, paste0("Downloaded Project Dashboard Report",
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       }
       
       if("PDDE Report" %in% input$dq_export_files){
