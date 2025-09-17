@@ -42,12 +42,15 @@ output$downloadPDDEReport <- downloadHandler(
       summarise(Count = n()) %>%
       ungroup()
     
+    data_df <-session$userData$pdde_main %>% 
+      left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+      select(1,2,3,ProjectType, everything()) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
+      nice_names() 
+    
     write_xlsx(
       list("Summary" = summary_df,
-           "Data" = session$userData$pdde_main %>% 
-             left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
-             nice_names()
-      ),
+           "Data" = data_df),
       path = file)
     
     logMetadata(session, paste0("Downloaded PDDE Report",
