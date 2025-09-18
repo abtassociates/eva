@@ -1266,11 +1266,12 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
         color = '#f0f0f0',
         lwd = 0.5,
         linetype = 1,
-        aes(fill = n)
+        aes(fill = frac)
       ) +
       scale_fill_gradient(
         low = "#D2E3D9",
         high = "#084954",
+        breaks = seq(0, 1, by = 0.05),
         na.value = ifelse(
           is.na(plot_df_joined$wasRedacted) | !plot_df_joined$wasRedacted,
           "white",
@@ -1282,7 +1283,7 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
         aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),
         size = sys_chart_text_font,
         color = ifelse(
-          plot_df_joined$n > mean(plot_df_joined$n, na.rm = TRUE) & !plot_df_joined$wasRedacted,
+          plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
           'white',
           'black'
         )
@@ -1549,6 +1550,7 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
       scale_fill_gradient(
         low = "#ede7e3",
         high = "#73655e",
+        breaks = seq(0,1,by=0.05),
         na.value = ifelse(h_total_joined$wasRedacted, "#ede7e3", 'white')
       ) +
       
@@ -1575,6 +1577,7 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
       scale_fill_gradient(
         low = "#ede7e3",
         high = "#73655e",
+        breaks = seq(0,1,by=0.05),
         na.value = ifelse(v_total_joined$wasRedacted, "#ede7e3", 'white')
       ) +
       
