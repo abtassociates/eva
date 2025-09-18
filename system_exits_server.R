@@ -156,7 +156,7 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
 }
 
 
-output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits Report - "),
+output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exit Types Report - "),
                                                    content = function(file) 
     {
      logToConsole(session, "System Exit Types data download")
@@ -186,7 +186,7 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
 })
 
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
-  paste("System Exits by Types_", Sys.Date(), ".pptx", sep = "")
+  paste("System Exit Types_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     logToConsole(session, "In syse_types_download_btn_ppt")
@@ -973,7 +973,7 @@ all_filtered_syse_time <- reactive({
 })
 
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){
-  paste("System Exits Comparisons", Sys.Date(), ".pptx", sep = "")
+  paste("System Exit Comparisons_", Sys.Date(), ".pptx", sep = "")
 },
 content = function(file) {
   logToConsole(session, "In syse_compare_download_btn_ppt")
@@ -1049,12 +1049,13 @@ observeEvent(input$syse_phd_selections, {
     if(numSelected == 1)
       $('input[name=syse_phd_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
         .attr('disabled', reSelected == 'TRUE');
+    
   "))
 }, ignoreNULL = FALSE)
 
 output$syse_phd_download_btn_ppt <- downloadHandler(
   filename = function() {
-    paste("System Exits PHD_", Sys.Date(), ".pptx", sep = "")
+    paste("System Exit Demographics_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     sys_perf_ppt_export(
@@ -1095,7 +1096,7 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
 )
 
 output$syse_phd_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Exits PHD Report - "),
+  filename = date_stamped_filename("System Exit Demographics Report - "),
   content = function(file) {
     sys_heatmap_xl_export(file, 
                           type = 'exits',
