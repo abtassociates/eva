@@ -1079,8 +1079,19 @@ nav_menu(
                   width = 12
                 ),
                 br(),
-                uiOutput("syse_phd_summary_selections",inline = TRUE),
-                plotOutput("syse_phd_chart") %>% withSpinner()
+               
+                  uiOutput("syse_phd_summary_selections",inline = TRUE),
+                  #plotOutput("syse_phd_chart", width="100%") %>% withSpinner()
+                  conditionalPanel(
+                    condition = 'input.syse_phd_selections.length == 1',
+                    plotOutput("syse_phd_chart_1d",height=700,width=500) %>% withSpinner(),
+                  ),
+                  conditionalPanel(
+                    condition = 'input.syse_phd_selections.length == 2',
+                    plotOutput("syse_phd_chart_2d", height=700,width="auto") %>% withSpinner()
+                    
+                  )
+                  
               ),
               nav_panel(
                 title = headerSubTab("Information"),

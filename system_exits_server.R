@@ -1006,31 +1006,61 @@ content = function(file) {
 # System Exits Permanent Housing Demographics (PHD) -----------------------
 sys_phd_plot_df <- reactiveVal()
 
-output$syse_phd_chart <- renderPlot({
-  req(
-    !is.null(input$syse_phd_selections) &
-      session$userData$valid_file() == 1 &
-      between(length(input$syse_phd_selections), 1, 2)
-  )
+# output$syse_phd_chart <- renderPlot({
+#   # req(
+#   #   !is.null(input$syse_phd_selections) &
+#   #     session$userData$valid_file() == 1 &
+#   #     between(length(input$syse_phd_selections), 1, 2)
+#   # )
+# 
+#    if( is.null(input$syse_phd_selections) |
+#         session$userData$valid_file() != 1 |
+#         !between(length(input$syse_phd_selections), 1, 2)){
+#      validate("Please select one or more options to display the demographic chart.")
+#    }
+# 
+#   if(length(input$syse_phd_selections) == 1) {
+#     sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+#   } else if(length(input$syse_phd_selections) == 2){
+#     sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+#   }
+# }, height = function() {
+#   ifelse(!is.null(input$syse_phd_selections), 700, 100)
+# }, width = function() {
+#   input$syse_phd_subtabs
+#   input$syse_tabbox
+#   input$pageid
+# 
+#   if (num_selections() %in% c(0,1) |
+#       isTRUE(getOption("shiny.testmode"))) {
+#     500
+#   } else {
+#     "auto"
+#   }
+# 
+# },
+# alt = "A crosstab data table of the demographic make-up of the homeless system.")
+
+output$syse_phd_chart_1d <- renderPlot({
+
+  req(session$userData$valid_file() == 1 &
+        !is.null(input$syse_phd_selections) &
+        length(input$syse_phd_selections) == 1)
   
-  if(length(input$syse_phd_selections) == 1) {
     sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-  } else {
-    sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-  }
-}, height = function() {
-  ifelse(!is.null(input$syse_phd_selections), 700, 100)
-}, width = function() {
-  input$syse_phd_subtabs
-  input$syse_tabbox
-  input$pageid
-  if (length(input$syse_phd_selections) == 1 |
-      isTRUE(getOption("shiny.testmode"))) {
-    500
-  } else {
-    "auto"
-  }
-}, alt = "A crosstab data table of the demographic make-up of the homeless system.")
+
+}, height = 700, width = 500,
+alt = "A crosstab data table of the demographic make-up of the homeless system.")
+
+output$syse_phd_chart_2d <- renderPlot({
+
+  req(session$userData$valid_file() == 1 &
+        !is.null(input$syse_phd_selections) &
+        length(input$syse_phd_selections) == 2)
+  
+  sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+
+}, height = 700, width = "auto",alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 
 observeEvent(input$syse_phd_selections, {
