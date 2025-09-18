@@ -695,7 +695,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           )
         ) | (
           endDate < session$userData$ReportEnd &
-          ExitAdjust > endDate
+          (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_lookahead %between% c(0,14)))
         )
     ) %>%
     join(
@@ -808,7 +808,10 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
     fsubset(
       was_lh_during_period |
       was_housed_during_period |
-      ExitAdjust >= startDate
+      (
+        ExitAdjust %between% list(startDate, session$userData$ReportEnd) | 
+        (endDate == session$userData$ReportEnd & ExitAdjust > endDate)
+      )
     )
   
   e2 <- e %>%
