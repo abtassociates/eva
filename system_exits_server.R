@@ -776,27 +776,42 @@ output$syse_compare_time_table <- renderDT({
   )
 })
 
-output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits Report - "),
+output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_filename("System Exit Comparisons Report - "),
                                                     content = function(file) {
       logToConsole(session, "System Exit Comparisons data download")
-
+  
     if(subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req = FALSE)){
       sheets <- list(
-        "SystemExitComparisons Metadata" = sys_export_summary_initial_df(type = 'exits_comparison') %>%
+        "SystemExitsTimeMetadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
           bind_rows(
             sys_export_filter_selections(type = 'exits')
           ) %>% 
-          rename("System Exit Comparisons" = Value),
+          bind_rows(
+            data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                       Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                              nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                       )
+            )
+          ) %>% 
+          rename("System Exit Comparisons: Time" = Value),
         "Time" = syse_time_export(),
+        "SystemExitsSubpopMetadata" = sys_export_summary_initial_df(type = 'exits') %>%
+          bind_rows(
+            sys_export_filter_selections(type = 'exits'),
+            data.frame(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
+                       Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
+            )
+          ) %>% 
+          rename("System Exit Comparisons: Subpopulation" = Value),
         "Subpopulation" = syse_subpop_export()
       )
     } else {
       sheets <- list(
-        "SystemExitComparisons Metadata" = sys_export_summary_initial_df(type = 'exits_comparison') %>%
+        "SystemExitsTimeMetadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
           bind_rows(
             sys_export_filter_selections(type = 'exits')
           ) %>% 
-          rename("System Exit Comparisons" = Value),
+          rename("System Exit Comparisons: Time" = Value),
         "Time" = syse_time_export()
       )
     }

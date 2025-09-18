@@ -45,7 +45,7 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                             ttype=str_to_title(type),
                             demotext = if_else(isTruthy(T), " - DEMO MODE", "")))
   
-  if(type == 'exits_comparison'){
+  if(type == 'exits_time'){
    
     df <- data.frame(
       Chart = c(
@@ -91,7 +91,7 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                      getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
                      getNameByValue(sys_project_types, input$syse_project_type)
                    ),
-                   'exits_comparison' = c(
+                   'exits_time' = c(
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
                      strftime(session$userData$ReportStart - years(1), "%m/%d/%y"),
