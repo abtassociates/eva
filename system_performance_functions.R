@@ -1177,8 +1177,10 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
     comp_df <- all_filtered_syse() %>% 
       remove_non_applicables(selection = selection) %>% 
       select(PersonalID, Destination, unname(var_cols[[selection]]))
-    comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation)
+    comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation) %>% 
+      select(-Destination)
     
+    comp_df <- comp_df %>% select(-Destination)
   }
   
   validate(
@@ -1320,18 +1322,6 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
   
   # get dataset underlying the freqs we will produce below
   
-  
-  if(subtab == 'comp'){
-    
-    comp_df <- get_people_universe_filtered() %>%
-      remove_non_applicables(selection = selections) %>%
-      select(
-        PersonalID, 
-        unname(var_cols[[selections[1]]]), 
-        unname(var_cols[[selections[2]]])
-      ) %>%
-      funique()
-  } else if(subtab == 'phd'){
     #browser()
     comp_df <- all_filtered_syse() %>% 
       remove_non_applicables(selection = selections) %>% 
@@ -1342,8 +1332,12 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
         unname(var_cols[[selections[2]]])
       ) %>%
       funique()
-    comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation)
-  }
+  
+    comp_df_phd <- comp_df %>% 
+      filter(Destination %in% perm_livingsituation) %>% 
+      select(-Destination)
+    
+    comp_df <- comp_df %>% select(-Destination)
   #browser()
   
   
