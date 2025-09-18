@@ -7,10 +7,11 @@ observeEvent(input$syso_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
+  # Toggle Age, Vet Status, and Race filters based on System OVerview subtab (i.e. hide for System Demographics/Composition)
   shinyjs::runjs(str_glue("
     $('#syso_spec_pops, #syso_age, #syso_race_ethnicity')
       .closest('.bslib-grid-item')
-      .toggle({ifelse(input$syso_tabbox != 'System Demographics', 'true','false')});
+      .toggle({ifelse(input$syso_tabbox != '<h4>System Demographics</h4>', 'true','false')});
   "))
 }, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
 
