@@ -1,0 +1,98 @@
+{
+  "input": {
+    "methodology_type": "1",
+    "pageid": "tabSystemOverview",
+    "sys_inflow_outflow_subtabs": "<h5>Month-by-Month Chart<\/h5>",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_hh_type": "AO",
+    "syso_level_of_detail": "All",
+    "syso_project_type": "PHRes",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_tabbox": "<h4>System Flow<\/h4>"
+  },
+  "output": {
+    "headerSystemOverview": {
+      "html": "<h2>System Overview<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "sys_fth_monthly_ui_chart": {
+      "src": "[image data hash: 7fb48b3e320387746f5dff002b90c3a4]",
+      "width": 1847,
+      "height": 500,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0.505,
+              "right": 12.495,
+              "bottom": -5.25,
+              "top": 110.25,
+              "discrete_limits": {
+                "x": [
+                  "Oct 21",
+                  "Nov 21",
+                  "Dec 21",
+                  "Jan 22",
+                  "Feb 22",
+                  "Mar 22",
+                  "Apr 22",
+                  "May 22",
+                  "Jun 22",
+                  "Jul 22",
+                  "Aug 22",
+                  "Sep 22"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "month",
+              "y": "Count"
+            },
+            "range": {
+              "left": 74.27397260273975,
+              "right": 1847,
+              "bottom": 481.068493150685,
+              "top": 0
+            }
+          }
+        ],
+        "dims": {
+          "width": 1847,
+          "height": 500
+        }
+      }
+    },
+    "sys_inflow_outflow_monthly_filter_selections": {
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
+      "deps": [
+
+      ]
+    }
+  }
+}
