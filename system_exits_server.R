@@ -814,8 +814,8 @@ observeEvent(input$syse_tabbox, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
-  if(input$syse_tabbox == 'Permanent Housing Demographics'){
+  browser()
+  if(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>'){
     shinyjs::hide('syse_spec_pops')
     shinyjs::hide('syse_age')
     shinyjs::hide('syse_race_ethnicity')
