@@ -635,11 +635,11 @@ syse_time_detailBox <- function(
     l1 <- list(
       br(),
       strong("Current Year Date Range: "),
-      
-      format(startDate - years(1) , "%m-%d-%Y"), " to ", format(endDate - years(1), "%m-%d-%Y"), br(),
-      strong("Previous Year Date Range: "),
-      
       format(startDate, "%m-%d-%Y"), " to ", format(endDate, "%m-%d-%Y"), br(),
+      
+      strong("Previous Year Date Range: "),
+      format(startDate - years(1) , "%m-%d-%Y"), " to ", format(endDate - years(1), "%m-%d-%Y"), br(),
+      
       
       if (cur_project_types != "All")
         chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")),
