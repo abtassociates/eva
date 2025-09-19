@@ -24,7 +24,7 @@ save_new_zip <- function(zipfname, files_directory) {
 }
 
 # store the original data as an R data set, so we can modify from scratch each time
-csv_files <- list.files(here("tests/temp/"), pattern = "*.csv$",
+csv_files <- list.files(here("tests/temp"), pattern = "*.csv$",
                         full.names = TRUE)
 names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(csv_files, data.table::fread)
