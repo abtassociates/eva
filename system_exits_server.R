@@ -1078,15 +1078,23 @@ output$syse_phd_chart_1d <- renderPlot({
 }, height = 700, width = 500,
 alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
-output$syse_phd_chart_2d <- renderPlot({
-
+output$syse_phd_chart_2d <- renderCachedPlot({
+  
   req(session$userData$valid_file() == 1 &
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 2)
   
   sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-
-}, height = 700, width = "auto",alt = "A crosstab data table of the demographic make-up of the homeless system.")
+  
+}, cacheKeyExpr = {
+  list(
+    input$syse_phd_selections,
+    input$syse_hh_type,
+    input$syse_level_of_detail,
+    input$syse_project_type,
+    input$syse_methodology_type
+  )
+}, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 
 observeEvent(input$syse_phd_selections, {
