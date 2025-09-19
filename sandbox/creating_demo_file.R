@@ -94,7 +94,7 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
           RaceNone = 0,
           VeteranStatus = 1,
           DateCreated = as.POSIXct("2022-09-22 15:48"),
-          DateUpdated = as.POSIXct("2022-09-22"),
+          DateUpdated = as.POSIXct("2022-09-22 17:48"),
           UserID = "18",
           ExportID = "1036"
         )
