@@ -179,11 +179,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     return(x)
   }), .SDcols = names(data)]
   
-  if(csvFile == "Client") {
-    ignore_cols <- unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ","))
-    data[, ignore_cols] <- NULL
-  }
-  
   # Convert to dataframe
   setDF(data)
 
