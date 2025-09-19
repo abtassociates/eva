@@ -1164,23 +1164,16 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
 }
 
 
-sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
+sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExport = FALSE) {
   var_cols <- get_var_cols(methodology_type)
+    
+  comp_df <- all_filtered_syse_demog() %>% 
+    remove_non_applicables(selection = selection) %>% 
+    select(PersonalID, Destination, unname(var_cols[[selection]]))
+  comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation) %>% 
+    select(-Destination)
   
-  if(subtab == 'comp'){
-    comp_df <- get_people_universe_filtered() %>%
-      remove_non_applicables(selection = selection) %>%
-      select(PersonalID, unname(var_cols[[selection]]))
-  } else if(subtab == 'phd'){
-    
-    comp_df <- all_filtered_syse_demog() %>% 
-      remove_non_applicables(selection = selection) %>% 
-      select(PersonalID, Destination, unname(var_cols[[selection]]))
-    comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation) %>% 
-      select(-Destination)
-    
-    comp_df <- comp_df %>% select(-Destination)
-  }
+  comp_df <- comp_df %>% select(-Destination)
   
   validate(
     need(
@@ -1201,12 +1194,7 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
   # hide download buttons if not enough data
   toggle_download_buttons(subtab,plot_df)
   
-  if(subtab == 'comp'){
-    type <- 'overview'
-  } else if (subtab == 'phd'){
-    type <- 'exits'
-  }
-  
+  type <- 'exits'
   selection_cats1 <- get_selection_cats(selection, type = type)
   
   if(is.null(names(selection_cats1))){
@@ -1312,7 +1300,7 @@ sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isEx
 
 sys_phd_export <- reactiveVal()
 
-sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
+sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   var_cols <- get_var_cols(methodology_type)
   
@@ -1361,11 +1349,8 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
   
   toggle_download_buttons(subtab, plot_df)
   
-  if(subtab == 'comp'){
-    type <- 'overview'
-  } else if (subtab == 'phd'){
-    type <- 'exits'
-  }
+  type <- 'exits'
+  
   selection_cats1 <- get_selection_cats(selections[1], type = type)
   
   if (is.null(names(selection_cats1))) {
@@ -1448,11 +1433,7 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
   
   # save before supressing the values
   # this will be used for the download/export
-  if(subtab == 'comp'){
-    sys_comp_plot_df(plot_df)
-  } else {
-    sys_phd_plot_df(plot_df)
-  }
+  sys_phd_plot_df(plot_df)
   
   # Suppress values <= 10
   plot_df_supp <- plot_df %>%
