@@ -972,6 +972,32 @@ all_filtered_syse_time <- reactive({
  
 })
 
+all_filtered_syse_demog <- reactive({
+  logToConsole(session, "in all_filtered_syse")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  
+  eecr_and_lecr <- enrollments_filtered_syse() %>%
+    get_syse_lookbacks() %>% 
+    get_syse_eecr_and_lecr(time_chart = FALSE)
+  
+  join( 
+    eecr_and_lecr,
+    session$userData$client_categories,
+    on = "PersonalID",
+    how = "inner"
+  ) %>% 
+    fmutate(
+      continuous_at_end = lecr & 
+        endDate < session$userData$ReportEnd &
+        ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+      exited_system = lecr &
+        ExitAdjust %between% list(startDate, endDate) &
+        (!continuous_at_end | is.na(continuous_at_end))
+    ) %>% 
+    fsubset(period == 'Full' & exited_system) 
+  
+})
+
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exit Comparisons_", Sys.Date(), ".pptx", sep = "")
 },

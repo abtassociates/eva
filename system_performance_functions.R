@@ -1167,14 +1167,13 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
 sys_phd_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
   var_cols <- get_var_cols(methodology_type)
   
-  #browser()
   if(subtab == 'comp'){
     comp_df <- get_people_universe_filtered() %>%
       remove_non_applicables(selection = selection) %>%
       select(PersonalID, unname(var_cols[[selection]]))
   } else if(subtab == 'phd'){
     
-    comp_df <- all_filtered_syse() %>% 
+    comp_df <- all_filtered_syse_demog() %>% 
       remove_non_applicables(selection = selection) %>% 
       select(PersonalID, Destination, unname(var_cols[[selection]]))
     comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation) %>% 
@@ -1323,8 +1322,8 @@ sys_phd_plot_2vars <- function(subtab = 'comp', methodology_type, selections, is
   
   # get dataset underlying the freqs we will produce below
   
-    #browser()
-    comp_df <- all_filtered_syse() %>% 
+    
+    comp_df <- all_filtered_syse_demog() %>% 
       remove_non_applicables(selection = selections) %>% 
       select(
         PersonalID, 
