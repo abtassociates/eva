@@ -14,18 +14,23 @@ library(zip)
 
 source(here("global.R"))
 
-source(paste0(directory, "helper_functions.R"))
+source(here("helper_functions.R"))
 
 # Hard codes --------------------------------------------------------------
 
-source(paste0(directory, "hardcodes.R"))
+source(here("hardcodes.R"))
 
-# Get Export --------------------------------------------------------------
-upload_filepath <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY24-ICF-hashed-current-good.zip"
-utils::unzip(upload_filepath, exdir = here(paste0(directory, "data")))
+# Unzip ICF-good  --------------------------------------------------------------
+upload_filepath <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY26-ICF-good.zip"
+temp_demo_data_path <- here("sandbox/temp_demo_data")
+ifelse(!dir.exists(temp_demo_data_path), dir.create(temp_demo_data_path), FALSE)
 
-source(paste0(directory, "01_get_Export.R"))
+utils::unzip(upload_filepath, exdir = temp_demo_data_path)
 
+
+for (file in unique(cols_and_data_types$File)) {
+  assign(file, importFile(upload_filepath=upload_filepath, csvFile=file))
+}
 
 # Org A (OrgId = 4), Org B = 6, Org O = 96
 organization_ids <- c("4","6", "96")
@@ -53,7 +58,7 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
   # since we don't use it
   if(file == "Disabilities") {
     f = utils::unzip(zipfile = upload_filepath, files="Disabilities.csv")
-    Disabilities <- as.data.frame(fread(Disablities))
+    Disabilities <- fread(f)
     file.remove(paste0(file, ".csv"))
   }
   
@@ -68,7 +73,7 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
     df <- df %>% filter(ProjectID %in% project_ids)
   } else if ("OrganizationID" %in% colnames(df)) {
     df <- df %>% filter(OrganizationID %in% organization_ids)
-  } 
+  }
   
   if(file == "Client") {
     df <- df %>% 
@@ -217,7 +222,7 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
   
   write.csv(
     df,
-    here(paste0(directory, "data/", file, ".csv")),
+    glue("{temp_demo_data_path}/{file}.csv"),
     na = "",
     row.names = FALSE
   )
@@ -226,9 +231,16 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
 demo_zip <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/demo.zip"
 zipr(
   zipfile = demo_zip, 
-  files = list.files(here("sandbox/mini-non-shiny-environment/data"),
-                     pattern = "*.csv", full.names = TRUE),
+  files = list.files(temp_demo_data_path, pattern = "*.csv", full.names = TRUE),
+  mode = "cherry-pick" # so the files are at the top directory
+)
+zipr(
+  zipfile = "demo.zip",
+  files = list.files(temp_demo_data_path, pattern = "*.csv", full.names = TRUE),
   mode = "cherry-pick" # so the files are at the top directory
 )
 
 ## xz compression makes the file small enough to get around GitHub's 100MB size limit
+
+# Delete temp_demo_data directory
+unlink(temp_demo_data_path, recursive = TRUE)
