@@ -21,7 +21,7 @@ source(here("helper_functions.R"))
 source(here("hardcodes.R"))
 
 # Unzip ICF-good  --------------------------------------------------------------
-upload_filepath <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY26-ICF-good.zip"
+upload_filepath <- "/media/sdrive/projects/CE_Data_Toolkit/Data Sets/FY26-test-good.zip"
 temp_demo_data_path <- here("sandbox/temp_demo_data")
 ifelse(!dir.exists(temp_demo_data_path), dir.create(temp_demo_data_path), FALSE)
 
