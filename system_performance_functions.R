@@ -108,12 +108,16 @@ sys_export_summary_initial_df <- function(type = 'overview') {
 
 sys_export_filter_selections <- function(type = 'overview') {
   
-  selections <- tibble(
-    Chart = c(
-      "Age",
-      "Veteran Status",
-      "Race/Ethnicity"
-    ))
+  if(type == 'exits_subpop'){
+    selections <- tibble(
+      Chart = c('Subpopulation Age', 'Subpopulation Veteran Status', 'Subpopulation Race/Ethnicity')
+      )
+  } else {
+    selections <- tibble(
+      Chart = c('Age', 'Veteran Status', 'Race/Ethnicity')
+    )
+  }
+ 
   
   values <- switch(type,
       'overview' = c(
@@ -122,12 +126,16 @@ sys_export_filter_selections <- function(type = 'overview') {
           getNameByValue(sys_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity)
         ),
       'exits' = c(
-          if(identical(sys_age_cats, input$syse_age)) {"All Ages"} else {paste(input$syse_age, collapse=", ")},
+          ifelse(identical(sys_age_cats, input$syse_age), "All Ages",paste(input$syse_age, collapse=", ")),
           getNameByValue(sys_spec_pops_people, input$syse_spec_pops),
           getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
+      ),
+      'exits_subpop' = c(
+        ifelse(identical(sys_age_cats, input$syse_age), "All Ages",paste(input$syse_age, collapse=", ")),
+        getNameByValue(sys_spec_pops_people, input$syse_spec_pops),
+        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
       )
   )
-  
   selections$Value <- values
   
   return(selections)
@@ -488,21 +496,47 @@ sys_perf_ppt_export <- function(file,
     ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
     add_footer()
   
-  # Summary
-  s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
-    fpar(
-      ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
-    )
-  }))
+ 
   
-  ppt <- add_slide(ppt, layout = "Title and Content") %>%
-    ph_with(value = "Summary", location = loc_title) %>%
-    ph_with(
-      value = s_items,
-      level_list = c(rep(1L, length(s_items))),
-      location = loc_body
-    ) %>% 
-    add_footer()
+  if(type == 'exits_comparison'){
+    for(summary_slide_title in names(summary_items)) {
+      p <- summary_items[[summary_slide_title]]
+      if(!is.null(p)) {
+        #browser()
+        s_items <- do.call(block_list, lapply(1:nrow(p), function(i) {
+          fpar(
+            ftext(paste0(p$Chart[i], ": ", p$Value[i]), fp_normal)
+          )
+        }))
+        
+        add_slide(ppt, layout = "Title and Content") %>%
+          ph_with(value = summary_slide_title, location = loc_title) %>%
+          ph_with(
+            value = s_items,
+            level_list = c(rep(1L, length(s_items))),
+            location = loc_body
+          ) %>% 
+          add_footer()
+      }
+    }
+  } else {
+    # Summary
+    s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
+      fpar(
+        ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
+      )
+    }))
+    
+    ppt <- add_slide(ppt, layout = "Title and Content") %>%
+      ph_with(value = "Summary", location = loc_title) %>%
+      ph_with(
+        value = s_items,
+        level_list = c(rep(1L, length(s_items))),
+        location = loc_body
+      ) %>% 
+      add_footer()
+  }
+  
   
   # Chart
   for(plot_slide_title in names(plots)) {

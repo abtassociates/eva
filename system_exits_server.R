@@ -798,7 +798,7 @@ output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_file
         "Time" = syse_time_export(),
         "SystemExitsSubpopMetadata" = sys_export_summary_initial_df(type = 'exits') %>%
           bind_rows(
-            sys_export_filter_selections(type = 'exits'),
+            sys_export_filter_selections(type = 'exits_subpop'),
             data.frame(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
                        Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
             )
@@ -1028,28 +1028,77 @@ output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){
 content = function(file) {
   logToConsole(session, "In syse_compare_download_btn_ppt")
   
-  sys_perf_ppt_export(file = file, 
-                      type = 'exits',
-                      title_slide_title = "System Exits Comparisons",
-                      summary_items = sys_export_summary_initial_df(type = 'exits') %>%
-                        filter(Chart != "Start Date" & Chart != "End Date") %>% 
-                        bind_rows(sys_export_filter_selections(type = 'exits')),
-                      plots = list(
-                        "System Exits - Subpopulation Chart" =  syse_compare_subpop_chart(isExport = TRUE),
-                        "System Exits - Subpopulation Table" = get_syse_compare_subpop_flextable(
-                          get_syse_compare_subpop_data()
+  if(subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req = FALSE)){
+    sys_perf_ppt_export(file = file, 
+                        type = 'exits_comparison',
+                        title_slide_title = "System Exits Comparisons",
+                        summary_items = list(
+                          "Summary - Time" = sys_export_summary_initial_df(type = 'exits_time') %>%
+                            bind_rows(
+                              sys_export_filter_selections(type = 'exits')
+                            ) %>% 
+                            bind_rows(
+                              data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                                         Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                                         nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                                         )
+                              )
+                            ),
+                          "Summary - Subpopulation" = sys_export_summary_initial_df(type = 'exits') %>%
+                            bind_rows(
+                              sys_export_filter_selections(type = 'exits_subpop'),
+                              data.frame(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
+                                         Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
+                              )
+                            ) 
                         ),
-                        "System Exits - Time Chart" = syse_compare_time_chart(isExport = TRUE),
-                        "System Exits - Time Table" = get_syse_compare_time_flextable(
-                          get_syse_compare_time_data()
-                        )
-                      ),
-                      summary_font_size = 19,
-                      startDate = session$userData$ReportStart, 
-                      endDate = session$userData$ReportEnd, 
-                      sourceID = session$userData$Export$SourceID,
-                      in_demo_mode = input$in_demo_mode
-  )
+                        plots = list(
+                          "System Exits - Time Chart" = syse_compare_time_chart(isExport = TRUE),
+                          "System Exits - Time Table" = get_syse_compare_time_flextable(
+                            get_syse_compare_time_data()
+                            ),
+                            "System Exits - Subpopulation Chart" =  syse_compare_subpop_chart(isExport = TRUE),
+                            "System Exits - Subpopulation Table" = get_syse_compare_subpop_flextable(
+                              get_syse_compare_subpop_data()
+                            )
+                        ),
+                        summary_font_size = 19,
+                        startDate = session$userData$ReportStart, 
+                        endDate = session$userData$ReportEnd, 
+                        sourceID = session$userData$Export$SourceID,
+                        in_demo_mode = input$in_demo_mode
+    )
+  } else {
+    sys_perf_ppt_export(file = file, 
+                        type = 'exits_comparison',
+                        title_slide_title = "System Exits Comparisons",
+                        summary_items = list(
+                          "Summary - Time" = sys_export_summary_initial_df(type = 'exits_time') %>%
+                            bind_rows(
+                              sys_export_filter_selections(type = 'exits')
+                            ) %>% 
+                            bind_rows(
+                              data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                                         Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                                         nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                                         )
+                              )
+                            ) 
+                          ),
+                        plots = list(
+                          "System Exits - Time Chart" = syse_compare_time_chart(isExport = TRUE),
+                          "System Exits - Time Table" = get_syse_compare_time_flextable(
+                            get_syse_compare_time_data()
+                          )
+                        ),
+                        summary_font_size = 19,
+                        startDate = session$userData$ReportStart, 
+                        endDate = session$userData$ReportEnd, 
+                        sourceID = session$userData$Export$SourceID,
+                        in_demo_mode = input$in_demo_mode
+    )
+  }
+ 
 })
 
 
