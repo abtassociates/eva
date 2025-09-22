@@ -61,6 +61,7 @@ e <- e %>%
 
 
 # Write new files
+temp_folder <- here("sandbox/temp_data")
 write.csv(
   e,
   paste0(temp_folder,"/Enrollment.csv"), 
