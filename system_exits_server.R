@@ -969,7 +969,7 @@ all_filtered_syse_time <- reactive({
   
   eecr_and_lecr <- tmp %>% 
     expand_by_periods_syse(time_chart = TRUE) %>% 
-    get_was_lh_info(tmp) %>%
+    get_was_lh_info_time(tmp) %>%
     get_syse_eecr_and_lecr()
   
   join( 
