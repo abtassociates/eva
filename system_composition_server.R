@@ -1,6 +1,5 @@
 sys_comp_plot_df <- reactiveVal()
 
-
 sys_comp_selections_info <- reactive({
     sys_perf_selection_info(type ='overview',selection = input$system_composition_selections)
     
@@ -134,6 +133,9 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
+  full_data <- period_specific_data()[["Full"]]
+  req(nrow(full_data) > 0)
+  
   join(
     period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
     session$userData$client_categories,

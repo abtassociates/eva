@@ -474,8 +474,7 @@ inflow_debug_cols <- c(
   "was_lh_at_start",
   "was_housed_at_start",
   "InflowTypeDetail",
-  "InformationDate", 
-  "DateProvided"
+  "lh_dates"
 )
 
 
@@ -492,12 +491,10 @@ outflow_debug_cols <- c(
   "was_lh_at_end",
   "was_housed_at_end",
   "OutflowTypeDetail",
-  "InformationDate", 
-  "DateProvided"
+  "lh_dates"
 )
 
 in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
 
 suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
 no_data_msg <- "No data to show."
-

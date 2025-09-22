@@ -78,12 +78,12 @@ output$client_level_download_btn <- downloadHandler(
       HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
     )]
     
-    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr") := NULL]
+    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr", "InflowTypeDetail") := NULL]
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
              new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
     
-    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr") := NULL]
+    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr", "InflowTypeDetail") := NULL]
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
@@ -119,8 +119,7 @@ output$client_level_download_btn <- downloadHandler(
         `Moved into Housing During Report` = anyv(
           lecr & 
           ProjectType %in% ph_project_types & 
-          session$userData$ReportStart < fcoalesce(MoveInDateAdjust, no_end_date) & 
-          fcoalesce(MoveInDateAdjust, no_end_date) < session$userData$ReportEnd,
+          between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE),
           TRUE
         ),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),

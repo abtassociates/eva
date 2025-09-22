@@ -46,9 +46,14 @@ jobs:
           app-dir: "."
           upload-snapshots: true
           
+      - name: Get R version
+        id: r-version
+        run: echo "R_VERSION=$(Rscript -e 'cat(R.version$major, R.version$minor, sep=".")')" >> $GITHUB_ENV
+        shell: bash
+  
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-4.2-tests
+          name: ${{ runner.os }}-${{ env.R_VERSION }}-tests
           path: tests
