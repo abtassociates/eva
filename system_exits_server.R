@@ -125,7 +125,7 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
                             if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
         ) +
         geom_treemap(start = "left", show.legend = FALSE) +
-        geom_treemap_text(aes(color = text_color), fontface = 'bold',start = "left", place = "center", grow = FALSE) +
+        geom_treemap_text(aes(color = text_color), start = "left", place = "center", grow = FALSE) +
         scale_color_identity() +
         scale_fill_manual(values = tree_colors) +
         theme_minimal() +
