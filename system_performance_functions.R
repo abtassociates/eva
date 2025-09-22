@@ -1302,7 +1302,7 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),
-        size = sys_chart_text_font,
+        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction * 0.6, 1),
         color = ifelse(
           plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
           'white',
@@ -1531,7 +1531,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
     geom_text(
       # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
       aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),#scales::comma(n))),
-      size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
+      size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction * 0.6, 1),
       color = ifelse(
         plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
         'white',
@@ -1544,7 +1544,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   x_limits <- levels(plot_df[[selections[1]]])
   y_labels <- rev(selection_cats2_labels)
   y_limits <- rev(levels(plot_df[[selections[2]]]))
-  
+  #browser()
   if(methodology_type == 1) {
     x_labels <- c(x_labels, "Total")
     x_limits <- c(x_limits, "Total")
@@ -1570,7 +1570,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       
       geom_text(
         aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',N,')'))),
-        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
+        size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction* 0.6, 1),
         color = ifelse(
           h_total_joined$frac > mean(h_total_joined$frac, na.rm = TRUE) & !h_total_joined$wasRedacted,
           'white',
@@ -1597,7 +1597,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       
       geom_text(
         aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',N,')'))),
-        size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
+        size = sys_chart_text_font * ifelse(isExport, 0.45, 1),
         color = ifelse(
           v_total_joined$frac > mean(v_total_joined$frac, na.rm = TRUE) & !v_total_joined$wasRedacted,
           'white',
@@ -1634,7 +1634,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
       # axis.title.x.top = element_text(margin = margin(0, 0, 15, 0)),
-      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.6, 1))
+      axis.text = element_text(size = sys_comp_axis_text_font * ifelse(windowSize()[1] < 1300, 0.8, 1) * ifelse(isExport, 0.45, 1))
     )
 }
 

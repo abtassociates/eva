@@ -1204,25 +1204,31 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
         bind_rows(sys_phd_selections_info()),
       plots = setNames(
         list(
-          if (length(input$system_phd_selections) == 1) {
+          if (length(input$syse_phd_selections) == 1) {
             sys_phd_plot_1var(subtab = 'phd', 
                                   methodology_type = input$syse_methodology_type, 
                                   selection = input$syse_phd_selections, 
                                   isExport = TRUE)
           } else {
-            sys_phd_plot_2vars(subtab = 'phd', 
+              sys_phd_plot_2vars(subtab = 'phd', 
                                    methodology_type = input$syse_methodology_type, 
                                    selection = input$syse_phd_selections, 
                                    isExport = TRUE)
           }
         ),
-        paste0(
-          "System Exits PHD: ",
-          input$syse_phd_selections[1],
-          " by ",
-          input$syse_phd_selections[2]
-        )
-      ),
+        ifelse(length(input$syse_phd_selections) == 1, 
+               paste0(
+                 "System Exits PHD: ",
+                 input$syse_phd_selections[1]
+               ),
+              paste0(
+                "System Exits PHD: ",
+                input$syse_phd_selections[1],
+                " by ",
+                input$syse_phd_selections[2]
+              )
+          )
+        ),
       summary_font_size = 28,
       startDate = session$userData$ReportStart, 
       endDate = session$userData$ReportEnd, 
