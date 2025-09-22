@@ -1852,21 +1852,17 @@ get_syse_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
 
 get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
   #browser()
-  timeStartDate <- c(session$userData$ReportStart - years(1), session$userDate$ReportStart)
-  timeEndDate <-  c(session$userData$ReportEnd - years(1), session$userData$ReportEnd)
-  
-  cur_period <- c('Previous Year', 'Current Year')
-  res_period <- list()
-  
-  for(pd in 1:2){
-    
+ 
     all_filtered_w_lh <- period_enrollments_filtered %>% 
-      fsubset(period == cur_period[pd]) %>% 
+      fmutate(ReportStart = ifelse(period == 'Current Year', session$userData$ReportStart, session$userData$ReportStart - years(1)),
+              ReportEnd = ifelse(period == 'Current Year', session$userData$ReportEnd, session$userData$ReportEnd - years(1))
+      ) %>% 
       fselect(
         period, 
         PersonalID, 
         EnrollmentID, 
         EntryDate, ExitAdjust,
+        ReportStart, ReportEnd,
         days_since_lookback, 
         days_to_lookahead, 
         days_lh_valid,
@@ -1895,14 +1891,14 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
         # That is, in these cases a person's LH-ness extends 15 days *back* from the actual date
         # start-plus Used for lh_date and EntryDate; end-plus used for lh_date and ExitAdjust
         start_plus_15_or_0 = startDate + fifelse(
-          startDate == session$userData$ReportStart &
+          startDate == ReportStart &
             (straddles_start | fcoalesce(days_since_lookback, as.difftime(9999, units="days")) %between% c(0, 14)), 
           15, 
           0
         ),
         
         end_plus_15_or_0 = endDate + fifelse(
-          endDate == session$userData$ReportEnd &
+          endDate == ReportEnd &
             (straddles_end | fcoalesce(days_to_lookahead, as.difftime(9999, units="days")) %between% c(0, 14)), 
           15, 
           0
@@ -1918,14 +1914,14 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
         # is because they'll be Continuous at Start
         active_at_start = 
           (
-            startDate == timeStartDate[pd] & (
+            startDate == ReportStart & (
               straddles_start | (
                 EntryDate %between% list(startDate, startDate + 14) &
                   days_since_lookback %between% c(0, 14)
               )
             )
           ) | (
-            startDate > timeStartDate[pd] & straddles_start & (
+            startDate > ReportStart & straddles_start & (
               EntryDate < startDate |
                 days_since_last_lh %between% c(0, 14)
             )
@@ -1934,14 +1930,14 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
         # Similarly for Active at End...
         active_at_end = 
           (
-            endDate == timeEndDate[pd] & (
+            endDate == ReportEnd & (
               straddles_end | (
                 ExitAdjust %between% list(endDate - 14, endDate) &
                   days_to_lookahead %between% c(0, 14)
               )
             )
           ) | (
-            endDate < timeEndDate[pd] &
+            endDate < ReportEnd &
               (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_lookahead %between% c(0,14)))
           )
       ) %>%
@@ -2001,7 +1997,7 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
           ProjectType %in% ph_project_types & 
           MoveInDateAdjust < endDate
       ) %>%
-      fgroup_by(EnrollmentID) %>%
+      fgroup_by(period, EnrollmentID) %>%
       fmutate(
         was_lh_during_full_period = any(was_lh_during_period_def, na.rm=TRUE)
       ) %>%
@@ -2037,14 +2033,11 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
         was_housed_during_period = any(was_housed_during_period, na.rm = TRUE),
         was_housed_at_end = any(was_housed_at_end, na.rm = TRUE)
       )
-    
-    res_period[[cur_period[pd]]] <- all_filtered_w_lh
-  }
   
   return(
     period_enrollments_filtered %>% 
       join(
-        rbindlist(res_period), 
+        all_filtered_w_lh, 
         on = c("period","EnrollmentID"),
         how = "inner"
       )
