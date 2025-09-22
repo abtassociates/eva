@@ -996,8 +996,8 @@ nav_menu(
                     withSpinner(),
                
                 plotOutput("syse_types_ui_chart",
-                           width = "75%",
-                           #height = "500"
+                           #width = "75%"
+                           height = "700px"
                            ) %>%
                   withSpinner()
               ),
