@@ -704,6 +704,15 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       on = c("PersonalID","EnrollmentID"),
       multiple=TRUE
     ) %>%
+    fgroup_by(PersonalID, period) %>%
+    fmutate(
+      lh_in_any_other_enrollment_in_period = any(
+        lh_date %between% list(startDate, endDate) |
+        EntryDate %between% list(startDate, endDate) & lh_at_entry, 
+        na.rm=TRUE
+      )
+    ) %>%
+    fungroup() %>%
     fmutate(
       MoveInDateAdjust = fcoalesce(MoveInDateAdjust, no_end_date),
       lh_date = fcoalesce(lh_date, no_end_date),
@@ -729,7 +738,9 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       
       # An enrollment can also be LH during period if the ExitAdjust is the only LH date during a non-Full period
       # as long as it's not the only LH date in the Full period. If it is, we'll drop as not being "lh during full period"
-      was_lh_during_period = was_lh_during_period_def | ExitAdjust %between% list(startDate, endDate),
+      was_lh_during_period = was_lh_during_period_def | 
+        ExitAdjust %between% list(startDate, endDate) |
+        lh_in_any_other_enrollment_in_period,
       
       was_lh_at_end = active_at_end & (
         (
