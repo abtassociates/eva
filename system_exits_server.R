@@ -811,6 +811,13 @@ output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_file
           bind_rows(
             sys_export_filter_selections(type = 'exits')
           ) %>% 
+          bind_rows(
+            data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                       Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                       nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                       )
+            )
+          ) %>% 
           rename("System Exit Comparisons: Time" = Value),
         "Time" = syse_time_export()
       )
@@ -829,7 +836,7 @@ observeEvent(input$syse_tabbox, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  browser()
+  
   if(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>'){
     shinyjs::hide('syse_spec_pops')
     shinyjs::hide('syse_age')
