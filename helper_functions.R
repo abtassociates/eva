@@ -178,9 +178,28 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     else if (inherits(x, "IDate")) x <- as.Date(x)
     return(x)
   }), .SDcols = names(data)]
-  
-  # Convert to dataframe
-  setDF(data)
+
+  for(col in names(data)) {
+    if(is.character(data[[col]]) && colTypes[[col]] == "numeric") {
+      current_col_values <- data[[col]]
+      original_nas <- is.na(current_col_values)
+      temp_numeric_values <- suppressWarnings(as.numeric(current_col_values))
+      coerced_nas <- is.na(temp_numeric_values)
+      new_nas_introduced_from_non_na <- any(coerced_nas & !original_nas)
+      
+      if (!new_nas_introduced_from_non_na) {
+        # It's safe to convert: all non-NA values were successfully parsed as numeric
+        # or were already NA.
+        message(glue::glue("  SUCCESS: Converted {col} from character to numeric."))
+        data[[col]] <- as.numeric(current_col_values) # Perform the actual conversion
+      } else {
+        message(glue::glue("  SKIPPED: Column {col} contains character values that are not purely numeric (or NA) and would be coerced to NA."))
+        # You could add more detail here if needed:
+        problematic_values <- current_col_values[coerced_nas & !original_nas]
+        message(glue::glue("    Problematic values (first few): {paste(head(problematic_values), collapse=', ')}"))
+      }
+    }
+  }
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
@@ -327,22 +346,6 @@ nice_names <- function(df){
   colnames(df) <- final_names
   
   df
-}
-
-
-# Old to New Living SItuations --------------------------------------------
-
-fy22_to_fy24_living_situation <- function(value){
-  case_when(
-    value %in% c(3, 19, 20, 28, 31, 33, 34, 38, 39) ~ 435,
-    value %in% c(1, 16, 18) ~ value + 100,
-    value %in% c(4, 5, 6, 7, 15, 25) ~ value + 200,
-    value %in% c(2, 12, 13, 14, 27, 29, 32, 35, 36) ~ value + 300,
-    value %in% c(10, 11, 21, 22, 23, 26) ~ value + 400,
-    value %in% c(8, 9, 17, 24, 30, 37, 99) ~ value,
-    is.na(value) ~ NA,
-    TRUE ~ 0 # 0 would mean something's wrong
-  )
 }
 
 

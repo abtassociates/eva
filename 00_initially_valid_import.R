@@ -34,9 +34,9 @@ hasGT1ExportRow <- function() {
   return(nrow(Export()) > 1)
 }
 
-isFY2024Export <- function() {
+isFY2026Export <- function() {
   return(
-    grepl("2024", as.character(Export()$CSVVersion))
+    grepl("2026", as.character(session$userData$Export$CSVVersion))
   )
 }
 
@@ -114,8 +114,8 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       popupText = "Export.csv should only have 1 row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
       If you are not sure how to resolve this issue, please contact your HMIS vendor."
     )
-    logMetadata("Unsuccessful upload - Export.csv has more than 1 row")
-  } else if(!isFY2024Export()) {
+    logMetadata(session, "Unsuccessful upload - Export.csv has more than 1 row")
+  } else if(!isFY2026Export()) {
     show_invalid_popup(
       issueID = 124,
       title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"
