@@ -383,7 +383,7 @@ universe_ppl_flags <- function(universe_df) {
 
   rm(enrollments_to_remove, universe_w_ppl_flags)
   
-  if(!in_dev_mode) {
+  if(!IN_DEV_MODE) {
     universe_w_ppl_flags_clean <- universe_w_ppl_flags_clean %>%
       fselect(
         PersonalID,
@@ -437,7 +437,7 @@ universe_ppl_flags <- function(universe_df) {
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
-    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_records <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean) %>% 
         fselect(inflow_debug_cols)
       view(bad_records)
@@ -453,7 +453,7 @@ universe_ppl_flags <- function(universe_df) {
     )
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There are clients whose Inflow or Outflow is 'something's wrong'")
-    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean, multiple=TRUE) %>%
         fgroup_by(PersonalID) %>%
         fmutate(
@@ -502,7 +502,7 @@ universe_ppl_flags <- function(universe_df) {
     )
   if(nrow(bad_records) > 0)  {
     logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
-    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_first_inflow_records <- get_all_enrollments_for_debugging(
         bad_records[first_enrl_month_inflow != full_period_inflow],
         universe_w_ppl_flags_clean,
@@ -561,7 +561,7 @@ universe_ppl_flags <- function(universe_df) {
       (days_since_last_lh > 14 | is.na(days_since_last_lh))
     )
   if(nrow(bad_records) > 0) {
-    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_ashomeless <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
@@ -598,7 +598,7 @@ universe_ppl_flags <- function(universe_df) {
     fungroup() %>%
     fsubset(has_issue)
   if(nrow(bad_records) > 0) {
-    if(in_dev_mode & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_return_after_nonexit <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
