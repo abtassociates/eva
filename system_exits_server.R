@@ -1140,6 +1140,50 @@ sys_phd_plot_df <- reactiveVal()
 # },
 # alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
+full_unit_of_analysis_display_syse <- reactive({
+  c(
+  paste0(
+    "Total ", 
+    syse_level_of_detail_text(),
+    " with System Exits",
+    if_else(
+      input$syse_hh_type == "All",
+      "",
+      paste0(" in ",
+             str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+             " Households")
+    )
+  ),
+  paste0(
+    "Total ", 
+    syse_level_of_detail_text(),
+    " with PH System Exits",
+    if_else(
+      input$syse_hh_type == "All",
+      "",
+      paste0(" in ",
+             str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+             " Households")
+    )
+  )
+  )
+})
+
+syse_total_count_display <- function(total_count, total_ph_count) {
+  #browser()
+  return(paste0(
+    str_wrap(
+      paste0(
+        full_unit_of_analysis_display_syse(),
+        ": ",
+        scales::comma(c(total_count, total_ph_count))
+      ),
+      width = 40
+    ),collapse='',
+    "\n")
+  )
+}
+
 output$syse_phd_chart_1d <- renderPlot({
 
   req(session$userData$valid_file() == 1 &

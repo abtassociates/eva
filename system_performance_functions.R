@@ -1315,8 +1315,9 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
       ) +
       # other stuff
       theme_bw() +
-      ggtitle(sys_total_count_display(
-        nrow(comp_df)
+      ggtitle(syse_total_count_display(
+        nrow(comp_df),
+        nrow(comp_df_phd)
       )) +
       labs(caption = "*** indicates the value is suppressed") +
       theme(
@@ -1621,8 +1622,9 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
     # other stuff
     theme_bw() +
     
-    ggtitle(sys_total_count_display(
-      nrow(comp_df)
+    ggtitle(syse_total_count_display(
+      nrow(comp_df),
+      nrow(comp_df_phd)
     )) +
     labs(caption = "*** indicates the value is suppressed") +
     
