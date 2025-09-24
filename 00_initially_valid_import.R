@@ -36,7 +36,7 @@ hasGT1ExportRow <- function() {
 
 isFY2026Export <- function() {
   return(
-    grepl("2026", as.character(session$userData$Export$CSVVersion))
+    grepl("2026", as.character(Export()$CSVVersion))
   )
 }
 

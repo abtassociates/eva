@@ -179,27 +179,8 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     return(x)
   }), .SDcols = names(data)]
 
-  for(col in names(data)) {
-    if(is.character(data[[col]]) && colTypes[[col]] == "numeric") {
-      current_col_values <- data[[col]]
-      original_nas <- is.na(current_col_values)
-      temp_numeric_values <- suppressWarnings(as.numeric(current_col_values))
-      coerced_nas <- is.na(temp_numeric_values)
-      new_nas_introduced_from_non_na <- any(coerced_nas & !original_nas)
-      
-      if (!new_nas_introduced_from_non_na) {
-        # It's safe to convert: all non-NA values were successfully parsed as numeric
-        # or were already NA.
-        message(glue::glue("  SUCCESS: Converted {col} from character to numeric."))
-        data[[col]] <- as.numeric(current_col_values) # Perform the actual conversion
-      } else {
-        message(glue::glue("  SKIPPED: Column {col} contains character values that are not purely numeric (or NA) and would be coerced to NA."))
-        # You could add more detail here if needed:
-        problematic_values <- current_col_values[coerced_nas & !original_nas]
-        message(glue::glue("    Problematic values (first few): {paste(head(problematic_values), collapse=', ')}"))
-      }
-    }
-  }
+  # Convert to dataframe
+  setDF(data)
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
