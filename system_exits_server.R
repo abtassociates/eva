@@ -1198,7 +1198,7 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
     sys_perf_ppt_export(
       file = file,
       type = 'exits',
-      title_slide_title = "System Exits PHD",
+      title_slide_title = "System Exits Permanent Housing (PH) Demographics",
       summary_items = sys_export_summary_initial_df(type = 'exits') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_phd_selections_info()),
@@ -1218,11 +1218,11 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
         ),
         ifelse(length(input$syse_phd_selections) == 1, 
                paste0(
-                 "System Exits PHD: ",
+                 "System Exits PH Destinations: ",
                  input$syse_phd_selections[1]
                ),
               paste0(
-                "System Exits PHD: ",
+                "System Exits PH Destinations: ",
                 input$syse_phd_selections[1],
                 " by ",
                 input$syse_phd_selections[2]
