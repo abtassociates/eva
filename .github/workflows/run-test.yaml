@@ -31,7 +31,7 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
               
       - uses: r-lib/actions/setup-renv@v2
       
