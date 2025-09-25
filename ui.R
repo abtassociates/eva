@@ -654,7 +654,29 @@ page_navbar(
           inline = TRUE,
         ),
         br(),
-          uiOutput('dq_export_date_selection')
+        conditionalPanel(
+          condition = "input.dq_export_date_options == 'Date Range'",
+          dateRangeInput(
+            inputId = 'dq_export_date_multiple',
+            label = NULL,
+            start = NULL,
+            end = NULL,
+            min = NULL,
+            max = NULL,
+            format = "mm/dd/yyyy"
+          )
+        ),
+        conditionalPanel(
+          condition = "input.dq_export_date_options == 'Single Date'",
+          dateInput(
+            inputId = 'dq_export_date_single',
+            label = NULL,
+            value = NULL,
+            min = NULL,
+            max = NULL,
+            format = "mm/dd/yyyy"
+          )
+        )
       ),
       
       card(
