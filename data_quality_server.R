@@ -759,7 +759,7 @@ output$dq_export_download_btn <- downloadHandler(
             dir.create(path_prefix)
           }
           proj_dash_filename <- date_stamped_filename(str_glue('{i} - Project Dashboard Report-'))
-          get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), orgList = i)
+          get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), orgList = i, dateRangeEnd = dq_export_date_range_end())
           zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
           
         }
@@ -779,10 +779,10 @@ output$dq_export_download_btn <- downloadHandler(
       
       if("Project Dashboard Report" %in% input$dq_export_files){
         req(session$userData$valid_file() == 1)
-        browser()
+        
         proj_dash_filename <- date_stamped_filename('Project Dashboard Report-')
         
-        get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename))
+        get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename), dateRangeEnd = dq_export_date_range_end())
         
         zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
         

@@ -150,7 +150,8 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
   return(pivoted)
 }
 
-get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName)) {
+get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName),
+                                          dateRangeEnd = input$dateRangeCount[2]) {
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
@@ -178,8 +179,8 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   validationCurrent <- 
     pivot_and_sum(
       validationDF %>%
-        filter(EntryDate <= input$dateRangeCount[2] &
-                 (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
+        filter(EntryDate <= dateRangeEnd &
+                 (is.na(ExitDate) | ExitDate >= dateRangeEnd))
     ) %>%
     select(-c(`Currently in project`, ProjectType)) %>%
     arrange(OrganizationName, ProjectName)
