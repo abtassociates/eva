@@ -576,30 +576,50 @@ dqDownloadInfo <- reactive({
   )
 })
 
-output$dq_export_date_selection <- renderUI({
+
+dq_export_date_range_end <- reactive({
   req(session$userData$dq_pdde_mirai_complete() == 1)
   
   if(input$dq_export_date_options == 'Date Range'){
-    dateRangeInput(
-      inputId = 'dq_export_date_multiple',
-      label = NULL,
-      start = session$userData$meta_HUDCSV_Export_Start,
-      end = session$userData$meta_HUDCSV_Export_End,
-      min = session$userData$meta_HUDCSV_Export_Start,
-      max = session$userData$meta_HUDCSV_Export_End
-    )
+    input$dq_export_date_multiple[2]
   } else if(input$dq_export_date_options == 'Single Date'){
-    dateInput(
-      inputId = 'dq_export_date_single',
-      label = NULL,
-      value = session$userData$meta_HUDCSV_Export_Start,
-      min = session$userData$meta_HUDCSV_Export_Start,
-      max = session$userData$meta_HUDCSV_Export_End
-      
-    )
+    input$dq_export_date_single
   }
- 
 })
+
+observeEvent(input$dateRangeCount, {
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  if(input$pageid == 'tabClientCount'){
+    
+      updateDateRangeInput(session, 'dq_export_date_multiple',
+                           start = input$dateRangeCount[1],
+                           end = input$dateRangeCount[2])
+    
+      updateDateInput(session, 'dq_export_date_single',
+                      value = input$dateRangeCount[2])
+    
+  }
+
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
+
+observeEvent({
+  c(input$dq_export_date_multiple,
+    input$dq_export_date_single)}, {
+      
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+      
+  if(input$pageid == 'tabDQExport'){
+    
+    if(input$dq_export_date_options == 'Date Range'){
+      updateDateRangeInput(session, 'dateRangeCount',
+                           start = input$dq_export_date_multiple[1],
+                           end = input$dq_export_date_multiple[2])
+    } else if(input$dq_export_date_options == 'Single Date'){
+      updateDateRangeInput(session, 'dateRangeCount',
+                           end = input$dq_export_date_single)
+    }
+  }
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
 
 observe({
 
