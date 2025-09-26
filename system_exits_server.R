@@ -59,7 +59,7 @@ sys_phd_selections_summary <- function() {
   return(
     sys_export_summary_initial_df(type = 'exits') %>%
       bind_rows(sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)) %>%
-      rename("System Demographics" = Value)
+      rename("System Exit Demographics" = Value)
   )
 }
 
@@ -1264,11 +1264,11 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
         ),
         ifelse(length(input$syse_phd_selections) == 1, 
                paste0(
-                 "System Exits PH Destinations: ",
+                 "System Exits PH Demographics: ",
                  input$syse_phd_selections[1]
                ),
               paste0(
-                "System Exits PH Destinations: ",
+                "System Exits PH Demographics: ",
                 input$syse_phd_selections[1],
                 " by ",
                 input$syse_phd_selections[2]
