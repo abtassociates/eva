@@ -633,8 +633,8 @@ get_syse_compare_time_flextable <- function(tab) {
   
   ## formatting the time row labels
   time_colors <- c(
-    "Current Year" = "#72B4CD",
-    "Previous Year" = "#16697A"
+    "Current Year" = "#FCB248",
+    "Previous Year" = "#9E958F"
   )
   
   ft <- ft %>%
@@ -669,8 +669,8 @@ output$syse_compare_subpop_table <- renderDT({
 syse_compare_time_chart <- function( isExport = FALSE){
   
   time_colors <- c(
-    "Current Year" = "#72B4CD",
-    "Previous Year" = "#16697A"
+    "Current Year" = "#FCB248",
+    "Previous Year" = "#9E958F"
   )
   
   ## long format needed for plotting points
@@ -683,12 +683,12 @@ syse_compare_time_chart <- function( isExport = FALSE){
   time_segment_df <- time_chart_df %>% 
     pivot_wider(names_from = 'time_summ', values_from = 'time_pct')
   
-  g <- ggplot(time_chart_df, aes(x = dest_type, y = time_pct, color = time_summ)) +
-    geom_point(size = 5) +
+  g <- ggplot(time_chart_df, aes(x = dest_type, y = time_pct )) +
+    geom_point(aes(fill = time_summ), size = 10, shape = 21) +
     geom_segment(data=time_segment_df,
                  aes(x = dest_type, xend = dest_type, y = `Previous Year`, yend = `Current Year`),
-                 arrow = arrow(length = unit(0.125, "inches")), color = '#948A84') +
-    scale_color_manual(values=time_colors,guide =  guide_legend(ncol = 2)) +
+                 arrow = arrow(length = unit(0.125, "inches")), color = '#948A84', linewidth = 1.5) +
+    scale_fill_manual(values=time_colors,guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
     scale_x_discrete(expand = expansion(mult = 0.03, add = 0)) +
     labs(x = '', y = '') +
@@ -716,8 +716,8 @@ syse_compare_time_chart <- function( isExport = FALSE){
 get_syse_compare_time_table <- function(tab){
   
   time_colors <- c(
-    "Current Year" = "#72B4CD",
-    "Previous Year" = "#16697A"
+    "Current Year" = "#FCB248",
+    "Previous Year" = "#9E958F"
   )
   
   datatable(tab, 
@@ -756,7 +756,7 @@ get_syse_compare_time_table <- function(tab){
       target = "cell",
       color = styleEqual(
         names(time_colors), 
-        rep("white", length(time_colors))
+        rep("black", length(time_colors))
       )
     )
   
