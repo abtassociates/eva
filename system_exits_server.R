@@ -95,9 +95,9 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
   tree_colors <- c(
     "Permanent" = "#16697A",
     "Homeless" = "#C2462E",
-    "Institutional" = "#C1DDD7",
-    "Temporary" = "#71B4CB",
-    "Other/Unknown" = "#73655E"
+    "Institutional" = "#CCC7C4",
+    "Temporary" = "#CCC7C4",
+    "Other/Unknown" = "#CCC7C4"
   )
   nr <- nrow(tree_exits_data())
   
@@ -110,7 +110,7 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
               Percent = GRPN() / nr) %>% 
     fungroup() %>% 
     fmutate(Percent = Count/fsum(Count),
-           text_color = fifelse(`Destination Type` == 'Institutional', 'black', 'white'),
+           text_color = fifelse(`Destination Type` %in% c('Temporary','Institutional','Other/Unknown'), 'black', 'white'),
            label = str_c(`Destination Type`, ':\n', scales::label_comma()(Count),
                          ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
            ))
