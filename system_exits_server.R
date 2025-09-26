@@ -349,7 +349,7 @@ get_syse_compare_subpop_data <- reactive({
   )
   
   tibble(
-    subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
+    subpop_summ = c("Subpopulation","Comparison Group","Percent Difference"),
   round(
     rowbind(
       pct_subpop,
@@ -469,8 +469,8 @@ get_syse_compare_time_data <- reactive({
 syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   
   subgroup_colors <- c(
-   "Subpopulation" = "#136779",
-   "Everyone Else" = "#C1432B"
+   "Subpopulation" = "#FCB248",
+   "Comparison Group" = "#9E958F"
   )
   
   ## long format needed for plotting points
@@ -482,13 +482,13 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   ## wide format needed for plotting arrows between points
   subpop_segment_df <- subpop_chart_df %>% 
     pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct')
-  
-  g <- ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct, color = subpop_summ)) +
-    geom_point(size = 5) +
+ 
+  g <- ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct)) +
+    geom_point(aes(fill = subpop_summ), size = 10, shape = 21, color = 'black') +
     geom_segment(data=subpop_segment_df,
-                 aes(x = dest_type, xend = dest_type, y = Subpopulation, yend = `Everyone Else`),
-                 arrow = arrow(length = unit(0.125, "inches")), color = '#948A84') +
-    scale_color_manual(values=subgroup_colors,guide =  guide_legend(ncol = 2)) +
+                 aes(x = dest_type, xend = dest_type, y = `Comparison Group`, yend = Subpopulation),
+                 arrow = arrow(length = unit(0.125, "inches")), color = '#948A84', linewidth = 1.5) +
+    scale_fill_manual(values=subgroup_colors, guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
     scale_x_discrete(expand = expansion(mult = 0.03, add = 0)) +
     labs(x = '', y = '') +
@@ -516,8 +516,8 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
 get_syse_compare_subpop_table <- function(tab){
   
   subgroup_colors <- c(
-    "Subpopulation" = "#136779",
-    "Everyone Else" = "#C1432B"
+    "Subpopulation" = "#FCB248",
+    "Comparison Group" = "#9E958F"
   )
   
   datatable(tab, 
@@ -538,7 +538,7 @@ get_syse_compare_subpop_table <- function(tab){
   rownames = FALSE) %>% DT::formatPercentage(
     columns = -1 
   ) %>% 
-    # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
+    # Highlight only the first column of "Subpopulation" and "Comparison Group" rows
     formatStyle(
       columns = 1,  # First column
       target = "cell",
@@ -556,7 +556,7 @@ get_syse_compare_subpop_table <- function(tab){
       target = "cell",
       color = styleEqual(
         names(subgroup_colors), 
-        rep("white", length(subgroup_colors))
+        rep("black", length(subgroup_colors))
       )
     )
 }
@@ -589,8 +589,8 @@ get_syse_compare_subpop_flextable <- function(tab) {
   
   # Formatting the subpopulation row labels
   subgroup_colors <- c(
-    "Subpopulation" = "#136779",
-    "Everyone Else" = "#C1432B"
+    "Subpopulation" = "#FCB248",
+    "Comparison Group" = "#9E958F"
   )
   
   ft <- ft %>%
