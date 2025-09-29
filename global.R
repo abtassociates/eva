@@ -25,6 +25,7 @@ library(plotly)
 library(collapse)
 library(flextable)
 library(promises)
+library(ggarchery)
 
 options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
 options(shiny.fullstacktrace = TRUE)
