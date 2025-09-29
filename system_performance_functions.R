@@ -145,7 +145,7 @@ suppress_values <- function(.data, count_var, keep_orig_var = FALSE) {
   
   if(keep_orig_var){
     count_var_orig <- paste0(count_var, '_orig')
-    #browser()
+   
     return(
       .data %>% 
         mutate(
@@ -502,7 +502,7 @@ sys_perf_ppt_export <- function(file,
     for(summary_slide_title in names(summary_items)) {
       p <- summary_items[[summary_slide_title]]
       if(!is.null(p)) {
-        #browser()
+        
         s_items <- do.call(block_list, lapply(1:nrow(p), function(i) {
           fpar(
             ftext(paste0(p$Chart[i], ": ", p$Value[i]), fp_normal)
@@ -537,7 +537,7 @@ sys_perf_ppt_export <- function(file,
       add_footer()
   }
   
-  
+ 
   # Chart
   for(plot_slide_title in names(plots)) {
     p <- plots[[plot_slide_title]]
@@ -862,7 +862,7 @@ get_var_cols <- function(methodology_type) {
 sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
   var_cols <- get_var_cols(methodology_type)
   
-  #browser()
+ 
   comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables(selection = selection) %>%
     select(PersonalID, unname(var_cols[[selection]]))
@@ -1279,7 +1279,7 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
   plot_df_joined <- plot_df_joined %>% select(-n_orig, -frac_export)
   plot_df <- plot_df_supp %>% select(-n_orig)
   
-  #browser()
+  
   return(
     ggplot(plot_df_joined, aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
@@ -1361,7 +1361,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       select(-Destination)
     
     comp_df <- comp_df %>% select(-Destination)
-  #browser()
+  
   
   
   validate(
@@ -1436,7 +1436,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
     replace(is.na(.), 0)
   
   if(methodology_type == 1) {
-    #browser()
+    
     h_total <- plot_df %>%
       group_by(!!!syms(selections[[2]])) %>%
       summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
@@ -1545,7 +1545,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   x_limits <- levels(plot_df[[selections[1]]])
   y_labels <- rev(selection_cats2_labels)
   y_limits <- rev(levels(plot_df[[selections[2]]]))
-  #browser()
+  
   if(methodology_type == 1) {
     x_labels <- c(x_labels, "Total")
     x_limits <- c(x_limits, "Total")
@@ -1887,7 +1887,7 @@ get_syse_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
 }
 
 get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
-  #browser()
+ 
  
     all_filtered_w_lh <- period_enrollments_filtered %>% 
       fmutate(ReportStart = ifelse(period == 'Current Year', session$userData$ReportStart, session$userData$ReportStart - years(1)),
