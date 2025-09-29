@@ -1863,7 +1863,7 @@ get_syse_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
   
-  if(!in_dev_mode) {
+  if(!IN_DEV_MODE) {
     final <- final %>%
       fselect(c(
         "period",

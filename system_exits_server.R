@@ -623,7 +623,7 @@ get_syse_compare_subpop_flextable <- function(tab) {
            border.top = fp_border(color = "black", width = 1),
            border.left = fp_border(color = "black", width = 2),
            border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 2))
+           border.bottom = fp_border(color = "black", width = 2)) %>% 
     # expand to better fit slide width
     autofit()
   
@@ -681,7 +681,7 @@ get_syse_compare_time_flextable <- function(tab) {
            border.top = fp_border(color = "black", width = 1),
            border.left = fp_border(color = "black", width = 2),
            border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 2))
+           border.bottom = fp_border(color = "black", width = 2)) %>% 
     # expand to better fit slide width
     autofit()
     
