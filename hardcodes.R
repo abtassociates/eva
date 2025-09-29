@@ -494,7 +494,7 @@ outflow_debug_cols <- c(
   "lh_dates"
 )
 
-in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
+IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
 
 suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
 no_data_msg <- "No data to show."
