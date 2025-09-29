@@ -545,9 +545,21 @@ get_syse_compare_subpop_table <- function(tab){
       backgroundColor = styleEqual(
         names(subgroup_colors), unname(subgroup_colors)
       ),
-      border = styleEqual(
+      borderTop = styleEqual(
+        names(subgroup_colors),
+        c("2px solid black", "1px solid black")
+      ),
+      borderLeft = styleEqual(
         names(subgroup_colors),
         c(rep("2px solid black", 2))
+      ),
+      borderRight = styleEqual(
+        names(subgroup_colors),
+        c(rep("2px solid black", 2))
+      ),
+      borderBottom = styleEqual(
+        names(subgroup_colors),
+        c("1px solid black", "2px solid black")
       )
     ) %>% 
     # Contrast font and background colors
@@ -596,8 +608,22 @@ get_syse_compare_subpop_flextable <- function(tab) {
   ft <- ft %>%
     # Background colors from datatable's formatStyle
     bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
-    # thick borders for the first column
-    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2)) %>% 
+    # thick borders for the first column - adjust adjacent ones to match same total width
+    border(i = 1, j = 1, 
+           border.top = fp_border(color = "black", width = 2),
+           border.left = fp_border(color = "black", width = 2),
+           border.right = fp_border(color = "black", width = 2),
+           border.bottom = fp_border(color = "black", width = 1)) %>% 
+    border(i = 2, j = 1, 
+           border.top = fp_border(color = "black", width = 1),
+           border.left = fp_border(color = "black", width = 2),
+           border.right = fp_border(color = "black", width = 2),
+           border.bottom = fp_border(color = "black", width = 1)) %>% 
+    border(i = 3, j = 1, 
+           border.top = fp_border(color = "black", width = 1),
+           border.left = fp_border(color = "black", width = 2),
+           border.right = fp_border(color = "black", width = 2),
+           border.bottom = fp_border(color = "black", width = 2))
     # expand to better fit slide width
     autofit()
   
@@ -640,8 +666,22 @@ get_syse_compare_time_flextable <- function(tab) {
   ft <- ft %>%
     # Background colors from datatable's formatStyle
     bg(i = 1:2, j = 1, bg = time_colors) %>%
-    # thick borders for the first column
-    border(i = 1:3, j = 1, border = fp_border(color = "black", width = 2)) %>% 
+    # thick borders for the first column - adjust adjacent ones to match same total width
+    border(i = 1, j = 1, 
+           border.top = fp_border(color = "black", width = 2),
+           border.left = fp_border(color = "black", width = 2),
+           border.right = fp_border(color = "black", width = 2),
+           border.bottom = fp_border(color = "black", width = 1)) %>% 
+    border(i = 2, j = 1, 
+           border.top = fp_border(color = "black", width = 1),
+           border.left = fp_border(color = "black", width = 2),
+           border.right = fp_border(color = "black", width = 2),
+           border.bottom = fp_border(color = "black", width = 1)) %>% 
+    border(i = 3, j = 1, 
+           border.top = fp_border(color = "black", width = 1),
+           border.left = fp_border(color = "black", width = 2),
+           border.right = fp_border(color = "black", width = 2),
+           border.bottom = fp_border(color = "black", width = 2))
     # expand to better fit slide width
     autofit()
     
@@ -745,9 +785,21 @@ get_syse_compare_time_table <- function(tab){
       backgroundColor = styleEqual(
         names(time_colors), unname(time_colors)
       ),
-      border = styleEqual(
+      borderTop = styleEqual(
+        names(time_colors),
+        c("2px solid black", "1px solid black")
+      ),
+      borderLeft = styleEqual(
         names(time_colors),
         c(rep("2px solid black", 2))
+      ),
+      borderRight = styleEqual(
+        names(time_colors),
+        c(rep("2px solid black", 2))
+      ),
+      borderBottom = styleEqual(
+        names(time_colors),
+        c("1px solid black", "2px solid black")
       )
     ) %>% 
     # Contrast font and background colors
