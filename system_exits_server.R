@@ -490,7 +490,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
                  arrow = arrow(length = unit(0.125, "inches")), color = '#948A84', linewidth = 1.5) +
     scale_fill_manual(values=subgroup_colors, guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_discrete(expand = expansion(mult = 0.03, add = 0)) +
+    scale_x_discrete(expand = expansion(mult = 0.03, add = ifelse(isExport, 0.1, 0))) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
@@ -690,7 +690,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
                  arrow = arrow(length = unit(0.125, "inches")), color = '#948A84', linewidth = 1.5) +
     scale_fill_manual(values=time_colors,guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_discrete(expand = expansion(mult = 0.03, add = 0)) +
+    scale_x_discrete(expand = expansion(mult = 0.03, add = ifelse(isExport, 0.1, 0))) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
