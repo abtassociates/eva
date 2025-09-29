@@ -271,14 +271,14 @@ period_specific_data <- reactive({
   # Apply all filters
   all_filtered <- filtered_enrollments %>% 
     join( 
-      if(!in_dev_mode) fselect(filtered_clients, PersonalID) else filtered_clients,
+      if(!IN_DEV_MODE) fselect(filtered_clients, PersonalID) else filtered_clients,
       on = "PersonalID",
       how = "inner"
     ) %>%
     get_lookbacks() %>% # add lookback info
     get_days_since_last_lh() #
   
-  if(in_dev_mode) store_enrollment_categories_all_for_qc(all_filtered)
+  if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
 
   period_data <- all_filtered %>% 
     expand_by_periods() %>% # expand/repeat enrollments across periods
@@ -498,6 +498,15 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       on = c("PersonalID","EnrollmentID"),
       multiple=TRUE
     ) %>%
+    fgroup_by(PersonalID, period) %>%
+    fmutate(
+      lh_in_any_other_enrollment_in_period = any(
+        lh_date %between% list(startDate, endDate) |
+        EntryDate %between% list(startDate, endDate) & lh_at_entry, 
+        na.rm=TRUE
+      )
+    ) %>%
+    fungroup() %>%
     fmutate(
       MoveInDateAdjust = fcoalesce(MoveInDateAdjust, no_end_date),
       lh_date = fcoalesce(lh_date, no_end_date),
@@ -523,7 +532,9 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       
       # An enrollment can also be LH during period if the ExitAdjust is the only LH date during a non-Full period
       # as long as it's not the only LH date in the Full period. If it is, we'll drop as not being "lh during full period"
-      was_lh_during_period = was_lh_during_period_def | ExitAdjust %between% list(startDate, endDate),
+      was_lh_during_period = was_lh_during_period_def | 
+        ExitAdjust %between% list(startDate, endDate) |
+        lh_in_any_other_enrollment_in_period,
       
       was_lh_at_end = active_at_end & (
         (
@@ -725,7 +736,7 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
   
-  if(!in_dev_mode) {
+  if(!IN_DEV_MODE) {
     final <- final %>%
       fselect(c(
         "period",

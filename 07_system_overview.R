@@ -542,7 +542,8 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       last_lh_date + days_lh_valid,
       ExitAdjust
     )
-  )
+  ) %>%
+  fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading

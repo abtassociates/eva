@@ -498,3 +498,4 @@ in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOpti
 
 suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
 no_data_msg <- "No data to show."
+

@@ -19,7 +19,6 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      IGNORE_COLUMNS: ${{ secrets.IGNORE_COLUMNS }}
       
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +31,7 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
               
       - uses: r-lib/actions/setup-renv@v2
       
