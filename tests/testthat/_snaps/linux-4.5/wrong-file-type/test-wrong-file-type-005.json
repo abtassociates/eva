@@ -8,32 +8,15 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
-    "accordion_client_count": null,
-    "accordion_dqorg": null,
-    "accordion_dqsystem": null,
-    "accordion_home": null,
-    "accordion_local_settings": null,
-    "accordion_pdde": null,
-    "accordion_systemoverview": null,
-    "accordion_upload": null,
-    "card_filters1_full_screen": false,
-    "card_filters2_full_screen": false,
-    "client_count_subtabs": "<h4>Client Counts Detail<\/h4>",
     "currentProviderList": null,
     "dateRangeCount": [
       "2023-10-05",
       "2023-10-05"
     ],
-    "demo_mode_tooltip": false,
     "dimension": [
       1920,
       1080
     ],
-    "dq_summary_subtabs": "<h4>Data Quality Guidance<\/h4>",
-    "g_errors_dqorg_subtabs": "<h5>Top 10 Projects<\/h5>",
-    "g_errors_dqsystem_subtabs": "<h5>Top 10 Organizations<\/h5>",
-    "hp_errors_dqorg_subtabs": "<h5>Top 10 Projects<\/h5>",
-    "hp_errors_dqsystem_subtabs": "<h5>Top 10 Organizations<\/h5>",
     "imported": {
       "name": [
         "FY26-test-wrong-file-type.gz"
@@ -48,15 +31,15 @@
         "0.gz"
       ]
     },
-    "in_demo_mode": false,
-    "mbm_status_filter": "All",
+    "isdemo": false,
     "methodology_type": "1",
     "orgList": null,
-    "pageid": "tabDQOrg",
-    "pdde_subtabs": "<h4>Guidance<\/h4>",
-    "sys_comp_subtabs": "<h5>Chart<\/h5>",
-    "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
-    "sys_status_subtabs": "<h5>Chart<\/h5>",
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabDQOrg",
+    "sys_comp_subtabs": "Chart",
+    "sys_inflow_outflow_subtabs": "Summary Chart",
+    "sys_status_subtabs": "Chart",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -75,15 +58,11 @@
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "<h4>System Flow<\/h4>",
+    "syso_tabbox": "System Flow",
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
-    ],
-    "tabDQOrg_subtabs": "<h4>Warnings<\/h4>",
-    "tabDQSystem_subtabs": "<h4>Warnings<\/h4>",
-    "warnings_dqorg_subtabs": "<h5>Top 10 Projects<\/h5>",
-    "warnings_dqsystem_subtabs": "<h5>Top 10 Organizations<\/h5>"
+    ]
   },
   "output": {
     "clientCountData": [
@@ -198,7 +177,7 @@
         "validation"
       ]
     },
-    "orgDQErrorByProject_ui": {
+    "orgDQHighPriorityErrorByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -206,31 +185,7 @@
         "validation"
       ]
     },
-    "orgDQHighPriorityByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "orgDQHighPriorityByProject_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "orgDQWarningByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "orgDQWarningByProject_ui": {
+    "orgDQWarningsByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -248,7 +203,7 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "sysDQErrorByIssue_ui": {
+    "systemDQErrorsByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -256,7 +211,7 @@
         "validation"
       ]
     },
-    "sysDQErrorByOrg_ui": {
+    "systemDQHighPriorityErrorsByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -264,31 +219,7 @@
         "validation"
       ]
     },
-    "sysDQHighPriorityByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "sysDQHighPriorityByOrg_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "sysDQWarningByIssue_ui": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
-    "sysDQWarningByOrg_ui": {
+    "systemDQWarningsByIssue_ui": {
       "message": "",
       "call": "NULL",
       "type": [

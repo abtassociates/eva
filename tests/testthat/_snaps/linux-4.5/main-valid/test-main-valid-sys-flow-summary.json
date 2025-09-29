@@ -1,0 +1,87 @@
+{
+  "input": {
+    "methodology_type": "1",
+    "sidebarmenuid": "tabSystemOverview",
+    "sys_inflow_outflow_subtabs": "Summary Chart",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_hh_type": "All",
+    "syso_level_of_detail": "All",
+    "syso_project_type": "All",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_tabbox": "System Flow"
+  },
+  "output": {
+    "headerSystemOverview": {
+      "html": "<h2>System Overview<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "sys_act_summary_filter_selections": {
+      "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Method 1 <br>",
+      "deps": [
+
+      ]
+    },
+    "sys_act_summary_ui_chart": {
+      "src": "[image data hash: c43b0892cf307193fc1fb6247e1fa0b7]",
+      "width": 1113,
+      "height": 500,
+      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0.5225,
+              "right": 4.4275,
+              "bottom": 0,
+              "top": 8705
+            },
+            "mapping": {
+              "y": null,
+              "xmin": "group.id - 0.25",
+              "xmax": "group.id + 0.25",
+              "ymin": "ystart",
+              "ymax": "yend",
+              "x": "group.id",
+              "fill": "PlotFillGroups"
+            },
+            "range": {
+              "left": 14.4,
+              "right": 1098.6,
+              "bottom": 393.2107086614173,
+              "top": 111.2794520547945
+            }
+          }
+        ],
+        "dims": {
+          "width": 1113,
+          "height": 500
+        }
+      }
+    }
+  }
+}

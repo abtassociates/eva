@@ -1,0 +1,839 @@
+{
+  "input": {
+    "dq_org_guidance_summary_cell_clicked": {
+
+    },
+    "dq_org_guidance_summary_cells_selected": [
+
+    ],
+    "dq_org_guidance_summary_columns_selected": null,
+    "dq_org_guidance_summary_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "dq_org_guidance_summary_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "dq_org_guidance_summary_rows_selected": null,
+    "dq_org_guidance_summary_search": "",
+    "dq_org_guidance_summary_search_columns": [
+      "",
+      "",
+      ""
+    ],
+    "dq_org_guidance_summary_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "dq_organization_summary_table_cell_clicked": {
+
+    },
+    "dq_organization_summary_table_cells_selected": [
+
+    ],
+    "dq_organization_summary_table_columns_selected": null,
+    "dq_organization_summary_table_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122
+    ],
+    "dq_organization_summary_table_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "dq_organization_summary_table_rows_selected": null,
+    "dq_organization_summary_table_search": "",
+    "dq_organization_summary_table_search_columns": [
+      "",
+      "",
+      "",
+      ""
+    ],
+    "dq_organization_summary_table_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "orgList": "Organization A‰",
+    "sidebarCollapsed": false,
+    "sidebarItemExpanded": "AssessDataQuality",
+    "sidebarmenuid": "tabDQOrg"
+  },
+  "output": {
+    "downloadOrgDQReportButton": {
+      "html": "<a id=\"downloadOrgDQReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.5.2",
+          "src": {
+            "href": "font-awesome-6.5.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "dq_org_guidance_summary": {
+      "x": {
+        "filter": "top",
+        "vertical": false,
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "ltpi",
+          "columnDefs": [
+            {
+              "name": "Type",
+              "targets": 0
+            },
+            {
+              "name": "Issue",
+              "targets": 1
+            },
+            {
+              "name": "Guidance",
+              "targets": 2
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "orderCellsTop": true,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = false;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "nouislider",
+          "version": "7.0.10",
+          "src": {
+            "href": "nouislider-7.0.10"
+          },
+          "meta": null,
+          "script": "jquery.nouislider.min.js",
+          "stylesheet": "jquery.nouislider.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "selectize",
+          "version": "0.12.0",
+          "src": {
+            "href": "selectize-0.12.0"
+          },
+          "meta": null,
+          "script": "selectize.min.js",
+          "stylesheet": "selectize.bootstrap3.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.2",
+          "src": {
+            "href": "crosstalk-1.2.2"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "dq_organization_summary_table": {
+      "x": {
+        "filter": "top",
+        "vertical": false,
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"181\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Project Name<\/th>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Clients<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "ltpi",
+          "columnDefs": [
+            {
+              "className": "dt-right",
+              "targets": 3
+            },
+            {
+              "name": "Project Name",
+              "targets": 0
+            },
+            {
+              "name": "Type",
+              "targets": 1
+            },
+            {
+              "name": "Issue",
+              "targets": 2
+            },
+            {
+              "name": "Clients",
+              "targets": 3
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "orderCellsTop": true,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "nouislider",
+          "version": "7.0.10",
+          "src": {
+            "href": "nouislider-7.0.10"
+          },
+          "meta": null,
+          "script": "jquery.nouislider.min.js",
+          "stylesheet": "jquery.nouislider.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "selectize",
+          "version": "0.12.0",
+          "src": {
+            "href": "selectize-0.12.0"
+          },
+          "meta": null,
+          "script": "selectize.min.js",
+          "stylesheet": "selectize.bootstrap3.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.2",
+          "src": {
+            "href": "crosstalk-1.2.2"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "headerDataQuality": {
+      "html": "<h2>Organization-level Data Quality<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "orgDQErrorByIssue": {
+      "src": "[image data hash: 81271507085ce6bf6e2d807b36711fda]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the top General Errors in the organization.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 45.1,
+              "bottom": 0.4,
+              "top": 10.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Conflicting Health Insurance yes/no at Exit",
+                  "Missing Length of Stay",
+                  "Oldest Household Member Under 12",
+                  "Conflicting Health Insurance yes/no at Entry",
+                  "Conflicting Non-cash Benefits yes/no at Entry",
+                  "Conflicting Income yes/no at Entry",
+                  "Invalid Move-In Date",
+                  "Missing Months or Times Homeless",
+                  "Conflicting Income yes/no at Exit",
+                  "Incomplete Living Situation Data"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(Issue, countVar)"
+            },
+            "range": {
+              "left": 276.338184931507,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQHighPriorityErrorsByIssue": {
+      "src": "[image data hash: 8fcc992418956267a2eb4f684ceefa88]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the top High Priority Errors in the organization.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 7.7,
+              "bottom": 0.4,
+              "top": 3.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Duplicate Entries",
+                  "Too Many Heads of Household",
+                  "Missing Relationship to Head of Household"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(Issue, countVar)"
+            },
+            "range": {
+              "left": 252.494434931507,
+              "right": 1634.520547945206,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQWarningByIssue": {
+      "src": "[image data hash: b0a9e401d38a25adc8ae7b30535dcfc8]",
+      "width": 1640,
+      "height": 400,
+      "alt": "A bar chart of the top Warnings in the organization.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0,
+              "right": 276.1,
+              "bottom": 0.4,
+              "top": 10.6,
+              "discrete_limits": {
+                "x": [
+
+                ],
+                "y": [
+                  "Unknown Disabling Condition",
+                  "Unknown Months or Times Homeless",
+                  "Unknown Living Situation",
+                  "Incomplete or Unknown Name",
+                  "Overlap with a Emergency Shelter (E/E) project",
+                  "Future Entry Date",
+                  "Homelessness Start Date conflicts with Living Situation data",
+                  "Unknown Destination",
+                  "Invalid Homelessness Start Date/Number of Months Homeless",
+                  "Unknown SSN"
+                ]
+              }
+            },
+            "mapping": {
+              "x": "countVar",
+              "y": "reorder(Issue, countVar)"
+            },
+            "range": {
+              "left": 285.1663099315071,
+              "right": 1634.520547945205,
+              "bottom": 377.7808219178082,
+              "top": 5.479452054794522
+            }
+          }
+        ],
+        "dims": {
+          "width": 1640,
+          "height": 400
+        }
+      }
+    },
+    "orgDQWarningsByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"orgDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+      "deps": [
+        {
+          "name": "htmltools-fill",
+          "version": "0.5.8.1",
+          "src": {
+            "href": "htmltools-fill-0.5.8.1"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "fill.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    }
+  },
+  "export": {
+    "dq_org_guidance_summary": {
+      "Type": {
+        "High Priority": 3,
+        "Error": 21,
+        "Warning": 22
+      },
+      "Issue": {
+        "Length": "46",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Guidance": {
+        "Length": "46",
+        "Class": "character",
+        "Mode": "character"
+      }
+    },
+    "dq_organization_summary_table": {
+      "Project Name": {
+        "Length": "122",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Type": {
+        "High Priority": 5,
+        "Error": 52,
+        "Warning": 65
+      },
+      "Issue": {
+        "Length": "122",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Clients": {
+        "Min.": 1,
+        "1st Qu.": 1,
+        "Median": 3,
+        "Mean": 8.991803278688524,
+        "3rd Qu.": 7,
+        "Max.": 181
+      }
+    }
+  }
+}
