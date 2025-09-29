@@ -532,6 +532,10 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     # "Trimming" EntryDate and ExitAdjust for non-res and NbN projects
     # This is because such projects SHOULD have an LH CLS when they enter, but don't always do this.
     # So we set Entry and Exit to the first/last LH dates in these cases.
+    EntryDate_orig = EntryDate,
+    
+    ExitAdjust_orig = Exitadjust,
+    
     EntryDate = fifelse(
       ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type),
       EntryDate,
@@ -541,7 +545,9 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       ProjectType %in% nbn_non_res & ExitAdjust == no_end_date,
       last_lh_date + days_lh_valid,
       ExitAdjust
-    )
+    ),
+    adjusted_dates = !ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type) | 
+      ProjectType %in% nbn_non_res & ExitAdjust == no_end_date
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 
