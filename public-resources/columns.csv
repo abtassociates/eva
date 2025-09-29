@@ -69,7 +69,7 @@ Client,7,SSN,character,1,1
 Client,8,SSNDataQuality,numeric,1,0
 Client,9,DOB,date,1,1
 Client,10,DOBDataQuality,numeric,1,0
-Client,11,Sex,numeric,0,0
+Client,11,Sex,numeric,0,1
 Client,12,AmIndAKNative,numeric,1,0
 Client,13,Asian,numeric,1,0
 Client,14,BlackAfAmerican,numeric,1,0
