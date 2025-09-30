@@ -179,8 +179,11 @@ output$client_level_download_btn <- downloadHandler(
     )
     colnames(filter_selections) <- c("Filter","Selection")
     
-    
-    adjusted_non_res_enrl <- session$userData$enrollment_categories[adjusted_dates, .(PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation)]
+    adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
+      fsubset(
+        adjusted_dates == TRUE, 
+        PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
+      )
     if(nrow(session$userData$lh_info) > 0) {
       adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
         join(

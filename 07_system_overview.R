@@ -534,7 +534,7 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     # So we set Entry and Exit to the first/last LH dates in these cases.
     EntryDate_orig = EntryDate,
     
-    ExitAdjust_orig = Exitadjust,
+    ExitAdjust_orig = ExitAdjust,
     
     EntryDate = fifelse(
       ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type),
