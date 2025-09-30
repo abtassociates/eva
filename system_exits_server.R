@@ -473,20 +473,31 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
    "Comparison Group" = "#9E958F"
   )
   
+  ## use adjusted locations for point placement 
+  adj_x_vals <- c(1.085, 1.97, 2.87, 3.8, 4.85)
+  
   ## long format needed for plotting points
   subpop_chart_df <- get_syse_compare_subpop_data() %>% 
     filter(subpop_summ != "Percent Difference") %>% 
     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'subpop_pct') %>% 
-    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) )
+    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
+    add_column(dest_type_adj = rep(adj_x_vals, times = 2))
   
   ## wide format needed for plotting arrows between points
   subpop_segment_df <- subpop_chart_df %>% 
-    pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct')
- 
-  g <- ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct)) +
+    pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct') 
+  
+  ## add x-axis labels for PPT download only
+  if(isExport){
+    dest_type_labels <- subpop_segment_df$dest_type
+  } else {
+    dest_type_labels <- rep(NA,5)    
+  }
+  
+  g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
     geom_point(aes(fill = subpop_summ), size = 10, shape = 21, color = 'black') +
     geom_arrowsegment(data=subpop_segment_df,
-                       aes(x = dest_type, xend = dest_type, y = `Comparison Group`, yend = Subpopulation),
+                       aes(x = dest_type_adj, xend = dest_type_adj, y = `Comparison Group`, yend = Subpopulation),
                        color = "black",
                        linewidth = 1.5, 
                        arrows = arrow(length = unit(0.125, 'in')),
@@ -495,7 +506,10 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
     ) +
     scale_fill_manual(values=subgroup_colors, guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_discrete(expand = expansion(mult = 0.03, add = ifelse(isExport, 0.1, 0))) +
+    scale_x_continuous(limits = c(0.95, 5.05), 
+                       labels = dest_type_labels,
+                       breaks =  adj_x_vals,                      
+                       expand = expansion( add = ifelse(isExport, 0.1, 0))) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
@@ -718,20 +732,31 @@ syse_compare_time_chart <- function( isExport = FALSE){
     "Previous Year" = "#9E958F"
   )
   
+  ## use adjusted locations for point placement 
+  adj_x_vals <- c(1.085, 1.97, 2.87, 3.8, 4.85)
+  
   ## long format needed for plotting points
   time_chart_df <- get_syse_compare_time_data() %>% 
     filter(time_summ != "Percent Change") %>% 
     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'time_pct') %>% 
-    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) )
+    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
+    add_column(dest_type_adj = rep(adj_x_vals, times = 2))
   
   ## wide format needed for plotting arrows between points
   time_segment_df <- time_chart_df %>% 
     pivot_wider(names_from = 'time_summ', values_from = 'time_pct')
   
-  g <- ggplot(time_chart_df, aes(x = dest_type, y = time_pct )) +
+  ## add x-axis labels for PPT download only
+  if(isExport){
+    dest_type_labels <- time_segment_df$dest_type
+  } else {
+    dest_type_labels <- rep(NA,5)    
+  }
+  
+  g <- ggplot(time_chart_df, aes(x = dest_type_adj, y = time_pct )) +
     geom_point(aes(fill = time_summ), size = 10, shape = 21) +
     geom_arrowsegment(data=time_segment_df,
-                 aes(x = dest_type, xend = dest_type, y = `Previous Year`, yend = `Current Year`),
+                 aes(x = dest_type_adj, xend = dest_type_adj, y = `Previous Year`, yend = `Current Year`),
                  color = "black",
                  linewidth = 1.5,
                  arrows = arrow(length = unit(0.125, 'in')),
@@ -740,7 +765,10 @@ syse_compare_time_chart <- function( isExport = FALSE){
                  ) +
     scale_fill_manual(values=time_colors,guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_discrete(expand = expansion(mult = 0.03, add = ifelse(isExport, 0.1, 0))) +
+    scale_x_continuous(limits = c(0.95, 5.05), 
+                       labels = dest_type_labels,
+                       breaks = adj_x_vals,
+                       expand = expansion(mult = 0, add = ifelse(isExport, 0.1, 0))) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
