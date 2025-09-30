@@ -271,15 +271,18 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
     }
   }
   
-  shinyjs::toggle(glue('{prefixnone}client_level_download_btn'), condition = cond)
-  if(init) {
-    shinyjs::runjs(glue("
+  if(prefix == 'sys'){
+    shinyjs::toggle(glue('{prefixnone}client_level_download_btn'), condition = cond)
+    if(init) {
+      shinyjs::runjs(glue("
       document.getElementById('{prefix4}_tabbox')
         .insertAdjacentHTML('beforeEnd', '<li class=\"sys_download_tab\" id=\"{prefixnone}client_level_download_tab\"></li>');
       $('#{prefixnone}client_level_download_btn').appendTo('#{prefixnone}client_level_download_tab')
         .toggle('{cond}' == 'TRUE');
     "))
+    }
   }
+ 
   
 }
 

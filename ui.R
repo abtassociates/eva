@@ -1107,8 +1107,7 @@ nav_menu(
             downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
             downloadButton("syse_phd_download_btn_ppt", "Image Download")
           )
-    ),
-    downloadButton("syse_client_level_download_btn", "Client Level Download")
+    )
   )
 ),
 
