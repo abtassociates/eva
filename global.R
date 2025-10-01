@@ -23,7 +23,7 @@ library(ggalluvial)
 library(officer)
 library(collapse)
 
-options(shiny.maxRequestSize = 210763776) # was 190MB, is now 201 MB, aka 201*1024^2=210763776
+options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=232783872
 
 if(dir.exists(here("metadata-analysis/metadata/"))) {
   capture.output("All good", file = stderr())

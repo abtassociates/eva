@@ -14,6 +14,8 @@ library(lubridate)
 library(patchwork)
 library(gt)
 library(scales)
+library(collapse)
+library(data.table)
 
 # Instructions ------------------------------------------------------------
 
@@ -31,21 +33,21 @@ session_data <- read_csv(here("metadata-analysis/metadata/sessiondata.csv")) %>%
 new_way <-
   read_csv(here("metadata-analysis/metadata/metadata.csv")) %>% # <- don't change this
   # ^ change where your file is in your project directory
-  group_by(SessionToken) %>%
-  mutate(sessionTime = difftime(max(Datestamp), min(Datestamp), units = "mins"),
+  fgroup_by(SessionToken) %>%
+  fmutate(sessionTime = difftime(fmax(Datestamp), fmin(Datestamp), units = "mins"),
          is_timeout = sessionTime >= 10 & sessionTime < 11,
-         Details = if_else(Details == "Session started" & is_timeout == TRUE , 
+         Details = fifelse(Details == "Session started" & is_timeout == TRUE , 
                             "Session restarted after timeout", 
                            Details
                            )
          ) %>%
-  ungroup() %>%
-  select("SessionID" = SessionToken,
+  fungroup() %>%
+  fselect("SessionID" = SessionToken,
          "Date" = Datestamp,
          "Event" = Details) %>%
-  mutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+  fmutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
          MonthEnding = floor_date(Date, unit = "month"),
-         EventCategory = case_when(
+         EventCategory = fcase(
            Event %in% c(
              "Unsuccessful upload - not structurally valid",
              "Unsuccessful upload - not hashed",
@@ -55,16 +57,16 @@ new_way <-
              "Unsuccessful upload - zip file was misstructured",
              "Unsuccessful upload - out of date HMIS CSV Export"
            )
-           ~ "Unsuccessful upload",
-           Event %in% c("Successful upload") ~ "Successful upload",
-           grepl("Downloaded", Event, ignore.case = TRUE) ~ "Downloaded",
-           TRUE ~ "Other"
+           , "Unsuccessful upload",
+           Event %in% c("Successful upload") , "Successful upload",
+           grepl("Downloaded", Event, ignore.case = TRUE) , "Downloaded",
+           default = "Other"
          )) %>%
-  filter(today() >= WeekEnding)
+  fsubset(today() >= WeekEnding)
 
 # building dataset
 visits_df <- data.frame(everything = visits) %>%
-  mutate(
+  fmutate(
     SessionID = str_squish(str_sub(everything, 1L, 33L)),
     Date = ymd_hms(str_squish(str_sub(everything, 35L, 54L))),
     WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
@@ -74,7 +76,7 @@ visits_df <- data.frame(everything = visits) %>%
   )
 
 uploads_df <- data.frame(everything = uploads) %>%
-  mutate(
+  fmutate(
     SessionID = str_squish(str_sub(everything, 1L, 33L)),
     Date = ymd_hms(str_squish(str_sub(everything, 35L, 54L))),
     WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
@@ -83,9 +85,9 @@ uploads_df <- data.frame(everything = uploads) %>%
     everything = NULL
   )
 
-old_way <- rbind(uploads_df, visits_df) %>%
-  mutate(
-    EventCategory = case_when(
+old_way <- rowbind(uploads_df, visits_df) %>%
+  fmutate(
+    EventCategory = fcase(
       Event %in% c(
         "Unsuccessful upload - not structurally valid",
         "Unsuccessful upload - not hashed",
@@ -94,15 +96,15 @@ old_way <- rbind(uploads_df, visits_df) %>%
         "Unsuccessful upload - file was mistructured",
         "Unsuccessful upload - zip file was misstructured",
         "Unsuccessful upload - out of date HMIS CSV Export")
-      ~ "Unsuccessful upload",
-      Event %in% c("Successful upload") ~ "Successful Upload",
-      grepl("Downloaded", Event, ignore.case = TRUE) ~ "Downloaded",
-      TRUE ~ "Other"
+      , "Unsuccessful upload",
+      Event %in% c("Successful upload") , "Successful Upload",
+      grepl("Downloaded", Event, ignore.case = TRUE) , "Downloaded",
+      default = "Other"
     )
   )
 
-staging <- rbind(new_way, old_way) %>%
-  mutate(Event = if_else(Event == "Session started", "Site hits", Event),
+staging <- rowbind(new_way, old_way) %>%
+  fmutate(Event = fifelse(Event == "Session started", "Site hits", Event),
          WeekEnding = as.Date(WeekEnding),
          MonthEnding = as.Date(MonthEnding),
          DateTimeMinute = format(Date, "%Y-%m-%d %H:%M")
@@ -133,42 +135,60 @@ staging <- staging[-to_drop, ]
 #                                   unit = "week")- weeks(8))
 
 all_week <- staging %>%
-  filter(WeekEnding >= ceiling_date(max(as_datetime(as.POSIXct(staging$Date))),
+  fsubset(WeekEnding >= ceiling_date(fmax(as_datetime(as.POSIXct(staging$Date))),
                                    unit = "week")- weeks(8))
 
 all_month <- staging %>%
-  filter(MonthEnding >= ceiling_date(max(as_datetime(as.POSIXct(staging$Date))),
+  fsubset(MonthEnding >= ceiling_date(fmax(as_datetime(as.POSIXct(staging$Date))),
                                    unit = "month")- months(12))
 
 all_month_history <- staging %>%
-  filter(MonthEnding < ceiling_date(max(as_datetime(as.POSIXct(staging$Date))),
+  fsubset(MonthEnding < ceiling_date(fmax(as_datetime(as.POSIXct(staging$Date))),
                                    unit = "month"))
 
-counts_by_week <- count(all_week, WeekEnding, Event) %>%
-  arrange(WeekEnding, desc(n))
+counts_by_week <- fcount(all_week, WeekEnding, Event, sort=TRUE, name='n') %>%
+  roworder(WeekEnding, -n)
 
-counts_by_month <- count(all_month, MonthEnding, Event) %>%
-  arrange(MonthEnding, desc(n))
+counts_by_month <- fcount(all_month, MonthEnding, Event, sort=TRUE, name='n') %>%
+  roworder(MonthEnding, -n)
 
-counts_by_month_history <- count(all_month_history, MonthEnding, Event) %>%
-  arrange(MonthEnding, desc(n))
+counts_by_month_history <- fcount(all_month_history, MonthEnding, Event, sort=TRUE, name='n') %>%
+  roworder(MonthEnding, -n)
 
-counts_category_week <- count(all_week, WeekEnding, EventCategory) %>%
-  arrange(WeekEnding, desc(n))
+counts_category_week <- fcount(all_week, WeekEnding, EventCategory, sort=TRUE, name='n') %>%
+  roworder(WeekEnding, -n)
 
-counts_category_month <- count(all_month, MonthEnding, EventCategory) %>%
-  arrange(MonthEnding, desc(n))
+counts_category_month <- fcount(all_month, MonthEnding, EventCategory, sort=TRUE, name='n') %>%
+  roworder(MonthEnding, -n)
 
 end_date_last6months <- floor_date(Sys.Date(), "month") - days(1)
 
 start_date_last6months <- end_date_last6months %m-% months(6) + days(1)
 
 staging_last6months <- staging %>%
-  filter(Date >= start_date_last6months & Date <= end_date_last6months)
+  fsubset(Date >= start_date_last6months & Date <= end_date_last6months)
 
-eva_colors <- c("#16697a", "#C2462E", "#71B4CB", "#73655E",
-                 "#C1DDD7","#FCB248","#CEEfb7", "#71B58B")
-
+## update colors using Eva brand guide - data viz palette
+## also move light colors to end of vector to use as needed for these charts
+eva_colors <- c(# dark blue
+                "#16697A",
+                # blue
+                "#71B4CB",
+                # yellow
+                "#FCB248",
+                # sea green
+                "#52BFA5",
+                # orange
+                "#E8812A",
+                # purple
+                "#7F5D9D",
+                # light purple
+                 "#D5BFE6",
+                # light blue
+                "#C1DDD7"
+                 #coral - not listed in this palette but could use
+                  #"#C2462E", 
+                )
 ```
 
 
@@ -183,13 +203,13 @@ Adjusted site hits give a count of unique sessions where a tab other than "Home"
 ```{r fig.width=10, fig.height=5}
 
 all_week_deduped <- all_week %>% 
-  filter(str_detect(Event, "User on tab") & !(Event %in% c('User on tabHome'))) %>%
-  distinct(SessionID, .keep_all = TRUE)
+  fsubset(str_detect(Event, "User on tab") & !(Event %in% c('User on tabHome'))) %>%
+  funique("SessionID")
 
-counts_by_week_hits <- count(all_week_deduped, WeekEnding, Event) %>%
+counts_by_week_hits <- fcount(all_week_deduped, WeekEnding, Event, sort=TRUE, name = 'n') %>%
   group_by(WeekEnding) %>%
   summarise(Hits = sum(n)) %>% 
-  arrange(WeekEnding, desc(Hits))
+  roworder(WeekEnding, -Hits)
 
 counts_by_week_hits %>%
   ggplot(aes(x = WeekEnding, y = Hits, label = Hits)) +
@@ -211,14 +231,14 @@ counts_by_week_hits %>%
 ```{r fig.width=10, fig.height=5}
 
 all_month_deduped <- all_month %>% 
-  filter(str_detect(Event, "User on tab")) %>% 
-  filter(!(Event %in% c('User on tabHome'))) %>%
-  distinct(SessionID, .keep_all = TRUE)
+  fsubset(str_detect(Event, "User on tab")) %>% 
+  fsubset(!(Event %in% c('User on tabHome'))) %>%
+  funique("SessionID")
 
-counts_by_month_hits <- count(all_month_deduped, MonthEnding, Event) %>%
+counts_by_month_hits <- fcount(all_month_deduped, MonthEnding, Event, sort=TRUE, name = 'n') %>%
   group_by(MonthEnding) %>%
   summarise(Hits = sum(n)) %>% 
-  arrange(MonthEnding, desc(Hits))
+  roworder(MonthEnding, -Hits)
 
 counts_by_month_hits %>%
   ggplot(aes(x = MonthEnding, y = Hits, label = Hits)) +
@@ -243,22 +263,22 @@ counts_by_month_hits %>%
 ```{r fig.width=8.75, fig.height=6}
 
 staging_last6months %>%
-  filter(str_detect(Event, "User on") & 
+  fsubset(str_detect(Event, "User on") & 
            !(Event %in% c("User on tabHome", "User on tabUpload", "User on"))
          & !str_detect(Event, "DEMO MODE")) %>%
-  distinct(SessionID, Event, .keep_all = TRUE) %>%
-  mutate(Tab = case_when(
-    str_detect(Event, "tabChangelog") ~ "Changelog",
-    str_detect(Event, "tabClientCount") ~ "Client Counts",
-    str_detect(Event, "tabDQOrg") ~ "Organization DQ",
-    str_detect(Event, "tabDQSystem") ~ "System DQ",
-    str_detect(Event, "tabLocalSettings") ~ "Local Settings",
-    str_detect(Event, "tabPDDE") ~ "PDDE DQ",
-    str_detect(Event, "tabSystemOverview") ~ "System Overview",
-    str_detect(Event, "tabGlossary") ~ "Glossary",
-    TRUE ~ as.character(Event)), 
+  funique(cols=c('SessionID', 'Event')) %>%
+  fmutate(Tab = fcase(
+    str_detect(Event, "tabChangelog") , "Changelog",
+    str_detect(Event, "tabClientCount") , "Client Counts",
+    str_detect(Event, "tabDQOrg") , "Organization DQ",
+    str_detect(Event, "tabDQSystem") , "System DQ",
+    str_detect(Event, "tabLocalSettings") , "Local Settings",
+    str_detect(Event, "tabPDDE") , "PDDE DQ",
+    str_detect(Event, "tabSystemOverview") , "System Overview",
+    str_detect(Event, "tabGlossary") , "Glossary",
+    default = as.character(Event)), 
     Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
-  count(Tab) %>%
+  fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
@@ -303,9 +323,9 @@ The reasons Eva will reject an export are if the export:
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Unsuccessful upload")) %>%
+  fsubset(str_detect(Event, "Unsuccessful upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(na.rm = FALSE, size=0.8) +
+  geom_line(na.rm = FALSE, linewidth=0.8) +
   geom_point(na.rm = FALSE, size=1) +
   geom_text(nudge_x = 0.75, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -322,9 +342,9 @@ counts_by_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_category_week %>%
-  filter(str_detect(EventCategory, " upload")) %>%
+  fsubset(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Set1") +
@@ -342,9 +362,9 @@ counts_category_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_month %>%
-  filter(str_detect(Event, "Unsuccessful upload")) %>%
+  fsubset(str_detect(Event, "Unsuccessful upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -362,9 +382,9 @@ counts_by_month %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_category_month %>%
-  filter(str_detect(EventCategory, " upload")) %>%
+  fsubset(str_detect(EventCategory, " upload")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = 1, color = "gray15", check_overlap = TRUE) +
   scale_color_brewer(palette = "Set1") +
@@ -387,12 +407,13 @@ Eva did not begin tracking downloads until December 29, 2022.
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(!str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "Client Level Export")) %>% 
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.75) +
+  geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -412,11 +433,11 @@ counts_by_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.75) +
+  geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -435,20 +456,21 @@ counts_by_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week_download_types <- counts_by_week %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
-  mutate(Event2 = case_when((!str_detect(Event, "System Overview")) ~ "DQ download",
-                              (str_detect(Event, "Powerpoint"))  ~ "System Overview image/ppt download",
-                              (str_detect(Event, "Tabular Data")) ~ "System Overview tabular data download")) %>% 
-  group_by(WeekEnding, Event2) %>%
-  summarise(n2 = sum(n)) %>%
-  arrange(WeekEnding, desc(n2))
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fmutate(Event2 = fcase((!str_detect(Event, "System Overview")), "DQ download",
+                              (str_detect(Event, "Powerpoint")) , "System Overview image/ppt download",
+                              (str_detect(Event, "Tabular Data")) , "System Overview tabular data download")) %>% 
+  fgroup_by(WeekEnding, Event2) %>%
+  fsummarise(n2 = sum(n)) %>%
+  fungroup() %>% 
+  roworder(WeekEnding, -n2)
   
   
 counts_by_week_download_types %>% 
   ggplot(aes(x = WeekEnding, y = n2, group = Event2, color = Event2, label = n2)) +
-  geom_line(size=0.75) +
+  geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -468,9 +490,9 @@ counts_by_week_download_types %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_category_week %>%
-  filter(str_detect(EventCategory, "Download")) %>%
+  fsubset(str_detect(EventCategory, "Download")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .75, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -489,13 +511,14 @@ counts_category_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_month %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(!str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "Client Level Export")) %>% 
+  fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -512,13 +535,13 @@ counts_by_month %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_month %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -538,10 +561,10 @@ counts_by_month %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_category_month %>%
-  filter(str_detect(EventCategory, "Download")) %>%
+  fsubset(str_detect(EventCategory, "Download")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = EventCategory, color = EventCategory, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -560,18 +583,19 @@ counts_category_month %>%
 ```{r fig.width=7, fig.height=4}
 
 staging_last6months_downloads <- staging_last6months %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(!str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   group_by(Event) %>% 
   count(Event)
   
 staging_last6months %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(!str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>% 
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "Client Level Export")) %>% 
+  fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>% 
   group_by(Event, EventCategory) %>% 
   count(Event) %>%
   ggplot(aes(fill=Event, y=n, x=EventCategory)) + 
@@ -588,20 +612,22 @@ staging_last6months %>%
 ```{r fig.width=7, fig.height=4}
            
 staging_last6months %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(!str_detect(Event, "DEMO MODE")) %>%
-  filter(str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>% 
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>% 
   group_by(Event, EventCategory) %>% 
   count(Event) %>% 
-  mutate(EventType = case_when(
-    str_detect(Event, "Powerpoint") ~ "Image",
-    str_detect(Event, "Tabular") ~ "Tabular"
+  mutate(EventType = fcase(
+    str_detect(Event, "Powerpoint"), "Image",
+    str_detect(Event, "Tabular"), "Tabular",
+    str_detect(Event, "Client Level Export"), "Tabular"
     )) %>% 
-  mutate(`System Overview Description` = case_when(
-    str_detect(Event, "Client System Status") ~ "Client System Status",
-    str_detect(Event, "System Demographics") ~ "System Demographics",
-    str_detect(Event, "System Flow") ~ "System Flow"
+  mutate(`System Overview Description` = fcase(
+    str_detect(Event, "Client System Status"), "Client System Status",
+    str_detect(Event, "System Demographics") , "System Demographics",
+    str_detect(Event, "Client Level Export") , "System Demographics",
+    str_detect(Event, "System Flow") , "System Flow"
     )) %>% 
   ggplot(aes(fill=`System Overview Description`, y=n, x=EventType)) + 
   geom_bar(position="fill", stat="identity") +
@@ -619,9 +645,9 @@ staging_last6months %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Switched to demo mode")) %>%
+  fsubset(str_detect(Event, "Switched to demo mode")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(na.rm = FALSE, size=0.8) +
+  geom_line(na.rm = FALSE, linewidth=0.8) +
   geom_point(na.rm = FALSE, size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -638,22 +664,22 @@ counts_by_week %>%
 ```{r fig.width=8.75, fig.height=6}
 
 staging_last6months %>%
-  filter(str_detect(Event, "User on") &
+  fsubset(str_detect(Event, "User on") &
         str_detect(Event, "DEMO MODE") &
            !(Event %in% c("User on tabHome", "User on tabHome - DEMO MODE", "User on tabUpload - DEMO MODE", "User on tabUpload", "User on"))) %>%
-  distinct(SessionID, Event, .keep_all = TRUE) %>%
-  mutate(Tab = case_when(
-    str_detect(Event, "tabChangelog") ~ "Changelog",
-    str_detect(Event, "tabClientCount") ~ "Client Counts",
-    str_detect(Event, "tabDQOrg") ~ "Organization DQ",
-    str_detect(Event, "tabDQSystem") ~ "System DQ",
-    str_detect(Event, "tabLocalSettings") ~ "Local Settings",
-    str_detect(Event, "tabPDDE") ~ "PDDE DQ",
-    str_detect(Event, "tabSystemOverview") ~ "System Overview",
-    str_detect(Event, "tabGlossary") ~ "Glossary",
-    TRUE ~ as.character(Event)), 
+  funique(cols=c('SessionID', 'Event')) %>%
+  fmutate(Tab = fcase(
+    str_detect(Event, "tabChangelog") , "Changelog",
+    str_detect(Event, "tabClientCount") , "Client Counts",
+    str_detect(Event, "tabDQOrg") , "Organization DQ",
+    str_detect(Event, "tabDQSystem") , "System DQ",
+    str_detect(Event, "tabLocalSettings") , "Local Settings",
+    str_detect(Event, "tabPDDE") , "PDDE DQ",
+    str_detect(Event, "tabSystemOverview") , "System Overview",
+    str_detect(Event, "tabGlossary") , "Glossary",
+    default = as.character(Event)), 
     Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
-  count(Tab) %>%
+  fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
@@ -679,12 +705,12 @@ staging_last6months %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Download")) %>%
-  filter(str_detect(Event, "DEMO MODE")) %>%
-  filter(!str_detect(Event, "System Overview")) %>%
-  filter(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -704,10 +730,10 @@ counts_by_week %>%
 ```{r fig.width=10, fig.height=5}
 
 counts_by_week %>%
-  filter(str_detect(Event, "Downloaded System Overview")) %>%
-  filter(str_detect(Event, "DEMO MODE")) %>%
+  fsubset(str_detect(Event, "Downloaded System Overview")) %>%
+  fsubset(str_detect(Event, "DEMO MODE")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
-  geom_line(size=0.8) +
+  geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
@@ -731,10 +757,10 @@ Below are the counts by Week. A week here is counted Monday to Sunday.
 
 ```{r data by week}
 gt(counts_by_week %>%
-     filter(!str_detect(Event, "Unpacked file size")) %>%
-     filter(!str_detect(Event, "Beginning upload")) %>%
-     filter(!str_detect(Event, "Memory used after processing")) %>%
-     select(
+     fsubset(!str_detect(Event, "Unpacked file size")) %>%
+     fsubset(!str_detect(Event, "Beginning upload")) %>%
+     fsubset(!str_detect(Event, "Memory used after processing")) %>%
+     fselect(
        "Week Ending" = WeekEnding,
        Event,
        "Count" = n
@@ -749,10 +775,10 @@ Below are the counts by Month.
 
 ```{r data by month}
 gt(counts_by_month_history %>%
-     filter(!str_detect(Event, "Unpacked file size")) %>%
-     filter(!str_detect(Event, "Beginning upload")) %>%
-     filter(!str_detect(Event, "Memory used after processing")) %>%
-     select(
+     fsubset(!str_detect(Event, "Unpacked file size")) %>%
+     fsubset(!str_detect(Event, "Beginning upload")) %>%
+     fsubset(!str_detect(Event, "Memory used after processing")) %>%
+     fselect(
        "Month Ending" = MonthEnding,
        Event,
        "Count" = n

@@ -158,8 +158,8 @@ function(input, output, session) {
 
     if(initially_valid_import() == 1) {
 
-      logMetadata(paste0("DEVOPS - Unpacked file size, all files (KB) = ", sum(zipContents$Length) / 1024))
-      logMetadata(paste0("DEVOPS - Unpacked file size, main files (KB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / 1024))
+      logMetadata(paste0("DEVOPS - Unpacked file size, all files (MB) = ", sum(zipContents$Length) / (1024^2)))
+      logMetadata(paste0("DEVOPS - Unpacked file size, main files (MB) = ", sum(zipContents[sub(".csv$","", zipContents$Name) %in% unique(cols_and_data_types$File), ]$Length) / (1024^2)))
       hide('imported_progress')
 
       setProgress(detail = "Unzipping...", value = .10)
@@ -350,7 +350,7 @@ function(input, output, session) {
               Export, Eva requires the .zip file to have zero High Priority File 
               Structure Errors. Thus, to use Eva, your upload must have zero High 
               Priority File Structure Errors. Please share the file structure 
-              issues, prioritizing the High Priotity File Structure Errrors, 
+              issues, prioritizing the High Priority File Structure Errors, 
               with your HMIS vendor to fix.",
               easyClose = TRUE,
               title = "Unsuccessful Upload: Your HMIS CSV Export is not
@@ -369,7 +369,7 @@ function(input, output, session) {
   }
   
   observeEvent(input$imported, {
-    logMetadata(paste0("DEVOPS - Beginning upload. File size (KB) = ", input$imported$size))
+    logMetadata(paste0("DEVOPS - Beginning upload. File size (MB) = ", (input$imported$size / (1024^2))))
     process_upload(input$imported$name, input$imported$datapath)
   }, ignoreInit = TRUE)
   
