@@ -1,0 +1,105 @@
+{
+  "input": {
+    "methodology_type": "1",
+    "sidebarmenuid": "tabSystemOverview",
+    "sys_comp_subtabs": "Chart",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_hh_type": "AO",
+    "syso_level_of_detail": "All",
+    "syso_project_type": "Residential",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_tabbox": "System Demographics",
+    "system_composition_selections": "All Races/Ethnicities"
+  },
+  "output": {
+    "headerSystemOverview": {
+      "html": "<h2>System Overview<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "sys_comp_summary_selections": {
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> Residential <br>\n<b>Methodology Type:<\/b> Method 1 <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
+      "deps": [
+
+      ]
+    },
+    "sys_comp_summary_ui_chart": {
+      "src": "[image data hash: 75a1e63e0cb4a8a388b114b4d837c76b]",
+      "width": 500,
+      "height": 700,
+      "alt": "A crosstab data table of the demographic make-up of the homeless system.",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": 0.4,
+              "right": 1.6,
+              "bottom": 0.4,
+              "top": 16.6,
+              "discrete_limits": {
+                "x": "",
+                "y": [
+                  "Unknown",
+                  "White & Hispanic/Latina/e/o",
+                  "White alone",
+                  "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+                  "Native Hawaiian or Pacific Islander alone",
+                  "Multi-Racial & Hispanic/Latina/e/o",
+                  "Multi-Racial (not Hispanic/Latina/e/o)",
+                  "Middle Eastern or North African & Hispanic/Latina/e/o",
+                  "Middle Eastern or North African alone",
+                  "Hispanic/Latina/e/o alone",
+                  "Black, African American, or African & Hispanic/Latina/e/o",
+                  "Black, African American, or African alone",
+                  "Asian or Asian American & Hispanic/Latina/e/o",
+                  "Asian or Asian American alone",
+                  "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+                  "American Indian, Alaska Native, or Indigenous alone"
+                ]
+              }
+            },
+            "mapping": {
+              "fill": "n",
+              "x": "\"\"",
+              "y": ".data[[\"All Races/Ethnicities\"]]"
+            },
+            "range": {
+              "left": 239.3484589041097,
+              "right": 494.5205479452055,
+              "bottom": 660.0984158567383,
+              "top": 57.35890410958905
+            }
+          }
+        ],
+        "dims": {
+          "width": 500,
+          "height": 700
+        }
+      }
+    }
+  }
+}

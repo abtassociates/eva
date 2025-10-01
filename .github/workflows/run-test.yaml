@@ -19,7 +19,6 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      IGNORE_COLUMNS: ${{ secrets.IGNORE_COLUMNS }}
       
     steps:
       - uses: actions/checkout@v4

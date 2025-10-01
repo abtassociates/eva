@@ -2,6 +2,9 @@ output$changelog <- renderDT({
   tribble(
     ~ Date,
     ~ Change,
+    "09-29-2025",
+    "<b>FY26 Data Standards</b> <br>
+    - Updated Eva to be compliant with FY26 HMIS Data Standards",
     "07-22-2025",
     "<b>Bug Fixes</b> <br>
       - Fix SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>).",
