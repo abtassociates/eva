@@ -773,7 +773,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
     ) %>%
     fungroup()
-browser()
+
   # We only want enrollments that were:
   # LH during Full Period AND (LH/Housed during the given period or Exited in the future)
   # This will end up including a lot of enrollments that were Inactive
