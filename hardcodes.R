@@ -182,7 +182,7 @@ syso_age_cats <- c(
   "Unknown")
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinao")
 
 
 syso_race_ethnicity_method2 <- list(
