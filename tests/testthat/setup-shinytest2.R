@@ -1,6 +1,6 @@
 library(here)
 
-create_datasets <- TRUE
+create_datasets <- if(exists("create_datasets")) create_datasets else Sys.info()["user"] == "runner"
 
 if (create_datasets || Sys.info()["user"] == "runner") {
   # create reduced-sized versions of initially invalid test datasets
