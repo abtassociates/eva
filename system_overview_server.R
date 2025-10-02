@@ -209,10 +209,7 @@ get_lookbacks <- function(all_filtered) {
   # Calculate days_since_lookback, days_to_lookahead, and other lookback info
   # First, determine days_to_lookahead
   dt <- all_filtered %>%
-    setkey(PersonalID, EntryDate, ExitAdjust) %>%
-    fmutate(
-      days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
-    )
+    setkey(PersonalID, EntryDate, ExitAdjust)
 
   dt_starts <- dt[, .(
     PersonalID, 
@@ -247,11 +244,16 @@ get_lookbacks <- function(all_filtered) {
     lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
   )]
   
-  return(join(
-    dt,
-    lookback_info,
-    on = c("PersonalID", "EnrollmentID")
-  ))
+  lookahead_info <- dt_starts[dt_ends, roll = -Inf][, .(
+    PersonalID,
+    EnrollmentID = i.EnrollmentID,
+    days_to_lookahead = EntryDate - ExitAdjust # EntryDate is the lookup's EntryDate
+  )]
+  return(
+    dt %>%
+      join(lookback_info, on = c("PersonalID", "EnrollmentID")) %>%
+      join(lookahead_info, on = c("PersonalID", "EnrollmentID"))
+  )
 }
 
 # Get period-specific universe_ppl_flag datasets ---------------------------
@@ -565,7 +567,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
     ) %>%
     fungroup()
-# browser()
+
   # We only want enrollments that were:
   # LH during Full Period AND (LH/Housed during the given period or Exited in the future)
   # This will end up including a lot of enrollments that were Inactive

@@ -10,7 +10,7 @@ output$client_level_download_btn <- downloadHandler(
       "AmIndAKNative",
       "Asian",
       "BlackAfAmerican",
-      "HispanicLatine" = "HispanicLatinaeo",
+      "HispanicLatine" = "HispanicLatinao",
       "MidEastNAf" = "MidEastNAfrican",
       "NativeHIPacific",
       "White",
