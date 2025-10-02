@@ -540,6 +540,30 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_comp_outputs
     )
     
+    app$set_inputs(pageid = "tabSystemExits")
+    app$wait_for_idle(timeout = 1e+06)
+    
+    app$set_inputs(syse_tabbox = "<h4>System Exit Types</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(syse_types_subtabs = "<h5>Information</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    
+    app$set_inputs(syse_tabbox = "<h4>System Exit Comparisons</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(syse_compare_subtabs = "<h5>Subpopulation Chart</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(syse_spec_pops = "Veteran")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(syse_compare_subtabs = "<h5>Information</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    
+    app$set_inputs(syse_tabbox = "<h4>Permanent Housing Demographics</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(syse_phd_selections = "Age")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(syse_phd_subtabs = "<h5>Information</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
     customDownload(app, "downloadClientCountsReport", "Client-Counts-Download.xlsx")
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
@@ -554,7 +578,15 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     if(!is_gha) {
       customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
     }
-    
+    customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
+    customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
+    customDownload(app, "syse_compare_download_btn", "System-Exit-Comparison-Download.xlsx")
+    customDownload(app, "syse_compare_download_btn_ppt", "System-Exit-Comparison-Download-PPT.pptx")
+    customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
+    customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
+    if(!is_gha) {
+      customDownload(app, "syse_client_level_download_btn", "System-Exits-Client-Level-Download.xlsx")
+    }
     # export non-large/helper datasets
     all_export_names <- names(app$get_values(export=TRUE)$export)
     exports_to_keep <- setdiff(all_export_names, c(helper_datasets, non_download_exports))
