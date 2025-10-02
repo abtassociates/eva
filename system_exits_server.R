@@ -469,7 +469,7 @@ get_syse_compare_time_data <- reactive({
 syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   
   subgroup_colors <- c(
-   "Subpopulation" = "#FCB248",
+   "Subpopulation" = "#D5BFE6",
    "Comparison Group" = "#9E958F"
   )
   
@@ -535,7 +535,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
 get_syse_compare_subpop_table <- function(tab){
   
   subgroup_colors <- c(
-    "Subpopulation" = "#FCB248",
+    "Subpopulation" = "#D5BFE6",
     "Comparison Group" = "#9E958F"
   )
   
@@ -620,7 +620,7 @@ get_syse_compare_subpop_flextable <- function(tab) {
   
   # Formatting the subpopulation row labels
   subgroup_colors <- c(
-    "Subpopulation" = "#FCB248",
+    "Subpopulation" = "#D5BFE6",
     "Comparison Group" = "#9E958F"
   )
   
@@ -678,7 +678,7 @@ get_syse_compare_time_flextable <- function(tab) {
   
   ## formatting the time row labels
   time_colors <- c(
-    "Current Year" = "#FCB248",
+    "Current Year" = "#D5BFE6",
     "Previous Year" = "#9E958F"
   )
   
@@ -728,7 +728,7 @@ output$syse_compare_subpop_table <- renderDT({
 syse_compare_time_chart <- function( isExport = FALSE){
   
   time_colors <- c(
-    "Current Year" = "#FCB248",
+    "Current Year" = "#D5BFE6",
     "Previous Year" = "#9E958F"
   )
   
@@ -794,7 +794,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
 get_syse_compare_time_table <- function(tab){
   
   time_colors <- c(
-    "Current Year" = "#FCB248",
+    "Current Year" = "#D5BFE6",
     "Previous Year" = "#9E958F"
   )
   
