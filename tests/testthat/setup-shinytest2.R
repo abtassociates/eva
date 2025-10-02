@@ -1,5 +1,7 @@
 library(here)
 
+create_datasets <- TRUE
+
 if (create_datasets || Sys.info()["user"] == "runner") {
   # create reduced-sized versions of initially invalid test datasets
   unlink(here("tests/temp"), recursive = TRUE)
