@@ -1,0 +1,47 @@
+meta:
+  name: eva_brand.yml
+
+logo:
+  small: brand-yml-icon.svg
+  medium: brand-yml-tall.svg
+  large: brand-yml-wide.svg
+
+color:
+  palette: 
+    # primary
+    dark_blue: '#16697A' 
+    coral: '#C2462E'
+    blue: '#71B4CB'
+    sky: '#D0E7EC'
+    
+    # secondary
+    grey: '#73655E'
+    light_blue: '#C1DDD7'
+    light_grey: '#EDE7E3'
+    yellow: '#FCB248'
+    
+    # data viz 
+    sea_green: '#52BFA5'
+    orange: '#E8812A'
+    purple: '#7F5D9D'
+    light_purple: '#D5BFE6'
+    
+    # app background color
+    grey_bg: '#ecf0f5'
+  # theme colors  
+  primary: dark_blue
+  secondary: coral
+  info: sky
+  warning: yellow
+  foreground: black
+  background: grey_bg
+  light: white
+  dark: black
+
+typography:
+  fonts:
+  - family: Roboto
+    source: google
+  base: Roboto
+  monospace: Roboto
+  headings: Roboto

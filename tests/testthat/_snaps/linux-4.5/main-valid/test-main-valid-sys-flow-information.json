@@ -1,6 +1,6 @@
 {
   "input": {
-    "sidebarmenuid": "tabSystemOverview",
-    "sys_inflow_outflow_subtabs": "Information"
+    "pageid": "tabSystemOverview",
+    "sys_inflow_outflow_subtabs": "<h5>Information<\/h5>"
   }
 }
