@@ -42,9 +42,9 @@ hasNoExportRow <- function() {
   return(returnVal)
 }
 
-isFY2024Export <- function() {
+isFY2026Export <- function() {
   return(
-    grepl("2024", as.character(session$userData$Export$CSVVersion))
+    grepl("2026", as.character(session$userData$Export$CSVVersion))
   )
 }
 
@@ -131,7 +131,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       If you are not sure how to resolve this issue, please contact your HMIS vendor."
     )
     logMetadata(session, "Unsuccessful upload - Export.csv has more than 1 row")
-  } else if(!isFY2024Export()) {
+  } else if(!isFY2026Export()) {
     show_invalid_popup(
       issueID = 124,
       title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"

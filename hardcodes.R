@@ -188,7 +188,7 @@ syso_age_cats <- c(
   "Unknown")
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinao")
 
 
 syso_race_ethnicity_method2 <- list(
@@ -499,6 +499,4 @@ dq_file_options <- data.frame(
   report = c("Project Dashboard Report", "PDDE Report", "Data Quality Report")#, "Bed & Unit Utilization Report")
 )
 
-in_dev_mode <- FALSE
-# in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
-
+IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))

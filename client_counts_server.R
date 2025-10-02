@@ -176,7 +176,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
-  validationCurrent <- 
+  validationLatest <- 
     pivot_and_sum(
       validationDF %>%
         filter(EntryDate <= dateRangeEnd &
@@ -201,7 +201,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     nice_names_timeliness(record_type = 'exit')
   
   exportDFList <- list(
-    validationCurrent = validationCurrent %>% nice_names(),
+    validationLatest = validationLatest %>% nice_names(),
     validationDateRange = validationDateRange %>% nice_names(),
     validationDetail = validationDetail %>% nice_names(),
     validationStart = validationStart,
@@ -209,7 +209,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   )
   
   names(exportDFList) = c(
-    "validation - Current",
+    "validation - Latest in Range",
     "validation - Date Range",
     "validation - Detail",
     "validation - Timeliness Start",
@@ -217,7 +217,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   )
   
   exportTestValues(
-    client_count_download_current = summarize_df(validationCurrent %>% nice_names())
+    client_count_download_current = summarize_df(validationLatest %>% nice_names())
   )
   exportTestValues(
     client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())

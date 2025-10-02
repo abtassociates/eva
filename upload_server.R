@@ -67,7 +67,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$dq_pdde_mirai_complete(1)
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
-      if(in_dev_mode) browser()
+      if(IN_DEV_MODE) browser()
     }
     
     setProgress(detail = "Preparing System Overview Data", value = .85)
