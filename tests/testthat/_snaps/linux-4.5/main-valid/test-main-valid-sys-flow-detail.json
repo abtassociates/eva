@@ -1,6 +1,5 @@
 {
   "input": {
-    "methodology_type": "1",
     "pageid": "tabSystemOverview",
     "sys_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_age": [
@@ -18,6 +17,7 @@
     ],
     "syso_hh_type": "All",
     "syso_level_of_detail": "All",
+    "syso_methodology_type": "1",
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",

@@ -132,7 +132,8 @@ mbm_single_status_chart_colors <- c(
 mbm_bar_width = 0.2
 mbm_export_bar_width = 0.4
 
-level_of_detail_text <- reactive({
+
+syso_level_of_detail_text <- reactive({
   fcase(
     input$syso_level_of_detail == "All", "People",
     input$syso_level_of_detail == "HoHsOnly", "Heads of Household",
@@ -144,12 +145,12 @@ level_of_detail_text <- reactive({
 full_unit_of_analysis_display <- reactive({
   paste0(
     "Total ", 
-    level_of_detail_text(),
+    syso_level_of_detail_text(),
     if_else(
       input$syso_hh_type == "All",
       "",
       paste0(" in ",
-             str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "),
+             str_remove(getNameByValue(sys_hh_types, input$syso_hh_type), "- "),
              " Households")
     )
   )
@@ -1188,7 +1189,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       theme_minimal() +
       labs(
         x = "Month",
-        y = paste0("Count of ", level_of_detail_text())
+        y = paste0("Count of ", syso_level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
       scale_fill_manual(
@@ -1201,9 +1202,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
           "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
           "Average Monthly Outflow: -", scales::comma(averages["Outflow"], accuracy = 0.1), "\n",
           "Average Monthly Change in ", 
-          level_of_detail_text(), " in ", 
-          str_remove(getNameByValue(syso_hh_types, input$syso_hh_type), "- "), 
-          if_else(getNameByValue(syso_hh_types, input$syso_hh_type) == "All Household Types", "", " Households"),
+          syso_level_of_detail_text(), " in ", 
+          str_remove(getNameByValue(sys_hh_types, input$syso_hh_type), "- "), 
+          if_else(getNameByValue(sys_hh_types, input$syso_hh_type) == "All Household Types", "", " Households"),
           ": ", 
           scales::comma(avg_monthly_change, accuracy = 0.1)
         )
@@ -1268,7 +1269,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 #       plot_data[plot_data$Summary == "Outflow", "Count"]
 #   )
 #   
-#   level_of_detail_text <- case_when(
+#   syso_level_of_detail_text <- case_when(
 #     input$syso_level_of_detail == "All" ~ "People",
 #     input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
 #     TRUE ~
@@ -1287,7 +1288,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 #     labs(
 #       x = "Month",
 #       # Update Y-axis label to reflect what's plotted
-#       y = paste0("Count of ", level_of_detail_text, " (Active at Start)")
+#       y = paste0("Count of ", syso_level_of_detail_text, " (Active at Start)")
 #     ) + 
 #     # Adjust title to reflect the line chart's focus, but keep avg inflow/outflow context
 #     ggtitle(
@@ -1295,7 +1296,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 #         "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
 #         "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
 #         "Average Monthly Change in ", 
-#           level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
+#           syso_level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ", 
 #           scales::comma(avg_monthly_change, accuracy = 0.1)
 #       )
 #     ) +
@@ -1329,7 +1330,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 #       plot_data[plot_data$PlotFillGroups == "Outflow", "Count"] # Use PlotFillGroups here too
 #   )
 #   
-#   level_of_detail_text <- case_when(
+#   syso_level_of_detail_text <- case_when(
 #     input$syso_level_of_detail == "All" ~ "People",
 #     input$syso_level_of_detail == "HoHsOnly" ~ "Heads of Household",
 #     TRUE ~
@@ -1379,14 +1380,14 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 #     labs(
 #       x = "Month",
 #       # Update Y-axis label to be more general
-#       y = paste0("Count of ", level_of_detail_text)
+#       y = paste0("Count of ", syso_level_of_detail_text)
 #     ) +
 #     ggtitle(
 #       paste0(
 #         "Average Monthly Inflow: +", scales::comma(averages[Summary == "Inflow", Count], accuracy = 0.1), "\n",
 #         "Average Monthly Outflow: -", scales::comma(averages[Summary == "Outflow", Count], accuracy = 0.1), "\n",
 #         "Average Monthly Change in ",
-#         level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ",
+#         syso_level_of_detail_text, " in ", getNameByValue(syso_hh_types, input$syso_hh_type), ": ",
 #         scales::comma(avg_monthly_change, accuracy = 0.1)
 #       )
 #     ) +
@@ -1588,7 +1589,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     theme_minimal() +
     labs(
       x = "Month",
-      y = paste0("Count of ", level_of_detail_text())
+      y = paste0("Count of ", syso_level_of_detail_text())
     ) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
@@ -1732,9 +1733,9 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
 
     write_xlsx(
       list(
-        "System Flow Metadata" = sys_export_summary_initial_df() %>%
+        "System Flow Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
           bind_rows(
-            sys_export_filter_selections(),
+            sys_export_filter_selections(type = 'overview'),
             sys_inflow_outflow_totals(),
             monthly_data$monthly_averages
           ) %>%
@@ -1769,13 +1770,14 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
     logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
     monthly_data <- sys_export_monthly_info()
 
-    sys_overview_ppt_export(
+    sys_perf_ppt_export(
       file = file,
+      type = 'overview',
       title_slide_title = "System Flow",
-      summary_items = sys_export_summary_initial_df() %>%
+      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(
-          sys_export_filter_selections(),
+          sys_export_filter_selections(type = 'overview'),
           sys_inflow_outflow_totals(),
           monthly_data$monthly_averages
         ),
@@ -1793,7 +1795,11 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless"),
         "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
       ),
-      summary_font_size = 19
+      summary_font_size = 19,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
     )
   }
 )

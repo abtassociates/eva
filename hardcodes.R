@@ -143,7 +143,7 @@ issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 
-syso_hh_types <- list(
+sys_hh_types <- list(
   "All Household Types" = "All",
   "- Youth and Young Adult" = "YYA",
   "Adult Only" = "AO",
@@ -158,13 +158,13 @@ hh_types_in_exports <- list(
   AO = c("UY", "AOminusUY")
 )
 
-syso_level_of_detail <- list(
+sys_level_of_detail <- list(
   "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
   "Heads of Household Only" = "HoHsOnly"
 )
 
-syso_project_types <- list(
+sys_project_types <- list(
   "All Project Types" = "All",
   "All Residential Projects" = "AllRes",
   "- Residential: Homeless Projects" = "LHRes",
@@ -173,7 +173,7 @@ syso_project_types <- list(
   "- Non-Residential: Street Outreach" = "SO"
 )
 
-syso_age_cats <- c(
+sys_age_cats <- c(
   # "All ages",
   "0 to 12",
   "13 to 17",
@@ -191,7 +191,7 @@ race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican",
                "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinao")
 
 
-syso_race_ethnicity_method2 <- list(
+sys_race_ethnicity_method2 <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous" =
@@ -218,7 +218,7 @@ syso_race_ethnicity_method2 <- list(
       "LatineMethod2Summarized"
   )
 )
-syso_race_ethnicity_method1 <- list(
+sys_race_ethnicity_method1 <- list(
   "All Races/Ethnicities" = "All",
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous alone" =
@@ -258,37 +258,37 @@ syso_race_ethnicity_method1 <- list(
 
 # Special Populations -----------------------------------------------------
 
-syso_veteran_pops <- list(
+sys_veteran_pops <- list(
   "Veteran" = "Veteran",
   "Non-Veteran/Unknown" = "NonVeteran"
 )
 
-syso_dv_pops <- list(
+sys_dv_pops <- list(
   "Domestic Violence Survivor: Currently Fleeing" = "DVFleeing",
   "Domestic Violence Survivor: Not Currently Fleeing" = "DVNotFleeing",
   "Domestic Violence Survivor: Total" = "DVTotal",
   "No Domestic Violence Indicated" = "NotDV"
 )
 
-syso_chronic_pops <- list(
+sys_chronic_pops <- list(
   "Chronically Homeless" = "Chronic",
   "Long-term Homeless" = "LongTerm"
 )
 
-syso_spec_pops_people <- c(
+sys_spec_pops_people <- c(
   "All Statuses" = "None",
   # "Inflow",
-  syso_veteran_pops#,
-  #syso_dv_pops,
-  # syso_chronic_pops
+  sys_veteran_pops#,
+  #sys_dv_pops,
+  # sys_chronic_pops
 )
 
-syso_methodology_types <- c(
+sys_methodology_types <- c(
   "Method 1: A person is only counted in one race/ethnicity category" = 1,
   "Method 2: A person may be counted in multiple race/ethnicity categories" = 2
 )
 
-syso_grouping_detail <- c(
+sys_grouping_detail <- c(
   ""
 )
 
@@ -355,7 +355,8 @@ inc_ncb_hi_required_prep <- tribble(
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
   funique()
 
-sys_comp_selection_choices = c(
+## System Exit Perm. Housing Demographic display options
+sys_heatmap_selection_choices = c(
   "Age", 
   #"Domestic Violence", #VL 9/20/24: Not including this for launch
   # "Homelessness Type", # Victoria, 8/15/24: Not including this for Launch
@@ -493,5 +494,8 @@ outflow_debug_cols <- c(
   "lh_dates"
 )
 
-# IN_DEV_MODE <- FALSE
 IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
+
+suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
+no_data_msg <- "No data to show."
+
