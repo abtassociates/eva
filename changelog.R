@@ -3,7 +3,7 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "08-18-2025",
+    "10-10-2025",
     "<b>New Features</b><br>
       - New Month-by-Month System Flow visualization<br>
       - Major UI update, due to upgrade to bootstrap5<br>
@@ -15,6 +15,9 @@ output$changelog <- renderDT({
       - Updated System Overview instruction text. <br>
       - Streamlined System Flow export. <br>
       - Fix typo is glossay (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
+    "09-29-2025",
+    "<b>FY26 Data Standards</b> <br>
+    - Updated Eva to be compliant with FY26 HMIS Data Standards",
     "07-22-2025",
     "<b>Bug Fixes</b> <br>
       - Fix SSVF HP Screening DQ check (Issue <a href='https://github.com/abtassociates/eva/issues/782' target='_blank'>#782</a>).",

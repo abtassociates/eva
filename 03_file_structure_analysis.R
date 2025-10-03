@@ -273,10 +273,8 @@ duplicate_enrollment_id <- Enrollment %>%
   fselect(issue_display_cols) %>%
   funique()
 
-personal_ids_in_client <- Client$PersonalID
-
 foreign_key_no_primary_personalid_enrollment <- Enrollment %>%
-  fsubset(!PersonalID %in% c(personal_ids_in_client)) %>%
+  join(Client %>% fselect(PersonalID), on ="PersonalID", how = "anti") %>%
   merge_check_info_dt(checkIDs = 9) %>%
   fmutate(
     Detail = str_squish(paste(

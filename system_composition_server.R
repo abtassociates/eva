@@ -640,7 +640,7 @@ output$sys_comp_download_btn <- downloadHandler(
       num_df <- sys_comp_plot_df()
       
       pct_df <- num_df %>%
-        fmutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+        fmutate(across(where(is.numeric), function(x) (x / sum(x, na.rm = TRUE) * 100) %>%
                         round(1) %>%
                         paste0("%")))  %>% 
         rename("pct" = n)
