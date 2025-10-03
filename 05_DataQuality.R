@@ -1782,7 +1782,7 @@ calculate_outstanding_referrals <- function(dq_data){
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 # All together now --------------------------------------------------------
-dq_main <- rbind(
+dq_main <- rowbind(
   approx_start_after_entry,
   approx_start_v_living_situation_data,
   conflicting_health_insurance_entry,
