@@ -1518,7 +1518,8 @@ bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
   fselect(all_of(vars_we_want)) %>%
   unique()
 
-rm(missing_bn0, missing_bn1, missing_bn2, services_chk)
+rm(missing_bn1, missing_bn2) 
+# don't get rid of missing_bn0 & services_chl so it can be used in 06_PDDE_Cheacker.R
 
 
 # SSVF --------------------------------------------------------------------
@@ -1781,7 +1782,7 @@ calculate_outstanding_referrals <- function(dq_data){
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 # All together now --------------------------------------------------------
-dq_main <- as.data.table(rbind(
+dq_main <- rbind(
   approx_start_after_entry,
   approx_start_v_living_situation_data,
   conflicting_health_insurance_entry,
@@ -1858,7 +1859,7 @@ dq_main <- as.data.table(rbind(
   veteran_missing_wars,
   veteran_missing_year_entered,
   veteran_missing_year_separated
-))
+)
 
 dq_main <- dq_main %>% 
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
