@@ -7,10 +7,11 @@ observeEvent(input$syso_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
+  # Toggle Age, Vet Status, and Race filters based on System OVerview subtab (i.e. hide for System Demographics/Composition)
   shinyjs::runjs(str_glue("
     $('#syso_spec_pops, #syso_age, #syso_race_ethnicity')
       .closest('.bslib-grid-item')
-      .toggle({ifelse(input$syso_tabbox != 'System Demographics', 'true','false')});
+      .toggle({ifelse(input$syso_tabbox != '<h4>System Demographics</h4>', 'true','false')});
   "))
 }, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
 
@@ -416,10 +417,7 @@ get_lookbacks <- function(all_filtered) {
   # Calculate days_since_lookback, days_to_lookahead, and other lookback info
   # First, determine days_to_lookahead
   dt <- all_filtered %>%
-    setkey(PersonalID, EntryDate, ExitAdjust) %>%
-    fmutate(
-      days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
-    )
+    setkey(PersonalID, EntryDate, ExitAdjust)
 
   dt_starts <- dt[, .(
     PersonalID, 
@@ -454,11 +452,16 @@ get_lookbacks <- function(all_filtered) {
     lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
   )]
   
-  return(join(
-    dt,
-    lookback_info,
-    on = c("PersonalID", "EnrollmentID")
-  ))
+  lookahead_info <- dt_starts[dt_ends, roll = -Inf][, .(
+    PersonalID,
+    EnrollmentID = i.EnrollmentID,
+    days_to_lookahead = EntryDate - ExitAdjust # EntryDate is the lookup's EntryDate
+  )]
+  return(
+    dt %>%
+      join(lookback_info, on = c("PersonalID", "EnrollmentID")) %>%
+      join(lookahead_info, on = c("PersonalID", "EnrollmentID"))
+  )
 }
 
 # Get period-specific universe_ppl_flag datasets ---------------------------
@@ -478,14 +481,14 @@ period_specific_data <- reactive({
   # Apply all filters
   all_filtered <- filtered_enrollments %>% 
     join( 
-      if(!in_dev_mode) fselect(filtered_clients, PersonalID) else filtered_clients,
+      if(!IN_DEV_MODE) fselect(filtered_clients, PersonalID) else filtered_clients,
       on = "PersonalID",
       how = "inner"
     ) %>%
     get_lookbacks() %>% # add lookback info
     get_days_since_last_lh() #
   
-  if(in_dev_mode) store_enrollment_categories_all_for_qc(all_filtered)
+  if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
 
   period_data <- all_filtered %>% 
     expand_by_periods() %>% # expand/repeat enrollments across periods
@@ -695,7 +698,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           )
         ) | (
           endDate < session$userData$ReportEnd &
-          ExitAdjust > endDate
+          (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_lookahead %between% c(0,14)))
         )
     ) %>%
     join(
@@ -703,6 +706,15 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       on = c("PersonalID","EnrollmentID"),
       multiple=TRUE
     ) %>%
+    fgroup_by(PersonalID, period) %>%
+    fmutate(
+      lh_in_any_other_enrollment_in_period = any(
+        lh_date %between% list(startDate, endDate) |
+        EntryDate %between% list(startDate, endDate) & lh_at_entry, 
+        na.rm=TRUE
+      )
+    ) %>%
+    fungroup() %>%
     fmutate(
       MoveInDateAdjust = fcoalesce(MoveInDateAdjust, no_end_date),
       lh_date = fcoalesce(lh_date, no_end_date),
@@ -728,7 +740,9 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       
       # An enrollment can also be LH during period if the ExitAdjust is the only LH date during a non-Full period
       # as long as it's not the only LH date in the Full period. If it is, we'll drop as not being "lh during full period"
-      was_lh_during_period = was_lh_during_period_def | ExitAdjust %between% list(startDate, endDate),
+      was_lh_during_period = was_lh_during_period_def | 
+        ExitAdjust %between% list(startDate, endDate) |
+        lh_in_any_other_enrollment_in_period,
       
       was_lh_at_end = active_at_end & (
         (
@@ -759,7 +773,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
     ) %>%
     fungroup()
-# browser()
+
   # We only want enrollments that were:
   # LH during Full Period AND (LH/Housed during the given period or Exited in the future)
   # This will end up including a lot of enrollments that were Inactive
@@ -808,7 +822,10 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
     fsubset(
       was_lh_during_period |
       was_housed_during_period |
-      ExitAdjust >= startDate
+      (
+        ExitAdjust %between% list(startDate, session$userData$ReportEnd) | 
+        (endDate == session$userData$ReportEnd & ExitAdjust > endDate)
+      )
     )
   
   e2 <- e %>%
@@ -927,7 +944,7 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
   
-  if(!in_dev_mode) {
+  if(!IN_DEV_MODE) {
     final <- final %>%
       fselect(c(
         "period",

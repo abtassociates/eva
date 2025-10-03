@@ -1,4 +1,4 @@
-output$glossary <- renderDataTable({
+output$glossary <- renderDT({
   gloss <- tribble(
     ~ Focus,
     ~ Term,

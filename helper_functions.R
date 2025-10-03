@@ -200,11 +200,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
       }
     }
   }
-      
-  if(csvFile == "Client") {
-    ignore_cols <- unlist(strsplit(Sys.getenv("IGNORE_COLUMNS"), ","))
-    data[, ignore_cols] <- NULL
-  }
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
@@ -374,22 +369,6 @@ nice_names <- function(df){
   colnames(df) <- final_names
   
   df
-}
-
-
-# Old to New Living SItuations --------------------------------------------
-
-fy22_to_fy24_living_situation <- function(value){
-  fcase(
-    value %in% c(3, 19, 20, 28, 31, 33, 34, 38, 39), 435,
-    value %in% c(1, 16, 18), value + 100,
-    value %in% c(4, 5, 6, 7, 15, 25), value + 200,
-    value %in% c(2, 12, 13, 14, 27, 29, 32, 35, 36), value + 300,
-    value %in% c(10, 11, 21, 22, 23, 26), value + 400,
-    value %in% c(8, 9, 17, 24, 30, 37, 99), value,
-    is.na(value), NA,
-    default = 0 # 0 would mean something's wrong
-  )
 }
 
 

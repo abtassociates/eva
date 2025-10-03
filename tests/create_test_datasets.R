@@ -4,12 +4,13 @@
 library(tidyverse)
 library(zip)
 library(here)
+library(collapse)
 source(here("hardcodes.R"), local = TRUE)
 source(here("helper_functions.R"), local = TRUE)
 
 # unzip main test data to temp directory. 
 # this will allow us to overwrite individual csv files
-unzip(zipfile = here("tests/FY24-ICF-hashed-current-good.zip"),
+unzip(zipfile = here("tests/FY26-test-good.zip"),
       exdir = here("tests/temp"))
 
 # function to save a directory of CSVs as a zip file for upload
@@ -24,10 +25,12 @@ save_new_zip <- function(zipfname, files_directory) {
 }
 
 # store the original data as an R data set, so we can modify from scratch each time
-csv_files <- list.files(here("tests/temp/"), pattern = "*.csv$",
+csv_files <- list.files(here("tests/temp"), pattern = "*.csv$",
                         full.names = TRUE)
+
 names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
-original_data <- lapply(csv_files, data.table::fread)
+original_data <- lapply(names(csv_files), importFile, upload_filepath = here("tests/FY26-test-good.zip"))
+names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
 # remove unused files
 original_data <- original_data[!names(original_data) %in% c("Affiliation",
@@ -58,25 +61,25 @@ data <- reduced_data[["Export"]]
 data$HashStatus <- 1
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
 Sys.sleep(1)
-save_new_zip("FY24-ICF-unhashed.zip", "reduced")
+save_new_zip("FY26-test-unhashed.zip", "reduced")
 
 # CSVVersion -------------------------------------------------
 data <- reduced_data[["Export"]]
 data$CSVVersion <- '2022 v1'
 write.csv(data, reduced_files[["Export"]], row.names = FALSE, na = "")
 Sys.sleep(1)
-save_new_zip("FY24-ICF-wrong-csv-version.zip", "reduced")
+save_new_zip("FY26-test-wrong-csv-version.zip", "reduced")
 
 # Missing Export (APR or LSA) --------------------------------
 file.remove(reduced_files[["Export"]])
-save_new_zip("FY24-ICF-missing-export.zip", "reduced")
+save_new_zip("FY26-test-missing-export.zip", "reduced")
 write.csv(reduced_data[["Export"]], reduced_files[["Export"]], row.names=FALSE, na = "") # bring export dataset back
 Sys.sleep(3)
 
 # Missing Files ----------------------------------------------
 file.remove(reduced_files[["Enrollment"]])
 file.remove(reduced_files[["Exit"]])
-save_new_zip("FY24-ICF-missing-multiple-files.zip", "reduced")
+save_new_zip("FY26-test-missing-multiple-files.zip", "reduced")
 write.csv(reduced_data[["Enrollment"]],
           reduced_files[["Enrollment"]],
           row.names = FALSE,
@@ -88,7 +91,7 @@ write.csv(reduced_data[["Exit"]],
 Sys.sleep(1)
 
 # Wrong File Type
-gz1 <- gzfile(here("tests/temp/FY24-ICF-wrong-file-type.gz"), "w")
+gz1 <- gzfile(here("tests/temp/FY26-test-wrong-file-type.gz"), "w")
 write.csv(data.frame(), gz1)
 Sys.sleep(1)
 close(gz1)
@@ -106,7 +109,7 @@ lapply(names(reduced_data_fsa), function(fname) {
   Sys.sleep(1)
 })
 Sys.sleep(1)
-save_new_zip("FY24-ICF-fsa-test.zip", "reduced_fsa")
+save_new_zip("FY26-test-fsa-test.zip", "reduced_fsa")
 
 # DQ AND PDDE ---------------------------------------------------
 # convert to data.frame and fix column types
@@ -141,6 +144,6 @@ mapply(function(df, df_name) {
             na = "")
 }, original_data_fixed_cols, names(original_data_fixed_cols), SIMPLIFY = FALSE)
 
-save_new_zip("FY24-ICF-main-valid.zip", "")
+save_new_zip("FY26-test-main-valid.zip", "")
 
 print("done creating test datasets")
