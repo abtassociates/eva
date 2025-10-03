@@ -1492,19 +1492,13 @@ services_chk <- Services %>%
 missing_bn0 <- base_dq_data %>% 
   fsubset(ProjectType == es_nbn_project_type) %>%
   join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) %>%
-  join(Services %>% fselect(EnrollmentID, DateProvided), on = "EnrollmentID", how = 'left')
+  fsubset(HMISParticipationType == 1 ) 
 
-missing_bn1 <- missing_bn0 %>%
-  fsubset(is.na(DateProvided)) %>% # EnrollmentID does NOT appear in services
-  fselect(-DateProvided)
+missing_bn1 <- missing_bn0 %>% 
+  join(services_chk, on = "EnrollmentID", how = 'anti') # EnrollmentID does NOT appear in services
 
-missing_bn2 <- missing_bn0 %>% 
-  fsubset(!is.na(DateProvided)) %>% # EnrollmentID appears in services
-  fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
-  join(services_chk, on = "EnrollmentID", how = 'left')
-  
-missing_bn2 <- missing_bn2 %>% 
+missing_bn2 <- services_chk %>% # EnrollmentID appears in services
+  join(missing_bn0 %>% fselect(EnrollmentID), how="inner") %>% # limit to HMISParticipationType == 1
   fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
@@ -1514,16 +1508,12 @@ missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   unique()
 
 # Bed night available for NBN Enrollment Exit ---------------------------------------
-missing_bn2 <- missing_bn0 %>% 
-  fsubset(!is.na(DateProvided)) %>% # EnrollmentID appears in services
-  fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
-  join(services_chk, on = "EnrollmentID", how = 'left')
-
-missing_bn2 <- missing_bn2 %>% 
-  fsubset(has_bn_eq_exit) %>% # but it does appear on ExitDate
+bn_on_exit <- services_chk %>% # EnrollmentID appears in services
+  join(missing_bn0 %>% fselect(EnrollmentID), how="inner") %>% # limit to HMISParticipationType == 1
+  fsubset(has_bn_eq_exit) %>%  # but it does appear on ExitDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
-bn_on_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 108) %>% 
   fselect(all_of(vars_we_want)) %>%
   unique()
