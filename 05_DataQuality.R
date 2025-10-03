@@ -1497,8 +1497,10 @@ missing_bn0 <- base_dq_data %>%
 missing_bn1 <- missing_bn0 %>% 
   join(services_chk, on = "EnrollmentID", how = 'anti') # EnrollmentID does NOT appear in services
 
-missing_bn2 <- services_chk %>% # EnrollmentID appears in services
-  join(missing_bn0 %>% fselect(EnrollmentID), how="inner") %>% # limit to HMISParticipationType == 1
+services_chk1 <- services_chk %>% # EnrollmentID appears in services
+  join(missing_bn0 , how="inner")  # limit to Nbn & HMISParticipationType == 1
+
+missing_bn2 <- services_chk1 %>%
   fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
@@ -1508,8 +1510,7 @@ missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
   unique()
 
 # Bed night available for NBN Enrollment Exit ---------------------------------------
-bn_on_exit <- services_chk %>% # EnrollmentID appears in services
-  join(missing_bn0 %>% fselect(EnrollmentID), how="inner") %>% # limit to HMISParticipationType == 1
+bn_on_exit <- services_chk1  %>% 
   fsubset(has_bn_eq_exit) %>%  # but it does appear on ExitDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
@@ -1518,8 +1519,8 @@ bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
   fselect(all_of(vars_we_want)) %>%
   unique()
 
-rm(missing_bn1, missing_bn2) 
-# don't get rid of missing_bn0 & services_chl so it can be used in 06_PDDE_Cheacker.R
+rm(missing_bn1, missing_bn2, services_chk1) 
+# don't get rid of missing_bn0 & services_chk so it can be used in 06_PDDE_Checker.R
 
 
 # SSVF --------------------------------------------------------------------
