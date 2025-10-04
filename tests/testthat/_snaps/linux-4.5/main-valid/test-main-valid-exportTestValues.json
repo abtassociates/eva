@@ -1133,26 +1133,26 @@
         [
           "High Priority: 3  ",
           "Min.   :    2.0  ",
-          "Length:68         "
+          "Length:70         "
         ],
         [
-          "Error        :36  ",
-          "1st Qu.:   20.5  ",
+          "Error        :38  ",
+          "1st Qu.:   23.0  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-          "Median :  145.5  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  827.4  ",
+          "Mean   :  861.7  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  526.5  ",
+          "3rd Qu.:  595.5  ",
           null
         ],
         [
@@ -1163,14 +1163,14 @@
       ],
       "Organization Summary": [
         [
-          "Length:1004       ",
+          "Length:1006       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:1004       "
+          "Length:1006       "
         ],
         [
           "Class :character  ",
-          "Error        :440  ",
+          "Error        :442  ",
           "1st Qu.:   3.00  ",
           "Class :character  "
         ],
@@ -1183,7 +1183,7 @@
         [
           null,
           null,
-          "Mean   :  56.04  ",
+          "Mean   :  59.96  ",
           null
         ],
         [
@@ -1202,11 +1202,11 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:68         ",
-          "Length:68         "
+          "Length:70         ",
+          "Length:70         "
         ],
         [
-          "Error        :36  ",
+          "Error        :38  ",
           "Class :character  ",
           "Class :character  "
         ],
@@ -1286,14 +1286,14 @@
       ],
       "Errors": [
         [
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
-          "Length:8562       ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
+          "Length:12615      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1305,7 +1305,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-05-08  "
+          "1st Qu.:2020-05-27  "
         ],
         [
           "Mode  :character  ",
@@ -1316,7 +1316,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-01  "
+          "Median :2021-03-09  "
         ],
         [
           null,
@@ -1327,7 +1327,7 @@
           null,
           null,
           null,
-          "Mean   :2020-12-13  "
+          "Mean   :2021-01-23  "
         ],
         [
           null,
@@ -1338,7 +1338,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-11-16  "
+          "3rd Qu.:2021-12-14  "
         ],
         [
           null,
