@@ -484,18 +484,19 @@ ES_BedType_HousingType <- activeInventory %>%
 
 # No Enrollments in Services for NbN Project ------------------------------------
 
-nbn_nobns <- Enrollment %>% # Get enrollments whose projects were NBN and had HMIS Participation
-  fselect(EnrollmentID, ProjectID) %>%
-  join(session$userData$Project0, on = "ProjectID", how = 'left') %>%
-  fsubset(ProjectType == es_nbn_project_type ) %>%
+nbn_nobns <- missing_bn0 %>% # Get enrollments whose projects were NBN and had HMIS Participation
   fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
-  join(HMISParticipation, on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) %>% 
-  fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
-  unique()
+  funique() %>%
+  join(services_chk, on = "EnrollmentID", how = "left") %>%
+  fgroup_by(ProjectID) %>%
+  fmutate(
+    miss_all_enroll = all(is.na(has_bn_eq_entry)) # not having this value implies EnrollmentID NOT in services_check
+  ) %>% fungroup()
 
-nbn_nobns <- nbn_nobns %>% # anti-join gives all enrollments that have no corresponding Service records
-  join(Services, on = "EnrollmentID", how = "anti" ) %>%
+rm(missing_bn0, services_chk)
+nbn_nobns <- nbn_nobns %>% filter(miss_all_enroll) # filter to projects with all enrollmentID missing
+
+nbn_nobns <- nbn_nobns %>% 
   merge_check_info(checkIDs = 106) %>% 
   fmutate(Detail = "") %>%
   fselect(PDDEcols) %>%
