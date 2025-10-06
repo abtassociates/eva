@@ -302,7 +302,7 @@ page_navbar(
     card(
       card_header(headerCard("Filters")),
       layout_columns(#fixed_width = T,
-        col_widths=c(3, 4),
+        col_widths=c(3, 4, 2),
         gap = '20px',
       dateRangeInput(
         "dateRangeCount",
@@ -319,6 +319,13 @@ page_navbar(
         options = pickerOptions(liveSearch = TRUE,
                                 liveSearchStyle = 'contains', 
                                 container = 'body')
+      ),
+      conditionalPanel(
+        condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
+        numericInput(inputId = 'timeliness_metric',
+                     label = 'Timeliness Metric',
+                     value = 3,
+                     min = 1, max = 11)
       )
       )
     ),

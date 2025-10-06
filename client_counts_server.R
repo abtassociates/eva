@@ -379,8 +379,9 @@ calc_time_to_entry <- function(df){
       ProjectName = ffirst(ProjectName),
       ProjectType = ffirst(ProjectType),
       n_records = GRPN(),
-      n_lt24 = fsum(HoursToEntry < 24),
-      n_lt48 = fsum(HoursToEntry < 48),
+      #n_lt24 = fsum(HoursToEntry < 24),
+      #n_lt48 = fsum(HoursToEntry < 48),
+      n_lt_metric = fsum(HoursToEntry < (24 * input$timeliness_metric)),
       mdn = fmedian(DaysToEntry,na.rm=T),
       nlt0 = fsum(DaysToEntry < 0, na.rm=T),
       n0 = fsum(DaysToEntry == 0, na.rm=T),
@@ -506,8 +507,8 @@ output$timeliness_vb2_val <- renderText({
 output$timeliness_vb3 <- renderUI({
   req(session$userData$valid_file() == 1)
  
-  num_hours <- ifelse(cc_project_type() %in% c(0,1,4,14), 24, 48)
-  num_hours_var <- ifelse(cc_project_type() %in% c(0,1,4,14), "n_lt24", "n_lt48")
+  num_hours <- 24 * input$timeliness_metric
+  num_hours_var <- "n_lt_metric"
   
   if(cc_project_type() == 1 & !is.null(tl_df_nbn())){
     num_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
