@@ -138,14 +138,14 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
                replace(., is.na(.) &
                          ProjectType %in% c(psh_project_type,
                                             rrh_project_type), 0)),
-      "Currently in Project" = case_when(
+      "Currently in project" = case_when(
         ProjectType %in% c(ph_project_types)  ~ 
           rowSums(select(., `Currently Moved In`, `Active No Move-In`),
                   na.rm = TRUE),
         TRUE ~ replace_na(`Currently in project`, 0)
       )
     ) %>% 
-    relocate(`Currently in Project`, .after = ProjectName)
+    relocate(`Currently in project`, .after = ProjectName)
   
   return(pivoted)
 }
@@ -171,7 +171,8 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
       )
     ) %>%
     relocate(`Exited Project`, .after = `Currently Moved In`) %>%
-    select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
+    mutate(ProjectType = project_type(ProjectType)) %>% 
+    select(-c(`Currently in project`, `Exited project`)) %>%
     arrange(OrganizationName, ProjectName)
   
   ### CURRENT TAB ###
@@ -182,22 +183,28 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
         filter(EntryDate <= dateRangeEnd &
                  (is.na(ExitDate) | ExitDate >= dateRangeEnd))
     ) %>%
-    select(-c(`Currently in project`, ProjectType)) %>%
+    select(-c(`Currently in project`)) %>%
+    mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName)
 
   ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
-    select(!!keepCols, !!clientCountDetailCols) %>%
+    select(!!keepCols, ProjectType, !!clientCountDetailCols) %>%
+    mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName, EntryDate)
   
   validationStart <- tl_df_project_start() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
-    select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
+    select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
+    mutate(ProjectType = project_type(ProjectType)) %>% 
+    arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'start')
   
   validationExit <- tl_df_project_exit() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
-    select(OrganizationName, ProjectID, ProjectName, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>% 
+    select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+    mutate(ProjectType = project_type(ProjectType)) %>% 
+    arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'exit')
   
   exportDFList <- list(
