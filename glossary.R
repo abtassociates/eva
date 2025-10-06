@@ -136,9 +136,12 @@ output$glossary <- renderDT({
     "Residential: Homeless Projects",
     "A Project Type Group selection that only includes clients in a specific subset of residential 
     projects. Project types that are considered as residential homeless projects include: 
-    Emergency Shelter (ES) – Entry/Exit, ES - Night-by-Night, Safe Haven (SH), and Transitional Housing (TH). 
-    Clients enrolled in residential homeless project types are considered to be experiencing 
-    homelessness as of the enrollment’s Project Start Date.",
+    Emergency Shelter (ES) – Entry/Exit, ES - Night-by-Night, Safe Haven (SH), and 
+    Transitional Housing (TH). Clients enrolled in residential homeless project types are 
+    considered to be experiencing homelessness as of the enrollment’s Project Start Date. For the 
+    purposes of System Performance, for any Emergency Shelter – Night-by-Night enrollment without 
+    an Exit Date, Eva sets the Exit Date to be 15 days after the last recorded Bed Night or 15 days 
+    after the Entry Date, whichever is later.",
 
     "System Performance Filters",
     "Residential: Permanent Housing Projects",
@@ -153,27 +156,34 @@ output$glossary <- renderDT({
     
     "System Performance Filters",
     "All Non-Residential Projects",
-    "A Project Type Group selection that only includes clients in non-residential projects, 
-    with the exclusion of Homelessness Prevention. A non-residential project does not provide 
-    overnight accommodations. Project types that are considered as non-residential include: 
-    Street Outreach, Day Shelter, Supportive Services Only, Coordinated Entry, and Other. 
-    Since non-residential projects can serve both people who are experiencing homelessness 
-    and those who are housed, clients enrolled in these project types must have a documented 
-    homeless living situation in the Prior Living Situation (PLS) and/or Current Living 
-    Situation (CLS) to be included in Eva’s system performance calculations. For Eva to 
-    consider clients active in long-term, non-residential project enrollments, there must be a 
-    homeless living situation documented in a CLS record every 60 days with the exception of 
-    Coordinated Entry enrollments which requires a CLS record every 90 days.",
+    "A Project Type Group selection that only includes clients in non-residential projects. A 
+    non-residential project does not provide overnight accommodations. Project types that are 
+    considered as non-residential include: Street Outreach, Day Shelter, Supportive Services Only, 
+    Coordinated Entry, and Other. Since non-residential projects can serve both people who are 
+    experiencing homelessness and those who are housed, clients enrolled in these project types 
+    must have a documented homeless living situation in the Prior Living Situation (PLS) and/or a 
+    Current Living Situation (CLS) record to be included in Eva’s system performance calculations. 
+    For Eva to consider clients active in long-term, non-residential project enrollments, there 
+    must be a homeless living situation documented in a CLS record every 60 days with the exception 
+    of Coordinated Entry enrollments which requires a CLS record every 90 days. For the purposes of 
+    System Performance, and for all non-residential project enrollments except for Street Outreach, 
+    Eva “resets” the enrollment Entry Date to the date of the enrollment’s first literally homeless 
+    CLS record if the enrollment does not have a literally homeless PLS. Additionally, for any 
+    non-residential enrollment without an Exit Date, Eva sets the Exit Date to be 60 days after the 
+    last literally homeless CLS recorded for the enrollment or after the literally homeless PLS, 
+    whichever is later. The exception is Coordinated Entry, which uses 90 days.",
 
     "System Performance Filters",
     "Non-Residential: Street Outreach Projects",
-    "A Project Type Group selection that only includes clients in Street Outreach projects. 
-    Clients enrolled in Street Outreach are assumed to be experiencing homelessness as of the 
-    enrollment’s Project Start Date. For Eva to consider clients active in long-term, 
-    Street Outreach enrollments, there must be a homeless living situation documented in a 
-    Current Living Situation (CLS) record every 60 days. Clients enrolled in Street Outreach 
-    for less than 60 days are considered to be experiencing homelessness for the entire 
-    duration of that enrollment, even if there was no CLS record entered within that time period.",
+    "A Project Type Group selection that only includes clients in Street Outreach projects. Clients 
+    enrolled in Street Outreach are assumed to be experiencing homelessness as of the enrollment’s 
+    Project Start Date. For Eva to consider clients active in long-term, Street Outreach enrollments, 
+    there must be a homeless living situation documented in a Current Living Situation (CLS) record 
+    every 60 days. Clients enrolled in Street Outreach for less than 60 days are considered to be 
+    experiencing homelessness for the entire duration of that enrollment, even if there was no CLS 
+    record entered within that time period. For any Street Outreach enrollment without an Exit Date, 
+    Eva sets the Exit Date to be 60 days after the last literally homeless CLS recorded for the 
+    enrollment or after the literally homeless PLS, whichever is later.",
     
     "System Performance Filters",
     "Race/Ethnicity Methodology Type",
