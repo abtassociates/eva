@@ -833,7 +833,6 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
     )]
   ) %>%
     funique() %>%
-    fsubset(!Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)) %>%
     fgroup_by(month, Summary, PlotFillGroups, Detail) %>%
     fsummarise(Count = GRPN()) %>%
     roworder(month, Summary, PlotFillGroups, Detail)
@@ -1416,7 +1415,10 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
 
   summary_data_wide <- sys_monthly_chart_data_wide() %>%
-    fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change"))
+    fsubset(
+      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
+      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
+    )
   
   req(nrow(summary_data_wide) > 0)
   
@@ -1513,8 +1515,12 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 get_sys_inflow_outflow_monthly_flextable <- function() {
   logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
   d <- sys_monthly_chart_data_wide() %>% 
-    fselect(-Detail, -Summary) %>%
-    fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change"))
+    fsubset(
+      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") & 
+      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
+    ) %>%
+    fselect(-Detail, -Summary)
+    
   d <- collap(
     d, 
     cols=names(d %>% fselect(-PlotFillGroups)),
