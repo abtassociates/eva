@@ -430,7 +430,7 @@ universe_ppl_flags <- function(universe_df) {
   #   fselect(PersonalID, period, eecr, lecr, EnrollmentID, EntryDate, MoveInDateAdjust, ExitAdjust, ProjectType, lh_prior_livingsituation, lh_dates, InflowTypeDetail, OutflowTypeDetail) %>%
   #   setorder(PersonalID, period, eecr, lecr)
   # 
-  # fwrite(sampled_final, "/media/sdrive/projects/CE_Data_Toolkit/QC_Inflow_Outflow_Statuses_9.10.25.csv")
+  # fwrite(sampled_final, glue("/media/sdrive/projects/CE_Data_Toolkit/QC Datasets/QC_Inflow_Outflow_Statuses_{today()}.csv"))
 
   ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags_clean %>%
