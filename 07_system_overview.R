@@ -485,11 +485,11 @@ session$userData$lh_info <- enrollment_categories %>%
       na.rm=TRUE
     ),
     last_lh_compare_date = pmax(
-      lh_date,
-      fifelse(!exit_is_only_lh, ExitDate, NA),
+      pmin(lh_date + days_lh_valid, ExitAdjust), # Handle if lh_date + days_lh_valid goes beyond ExitDate.
+      fifelse(!exit_is_only_lh & !ProjectType %in% non_res_project_types, ExitDate, NA), # For non-res projects, we don't use ExitDate. LH_date + days_lh_valid is sufficient
       fifelse(
         lh_at_entry,
-        pmin(EntryDate + days_lh_valid, ExitAdjust, na.rm = TRUE),
+        pmin(EntryDate + days_lh_valid, ExitAdjust),
         NA
       ),
       na.rm=TRUE
