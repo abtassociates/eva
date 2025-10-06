@@ -373,11 +373,16 @@ nice_names <- function(df){
 }
 
 nice_names_timeliness <- function(df, record_type){
-  ## original names
-  # ProjectID              ProjectName ProjectType n_records n_lt24 n_lt48   mdn  nlt0    n0  n1_3  n4_6 n7_10  n11p
+ 
+  if(is.null(df)){
+    return(NULL)
+  }
+  mdn_string <- switch(record_type, 
+                       'start' = 'Median Days to Project Start Record Entry',
+                       'exit' = 'Median Days to Project Exit Record Entry',
+                       'nbn' = 'Median Days to Night-by-Night Record Entry',
+                       'cls' = 'Median Days to Current Living Situation Record Entry')
   
-  mdn_string <- ifelse(record_type == 'start', 'Median Days to Project Start Record Entry',
-                       'Median Days to Project Exit Record Entry')
   colnames(df) <- str_replace_all(names(df), 
                                c('OrganizationName' = 'Organization Name', 
                                  'ProjectID' = 'Project ID',

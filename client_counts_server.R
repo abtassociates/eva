@@ -206,6 +206,29 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'exit')
+ 
+  if(!is.null(tl_df_cls())){
+    validationCLS <- tl_df_cls() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'cls')
+  } else {
+    validationCLS <- NULL
+  }
+  
+  if(!is.null(tl_df_nbn())){
+    validationNbN <- tl_df_nbn() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'nbn')
+  } else {
+    validationNbN <- NULL
+  }
+ 
   
   exportDFList <- list(
     validationLatest = validationLatest %>% nice_names(),
@@ -240,6 +263,22 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   exportTestValues(
     client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
+  
+  if(!is.null(validationCLS)){
+    exportDFList[[length(exportDFList) + 1]] <- validationCLS
+    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CLS"
+    exportTestValues(
+      client_count_download_timeliness_cls = summarize_df(validationCLS %>% nice_names_timeliness(record_type = 'cls'))
+    )
+  }
+  
+  if(!is.null(validationNbN)){
+    exportDFList[[length(exportDFList) + 1]] <- validationNbN
+    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness NbN"
+    exportTestValues(
+      client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
+    )
+  }
   
   write_xlsx(exportDFList,
              path = file)
