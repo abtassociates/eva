@@ -98,33 +98,6 @@ collapse_details <- list(
   "Inflow" = inflow_chart_detail_levels
 )
 
-bar_colors <- c(
-  "Inflow" = "#BDB6D7", 
-  "Outflow" = '#6A559B',
-  "Homeless" = '#ECE7E3',
-  "Housed" = '#9E958F'
-)
-
-mbm_inflow_bar_colors <- c(
-  "Active at Start: Homeless" = '#ECE7E3',
-  "Inflow" = "#BDB6D7"
-)
-
-mbm_outflow_bar_colors <- c(
-  "Outflow" = '#6A559B',
-  # "Inactive" = "#E78AC3"
-  "Active at End: Housed" = '#9E958F'
-)
-
-mbm_bar_colors <- c(
-  mbm_inflow_bar_colors,
-  mbm_outflow_bar_colors
-)
-
-mbm_single_status_chart_colors <- c(
-  "First-Time \nHomeless" = bar_colors[["Inflow"]],
-  "Inactive" = colorspace::lighten(bar_colors[["Outflow"]], amount = 0.3)
-)
 
 # 0.2 seems to be the right value to space the bars correctly
 # higher than this and outflow bars start to overlap with next month's inflow

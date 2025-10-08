@@ -3,7 +3,8 @@ output$sankey_filter_selections <- renderUI({
   syso_detailBox() 
 })
 
-render_sankey_plot <- function(plot_data, isExport = FALSE) {
+render_sankey_plot <- function(plot_data, isExport = FALSE, bar_colors = sankey_bar_colors,
+                               border_colors = sankey_border_colors) {
   begin_labels <- plot_data %>%
     fgroup_by(Begin) %>%
     fsummarize(freq = fsum(freq)) %>%
@@ -38,23 +39,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       on = "Begin", how = 'left'
     )
   
-  bar_colors <- c(
-    "Housed" = "#9E958F", 
-    "Homeless" = "#ECE7E3",
-    "Exited, Non-Permanent" = "#E8D9D1",
-    "Enrolled, Homeless" = "#B54E37",
-    "Inactive" = "#504742",
-    "Exited, Permanent" = "#DFEDEA",
-    "Enrolled, Housed" = "#326878"
-  )
   
-  border_colors <- c(
-    "Exited, Non-Permanent" = "#D1AB98",
-    "Enrolled, Homeless" = "#8D3D2A",
-    "Inactive" = "black",
-    "Exited, Permanent" = "#B4C7CB",
-    "Enrolled, Housed" = "#214853"
-  )
 
   ggplot(
     data = plot_data,
