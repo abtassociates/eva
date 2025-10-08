@@ -265,12 +265,12 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         aes(fill = n)
       ) +
       scale_fill_gradient(
-        low = "#D2E3D9",
-        high = "#084954",
+        low = eva_colors('light_purple'),
+        high = eva_colors('dark_purple'),
         na.value = ifelse(
           is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
           "white",
-          "#D2E3D9"
+          eva_colors('very_light_purple')
         )
       ) +
       # set text color to be 508 compliant contrasting
@@ -424,12 +424,12 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       aes(fill = n)
     ) +
     scale_fill_gradient(
-      low = "#D2E3D9",
-      high = "#084954",
+      low = eva_colors('light_purple'),
+      high = eva_colors('dark_purple'),
       na.value = ifelse(
         is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
         "white",
-        "#D2E3D9"
+        eva_colors('very_light_purple')
       )
     ) + # na.value makes 0s invisible
     # set text color to be 508 compliant contrasting
