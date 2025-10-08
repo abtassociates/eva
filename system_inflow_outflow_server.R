@@ -1026,7 +1026,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     
     # color palette
-    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns) +
+    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(20, 'mm')) +
     # distance between bars and x axis line
     scale_y_continuous(expand = expansion()) +
     # x axis labels
@@ -1181,7 +1181,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         y = paste0("Count of ", level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(30, 'mm')) + 
+      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns) + 
       # Update legend title
       ggtitle(
         paste0(
