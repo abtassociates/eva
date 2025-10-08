@@ -764,13 +764,14 @@ get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_comp
   
   if (length(var_col) > 1) {
     plot_df <- comp_df %>%
-      pivot_longer(
-        cols = -PersonalID,
-        names_to = selection,
-        values_to = "value"
+      pivot(
+        how="longer",
+        ids = "PersonalID",
+        names = list(selection, "n")
       ) %>%
-      group_by(!!sym(selection)) %>%
-      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
+      fgroup_by(selection) %>%
+      fsummarize(n = fsum(n))
+    
   } else {
     plot_df <- as.data.frame(table(comp_df[[var_col]]))
     names(plot_df) <- c(selection, "n")
