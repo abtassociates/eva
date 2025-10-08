@@ -552,6 +552,17 @@ mbm_single_status_chart_colors <- c(
   "First-Time \nHomeless" = bar_colors[["Inflow"]],
   "Inactive" = bar_colors[["Outflow"]]
 )
+
+mbm_pattern_fills <- c(
+  "Housed" = '',
+  "Homeless" = '',
+  "Inflow" = 'grid_longdash_xl',
+  "First-Time \nHomeless" = 'grid_longdash_xl',
+  "Active at Start: Homeless" = "grid_longdash_xl",
+  "Outflow" = 'stripe45_dashed_xl',
+  "Inactive" = 'stripe45_dashed_xl',
+  "Active at End: Housed" = "stripe45_dashed_xl"
+)
 ## System Status Sankey chart ----------------------------------------------
 
 sankey_bar_colors <- c(

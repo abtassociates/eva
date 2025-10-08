@@ -945,6 +945,13 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     # than legend, which makes it hard to interpret the floating 0
     fsubset(!(N == 0 & PlotFillGroups %in% active_at_levels))
   
+  cat_order <- as.character(unique(df$PlotFillGroups))
+  bar_patterns <- unname(mbm_pattern_fills[cat_order])
+  bar_bg <- unname(bar_colors[cat_order])
+  bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black', 
+                     'Housed' = bar_colors[['Housed']], 
+                     'Homeless' = bar_colors[['Homeless']])[cat_order])
+  
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
@@ -1004,7 +1011,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
         y = if_else(PlotFillGroups == "Inflow", yend, ystart), 
         vjust = -.6
       ),
-      size = sys_chart_text_font
+      size = sys_chart_text_font,
+      color = "black"
     ) +
     
     ggtitle(
@@ -1018,7 +1026,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     
     # color palette
-    scale_fill_manual(values = bar_colors) +
+    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns) +
     # distance between bars and x axis line
     scale_y_continuous(expand = expansion()) +
     # x axis labels
@@ -1128,6 +1136,16 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     # 0.4 is probably the highest we can go to maintain the distinction between months
     bar_width <- if_else(isExport, mbm_export_bar_width, mbm_bar_width)
     
+    cat_order <- c(rev(mbm_inflow_levels), mbm_outflow_levels)
+    bar_patterns <- unname(c('Inflow' = 'grid_solid', mbm_pattern_fills[cat_order[-1]]))
+    
+    bar_bg <- unname(mbm_bar_colors[cat_order])
+    
+    bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black',  
+                       mbm_bar_colors['Active at Start: Homeless'], 
+                       mbm_bar_colors['Active at End: Housed'])[cat_order])
+
+    
     # just = 0.5 means bar is centered around tick
     # just = 1 means bar's right side is aligned with tick
     # just = -1 means bar's left side is aligned with tick
@@ -1141,7 +1159,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             PlotFillGroups,
             rev(mbm_inflow_levels)
           )),
-        aes(x = month, y = Count, fill = PlotFillGroups),
+        aes(x = month, y = Count, color = PlotFillGroups, fill = PlotFillGroups),
         stat = "identity",
         position = "stack",
         width = bar_width,
@@ -1150,7 +1168,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       ) +
       geom_bar(
         data = plot_data[InflowOutflow == "Outflow"],
-        aes(x = month, y = Count, fill = PlotFillGroups),
+        aes(x = month, y = Count, color = PlotFillGroups, fill = PlotFillGroups),
         stat = "identity",
         position = "stack",
         width = bar_width,
@@ -1163,11 +1181,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         y = paste0("Count of ", level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-      scale_fill_manual(
-        values = mbm_bar_colors, 
-        name = NULL,
-        breaks = c(mbm_inflow_levels, mbm_outflow_levels)
-      ) + # Update legend title
+      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(30, 'mm')) + 
+      # Update legend title
       ggtitle(
         paste0(
           "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
@@ -1560,15 +1575,17 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
     )
   
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
-
+  plot_data$PlotFillGroups <- status
+ 
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
+    geom_col(aes(fill = PlotFillGroups), width = 0.3, color = "black") +
     geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text())
     ) +
+    scale_fill_pattern(bg = mbm_single_status_chart_colors[status], fg='black', patterns = mbm_pattern_fills[[status]]) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
       axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),
