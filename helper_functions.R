@@ -595,7 +595,7 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
 ## list all destination types and subtypes based on allowed_destinations vector
 ## used for systems exit data downloads
 list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
-  destinations_df <- data.frame(Destination = allowed_destinations) %>% 
+  destinations_df <- data.table(Destination = allowed_destinations) %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -608,8 +608,8 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
     fselect(-Destination)
   
   if(add_totals){
-    destinations_df <- bind_rows(destinations_df,
-                                 data.frame(
+    destinations_df <- rowbind(destinations_df,
+                                 data.table(
                                    dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
                                  ) %>% fmutate(dest_type = factor(dest_type, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')),
                                                `Destination Type Detail` = paste0('Total ', dest_type)) %>% rename('Destination Type' = dest_type)
