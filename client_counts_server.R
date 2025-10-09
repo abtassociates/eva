@@ -269,9 +269,9 @@ output$validate_plot <- renderPlot({
     scale_y_continuous(label = comma_format()) +
     scale_colour_manual(
       values = c(
-        "Currently in project" = "#71B4CB",
-        "Active No Move-In" = "#7F5D9D",
-        "Currently Moved In" = "#52BFA5"
+        "Currently in project" = get_brand_color('blue'),
+        "Active No Move-In" = get_brand_color('light_purple'),
+        "Currently Moved In" = get_brand_color('sea_green')
       ),
       aesthetics = "fill"
     ) +

@@ -65,14 +65,14 @@ bslib_eva_theme <- bs_theme(
   version = 5,
   brand = TRUE,
   "card-bg" = "white",
-  "navbar-bg" = "#16697A",
+  "navbar-bg" = get_brand_color("dark_blue"),
   "accordion-bg" = "white",
   "accordion-border-radius" = "8px",
   "accordion-inner-border-radius" = "8px",
   "sidebar-bg" = "white",
   "dropdown-bg" = "white",
   "input-bg" = "white",
-  "nav-underline-link-active-color" = "#16697A",
+  "nav-underline-link-active-color" = get_brand_color("dark_blue"),
   "modal-content-bg" = "white",
   font_scale = 0.875 # units are rem, 1rem = 16px
 )

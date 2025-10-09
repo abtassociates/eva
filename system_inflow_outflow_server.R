@@ -999,7 +999,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       # direction = "y",
       segment.colour = NA,
       nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
-      color = "#4e4d47",
+      color = get_brand_color('med_grey2'),
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
@@ -1039,14 +1039,14 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     theme_void() +
     # add back in what theme elements we want
     theme(
-      text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
+      text = element_text(size = sys_chart_text_font, colour = get_brand_color('med_grey2')),
       axis.text.x = element_text(
         size = get_adj_font_size(
           sys_axis_text_font * ifelse(windowSize()[1] < 1300, 0.9,1), 
           isExport),
         vjust = -.2), 
       axis.ticks.x = element_line(),
-      axis.line.x = element_line(color = "#4e4d47", linewidth = 0.5),
+      axis.line.x = element_line(color = get_brand_color('med_grey2'), linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       legend.title = element_blank(),
