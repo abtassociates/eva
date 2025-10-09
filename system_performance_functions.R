@@ -864,49 +864,6 @@ get_var_cols <- function(methodology_type) {
 }
 
 
-expand_by_periods_syse <- function(dt, time_chart) {
-  
-  if(!time_chart){
-    all_periods <- data.table(
-      period = c('Full'),
-      startDate = session$userData$ReportStart,
-      endDate = session$userData$ReportEnd
-    ) %>% 
-      ftransform(
-        exit_cutoff = startDate %m-% years(2),
-        temp_key = 1
-      )
-  } else {
-    all_periods <- data.table(
-      period = c('Current Year','Previous Year'),
-      startDate = c(session$userData$ReportStart,
-                    session$userData$ReportStart %m-% years(1)),
-      endDate = c(session$userData$ReportEnd,
-                  session$userData$ReportEnd %m-% years(1))
-    ) %>% 
-      ftransform(
-        exit_cutoff = startDate %m-% years(2),
-        temp_key = 1
-      )
-  }
-  dt %>%
-    ftransform(temp_key = 1) %>%
-    join(
-      all_periods,
-      on = "temp_key",
-      multiple = TRUE
-    ) %>%
-    fsubset(EntryDate <= endDate & ExitAdjust >= exit_cutoff) %>%
-    fselect(-temp_key, -exit_cutoff) %>%
-    setkey(period) %>%
-    ftransform(
-      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
-      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
-      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate
-    )
-}
-
-
 get_syse_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
 
   logToConsole(session, paste0("In get_syse_eecr_and_lecr, num period_enrollments_filtered: ", nrow(period_enrollments_filtered_was_lh)))

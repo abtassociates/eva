@@ -283,7 +283,7 @@ period_specific_data <- reactive({
   if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
 
   period_data <- all_filtered %>% 
-    expand_by_periods() %>% # expand/repeat enrollments across periods
+    expand_by_periods(chart_type = 'mbm') %>% # expand/repeat enrollments across periods
     get_was_lh_info(all_filtered) %>% # Add was_lh/housed indicators
     get_eecr_and_lecr() %>% # select EECR/LECRs
     universe_enrl_flags() %>% # Add period-enrollment-level intermediate indicators (for Inflow and Outflow type)
@@ -381,16 +381,41 @@ enrollments_filtered <- reactive({
 # Period-Specific Enrollment Categories ----------------------------------------
 # "expand" the dataset to get repeated rows per period (full + each month)
 # then filter based on the period start and end
-expand_by_periods <- function(dt) {
-  all_periods <- data.table(
-    period = factor(names(session$userData$report_dates)),
-    startDate = as.Date(sapply(session$userData$report_dates, `[`, 1)),
-    endDate = as.Date(sapply(session$userData$report_dates, `[`, 2))
-  ) %>% 
-    ftransform(
-      exit_cutoff = startDate %m-% years(2),
-      temp_key = 1
-    )
+expand_by_periods <- function(dt, chart_type = 'mbm') {
+  if(chart_type == 'mbm'){
+    all_periods <- data.table(
+      period = factor(names(session$userData$report_dates)),
+      startDate = as.Date(sapply(session$userData$report_dates, `[`, 1)),
+      endDate = as.Date(sapply(session$userData$report_dates, `[`, 2))
+    ) %>% 
+      ftransform(
+        exit_cutoff = startDate %m-% years(2),
+        temp_key = 1
+      )
+  } else if(chart_type == 'exits_time'){
+    all_periods <- data.table(
+      period = c('Current Year','Previous Year'),
+      startDate = c(session$userData$ReportStart,
+                    session$userData$ReportStart %m-% years(1)),
+      endDate = c(session$userData$ReportEnd,
+                  session$userData$ReportEnd %m-% years(1))
+    ) %>% 
+      ftransform(
+        exit_cutoff = startDate %m-% years(2),
+        temp_key = 1
+      )
+  } else {
+    all_periods <- data.table(
+      period = c('Full'),
+      startDate = session$userData$ReportStart,
+      endDate = session$userData$ReportEnd
+    ) %>% 
+      ftransform(
+        exit_cutoff = startDate %m-% years(2),
+        temp_key = 1
+      )
+  }
+  
   
   dt %>%
     ftransform(temp_key = 1) %>%

@@ -1484,7 +1484,7 @@ all_filtered_syse <- reactive({
     get_days_since_last_lh()
  
    eecr_and_lecr <- tmp %>% 
-    expand_by_periods_syse(time_chart = FALSE) %>% 
+    expand_by_periods(chart_type = 'exits_types') %>% 
     get_was_lh_info(tmp) %>%
     get_syse_eecr_and_lecr()
     
@@ -1515,7 +1515,7 @@ all_filtered_syse_time <- reactive({
     get_days_since_last_lh()
   
   eecr_and_lecr <- tmp %>% 
-    expand_by_periods_syse(time_chart = TRUE) %>% 
+    expand_by_periods(chart_type = 'exits_time') %>% 
     get_was_lh_info_time(tmp) %>%
     get_syse_eecr_and_lecr()
   
@@ -1546,7 +1546,7 @@ all_filtered_syse_demog <- reactive({
     get_days_since_last_lh()
   
   eecr_and_lecr <- tmp %>% 
-    expand_by_periods_syse(time_chart = FALSE) %>% 
+    expand_by_periods(chart_type = 'exits_demog') %>% 
     get_was_lh_info(tmp) %>%
     get_syse_eecr_and_lecr()
   
