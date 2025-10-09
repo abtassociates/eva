@@ -864,54 +864,6 @@ get_var_cols <- function(methodology_type) {
 }
 
 
-get_syse_lookbacks <- function(filtered_enrollments) {
-  # Calculate days_since_lookback, days_to_lookahead, and other lookback info
-  # First, determine days_to_lookahead
-  dt <- filtered_enrollments %>%
-    setkey(PersonalID, EntryDate, ExitAdjust) %>%
-    fmutate(
-      days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
-    ) %>%
-    join(
-      rbind(
-        session$userData$lh_non_res %>% fselect(EnrollmentID, last_lh_info_date),
-        session$userData$lh_nbn %>% fselect(EnrollmentID, last_lh_info_date)
-      ),
-      on = "EnrollmentID"
-    ) %>%
-    fmutate(last_lh_info_date = fifelse(
-      ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
-      fcoalesce(MoveInDateAdjust, ExitAdjust),
-      last_lh_info_date
-    ))
-  
-  dt_starts <- dt[, .(PersonalID, EnrollmentID, EntryDate, Date = EntryDate, Type = "start")]
-  dt_ends <- dt[, .(PersonalID, EnrollmentID,  Destination, last_lh_info_date, MoveInDateAdjust, ProjectType, ExitAdjust, Date = ExitAdjust, Type = "end")]
-  setkey(dt_ends, PersonalID, Date)
-  setkey(dt_starts, PersonalID, Date)
-  
-  # Rolling join to find the most recent end date before each start date
-  lookback_info <- dt_ends[dt_starts, roll = TRUE][, .(
-    PersonalID,
-    EnrollmentID = i.EnrollmentID,
-    days_since_lookback = EntryDate - ExitAdjust, # ExitDate is the lookup's ExitDate
-    lookback_des = Destination,
-    lookback_ptype = ProjectType,
-    lookback_enrollment_id = EnrollmentID,
-    lookback_dest_perm = Destination %in% perm_livingsituation,
-    lookback_movein = MoveInDateAdjust,
-    lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res,
-    lookback_last_lh_date = last_lh_info_date
-  )]
-  
-  
-  return(join(
-    dt %>% fselect(-last_lh_info_date),
-    lookback_info,
-    on = c("PersonalID", "EnrollmentID")
-  ) )
-}
-
 expand_by_periods_syse <- function(dt, time_chart) {
   
   if(!time_chart){
