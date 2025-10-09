@@ -58,8 +58,8 @@ output$syse_phd_summary_selections <- renderUI({
 sys_phd_selections_summary <- function() {
   return(
     sys_export_summary_initial_df(type = 'exits') %>%
-      bind_rows(sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)) %>%
-      rename("System Exit Demographics" = Value)
+      rowbind(sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)) %>%
+      frename("System Exit Demographics" = Value)
   )
 }
 
@@ -84,10 +84,11 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
   comp_df <- all_filtered_syse_demog() %>% 
     remove_non_applicables(selection = selection) %>% 
     select(PersonalID, Destination, unname(var_cols[[selection]]))
-  comp_df_phd <- comp_df %>% filter(Destination %in% perm_livingsituation) %>% 
-    select(-Destination)
+  comp_df_phd <- comp_df %>% 
+    fsubset(Destination %in% perm_livingsituation) %>% 
+    fselect(-Destination)
   
-  comp_df <- comp_df %>% select(-Destination)
+  comp_df <- comp_df %>% fselect(-Destination)
   
   validate(
     need(
@@ -140,24 +141,28 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
     suppress_values("n",keep_orig_var = TRUE) %>%
     suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
-  plot_df_joined <- left_join(plot_df_supp,plot_df_phd %>% rename(num = n), by=c(selection)) %>% 
-    mutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
+  plot_df_joined <- join(plot_df_supp,
+                              plot_df_phd %>% 
+                                frename(num = n), how = 'left', on=c(selection)) %>% 
+    fmutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
            frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
   
   export_label1 <- paste0(selection, ' (Demographic Section 1)')
   
   export_df <- plot_df_joined %>% 
-    left_join(plot_df_supp %>% 
-                mutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% select(-n, -wasRedacted)) %>% 
-    mutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
-    select(selection, 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
+    join(plot_df_supp %>% 
+                fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
+                fselect(-n, -wasRedacted),
+         how = 'left') %>% 
+    fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
+    fselect(get(selection), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
     arrange(!!sym(selection))
   names(export_df)[1] <- export_label1
   
   sys_phd_export(export_df)
   
-  plot_df_joined <- plot_df_joined %>% select(-n_orig, -frac_export)
-  plot_df <- plot_df_supp %>% select(-n_orig)
+  plot_df_joined <- plot_df_joined %>% fselect(-n_orig, -frac_export)
+  plot_df <- plot_df_supp %>% fselect(-n_orig)
   
   
   return(
@@ -237,10 +242,10 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
     funique()
   
   comp_df_phd <- comp_df %>% 
-    filter(Destination %in% perm_livingsituation) %>% 
-    select(-Destination)
+    fsubset(Destination %in% perm_livingsituation) %>% 
+    fselect(-Destination)
   
-  comp_df <- comp_df %>% select(-Destination)
+  comp_df <- comp_df %>% fselect(-Destination)
   
   
   
@@ -361,34 +366,39 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   #   suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
   #   suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
-  plot_df_joined <- left_join(plot_df_supp,plot_df_phd %>% rename(num = n), by=c(selections[1],selections[2])) %>% 
-    mutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
+  plot_df_joined <- join(plot_df_supp,plot_df_phd %>% 
+                                frename(num = n), 
+                         how = 'left',
+                         on = c(selections[1],selections[2])) %>% 
+    fmutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
            frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
   
   export_label1 <- paste0(selections[2], ' (Demographic Section 1)')
   export_label2 <- paste0(selections[1], ' (Demographic Section 2)')
   
   export_df <- plot_df_joined %>% 
-    left_join(plot_df_supp %>% 
-                mutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% select(-n, -wasRedacted)) %>% 
-    mutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
-    select(selections[2], selections[1], 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
+    join(plot_df_supp %>% 
+                fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
+                fselect(-n, -wasRedacted),
+         how = 'left') %>% 
+    fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
+    fselect(get(selections[2]), get(selections[1]), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
     arrange(!!sym(selections[2]))
   names(export_df)[1:2] <- c(export_label1, export_label2)
   
   sys_phd_export(export_df)
   
   if(methodology_type == 1){
-    h_total_joined <- left_join(h_total,h_total_phd %>% rename(num = N), by=c(selections[1],selections[2])) %>% 
-      mutate(frac = ifelse(N == 0 | is.na(N), NA, num / N))
+    h_total_joined <- join(h_total,h_total_phd %>% frename(num = N), how = 'left', on=c(selections[1],selections[2])) %>% 
+      fmutate(frac = ifelse(N == 0 | is.na(N), NA, num / N))
     
-    v_total_joined <- left_join(v_total,v_total_phd %>% rename(num = N), by=c(selections[1],selections[2])) %>% 
-      mutate(frac = ifelse(N == 0 | is.na(N), NA, num / N))
+    v_total_joined <- join(v_total,v_total_phd %>% frename(num = N), how = 'left', on=c(selections[1],selections[2])) %>% 
+      fmutate(frac = ifelse(N == 0 | is.na(N), NA, num / N))
     
   }
   
-  plot_df_joined <- plot_df_joined %>% select(-n_orig, -frac_export)
-  plot_df <- plot_df_supp %>% select(-n_orig)
+  plot_df_joined <- plot_df_joined %>% fselect(-n_orig, -frac_export)
+  plot_df <- plot_df_supp %>% fselect(-n_orig)
   
   g <- ggplot(plot_df_joined, aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
@@ -611,19 +621,19 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
      write_xlsx(
        list(
          "ExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-           bind_rows(
+           rowbind(
              sys_export_filter_selections(type = 'exits'),
-              data.frame(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+              data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
            ) %>% 
-           rename('System Exits by Type' = Value),
+           frename('System Exits by Type' = Value),
          
          "SystemExitData" = tree_exits_data() %>% 
-           mutate(`Destination Type Detail` = living_situation(Destination)) %>% 
-           group_by(`Destination Type`,`Destination Type Detail`) %>% 
-           summarize(Count = n()) %>% 
-           ungroup() %>% 
+           fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
+           fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
+           fsummarize(Count = n()) %>% 
+           fungroup() %>% 
            list_all_destinations(fill_zero = TRUE) %>% 
-           mutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / sum(Count)))
+           fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
        ),
        path = file,
        format_headers = FALSE,
@@ -642,9 +652,9 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
                          type = 'exits',
                        title_slide_title = "System Exits by Type",
                        summary_items = sys_export_summary_initial_df(type = 'exits') %>%
-                         filter(Chart != "Start Date" & Chart != "End Date") %>% 
-                         bind_rows(sys_export_filter_selections(type = 'exits'),
-                                   data.frame(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
+                         fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
+                         rowbind(sys_export_filter_selections(type = 'exits'),
+                                   data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
                        plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
                        summary_font_size = 19,
                        startDate = session$userData$ReportStart, 
@@ -703,43 +713,43 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 syse_subpop_export <- reactive({
   ## compute subcategories of destination types for data export - not shown in chart or table
   pct_subpop_sub <- tree_exits_data() %>% 
-    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, `Destination Type Detail`) %>% 
-    summarize(count_subpop = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_subpop = count_subpop /sum(count_subpop, na.rm=T))
+    fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
+    fsummarize(count_subpop = GRPN()) %>% 
+    fungroup() %>% 
+    fmutate(pct_subpop = count_subpop /sum(count_subpop, na.rm=T))
   
   pct_comparison_sub <- everyone_else() %>% 
-    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, `Destination Type Detail`) %>% 
-    summarize(count_comparison = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_comparison = count_comparison/sum(count_comparison, na.rm=T))
+    fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
+    fsummarize(count_comparison = GRPN()) %>% 
+    fungroup() %>% 
+    fmutate(pct_comparison = count_comparison/sum(count_comparison, na.rm=T))
  
   pct_subpop_totals <- pct_subpop_sub %>% 
-    group_by(`Destination Type`) %>% 
-    summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+    fgroup_by(`Destination Type`) %>% 
+    fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
               count_subpop = sum(count_subpop), 
               pct_subpop = sum(pct_subpop)) 
   
   pct_comparison_totals <- pct_comparison_sub %>% 
-    group_by(`Destination Type`) %>% 
-    summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+    fgroup_by(`Destination Type`) %>% 
+    fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
               count_comparison = sum(count_comparison), 
               pct_comparison = sum(pct_comparison)) 
 
   #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
   full_join(pct_subpop_sub %>% 
-              bind_rows(pct_subpop_totals), 
+              rowbind(pct_subpop_totals), 
             pct_comparison_sub %>% 
-              bind_rows(pct_comparison_totals), 
+              rowbind(pct_comparison_totals), 
             by=c('Destination Type','Destination Type Detail')) %>%    
-    list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      mutate(pct_diff =  scales::percent(pct_subpop - pct_comparison,accuracy = 0.1, scale = 100),
+      list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
+      fmutate(pct_diff =  scales::percent(pct_subpop - pct_comparison,accuracy = 0.1, scale = 100),
              total_count = count_subpop + count_comparison,
              pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
              pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
-      select(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Comparison Group %' = pct_comparison, 
+      fselect(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Comparison Group %' = pct_comparison, 
              'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Comparison Group Count' = count_comparison, 'Total Count' = total_count)
 })
 
@@ -776,23 +786,23 @@ get_syse_compare_subpop_data <- reactive({
   validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
   
   
-  pct_subpop <- tree_exits_data() %>% summarize(
-    'Permanent' = mean(`Destination Type` == 'Permanent'),
-    'Homeless'= mean(`Destination Type` == 'Homeless'),
-    'Institutional' = mean(`Destination Type` == 'Institutional'),
-    'Temporary' = mean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  pct_subpop <- tree_exits_data() %>% fsummarize(
+    'Permanent' = fmean(`Destination Type` == 'Permanent'),
+    'Homeless'= fmean(`Destination Type` == 'Homeless'),
+    'Institutional' = fmean(`Destination Type` == 'Institutional'),
+    'Temporary' = fmean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
   )
   
-  pct_everyone_else <- everyone_else() %>% summarize(
-    'Permanent' = mean(`Destination Type` == 'Permanent'),
-    'Homeless' = mean(`Destination Type` == 'Homeless'),
-    'Institutional' = mean(`Destination Type` == 'Institutional'),
-    'Temporary' = mean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  pct_everyone_else <- everyone_else() %>% fsummarize(
+    'Permanent' = fmean(`Destination Type` == 'Permanent'),
+    'Homeless' = fmean(`Destination Type` == 'Homeless'),
+    'Institutional' = fmean(`Destination Type` == 'Institutional'),
+    'Temporary' = fmean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
   )
   
-  tibble(
+  data.table(
     subpop_summ = c("Subpopulation","Comparison Group","Percent Difference"),
   round(
     rowbind(
@@ -815,43 +825,43 @@ syse_time_export <- reactive({
   
   ## compute subcategories of destination types for data export - not shown in chart or table
   pct_prev_year_sub <- prev_year %>% 
-    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, `Destination Type Detail`) %>% 
-    summarize(count_prev_year = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_prev_year = count_prev_year/sum(count_prev_year, na.rm=T))
+    fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
+    fsummarize(count_prev_year = GRPN()) %>% 
+    fungroup() %>% 
+    fmutate(pct_prev_year = count_prev_year/fsum(count_prev_year, na.rm=T))
   
   pct_current_year_sub <- current_year %>% 
-    mutate(`Destination Type Detail` = living_situation(Destination)) %>%     
-    group_by(`Destination Type`, `Destination Type Detail`) %>% 
-    summarize(count_cur_year = n()) %>% 
-    ungroup() %>% 
-    mutate(pct_cur_year = count_cur_year/sum(count_cur_year, na.rm=T))
+    fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
+    fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
+    fsummarize(count_cur_year = GRPN()) %>% 
+    fungroup() %>% 
+    fmutate(pct_cur_year = count_cur_year/fsum(count_cur_year, na.rm=T))
 
  
  pct_prev_year_totals <- pct_prev_year_sub %>% 
-   group_by(`Destination Type`) %>% 
-   summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
-             count_prev_year = sum(count_prev_year), 
-             pct_prev_year = sum(pct_prev_year)) 
+   fgroup_by(`Destination Type`) %>% 
+   fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+             count_prev_year = fsum(count_prev_year), 
+             pct_prev_year = fsum(pct_prev_year)) 
  
  pct_current_year_totals <- pct_current_year_sub %>% 
-   group_by(`Destination Type`) %>% 
-   summarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
-             count_cur_year = sum(count_cur_year), 
-             pct_cur_year = sum(pct_cur_year)) 
+   fgroup_by(`Destination Type`) %>% 
+   fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+             count_cur_year = fsum(count_cur_year), 
+             pct_cur_year = fsum(pct_cur_year)) 
  
     #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
  full_join(pct_prev_year_sub %>% 
-             bind_rows(pct_prev_year_totals), 
+             rowbind(pct_prev_year_totals), 
            pct_current_year_sub %>% 
-             bind_rows(pct_current_year_totals), 
+             rowbind(pct_current_year_totals), 
            by=c('Destination Type','Destination Type Detail')) %>%    
       list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      mutate(pct_change = scales::percent(pct_cur_year - pct_prev_year, accuracy=0.1, scale=100),
+      fmutate(pct_change = scales::percent(pct_cur_year - pct_prev_year, accuracy=0.1, scale=100),
              pct_cur_year = scales::percent(pct_cur_year, accuracy=0.1, scale=100), 
              pct_prev_year = scales::percent(pct_prev_year, accuracy=0.1, scale=100)) %>% 
-      select(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
+      fselect(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
              'Percent Change' = pct_change, 'Previous Year Count' = count_prev_year, 'Current Year Count' = count_cur_year)
   
 })
@@ -881,24 +891,24 @@ get_syse_compare_time_data <- reactive({
 
   current_year <- everyone() %>% 
     fsubset(period == 'Current Year')
-    
-  pct_prev_year <- prev_year %>% summarize(
-    'Permanent' = mean(`Destination Type` == 'Permanent'),
-    'Homeless'= mean(`Destination Type` == 'Homeless'),
-    'Institutional' = mean(`Destination Type` == 'Institutional'),
-    'Temporary' = mean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  
+  pct_prev_year <- prev_year %>% fsummarize(
+    'Permanent' = fmean(`Destination Type` == 'Permanent'),
+    'Homeless'= fmean(`Destination Type` == 'Homeless'),
+    'Institutional' = fmean(`Destination Type` == 'Institutional'),
+    'Temporary' = fmean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
   )
   
-  pct_current_year <- current_year %>% summarize(
-    'Permanent' = mean(`Destination Type` == 'Permanent'),
-    'Homeless' = mean(`Destination Type` == 'Homeless'),
-    'Institutional' = mean(`Destination Type` == 'Institutional'),
-    'Temporary' = mean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = mean(`Destination Type` == 'Other/Unknown')
+  pct_current_year <- current_year %>% fsummarize(
+    'Permanent' = fmean(`Destination Type` == 'Permanent'),
+    'Homeless' = fmean(`Destination Type` == 'Homeless'),
+    'Institutional' = fmean(`Destination Type` == 'Institutional'),
+    'Temporary' = fmean(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
   )
   
-  tibble(
+  data.table(
     time_summ = c("Current Year","Previous Year","Percent Change"),
     round(rowbind(
       pct_current_year,
@@ -922,9 +932,9 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   
   ## long format needed for plotting points
   subpop_chart_df <- get_syse_compare_subpop_data() %>% 
-    filter(subpop_summ != "Percent Difference") %>% 
+    fsubset(subpop_summ != "Percent Difference") %>% 
     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'subpop_pct') %>% 
-    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
+    fmutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
     add_column(dest_type_adj = rep(adj_x_vals, times = 2))
   
   ## wide format needed for plotting arrows between points
@@ -1181,9 +1191,9 @@ syse_compare_time_chart <- function( isExport = FALSE){
   
   ## long format needed for plotting points
   time_chart_df <- get_syse_compare_time_data() %>% 
-    filter(time_summ != "Percent Change") %>% 
+    fsubset(time_summ != "Percent Change") %>% 
     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'time_pct') %>% 
-    mutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
+    fmutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
     add_column(dest_type_adj = rep(adj_x_vals, times = 2))
   
   ## wide format needed for plotting arrows between points
@@ -1320,42 +1330,42 @@ output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_file
     if(subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req = FALSE)){
       sheets <- list(
         "SystemExitsTimeMetadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
-          bind_rows(
+          rowbind(
             sys_export_filter_selections(type = 'exits')
           ) %>% 
-          bind_rows(
-            data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+          rowbind(
+            data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
                        Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
                                               nrow(everyone() %>% fsubset(period == 'Previous Year')))
                        )
             )
           ) %>% 
-          rename("System Exit Comparisons: Time" = Value),
+          frename("System Exit Comparisons: Time" = Value),
         "Time" = syse_time_export(),
         "SystemExitsSubpopMetadata" = sys_export_summary_initial_df(type = 'exits') %>%
-          bind_rows(
+          rowbind(
             sys_export_filter_selections(type = 'exits_subpop'),
-            data.frame(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
+            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
                        Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
             )
           ) %>% 
-          rename("System Exit Comparisons: Subpopulation" = Value),
+          frename("System Exit Comparisons: Subpopulation" = Value),
         "Subpopulation" = syse_subpop_export()
       )
     } else {
       sheets <- list(
         "SystemExitsTimeMetadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
-          bind_rows(
+          rowbind(
             sys_export_filter_selections(type = 'exits')
           ) %>% 
-          bind_rows(
-            data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+          rowbind(
+            data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
                        Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
                                                        nrow(everyone() %>% fsubset(period == 'Previous Year')))
                        )
             )
           ) %>% 
-          rename("System Exit Comparisons: Time" = Value),
+          frename("System Exit Comparisons: Time" = Value),
         "Time" = syse_time_export()
       )
     }
@@ -1570,20 +1580,20 @@ content = function(file) {
                         title_slide_title = "System Exits Comparisons",
                         summary_items = list(
                           "Summary - Time" = sys_export_summary_initial_df(type = 'exits_time') %>%
-                            bind_rows(
+                            rowbind(
                               sys_export_filter_selections(type = 'exits')
                             ) %>% 
-                            bind_rows(
-                              data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                            rowbind(
+                              data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
                                          Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
                                                                          nrow(everyone() %>% fsubset(period == 'Previous Year')))
                                          )
                               )
                             ),
                           "Summary - Subpopulation" = sys_export_summary_initial_df(type = 'exits') %>%
-                            bind_rows(
+                            rowbind(
                               sys_export_filter_selections(type = 'exits_subpop'),
-                              data.frame(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
+                              data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
                                          Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
                               )
                             ) 
@@ -1610,11 +1620,11 @@ content = function(file) {
                         title_slide_title = "System Exits Comparisons",
                         summary_items = list(
                           "Summary - Time" = sys_export_summary_initial_df(type = 'exits_time') %>%
-                            bind_rows(
+                            rowbind(
                               sys_export_filter_selections(type = 'exits')
                             ) %>% 
-                            bind_rows(
-                              data.frame(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                            rowbind(
+                              data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
                                          Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
                                                                          nrow(everyone() %>% fsubset(period == 'Previous Year')))
                                          )
@@ -1780,8 +1790,8 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
       type = 'exits',
       title_slide_title = "System Exits Permanent Housing (PH) Demographics",
       summary_items = sys_export_summary_initial_df(type = 'exits') %>%
-        filter(Chart != "Start Date" & Chart != "End Date") %>% 
-        bind_rows(sys_phd_selections_info()),
+        fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
+        rowbind(sys_phd_selections_info()),
       plots = setNames(
         list(
           if (length(input$syse_phd_selections) == 1) {

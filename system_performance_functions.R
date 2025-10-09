@@ -345,11 +345,11 @@ sys_heatmap_xl_export <- function(file,
       
       # Add Total Row and create a total column
       num_df <- num_df %>%
-        bind_rows(total_num_row) %>%
+        rowbind(total_num_row) %>%
         mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
       
       pct_df <- pct_df %>% 
-        bind_rows(total_pct_row) %>%
+        rowbind(total_pct_row) %>%
         mutate(
           Total =  paste0(
             round(
@@ -369,18 +369,18 @@ sys_heatmap_xl_export <- function(file,
       fmutate(across(where(is.numeric), function(x) (x / sum(x, na.rm = TRUE) * 100) %>%
                       round(1) %>%
                       paste0("%")))  %>% 
-      rename("pct" = n)
+      frename("pct" = n)
     
     if(methodology_type == 1) { 
       pct_df <- pct_df %>%
-        bind_rows(
+        rowbind(
           setNames(
             data.frame("Total", "100%"), 
             c(selections, "pct")
           )
         )
       num_df <- num_df %>%
-        bind_rows(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
+        rowbind(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
     }
   }
   
@@ -777,10 +777,10 @@ get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_comp
     names(plot_df) <- c(selection, "n")
     
     if(selection == "Domestic Violence Status") {
-      plot_df <- plot_df %>% bind_rows(tibble(
+      plot_df <- plot_df %>% rowbind(tibble(
         `Domestic Violence Status` = "DVTotal",
         n = sum(plot_df %>% 
-                  filter(`Domestic Violence Status` != "NotDV") %>%
+                  fsubset(`Domestic Violence Status` != "NotDV") %>%
                   pull(n), na.rm = TRUE)))
     }
   }
@@ -826,7 +826,7 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
   if ("Domestic Violence Status" %in% selections) {
     dv_totals <- freqs %>%
-      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      fsubset(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
       group_by(!!sym(
         ifelse(
           selections[1] == "Domestic Violence Status",
@@ -837,7 +837,7 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
       summarize(`Domestic Violence Status` = "DVTotal",
                 n = sum(n, na.rm = TRUE)) #,
     # pct = sum(pct, na.rm = TRUE))
-    freqs <- bind_rows(freqs, dv_totals)
+    freqs <- rowbind(freqs, dv_totals)
   }
   
   return(freqs)
