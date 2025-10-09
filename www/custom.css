@@ -68,7 +68,7 @@
 /* Put border around form controls so they stand out on white-background cards*/
 .form-group .bootstrap-select {
     margin-bottom: 0;
-    border: 1px solid #D0E7EC;
+    border: 1px solid var(--brand-sky);
 }
 
 /* Remove extra vertical spacing within cards*/
@@ -79,15 +79,15 @@
 /* || BUTTONS */
 .btn-default {
   color: white; /*text color*/
-  background-color:#C2462E; /*coral*/
-  border-color: #C2462E; /*coral*/
+  background-color: var(--brand-coral); /*coral*/
+  border-color: var(--brand-coral) /*coral*/
 }
 
 /*button hover and focus*/
 .btn-default:hover, .btn-default:focus {
-  color: #C2462E; /*text color - coral*/
+  color: var(--brand-coral); /*text color - coral*/
   background-color: white;
-  border-color: #C2462E; /*text color - coral*/
+  border-color: var(--brand-coral); /*text color - coral*/
 }
 
 .form-control {
