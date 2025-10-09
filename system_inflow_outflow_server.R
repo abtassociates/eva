@@ -615,6 +615,42 @@ universe_ppl_flags <- function(universe_df) {
 
     }
   }
+  
+  ## Non-Re-Engaged/Return after Exit ---
+  bad_records <- universe_w_ppl_flags_clean %>%
+    fsubset(
+      period != "Full" & eecr, 
+      PersonalID, period, InflowTypeDetail, OutflowTypeDetail
+    ) %>%
+    funique(cols=c("PersonalID", "period", "InflowTypeDetail", "OutflowTypeDetail")) %>%
+    setorder(PersonalID, period) %>%
+    fmutate(
+      inflow_flag = !grepl("Return|Re-engaged|Unknown", InflowTypeDetail),
+      prev_outflow = flag(OutflowTypeDetail, g=PersonalID), 
+      prev_outflow_flag = grepl("Exited|Inactive", prev_outflow) & !is.na(prev_outflow)
+    ) %>%
+    fgroup_by(PersonalID) %>%
+    fsummarize(has_issue = any(inflow_flag & prev_outflow_flag, na.rm=TRUE)) %>%
+    fungroup() %>%
+    fsubset(has_issue)
+  if(nrow(bad_records) > 0) {
+    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
+      bad_nonreturn_after_exit <- get_all_enrollments_for_debugging(
+        bad_records,
+        universe_w_ppl_flags_clean,
+        extra_cols = c("straddles_start", "days_since_lookback", "was_lh_during_period"),
+        multiple = TRUE
+      ) %>%
+        fselect(
+          PersonalID, period, EnrollmentID, eecr, lecr, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_prior_livingsituation, lh_dates, InflowTypeDetail, OutflowTypeDetail, days_since_lookback
+        )
+      if(nrow(bad_nonreturn_after_exit) > 0) {
+        view(bad_nonreturn_after_exit)
+        browser()
+      }
+      
+    }
+  }
 
   # PersonalID: 529378, enrollment 825777 - 
   # Oct - Active at Start Homeless 
