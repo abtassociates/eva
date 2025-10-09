@@ -73,6 +73,5 @@ bslib_eva_theme <- bs_theme(
   "input-bg" = "white",
   "nav-underline-link-active-color" = "#16697A",
   "modal-content-bg" = "white",
-  #bg = '#ecf0f5',fg='black',
   font_scale = 0.875 # units are rem, 1rem = 16px
 )
