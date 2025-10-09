@@ -241,7 +241,8 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     continuous_at_end = lecr & 
       endDate < session$userData$ReportEnd &
-      ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+      ExitAdjust <= endDate & (days_to_next_lh %in% c(0,NA) & days_to_lookahead >= 0) | days_to_next_lh %between% c(1, 14),
+      # ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
     
     # New Inflow category:"first_of_the_month_exit" should not show up in chart 
     # or export, even though the person's outflow should be counted
@@ -572,7 +573,7 @@ universe_ppl_flags <- function(universe_df) {
     }
   }
   
-  ## Re-Engaged/Return after Exit ---
+  ## Re-Engaged/Return after Non-Exit ---
   bad_records <- universe_w_ppl_flags_clean %>%
     fmutate(
       non_res_reengage = grepl("Return|Re-engaged", InflowTypeDetail) & 
