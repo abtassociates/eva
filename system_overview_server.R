@@ -812,18 +812,17 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       on = c("PersonalID","EnrollmentID"),
       multiple=TRUE
     ) %>%
+    fmutate(
+      lh_in_period = lh_date %between% list(startDate, endDate) |
+        EntryDate %between% list(startDate, endDate) & lh_at_entry,
+      lh_date_in_start_window = lh_date <= startDate & 
+        pmin(lh_date + days_lh_valid, ExitAdjust) >= startDate - 15 & 
+        days_to_next_lh < days_lh_valid
+    ) %>%
     fgroup_by(PersonalID, period) %>%
     fmutate(
-      lh_in_any_other_enrollment_in_period = any(
-        lh_date %between% list(startDate, endDate) |
-        EntryDate %between% list(startDate, endDate) & lh_at_entry, 
-        na.rm=TRUE
-      ),
-      any_lh_date_in_start_window = any(
-        lh_date <= startDate & 
-        lh_date + days_lh_valid >= startDate,
-        na.rm = TRUE
-      )
+      lh_in_any_other_enrollment_in_period = any(lh_in_period == TRUE, na.rm=TRUE),
+      any_lh_date_in_start_window = any(lh_date_in_start_window == TRUE, na.rm = TRUE)
     ) %>%
     fungroup() %>%
     fmutate(
@@ -996,9 +995,10 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   #
   #   2. if last_straddle_end is neither LH nor housed at period end, then take the non-straddle
   prep_for_exceptions <- e2 %>% 
+    fmutate(last_straddle_end_lh_or_housed_at_end = last_valid_straddle_end & (was_lh_at_end | was_housed_at_end)) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      last_straddle_end_lh_or_housed_at_end = any(last_valid_straddle_end & (was_lh_at_end | was_housed_at_end), na.rm=TRUE),
+      last_straddle_end_lh_or_housed_at_end = any(last_straddle_end_lh_or_housed_at_end, na.rm=TRUE),
       only_period_enrollment = GRPN() == 1
     ) %>%
     fungroup()
