@@ -402,6 +402,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     EnrollmentID,
     PersonalID,
     HouseholdID,
+    ProjectID,
     EntryDate,
     MoveInDateAdjust,
     ExitDate,
