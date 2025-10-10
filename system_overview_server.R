@@ -815,15 +815,20 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
     ) %>%
     fmutate(
       lh_in_period = lh_date %between% list(startDate, endDate) |
-        EntryDate %between% list(startDate, endDate) & lh_at_entry,
-      lh_date_in_start_window = lh_date <= startDate & 
-        pmin(lh_date + days_lh_valid, ExitAdjust) >= startDate - 15 & 
-        days_to_next_lh < days_lh_valid
+        EntryDate %between% list(startDate, endDate),
+      lh_date_in_start_window = fcoalesce(lh_date, EntryDate) %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0),
+      # lh_date_in_start_window = lh_date <= startDate & 
+      #   pmin(lh_date + days_lh_valid, ExitAdjust) >= startDate - 15 & 
+      #   days_to_next_lh < days_lh_valid,
+      lh_date_during_period = lh_date %between% list(start_minus_15_60_90_or_0, endDate),
+      lh_date_in_end_window = fcoalesce(lh_date, EntryDate) %between% list(end_minus_15_60_90_or_0, end_plus_15_or_0)
     ) %>%
     fgroup_by(PersonalID, period) %>%
     fmutate(
-      lh_in_any_other_enrollment_in_period = any(lh_in_period == TRUE, na.rm=TRUE),
-      any_lh_date_in_start_window = any(lh_date_in_start_window == TRUE, na.rm = TRUE)
+      lh_in_any_other_enrollment_in_period = any(lh_in_period, na.rm=TRUE),
+      any_lh_date_in_start_window = any(lh_date_in_start_window, na.rm = TRUE),
+      any_lh_date_in_end_window = any(lh_date_in_end_window, na.rm = TRUE),
+      any_lh_date_during_period = any(lh_date_during_period, na.rm = TRUE)
     ) %>%
     fungroup() %>%
     fmutate(
@@ -839,15 +844,14 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           MoveInDateAdjust >= startDate
         ) |
         any_lh_date_in_start_window |
-        # lh_date %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0) |
-        (EntryDate %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0) & lh_at_entry)
+        EntryDate %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0)
       ),
         
       # These are *definitely* lh during period
       was_lh_during_period_def = in_date_range & (
         ProjectType %in% c(lh_project_types_nonbn, ph_project_types) |
-        lh_date %between% list(start_minus_15_60_90_or_0, endDate) | 
-        (EntryDate %between% list(start_minus_15_60_90_or_0, endDate) & lh_at_entry)
+        any_lh_date_during_period |
+        (EntryDate %between% list(start_minus_15_60_90_or_0, endDate))
       ),
       
       # An enrollment can also be LH during period if the ExitAdjust is the only LH date during a non-Full period
@@ -861,8 +865,8 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           ProjectType %in% c(lh_project_types_nonbn, ph_project_types) &
           MoveInDateAdjust >= endDate
         ) | 
-        lh_date %between% list(end_minus_15_60_90_or_0, end_plus_15_or_0) | 
-        (EntryDate %between% list(end_minus_15_60_90_or_0, endDate) & lh_at_entry) | 
+        any_lh_date_in_end_window | 
+        EntryDate %between% list(end_minus_15_60_90_or_0, endDate) | 
         ExitAdjust %between% list(endDate, end_plus_15_or_0)
       ),
       
