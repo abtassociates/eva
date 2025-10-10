@@ -158,8 +158,8 @@ sys_status_export_info <- function(spd) {
     ),
     Value = as.character(c(
       sum(spd$freq),
-      sum(spd[spd$End == "Exited, Permanent", "freq"]),
-      sum(spd[spd$End == "Exited, Non-Permanent", "freq"])
+      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Homeless", "Inactive"), "freq"]),
+      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Housed"), "freq"])
     ))
   )
 }
