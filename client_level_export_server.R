@@ -10,7 +10,7 @@ output$client_level_download_btn <- downloadHandler(
       "AmIndAKNative",
       "Asian",
       "BlackAfAmerican",
-      "HispanicLatine" = "HispanicLatinaeo",
+      "HispanicLatine" = "HispanicLatinao",
       "MidEastNAf" = "MidEastNAfrican",
       "NativeHIPacific",
       "White",
@@ -179,6 +179,23 @@ output$client_level_download_btn <- downloadHandler(
     )
     colnames(filter_selections) <- c("Filter","Selection")
     
+    adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
+      fsubset(
+        adjusted_dates == TRUE, 
+        PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
+      )
+    if(nrow(session$userData$lh_info) > 0) {
+      adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
+        join(
+          session$userData$lh_info %>% 
+            fgroup_by(EnrollmentID) %>% 
+            fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
+            fungroup() %>%
+            fsubset(lh_dates != "NA"),
+          on = "EnrollmentID"
+        )
+    }
+    
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
     # everything together
@@ -190,7 +207,8 @@ output$client_level_download_btn <- downloadHandler(
       ),
       client_level_details = client_level_details,
       monthly_statuses,
-      enrollment_info[InflowTypeDetail == "Excluded"][ , InflowTypeDetail := NULL]
+      enrollment_info[InflowTypeDetail == "Excluded"][ , InflowTypeDetail := NULL],
+      adjusted_non_res_enrl
     )
     
     names(client_level_export_list) = c(
@@ -198,8 +216,13 @@ output$client_level_download_btn <- downloadHandler(
       "Data Dictionary",
       "Client Details",
       "Monthly Statuses",
-      "Excluded"
+      "Excluded",
+      "Adjusted Non-Res"
     )
+    
+    # Drop Excluded if empty
+    client_level_export_list <- client_level_export_list %>% 
+      fsubset(names(.) != "Excluded" | nrow(.$Excluded) > 0)
     
     write_xlsx(
       client_level_export_list,

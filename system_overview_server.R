@@ -7,10 +7,11 @@ observeEvent(input$syso_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
+  # Toggle Age, Vet Status, and Race filters based on System OVerview subtab (i.e. hide for System Demographics/Composition)
   shinyjs::runjs(str_glue("
     $('#syso_spec_pops, #syso_age, #syso_race_ethnicity')
       .closest('.bslib-grid-item')
-      .toggle({ifelse(input$syso_tabbox != 'System Demographics', 'true','false')});
+      .toggle({ifelse(input$syso_tabbox != '<h4>System Demographics</h4>', 'true','false')});
   "))
 }, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
 
@@ -376,21 +377,33 @@ get_days_since_last_lh <- function(all_filtered) {
 
   lh_info_dates <- lh_info_all_enrl[
     lh_info_all_enrl,
+    # This join eliminates enrollments that started after, since those are useless
     on = .(PersonalID, first_lh_date <= EntryDate)
   ] %>%
     fsubset(EnrollmentID != i.EnrollmentID & EntryDate != i.EntryDateTemp) %>%
     fmutate(
       days_since_lh = i.EntryDateTemp - fifelse(
+        # easy case: last LH date is in the past, so that's a valid comparison date
         last_lh_date <= i.EntryDateTemp,
         last_lh_date,
         fifelse(
+          # we've already joined such that first_lh_date is on or *before* EntryDate. 
+          # So if adding days_lh_valid goes beyond, then they were LH the whole time 
+          # and we can just take EntryDate as the comparison
           first_lh_date_temp + days_lh_valid >= i.EntryDateTemp, 
           i.EntryDateTemp,
           fifelse(
-            ProjectType %in% c(lh_project_types_nonbn, ph_project_types), # if comparison project type is a lh-entire-time one (and we already know last_lh_date is <= the current enrollment's EntryDate), then we can assume they were LH up to and/or beyond the current EntryDate, so we'll take the min
-            pmin(i.EntryDateTemp, last_lh_date, na.rm=TRUE),
+            # if comparison project type is a lh-entire-time one 
+            # (and we already know last_lh_date is > the current enrollment's EntryDate from the earlier fifelse), 
+            # then we can assume they were LH up to and/or beyond the current EntryDate, so we'll take EntryDateTemp
+            ProjectType %in% c(lh_project_types_nonbn, ph_project_types), 
+            i.EntryDateTemp,
             fifelse(
-              fcoalesce(lh_date, no_end_date) + days_lh_valid >= i.EntryDateTemp, 
+              # by now, we know first_lh_date + days_lh_valid is still < EntryDateTemp
+              # but if we can see that another LH date + days_lh_valid span overlaps the EntryDate
+              # then we can just take the EntryDate
+              # otherwise, we'll take wherever than span ended.
+              fcoalesce(lh_date, no_end_date) + days_lh_valid >= i.EntryDateTemp & fcoalesce(lh_date, no_end_date) <= i.EntryDateTemp, 
               i.EntryDateTemp,
               lh_date + days_lh_valid
             )
@@ -399,11 +412,72 @@ get_days_since_last_lh <- function(all_filtered) {
       ),
       EnrollmentID = i.EnrollmentID
     ) %>%
+    fsubset(days_since_lh >= 0) %>%
     fgroup_by(PersonalID, EnrollmentID) %>%
-    fsummarize(
-      days_since_last_lh = fmin(days_since_lh)
-    )
-  
+    fsummarize(days_since_last_lh = fmin(days_since_lh))
+
+  join(
+    all_filtered,
+    lh_info_dates,
+    on = c("PersonalID", "EnrollmentID")
+  )
+}
+
+get_days_to_next_lh <- function(all_filtered) {
+  lh_info_all_enrl <- all_filtered %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, ExitAdjust) %>%
+    join(
+      session$userData$lh_info %>% fselect(EnrollmentID, lh_date, last_lh_date, first_lh_date, days_lh_valid),
+      on="EnrollmentID",
+      multiple=T
+    ) %>%
+    fmutate(ExitAdjustTemp = ExitAdjust, last_lh_date_temp = last_lh_date) %>%
+    setorder(PersonalID, ExitAdjust)
+
+  lh_info_dates <- lh_info_all_enrl[
+    lh_info_all_enrl,
+    # This join eliminates enrollments that exited before, since those are useless
+    on = .(PersonalID, last_lh_date > ExitAdjust)
+  ] %>%
+    fsubset(EnrollmentID != i.EnrollmentID & ExitAdjust != i.ExitAdjustTemp) %>%
+    fmutate(
+      days_to_lh = fifelse(
+        first_lh_date >= i.ExitAdjustTemp,
+        first_lh_date,
+        fifelse(
+          # we've already joined such that last_lh_date is on or *after* ExitAdjust 
+          # So if subtracting days_lh_valid (since last_lh_date includes that) comes *before*, 
+          # then they were LH through ExitAdjust
+          # and we can just take ExitAdjust as the comparison
+          (last_lh_date_temp - days_lh_valid) <= i.ExitAdjustTemp, 
+          i.ExitAdjustTemp,
+          fifelse(
+            # if comparison project type is a lh-entire-time one 
+            # (and we already know first_lh_date is < the current enrollment's ExitAdjust from the earlier fifelse being false), 
+            # and we know last_lh_date > current enrollment's ExitAdjust
+            # then we can assume they were LH up to and/or beyond the current ExitAdjust, so we'll just take ExitAdjust
+            ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+            i.ExitAdjustTemp,
+            fifelse(
+              # by now, we know last_lh_date - days_lh_valid is > ExitAdjust (because of the last fifelse)
+              # and we know first_lh_date < ExitAdjust, so neither are helpful
+              # but if we can see that another LH date + days_lh_valid span overlaps the ExitAdjust
+              # then we can just take the ExitAdjust
+              # otherwise, we'll take wherever that span ended.
+              fcoalesce(lh_date, no_end_date) <= i.ExitAdjustTemp & 
+              (fcoalesce(lh_date, no_end_date) + days_lh_valid) >= i.ExitAdjustTemp, 
+              i.ExitAdjustTemp,
+              lh_date
+            )
+          )
+        )
+      ) - i.ExitAdjustTemp,
+      EnrollmentID = i.EnrollmentID
+    ) %>%
+    fsubset(days_to_lh >= 0) %>%
+    fgroup_by(PersonalID, EnrollmentID) %>%
+    fsummarize(days_to_next_lh = fmin(days_to_lh))
+
   join(
     all_filtered,
     lh_info_dates,
@@ -416,10 +490,7 @@ get_lookbacks <- function(all_filtered) {
   # Calculate days_since_lookback, days_to_lookahead, and other lookback info
   # First, determine days_to_lookahead
   dt <- all_filtered %>%
-    setkey(PersonalID, EntryDate, ExitAdjust) %>%
-    fmutate(
-      days_to_lookahead = L(EntryDate, -1, g = PersonalID) - ExitAdjust
-    )
+    setkey(PersonalID, EntryDate, ExitAdjust)
 
   dt_starts <- dt[, .(
     PersonalID, 
@@ -441,7 +512,9 @@ get_lookbacks <- function(all_filtered) {
   setkey(dt_ends, PersonalID, Date)
   setkey(dt_starts, PersonalID, Date)
   
-  # Rolling join to find the most recent end date before each start date
+  # Forward-looking rolling join to find the most recent end date before each start date
+  # For each end date (ExitAdjust) in dt_ends, it finds the next start date (EntryDate) in dt_starts
+  #   The roll = -Inf means "roll forward" - find the nearest future match
   lookback_info <- dt_ends[dt_starts, roll = TRUE][, .(
     PersonalID,
     EnrollmentID = i.EnrollmentID,
@@ -454,11 +527,47 @@ get_lookbacks <- function(all_filtered) {
     lookback_is_nonres_or_nbn = ProjectType %in% nbn_non_res
   )]
   
-  return(join(
-    dt,
-    lookback_info,
-    on = c("PersonalID", "EnrollmentID")
-  ))
+  lookahead_info <- dt_starts[dt_ends, roll = -Inf][, .(
+    PersonalID,
+    EnrollmentID = i.EnrollmentID,
+    days_to_lookahead = EntryDate - ExitAdjust # EntryDate is the lookup's EntryDate
+  )]
+    
+  # dt_lh <- copy(session$userData$lh_info) %>%
+  #   fmutate(Date = fcoalesce(lh_date, first_lh_date)) %>%
+  #   fselect(
+  #     PersonalID,
+  #     EnrollmentID,
+  #     days_lh_valid,
+  #     # ExitAdjust = last_lh_date,
+  #     Date
+  #   ) %>%
+  #   funique()
+  # 
+  # setkey(dt_lh, PersonalID, Date)
+  # 
+  # Rolling join to find the next LH date after each exit
+  # should be lookahead_lh_info <- dt_ends[dt_lh, roll = TRUE] %>%
+#   lookahead_lh_info <- dt_ends[dt_lh, roll = TRUE] %>%
+#     fmutate(days_to_lh = fifelse(
+#       EnrollmentID != i.EnrollmentID,
+#       fifelse(
+#         Date + days_lh_valid >= ExitAdjust & Date <= ExitAdjust,  # LH period covers exit
+#         Date - Date,
+#         Date - ExitAdjust  # Days to start of next LH period
+#       ),
+#       NA
+#     )) %>%
+#     fgroup_by(PersonalID, ExitAdjust) %>%
+#     fsummarize(days_to_next_lh = fmin(days_to_lh)) %>%
+#     join(dt_ends %>% fselect(PersonalID, EnrollmentID, ExitAdjust), how="right")
+# browser()
+  return(
+    dt %>%
+      join(lookback_info, on = c("PersonalID", "EnrollmentID")) %>%
+      join(lookahead_info, on = c("PersonalID", "EnrollmentID")) # %>%
+      # join(lookahead_lh_info, on = c("PersonalID", "EnrollmentID"))
+  )
 }
 
 # Get period-specific universe_ppl_flag datasets ---------------------------
@@ -478,14 +587,15 @@ period_specific_data <- reactive({
   # Apply all filters
   all_filtered <- filtered_enrollments %>% 
     join( 
-      if(!in_dev_mode) fselect(filtered_clients, PersonalID) else filtered_clients,
+      if(!IN_DEV_MODE) fselect(filtered_clients, PersonalID) else filtered_clients,
       on = "PersonalID",
       how = "inner"
     ) %>%
     get_lookbacks() %>% # add lookback info
-    get_days_since_last_lh() #
+    get_days_since_last_lh() %>%
+    get_days_to_next_lh() #
   
-  if(in_dev_mode) store_enrollment_categories_all_for_qc(all_filtered)
+  if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
 
   period_data <- all_filtered %>% 
     expand_by_periods() %>% # expand/repeat enrollments across periods
@@ -624,6 +734,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       days_to_lookahead, 
       days_lh_valid,
       days_since_last_lh,
+      days_to_next_lh,
       straddles_start, straddles_end,
       startDate, endDate,
       in_date_range,
@@ -679,8 +790,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           )
         ) | (
           startDate > session$userData$ReportStart & straddles_start & (
-            EntryDate < startDate |
-            days_since_last_lh %between% c(0, 14)
+            EntryDate < startDate | days_since_last_lh %between% c(0, 14)
           )
         ),
       
@@ -695,7 +805,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           )
         ) | (
           endDate < session$userData$ReportEnd &
-          ExitAdjust > endDate
+          (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
         )
     ) %>%
     join(
@@ -703,6 +813,24 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       on = c("PersonalID","EnrollmentID"),
       multiple=TRUE
     ) %>%
+    fmutate(
+      lh_in_period = lh_date %between% list(startDate, endDate) |
+        EntryDate %between% list(startDate, endDate),
+      lh_date_in_start_window = fcoalesce(lh_date, EntryDate) %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0),
+      # lh_date_in_start_window = lh_date <= startDate & 
+      #   pmin(lh_date + days_lh_valid, ExitAdjust) >= startDate - 15 & 
+      #   days_to_next_lh < days_lh_valid,
+      lh_date_during_period = lh_date %between% list(start_minus_15_60_90_or_0, endDate),
+      lh_date_in_end_window = fcoalesce(lh_date, EntryDate) %between% list(end_minus_15_60_90_or_0, end_plus_15_or_0)
+    ) %>%
+    fgroup_by(PersonalID, period) %>%
+    fmutate(
+      lh_in_any_other_enrollment_in_period = any(lh_in_period, na.rm=TRUE),
+      any_lh_date_in_start_window = any(lh_date_in_start_window, na.rm = TRUE),
+      any_lh_date_in_end_window = any(lh_date_in_end_window, na.rm = TRUE),
+      any_lh_date_during_period = any(lh_date_during_period, na.rm = TRUE)
+    ) %>%
+    fungroup() %>%
     fmutate(
       MoveInDateAdjust = fcoalesce(MoveInDateAdjust, no_end_date),
       lh_date = fcoalesce(lh_date, no_end_date),
@@ -715,28 +843,30 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           ProjectType %in% c(lh_project_types_nonbn, ph_project_types) & 
           MoveInDateAdjust >= startDate
         ) |
-        lh_date %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0) | 
-        (EntryDate %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0) & lh_at_entry)
+        any_lh_date_in_start_window |
+        EntryDate %between% list(start_minus_15_60_90_or_0, start_plus_15_or_0)
       ),
         
       # These are *definitely* lh during period
       was_lh_during_period_def = in_date_range & (
         ProjectType %in% c(lh_project_types_nonbn, ph_project_types) |
-        lh_date %between% list(start_minus_15_60_90_or_0, endDate) | 
-        (EntryDate %between% list(start_minus_15_60_90_or_0, endDate) & lh_at_entry)
+        any_lh_date_during_period |
+        (EntryDate %between% list(start_minus_15_60_90_or_0, endDate))
       ),
       
       # An enrollment can also be LH during period if the ExitAdjust is the only LH date during a non-Full period
       # as long as it's not the only LH date in the Full period. If it is, we'll drop as not being "lh during full period"
-      was_lh_during_period = was_lh_during_period_def | ExitAdjust %between% list(startDate, endDate),
+      was_lh_during_period = was_lh_during_period_def | 
+        ExitAdjust %between% list(startDate, endDate) |
+        lh_in_any_other_enrollment_in_period,
       
       was_lh_at_end = active_at_end & (
         (
           ProjectType %in% c(lh_project_types_nonbn, ph_project_types) &
           MoveInDateAdjust >= endDate
         ) | 
-        lh_date %between% list(end_minus_15_60_90_or_0, end_plus_15_or_0) | 
-        (EntryDate %between% list(end_minus_15_60_90_or_0, endDate) & lh_at_entry) | 
+        any_lh_date_in_end_window | 
+        EntryDate %between% list(end_minus_15_60_90_or_0, endDate) | 
         ExitAdjust %between% list(endDate, end_plus_15_or_0)
       ),
       
@@ -759,7 +889,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
     ) %>%
     fungroup()
-# browser()
+
   # We only want enrollments that were:
   # LH during Full Period AND (LH/Housed during the given period or Exited in the future)
   # This will end up including a lot of enrollments that were Inactive
@@ -808,7 +938,10 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
     fsubset(
       was_lh_during_period |
       was_housed_during_period |
-      ExitAdjust >= startDate
+      (
+        ExitAdjust %between% list(startDate, session$userData$ReportEnd) | 
+        (endDate == session$userData$ReportEnd & ExitAdjust > endDate)
+      )
     )
   
   e2 <- e %>%
@@ -867,9 +1000,10 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   #
   #   2. if last_straddle_end is neither LH nor housed at period end, then take the non-straddle
   prep_for_exceptions <- e2 %>% 
+    fmutate(last_straddle_end_lh_or_housed_at_end = last_valid_straddle_end & (was_lh_at_end | was_housed_at_end)) %>%
     fgroup_by(period, PersonalID) %>%
     fmutate(
-      last_straddle_end_lh_or_housed_at_end = any(last_valid_straddle_end & (was_lh_at_end | was_housed_at_end), na.rm=TRUE),
+      last_straddle_end_lh_or_housed_at_end = any(last_straddle_end_lh_or_housed_at_end, na.rm=TRUE),
       only_period_enrollment = GRPN() == 1
     ) %>%
     fungroup()
@@ -927,7 +1061,7 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
   
-  if(!in_dev_mode) {
+  if(!IN_DEV_MODE) {
     final <- final %>%
       fselect(c(
         "period",

@@ -154,8 +154,10 @@ syso_hh_types <- list(
 )
 
 hh_types_in_exports <- list(
-  AC = c("PY", "ACminusPY"),
-  AO = c("UY", "AOminusUY")
+  AC = "ACminusPY",
+  "AC-PY" = "PY",
+  AO = "AOminusUY",
+  "AO-UY" = "UY"
 )
 
 syso_level_of_detail <- list(
@@ -188,7 +190,7 @@ syso_age_cats <- c(
   "Unknown")
 
 race_cols <- c("RaceNone", "AmIndAKNative", "Asian", "BlackAfAmerican", 
-               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinaeo")
+               "NativeHIPacific", "White", "MidEastNAfrican", "HispanicLatinao")
 
 
 syso_race_ethnicity_method2 <- list(
@@ -493,5 +495,5 @@ outflow_debug_cols <- c(
   "lh_dates"
 )
 
-# in_dev_mode <- FALSE
-in_dev_mode <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
+# IN_DEV_MODE <- FALSE
+IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
