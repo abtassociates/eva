@@ -184,38 +184,6 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   )
 }
 
-# this gets all the categories of the selected variable
-# this is used to make sure even empty categories are included in the chart
-get_selection_cats <- function(selection,type = 'overview') {
-  
-  methodology_type <- switch(type,
-                             'overview' = input$syso_methodology_type,
-                             'exits' = input$syse_methodology_type)
-  return(
-    switch(
-      selection,
-      "Age" = sys_age_cats,
-      "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = methodology_type, 
-                                                        race_ethnicity_func = sys_race_ethnicity_cats),
-      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = methodology_type, 
-                                                            race_ethnicity_func = sys_race_ethnicity_cats),
-      #"Domestic Violence" = sys_dv_pops, VL 9/20/24: Not including for launch
-      # Update Veteran status codes to 1/0, because that's how the underlying data are
-      # we don't do that in the original hardcodes.R list 
-      # because the character versions are needed for the waterfall chart
-      "Veteran Status (Adult Only)" = {
-        sys_veteran_pops$Veteran <- 1
-        sys_veteran_pops$`Non-Veteran/Unknown` <- 0
-        sys_veteran_pops
-      }
-      # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
-    )
-  
-  )
-}
-
-
-
 remove_non_applicables <- function(.data, selection = input$system_composition_selections) {
   # remove children when vets is selected - since Vets can't be children
   if("Veteran Status (Adult Only)" %in% selection) {
@@ -706,143 +674,6 @@ syse_time_detailBox <- function(
   return(l1)
 }
 
-sys_perf_selection_info <- function(type = 'overview', selection = input$sys_composition_selections){
-  
-  if(type == 'overview'){
-    df <- data.frame(
-      Chart = c(
-        "Demographic Selection 1",
-        "Demographic Selection 2",
-        "Total Served People"
-      ),
-      Value = c(
-        selection[1],
-        selection[2],
-        nrow(get_people_universe_filtered() %>% remove_non_applicables(selection = selection))
-      )
-    )
-  } else if (type == 'exits'){
-    if(length(selection) == 1){
-      df <- data.frame(
-        Chart = c(
-          "Demographic Selection 1",
-          "Total People with System Exit",
-          "Total People with PH System Exit"
-        ),
-        Value = c(
-          selection[1],
-          nrow(tree_exits_data()),
-          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
-          
-        )
-      )
-    } else if(length(selection) == 2){
-      
-    df <- data.frame(
-      Chart = c(
-        "Demographic Selection 1",
-        "Demographic Selection 2",
-        "Total People with System Exit",
-        "Total People with PH System Exit"
-      ),
-      Value = c(
-        selection[1],
-        selection[2],
-        nrow(tree_exits_data()),
-        nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
-        
-      )
-    )
-    }
-  }
-  
-  return(df)
-}
-
-get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
-  # if number of variables associated with selection > 1, then they're dummies
-  
-  if (length(var_col) > 1) {
-    plot_df <- comp_df %>%
-      pivot(
-        how="longer",
-        ids = "PersonalID",
-        names = list(selection, "n")
-      ) %>%
-      fgroup_by(selection) %>%
-      fsummarize(n = fsum(n))
-    
-  } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]]))
-    names(plot_df) <- c(selection, "n")
-    
-    if(selection == "Domestic Violence Status") {
-      plot_df <- plot_df %>% rowbind(tibble(
-        `Domestic Violence Status` = "DVTotal",
-        n = sum(plot_df %>% 
-                  fsubset(`Domestic Violence Status` != "NotDV") %>%
-                  pull(n), na.rm = TRUE)))
-    }
-  }
-  return(plot_df)
-}
-
-get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_composition_selections) {
-
-  # Function to process each combination of the variables underlying the all-served
-  # selections E.g. if Age and Race (and Method 1),
-  # then we'd combine 0 to 12 with White, 0 to 12 with Black,
-  # 13 to 24 with White, etc.
-  process_combination <- function(v1, v2, comp_df) {
-    logToConsole(session, glue("processing combination of {v1} and {v2}"))
-    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
-    names(freq_df) <- c(
-      selections[1],
-      selections[2],
-      "n"
-    )
-    
-    # for selections comprised of multiple (binary/dummy) vars (e.g. Race), 
-    # filter to the 1s and change the 1 to the variable name
-    for (i in seq_along(selections)) {
-      v <- get(paste0("v", i))
-      vname <- sym(selections[i])
-      var_cats <- var_cols[[vname]]
-      if (length(var_cats) > 1) {
-        freq_df <- freq_df %>%
-          filter(!!vname == 1) %>%
-          mutate(!!vname := v)
-      }
-    }
-    return(freq_df)
-  }
-  
-  # Get a dataframe of the freqs of all combinations
-  # along with percents
-  freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
-    pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
-  # mutate(pct = (n / sum(n, na.rm = TRUE)))
-  
-  # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if ("Domestic Violence Status" %in% selections) {
-    dv_totals <- freqs %>%
-      fsubset(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
-      group_by(!!sym(
-        ifelse(
-          selections[1] == "Domestic Violence Status",
-          selections[2],
-          selections[1]
-        )
-      )) %>%
-      summarize(`Domestic Violence Status` = "DVTotal",
-                n = sum(n, na.rm = TRUE)) #,
-    # pct = sum(pct, na.rm = TRUE))
-    freqs <- rowbind(freqs, dv_totals)
-  }
-  
-  return(freqs)
-}
-
 toggle_download_buttons <- function(subtab = 'comp',plot_df) {
   shinyjs::toggle(glue("sys_{subtab}_download_btn"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
   shinyjs::toggle(glue("sys_{subtab}_download_btn_ppt"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
@@ -862,7 +693,6 @@ get_var_cols <- function(methodology_type) {
     )
   )
 }
-
 
 get_syse_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
 
@@ -1209,4 +1039,171 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
         how = "inner"
       )
   )
+}
+
+# Demographic chart-specific stuff-----------------
+sys_perf_selection_info <- function(type = 'overview', selection = input$sys_composition_selections){
+  
+  if(type == 'overview'){
+    df <- data.frame(
+      Chart = c(
+        "Demographic Selection 1",
+        "Demographic Selection 2",
+        "Total Served People"
+      ),
+      Value = c(
+        selection[1],
+        selection[2],
+        nrow(get_people_universe_filtered() %>% remove_non_applicables(selection = selection))
+      )
+    )
+  } else if (type == 'exits'){
+    if(length(selection) == 1){
+      df <- data.frame(
+        Chart = c(
+          "Demographic Selection 1",
+          "Total People with System Exit",
+          "Total People with PH System Exit"
+        ),
+        Value = c(
+          selection[1],
+          nrow(tree_exits_data()),
+          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          
+        )
+      )
+    } else if(length(selection) == 2){
+      
+      df <- data.frame(
+        Chart = c(
+          "Demographic Selection 1",
+          "Demographic Selection 2",
+          "Total People with System Exit",
+          "Total People with PH System Exit"
+        ),
+        Value = c(
+          selection[1],
+          selection[2],
+          nrow(tree_exits_data()),
+          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          
+        )
+      )
+    }
+  }
+  
+  return(df)
+}
+
+get_selection_cats <- function(selection,type = 'overview') {
+  # this gets all the categories of the selected variable
+  # this is used to make sure even empty categories are included in the chart
+  methodology_type <- switch(type,
+                             'overview' = input$syso_methodology_type,
+                             'exits' = input$syse_methodology_type)
+  return(
+    switch(
+      selection,
+      "Age" = sys_age_cats,
+      "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = methodology_type, 
+                                                        race_ethnicity_func = sys_race_ethnicity_cats),
+      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = methodology_type, 
+                                                            race_ethnicity_func = sys_race_ethnicity_cats),
+      #"Domestic Violence" = sys_dv_pops, VL 9/20/24: Not including for launch
+      # Update Veteran status codes to 1/0, because that's how the underlying data are
+      # we don't do that in the original hardcodes.R list 
+      # because the character versions are needed for the waterfall chart
+      "Veteran Status (Adult Only)" = {
+        sys_veteran_pops$Veteran <- 1
+        sys_veteran_pops$`Non-Veteran/Unknown` <- 0
+        sys_veteran_pops
+      }
+      # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
+    )
+    
+  )
+}
+
+get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
+  # if number of variables associated with selection > 1, then they're dummies
+  
+  if (length(var_col) > 1) {
+    plot_df <- comp_df %>%
+      pivot(
+        how="longer",
+        ids = "PersonalID",
+        names = list(selection, "n")
+      ) %>%
+      fgroup_by(selection) %>%
+      fsummarize(n = fsum(n))
+    
+  } else {
+    plot_df <- as.data.frame(table(comp_df[[var_col]]))
+    names(plot_df) <- c(selection, "n")
+    
+    if(selection == "Domestic Violence Status") {
+      plot_df <- plot_df %>% rowbind(tibble(
+        `Domestic Violence Status` = "DVTotal",
+        n = sum(plot_df %>% 
+                  fsubset(`Domestic Violence Status` != "NotDV") %>%
+                  pull(n), na.rm = TRUE)))
+    }
+  }
+  return(plot_df)
+}
+
+get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_composition_selections) {
+  
+  # Function to process each combination of the variables underlying the all-served
+  # selections E.g. if Age and Race (and Method 1),
+  # then we'd combine 0 to 12 with White, 0 to 12 with Black,
+  # 13 to 24 with White, etc.
+  process_combination <- function(v1, v2, comp_df) {
+    logToConsole(session, glue("processing combination of {v1} and {v2}"))
+    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
+    names(freq_df) <- c(
+      selections[1],
+      selections[2],
+      "n"
+    )
+    
+    # for selections comprised of multiple (binary/dummy) vars (e.g. Race), 
+    # filter to the 1s and change the 1 to the variable name
+    for (i in seq_along(selections)) {
+      v <- get(paste0("v", i))
+      vname <- sym(selections[i])
+      var_cats <- var_cols[[vname]]
+      if (length(var_cats) > 1) {
+        freq_df <- freq_df %>%
+          filter(!!vname == 1) %>%
+          mutate(!!vname := v)
+      }
+    }
+    return(freq_df)
+  }
+  
+  # Get a dataframe of the freqs of all combinations
+  # along with percents
+  freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
+    pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
+  # mutate(pct = (n / sum(n, na.rm = TRUE)))
+  
+  # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
+  if ("Domestic Violence Status" %in% selections) {
+    dv_totals <- freqs %>%
+      fsubset(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
+      group_by(!!sym(
+        ifelse(
+          selections[1] == "Domestic Violence Status",
+          selections[2],
+          selections[1]
+        )
+      )) %>%
+      summarize(`Domestic Violence Status` = "DVTotal",
+                n = sum(n, na.rm = TRUE)) #,
+    # pct = sum(pct, na.rm = TRUE))
+    freqs <- rowbind(freqs, dv_totals)
+  }
+  
+  return(freqs)
 }
