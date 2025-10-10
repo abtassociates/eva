@@ -412,6 +412,7 @@ universe_ppl_flags <- function(universe_df) {
         EntryDate,
         days_since_lookback,
         days_since_last_lh,
+        days_to_next_lh,
         was_lh_at_start,
         was_lh_during_period,
         straddles_start,
