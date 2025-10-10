@@ -249,11 +249,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     # S------------------------x---------------------E------x----------------
     # S------------------------x--------------y-------Ex---y------------------
     #   
-    #   
     # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
     # S------------------------x--------------------x-E---y------------------
     #   
-    # System Exit: ExitAdjust <= endDate & days_to_next_lh %between% c(0, 14),
+    # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
     # S------------------------x--------------------x-E--------------y-------y
     # S------------------------x--------------------Ex---------------y-------y
       
@@ -611,7 +610,7 @@ universe_ppl_flags <- function(universe_df) {
     fungroup() %>%
     fsubset(has_issue)
   if(nrow(bad_records) > 0) {
-    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE) {
       bad_return_after_nonexit <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
@@ -647,7 +646,7 @@ universe_ppl_flags <- function(universe_df) {
     fungroup() %>%
     fsubset(has_issue)
   if(nrow(bad_records) > 0) {
-    if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
+    if(IN_DEV_MODE) {
       bad_nonreturn_after_exit <- get_all_enrollments_for_debugging(
         bad_records,
         universe_w_ppl_flags_clean,
