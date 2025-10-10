@@ -142,54 +142,18 @@
     },
     "file_structure_analysis_main": {
       "Issue": [
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
-        "Incorrect Columns",
         "Nulls not allowed or incorrect data type",
         "Impermissible characters"
       ],
       "Type": [
         "Error",
-        "Error",
-        "Error",
-        "Error",
-        "Error",
-        "Error",
-        "Error",
-        "Error",
-        "Error",
-        "Error",
         "Error"
       ],
       "Guidance": [
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
-        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present.",
         "Either there is a column with nulls where they are not allowed, or there is a column with an incorrect data type. Please review the HMIS CSV Format Specifications for the data types and null requirements associated with the file and column listed in the detail and make the necessary updates.",
         "The HMIS CSV Specs restrict the use of some characters in string fields. To locate the character(s) that are flagging this issue, please run and download the Impermissible Character Detail export. Contact your vendor to ensure impermissible characters are excluded from your export."
       ],
       "Detail": [
-        "In the Client file, CulturallySpecific is an extra column",
-        "In the Client file, DifferentIdentity is an extra column",
-        "In the Client file, DifferentIdentityText is an extra column",
-        "In the Client file, GenderNone is an extra column",
-        "In the Client file, Man is an extra column",
-        "In the Client file, NonBinary is an extra column",
-        "In the Client file, Questioning is an extra column",
-        "In the Client file, Transgender is an extra column",
-        "In the Client file, Woman is an extra column",
         "The CoCCode column in the ProjectCoC file contains nulls or incorrect data types. See rows: 1, 28",
         "Found one or more brackets in your HMIS CSV Export. See Impermissible Character Detail export for the precise location of these characters."
       ]
@@ -1088,13 +1052,13 @@
         "Housed"
       ],
       "N": [
-        575,
-        301,
+        573,
+        303,
         970,
         61,
         35,
-        288,
-        663,
+        284,
+        667,
         0,
         344,
         647
@@ -1134,14 +1098,14 @@
         "Enrolled, Housed"
       ],
       "freq": [
-        59,
-        240,
+        56,
+        242,
         14,
-        262,
+        261,
         72,
-        118,
+        119,
         73,
-        38
+        39
       ]
     },
     "systemDQ_download": {
