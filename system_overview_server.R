@@ -437,7 +437,7 @@ get_days_to_next_lh <- function(all_filtered) {
   lh_info_dates <- lh_info_all_enrl[
     lh_info_all_enrl,
     # This join eliminates enrollments that exited before, since those are useless
-    on = .(PersonalID, last_lh_date >= ExitAdjust)
+    on = .(PersonalID, last_lh_date > ExitAdjust)
   ] %>%
     fsubset(EnrollmentID != i.EnrollmentID & ExitAdjust != i.ExitAdjustTemp) %>%
     fmutate(
@@ -446,18 +446,21 @@ get_days_to_next_lh <- function(all_filtered) {
         first_lh_date,
         fifelse(
           # we've already joined such that last_lh_date is on or *after* ExitAdjust 
-          # So if subtracting days_lh_valid (since last_lh_date includes that) goes beyond, then they were LH the whole time 
+          # So if subtracting days_lh_valid (since last_lh_date includes that) comes *before*, 
+          # then they were LH through ExitAdjust
           # and we can just take ExitAdjust as the comparison
           (last_lh_date_temp - days_lh_valid) <= i.ExitAdjustTemp, 
           i.ExitAdjustTemp,
           fifelse(
             # if comparison project type is a lh-entire-time one 
-            # (and we already know first_lh_date is < the current enrollment's ExitAdjust from the earlier fifelse), 
+            # (and we already know first_lh_date is < the current enrollment's ExitAdjust from the earlier fifelse being false), 
+            # and we know last_lh_date > current enrollment's ExitAdjust
             # then we can assume they were LH up to and/or beyond the current ExitAdjust, so we'll just take ExitAdjust
             ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
             i.ExitAdjustTemp,
             fifelse(
-              # by now, we know last_lh_date + days_lh_valid is still > ExitAdjust
+              # by now, we know last_lh_date - days_lh_valid is > ExitAdjust (because of the last fifelse)
+              # and we know first_lh_date < ExitAdjust, so neither are helpful
               # but if we can see that another LH date + days_lh_valid span overlaps the ExitAdjust
               # then we can just take the ExitAdjust
               # otherwise, we'll take wherever that span ended.
