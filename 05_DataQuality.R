@@ -1489,22 +1489,22 @@ services_chk <- Services %>%
     has_bn_eq_exit = any(bn_eq_exit, na.rm=TRUE)
   ) 
 
-missing_bn0 <- base_dq_data %>% 
+nbn_w_hmis_participation <- base_dq_data %>% 
   fsubset(ProjectType == es_nbn_project_type) %>%
   join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
   fsubset(HMISParticipationType == 1 ) 
 
-missing_bn1 <- missing_bn0 %>% 
+missing_bn1 <- nbn_w_hmis_participation %>% 
   join(services_chk, on = "EnrollmentID", how = 'anti') # EnrollmentID does NOT appear in services
 
 services_chk1 <- services_chk %>% # EnrollmentID appears in services
-  join(missing_bn0 , how="inner")  # limit to Nbn & HMISParticipationType == 1
+  join(nbn_w_hmis_participation , how="inner")  # limit to Nbn & HMISParticipationType == 1
 
 missing_bn2 <- services_chk1 %>%
   fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
-missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
   merge_check_info_dt(checkIDs = 107) %>% 
   fselect(all_of(vars_we_want)) %>%
   unique()

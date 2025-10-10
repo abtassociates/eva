@@ -484,7 +484,7 @@ ES_BedType_HousingType <- activeInventory %>%
 
 # No Enrollments in Services for NbN Project ------------------------------------
 
-nbn_nobns <- missing_bn0 %>% # Get enrollments whose projects were NBN and had HMIS Participation
+nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were NBN and had HMIS Participation
   fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
   funique() %>%
   join(services_chk, on = "EnrollmentID", how = "left") %>%
@@ -493,7 +493,7 @@ nbn_nobns <- missing_bn0 %>% # Get enrollments whose projects were NBN and had H
     miss_all_enroll = all(is.na(has_bn_eq_entry)) # not having this value implies EnrollmentID NOT in services_check
   ) %>% fungroup()
 
-rm(missing_bn0, services_chk)
+rm(nbn_w_hmis_participation, services_chk)
 nbn_nobns <- nbn_nobns %>% filter(miss_all_enroll) # filter to projects with all enrollmentID missing
 
 nbn_nobns <- nbn_nobns %>% 
