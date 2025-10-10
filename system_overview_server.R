@@ -412,10 +412,9 @@ get_days_since_last_lh <- function(all_filtered) {
       ),
       EnrollmentID = i.EnrollmentID
     ) %>%
+    fsubset(days_since_lh >= 0) %>%
     fgroup_by(PersonalID, EnrollmentID) %>%
-    fsummarize(
-      days_since_last_lh = fmin(days_since_lh)
-    )
+    fsummarize(days_since_last_lh = fmin(days_since_lh))
 
   join(
     all_filtered,
@@ -472,11 +471,10 @@ get_days_to_next_lh <- function(all_filtered) {
       ) - i.ExitAdjustTemp,
       EnrollmentID = i.EnrollmentID
     ) %>%
+    fsubset(days_to_lh >= 0) %>%
     fgroup_by(PersonalID, EnrollmentID) %>%
-    fsummarize(
-      days_to_next_lh = fmin(days_to_lh)
-    )
-  
+    fsummarize(days_to_next_lh = fmin(days_to_lh))
+
   join(
     all_filtered,
     lh_info_dates,
