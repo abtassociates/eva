@@ -412,8 +412,7 @@ universe_ppl_flags <- function(universe_df) {
       ) %>%
       funique()
   }
-  
-  # universe_w_ppl_flags_clean[PersonalID == 576213, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, eecr, lecr, InflowTypeDetail, OutflowTypeDetail, keep_flag)]
+  # universe_w_ppl_flags_clean[PersonalID == 576213, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, eecr, lecr, InflowTypeDetail, OutflowTypeDetail)]
   ####
   # Error Checking ------------------
   ####
@@ -626,7 +625,7 @@ universe_ppl_flags <- function(universe_df) {
     funique(cols=c("PersonalID", "period", "InflowTypeDetail", "OutflowTypeDetail")) %>%
     setorder(PersonalID, period) %>%
     fmutate(
-      inflow_flag = !grepl("Return|Re-engaged|Unknown", InflowTypeDetail),
+      inflow_flag = !grepl("Return|Re-engaged|Unknown|First-Time \nHomeless", InflowTypeDetail),
       prev_outflow = flag(OutflowTypeDetail, g=PersonalID), 
       prev_outflow_flag = grepl("Exited|Inactive", prev_outflow) & !is.na(prev_outflow)
     ) %>%
