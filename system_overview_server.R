@@ -1069,7 +1069,7 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
         "eecr",
         "lecr",
         "first_lh_date", "last_lh_date",
-        "days_since_lookback", "days_to_lookahead", "days_since_last_lh",
+        "days_since_lookback", "days_to_lookahead", "days_since_last_lh", "days_to_next_lh",
         "straddles_start", "straddles_end",
         "startDate","endDate",
         "lookback_dest_perm", "lookback_is_nonres_or_nbn",
