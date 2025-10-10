@@ -790,8 +790,7 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
           )
         ) | (
           startDate > session$userData$ReportStart & straddles_start & (
-            EntryDate < startDate |
-            days_since_last_lh %between% c(0, 14)
+            EntryDate < startDate | days_since_last_lh %between% c(0, 14)
           )
         ),
       
@@ -807,7 +806,6 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
         ) | (
           endDate < session$userData$ReportEnd &
           (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
-          # (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_lookahead %between% c(0,14)))
         )
     ) %>%
     join(

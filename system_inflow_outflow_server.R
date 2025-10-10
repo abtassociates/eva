@@ -232,8 +232,10 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     # Beginning with the first month's Outflow and ending after the last month's Inflow, 
     # there should be "continuous_at_start" and "continuous_at_end" flags that 
-    # capture EECRs/LECRs that begin AFTER/BEFORE period start/end, 
-    # but days_to_lookahead/lookback <= 14. These would not be included on the chart.
+    # capture EECRs/LECRs that are AFTER/BEFORE period start/end with an LH date within 2 weeks
+    # (vs. Active, which are on or BEFORE/AFTER period start/end ) 
+    # and vs system exit, which requires no LH date within 2 weeks
+    # These would not be included on the chart.
     # so both flags do not apply to first month. Continuous_at_end also doesn't apply to last
     continuous_at_start = eecr & 
       startDate > session$userData$ReportStart &
@@ -241,8 +243,20 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     continuous_at_end = lecr & 
       endDate < session$userData$ReportEnd &
-      ExitAdjust <= endDate & (days_to_next_lh %in% c(0,NA) & days_to_lookahead >= 0) | days_to_next_lh %between% c(1, 14),
-      # ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+      ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+    
+    # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
+    # S------------------------x---------------------E------x----------------
+    # S------------------------x--------------y-------Ex---y------------------
+    #   
+    #   
+    # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+    # S------------------------x--------------------x-E---y------------------
+    #   
+    # System Exit: ExitAdjust <= endDate & days_to_next_lh %between% c(0, 14),
+    # S------------------------x--------------------x-E--------------y-------y
+    # S------------------------x--------------------Ex---------------y-------y
+      
     
     # New Inflow category:"first_of_the_month_exit" should not show up in chart 
     # or export, even though the person's outflow should be counted
@@ -257,8 +271,7 @@ universe_enrl_flags <- function(all_filtered_w_lh) {
     
     # OUTFLOW CALCULATOR COLUMNS
     exited_system = lecr &
-      ExitAdjust %between% list(startDate, endDate) &
-      (!continuous_at_end | is.na(continuous_at_end)),
+      ExitAdjust <= endDate & (days_to_next_lh > 14 | is.na(days_to_next_lh)),
     
     homeless_at_end = lecr & was_lh_at_end,
     
