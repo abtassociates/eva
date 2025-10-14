@@ -382,7 +382,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   export_df <- plot_df_joined %>% 
     join(plot_df_supp %>% 
                 fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
-                fselect(-n, -wasRedacted),
+                fselect(-n, -wasRedacted, -n_orig),
          how = 'left') %>% 
     fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
     fselect(get(selections[2]), get(selections[1]), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
