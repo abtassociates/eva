@@ -5,6 +5,7 @@ syse_detailBox <- reactive({
   
   sys_detailBox(
     all_filters = TRUE,
+    detail_type = 'type',
     methodology_type = input$syse_methodology_type,
     cur_project_types = input$syse_project_type,
     startDate = session$userData$ReportStart,
@@ -28,8 +29,9 @@ output$syse_compare_subpop_filter_selections <-
 output$syse_compare_time_filter_selections <- renderUI({
   req(session$userData$valid_file() == 1)
  
-  syse_time_detailBox(
+  sys_detailBox(
     all_filters = TRUE,
+    detail_type = 'time',
     methodology_type = input$syse_methodology_type,
     cur_project_types = input$syse_project_type,
     startDate = session$userData$ReportStart,
@@ -48,6 +50,7 @@ output$syse_phd_summary_selections <- renderUI({
   req(!is.null(input$syse_phd_selections) & session$userData$valid_file() == 1)
   sys_detailBox(selection = input$syse_phd_selections,
                 all_filters = FALSE,
+                detail_type = 'phd',
                 methodology_type = input$syse_methodology_type,
                 cur_project_types = input$syse_project_type,
                 startDate = session$userData$ReportStart,

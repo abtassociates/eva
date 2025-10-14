@@ -98,6 +98,7 @@ syso_detailBox <- reactive({
   
   sys_detailBox(
     all_filters = TRUE,
+    detail_type = 'overview',
     methodology_type = input$syso_methodology_type,
     cur_project_types = input$syso_project_type,
     startDate = session$userData$ReportStart,
