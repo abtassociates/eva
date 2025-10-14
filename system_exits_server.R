@@ -1477,16 +1477,18 @@ enrollments_filtered_syse <- reactive({
   
 })
 
+enrollments_last_lh_syse <- reactive({
+  enrollments_filtered_syse() %>%
+    get_lookbacks() %>% 
+    get_days_since_last_lh() %>%
+    get_days_to_next_lh()
+})
+
 all_filtered_syse <- reactive({
   logToConsole(session, "in all_filtered_syse")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  
-  
-  tmp <- enrollments_filtered_syse() %>%
-    get_lookbacks() %>% 
-    get_days_since_last_lh()
  
-   eecr_and_lecr <- tmp %>% 
+   eecr_and_lecr <- enrollments_last_lh_syse() %>% 
     expand_by_periods(chart_type = 'exits_types') %>% 
     get_was_lh_info(tmp) %>%
     get_eecr_and_lecr()
@@ -1513,11 +1515,7 @@ all_filtered_syse_time <- reactive({
   logToConsole(session, "in all_filtered_syse_time")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode)) 
   
-  tmp <- enrollments_filtered_syse() %>%
-    get_lookbacks() %>% 
-    get_days_since_last_lh()
-  
-  eecr_and_lecr <- tmp %>% 
+  eecr_and_lecr <- enrollments_last_lh_syse() %>% 
     expand_by_periods(chart_type = 'exits_time') %>% 
     get_was_lh_info_time(tmp) %>%
     get_eecr_and_lecr()
@@ -1544,11 +1542,7 @@ all_filtered_syse_demog <- reactive({
   logToConsole(session, "in all_filtered_syse")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  tmp <- enrollments_filtered_syse() %>%
-    get_lookbacks() %>% 
-    get_days_since_last_lh()
-  
-  eecr_and_lecr <- tmp %>% 
+  eecr_and_lecr <- enrollments_last_lh_syse() %>% 
     expand_by_periods(chart_type = 'exits_demog') %>% 
     get_was_lh_info(tmp) %>%
     get_eecr_and_lecr()
