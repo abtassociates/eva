@@ -1502,10 +1502,10 @@ all_filtered_syse <- reactive({
     fmutate(
       continuous_at_end = lecr & 
         endDate < session$userData$ReportEnd &
-        ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
-      exited_system = lecr &
-        ExitAdjust %between% list(startDate, endDate) &
-        (!continuous_at_end | is.na(continuous_at_end))
+        ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+      exited_system =  lecr &
+        ExitAdjust <= endDate & 
+        (days_to_next_lh > 14 | is.na(days_to_next_lh)),
     ) %>% 
     fsubset(period == 'Full' & exited_system) 
   
@@ -1529,10 +1529,10 @@ all_filtered_syse_time <- reactive({
     fmutate(
       continuous_at_end = lecr & 
         endDate < session$userData$ReportEnd &
-        ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
-      exited_system = lecr &
-        ExitAdjust %between% list(startDate - years(1), endDate) &
-        (!continuous_at_end | is.na(continuous_at_end))
+        ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+      exited_system =  lecr &
+        ExitAdjust <= endDate & 
+        (days_to_next_lh > 14 | is.na(days_to_next_lh)),
     ) %>% 
     fsubset(exited_system) 
  
@@ -1556,10 +1556,10 @@ all_filtered_syse_demog <- reactive({
     fmutate(
       continuous_at_end = lecr & 
         endDate < session$userData$ReportEnd &
-        ExitAdjust <= endDate & days_to_lookahead %between% c(0, 14),
+        ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
       exited_system = lecr &
-        ExitAdjust %between% list(startDate, endDate) &
-        (!continuous_at_end | is.na(continuous_at_end))
+        ExitAdjust <= endDate & 
+        (days_to_next_lh > 14 | is.na(days_to_next_lh)),
     ) %>% 
     fsubset(period == 'Full' & exited_system) 
   
