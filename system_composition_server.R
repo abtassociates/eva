@@ -1,7 +1,7 @@
 sys_comp_plot_df <- reactiveVal()
 
 sys_comp_selections_info <- reactive({
-    sys_perf_selection_info(type ='overview',selection = input$system_composition_selections)
+    sys_demographics_selection_info(type ='overview',selection = input$system_composition_selections)
     
 })
 

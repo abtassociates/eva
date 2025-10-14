@@ -998,7 +998,7 @@ get_was_lh_info_time <- function(period_enrollments_filtered, all_filtered) {
 }
 
 # Demographic chart-specific stuff-----------------
-sys_perf_selection_info <- function(type = 'overview', selection = input$sys_composition_selections){
+sys_demographics_selection_info <- function(type = 'overview', selection = input$sys_composition_selections){
   
   if(type == 'overview'){
     df <- data.frame(

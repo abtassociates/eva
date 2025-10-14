@@ -43,7 +43,7 @@ output$syse_compare_time_filter_selections <- renderUI({
 })
 
 sys_phd_selections_info <- reactive({
-  sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)
+  sys_demographics_selection_info(type = 'exits', selection = input$syse_phd_selections)
 })
 
 output$syse_phd_summary_selections <- renderUI({
@@ -61,7 +61,7 @@ output$syse_phd_summary_selections <- renderUI({
 sys_phd_selections_summary <- function() {
   return(
     sys_export_summary_initial_df(type = 'exits') %>%
-      rowbind(sys_perf_selection_info(type = 'exits', selection = input$syse_phd_selections)) %>%
+      rowbind(sys_demographics_selection_info(type = 'exits', selection = input$syse_phd_selections)) %>%
       frename("System Exit Demographics" = Value)
   )
 }
