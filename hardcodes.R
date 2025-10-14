@@ -154,8 +154,10 @@ sys_hh_types <- list(
 )
 
 hh_types_in_exports <- list(
-  AC = c("PY", "ACminusPY"),
-  AO = c("UY", "AOminusUY")
+  AC = "ACminusPY",
+  "AC-PY" = "PY",
+  AO = "AOminusUY",
+  "AO-UY" = "UY"
 )
 
 sys_level_of_detail <- list(

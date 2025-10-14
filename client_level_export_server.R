@@ -220,6 +220,10 @@ output$client_level_download_btn <- downloadHandler(
       "Adjusted Non-Res"
     )
     
+    # Drop Excluded if empty
+    client_level_export_list <- client_level_export_list %>% 
+      fsubset(names(.) != "Excluded" | nrow(.$Excluded) > 0)
+    
     write_xlsx(
       client_level_export_list,
       path = file,

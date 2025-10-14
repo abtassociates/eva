@@ -1,7 +1,8 @@
 library(shinytest2)
 testthat::set_max_fails(100)
 
-create_datasets <<- TRUE
+create_datasets <- FALSE
+
 test_app(".") # example filter: filter="main-valid"
 # testthat::snapshot_review()
 # testthat::snapshot_review(files="main-valid/test-main-valid-exportTestValues.json")
