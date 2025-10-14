@@ -1207,3 +1207,59 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
   
   return(freqs)
 }
+
+# Period-Specific Enrollment Categories ----------------------------------------
+# "expand" the dataset to get repeated rows per period (full + each month)
+# then filter based on the period start and end
+expand_by_periods <- function(dt, chart_type = 'mbm') {
+  if(chart_type == 'mbm'){
+    all_periods <- data.table(
+      period = factor(names(session$userData$report_dates)),
+      startDate = as.Date(sapply(session$userData$report_dates, `[`, 1)),
+      endDate = as.Date(sapply(session$userData$report_dates, `[`, 2))
+    ) %>% 
+      ftransform(
+        exit_cutoff = startDate %m-% years(2),
+        temp_key = 1
+      )
+  } else if(chart_type == 'exits_time'){
+    all_periods <- data.table(
+      period = c('Current Year','Previous Year'),
+      startDate = c(session$userData$ReportStart,
+                    session$userData$ReportStart %m-% years(1)),
+      endDate = c(session$userData$ReportEnd,
+                  session$userData$ReportEnd %m-% years(1))
+    ) %>% 
+      ftransform(
+        exit_cutoff = startDate %m-% years(2),
+        temp_key = 1
+      )
+  } else {
+    all_periods <- data.table(
+      period = c('Full'),
+      startDate = session$userData$ReportStart,
+      endDate = session$userData$ReportEnd
+    ) %>% 
+      ftransform(
+        exit_cutoff = startDate %m-% years(2),
+        temp_key = 1
+      )
+  }
+  
+  
+  dt %>%
+    ftransform(temp_key = 1) %>%
+    join(
+      all_periods,
+      on = "temp_key",
+      multiple = TRUE
+    ) %>%
+    fsubset(EntryDate <= endDate & ExitAdjust >= exit_cutoff) %>%
+    fselect(-temp_key, -exit_cutoff) %>%
+    setkey(period) %>%
+    ftransform(
+      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
+      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
+      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate
+    )
+}
