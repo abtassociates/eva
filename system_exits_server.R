@@ -1489,7 +1489,7 @@ all_filtered_syse <- reactive({
    eecr_and_lecr <- tmp %>% 
     expand_by_periods(chart_type = 'exits_types') %>% 
     get_was_lh_info(tmp) %>%
-    get_syse_eecr_and_lecr()
+    get_eecr_and_lecr()
     
   join( 
     eecr_and_lecr,
@@ -1520,7 +1520,7 @@ all_filtered_syse_time <- reactive({
   eecr_and_lecr <- tmp %>% 
     expand_by_periods(chart_type = 'exits_time') %>% 
     get_was_lh_info_time(tmp) %>%
-    get_syse_eecr_and_lecr()
+    get_eecr_and_lecr()
   
   join( 
     eecr_and_lecr,
@@ -1551,7 +1551,7 @@ all_filtered_syse_demog <- reactive({
   eecr_and_lecr <- tmp %>% 
     expand_by_periods(chart_type = 'exits_demog') %>% 
     get_was_lh_info(tmp) %>%
-    get_syse_eecr_and_lecr()
+    get_eecr_and_lecr()
   
   join( 
     eecr_and_lecr,
