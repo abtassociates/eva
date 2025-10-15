@@ -1505,7 +1505,7 @@ all_filtered_syse <- reactive({
         ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
       exited_system =  lecr &
         ExitAdjust <= endDate & 
-        (days_to_next_lh > 14 | is.na(days_to_next_lh)),
+        (days_to_next_lh > 14 | is.na(days_to_next_lh))
     ) %>% 
     fsubset(period == 'Full' & exited_system) 
   
@@ -1532,7 +1532,7 @@ all_filtered_syse_time <- reactive({
         ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
       exited_system =  lecr &
         ExitAdjust <= endDate & 
-        (days_to_next_lh > 14 | is.na(days_to_next_lh)),
+        (days_to_next_lh > 14 | is.na(days_to_next_lh))
     ) %>% 
     fsubset(exited_system) 
  
@@ -1559,7 +1559,7 @@ all_filtered_syse_demog <- reactive({
         ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
       exited_system = lecr &
         ExitAdjust <= endDate & 
-        (days_to_next_lh > 14 | is.na(days_to_next_lh)),
+        (days_to_next_lh > 14 | is.na(days_to_next_lh))
     ) %>% 
     fsubset(period == 'Full' & exited_system) 
   
