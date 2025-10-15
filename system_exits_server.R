@@ -1517,7 +1517,7 @@ all_filtered_syse_time <- reactive({
   
   eecr_and_lecr <- enrollments_last_lh_syse() %>% 
     expand_by_periods(chart_type = 'exits_time') %>% 
-    get_was_lh_info_time(tmp) %>%
+    get_was_lh_info(tmp, time_chart = TRUE) %>%
     get_eecr_and_lecr()
   
   join( 

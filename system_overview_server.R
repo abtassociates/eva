@@ -487,13 +487,28 @@ enrollments_filtered <- reactive({
 })
 
 
-get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
+get_was_lh_info <- function(period_enrollments_filtered, all_filtered, time_chart = FALSE) {
+  
+  
+  if(time_chart){
+    period_enrollments_filtered <- period_enrollments_filtered %>% 
+      fmutate(ReportStart = ifelse(period == 'Current Year', session$userData$ReportStart, session$userData$ReportStart - years(1)),
+              ReportEnd = ifelse(period == 'Current Year', session$userData$ReportEnd, session$userData$ReportEnd - years(1))
+      )
+  } else {
+    period_enrollments_filtered <- period_enrollments_filtered %>% 
+      fmutate(ReportStart = session$userData$ReportStart,
+              ReportEnd = session$userData$ReportEnd
+      )
+  }
+  
   all_filtered_w_lh <- period_enrollments_filtered %>% 
     fselect(
       period, 
       PersonalID, 
       EnrollmentID, 
       EntryDate, ExitAdjust,
+      ReportStart, ReportEnd,
       days_since_lookback, 
       days_to_lookahead, 
       days_lh_valid,
@@ -509,12 +524,12 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       # That is, in these cases a person's LH-ness extends 15/60/90 days *beyond* the actual date
       # Used for lh_date and EntryDate
       start_minus_15_60_90_or_0 = startDate - fifelse(
-        (straddles_start | (fcoalesce(days_since_lookback, as.difftime(9999, units="days")) %between% c(0, 14) & startDate == session$userData$ReportStart)), 
+        (straddles_start | (fcoalesce(days_since_lookback, as.difftime(9999, units="days")) %between% c(0, 14) & startDate == ReportStart)), 
         days_lh_valid, 
         0
       ),
       end_minus_15_60_90_or_0 = endDate - fifelse(
-        straddles_end | (fcoalesce(days_to_lookahead, as.difftime(9999, units="days")) %between% c(0, 14) & endDate == session$userData$ReportEnd), 
+        straddles_end | (fcoalesce(days_to_lookahead, as.difftime(9999, units="days")) %between% c(0, 14) & endDate == ReportEnd), 
         days_lh_valid, 
         0
       ),
@@ -523,14 +538,14 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       # That is, in these cases a person's LH-ness extends 15 days *back* from the actual date
       # start-plus Used for lh_date and EntryDate; end-plus used for lh_date and ExitAdjust
       start_plus_15_or_0 = startDate + fifelse(
-        startDate == session$userData$ReportStart &
+        startDate == ReportStart &
         (straddles_start | fcoalesce(days_since_lookback, as.difftime(9999, units="days")) %between% c(0, 14)), 
         15, 
         0
       ),
       
       end_plus_15_or_0 = endDate + fifelse(
-        endDate == session$userData$ReportEnd &
+        endDate == ReportEnd &
         (straddles_end | fcoalesce(days_to_lookahead, as.difftime(9999, units="days")) %between% c(0, 14)), 
         15, 
         0
@@ -546,14 +561,14 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       # is because they'll be Continuous at Start
       active_at_start = 
         (
-          startDate == session$userData$ReportStart & (
+          startDate == ReportStart & (
             straddles_start | (
               EntryDate %between% list(startDate, startDate + 14) &
               days_since_lookback %between% c(0, 14)
             )
           )
         ) | (
-          startDate > session$userData$ReportStart & straddles_start & (
+          startDate > ReportStart & straddles_start & (
             EntryDate < startDate | days_since_last_lh %between% c(0, 14)
           )
         ),
@@ -561,14 +576,14 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       # Similarly for Active at End...
       active_at_end = 
         (
-          endDate == session$userData$ReportEnd & (
+          endDate == ReportEnd & (
             straddles_end | (
               ExitAdjust %between% list(endDate - 14, endDate) &
               days_to_lookahead %between% c(0, 14)
             )
           )
         ) | (
-          endDate < session$userData$ReportEnd &
+          endDate < ReportEnd &
           (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
         )
     ) %>%
@@ -647,13 +662,23 @@ get_was_lh_info <- function(period_enrollments_filtered, all_filtered) {
       was_housed_at_end = active_at_end & 
         ProjectType %in% ph_project_types & 
         MoveInDateAdjust < endDate
-    ) %>%
-    fgroup_by(EnrollmentID) %>%
-    fmutate(
-      was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
-    ) %>%
-    fungroup()
-
+    ) 
+  
+    if(time_chart) {
+      all_filtered_w_lh <- all_filtered_w_lh %>% 
+        fgroup_by(period, EnrollmentID) %>%
+        fmutate(
+          was_lh_during_full_period = any(was_lh_during_period_def, na.rm=TRUE)
+        ) %>%
+        fungroup()
+    } else {
+    all_filtered_w_lh <- all_filtered_w_lh %>%
+      fgroup_by(EnrollmentID) %>%
+      fmutate(
+        was_lh_during_full_period = any(period == "Full" & was_lh_during_period_def, na.rm=TRUE)
+      ) %>%
+      fungroup()
+    }
   # We only want enrollments that were:
   # LH during Full Period AND (LH/Housed during the given period or Exited in the future)
   # This will end up including a lot of enrollments that were Inactive
