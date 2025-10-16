@@ -946,31 +946,30 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     fsubset(!(N == 0 & PlotFillGroups %in% active_at_levels))
   
   cat_order <- as.character(unique(df$PlotFillGroups))
-  bar_patterns <- unname(mbm_pattern_fills[cat_order])
-  bar_bg <- unname(bar_colors[cat_order])
-  bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black', 
-                     'Housed' = bar_colors[['Housed']], 
-                     'Homeless' = bar_colors[['Homeless']])[cat_order])
-  
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
   total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
 
+ 
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
   ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
-    # the bars
-    geom_rect(
+
+    geom_rect_pattern(
       aes(
         # control bar gap width
         xmin = group.id - 0.25,
         xmax = group.id + 0.25,
         ymin = ystart,
-        ymax = yend
+        ymax = yend,
+        pattern = PlotFillGroups,
+        pattern_shape = PlotFillGroups,
+        pattern_angle = PlotFillGroups
       ),
       colour = "black",
       linewidth = .5,
-      alpha = 0.8
+      alpha = 0.8,
+      pattern_density = 0.4
     ) +
     # the connecting segments between bars
     geom_segment(
@@ -1026,7 +1025,10 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     
     # color palette
-    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(20, 'mm')) +
+    scale_pattern_manual(values = mbm_patterns[cat_order]) +
+    scale_pattern_angle_manual(values = mbm_pattern_angles[cat_order]) +
+    scale_pattern_shape_manual(values= mbm_pattern_shapes[cat_order]) +
+    scale_fill_manual(values = bar_colors) +
     # distance between bars and x axis line
     scale_y_continuous(expand = expansion()) +
     # x axis labels
@@ -1137,13 +1139,6 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     bar_width <- if_else(isExport, mbm_export_bar_width, mbm_bar_width)
     
     cat_order <- c(rev(mbm_inflow_levels), mbm_outflow_levels)
-    bar_patterns <- unname(c('Inflow' = 'grid_solid', mbm_pattern_fills[cat_order[-1]]))
-    
-    bar_bg <- unname(mbm_bar_colors[cat_order])
-    
-    bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black',  
-                       mbm_bar_colors['Active at Start: Homeless'], 
-                       mbm_bar_colors['Active at End: Housed'])[cat_order])
 
     
     # just = 0.5 means bar is centered around tick
@@ -1153,24 +1148,30 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     bar_adjust <- if_else(isExport, 1, 1.2)
     
     g <- ggplot(plot_data, aes(x = interaction(month, InflowOutflow), y = Count, fill = PlotFillGroups)) +
-      geom_bar(
+      geom_bar_pattern(
         data = plot_data[InflowOutflow == "Inflow"] %>%
           fmutate(PlotFillGroups = fct_relevel(
             PlotFillGroups,
             rev(mbm_inflow_levels)
           )),
-        aes(x = month, y = Count, color = PlotFillGroups, fill = PlotFillGroups),
+        aes(x = month, y = Count,  fill = PlotFillGroups, pattern = PlotFillGroups,
+            pattern_shape = PlotFillGroups),
         stat = "identity",
         position = "stack",
+        pattern_angle = mbm_pattern_angles['Inflow'],
+        pattern_density = 0.3,
         width = bar_width,
         color = 'black',
         just = bar_adjust
       ) +
-      geom_bar(
+      geom_bar_pattern(
         data = plot_data[InflowOutflow == "Outflow"],
-        aes(x = month, y = Count, color = PlotFillGroups, fill = PlotFillGroups),
+        aes(x = month, y = Count, fill = PlotFillGroups, pattern = PlotFillGroups,
+            pattern_shape = PlotFillGroups),
         stat = "identity",
         position = "stack",
+        pattern_angle = mbm_pattern_angles['Outflow'],
+        pattern_density = 0.3,
         width = bar_width,
         color = 'black',
         just = 1 - bar_adjust
@@ -1181,7 +1182,10 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         y = paste0("Count of ", level_of_detail_text())
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns) + 
+      # color palette
+      scale_pattern_manual(values = mbm_patterns[cat_order]) +
+      scale_pattern_shape_manual(values = mbm_pattern_shapes[cat_order]) +
+      scale_fill_manual(values = mbm_bar_colors) +
       # Update legend title
       ggtitle(
         paste0(
@@ -1577,15 +1581,21 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
   plot_data$PlotFillGroups <- status
  
+  cat_order <- as.character(unique(plot_data$PlotFillGroups))
+  
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(aes(fill = PlotFillGroups), width = 0.3, color = "black") +
+    geom_col_pattern(aes(fill = PlotFillGroups, pattern = PlotFillGroups, pattern_shape = PlotFillGroups, pattern_angle = PlotFillGroups), 
+                     width = 0.3, color = "black", pattern_density = 0.3) +
     geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text())
     ) +
-    scale_fill_pattern(bg = mbm_single_status_chart_colors[status], fg='black', patterns = mbm_pattern_fills[[status]]) +
+    scale_pattern_manual(values = mbm_patterns[cat_order]) +
+    scale_pattern_angle_manual(values = mbm_pattern_angles[cat_order]) +
+    scale_pattern_shape_manual(values = mbm_pattern_shapes[cat_order]) +
+    scale_fill_manual(values = mbm_single_status_chart_colors[status]) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
       axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),

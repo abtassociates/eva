@@ -24,7 +24,7 @@ library(plotly)
 library(collapse)
 library(flextable)
 library(promises)
-library(fillpattern) # used for pattern fills in sys overview charts
+library(ggpattern) # used for pattern fills in sys overview charts
 library(brandr) # used for extracting style info from brand.yml file
 
 options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
@@ -40,7 +40,7 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 source(here("hardcodes.R")) # hard-coded variables and data frames
 source(here("helper_functions.R")) # functions used throughout the app
 source(here('tab_instructions.R'), local = TRUE) # static HTML text elements
-
+source(here("eva_chart_colors.R"))
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
 # Create DQ and PDDE script environment

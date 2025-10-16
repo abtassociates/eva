@@ -28,16 +28,42 @@ mbm_single_status_chart_colors <- c(
   "Inactive" = bar_colors[["Outflow"]]
 )
 
-mbm_pattern_fills <- c(
-  "Housed" = '',
-  "Homeless" = '',
-  "Inflow" = 'grid_longdash_xl',
-  "First-Time \nHomeless" = 'grid_longdash_xl',
-  "Active at Start: Homeless" = "grid_longdash_xl",
-  "Outflow" = 'stripe45_dashed_xl',
-  "Inactive" = 'stripe45_dashed_xl',
-  "Active at End: Housed" = "stripe45_dashed_xl"
+## fill patterns from ggpattern package
+mbm_patterns <- c(
+  "Housed" = NA,
+  "Homeless" = NA,
+  "Inflow" = 'pch',
+  "First-Time \nHomeless" = 'pch',
+  "Active at Start: Homeless" = NA,
+  "Outflow" = 'regular_polygon',
+  "Inactive" = 'regular_polygon',
+  "Active at End: Housed" = NA
 )
+
+## pch = 3 is a plus sign, convex2 is effectively a vertical line
+mbm_pattern_shapes <- c(
+  "Housed" = NA,
+  "Homeless" = NA,
+  "Inflow" = 3,
+  "First-Time \nHomeless" = 3,
+  "Active at Start: Homeless" = NA,
+  "Outflow" = 'convex2',
+  "Inactive" = 'convex2',
+  "Active at End: Housed" = NA
+)
+
+## rotate minus signs 90 degrees to be horizontal
+mbm_pattern_angles <- c(
+  "Housed" = NA,
+  "Homeless" = NA,
+  "Inflow" = 0,
+  "First-Time \nHomeless" = 0,
+  "Active at Start: Homeless" = NA,
+  "Outflow" = 90,
+  "Inactive" = 90,
+  "Active at End: Housed" = NA
+)
+
 ## System Status Sankey chart ----------------------------------------------
 
 sankey_bar_colors <- c(
