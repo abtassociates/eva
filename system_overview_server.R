@@ -1033,31 +1033,6 @@ get_eecr_and_lecr <- function(period_enrollments_filtered_was_lh) {
     ) %>%
     fungroup()
   
-  #160649 - ICFgood (getting "something's wrong" inflow) 
-  #689253 - Demo (getting "something's wrong" inflow in June) 
-  # 183338 - ICF good last outflow != full
-  # 540917 - ICF-good 
-  # 123945 - ICF-good (something's wrong)
-  # 104510 last outflow != full
-  # 330303 last outflow != full. Enrollment 859594 should be picked
-  # 346740 last outflow != full
-  # 637552 (Demo Mode), First Inflow != Full Inflow. Enrollment 826535 should be selected, but 842850 is instead
-  # 423741 (ICF-good) outflow != full.
-  # 613089        (ICF-good) first inflow!= full
-  # 613426 (ICF-good) first inflow!= full
-  # 525922 (ICF-good) last outflow != full
-  # 687550 (Demo mode) last outflow != full
-  # 140224 (ICF-good) last outflow != full. EnrollmentID 848355 has a last_lh_date ini itlaly, but then it's NA
-  # 423741 (ICF-good) last outflow != full
-  # 596228 (ICF-good) last outflow != full
-  # 531816 (ICf-good) first inflow != full (when HHType == "AO" and PrjectType == "LHRes")
-  # 425572 (ICF-good) last outflow != full (when HHType == "AO")
-  # 150484 (ICF-good) multiple inactives in a row
-  # 186128 - missing June? (as of 8/25/25)
-  
-  # 607965
-  # QC checks ---------------
-#debug cols: final[PersonalID == 595646, c("period", enrollment_cols, "eecr", "lecr"), with=FALSE]
   # people must have an eecr or they can't be counted
   final <- final %>% fsubset(has_eecr & has_lecr)
   
