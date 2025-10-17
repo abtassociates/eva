@@ -57,7 +57,7 @@ output$downloadPDDEReport <- downloadHandler(
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
     exportTestValues(pdde_download_summary = summary_df)
-    exportTestValues(pdde_main = session$userData$pdde_main %>% nice_names())
+    exportTestValues(pdde_main = data_df)
   }
 )
 
