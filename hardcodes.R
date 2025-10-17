@@ -466,14 +466,11 @@ inflow_debug_cols <- c(
   "PersonalID",
   "period",
   "EnrollmentID",
-  "eecr",
   "ProjectType",
   "EntryDate",
   "MoveInDateAdjust",
   "ExitAdjust",
   "lh_prior_livingsituation",
-  "was_lh_at_start",
-  "was_housed_at_start",
   "InflowTypeDetail",
   "lh_dates"
 )
@@ -483,14 +480,11 @@ outflow_debug_cols <- c(
   "PersonalID",
   "period",
   "EnrollmentID",
-  "lecr",
   "ProjectType",
   "EntryDate",
   "MoveInDateAdjust",
   "ExitAdjust",
   "lh_prior_livingsituation",
-  "was_lh_at_end",
-  "was_housed_at_end",
   "OutflowTypeDetail",
   "lh_dates"
 )

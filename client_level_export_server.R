@@ -122,7 +122,7 @@ output$client_level_download_btn <- downloadHandler(
           between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE),
           TRUE
         ),
-        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
+        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
         OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
         `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
           flast(OutflowTypeDetail),
