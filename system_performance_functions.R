@@ -629,6 +629,71 @@ sys_detailBox <- function(
   }
   
   return(l1)
+sys_detailBox <- function(
+    selection = NULL,
+    detail_type = 'overview',
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+) {
+  
+  # Date Range
+  date_range <- list(
+    strong(fifelse(detail_type == 'time', "Current Year Date Range: ","Date Range: ")),
+    format(startDate, "%m-%d-%Y"), " to ", format(endDate, "%m-%d-%Y"), br()
+  )
+   
+  if(detail_type == 'time') { 
+    date_range <- c(
+      date_range, 
+      list(
+        strong("Previous Year Date Range: "),
+        format(startDate - years(1) , "%m-%d-%Y"), " to ", format(endDate - years(1), "%m-%d-%Y"), br()
+      )
+    )
+  }
+  
+  project_and_methodology_type <- 
+    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+    HTML(glue(
+      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types , methodology_type), start = 1, end = 8)} <br>"
+    ))
+  
+  
+  if (cur_project_types != "All")
+    project_and_methodology_type <- c(
+      chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")),
+      project_and_methodology_type
+    )
+  
+  # For System Comp/Demographics and System Exits, the demographic items to display 
+  # are which checkboxes user selected for the chart. Otherwise, they're the selected filter values
+  demographics <- if(!is.null(selection)) {
+    list(
+      HTML(glue("<strong>Selections</strong>: {paste(selection, collapse=' and ')} <br>"))
+    )
+  } else {
+    list(
+      if (length(age) != length(sys_age_cats))
+        HTML(glue(
+          "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
+        )),
+      
+      if (race_eth != "All")
+        chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
+      
+      if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
+        HTML(glue(
+          "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')} <br>"
+        ))
+    )
+  }
+  
+  return(c(date_range, project_and_methodology_type, demographics))
 }
 
 toggle_download_buttons <- function(subtab = 'comp',plot_df) {
