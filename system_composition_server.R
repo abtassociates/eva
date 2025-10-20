@@ -53,7 +53,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
     selection_cats1_labels <- names(selection_cats1)
   }
   
-  plot_df[selection] <- factor(
+  plot_df[[selection]] <- factor(
     plot_df[[selection]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels,

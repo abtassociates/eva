@@ -626,8 +626,7 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
   }
   
   ## assumes you are passing a df with columns for Destination Type (Homeless, Temporary, Permanent, Institutionl, Other/Unknown)
-  joined_df <- join(destinations_df, df, on=c('Destination Type','Destination Type Detail'),
-                         by=c('Destination Type','Destination Type Detail')) 
+  joined_df <- join(destinations_df, df, on=c('Destination Type','Destination Type Detail')) 
   
   if(fill_zero){
    joined_df %>% 

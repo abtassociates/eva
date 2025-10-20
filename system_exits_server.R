@@ -110,13 +110,13 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
     selection_cats1_labels <- names(selection_cats1)
   }
   
-  plot_df[selection] <- factor(
+  plot_df[[selection]] <- factor(
     plot_df[[selection]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels,
     ordered = TRUE)
   
-  plot_df_phd[selection] <- factor(
+  plot_df_phd[[selection]] <- factor(
     plot_df_phd[[selection]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels,
@@ -622,7 +622,7 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
          "SystemExitData" = tree_exits_data() %>% 
            fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
            fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
-           fsummarize(Count = n()) %>% 
+           fsummarize(Count = GRPN()) %>% 
            fungroup() %>% 
            list_all_destinations(fill_zero = TRUE) %>% 
            fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
