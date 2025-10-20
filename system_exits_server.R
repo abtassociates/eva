@@ -1,28 +1,20 @@
 
-
 #### DISPLAY FILTER SELECTIONS ###
-syse_detailBox <- reactive({
-  
-  sys_detailBox(
-    all_filters = TRUE,
-    detail_type = 'type',
-    methodology_type = input$syse_methodology_type,
-    cur_project_types = input$syse_project_type,
-    startDate = session$userData$ReportStart,
-    endDate = session$userData$ReportEnd,
-    age = input$syse_age,
-    spec_pops = input$syse_spec_pops,
-    race_eth = input$syse_race_ethnicity
-    )
-})
-
-
-
-
 output$syse_compare_subpop_filter_selections <- 
   output$syse_types_filter_selections <- renderUI({ 
     req(session$userData$valid_file() == 1)
-    syse_detailBox()
+    
+    sys_detailBox(
+      all_filters = TRUE,
+      detail_type = 'subpop',
+      methodology_type = input$syse_methodology_type,
+      cur_project_types = input$syse_project_type,
+      startDate = session$userData$ReportStart,
+      endDate = session$userData$ReportEnd,
+      age = input$syse_age,
+      spec_pops = input$syse_spec_pops,
+      race_eth = input$syse_race_ethnicity
+    )
   })
 
 ## separate info for time chart tab since report period covers 2 years before ReportEnd
