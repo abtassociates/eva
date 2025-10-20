@@ -121,8 +121,7 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
         ),
         `Currently in Project`
       )
-    ) %>%
-    roworder(OrganizationName, ProjectID)
+    )
 
   return(pivoted)
 }
