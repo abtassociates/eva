@@ -608,12 +608,20 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
     fselect(-Destination)
   
   if(add_totals){
-    destinations_df <- rowbind(destinations_df,
-                                 data.table(
-                                   dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
-                                 ) %>% fmutate(dest_type = factor(dest_type, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')),
-                                               `Destination Type Detail` = paste0('Total ', dest_type)) %>% rename('Destination Type' = dest_type)
-    ) %>% arrange(factor(`Destination Type`,levels=c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
+    total_row <- data.table(
+        dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
+      ) %>% 
+      fmutate(
+        dest_type = factor(
+          dest_type, 
+          levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')
+        ),
+        `Destination Type Detail` = paste0('Total ', dest_type)
+      ) %>% 
+      frename(dest_type = 'Destination Type')
+      
+    destinations_df <- rowbind(destinations_df, total_row) %>% 
+      roworder(`Destination Type`)
    
   }
   
