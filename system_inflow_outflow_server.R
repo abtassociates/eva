@@ -138,7 +138,7 @@ syso_level_of_detail_text <- reactive({
     input$syso_level_of_detail == "All", "People",
     input$syso_level_of_detail == "HoHsOnly", "Heads of Household",
     default =
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail)
+      getNameByValue(sys_level_of_detail, input$syso_level_of_detail)
   )
 })
 

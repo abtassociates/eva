@@ -388,7 +388,6 @@ observeEvent(input$system_composition_selections, {
 output$sys_comp_summary_selections <- renderUI({
   req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
   sys_detailBox( selection = input$system_composition_selections,
-                 all_filters = FALSE,
                  detail_type = 'comp',
                  methodology_type = input$syso_methodology_type,
                  cur_project_types = input$syso_project_type,
