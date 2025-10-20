@@ -279,10 +279,11 @@ sys_heatmap_xl_export <- function(file,
     }
     
     num_df <- plot_df() %>% #sys_comp_plot_df() %>%
-      pivot_wider(
-        names_from = selections[1],
-        values_from = n,
-        values_fill = list(n = 0)
+      pivot(
+        how = 'wider',
+        names = selections[1],
+        values = 'n',
+        fill = list(n = 0)
       )
     
     # Create x.y% version
