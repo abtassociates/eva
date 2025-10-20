@@ -164,7 +164,7 @@ get_clientcount_download_info <- function(file) {
   ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     fmutate(Status = paste0(Status, " (", days, " days)")) %>%
-    fselect(!!keepCols, !!clientCountDetailCols) %>%
+    fselect(c(keepCols, clientCountDetailCols)) %>%
     roworder(OrganizationName, ProjectName, EntryDate)
   
   exportDFList <- list(
