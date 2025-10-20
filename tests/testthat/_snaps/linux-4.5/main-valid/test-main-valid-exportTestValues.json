@@ -13,8 +13,8 @@
     },
     "clientCountSummary": {
       "Status": [
-        "Currently in project",
-        "Exited project"
+        "Currently in Project",
+        "Exited Project"
       ],
       "Clients": [
         16,
@@ -66,13 +66,28 @@
         "Max.": 88
       },
       "Exited Project": {
-        "Min.": 1,
-        "1st Qu.": 1,
-        "Median": 2,
-        "Mean": 5,
-        "3rd Qu.": 6,
-        "Max.": 15,
-        "NA's": 168
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.1445086705202312,
+        "3rd Qu.": 0,
+        "Max.": 15
+      },
+      "Exited No Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "Exited with Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
       }
     },
     "client_count_download_date_range": {
@@ -1046,13 +1061,13 @@
         "Housed"
       ],
       "N": [
-        575,
-        301,
+        573,
+        303,
         970,
         61,
         35,
-        288,
-        663,
+        284,
+        667,
         0,
         344,
         647
@@ -1092,14 +1107,14 @@
         "Enrolled, Housed"
       ],
       "freq": [
-        59,
-        240,
+        56,
+        242,
         14,
-        262,
+        261,
         72,
-        118,
+        119,
         73,
-        38
+        39
       ]
     },
     "systemDQ_download": {
