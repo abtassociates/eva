@@ -543,8 +543,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(pageid = "tabSystemExits")
     app$wait_for_idle(timeout = 1e+06)
     
-    app$set_inputs(syse_tabbox = "<h4>System Exit Types</h4>")
-    app$wait_for_idle(timeout = 1e+06)
+    #app$set_inputs(syse_tabbox = "<h4>System Exit Types</h4>")
+    #app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(syse_types_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     
