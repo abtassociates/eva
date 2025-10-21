@@ -30,6 +30,7 @@ library(brandr) # used for extracting style info from brand.yml file
 options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
 options(shiny.fullstacktrace = TRUE)
 options(shiny.stacktraceon = TRUE)
+options(BRANDR_BRAND_YML = here::here("_brand.yml"))
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
 
 if(dir.exists(here("metadata-analysis/metadata/"))) {
