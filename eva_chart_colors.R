@@ -38,12 +38,12 @@ mbm_single_status_chart_colors <- c(
 mbm_pattern_fills <- c(
   "Housed" = '',
   "Homeless" = '',
-  "Inflow" = 'grid_2solid',
-  "First-Time \nHomeless" = "grid_2solid",
-  "Active at Start: Homeless" = "grid_2solid",
-  "Outflow" = 'stripe120_2longdash',
-  "Inactive" = 'stripe120_2longdash',
-  "Active at End: Housed" = 'stripe120_2longdash'
+  "Inflow" = 'grid_solid',
+  "First-Time \nHomeless" = "grid_solid",
+  "Active at Start: Homeless" = "grid_solid",
+  "Outflow" = 'stripe120_longdash',
+  "Inactive" = 'stripe120_longdash',
+  "Active at End: Housed" = 'stripe120_longdash'
 )
 
 

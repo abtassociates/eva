@@ -1025,7 +1025,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     
     # pattern fills
-    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(20, 'mm')) +
+    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(1, 'mm'), lwd = 2) +
     # distance between bars and x axis line
     scale_y_continuous(expand = expansion()) +
     # x axis labels
@@ -1136,8 +1136,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     bar_width <- if_else(isExport, mbm_export_bar_width, mbm_bar_width)
     
     cat_order <- c(rev(mbm_inflow_levels), mbm_outflow_levels)
-    bar_patterns <- unname(c('Inflow' = 'grid_solid', 'stripe120_longdash'))#mbm_pattern_fills[cat_order[-1]]))
-    
+  
+    bar_patterns <- unname(mbm_pattern_fills[cat_order])
     bar_bg <- unname(mbm_bar_colors[cat_order])
     
     bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black',  
@@ -1180,7 +1180,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
       # pattern fills
-      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns) + 
+      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, lwd = 1) + 
       # Update legend title
       ggtitle(
         paste0(
@@ -1587,7 +1587,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
       y = paste0("Count of ", level_of_detail_text())
     ) +
     ## pattern fills
-    scale_fill_pattern(bg = mbm_single_status_chart_colors[status], fg='black', patterns = mbm_pattern_fills[[status]]) +
+    scale_fill_pattern(bg = mbm_single_status_chart_colors[status], fg='black', patterns = mbm_pattern_fills[[status]], lwd = 1) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
       axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),
