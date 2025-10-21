@@ -695,13 +695,19 @@ output$dq_export_download_btn <- downloadHandler(
         orgs_to_save <- input$dq_export_orgList
         
         for(i in orgs_to_save){
+          
+          dq_export_list <- get_dqDownloadInfo_export(i, value = "org")
+          
+          if(length(dq_export_list) <= 1) next
+          
           path_prefix <- file.path(tempdir(), str_glue('{i}'))
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
           }
+          
           dq_org_filename <- date_stamped_filename(str_glue('{i} - Data Quality Report-'))
-          write_xlsx(get_dqDownloadInfo_export(i, value = "org"), 
+          write_xlsx(dq_export_list, 
                      path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename))
                      )
           zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
@@ -718,6 +724,14 @@ output$dq_export_download_btn <- downloadHandler(
         
         for(i in orgs_to_save){
           
+          summary_df <- session$userData$pdde_main %>% 
+            filter(OrganizationName == i) %>% 
+            group_by(Issue, Type) %>%
+            summarise(Count = n()) %>%
+            ungroup()
+          
+          if(nrow(summary_df) == 0) next
+          
           path_prefix <- file.path(tempdir(), str_glue('{i}'))
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
@@ -725,12 +739,6 @@ output$dq_export_download_btn <- downloadHandler(
           }
           
           pdde_filename <- date_stamped_filename(str_glue("{i} - System-level PDDE Report-"))
-          
-          summary_df <- session$userData$pdde_main %>% 
-            filter(OrganizationName == i) %>% 
-            group_by(Issue, Type) %>%
-            summarise(Count = n()) %>%
-            ungroup()
           
           write_xlsx(
             list("Summary" = summary_df,
@@ -753,13 +761,20 @@ output$dq_export_download_btn <- downloadHandler(
         orgs_to_save <- input$dq_export_orgList
         
         for(i in orgs_to_save){
+          
+          validationDF <- client_count_data_df() %>% 
+            fsubset(OrganizationName == i)
+          
+          if(nrow(validationDF) == 0) next
+          
           path_prefix <- file.path(tempdir(), str_glue('{i}'))
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
           }
           proj_dash_filename <- date_stamped_filename(str_glue('{i} - Project Dashboard Report-'))
-          get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), orgList = i, dateRangeEnd = dq_export_date_range_end())
+          get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), 
+                                        orgList = i, dateRangeEnd = dq_export_date_range_end())
           zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
           
         }
@@ -801,6 +816,8 @@ output$dq_export_download_btn <- downloadHandler(
           summarise(Count = n()) %>%
           ungroup()
         
+        if(nrow(summary_df) == 0) break
+
         write_xlsx(
           list("Summary" = summary_df,
                "Data" = session$userData$pdde_main %>% 
@@ -822,6 +839,8 @@ output$dq_export_download_btn <- downloadHandler(
             nrow(session$userData$outstanding_referrals) > 0
         )
        
+        if(nrow(dqDownloadInfo()$systemDQData) == 0) break
+        
         dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
         
         write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
