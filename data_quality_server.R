@@ -839,8 +839,6 @@ output$dq_export_download_btn <- downloadHandler(
             nrow(session$userData$outstanding_referrals) > 0
         )
        
-        if(nrow(dqDownloadInfo()$systemDQData) == 0) break
-        
         dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
         
         write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
