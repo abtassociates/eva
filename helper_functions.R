@@ -573,12 +573,12 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
   enrollment_categories_all %>%
     fsubset(PersonalID %in% bad_personalIDs) %>%
     join(
-      universe_w_ppl_flags %>% fselect(base_cols),
+      universe_w_ppl_flags,
       on = c("PersonalID", "EnrollmentID"),
       multiple = multiple,
       drop.dup.cols = 'y',
       keep.col.order = FALSE
     ) %>%
     setorder(PersonalID, period, EntryDate) %>%
-    fselect(c(base_cols, "lh_dates"))
+    fselect(base_cols)
 }

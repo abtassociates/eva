@@ -396,6 +396,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
       ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.numeric(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
       default = 0
     ),
+    
     lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
       (ProjectType %in% non_res_project_types & lh_prior_livingsituation)
   ) %>% 

@@ -470,7 +470,6 @@ inflow_debug_cols <- c(
   "EntryDate",
   "MoveInDateAdjust",
   "ExitAdjust",
-  "lh_prior_livingsituation",
   "InflowTypeDetail",
   "lh_dates"
 )
@@ -484,7 +483,6 @@ outflow_debug_cols <- c(
   "EntryDate",
   "MoveInDateAdjust",
   "ExitAdjust",
-  "lh_prior_livingsituation",
   "OutflowTypeDetail",
   "lh_dates"
 )
