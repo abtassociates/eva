@@ -1,0 +1,1710 @@
+{
+  "export": {
+    "bracket_files_detail": {
+      "File": [
+        "Project"
+      ],
+      "Location": [
+        "column ProjectName, row 5"
+      ],
+      "Text": [
+        "Organization G - [Brackets]"
+      ]
+    },
+    "clientCountSummary": {
+      "Status": [
+        "Currently in project",
+        "Exited project"
+      ],
+      "Clients": [
+        16,
+        288
+      ],
+      "Households": [
+        16,
+        320
+      ]
+    },
+    "client_count_download_current": {
+      "Organization Name": {
+        "Length": "173",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "173",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "173",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Currently in Project": {
+        "Min.": 1,
+        "1st Qu.": 4,
+        "Median": 12,
+        "Mean": 56.39306358381503,
+        "3rd Qu.": 28,
+        "Max.": 4622
+      },
+      "Active No Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 4.15028901734104,
+        "3rd Qu.": 1,
+        "Max.": 142
+      },
+      "Currently Moved in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6.098265895953757,
+        "3rd Qu.": 6,
+        "Max.": 88
+      },
+      "Exited Project": {
+        "Min.": 1,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 5,
+        "3rd Qu.": 6,
+        "Max.": 15,
+        "NA's": 168
+      }
+    },
+    "client_count_download_date_range": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Currently in Project": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 9,
+        "Mean": 47.59024390243903,
+        "3rd Qu.": 25,
+        "Max.": 4622
+      },
+      "Active No Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 3.502439024390244,
+        "3rd Qu.": 1,
+        "Max.": 142
+      },
+      "Currently Moved in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 5.146341463414634,
+        "3rd Qu.": 3,
+        "Max.": 88
+      },
+      "Exited Project": {
+        "Min.": 0,
+        "1st Qu.": 13,
+        "Median": 51,
+        "Mean": 250.5804878048781,
+        "3rd Qu.": 156,
+        "Max.": 19498
+      },
+      "Exited No Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6,
+        "3rd Qu.": 2,
+        "Max.": 111
+      },
+      "Exited with Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 22.20975609756098,
+        "3rd Qu.": 12,
+        "Max.": 632
+      }
+    },
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Nulls not allowed or incorrect data type",
+        "Impermissible characters"
+      ],
+      "Type": [
+        "Error",
+        "Error"
+      ],
+      "Guidance": [
+        "Either there is a column with nulls where they are not allowed, or there is a column with an incorrect data type. Please review the HMIS CSV Format Specifications for the data types and null requirements associated with the file and column listed in the detail and make the necessary updates.",
+        "The HMIS CSV Specs restrict the use of some characters in string fields. To locate the character(s) that are flagging this issue, please run and download the Impermissible Character Detail export. Contact your vendor to ensure impermissible characters are excluded from your export."
+      ],
+      "Detail": [
+        "The CoCCode column in the ProjectCoC file contains nulls or incorrect data types. See rows: 1, 28",
+        "Found one or more brackets in your HMIS CSV Export. See Impermissible Character Detail export for the precise location of these characters."
+      ]
+    },
+    "orgDQ_download": {
+      "Export Detail": [
+        [
+          "Length:3          ",
+          "Min.   :2019-10-01  "
+        ],
+        [
+          "Class :character  ",
+          "1st Qu.:2021-03-31  "
+        ],
+        [
+          "Mode  :character  ",
+          "Median :2022-09-30  "
+        ],
+        [
+          null,
+          "Mean   :2022-01-22  "
+        ],
+        [
+          null,
+          "3rd Qu.:2023-03-20  "
+        ],
+        [
+          null,
+          "Max.   :2023-09-08  "
+        ]
+      ],
+      "Organization Summary": [
+        [
+          "High Priority: 3  ",
+          "Min.   :  1.00  ",
+          "Length:46         "
+        ],
+        [
+          "Error        :21  ",
+          "1st Qu.:  2.25  ",
+          "Class :character  "
+        ],
+        [
+          "Warning      :22  ",
+          "Median : 10.00  ",
+          "Mode  :character  "
+        ],
+        [
+          null,
+          "Mean   : 23.89  ",
+          null
+        ],
+        [
+          null,
+          "3rd Qu.: 22.00  ",
+          null
+        ],
+        [
+          null,
+          "Max.   :251.00  ",
+          null
+        ]
+      ],
+      "Project Summary": [
+        [
+          "Length:123        ",
+          "High Priority: 5  ",
+          "Min.   :  1.000  ",
+          "Length:123        "
+        ],
+        [
+          "Class :character  ",
+          "Error        :53  ",
+          "1st Qu.:  1.000  ",
+          "Class :character  "
+        ],
+        [
+          "Mode  :character  ",
+          "Warning      :65  ",
+          "Median :  3.000  ",
+          "Mode  :character  "
+        ],
+        [
+          null,
+          null,
+          "Mean   :  8.935  ",
+          null
+        ],
+        [
+          null,
+          null,
+          "3rd Qu.:  7.000  ",
+          null
+        ],
+        [
+          null,
+          null,
+          "Max.   :181.000  ",
+          null
+        ]
+      ],
+      "Guidance": [
+        [
+          "High Priority: 3  ",
+          "Length:46         ",
+          "Length:46         "
+        ],
+        [
+          "Error        :21  ",
+          "Class :character  ",
+          "Class :character  "
+        ],
+        [
+          "Warning      :22  ",
+          "Mode  :character  ",
+          "Mode  :character  "
+        ]
+      ],
+      "High Priority": [
+        [
+          "Length:15         ",
+          "Length:15         ",
+          "Length:15         ",
+          "Length:15         ",
+          "Length:15         ",
+          "Length:15         ",
+          "Length:15         ",
+          "Length:15         ",
+          "Min.   :2021-08-27  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2022-07-01  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2022-07-01  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2022-06-04  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-08-02  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-08-23  "
+        ]
+      ],
+      "Errors": [
+        [
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Min.   :2018-06-27  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2021-01-26  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-08-19  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-06-21  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-01-25  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-20  "
+        ]
+      ],
+      "Warnings": [
+        [
+          "Length:846        ",
+          "Length:846        ",
+          "Length:846        ",
+          "Length:846        ",
+          "Length:846        ",
+          "Length:846        ",
+          "Length:846        ",
+          "Length:846        ",
+          "Min.   :2019-08-17  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2020-11-10  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-08-18  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-07-13  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-04-01  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-21  "
+        ]
+      ],
+      "Overlap Details": [
+        [
+          "Length:50         ",
+          "Length:50         ",
+          "AO   :21  ",
+          "Length:50         ",
+          "Length:50         ",
+          "Length:50         ",
+          "Length:50         ",
+          "Length:50         ",
+          "Min.   :2019-10-02  ",
+          "Min.   :2019-10-04  ",
+          "Min.   :NA  ",
+          "Min.   :2020-01-06  ",
+          "Min.   :NA  ",
+          "Min.   :NA  ",
+          "Length:50         ",
+          "Length:50         ",
+          "AO   :20  ",
+          "Length:50         ",
+          "Length:50         ",
+          "Length:50         ",
+          "Length:50         ",
+          "Length:50         ",
+          "Min.   :2019-09-17  ",
+          "Min.   :2020-09-09  ",
+          "Min.   :2019-10-05  ",
+          "Min.   :NA  ",
+          "Min.   :NA  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "AC   :23  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2021-03-15  ",
+          "1st Qu.:2021-03-17  ",
+          "1st Qu.:NA  ",
+          "1st Qu.:2021-03-26  ",
+          "1st Qu.:NA  ",
+          "1st Qu.:NA  ",
+          "Class :character  ",
+          "Class :character  ",
+          "AC   :23  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2021-02-21  ",
+          "1st Qu.:2021-08-01  ",
+          "1st Qu.:2021-03-07  ",
+          "1st Qu.:NA  ",
+          "1st Qu.:NA  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "CO   : 0  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-06-26  ",
+          "Median :2021-06-08  ",
+          "Median :NA  ",
+          "Median :2021-12-08  ",
+          "Median :NA  ",
+          "Median :NA  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "CO   : 1  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-06-05  ",
+          "Median :2021-10-14  ",
+          "Median :2021-04-21  ",
+          "Median :NA  ",
+          "Median :NA  "
+        ],
+        [
+          null,
+          null,
+          "UN   : 0  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-07-06  ",
+          "Mean   :2021-06-20  ",
+          "Mean   :NaN  ",
+          "Mean   :2021-10-15  ",
+          "Mean   :NaN  ",
+          "Mean   :NaN  ",
+          null,
+          null,
+          "UN   : 0  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-05-31  ",
+          "Mean   :2021-10-21  ",
+          "Mean   :2021-06-27  ",
+          "Mean   :NaN  ",
+          "Mean   :NaN  "
+        ],
+        [
+          null,
+          null,
+          "AC-PY: 2  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-07-03  ",
+          "3rd Qu.:2022-01-24  ",
+          "3rd Qu.:NA  ",
+          "3rd Qu.:2022-08-11  ",
+          "3rd Qu.:NA  ",
+          "3rd Qu.:NA  ",
+          null,
+          null,
+          "AC-PY: 2  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-01-08  ",
+          "3rd Qu.:2022-01-04  ",
+          "3rd Qu.:2022-05-10  ",
+          "3rd Qu.:NA  ",
+          "3rd Qu.:NA  "
+        ],
+        [
+          null,
+          null,
+          "AO-UY: 4  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-08-25  ",
+          "Max.   :2022-09-01  ",
+          "Max.   :NA  ",
+          "Max.   :2022-09-16  ",
+          "Max.   :NA  ",
+          "Max.   :NA  ",
+          null,
+          null,
+          "AO-UY: 4  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-08-19  ",
+          "Max.   :2022-08-19  ",
+          "Max.   :2022-09-10  ",
+          "Max.   :NA  ",
+          "Max.   :NA  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "NA's   :5  ",
+          "NA's   :50  ",
+          "NA's   :7  ",
+          "NA's   :50  ",
+          "NA's   :50  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "NA's   :40  ",
+          "NA's   :6  ",
+          "NA's   :50  ",
+          "NA's   :50  "
+        ]
+      ],
+      "Referral Details": [
+        [
+          "Length:4          ",
+          "Length:4          ",
+          "Length:4          ",
+          "Length:4          ",
+          "Length:4          ",
+          "Length:4          ",
+          "Length:4          ",
+          "Min.   :2021-03-15  ",
+          "Length:4          ",
+          "Min.   :402.0  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2021-04-11  ",
+          "Class :character  ",
+          "1st Qu.:642.0  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-07-04  ",
+          "Mode  :character  ",
+          "Median :796.0  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-09-12  ",
+          null,
+          "Mean   :725.2  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2021-12-05  ",
+          null,
+          "3rd Qu.:879.2  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-08-02  ",
+          null,
+          "Max.   :907.0  "
+        ]
+      ]
+    },
+    "pdde_download_summary": {
+      "Issue": [
+        "Bed Type incompatible with Housing Type",
+        "Client-level data in VSP organization",
+        "Incorrect CoC in bed inventory",
+        "Inventory Start Precedes Operating Start",
+        "Long-Term Seasonal Inventory",
+        "Missing Address",
+        "Missing Geography Information",
+        "No Inventory Records",
+        "Operating End precedes Inventory End",
+        "Overlapping HMIS Participation Records",
+        "Project CoC missing bed inventory",
+        "RRH-SO has active bed inventory",
+        "Residential Project Missing Housing Type",
+        "VSP participating in HMIS",
+        "Zero Utilization"
+      ],
+      "Type": [
+        "Warning",
+        "High Priority",
+        "Error",
+        "Warning",
+        "Warning",
+        "Error",
+        "High Priority",
+        "Error",
+        "Error",
+        "High Priority",
+        "Warning",
+        "Error",
+        "High Priority",
+        "Error",
+        "Warning"
+      ],
+      "Count": [
+        3,
+        13,
+        2,
+        138,
+        111,
+        2,
+        5,
+        11,
+        6,
+        1,
+        2,
+        1,
+        1,
+        13,
+        2
+      ]
+    },
+    "pdde_guidance_summary": {
+      "Type": {
+        "High Priority": 4,
+        "Error": 6,
+        "Warning": 5
+      },
+      "Issue": {
+        "Length": "15",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Guidance": {
+        "Length": "15",
+        "Class": "character",
+        "Mode": "character"
+      }
+    },
+    "pdde_summary_table": {
+      "Issue": {
+        "Length": "15",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Type": {
+        "High Priority": 4,
+        "Error": 6,
+        "Warning": 5
+      },
+      "Count": {
+        "Min.": 1,
+        "1st Qu.": 2,
+        "Median": 3,
+        "Mean": 20.73333333333333,
+        "3rd Qu.": 12,
+        "Max.": 138
+      }
+    },
+    "sys_comp_report_num_df": {
+      "All Races/Ethnicities": [
+        "American Indian, Alaska Native, or Indigenous alone",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "Asian or Asian American alone",
+        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Black, African American, or African alone",
+        "Black, African American, or African & Hispanic/Latina/e/o",
+        "Hispanic/Latina/e/o alone",
+        "Middle Eastern or North African alone",
+        "Middle Eastern or North African & Hispanic/Latina/e/o",
+        "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander alone",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "White alone",
+        "White & Hispanic/Latina/e/o",
+        "Unknown",
+        "Total"
+      ],
+      "Veteran": [
+        16,
+        1,
+        0,
+        0,
+        85,
+        1,
+        0,
+        0,
+        0,
+        11,
+        2,
+        0,
+        0,
+        358,
+        19,
+        2,
+        495
+      ],
+      "Non-Veteran/Unknown": [
+        11,
+        5,
+        6,
+        0,
+        284,
+        7,
+        1,
+        0,
+        0,
+        63,
+        4,
+        0,
+        2,
+        1007,
+        54,
+        3,
+        1447
+      ],
+      "Total": [
+        27,
+        6,
+        6,
+        0,
+        369,
+        8,
+        1,
+        0,
+        0,
+        74,
+        6,
+        0,
+        2,
+        1365,
+        73,
+        5,
+        1942
+      ]
+    },
+    "sys_comp_report_pct_df": {
+      "All Races/Ethnicities": [
+        "American Indian, Alaska Native, or Indigenous alone",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "Asian or Asian American alone",
+        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Black, African American, or African alone",
+        "Black, African American, or African & Hispanic/Latina/e/o",
+        "Hispanic/Latina/e/o alone",
+        "Middle Eastern or North African alone",
+        "Middle Eastern or North African & Hispanic/Latina/e/o",
+        "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander alone",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "White alone",
+        "White & Hispanic/Latina/e/o",
+        "Unknown",
+        "Total"
+      ],
+      "Veteran": [
+        "3.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "17.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "0%",
+        "2.2%",
+        "0.4%",
+        "0%",
+        "0%",
+        "72.3%",
+        "3.8%",
+        "0.4%",
+        "25.5%"
+      ],
+      "Non-Veteran/Unknown": [
+        "0.8%",
+        "0.3%",
+        "0.4%",
+        "0%",
+        "19.6%",
+        "0.5%",
+        "0.1%",
+        "0%",
+        "0%",
+        "4.4%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "69.6%",
+        "3.7%",
+        "0.2%",
+        "74.5%"
+      ],
+      "Total": [
+        "1.4%",
+        "0.3%",
+        "0.3%",
+        "0%",
+        "19%",
+        "0.4%",
+        "0.1%",
+        "0%",
+        "0%",
+        "3.8%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "70.3%",
+        "3.8%",
+        "0.3%",
+        "100%"
+      ]
+    },
+    "sys_inflow_outflow_report": {
+      "Detail": [
+        "Housed",
+        "Homeless",
+        "First-Time Homeless",
+        "Returned from Permanent",
+        "Re-engaged from Non-Permanent",
+        "Exited, Non-Permanent",
+        "Exited, Permanent",
+        "Inactive",
+        "Homeless",
+        "Housed"
+      ],
+      "Summary": [
+        "Active at Start",
+        "Active at Start",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Active at End",
+        "Active at End"
+      ],
+      "InflowOutflow": [
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow"
+      ],
+      "PlotFillGroups": [
+        "Housed",
+        "Homeless",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Homeless",
+        "Housed"
+      ],
+      "N": [
+        573,
+        303,
+        970,
+        61,
+        35,
+        284,
+        667,
+        0,
+        344,
+        647
+      ],
+      "order": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "sys_status_report": {
+      "Begin": [
+        "Housed",
+        "Housed",
+        "Housed",
+        "Housed",
+        "Homeless",
+        "Homeless",
+        "Homeless",
+        "Homeless"
+      ],
+      "End": [
+        "Exited, Non-Permanent",
+        "Exited, Permanent",
+        "Enrolled, Homeless",
+        "Enrolled, Housed",
+        "Exited, Non-Permanent",
+        "Exited, Permanent",
+        "Enrolled, Homeless",
+        "Enrolled, Housed"
+      ],
+      "freq": [
+        56,
+        242,
+        14,
+        261,
+        72,
+        119,
+        73,
+        39
+      ]
+    },
+    "systemDQ_download": {
+      "Export Detail": [
+        [
+          "Length:3          ",
+          "Min.   :2019-10-01  "
+        ],
+        [
+          "Class :character  ",
+          "1st Qu.:2021-03-31  "
+        ],
+        [
+          "Mode  :character  ",
+          "Median :2022-09-30  "
+        ],
+        [
+          null,
+          "Mean   :2022-01-22  "
+        ],
+        [
+          null,
+          "3rd Qu.:2023-03-20  "
+        ],
+        [
+          null,
+          "Max.   :2023-09-08  "
+        ]
+      ],
+      "System Summary": [
+        [
+          "High Priority: 3  ",
+          "Min.   :    2.0  ",
+          "Length:68         "
+        ],
+        [
+          "Error        :36  ",
+          "1st Qu.:   20.5  ",
+          "Class :character  "
+        ],
+        [
+          "Warning      :29  ",
+          "Median :  145.5  ",
+          "Mode  :character  "
+        ],
+        [
+          null,
+          "Mean   :  827.4  ",
+          null
+        ],
+        [
+          null,
+          "3rd Qu.:  526.5  ",
+          null
+        ],
+        [
+          null,
+          "Max.   :11744.0  ",
+          null
+        ]
+      ],
+      "Organization Summary": [
+        [
+          "Length:1004       ",
+          "High Priority: 56  ",
+          "Min.   :   1.00  ",
+          "Length:1004       "
+        ],
+        [
+          "Class :character  ",
+          "Error        :440  ",
+          "1st Qu.:   3.00  ",
+          "Class :character  "
+        ],
+        [
+          "Mode  :character  ",
+          "Warning      :508  ",
+          "Median :   9.00  ",
+          "Mode  :character  "
+        ],
+        [
+          null,
+          null,
+          "Mean   :  56.04  ",
+          null
+        ],
+        [
+          null,
+          null,
+          "3rd Qu.:  26.00  ",
+          null
+        ],
+        [
+          null,
+          null,
+          "Max.   :5367.00  ",
+          null
+        ]
+      ],
+      "Guidance": [
+        [
+          "High Priority: 3  ",
+          "Length:68         ",
+          "Length:68         "
+        ],
+        [
+          "Error        :36  ",
+          "Class :character  ",
+          "Class :character  "
+        ],
+        [
+          "Warning      :29  ",
+          "Mode  :character  ",
+          "Mode  :character  "
+        ]
+      ],
+      "High Priority": [
+        [
+          "Length:1082       ",
+          "Length:1082       ",
+          "Length:1082       ",
+          "Length:1082       ",
+          "Length:1082       ",
+          "Length:1082       ",
+          "Length:1082       ",
+          "Length:1082       ",
+          "Min.   :2016-09-15  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2020-08-18  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-01-25  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-04-23  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-04-12  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-26  "
+        ]
+      ],
+      "Errors": [
+        [
+          "Length:8562       ",
+          "Length:8562       ",
+          "Length:8562       ",
+          "Length:8562       ",
+          "Length:8562       ",
+          "Length:8562       ",
+          "Length:8562       ",
+          "Length:8562       ",
+          "Min.   :2007-05-05  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2020-05-08  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-02-01  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2020-12-13  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2021-11-16  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-26  "
+        ]
+      ],
+      "Warnings": [
+        [
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Length:46621      ",
+          "Min.   :2005-04-14  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2020-06-09  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-03-02  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-02-13  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-01-06  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-26  "
+        ]
+      ],
+      "Overlap Details": [
+        [
+          "Length:872        ",
+          "Length:872        ",
+          "AO   :557  ",
+          "Length:872        ",
+          "Length:872        ",
+          "Length:872        ",
+          "Length:872        ",
+          "Length:872        ",
+          "Min.   :2013-12-11  ",
+          "Min.   :2018-04-04  ",
+          "Min.   :2020-03-20  ",
+          "Min.   :2019-10-01  ",
+          "Min.   :2019-09-25  ",
+          "Min.   :2019-10-01  ",
+          "Length:872        ",
+          "Length:872        ",
+          "AO   :557  ",
+          "Length:872        ",
+          "Length:872        ",
+          "Length:872        ",
+          "Length:872        ",
+          "Length:872        ",
+          "Min.   :2012-03-22  ",
+          "Min.   :2012-06-01  ",
+          "Min.   :2019-10-04  ",
+          "Min.   :2019-08-04  ",
+          "Min.   :2019-10-15  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "AC   :247  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2020-03-29  ",
+          "1st Qu.:2020-06-02  ",
+          "1st Qu.:2020-08-06  ",
+          "1st Qu.:2020-07-20  ",
+          "1st Qu.:2020-09-07  ",
+          "1st Qu.:2020-09-10  ",
+          "Class :character  ",
+          "Class :character  ",
+          "AC   :247  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2020-03-09  ",
+          "1st Qu.:2020-01-16  ",
+          "1st Qu.:2020-05-31  ",
+          "1st Qu.:2020-10-15  ",
+          "1st Qu.:2020-11-24  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "CO   :  1  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2020-12-12  ",
+          "Median :2021-01-05  ",
+          "Median :2021-02-24  ",
+          "Median :2021-03-31  ",
+          "Median :2021-08-11  ",
+          "Median :2021-08-15  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "CO   :  2  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2020-11-10  ",
+          "Median :2020-10-28  ",
+          "Median :2021-01-31  ",
+          "Median :2021-06-05  ",
+          "Median :2021-08-01  "
+        ],
+        [
+          null,
+          null,
+          "UN   :  0  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-01-12  ",
+          "Mean   :2021-01-29  ",
+          "Mean   :2021-05-24  ",
+          "Mean   :2021-04-11  ",
+          "Mean   :2021-05-08  ",
+          "Mean   :2021-06-08  ",
+          null,
+          null,
+          "UN   :  0  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2020-11-18  ",
+          "Mean   :2020-09-19  ",
+          "Mean   :2021-02-21  ",
+          "Mean   :2021-06-10  ",
+          "Mean   :2021-07-19  "
+        ],
+        [
+          null,
+          null,
+          "AC-PY: 38  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2021-11-02  ",
+          "3rd Qu.:2021-11-01  ",
+          "3rd Qu.:2022-05-30  ",
+          "3rd Qu.:2021-12-16  ",
+          "3rd Qu.:2022-01-10  ",
+          "3rd Qu.:2022-02-06  ",
+          null,
+          null,
+          "AC-PY: 32  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2021-08-30  ",
+          "3rd Qu.:2021-08-08  ",
+          "3rd Qu.:2021-11-15  ",
+          "3rd Qu.:2022-06-10  ",
+          "3rd Qu.:2022-06-27  "
+        ],
+        [
+          null,
+          null,
+          "AO-UY: 29  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-23  ",
+          "Max.   :2022-09-23  ",
+          "Max.   :2022-08-01  ",
+          "Max.   :2022-09-20  ",
+          "Max.   :2022-09-11  ",
+          "Max.   :2022-09-30  ",
+          null,
+          null,
+          "AO-UY: 31  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-23  ",
+          "Max.   :2022-09-16  ",
+          "Max.   :2022-09-24  ",
+          "Max.   :2022-09-15  ",
+          "Max.   :2022-09-30  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "NA's   :338  ",
+          "NA's   :810  ",
+          "NA's   :124  ",
+          "NA's   :819  ",
+          "NA's   :819  ",
+          null,
+          null,
+          "NA's :  3  ",
+          null,
+          null,
+          null,
+          null,
+          null,
+          "NA's   :3  ",
+          "NA's   :630  ",
+          "NA's   :57  ",
+          "NA's   :817  ",
+          "NA's   :817  "
+        ]
+      ],
+      "Referral Details": [
+        [
+          "Length:480        ",
+          "Length:480        ",
+          "Length:480        ",
+          "Length:480        ",
+          "Length:480        ",
+          "Length:480        ",
+          "Length:480        ",
+          "Min.   :2019-11-14  ",
+          "Length:480        ",
+          "Min.   : 351.0  "
+        ],
+        [
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "Class :character  ",
+          "1st Qu.:2021-01-05  ",
+          "Class :character  ",
+          "1st Qu.: 415.0  "
+        ],
+        [
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Mode  :character  ",
+          "Median :2021-09-01  ",
+          "Mode  :character  ",
+          "Median : 736.5  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Mean   :2021-09-01  ",
+          null,
+          "Mean   : 736.8  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "3rd Qu.:2022-07-20  ",
+          null,
+          "3rd Qu.: 976.0  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Max.   :2022-09-22  ",
+          null,
+          "Max.   :1394.0  "
+        ]
+      ]
+    }
+  }
+}
