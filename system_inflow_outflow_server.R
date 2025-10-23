@@ -912,6 +912,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       fmutate(Summary = fct_collapse(Summary, !!!collapse_details)) %>%
       collap(cols="N", ~ InflowOutflow + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
+    fill_var <- 'PlotFillGroups'
+    fill_breaks <- c("Housed","Homeless","Inflow","Outflow")
   } else {
     # re-label Inflow Unspecified if export is < 1094 days
     if(session$userData$days_of_data < 1094)
@@ -921,6 +923,9 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
         )
 
     mid_plot <- 4.5
+    fill_var <- 'Detail'
+    # Use Housed, Homeless, one Inflow, and one Outflow for legend in Detail chart
+    fill_breaks <- c("Housed","Homeless","First-Time \nHomeless","Inactive")
   }
   
   total_clients <- df[InflowOutflow == "Inflow", sum(N)]
@@ -945,20 +950,20 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     # than legend, which makes it hard to interpret the floating 0
     fsubset(!(N == 0 & PlotFillGroups %in% active_at_levels))
   
-  cat_order <- as.character(unique(df$PlotFillGroups))
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
   total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
 
+  cat_order <- as.character(unique(df[[fill_var]]))
   bar_patterns <- unname(mbm_pattern_fills[cat_order])
   bar_bg <- unname(bar_colors[cat_order])
-  bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black', 
-                     'Housed' = bar_colors[['Housed']], 
-                     'Homeless' = bar_colors[['Homeless']])[cat_order])
+  
+  bar_fg <- bar_bg
+  bar_fg[!(cat_order %in% c('Housed','Homeless'))] <- 'black'
   
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-  ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
+  ggplot(df, aes(x = group.id, fill = .data[[fill_var]])) +
     geom_rect(
       aes(
         # control bar gap width
@@ -1025,7 +1030,9 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     ) +
     
     # pattern fills
-    scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(1, 'mm'), lwd = 2) +
+    scale_fill_pattern_eva(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(1, 'mm'), lwd = 2,
+                        breaks = fill_breaks, labels = c("Housed","Homeless","Inflow","Outflow")) +
+   
     # distance between bars and x axis line
     scale_y_continuous(expand = expansion()) +
     # x axis labels
@@ -1464,38 +1471,42 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       columns = 1,
       target = "cell",
       color = styleEqual(
-        mbm_outflow_levels, 
-        rep("white", length(mbm_outflow_levels))
+        c("Active at Start: Homeless", "Active at End: Housed"), 
+        rep("white", 2)
       )
     )
   
-  if(input$mbm_status_filter == "All") {
-    # Highlight max inflow
-    month_cols <- names(summary_data_with_change)[-1]
-    change_row <- as.integer(summary_data_with_change[PlotFillGroups == "Monthly Change", ..month_cols])
-
-    if(any(change_row > 0, na.rm=TRUE)) {
-      monthly_dt <- monthly_dt %>%
-        formatStyle(
-          columns = month_cols[which.max(change_row)],
-          target = "cell",
-          backgroundColor = styleRow(
-            nrow(summary_data_with_change), 
-            mbm_bar_colors["Inflow"]
-          )
-        )
-    }
-    
-    if(any(change_row < 0, na.rm=TRUE)) {
-      monthly_dt <- monthly_dt %>%
-        formatStyle(
-          columns = month_cols[which.min(change_row)],
-          target = "cell",
-          color = styleRow(nrow(summary_data_with_change), 'white'),
-          backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
-        )
-    }
-  }
+  ## Commenting out this section which highlights max and min inflow/outfow values
+  ## since we are now using the same background color with a pattern fill instead
+  ## and users cannot distinguish between them in table form
+  
+  # if(input$mbm_status_filter == "All") {
+  #   # Highlight max inflow
+  #   month_cols <- names(summary_data_with_change)[-1]
+  #   change_row <- as.integer(summary_data_with_change[PlotFillGroups == "Monthly Change", ..month_cols])
+  # 
+  #   if(any(change_row > 0, na.rm=TRUE)) {
+  #     monthly_dt <- monthly_dt %>%
+  #       formatStyle(
+  #         columns = month_cols[which.max(change_row)],
+  #         target = "cell",
+  #         backgroundColor = styleRow(
+  #           nrow(summary_data_with_change), 
+  #           mbm_bar_colors["Inflow"]
+  #         )
+  #       )
+  #   }
+  #   
+  #   if(any(change_row < 0, na.rm=TRUE)) {
+  #     monthly_dt <- monthly_dt %>%
+  #       formatStyle(
+  #         columns = month_cols[which.min(change_row)],
+  #         target = "cell",
+  #         color = styleRow(nrow(summary_data_with_change), 'white'),
+  #         backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
+  #       )
+  #   }
+  # }
   monthly_dt
 })
 
@@ -1525,17 +1536,17 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
     
   row_labels <- d[[1]]
   
-  # Formatting the inflow/outflow row labels
-  inflow_outflow_row_indices <- which(row_labels %in% c(mbm_inflow_levels, mbm_outflow_levels))
-  outflow_row_indices <- which(row_labels %in% c("Active at End: Housed", "Outflow"))
-
+  # Formatting the inflow/outflow row labels - now using black text for Housed + Homeless, white for others
+  inflow_outflow_row_indices <- which(row_labels %in% c("Inflow","Outflow")) 
+  active_row_indices <- which(row_labels %in% c("Active at Start: Homeless", "Active at End: Housed")) 
+  
   ft <- ft %>%
     # Background colors from datatable's formatStyle
     bg(i = inflow_outflow_row_indices, j = 1, bg = mbm_bar_colors) %>%
     # thick borders for the first column
     border(i = inflow_outflow_row_indices, j = 1, border = fp_border(color = "black", width = 2)) %>%
     # Make outflow cells have contrasting white font color
-    color(i = outflow_row_indices, j = 1, color = "white")
+    color(i = active_row_indices, j = 1, color = "white")
 
   # Highlight the monthly change inflow and outflow vals
   monthly_change_row <- which(row_labels == "Monthly Change")
