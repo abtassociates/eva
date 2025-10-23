@@ -128,4 +128,15 @@ original_data_fixed_cols$Organization[11, "VictimServiceProvider"] <- 1 # org 55
 # Non-VSP project (Org 49) and a project with Org 55
 original_data_fixed_cols$ProjectCoC[c(1, 28), c("Address1", "CoCCode", "GeographyType", "ZIP")] <- NA
 
+# Trigger the COC Project missing ID error -------------------------
+# Remove a project from ProjectsCOC, with ContinuumProject == 1
+coc_project <- original_data_fixed_cols$Project %>% 
+      filter(ContinuumProject == 1) 
+
+print(length(unique(coc_project$ProjectID)))
+coc_project <- coc_project$ProjectID[nrow(coc_project)]
+
+original_data_fixed_cols$ProjectCoC <- original_data_fixed_cols$ProjectCoC %>%
+  filter(ProjectID != coc_project)
+
 ## add more checks here --------------------------------------------
