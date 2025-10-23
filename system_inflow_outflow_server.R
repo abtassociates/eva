@@ -1188,9 +1188,8 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
       # pattern fills
-      scale_fill_pattern_eva(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, lwd = 1, 
-                          breaks = c('Active at Start: Homeless','Inflow','Outflow','Active at End: Housed'),
-                          labels = c('Active at Start','Inflow','Outflow', 'Active at End')) + 
+      scale_fill_pattern_eva(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, lwd = 1,
+                          breaks = c('Active at Start: Homeless','Inflow','Outflow','Active at End: Housed')) +
       # Update legend title
       ggtitle(
         paste0(
