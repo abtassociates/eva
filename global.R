@@ -25,6 +25,7 @@ library(collapse)
 library(flextable)
 library(promises)
 library(fillpattern) # used for pattern fills in sys overview charts
+library(ggnewscale) # used for applying pattern fills to sankey charts
 library(brandr) # used for extracting style info from brand.yml file
 
 options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776

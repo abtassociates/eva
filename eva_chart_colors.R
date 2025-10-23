@@ -66,3 +66,5 @@ sankey_border_colors <- c(
   "Exited, Permanent" = get_brand_color('light_blue'),
   "Enrolled, Housed" = get_brand_color('dark_blue2')
 )
+
+sankey_pattern <- 'stripe120_longdash'
