@@ -31,7 +31,7 @@
       ]
     },
     "sys_fth_monthly_ui_chart": {
-      "src": "[image data hash: 7fb48b3e320387746f5dff002b90c3a4]",
+      "src": "[image data hash: ca29c087c8f1ed124a35e39688684782]",
       "width": 1847,
       "height": 500,
       "alt": "Plot object",
@@ -71,6 +71,7 @@
               }
             },
             "mapping": {
+              "fill": "PlotFillGroups",
               "x": "month",
               "y": "Count"
             },
