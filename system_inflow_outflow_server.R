@@ -1183,11 +1183,14 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       theme_minimal() +
       labs(
         x = "Month",
-        y = paste0("Count of ", level_of_detail_text())
+        y = paste0("Count of ", level_of_detail_text()),
+        fill = ''
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
       # pattern fills
-      scale_fill_pattern(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, lwd = 1) + 
+      scale_fill_pattern_eva(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, lwd = 1, 
+                          breaks = c('Active at Start: Homeless','Inflow','Outflow','Active at End: Housed'),
+                          labels = c('Active at Start','Inflow','Outflow', 'Active at End')) + 
       # Update legend title
       ggtitle(
         paste0(
@@ -1217,27 +1220,33 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     
     # For PPT export, add data labels, centered horizontally and vertically within a bar
     if(isExport) {
-      g <- g + geom_text(
-        data = plot_data[InflowOutflow == "Inflow"] %>%
-          fmutate(PlotFillGroups = fct_relevel(
-            PlotFillGroups,
-            "Inflow",  "Active at Start: Homeless"
-          )),
-        aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
-        stat = "identity",
-        position = position_stack(vjust = 0.5),
-        size = 10,
-        size.unit = "pt"
-      ) +
-      geom_text(
-        data = plot_data[InflowOutflow == "Outflow"],
-        aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
-        stat = "identity",
-        position = position_stack(vjust = 0.5),
-        color = 'white',
-        size = 10,
-        size.unit = "pt"
-      )
+      
+      g <- g + 
+        geom_label(
+          data = plot_data[InflowOutflow == "Inflow"] %>%
+            #data = plot_data[InflowOutflow == "Inflow"] %>%
+            fmutate(PlotFillGroups = fct_relevel(
+              PlotFillGroups,
+              "Inflow",  "Active at Start: Homeless"
+            )),
+          aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+          stat = "identity",
+          color = "black",
+          fill = "white",
+          position = position_stack(vjust = 0.5),
+          size = 10,
+          size.unit = "pt"
+        ) +
+        geom_label(
+          data = plot_data[InflowOutflow == "Outflow"],
+          aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+          stat = "identity",
+          color = "black",
+          fill = "white",
+          position = position_stack(vjust = 0.5),
+          size = 10,
+          size.unit = "pt"
+        ) 
     }
     g
   })
@@ -1542,9 +1551,10 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
   
   ft <- ft %>%
     # Background colors from datatable's formatStyle
-    bg(i = inflow_outflow_row_indices, j = 1, bg = mbm_bar_colors) %>%
+    bg(i = inflow_outflow_row_indices, j = 1, bg = mbm_bar_colors[c('Inflow','Outflow')]) %>%
+    bg(i = active_row_indices, j = 1, bg = mbm_bar_colors[c("Active at Start: Homeless", "Active at End: Housed")]) %>%
     # thick borders for the first column
-    border(i = inflow_outflow_row_indices, j = 1, border = fp_border(color = "black", width = 2)) %>%
+    border(i = c(inflow_outflow_row_indices, active_row_indices), j = 1, border = fp_border(color = "black", width = 2)) %>%
     # Make outflow cells have contrasting white font color
     color(i = active_row_indices, j = 1, color = "white")
 
