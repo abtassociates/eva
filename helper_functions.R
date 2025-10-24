@@ -572,7 +572,7 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     fsubset(PersonalID %in% bad_personalIDs) %>%
     join(
       universe_w_ppl_flags,
-      on = c("PersonalID", "EnrollmentID"),
+      on = c("PersonalID"),
       multiple = multiple,
       drop.dup.cols = 'y',
       keep.col.order = FALSE
