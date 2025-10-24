@@ -391,8 +391,13 @@ period_specific_data <- reactive({
   period_data <- all_filtered %>% 
     expand_by_periods() %>% # expand/repeat enrollments across periods
     get_active_info(all_filtered) %>%
-    get_enrl_flags() %>%
     get_ppl_flags()
+  
+  inflow_outflow_qc_checks(period_data)
+  
+  browser()
+  
+  export_for_qc(period_data)
   
   # Split into months and full-period datasets
   list(
@@ -708,8 +713,12 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   return(final)
 }
 
-get_enrl_flags <- function(all_filtered_w_active) {
-  enrl_flags <- all_filtered_w_active %>%
+get_ppl_flags <- function(all_filtered_w_active) {
+  inflows <- all_filtered_w_active %>%
+    fmutate(sort_var = fifelse(active_at_start, ProjectTypeWeight, as.numeric(active_start))) %>%
+    roworder(PersonalID, period, -active_at_start, -sort_var, verbose = F) %>%
+    fgroup_by(PersonalID, period) %>%
+    fslice(how="first") %>%
     fmutate(
       ## INFLOW ## -------------------------------------
       as_housed = active_at_start & MoveInDateAdjust < startDate,
@@ -725,12 +734,6 @@ get_enrl_flags <- function(all_filtered_w_active) {
       ### Returned  ----------
       returned = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
         !active_at_start & days_since_prev_active %between% c(15, 730) & lookback_dest_perm,
-      # 
-      # lookback_dest_perm &
-      #   (startDate == session$userData$ReportStart | ExitAdjust != startDate) & (
-      #     days_since_prev_active %between% c(15, 730) |
-      #       (days_since_prev_active %between% c(0, 14) & lookback_is_nonres_or_nbn & days_since_prev_active == Inf)
-      #   ),
       
       ### Re-Engaged  ----------
       reengaged = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
@@ -771,13 +774,21 @@ get_enrl_flags <- function(all_filtered_w_active) {
           default = "something's wrong"
         ),
         levels = c(active_at_levels, inflow_detail_levels)
-      ),
-      # 
-      # InflowTypeDetailMain = fct_collapse(
-      #   InflowTypeDetail, 
-      #   "Returned" = c("Returned from Permanent", "Re-engaged from Non-Permanent")
-      # ),
-      
+      )
+    ) %>%
+    fselect(PersonalID, period, days_since_prev_active, InflowTypeDetail)
+  
+  outflows <- all_filtered_w_active %>%
+    fmutate(sort_var = fifelse(
+      active_at_end, 
+      ProjectTypeWeight, 
+      # pmax(as.numeric(active_end), fifelse(ExitAdjust %between% list(startDate, endDate), ExitAdjust, NA), na.rm=TRUE)
+      pmax(as.numeric(active_end), ExitAdjust, na.rm=TRUE)
+    )) %>%
+    roworder(PersonalID, period, active_at_end, sort_var, -MoveInDateAdjust, verbose = F) %>%
+    fgroup_by(PersonalID, period) %>%
+    fslice(how="last") %>%
+    fmutate(
       ## OUTFLOW ## ----------------------
       ### AE: Housed --------
       ae_housed = active_at_end & MoveInDateAdjust < endDate,
@@ -835,40 +846,10 @@ get_enrl_flags <- function(all_filtered_w_active) {
       #   OutflowTypeDetail, 
       #   "Exited" = c("Exited, Non-Permanent", "Exited, Permanent")
       # )
-    )
+    ) %>%
+    fselect(PersonalID, period, days_to_next_active, OutflowTypeDetail)
 
-  return(enrl_flags)
-}
-get_ppl_flags <- function(enrl_flags) {
-  # enrl_flags[PersonalID == 658148, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, Destination, InflowTypeDetail, OutflowTypeDetail)]
-  best_inflow <-  enrl_flags %>%
-    fselect(PersonalID, period, EnrollmentID, ProjectType, ProjectTypeWeight, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_at_start, InflowTypeDetail, days_since_prev_active) %>%
-    fmutate(sort_var = fifelse(active_at_start, ProjectTypeWeight, as.numeric(active_start))) %>%
-    roworder(PersonalID, period, -active_at_start, -sort_var, verbose = F) %>%
-    fgroup_by(PersonalID, period) %>%
-    fslice(how="first") %>%
-    fselect(-sort_var)
-
-  best_outflow <- enrl_flags %>%
-    fselect(PersonalID, period, EnrollmentID, ProjectType,  ProjectTypeWeight, EntryDate, MoveInDateAdjust, ExitAdjust, active_end, active_at_end, OutflowTypeDetail, days_to_next_active) %>%
-    fmutate(sort_var = fifelse(
-      active_at_end, 
-      ProjectTypeWeight, 
-      # pmax(as.numeric(active_end), fifelse(ExitAdjust %between% list(startDate, endDate), ExitAdjust, NA), na.rm=TRUE)
-      pmax(as.numeric(active_end), ExitAdjust, na.rm=TRUE)
-    )) %>%
-    roworder(PersonalID, period, active_at_end, sort_var, -OutflowTypeDetail, verbose = F) %>%
-    fgroup_by(PersonalID, period) %>%
-    fslice(how="last") %>%
-    fselect(-sort_var)
-  
-  
-  universe_w_ppl_flags <- join(
-    best_inflow, 
-    best_outflow, 
-    on = c("PersonalID", "period"), how="full"
-  ) %>%
-    funique() %>%
+  ppl_flags <- join(inflows, outflows, on=c("PersonalID","period"), how="inner") %>%
     fmutate(
       ### InflowTypeSummary  ----------
       InflowTypeSummary = fct_collapse(
@@ -885,33 +866,7 @@ get_ppl_flags <- function(enrl_flags) {
       )
     )
   
-  
-  if(!IN_DEV_MODE) {
-    universe_w_ppl_flags <- universe_w_ppl_flags %>%
-      fselect(
-        PersonalID,
-        InflowTypeSummary,
-        InflowTypeDetail,
-        OutflowTypeSummary,
-        OutflowTypeDetail,
-        ProjectType,
-        period,
-        EnrollmentID,
-        EntryDate,
-        MoveInDateAdjust,
-        HouseholdType, 
-        CorrectedHoH, 
-        LivingSituation, 
-        ExitAdjust, 
-        Destination
-      ) %>%
-      funique()
-  }
-  
-  ####
-  # Dropping first period Unknowns + multiple Inactives in a row ----------------
-  ####
-  enrollments_to_remove <- universe_w_ppl_flags %>%
+  enrollments_to_remove <- ppl_flags %>%
     fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
     funique() %>%
     setorder(PersonalID, period) %>%
@@ -927,25 +882,20 @@ get_ppl_flags <- function(enrl_flags) {
     ) %>%
     fselect(PersonalID, period)
 
-  universe_w_ppl_flags_clean <- universe_w_ppl_flags %>%
-    join(enrollments_to_remove, on = c("PersonalID", "period"), how="anti") %>%
-    funique()
+  universe_w_ppl_flags_clean <- ppl_flags %>%
+    join(enrollments_to_remove, on = c("PersonalID", "period"), how="anti")
   
-  inflow_outflow_qc_checks(universe_w_ppl_flags_clean, enrl_flags)
-  
-  browser()
-
-  export_for_qc(universe_w_ppl_flags_clean)
-  browser()
-  # universe_w_ppl_flags_clean[PersonalID == 296380, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
   return(universe_w_ppl_flags_clean)
 }
 
 export_for_qc <- function(universe_w_ppl_flags_clean) {
   path <- "/media/sdrive/projects/CE_Data_Toolkit/QC Datasets/new_vs_old_mbm_v5.xlsx"
   
-  new <- universe_w_ppl_flags_clean %>% fselect(PersonalID, period, InflowTypeDetail, OutflowTypeDetail)
-  old <- readRDS("/media/sdrive/projects/CE_Data_Toolkit/QC Datasets/mbm_10.21.25.rda") %>% fmutate(InflowTypeDetail = gsub(" \\n", " ", InflowTypeDetail), OutflowTypeDetail = gsub(" \\n", " ", OutflowTypeDetail)) %>% fselect(names(new)) %>% funique()
+  new <- universe_w_ppl_flags_clean %>% fselect(-days_since_prev_active, -days_to_next_active)
+  old <- readRDS("/media/sdrive/projects/CE_Data_Toolkit/QC Datasets/mbm_10.21.25.rda") %>% 
+    fmutate(InflowTypeDetail = gsub(" \\n", " ", InflowTypeDetail), OutflowTypeDetail = gsub(" \\n", " ", OutflowTypeDetail)) %>% 
+    fselect(names(new)) %>% 
+    funique()
   x <- join(
     new, 
     old, 
@@ -1016,7 +966,7 @@ store_enrollment_categories_all_for_qc <- function(all_filtered) {
 }
 
 
-inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean, enrl_flags) {
+inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   
   ## Inflow Unknown in Full Period -------
   bad_records <- universe_w_ppl_flags_clean %>%
@@ -1141,6 +1091,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean, enrl_flags) {
   
   ## ASHomeless and EntryDate on first of month with no recent days_since_last_lh -------
   bad_records <- universe_w_ppl_flags_clean %>%
+    join(enrollment_categories_all, on="PersonalID", how="left", multiple=TRUE) %>%
     fsubset(period != "Full") %>%
     fsubset(
       InflowTypeDetail == "Homeless" & 
