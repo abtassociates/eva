@@ -609,26 +609,18 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   # get days between the earliest active date in the period and the most recent active before that
   days_since_prev_active_dt <- all_filtered_w_active1 %>%
     fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period) %>%
-    fselect(PersonalID, period, ProjectType, active_end, first_active_date_in_period, ExitAdjust, Destination) %>%
-    fmutate(lookback_point = pmax(active_end, ExitAdjust, na.rm=TRUE)) %>%
+    fselect(PersonalID, period, EnrollmentID, ProjectType, active_end, first_active_date_in_period, ExitAdjust, Destination) %>%
+    fmutate(prev_exit = fifelse(ExitAdjust <= first_active_date_in_period, ExitAdjust, NA)) %>%
     fgroup_by(PersonalID, period) %>%
     fmutate(
       prev_active = fmax(active_end),
-      prev_lookback_point = fmax(lookback_point)
+      prev_exit = fmax(prev_exit)
     ) %>%
     fungroup() %>%
     fmutate(
-      # the lookback should be to the last time we had info on them, which might be an 
-      lookback_dest_perm = fifelse(
-        lookback_point == prev_lookback_point,
-        fifelse(
-          ProjectType %in% nbn_non_res, 
-          FALSE, 
-          Destination %in% perm_livingsituation
-        ),
-        NA
-      ),
-      days_since_prev_active = first_active_date_in_period - pmin(prev_active, first_active_date_in_period)
+      prev_active = pmin(prev_active, first_active_date_in_period),
+      lookback_dest_perm = ExitAdjust == prev_exit & Destination %in% perm_livingsituation,
+      days_since_prev_active = first_active_date_in_period - prev_active
     ) %>%
     fgroup_by(PersonalID, period) %>%
     fmutate(lookback_dest_perm = any(lookback_dest_perm, na.rm=TRUE)) %>%
@@ -945,7 +937,7 @@ get_ppl_flags <- function(enrl_flags) {
 
   export_for_qc(universe_w_ppl_flags_clean)
   browser()
-  # universe_w_ppl_flags2[PersonalID == 507940, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, days_to_next_active, active_at_end)]
+  # universe_w_ppl_flags_clean[PersonalID == 296380, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
   return(universe_w_ppl_flags_clean)
 }
 
@@ -976,9 +968,12 @@ export_for_qc <- function(universe_w_ppl_flags_clean) {
       has_unknown_reengaged_diff | has_other_diff, 
       PersonalID, period, InflowTypeDetail, OutflowTypeDetail, InflowTypeDetail_old, OutflowTypeDetail_old, has_unknown_reengaged_diff, has_other_diff, diff, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, Destination, lh_dates
     ) 
-  
-  message(fndistinct(x$PersonalID))
+ 
+  message(paste0("Total diff: ",fndistinct(x$PersonalID)))
+  message(paste0("Other diff: ",fndistinct(x %>% fsubset(has_other_diff) %>% fselect(PersonalID))))
 
+  browser()
+  
   # update without removing (writes over existing data)
   wb <- openxlsx2::wb_load(path)
   unknown_reengaged <- x %>% fsubset(has_unknown_reengaged_diff, -has_other_diff, -has_unknown_reengaged_diff)
