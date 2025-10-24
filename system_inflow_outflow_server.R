@@ -12,7 +12,6 @@ inflow_detail_levels <- c(
   "Continuous at Start",
   "Unknown",
   "First-of-Month Exit",
-  "Excluded",
   "something's wrong"
 )
 
@@ -48,7 +47,6 @@ inflow_summary_levels <- c(
   "Active at Start",
   "Inflow",
   "Continuous at Start",
-  "Excluded",
   "First-of-Month Exit",
   "something's wrong"
 )
@@ -74,12 +72,10 @@ outflow_summary_chart_levels <- c(
 inflow_statuses_to_exclude_from_chart <- c(
   "Continuous at Start",
   "Unknown",
-  "Excluded",
   "First-of-Month Exit",
   "something's wrong"
 )
 inflow_statuses_to_exclude_from_export <- c(
-  "Excluded",
   "First-of-Month Exit",
   "something's wrong"
 )
@@ -165,12 +161,6 @@ get_inflow_outflow_full <- reactive({
   if(nrow(full_data) == 0) return(full_data)
   logToConsole(session, paste0("In get_inflow_outflow_full, num full_data records: ", nrow(full_data)))
   
-  full_data <- full_data %>% fsubset(InflowTypeDetail != "Excluded")
-  
-  logToConsole(session, paste0("In get_inflow_outflow_full, num non-Excluded full_data records: ", nrow(full_data)))
-  
-  if(nrow(full_data) == 0) return(full_data)
-  
   # AS 6/8/25: Do we want to remove *people* that are Continuous? Or just exclude from those Inflow/Outflow bars?
   # ditto for Inflow = Unknown
   # 637203 is an example of someone with Inflow = Unknown but has a regular Outflow
@@ -190,7 +180,7 @@ get_inflow_outflow_full <- reactive({
 # combine individual month datasets
 get_inflow_outflow_monthly <- reactive({
   logToConsole(session, paste0("In get_inflow_outflow_monthly"))
-  months_data <- period_specific_data()[["Months"]] %>% fsubset(InflowTypeDetail !=" Excluded")
+  months_data <- period_specific_data()[["Months"]]
   
   logToConsole(session, paste0("In get_inflow_outflow_monthly, num months_data records: ", nrow(months_data)))
   

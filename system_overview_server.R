@@ -71,7 +71,7 @@ observeEvent(
     
     num_people <- ifelse(
       num_rows > 0,
-      fndistinct(period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID)),
+      fndistinct(period_specific_data()[["Full"]] %>% fselect(PersonalID)),
       0
     )
 
@@ -393,9 +393,11 @@ period_specific_data <- reactive({
     get_active_info(all_filtered) %>%
     get_ppl_flags()
   
-  inflow_outflow_qc_checks(period_data)
   
-  if(IN_DEV_MODE) export_for_qc(period_data)
+  if(IN_DEV_MODE) {
+    inflow_outflow_qc_checks(period_data)
+    export_for_qc(period_data)
+  }
   
   # Split into months and full-period datasets
   list(
@@ -607,7 +609,8 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
       first_active_date_in_period = fmin(first_active_date_in_period0),
       last_active_date_in_period = fmax(last_active_date_in_period0)
     ) %>%
-    fungroup()
+    fungroup() %>%
+    fselect(-first_active_date_in_period0, -last_active_date_in_period0)
   
   # get days between the earliest active date in the period and the most recent active before that
   days_since_prev_active_dt <- all_filtered_w_active1 %>%
@@ -700,39 +703,38 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
       Destination,
       lookback_dest_perm,
       first_active_date_in_period, last_active_date_in_period,
-      days_since_prev_active, days_to_next_active, active_at_start, active_at_end, 
-      active_in_period, exited_in_period, has_exited_in_period,
+      days_since_prev_active, days_to_next_active, 
+      active_at_start, active_at_end, 
+      active_in_period, exited_in_period,
       active_start, active_end
     ) %>%
     funique()
-  
-  browser()
+
   # final[PersonalID == 637203, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end, days_since_prev_active, days_to_next_active, active_at_start, lookback_dest_perm)]
   return(final)
 }
 
 get_ppl_flags <- function(all_filtered_w_active) {
   inflows <- all_filtered_w_active %>%
-    fmutate(sort_var = fifelse(active_at_start, ProjectTypeWeight, as.numeric(active_start))) %>%
+    fmutate(
+      sort_var = fifelse(active_at_start, ProjectTypeWeight, as.numeric(active_start))
+    ) %>%
     roworder(PersonalID, period, -active_at_start, -sort_var, verbose = F) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="first") %>%
     fmutate(
       ## INFLOW ## -------------------------------------
+      ### Active at Start: Housed/Homeless -----------
       as_housed = active_at_start & MoveInDateAdjust < startDate,
       as_homeless = active_at_start & MoveInDateAdjust >= startDate,
       
       ### First-Time Homeless  ----------
-      # in other cases, we have long non-res enrollments and then an LKH CLS pops up and they're re-engaged.
-      # that's because there's a lookback or they were already categorized in a previous month
-      first_time_homeless = days_since_prev_active > 730 &
-        first_active_date_in_period >= startDate &
-        first_active_date_in_period > session$userData$ReportStart,
+      first_time_homeless = !active_at_start & active_in_period & 
+        days_since_prev_active > 730,
       
-      returned_or_reengaged = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
-        !active_at_start & days_since_prev_active %between% c(15, 730),
-      
-      ### Returned  ----------
+      ### Returned / Reengaged ----------
+      returned_or_reengaged = !active_at_start & active_in_period & 
+        days_since_prev_active %between% c(15, 730),
       returned = returned_or_reengaged & lookback_dest_perm,
       reengaged = returned_or_reengaged & !lookback_dest_perm,
       
@@ -741,20 +743,11 @@ get_ppl_flags <- function(all_filtered_w_active) {
         !active_at_start & days_since_prev_active %between% c(0, 14),
       
       ### Unknown  ----------
-      # unknown = straddles_start & 
-      #   ProjectType %in% nbn_non_res,
-      
       unknown = !active_in_period,
       
       ### First-of-month Exit  ----------
       first_of_month_exit = startDate > session$userData$ReportStart &
         ExitAdjust == startDate,
-      
-      ### Excluded  ----------
-      # Exclude non-res-only clients with incomplete or conflicting LH data
-      # excluded = ProjectType %in% nbn_non_res &
-      #   days_since_lookback %between% c(0, 14) &
-      #   is.na(days_since_prev_active),
       
       ### InflowTypeDetail  ----------
       InflowTypeDetail = factor(
@@ -767,7 +760,6 @@ get_ppl_flags <- function(all_filtered_w_active) {
           continuous_at_start, "Continuous at Start",
           unknown, "Unknown",
           first_of_month_exit, "First-of-Month Exit",
-          # excluded, "Excluded",
           default = "something's wrong"
         ),
         levels = c(active_at_levels, inflow_detail_levels)
@@ -776,12 +768,13 @@ get_ppl_flags <- function(all_filtered_w_active) {
     fselect(PersonalID, period, days_since_prev_active, InflowTypeDetail)
   
   outflows <- all_filtered_w_active %>%
-    fmutate(sort_var = fifelse(
-      active_at_end, 
-      ProjectTypeWeight, 
-      # pmax(as.numeric(active_end), fifelse(ExitAdjust %between% list(startDate, endDate), ExitAdjust, NA), na.rm=TRUE)
-      pmax(as.numeric(active_end), ExitAdjust, na.rm=TRUE)
-    )) %>%
+    fmutate(
+      sort_var = fifelse(
+        active_at_end, 
+        ProjectTypeWeight, 
+        pmax(as.numeric(active_end), ExitAdjust, na.rm=TRUE)
+      )
+    ) %>%
     roworder(PersonalID, period, active_at_end, sort_var, -MoveInDateAdjust, verbose = F) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="last") %>%
@@ -867,21 +860,15 @@ get_ppl_flags <- function(all_filtered_w_active) {
     fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
     funique() %>%
     setorder(PersonalID, period) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(first_inflow = ffirst(InflowTypeDetail)) %>%
-    fungroup() %>%
     fmutate(prev_period_outflow = flag(OutflowTypeDetail, g = PersonalID)) %>%
     fsubset(
-      # Remove first Unknown
-      first_inflow == "Unknown" |
-        # Remove multiple inactives
-        (OutflowTypeDetail == "Inactive" & prev_period_outflow == "Inactive")
+      OutflowTypeDetail == "Inactive" & prev_period_outflow == "Inactive"
     ) %>%
     fselect(PersonalID, period)
 
   universe_w_ppl_flags_clean <- ppl_flags %>%
     join(enrollments_to_remove, on = c("PersonalID", "period"), how="anti")
-  
+
   return(universe_w_ppl_flags_clean)
 }
 

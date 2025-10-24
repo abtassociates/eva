@@ -207,7 +207,6 @@ output$client_level_download_btn <- downloadHandler(
       ),
       client_level_details = client_level_details,
       monthly_statuses,
-      enrollment_info[InflowTypeDetail == "Excluded"][ , InflowTypeDetail := NULL],
       adjusted_non_res_enrl
     )
     
@@ -216,13 +215,8 @@ output$client_level_download_btn <- downloadHandler(
       "Data Dictionary",
       "Client Details",
       "Monthly Statuses",
-      "Excluded",
       "Adjusted Non-Res"
     )
-    
-    # Drop Excluded if empty
-    client_level_export_list <- client_level_export_list %>% 
-      fsubset(names(.) != "Excluded" | nrow(.$Excluded) > 0)
     
     write_xlsx(
       client_level_export_list,
