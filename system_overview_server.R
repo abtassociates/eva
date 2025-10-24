@@ -396,6 +396,7 @@ period_specific_data <- reactive({
   
   if(IN_DEV_MODE) {
     inflow_outflow_qc_checks(period_data)
+    browser()
     export_for_qc(period_data)
   }
   
@@ -900,6 +901,26 @@ export_for_qc <- function(universe_w_ppl_flags_clean) {
       has_unknown_reengaged_diff | has_other_diff, 
       PersonalID, period, InflowTypeDetail, OutflowTypeDetail, InflowTypeDetail_old, OutflowTypeDetail_old, has_unknown_reengaged_diff, has_other_diff, diff, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, Destination, lh_dates
     ) 
+  
+  # Approved diffs
+  x <- x %>%
+    fsubset(PersonalID %in% c(
+      104183, 
+      156225, 
+      183161, 
+      219231, 
+      227766, 
+      404575, 
+      404877, 
+      405886, 
+      408489, 
+      411712, 
+      416498, 
+      418051, 
+      421470, 
+      505349, 
+      509271, 
+    ))
  
   message(paste0("Total diff: ",fndistinct(x$PersonalID)))
   message(paste0("Other diff: ",fndistinct(x %>% fsubset(has_other_diff) %>% fselect(PersonalID))))
