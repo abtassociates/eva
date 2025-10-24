@@ -728,8 +728,8 @@ get_ppl_flags <- function(all_filtered_w_active) {
       # in other cases, we have long non-res enrollments and then an LKH CLS pops up and they're re-engaged.
       # that's because there's a lookback or they were already categorized in a previous month
       first_time_homeless = days_since_prev_active > 730 &
-        active_start >= startDate &
-        active_start > session$userData$ReportStart,
+        first_active_date_in_period >= startDate &
+        first_active_date_in_period > session$userData$ReportStart,
       
       ### Returned  ----------
       returned = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
