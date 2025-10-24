@@ -731,13 +731,12 @@ get_ppl_flags <- function(all_filtered_w_active) {
         first_active_date_in_period >= startDate &
         first_active_date_in_period > session$userData$ReportStart,
       
-      ### Returned  ----------
-      returned = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
-        !active_at_start & days_since_prev_active %between% c(15, 730) & lookback_dest_perm,
+      returned_or_reengaged = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
+        !active_at_start & days_since_prev_active %between% c(15, 730),
       
-      ### Re-Engaged  ----------
-      reengaged = (startDate == session$userData$ReportStart | ExitAdjust != startDate) &
-        !active_at_start & days_since_prev_active %between% c(15, 730) & !lookback_dest_perm,
+      ### Returned  ----------
+      returned = returned_or_reengaged & lookback_dest_perm,
+      reengaged = returned_or_reengaged & !lookback_dest_perm,
       
       ### Continuous at Start  ----------
       continuous_at_start = startDate > session$userData$ReportStart & 
