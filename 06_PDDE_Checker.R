@@ -481,6 +481,25 @@ ES_BedType_HousingType <- activeInventory %>%
   ) %>%
   fselect(PDDEcols)
 
+# No Enrollments in Services for NbN Project ------------------------------------
+
+nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were NBN and had HMIS Participation
+  fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
+  funique() %>%
+  join(services_chk, on = "EnrollmentID", how = "left") %>%
+  fgroup_by(ProjectID) %>%
+  fmutate(
+    miss_all_enroll = all(is.na(has_bn_eq_entry)) # not having this value implies EnrollmentID NOT in services_check
+  ) %>% fungroup()
+
+rm(nbn_w_hmis_participation, services_chk)
+nbn_nobns <- nbn_nobns %>% filter(miss_all_enroll) # filter to projects with all enrollmentID missing
+
+nbn_nobns <- nbn_nobns %>% 
+  merge_check_info(checkIDs = 106) %>% 
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>%
+  unique()
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
@@ -611,6 +630,7 @@ pdde_main <- rowbind(
   vsps_in_hmis,
   zero_utilization,
   ES_BedType_HousingType,
+  nbn_nobns,
   Active_Inventory_per_COC,
   COC_Records_per_Inventory,
   more_units_than_beds_inventory,
