@@ -906,18 +906,17 @@ export_for_qc <- function(universe_w_ppl_flags_clean) {
   message(paste0("Total diff: ",fndistinct(x$PersonalID)))
   message(paste0("Other diff: ",fndistinct(x %>% fsubset(has_other_diff) %>% fselect(PersonalID))))
 
-  browser()
-  
+# un <- openxlsx2::wb_load(path, sheet="Unknown-Reengaged", data_only=TRUE)
   # update without removing (writes over existing data)
   wb <- openxlsx2::wb_load(path)
   unknown_reengaged <- x %>% fsubset(has_unknown_reengaged_diff, -has_other_diff, -has_unknown_reengaged_diff)
-  wb$add_data_table(sheet = "Unknown-Reengaged", x = unknown_reengaged, start_col = 1, start_row = 1)
+  wb$add_data(sheet = "Unknown-Reengaged", x = unknown_reengaged, start_col = 1, start_row = 1, na.strings="")
   
   other_diffs <- x %>% fsubset(has_other_diff, -has_unknown_reengaged_diff, -has_other_diff)
-  wb$add_data_table(sheet = "Other diffs", x = other_diffs, start_col = 1, start_row = 1)
+  wb$add_data(sheet = "Other diffs", x = other_diffs, start_col = 1, start_row = 1, na.strings="")
   
   raw_data <- enrollment_categories_all %>% fsubset(PersonalID %in% funique(x$PersonalID)) %>% roworder(PersonalID, EntryDate)
-  wb$add_data_table(sheet = "Raw data", x = raw_data, start_col = 1, start_row = 1)
+  wb$add_data(sheet = "Raw data", x = raw_data, start_col = 1, start_row = 1, na.strings="")
   
   # Save the workbook
   wb$save(path)
