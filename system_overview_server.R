@@ -857,7 +857,7 @@ get_ppl_flags <- function(enrl_flags) {
       # pmax(as.numeric(active_end), fifelse(ExitAdjust %between% list(startDate, endDate), ExitAdjust, NA), na.rm=TRUE)
       pmax(as.numeric(active_end), ExitAdjust, na.rm=TRUE)
     )) %>%
-    roworder(PersonalID, period, active_at_end, sort_var, active_end, verbose = F) %>%
+    roworder(PersonalID, period, active_at_end, sort_var, -OutflowTypeDetail, verbose = F) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="last") %>%
     fselect(-sort_var)
