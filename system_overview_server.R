@@ -395,9 +395,7 @@ period_specific_data <- reactive({
   
   inflow_outflow_qc_checks(period_data)
   
-  browser()
-  
-  export_for_qc(period_data)
+  if(IN_DEV_MODE) export_for_qc(period_data)
   
   # Split into months and full-period datasets
   list(
