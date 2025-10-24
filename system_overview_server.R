@@ -508,7 +508,7 @@ expand_by_periods <- function(dt) {
       multiple = TRUE
     ) %>%
     fselect(-temp_key, -exit_cutoff) %>%
-    setkey(period)
+    setkeyv(cols=c("PersonalID", "period", "EnrollmentID"))
 }
 
 get_active_info <- function(all_filtered_by_period, all_filtered) {
