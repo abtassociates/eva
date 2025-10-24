@@ -138,26 +138,21 @@ original_data_fixed_cols$ProjectCoC <- original_data_fixed_cols$ProjectCoC %>%
   filter(ProjectID != coc_project)
 rm(coc_project)
 # Trigger the 'No Enrollments within Active Inventory' Warning Issue (checkID = 141) -------------------------
-# Get a project from the activeInventory with an EndDate
+# Get a project from the activeInventory with and EndDate
 XInventory <- original_data_fixed_cols$Inventory %>%
    filter((is.na(Availability) | Availability != 3) &
-     BedInventory > 0 & !is.na(BedInventory) &
-       !is.na(InventoryEndDate))
+     BedInventory > 0 & !is.na(BedInventory)) %>%
+  select(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
+  filter(!is.na(InventoryEndDate))
 
-ainv_proj <- XInventory[2,]
+ainv_proj <- XInventory %>% filter(ProjectID == XInventory$ProjectID[nrow(XInventory)])
 
-# get the enrollments for this project
-XEnrollment <- original_data_fixed_cols$Enrollment %>% filter(ProjectID == ainv_proj$ProjectID)
-XProjects <- original_data_fixed_cols$Project %>% filter(ProjectID == ainv_proj$ProjectID)
+# Update all the enrollments to have EntryDate 10 days after the Inventory End Date
+original_data_fixed_cols$Enrollment <- original_data_fixed_cols$Enrollment %>% 
+  mutate(EntryDate= as.Date(ifelse(ProjectID == ainv_proj$ProjectID,
+                           ymd(ainv_proj$InventoryEndDate + days(10)),
+                           ymd(EntryDate))))
 
-browser() # syso_hh_type = "AO", syso_project_type = "LHRes"
-# update the inventory end date for this project to come before all the enrollment's EntryDate
-original_data_fixed_cols$Inventory <- original_data_fixed_cols$Inventory %>%
-  mutate(InventoryEndDate = ifelse(ProjectID==ainv_proj$ProjectID,
-                                   min(XEnrollment$EntryDate) - days(10), #10 days before earliest entrydate
-                                   InventoryEndDate),
-         InventoryStartDate = ifelse(ProjectID==ainv_proj$ProjectID,
-                                   min(XEnrollment$EntryDate) - days(50), #50 days before earliest entrydate
-                                   InventoryStartDate))
-rm(XInventory, XEnrollment, ainv_proj)
+rm(XInventory, ainv_proj)
+
 ## add more checks here --------------------------------------------
