@@ -556,8 +556,11 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
     lh_spans,
     ph_housed_spans
   )) %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end)
-  
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
+    fmutate(
+      active_in_full_period = active_start <= session$userData$ReportEnd & active_end >= session$userData$ReportStart
+    )
+
   all_filtered_w_active <- all_filtered_by_period %>%
     fselect(
       period, 
@@ -576,17 +579,12 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
     ) %>%
     fmutate(
       active_in_period = startDate <= active_end & endDate >= active_start,
-      exited_in_period = ExitAdjust %between% list(startDate, endDate)
+      exited_in_period = ExitAdjust %between% list(startDate, endDate),
+      period_of_activity = fifelse(active_in_period & (endDate != session$userData$ReportEnd | startDate != session$userData$ReportStart), startDate, NA)
     ) %>%
-    fgroup_by(PersonalID, period) %>%
+    fgroup_by(PersonalID, active_start) %>%
     fmutate(
-      has_active_in_period = any(active_in_period, na.rm=TRUE),
-      has_exited_in_period = any(exited_in_period, na.rm=TRUE)
-    ) %>%
-    fungroup() %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      has_active_in_full_period = any(has_active_in_period & period == "Full", na.rm=TRUE)
+      first_period_for_active = fmin(period_of_activity)
     ) %>%
     fungroup()
   
@@ -610,7 +608,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
       last_active_date_in_period = fmax(last_active_date_in_period0)
     ) %>%
     fungroup() %>%
-    fselect(-first_active_date_in_period0, -last_active_date_in_period0)
+    fselect(-first_active_date_in_period0, -last_active_date_in_period0, -period_of_activity)
   
   # get days between the earliest active date in the period and the most recent active before that
   days_since_prev_active_dt <- all_filtered_w_active1 %>%
@@ -662,15 +660,15 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
     how = "full"
   )
   
+  # all_filtered_w_active1 [PersonalID == 203140, .(PersonalID, period, EnrollmentID, active_start, active_end, active_in_period, EntryDate, ExitAdjust, first_period_for_active)]
   final <- all_filtered_w_active1 %>%
-    fsubset(active_in_period | (exited_in_period & has_active_in_full_period) | endDate %between% list(active_start, ExitAdjust)) %>%
+    fsubset(active_in_period | (ExitAdjust >= startDate & active_in_full_period & startDate >= first_period_for_active)) %>% # exited_in_period doesn't work because they might have exited after; ExitAdjust >= startDate doesn't work because then we get earlier periods before the active span (10674);
     join(days_to_active, verbose = F) %>%
     fmutate(
       MoveInDateAdjust = fcoalesce(MoveInDateAdjust, as.Date(Inf)),
       days_since_prev_active = fcoalesce(days_since_prev_active, as.difftime(Inf, units="days")),
       days_to_next_active = fcoalesce(days_to_next_active, as.difftime(Inf, units="days"))
     ) %>%
-    funique() %>%
     fmutate(
       active_at_start =  (
         startDate == session$userData$ReportStart & (
