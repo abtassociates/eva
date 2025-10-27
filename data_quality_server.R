@@ -701,8 +701,7 @@ bed_unit_inv <- reactive({
   
   logToConsole(session, "bed_unit_inv")
   # get the last date in activeInventory
-  
-  lastday <- as.Date(max(HMIS_participating_projects_w_active_inv_no_overflow$ProjectHMISActiveParticipationEnd))
+  lastday <- as.Date(max(HMIS_participating_projects_w_active_inv_no_overflow$ProjectHMISActiveParticipationEnd, na.rm = T))
   y_last <- year(lastday)
   
   last_wednesday <- function(year, month) {
@@ -716,18 +715,36 @@ bed_unit_inv <- reactive({
     last_day - days(diff)
   }
   
-  q1_PIT <- ifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
+  q1_PIT <- as.Date(ifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
                     last_wednesday(y_last,1), # use last wedensday of this january
-                    last_wednesday(y_last-1,1)) # else use last wednesday of last january
-  q2_PIT <- ifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
+                    last_wednesday(y_last-1,1))) # else use last wednesday of last january
+  q2_PIT <- as.Date(ifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
                     last_wednesday(y_last,4), # use last wedensday of this april
-                    last_wednesday(y_last-1,4)) # else use last wednesday of last april
-  q3_PIT <- ifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
+                    last_wednesday(y_last-1,4))) # else use last wednesday of last april
+  q3_PIT <- as.Date(ifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
                     last_wednesday(y_last,7), # use last wedensday of this july
-                    last_wednesday(y_last-1,7)) # else use last wednesday of last july
-  q4_PIT <- ifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
+                    last_wednesday(y_last-1,7))) # else use last wednesday of last july
+  q4_PIT <- as.Date(ifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
                     last_wednesday(y_last,10), # use last wedensday of this october
-                    last_wednesday(y_last-1,10)) # else use last wednesday of last october
+                    last_wednesday(y_last-1,10))) # else use last wednesday of last october
+  
+  #For each relevant project and using the new data frame created in the previous step(s), count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
+  #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
+  
+  Bed_Unit_Count <- HMIS_participating_projects_w_active_inv_no_overflow %>% 
+    fgroup_by(ProjectID) %>%
+    fsummarise(
+      q1_PIT_Beds = sum(ifelse(InventoryStartDate <= q1_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q1_PIT), BedInventory, 0)),
+      q1_PIT_Units = sum(ifelse(InventoryStartDate <= q1_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q1_PIT), UnitInventory, 0)),
+      q2_PIT_Beds = sum(ifelse(InventoryStartDate <= q2_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q2_PIT), BedInventory, 0)),
+      q2_PIT_Units = sum(ifelse(InventoryStartDate <= q2_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q2_PIT), UnitInventory, 0)),
+      q3_PIT_Beds = sum(ifelse(InventoryStartDate <= q3_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q3_PIT), BedInventory, 0)),
+      q3_PIT_Units = sum(ifelse(InventoryStartDate <= q3_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q3_PIT), UnitInventory, 0)),
+      q4_PIT_Beds = sum(ifelse(InventoryStartDate <= q4_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q4_PIT), BedInventory, 0)),
+      q4_PIT_Units = sum(ifelse(InventoryStartDate <= q4_PIT & (is.na(InventoryEndDate) | InventoryEndDate > q4_PIT), UnitInventory, 0))
+    ) %>%
+    fungroup()
+  
   
   
 })
