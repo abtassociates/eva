@@ -42,10 +42,11 @@ output$downloadPDDEReport <- downloadHandler(
       summarise(Count = n()) %>%
       ungroup()
     
+    cols <- colnames(session$userData$pdde_main)
     data_df <-session$userData$pdde_main %>% 
-      left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
-      select(1,2,3,ProjectType, everything()) %>%
-      mutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
+      join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
+      fselect(cols[1:3],"ProjectType", cols[4:length(cols)]) %>%
+      fmutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
       nice_names() 
     
     write_xlsx(
