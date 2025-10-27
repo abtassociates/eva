@@ -397,6 +397,13 @@ activeInventory <- Inventory %>%
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 
+# Filter out overflow beds
+activeInv_no_overflow <- DT(activeInventory) %>% 
+  fsubset(
+    (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
+  ) 
+
 # Event (Used in DQ)
 Event <- Event %>% 
   fselect(
@@ -417,3 +424,15 @@ Event <- Event %>%
 #        exited_between(., today() - years(1), today())) &
 #       ProjectType %in% lh_ph_hp_project_types) %>%
 #   dplyr::select(ProjectName) %>% unique()
+
+# HMIS Participation ------------------------------------------------------
+hmis_participating_projects <- session$userData$Project0 %>%
+  join(HMISParticipation %>%
+         fsubset(HMISParticipationType %in% c(0,1,2)),
+       on = "ProjectID", how = 'inner') %>%
+  pull(ProjectID) %>%
+  funique()
+
+HMIS_participating_projects_w_active_inv_no_overflow <- base::intersect(
+  activeInv_no_overflow %>% pull(ProjectID) %>% funique(), 
+  hmis_participating_projects)
