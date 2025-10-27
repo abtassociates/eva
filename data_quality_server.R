@@ -694,3 +694,40 @@ dqDownloadInfo <- reactive({
 #       }
 #       dq_plot_overview
 #     })
+
+## Get Bed/Unit Inventory Data Function ------------------------------------------
+bed_unit_inv <- reactive({
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  
+  logToConsole(session, "bed_unit_inv")
+  # get the last date in activeInventory
+  
+  lastday <- as.Date(max(HMIS_participating_projects_w_active_inv_no_overflow$ProjectHMISActiveParticipationEnd))
+  y_last <- year(lastday)
+  
+  last_wednesday <- function(year, month) {
+    # Get the last day of the month
+    last_day <- ceiling_date(ymd(paste(year, month, "01", sep = "-")), "month") - days(1)
+    # Find the weekday of the last day (1 = Sunday, 7 = Saturday)
+    weekday <- wday(last_day)
+    # Calculate the difference to the last Wednesday (4 = Wednesday)
+    diff <- ifelse(weekday >= 4, weekday - 4, weekday + 3)
+    # Subtract the difference to get the last Wednesday
+    last_day - days(diff)
+  }
+  
+  q1_PIT <- ifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
+                    last_wednesday(y_last,1), # use last wedensday of this january
+                    last_wednesday(y_last-1,1)) # else use last wednesday of last january
+  q2_PIT <- ifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
+                    last_wednesday(y_last,4), # use last wedensday of this april
+                    last_wednesday(y_last-1,4)) # else use last wednesday of last april
+  q3_PIT <- ifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
+                    last_wednesday(y_last,7), # use last wedensday of this july
+                    last_wednesday(y_last-1,7)) # else use last wednesday of last july
+  q4_PIT <- ifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
+                    last_wednesday(y_last,10), # use last wedensday of this october
+                    last_wednesday(y_last-1,10)) # else use last wednesday of last october
+  
+  
+})
