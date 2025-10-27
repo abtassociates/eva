@@ -42,10 +42,9 @@ output$downloadPDDEReport <- downloadHandler(
       summarise(Count = n()) %>%
       ungroup()
     
-    cols <- colnames(session$userData$pdde_main)
     data_df <-session$userData$pdde_main %>% 
       join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
-      fselect(cols[1:3],"ProjectType", cols[4:length(cols)]) %>%
+      colorder(ProjectName, ProjectType, pos="after") %>%
       fmutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
       nice_names() 
     
