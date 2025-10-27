@@ -427,9 +427,11 @@ Event <- Event %>%
 
 # HMIS Participation ------------------------------------------------------
 hmis_participating_projects <- session$userData$Project0 %>%
-  join(HMISParticipation %>%
+  join(HMISParticipation %>% # get projects with HMISParticipationTypes 0, 1, or 2
          fsubset(HMISParticipationType %in% c(0,1,2)),
        on = "ProjectID", how = 'inner') %>%
+  subset(ProjectType %in% project_types_w_beds) %>% # get project types with beds 
+  subset(ProjectType!=13 | RRHSubType ==2) %>% # limit RRH projects (ProjectType 13) to subtype 2
   pull(ProjectID) %>%
   funique()
 
