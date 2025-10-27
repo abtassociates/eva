@@ -426,15 +426,57 @@ Event <- Event %>%
 #   dplyr::select(ProjectName) %>% unique()
 
 # HMIS Participation ------------------------------------------------------
-hmis_participating_projects <- session$userData$Project0 %>%
-  join(HMISParticipation %>% # get projects with HMISParticipationTypes 0, 1, or 2
-         fsubset(HMISParticipationType %in% c(0,1,2)),
-       on = "ProjectID", how = 'inner') %>%
-  subset(ProjectType %in% project_types_w_beds) %>% # get project types with beds 
-  subset(ProjectType!=13 | RRHSubType ==2) %>% # limit RRH projects (ProjectType 13) to subtype 2
-  pull(ProjectID) %>%
-  funique()
+# hmis_participating_projects <- session$userData$Project0 %>%
+#   join(HMISParticipation %>% 
+#          fsubset(HMISParticipationType %in% c(0,1,2)),
+#        on = "ProjectID", how = 'inner') %>%
+#   subset(ProjectType %in% project_types_w_beds) %>% 
+#   pull(ProjectID) %>%
+#   funique()
+# 
+# HMIS_participating_projects_w_active_inv_no_overflow <- base::intersect(
+#   activeInv_no_overflow %>% pull(ProjectID) %>% funique(), 
+#   hmis_participating_projects)
 
-HMIS_participating_projects_w_active_inv_no_overflow <- base::intersect(
-  activeInv_no_overflow %>% pull(ProjectID) %>% funique(), 
-  hmis_participating_projects)
+set_collapse(na.rm = TRUE, verbose = FALSE)
+HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
+  # HMiS-participating projects
+  fsubset(HMISParticipationType %in% c(0,1,2), # filter to projects with HMIS Participation
+          ProjectID, 
+          ProjectTimeID, 
+          ProjectType %in% project_types_w_beds, # filter to project types with beds 
+          HMISParticipationStatusStartDate, 
+          HMISParticipationStatusEndDate,
+          OperatingStartDate,
+          OperatingEndDate
+  ) %>%
+  fsubset(ProjectType!=13 | RRHSubType ==2) %>% # filter RRH projects (ProjectType 13) to subtype 2
+  join(activeInv_no_overflow %>% 
+      fselect(ProjectID, InventoryStartDate, InventoryEndDate, Availability, BedInventory) %>%
+      funique(), # inner join with the active inventory with no overflow beds
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>%
+  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
+  fmutate(
+    ProjectHMISParticipationStart = pmax(
+      HMISParticipationStatusStartDate, 
+      OperatingStartDate
+    ),
+    ProjectHMISParticipationEnd = pmin(
+      HMISParticipationStatusEndDate,
+      OperatingEndDate,
+      na.rm = TRUE
+    ),
+    ProjectHMISActiveParticipationStart = pmax(
+      ProjectHMISParticipationStart,
+      InventoryStartDate
+    ),
+    ProjectHMISActiveParticipationEnd = pmin(
+      ProjectHMISParticipationEnd,
+      InventoryEndDate,
+      na.rm = TRUE
+    )
+  )
+
