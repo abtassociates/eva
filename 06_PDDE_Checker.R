@@ -577,9 +577,9 @@ project_no_coc <- session$userData$Project0 %>%
 
 # Residential Project Missing Housing Type --------------------------------
 res_no_house_type <- session$userData$Project0 %>% # filter to residential projects
-  fsubset(ProjectType %in% c(0,1,2,3,8,9,10,13)) %>% 
-  fsubset(ProjectType != 13 | # take all that aren't 13 or
-            RRHSubType == 2) %>% # if type == 13, take only subset 2
+  fsubset(ProjectType %in% project_types_w_beds) %>% 
+  fsubset(ProjectType != rrh_project_type | # take all that aren't 13 or
+            RRHSubType == 2) %>% # if type == rrh_project_type, take only subset 2
   fsubset(is.na(HousingType) | is.null(HousingType)) %>%  # but HousingType is missing / null
   merge_check_info_dt(checkIDs = 36) %>%
   fmutate(Detail = "" ) %>%
