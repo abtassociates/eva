@@ -818,4 +818,8 @@ bed_unit_inv <- reactive({
   
   Bed_Unit_Inventory$PIT <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT)
   
+  Bed_Unit_Inventory <- Bed_Unit_Inventory %>%
+    mutate(Bed_Utilization = Total_Served / Total_Beds,
+           Unit_Utilization = Total_Served / Total_Units)
+  
 })
