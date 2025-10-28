@@ -773,17 +773,37 @@ bed_unit_inv <- reactive({
                                    (ProjectType != es_nbn_project_type | any(has_bn_q1_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q1_PIT
                                    (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q1_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q1_PIT
                                  1, 0)),
+      q1_PIT_HH_Served = sum(ifelse(EntryDate <= q1_PIT & (is.na(ExitAdjust) | ExitAdjust > q1_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q1_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q1_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q1_PIT) & # Enrollment NOT Permanent OR MoveInDateAdjust >= q1_PIT
+                                   RelationshipToHoH==1, # count households by just counting enrollments that are head of household
+                                 1, 0)),
       q2_PIT_Served = sum(ifelse(EntryDate <= q2_PIT & (is.na(ExitAdjust) | ExitAdjust > q2_PIT) & # Enrollment Active
                                    (ProjectType != es_nbn_project_type | any(has_bn_q2_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q2_PIT
                                    (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q2_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q2_PIT
+                                 1, 0)),
+      q2_PIT_HH_Served = sum(ifelse(EntryDate <= q2_PIT & (is.na(ExitAdjust) | ExitAdjust > q2_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q2_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q2_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q2_PIT) & # Enrollment NOT Permanent OR MoveInDateAdjust >= q2_PIT
+                                     RelationshipToHoH==1, # count households by just counting enrollments that are head of household
                                  1, 0)),
       q3_PIT_Served = sum(ifelse(EntryDate <= q3_PIT & (is.na(ExitAdjust) | ExitAdjust > q3_PIT) & # Enrollment Active
                                    (ProjectType != es_nbn_project_type | any(has_bn_q3_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q3_PIT
                                    (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q3_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q3_PIT
                                  1, 0)),
+      q3_PIT_HH_Served = sum(ifelse(EntryDate <= q3_PIT & (is.na(ExitAdjust) | ExitAdjust > q3_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q3_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q3_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q3_PIT) & # Enrollment NOT Permanent OR MoveInDateAdjust >= q3_PIT
+                                     RelationshipToHoH==1, # count households by just counting enrollments that are head of household
+                                 1, 0)),
       q4_PIT_Served = sum(ifelse(EntryDate <= q4_PIT & (is.na(ExitAdjust) | ExitAdjust > q4_PIT) & # Enrollment Active
                                    (ProjectType != es_nbn_project_type | any(has_bn_q4_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q4_PIT
                                    (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q4_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q4_PIT
+                                 1, 0)),
+      q4_PIT_HH_Served = sum(ifelse(EntryDate <= q4_PIT & (is.na(ExitAdjust) | ExitAdjust > q4_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q4_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q4_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q4_PIT) & # Enrollment NOT Permanent OR MoveInDateAdjust >= q4_PIT
+                                   RelationshipToHoH==1, # count households by just counting enrollments that are head of household
                                  1, 0))
       ) %>%
     fungroup()  %>% subset(!is.na(q1_PIT_Served) | !is.na(q2_PIT_Served) | !is.na(q3_PIT_Served)| !is.na(q4_PIT_Served))
@@ -808,7 +828,11 @@ bed_unit_inv <- reactive({
       q1_PIT_Total_Served = sum(q1_PIT_Served, na.rm = T),
       q2_PIT_Total_Served = sum(q2_PIT_Served, na.rm = T),
       q3_PIT_Total_Served = sum(q3_PIT_Served, na.rm = T),
-      q4_PIT_Total_Served = sum(q4_PIT_Served, na.rm = T)
+      q4_PIT_Total_Served = sum(q4_PIT_Served, na.rm = T),
+      q1_PIT_Total_HH_Served = sum(q1_PIT_HH_Served, na.rm = T),
+      q2_PIT_Total_HH_Served = sum(q2_PIT_HH_Served, na.rm = T),
+      q3_PIT_Total_HH_Served = sum(q3_PIT_HH_Served, na.rm = T),
+      q4_PIT_Total_HH_Served = sum(q4_PIT_HH_Served, na.rm = T)
     ) %>% #pivot(ids = "") ,how = "longer") %>%pivo
   #all(Bed_Unit_Count$ProjectID %in% Bed_Unit_Inventory$ProjectID)
   pivot_longer(cols = everything(),
@@ -819,7 +843,7 @@ bed_unit_inv <- reactive({
   Bed_Unit_Inventory$PIT <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT)
   
   Bed_Unit_Inventory <- Bed_Unit_Inventory %>%
-    mutate(Bed_Utilization = Total_Served / Total_Beds,
-           Unit_Utilization = Total_Served / Total_Units)
+    mutate(Bed_Utilization = Served / Beds,
+           Unit_Utilization = HH_Served / Units)
   
 })
