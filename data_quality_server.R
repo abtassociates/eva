@@ -728,7 +728,7 @@ bed_unit_inv <- reactive({
                     last_wednesday(y_last,10), # use last wedensday of this october
                     last_wednesday(y_last-1,10))) # else use last wednesday of last october
   
-  #For each relevant project and using the new data frame created in the previous step(s), count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
+  #For each relevant project, count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
   #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
   
   Bed_Unit_Count <- HMIS_participating_projects_w_active_inv_no_overflow %>% 
@@ -745,6 +745,77 @@ bed_unit_inv <- reactive({
     ) %>%
     fungroup()
   
+  #For each relevant project and using the EnrollmentAdjust data frame, count the number of people "served in a bed" on each of the 4 PIT Dates.
+  #For an enrollment to be considered "active" on a PIT Date it must meet the following logic: EntryDate <= [PIT Date] and ExitAdjust > [PIT Date] or is NULL
+  #Exclude any ES - NbN enrollments where there is no Bed Night record on [PIT Date]
+  #Exclude any permanent housing enrollments where MoveInDateAdjust < [PIT Date]
+  services_qPIT <- Services %>%
+    fselect(EnrollmentID, DateProvided)  %>% 
+    join(EnrollmentAdjust %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'left')  %>% 
+    fmutate(bn_q1_PIT = as.Date(DateProvided) == q1_PIT,
+            bn_q2_PIT = as.Date(DateProvided) == q2_PIT,
+            bn_q3_PIT = DateProvided == q3_PIT,
+            bn_q4_PIT = DateProvided == q4_PIT
+    ) %>%  
+    fgroup_by(EnrollmentID) %>% # For each enrollment,
+    fsummarise( # flag if it has any Service records where DateProvided == qX_PIT
+      has_bn_q1_PIT = any(bn_q1_PIT, na.rm=TRUE),
+      has_bn_q2_PIT = any(bn_q2_PIT, na.rm=TRUE),
+      has_bn_q3_PIT = any(bn_q3_PIT, na.rm=TRUE),
+      has_bn_q4_PIT = any(bn_q4_PIT, na.rm=TRUE)
+    ) 
   
+  Bed_Unit_Util <- EnrollmentAdjust %>%
+    join(services_qPIT, on = "EnrollmentID", how = "left") %>%
+    fgroup_by(ProjectID) %>%
+    fsummarise(
+      q1_PIT_Served = sum(ifelse(EntryDate <= q1_PIT & (is.na(ExitAdjust) | ExitAdjust > q1_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q1_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q1_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q1_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q1_PIT
+                                 1, 0)),
+      q2_PIT_Served = sum(ifelse(EntryDate <= q2_PIT & (is.na(ExitAdjust) | ExitAdjust > q2_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q2_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q2_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q2_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q2_PIT
+                                 1, 0)),
+      q3_PIT_Served = sum(ifelse(EntryDate <= q3_PIT & (is.na(ExitAdjust) | ExitAdjust > q3_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q3_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q3_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q3_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q3_PIT
+                                 1, 0)),
+      q4_PIT_Served = sum(ifelse(EntryDate <= q4_PIT & (is.na(ExitAdjust) | ExitAdjust > q4_PIT) & # Enrollment Active
+                                   (ProjectType != es_nbn_project_type | any(has_bn_q4_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on q4_PIT
+                                   (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= q4_PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= q4_PIT
+                                 1, 0))
+      ) %>%
+    fungroup()  %>% subset(!is.na(q1_PIT_Served) | !is.na(q2_PIT_Served) | !is.na(q3_PIT_Served)| !is.na(q4_PIT_Served))
+  
+  
+  #Set up System-level Quarterly Inventory counts and Bed/Unit Utilization calculations for each of the 4 PIT Dates.
+  #[PIT Date] Total Beds = Sum(Beds Available on [PIT Date] across all projects)
+  #[PIT Date] Total Units = Sum(Units Available on [PIT Date] across all projects)
+  #[PIT Date] Bed Utilization = [PIT Date] Total People Served / [PIT Date] Total HMIS Beds
+  #[PIT Date] Unit Utilization = [PIT Date] Total Households Served / [PIT Date] Total HMIS Units
+  
+  Bed_Unit_Inventory <- Bed_Unit_Count %>% join(Bed_Unit_Util, on = "ProjectID", how = "full") %>%
+    fsummarise(
+      q1_PIT_Total_Beds = sum(q1_PIT_Beds, na.rm = T),
+      q2_PIT_Total_Beds = sum(q2_PIT_Beds, na.rm = T),
+      q3_PIT_Total_Beds = sum(q3_PIT_Beds, na.rm = T),
+      q4_PIT_Total_Beds = sum(q4_PIT_Beds, na.rm = T),
+      q1_PIT_Total_Units = sum(q1_PIT_Units, na.rm = T),
+      q2_PIT_Total_Units = sum(q2_PIT_Units, na.rm = T),
+      q3_PIT_Total_Units = sum(q3_PIT_Units, na.rm = T),
+      q4_PIT_Total_Units = sum(q4_PIT_Units, na.rm = T),
+      q1_PIT_Total_Served = sum(q1_PIT_Served, na.rm = T),
+      q2_PIT_Total_Served = sum(q2_PIT_Served, na.rm = T),
+      q3_PIT_Total_Served = sum(q3_PIT_Served, na.rm = T),
+      q4_PIT_Total_Served = sum(q4_PIT_Served, na.rm = T)
+    ) %>% #pivot(ids = "") ,how = "longer") %>%pivo
+  #all(Bed_Unit_Count$ProjectID %in% Bed_Unit_Inventory$ProjectID)
+  pivot_longer(cols = everything(),
+               names_to = c("PIT","Value"), names_sep = "_Total_",
+               values_to = "Count") %>%
+    pivot(names="Value", values = "Count", how = "wider")
+  
+  Bed_Unit_Inventory$PIT <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT)
   
 })
