@@ -1447,7 +1447,15 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   req(nrow(summary_data_with_change) > 0)
   
   monthly_dt <- datatable(
-    summary_data_with_change %>% frename("PlotFillGroups" = " "),
+    summary_data_with_change %>% 
+      ## add div around outflow and inflow text to target with CSS
+      fmutate(
+        PlotFillGroups = as.character(PlotFillGroups),
+        PlotFillGroups = fcase(PlotFillGroups == 'Inflow','<div>Inflow</div>',
+                               PlotFillGroups == 'Outflow','<div>Outflow</div>',
+                               default = PlotFillGroups)
+      ) %>% 
+      frename("PlotFillGroups" = " ") ,
     options = list(
       dom = 't',
       ordering = FALSE,
@@ -1457,6 +1465,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
         list(className = 'dt-center', targets = '_all') # Center text
       )
     ),
+    escape = FALSE,
     style = "default",
     rownames = FALSE,
     selection = "none"
