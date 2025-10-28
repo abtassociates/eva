@@ -38,9 +38,9 @@ output$downloadPDDEReport <- downloadHandler(
   content = function(file) {
     req(session$userData$valid_file() == 1)
     summary_df <- session$userData$pdde_main %>% 
-      group_by(Issue, Type) %>%
-      summarise(Count = n()) %>%
-      ungroup()
+      fgroup_by(Issue, Type) %>%
+      fsummarise(Count = GRPN()) %>%
+      fungroup()
     
     data_df <-session$userData$pdde_main %>% 
       join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
