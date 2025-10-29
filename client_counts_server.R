@@ -592,7 +592,7 @@ output$timeliness_vb3 <- renderUI({
   }
  
   value_box(
-    title = paste0("Percent of Records Entered within ",num_hours," Hours"),
+    title = paste0("Percent of Records Entered within ",input$timeliness_metric," Days"),
     value = val,
     showcase = bs_icon("clock"),
     theme = "text-primary",

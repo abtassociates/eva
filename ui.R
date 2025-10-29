@@ -282,7 +282,7 @@ page_navbar(
   ),
   # Client counts tab ----------------
   nav_panel(
-    title = "Client Counts",
+    title = "Project Dashboard",
     value = "tabClientCount",
     icon = icon("people-group"),
     card(
@@ -323,7 +323,7 @@ page_navbar(
       conditionalPanel(
         condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
         numericInput(inputId = 'timeliness_metric',
-                     label = 'Timeliness Metric',
+                     label = 'Timeliness: Max Record Entry Days',
                      value = 3,
                      min = 1, max = 11)
       )
