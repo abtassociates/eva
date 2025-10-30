@@ -91,7 +91,7 @@ scale_fill_pattern_eva <- function (
     #________________________________________________________
     # Call any functions passed to parameters
     #________________________________________________________
-    for (i in formalArgs(scale_fill_pattern))
+    for (i in formalArgs(fillpattern::scale_fill_pattern))
       if (is.function(v <- get(i)))
         if (!identical(formalArgs(v), c('env', 'row')))
           assign(i, v(n))
