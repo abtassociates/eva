@@ -76,6 +76,9 @@ client_count_data_df <- reactive({
 # using the function above, it gets and then combines the counts of households
 # and people/clients
 client_count_summary_df <- reactive({
+  req(session$userData$valid_file() == 1)
+  req(!is.null(input$currentProviderList))
+  
   # this function summarizes a project-specific client_count, returning a dataset with counts by status
   client_count_summary_by <- function(vname, client_counts) {
     df <- client_counts %>%
