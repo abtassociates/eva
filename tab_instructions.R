@@ -362,11 +362,9 @@ tabClientCount_instructions <- HTML("
               record types for a project along with timeliness metrics. Time for Record Entry 
               is calculated by comapring a record's Created Date against the:
                <ul>
-               <li>Active No Move-In Date</li>
                <li>Entry Date for Project Start records</li>
                <li>Exit Date for Project Exit records</li>
                <li>Information Date for Current Living Situation records</li>
-               <li>Currently in Project</li>
                <li>Date Provided for Bed Night service records</li>
                </ul>
                
