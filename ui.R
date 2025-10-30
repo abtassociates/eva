@@ -334,16 +334,16 @@ page_navbar(
       id = 'client_count_subtabs',
       
       nav_panel(
-        title = headerTab("Client Counts"),
+        title = headerTab("Project Dashboard"),
         
         navset_card_underline(
           id = "client_count_cc_subtabs",
           nav_panel(
-            title = headerSubTab("Client Counts Summary"),
+            title = headerSubTab("Summary"),
             DTOutput("clientCountSummary")
           ),
           nav_panel(
-            title = headerSubTab("Client Counts Detail"),
+            title = headerSubTab("Detail"),
             DTOutput("clientCountData")
           ),
         )
