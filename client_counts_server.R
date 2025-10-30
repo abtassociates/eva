@@ -436,7 +436,7 @@ tl_df_project_start <- reactive({
   req(session$userData$valid_file() == 1)
   
   ## Time to Entry - Project Start
-  join(
+  df_start <- join(
     client_count_data_df() %>% 
      #filter(ProjectName == input$currentProviderList) %>% 
       rename(ProjectStartDate = EntryDate),
@@ -447,13 +447,26 @@ tl_df_project_start <- reactive({
     fmutate(DaysToEntry = as.numeric(as.Date(Enrollment.DateCreated) - ProjectStartDate),
             HoursToEntry = as.numeric(difftime(Enrollment.DateCreated, ProjectStartDate, units="hours"))) %>% 
     calc_time_to_entry()
+
+  ## create rows of zeros for any projects without Project Start records  
+  diff_ids <- setdiff(client_count_data_df()$ProjectID,  df_start$ProjectID)
+  if(length(diff_ids) > 0){
+    df_start <- rowbind(
+      df_start,
+      client_count_data_df() %>% 
+        fsubset(ProjectID %in% diff_ids) %>% 
+        gby(ProjectID) %>% ffirst() %>% fungroup() %>% 
+        fselect(ProjectID, OrganizationName, ProjectName, ProjectType) %>% 
+        fmutate(n_records = 0, n_lt_metric = 0, mdn = NA, nlt0 = 0, n0 = 0, n1_3 = 0, n4_6 = 0, n7_10 = 0, n11p = 0)
+    )
+  }
 })
 
 tl_df_project_exit <- reactive({
   req(session$userData$valid_file() == 1)
   
   ## Time to Entry - Project Exit
-  join(
+  df_exit <- join(
     client_count_data_df() %>% 
       #filter(ProjectName == input$currentProviderList) %>% 
       rename(ProjectExitDate = ExitDate),
@@ -464,6 +477,19 @@ tl_df_project_exit <- reactive({
     fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) ),
             HoursToEntry = as.numeric(difftime(ProjectExitDate, Exit.DateCreated, units="hours"))) %>% 
     calc_time_to_entry()
+  
+  ## create rows of zeros for any projects without Project Start records  
+  diff_ids <- setdiff(client_count_data_df()$ProjectID,  df_exit$ProjectID)
+  if(length(diff_ids) > 0){
+    df_exit <- rowbind(
+      df_exit,
+      client_count_data_df() %>% 
+        fsubset(ProjectID %in% diff_ids) %>% 
+        gby(ProjectID) %>% ffirst() %>% fungroup() %>% 
+        fselect(ProjectID, OrganizationName, ProjectName, ProjectType) %>% 
+        fmutate(n_records = 0, n_lt_metric = 0, mdn = NA, nlt0 = 0, n0 = 0, n1_3 = 0, n4_6 = 0, n7_10 = 0, n11p = 0)
+    )
+  }
 })
 
 tl_df_nbn <- reactive({
