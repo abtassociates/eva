@@ -309,15 +309,16 @@ tabLocalSettings_long_stayers <-  HTML("
 )
 
 tabClientCount_instructions <- HTML("
-               <h4>Client Counts Report</h4>
-               <p>The Client Counts Report provides the number of households/clients
-               who have been served in each project and their enrollment status
-               at the time of CSV Export generation. This report can be used to
-               verify that a project is up to date on their HMIS data entry by
-               comparing counts reported with the number of households/clients
-               that are known to be served in each project. Permanent housing
-               projects can check that the number of households/clients who have
-               not yet moved into housing is correct.</p>
+               <h4>Project Dashboard Report</h4>
+               <p>The Project Dashboard Report provides the number of households/clients 
+                who have been served in each project and their enrollment status at the 
+                time of CSV Export generation. This report can be used to verify that a project is up to date 
+                on their HMIS data entry by comparing counts reported with the number of households/clients that 
+                are known to be served in each project. Permanent housing projects can check that the number of 
+                households/clients who have not yet moved into housing is correct. The report also contains 
+                record entry timeliness metrics that show how long it takes for a project to enter Project 
+                Start and Project Exit records into HMIS. Certain project types will also see timeliness 
+                metrics for Current Living Situation (CLS) and Bed Night service records.</p>
                
                <h4>Inputs</h4>
                <p>Select a project from the drop list and adjust the the Date
@@ -328,10 +329,12 @@ tabClientCount_instructions <- HTML("
                number of households/clients who exited during that timeframe
                with and without a Move-In Date. Note that setting the Start Date
                to the Export End Date will show the current status for all
-               enrollments for the project.</p>
+               enrollments for the project. While on the Timeliness panel, to 
+              see the percentage of all records entered within a specific number 
+              of days for a project, users can adjust the value in the \'Timeliness: Max Record Entry Days\' box.</p>
                
-               <h4>Summary</h4>
-               <p>The Summary panel provides a count of households/clients who
+               <h4>Client Counts Summary</h4>
+               <p>The Summary tab of the Client Counts panel provides a count of households/clients who
                have statuses of the following within the selected project:
                <ul>
                <li>Active No Move-In Date</li>
@@ -343,7 +346,7 @@ tabClientCount_instructions <- HTML("
                </ul>
                
                <h4>Client Counts Detail</h4>
-               <p>In this panel you will see the Personal ID, Relationship to HoH,
+               <p>The Detail tab of the Client Counts panel you will see the Personal ID, Relationship to HoH,
                Entry Date, Move-In Date, Exit Date, and the Status for each client
                served by the selected project within the Date Range selected. The
                rows are ordered by Entry Date (oldest on top), Household ID (not
@@ -352,15 +355,29 @@ tabClientCount_instructions <- HTML("
                together. All columns are searchable. For example, to find all
                enrollments with a Status of \'Active No Move-In Date\', you can
                type \'act\' in the Status search bar and the data table will
-               react and filter in that way.
+               react and filter in that way.</p>
+
+              <h4>Timeliness Record Entry</h4>
+               <p>The Record Entry tab of the Timeliness panel provides counts of different 
+              record types for a project along with timeliness metrics. Time for Record Entry 
+              is calculated by comapring a record's Created Date against the:
+               <ul>
+               <li>Active No Move-In Date</li>
+               <li>Entry Date for Project Start records</li>
+               <li>Exit Date for Project Exit records</li>
+               <li>Information Date for Current Living Situation records</li>
+               <li>Currently in Project</li>
+               <li>Date Provided for Bed Night service records</li>
+               </ul>
                
-               <h4>Download System-wide Client Counts</h4>
-               To download client count data for all projects in your HMIS CSV Export, 
+               <h4>Download System-wide Project Dashboard Report</h4>
+               <p>To download client count data for all projects in your HMIS CSV Export, 
                click the System-wide download button. The download contains a Current 
                tab limited to just the current date, a Date Range tab limited to the 
                Date Range set, and a Detail tab with clients' PersonalIDs, Entry Date, 
                Move-In Date (if applicable), Exit Date (if applicable), and
-               project status.")
+               project status. There are also separate Timeliness tabs for metrics on 
+              Project Start, Project Exit, CLS records, and Bed Night service records data entry.</p>")
 
 tabPDDE_instructions <-   HTML("
                <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
