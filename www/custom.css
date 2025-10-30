@@ -155,7 +155,7 @@ to group All + Grouped Race selections*/
 }
 
 /* Inflow cell in MbM DT table */
-#DataTables_Table_0 > tbody > tr:nth-child(2) > td:nth-child(1) {
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) {
     font-weight: bold;
     background-color: #CCC7C4;
     border: 2px solid black;
@@ -164,16 +164,16 @@ to group All + Grouped Race selections*/
 }
 
 /* Outflow cell in MbM DT table */
-#DataTables_Table_0 > tbody > tr:nth-child(3) > td:nth-child(1) {
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) {
   font-weight: bold;
   background-color: #CCC7C4;
-  border-color: black;
+  border: 2px solid black;
   background-image: repeating-linear-gradient(45deg, black 0, black 1px, transparent 0, transparent 50%);
   background-size: 10px 10px;
 }
 
 /* div within Inflow cell in MbM DT table */
-#DataTables_Table_0 > tbody > tr:nth-child(2) > td:nth-child(1) > div {
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) > div {
   background-color: #CCC7C4;
   color: black;
   display: inline;
@@ -182,7 +182,7 @@ to group All + Grouped Race selections*/
 }
 
 /* div within Outflow cell in MbM DT table */
-#DataTables_Table_0 > tbody > tr:nth-child(3) > td:nth-child(1) > div {
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) > div {
   background-color: #CCC7C4;
   color: black;
   display: inline;
