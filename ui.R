@@ -405,6 +405,110 @@ page_navbar(
   nav_menu(
     title = "Data Quality",
     icon = icon("square-check"),
+    
+    ## DQ Export Interface ------
+    nav_panel(
+      title = "Data Quality Export Interface",
+      value = "tabDQExport",
+      card(
+        card_title(htmlOutput("headerDQExport"))#,
+      ),
+      accordion(
+        id = 'accordion_dqexport',
+        open = FALSE,
+        accordion_panel(
+          title = "Instructions",
+          tabDQExport_instructions
+        )
+      ),  
+      br(),
+      card(
+        card_title(headerCard('Select Dates')),
+        p("This filter is only applicable for the Project Dashboard Report. All other reports will utilize the date range of the entire HMIS CSV export."),
+        br(),
+        radioButtons(
+          inputId = 'dq_export_date_options',
+          label=NULL,
+          choices = c('Date Range', 'Single Date'),
+          inline = TRUE,
+        ),
+        br(),
+        conditionalPanel(
+          condition = "input.dq_export_date_options == 'Date Range'",
+          dateRangeInput(
+            inputId = 'dq_export_date_multiple',
+            label = NULL,
+            start = NULL,
+            end = NULL,
+            min = NULL,
+            max = NULL,
+            format = "mm/dd/yyyy"
+          )
+        ),
+        conditionalPanel(
+          condition = "input.dq_export_date_options == 'Single Date'",
+          dateInput(
+            inputId = 'dq_export_date_single',
+            label = NULL,
+            value = NULL,
+            min = NULL,
+            max = NULL,
+            format = "mm/dd/yyyy"
+          )
+        )
+      ),
+      
+      card(
+        card_title(headerCard('Select Export Type')),
+        card_body(
+          p("Please select whether you would like DQ exports by organization-level or system-level (or both)."),
+          br(),
+          checkboxGroupInput(
+            inputId = 'dq_export_export_types',
+            label = NULL,
+            choices = c('Organization-level (multi-select)', 'System-level'),
+            selected = c('Organization-level (multi-select)', 'System-level'),
+            inline = TRUE
+          ),
+          br(),
+          
+          pickerInput(
+            inputId = "dq_export_orgList",
+            choices = NULL,
+            multiple = TRUE,
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains',
+                                    container = 'body',
+                                    selectAllText = 'All Organizations',
+                                    noneSelectedText = "Select Organization(s)",
+                                    #selectedTextFormat = 'count > x',
+                                    countSelectedText = 'All Organizations',
+                                    actionsBox = TRUE
+            ),
+            selected = NULL
+          )
+          
+        )
+      ),
+      
+      card(
+        
+        card_title(headerCard("Select Data Quality Exports")),
+        card_body(
+          fillable = FALSE,
+          treeInput(
+            inputId = 'dq_export_files',
+            label = NULL,
+            choices = create_tree(dq_file_options),
+            selected = "All Data Quality Reports"
+          ),
+          downloadButton('dq_export_download_btn', 
+                         label = 'Download')
+        )
+        
+      )
+    ),
+    
     ## PDDE -------------
     nav_panel(
       title = "Project Descriptor Data",
@@ -443,7 +547,7 @@ page_navbar(
     ),
     ## DQ System --------------
     nav_panel(
-      title = "System-level",
+      title = "System-level DQ",
       value = "tabDQSystem",
       
       card(
@@ -522,7 +626,7 @@ page_navbar(
     ),
     ## DQ Org -------------
     nav_panel(
-      title = "Organization-level",
+      title = "Organization-level DQ",
       value = "tabDQOrg",
       
       card(htmlOutput("headerDataQuality")),
@@ -634,108 +738,6 @@ page_navbar(
       #   DTOutput("dq_org_guidance_summary")
       #   
       # )
-    ),
-    
-    nav_panel(
-      title = "Data Quality Export Interface",
-      value = "tabDQExport",
-      card(
-        card_title(htmlOutput("headerDQExport"))#,
-      ),
-      accordion(
-        id = 'accordion_dqexport',
-        open = FALSE,
-        accordion_panel(
-          title = "Instructions",
-          tabDQExport_instructions
-        )
-      ),  
-      br(),
-      card(
-        card_title(headerCard('Select Dates')),
-        p("This filter is only applicable for the Project Dashboard Report. All other reports will utilize the date range of the entire HMIS CSV export."),
-        br(),
-        radioButtons(
-          inputId = 'dq_export_date_options',
-          label=NULL,
-          choices = c('Date Range', 'Single Date'),
-          inline = TRUE,
-        ),
-        br(),
-        conditionalPanel(
-          condition = "input.dq_export_date_options == 'Date Range'",
-          dateRangeInput(
-            inputId = 'dq_export_date_multiple',
-            label = NULL,
-            start = NULL,
-            end = NULL,
-            min = NULL,
-            max = NULL,
-            format = "mm/dd/yyyy"
-          )
-        ),
-        conditionalPanel(
-          condition = "input.dq_export_date_options == 'Single Date'",
-          dateInput(
-            inputId = 'dq_export_date_single',
-            label = NULL,
-            value = NULL,
-            min = NULL,
-            max = NULL,
-            format = "mm/dd/yyyy"
-          )
-        )
-      ),
-      
-      card(
-        card_title(headerCard('Select Export Type')),
-        card_body(
-          p("Please select whether you would like DQ exports by organization-level or system-level (or both)."),
-          br(),
-          checkboxGroupInput(
-            inputId = 'dq_export_export_types',
-            label = NULL,
-            choices = c('Organization-level (multi-select)', 'System-level'),
-            selected = c('Organization-level (multi-select)', 'System-level'),
-            inline = TRUE
-          ),
-          br(),
-          
-          pickerInput(
-            inputId = "dq_export_orgList",
-            choices = NULL,
-            multiple = TRUE,
-            options = pickerOptions(liveSearch = TRUE,
-                                    liveSearchStyle = 'contains',
-                                    container = 'body',
-                                    selectAllText = 'All Organizations',
-                                    noneSelectedText = "Select Organization(s)",
-                                    #selectedTextFormat = 'count > x',
-                                    countSelectedText = 'All Organizations',
-                                    actionsBox = TRUE
-            ),
-            selected = NULL
-          )
-          
-        )
-      ),
-      
-      card(
-        
-        card_title(headerCard("Select Data Quality Exports")),
-        card_body(
-          fillable = FALSE,
-          treeInput(
-            inputId = 'dq_export_files',
-            label = NULL,
-            choices = create_tree(dq_file_options),
-            selected = "All Data Quality Reports"
-          ),
-          downloadButton('dq_export_download_btn', 
-                         label = 'Download')
-        )
-      
-      )
     )
 ),
 
