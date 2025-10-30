@@ -301,16 +301,17 @@ page_navbar(
     br(),
     card(
       card_header(headerCard("Filters")),
-      layout_columns(#fixed_width = T,
-        col_widths=c(3, 4, 2),
-        gap = '20px',
+      layout_columns(
+        col_widths=c(3,-1, 4,-1, 2),
+        gap = '0px',
+        
       dateRangeInput(
         "dateRangeCount",
         label = 'Date Range',
         format = "mm/dd/yyyy",
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-        end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-        width = 300
+        end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))#,
+        #width = 300
       ),
       pickerInput(
         label = 'Select Project',
@@ -325,7 +326,7 @@ page_navbar(
         numericInput(inputId = 'timeliness_metric',
                      label = 'Timeliness: Max Record Entry Days',
                      value = 3,
-                     min = 1, max = 11, width='220px')
+                     min = 1, max = 11)
       )
       )
     ),

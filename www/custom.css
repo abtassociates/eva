@@ -153,6 +153,7 @@ to group All + Grouped Race selections*/
 
 #timeliness_metric {
   height: 3rem;
+  max-width:220px;
 }
 
 #timeliness_metric-label {
