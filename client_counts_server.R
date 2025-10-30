@@ -665,6 +665,6 @@ output$downloadClientCountsReportButton  <- renderUI({
 # two app tables, but for all projects along with a Current tab limited to
 # just the current date.
 output$downloadClientCountsReport <- downloadHandler(
-  filename = date_stamped_filename("Client Counts Report-"),
+  filename = date_stamped_filename("System-level Project Dashboard Report-"),
   content = get_clientcount_download_info
 )
