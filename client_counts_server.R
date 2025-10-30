@@ -460,6 +460,7 @@ tl_df_project_start <- reactive({
         fmutate(n_records = 0, n_lt_metric = 0, mdn = NA, nlt0 = 0, n0 = 0, n1_3 = 0, n4_6 = 0, n7_10 = 0, n11p = 0)
     )
   }
+  df_start
 })
 
 tl_df_project_exit <- reactive({
@@ -490,6 +491,7 @@ tl_df_project_exit <- reactive({
         fmutate(n_records = 0, n_lt_metric = 0, mdn = NA, nlt0 = 0, n0 = 0, n1_3 = 0, n4_6 = 0, n7_10 = 0, n11p = 0)
     )
   }
+  df_exit
 })
 
 tl_df_nbn <- reactive({
