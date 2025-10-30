@@ -147,6 +147,17 @@ to group All + Grouped Race selections*/
   margin: 0 auto;
 }
 
+#dateRangeCount > div, #dateRangeCount > div > span > span {
+  height: 3rem;
+}
+
+#timeliness_metric {
+  height: 3rem;
+}
+
+#timeliness_metric-label {
+  min-width: 220px;
+}
 
 /* MbM*/
 /*reduce horizontal padding to better align datatable with chart*/

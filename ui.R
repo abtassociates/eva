@@ -325,7 +325,7 @@ page_navbar(
         numericInput(inputId = 'timeliness_metric',
                      label = 'Timeliness: Max Record Entry Days',
                      value = 3,
-                     min = 1, max = 11)
+                     min = 1, max = 11, width='220px')
       )
       )
     ),
