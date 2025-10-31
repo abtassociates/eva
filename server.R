@@ -73,7 +73,7 @@ function(input, output, session) {
     h4(organization, "|", input$currentProviderList)
   })
   
-  output$headerClientCounts <- headerGeneric(session, "Client Counts Report",
+  output$headerClientCounts <- headerGeneric(session, "Project Dashboard Report",
                                              htmlOutput("headerClientCounts_supp"))
   
   output$headerPDDE <- headerGeneric(session, "Project Descriptor Data Elements Checker")

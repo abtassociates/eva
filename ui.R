@@ -335,7 +335,7 @@ page_navbar(
       id = 'client_count_subtabs',
       
       nav_panel(
-        title = headerTab("Project Dashboard"),
+        title = headerTab("Client Counts"),
         
         navset_card_underline(
           id = "client_count_cc_subtabs",
