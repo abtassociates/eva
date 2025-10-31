@@ -98,7 +98,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     
     ## add boxes at end with pattern fills
     geom_stratum(aes(fill=End)) +
-    scale_fill_pattern(bg = stratum_bg, 
+    fillpattern::scale_fill_pattern(bg = stratum_bg, 
                        fg = stratum_fg, 
                        patterns = stratum_patterns, min_size = unit(1, 'mm')) +
     
