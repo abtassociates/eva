@@ -1474,6 +1474,54 @@ conflicting_ncbs_entry <- base_dq_data %>%
            )) %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
+    
+# Missing bed night for NBN Enrollment Entry ---------------------------------------
+services_chk <- Services %>%
+  fselect(EnrollmentID, DateProvided)  %>% 
+  join(Enrollment %>% fselect(EnrollmentID, EntryDate, ExitAdjust), on = "EnrollmentID", how = 'left') %>% 
+  fmutate(# Flag if DateProvided is same as EntryDate/ExitAdjust
+    bn_eq_entry = DateProvided == EntryDate,
+    bn_eq_exit = DateProvided == ExitAdjust
+  ) %>%  
+  fgroup_by(EnrollmentID) %>% # For each enrollment,
+  fsummarise( # flag if it has any Service records where DateProvided == EntryDate/ExitAdjust
+    has_bn_eq_entry = any(bn_eq_entry, na.rm=TRUE),
+    has_bn_eq_exit = any(bn_eq_exit, na.rm=TRUE)
+  ) 
+
+nbn_w_hmis_participation <- base_dq_data %>% 
+  fsubset(ProjectType == es_nbn_project_type) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) 
+
+missing_bn1 <- nbn_w_hmis_participation %>% 
+  join(services_chk, on = "EnrollmentID", how = 'anti') # EnrollmentID does NOT appear in services
+
+services_chk1 <- services_chk %>% # EnrollmentID appears in services
+  join(nbn_w_hmis_participation , how="inner")  # limit to Nbn & HMISParticipationType == 1
+
+missing_bn2 <- services_chk1 %>%
+  fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
+  fselect(-has_bn_eq_entry, -has_bn_eq_exit)
+
+missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
+  merge_check_info_dt(checkIDs = 107) %>% 
+  fselect(all_of(vars_we_want)) %>%
+  unique()
+
+# Bed night available for NBN Enrollment Exit ---------------------------------------
+bn_on_exit <- services_chk1  %>% 
+  fsubset(has_bn_eq_exit) %>%  # but it does appear on ExitDate
+  fselect(-has_bn_eq_entry, -has_bn_eq_exit)
+
+bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
+  merge_check_info_dt(checkIDs = 108) %>% 
+  fselect(all_of(vars_we_want)) %>%
+  unique()
+
+rm(missing_bn1, missing_bn2, services_chk1) 
+# don't get rid of missing_bn0 & services_chk so it can be used in 06_PDDE_Checker.R
+
 
 # SSVF --------------------------------------------------------------------
 ssvf_base_dq_data <- base_dq_data %>%
@@ -1623,7 +1671,6 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
 # How we determine the last time we heard from an enrollment differs by Project Type
 
 # Non-Residential Long Stayers --------------------------------------------
-
 calculate_long_stayers_local_settings_dt <- function(projecttype){
   # get non-exited enrollments for projecttype
   logToConsole(session, glue::glue("In calculate long stayers: projecttype = {projecttype}"))
@@ -1780,6 +1827,8 @@ dq_main <- rowbind(
   # missing_destination,
   missing_destination_subsidy,
   dkr_disabilities,
+  missing_bn_entry,
+  bn_on_exit,
   missing_dob,
   # missing_dob_dataquality,
   missing_enrollment_coc,

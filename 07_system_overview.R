@@ -402,6 +402,7 @@ enrollment_categories <- enrollment_prep_hohs %>%
     EnrollmentID,
     PersonalID,
     HouseholdID,
+    ProjectID,
     EntryDate,
     MoveInDateAdjust,
     ExitDate,
@@ -514,8 +515,7 @@ session$userData$lh_info <- enrollment_categories %>%
     ProjectType, 
     MoveInDateAdjust,
     lh_prior_livingsituation, 
-    days_lh_valid, 
-    lh_at_entry,
+    days_lh_valid,
     lh_date,
     first_lh_date,
     last_lh_date
