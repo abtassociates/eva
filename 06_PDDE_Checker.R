@@ -211,14 +211,13 @@ get_active_inventory_no_enrollments <- function() {
       multiple = TRUE,
       how="inner"
     ) %>%
-    fgroup_by(ProjectID) %>%
     fmutate(
       # Check if inventory span overlaps with any enrollments
-      any_inventory_overlap = any(
-        (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
-          ExitAdjust >= InventoryStartDate
-      )
+      inventory_overlap = (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
+        ExitAdjust >= InventoryStartDate
     ) %>%
+    fgroup_by(ProjectID) %>%
+    fmutate(any_inventory_overlap = any(inventory_overlap, na.rm=TRUE)) %>%
     fungroup() %>%
     fsubset(!any_inventory_overlap) %>%
     funique(cols = c("ProjectID")) %>%
@@ -268,7 +267,7 @@ vsps_in_hmis <- session$userData$Project0 %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols)
   
- # Zero Utilization --------------------------------------------------------
+# Zero Utilization --------------------------------------------------------
 # HMIS participating projects that have ANY active inventory (with available beds) 
 # should not have 0 enrollments
 zero_utilization <- qDT(ProjectSegments) %>%
@@ -482,6 +481,25 @@ ES_BedType_HousingType <- activeInventory %>%
   ) %>%
   fselect(PDDEcols)
 
+# No Enrollments in Services for NbN Project ------------------------------------
+
+nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were NBN and had HMIS Participation
+  fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
+  funique() %>%
+  join(services_chk, on = "EnrollmentID", how = "left") %>%
+  fgroup_by(ProjectID) %>%
+  fmutate(
+    miss_all_enroll = all(is.na(has_bn_eq_entry)) # not having this value implies EnrollmentID NOT in services_check
+  ) %>% fungroup()
+
+rm(nbn_w_hmis_participation, services_chk)
+nbn_nobns <- nbn_nobns %>% filter(miss_all_enroll) # filter to projects with all enrollmentID missing
+
+nbn_nobns <- nbn_nobns %>% 
+  merge_check_info(checkIDs = 106) %>% 
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>%
+  unique()
 
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
@@ -547,6 +565,53 @@ vsp_clients <- session$userData$Project0 %>%
   funique()
 
 
+
+# Project Missing in ProjectCoC file --------------------------------------
+project_no_coc <- session$userData$Project0 %>%
+  fsubset(ContinuumProject==1) %>%
+  join(ProjectCoC, on = "ProjectID", how = 'anti') %>%
+  merge_check_info_dt(checkIDs = 35) %>%
+  fmutate(Detail = "" ) %>%
+  fselect(PDDEcols) %>% 
+  funique()
+
+# Residential Project Missing Housing Type --------------------------------
+res_no_house_type <- session$userData$Project0 %>% # filter to residential projects
+  fsubset(ProjectType %in% project_types_w_beds) %>% 
+  fsubset(ProjectType != rrh_project_type | # take all that aren't rrh_project_type or
+            RRHSubType == 2) %>% # if type == rrh_project_type, take only subset 2
+  fsubset(is.na(HousingType) | is.null(HousingType)) %>%  # but HousingType is missing / null
+  merge_check_info_dt(checkIDs = 36) %>%
+  fmutate(Detail = "" ) %>%
+  fselect(PDDEcols) %>% 
+  funique()
+
+# Long-Term Seasonal Inventory --------------------------------------------
+
+lt_seas_inv <- session$userData$Project0 %>% 
+  join(Inventory, on = "ProjectID", how = 'inner') %>% # inner join gets only ProjectID in Inventory
+  fsubset(!is.na(InventoryID)) # filter to those with InventoryID not missing
+
+lt_seas_inv_1 <- lt_seas_inv %>% 
+  fsubset(is.na(Availability)) # filter to missing Availability
+
+lt_seas_inv_2 <- lt_seas_inv %>% 
+  fsubset(Availability == 2) %>% # filter to seasonal Availabilty
+  fmutate(avail_days = InventoryEndDate - InventoryStartDate) %>% # calculate available days
+  fsubset(is.na(InventoryEndDate) | avail_days > 365) %>% # filter to missing end date or avail_days over 365
+  fselect(-avail_days) 
+
+lt_seas_inv <- lt_seas_inv_1 %>% rbind(lt_seas_inv_2) %>% # rbind these together
+  fgroup_by(ProjectID) %>% 
+  fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
+                          paste0(unique(InventoryID), collapse = ", ") ))  %>%
+  fungroup %>%
+  merge_check_info_dt(checkIDs = 37) %>%
+  fselect(PDDEcols) %>% 
+  funique()
+
+rm(lt_seas_inv_1, lt_seas_inv_2)
+
 # Put it all together -----------------------------------------------------
 
 pdde_main <- rowbind(
@@ -565,10 +630,14 @@ pdde_main <- rowbind(
   vsps_in_hmis,
   zero_utilization,
   ES_BedType_HousingType,
+  nbn_nobns,
   Active_Inventory_per_COC,
   COC_Records_per_Inventory,
   more_units_than_beds_inventory,
-  vsp_clients
+  vsp_clients,
+  project_no_coc,
+  res_no_house_type,
+  lt_seas_inv
 ) %>%
   funique() %>%
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))

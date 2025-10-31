@@ -38,23 +38,26 @@ output$downloadPDDEReport <- downloadHandler(
   content = function(file) {
     req(session$userData$valid_file() == 1)
     summary_df <- session$userData$pdde_main %>% 
-      group_by(Issue, Type) %>%
-      summarise(Count = n()) %>%
-      ungroup()
+      fgroup_by(Issue, Type) %>%
+      fsummarise(Count = GRPN()) %>%
+      fungroup()
+    
+    data_df <-session$userData$pdde_main %>% 
+      join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
+      colorder(ProjectName, ProjectType, pos="after") %>%
+      fmutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
+      nice_names() 
     
     write_xlsx(
       list("Summary" = summary_df,
-           "Data" = session$userData$pdde_main %>% 
-             left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
-             nice_names()
-      ),
+           "Data" = data_df),
       path = file)
     
     logMetadata(session, paste0("Downloaded PDDE Report",
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
     exportTestValues(pdde_download_summary = summary_df)
-    exportTestValues(pdde_main = session$userData$pdde_main %>% nice_names())
+    exportTestValues(pdde_main = data_df)
   }
 )
 
