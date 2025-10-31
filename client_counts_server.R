@@ -138,14 +138,14 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
                replace(., is.na(.) &
                          ProjectType %in% c(psh_project_type,
                                             rrh_project_type), 0)),
-      "Currently in project" = case_when(
+      "Currently in Project" = case_when(
         ProjectType %in% c(ph_project_types)  ~ 
           rowSums(select(., `Currently Moved In`, `Active No Move-In`),
                   na.rm = TRUE),
         TRUE ~ replace_na(`Currently in project`, 0)
       )
     ) %>% 
-    relocate(`Currently in project`, .after = ProjectName)
+    relocate(`Currently in Project`, .after = ProjectName)
   
   return(pivoted)
 }
@@ -171,6 +171,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
       )
     ) %>%
     relocate(`Exited Project`, .after = `Currently Moved In`) %>%
+    relocate(`Currently in Project`, .after = ProjectType) %>% 
     mutate(ProjectType = project_type(ProjectType)) %>% 
     select(-c(`Currently in project`, `Exited project`)) %>%
     arrange(OrganizationName, ProjectName)
@@ -182,7 +183,8 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
       validationDF %>%
         filter(EntryDate <= dateRangeEnd &
                  (is.na(ExitDate) | ExitDate >= dateRangeEnd))
-    ) %>%
+    )  %>%
+    relocate(`Currently in Project`, .after = ProjectType) %>% 
     select(-c(`Currently in project`)) %>%
     mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName)
