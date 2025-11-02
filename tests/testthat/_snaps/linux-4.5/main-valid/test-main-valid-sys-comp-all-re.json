@@ -1,6 +1,5 @@
 {
   "input": {
-    "methodology_type": "1",
     "pageid": "tabSystemOverview",
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
@@ -18,6 +17,7 @@
     ],
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
+    "syso_methodology_type": "1",
     "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
@@ -38,7 +38,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: 12c28edcb2fb16bf7bdc8201f22b5a6e]",
+      "src": "[image data hash: 32a9c3f64b2c5443be8fa81f9e492b83]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
