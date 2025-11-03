@@ -593,18 +593,16 @@ convert_data_to_utf8 <- function(data) {
 # so we can see their "full picture"
 get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags, multiple=FALSE, extra_cols=NULL) {
   bad_personalIDs <- unique(bad_records$PersonalID)
-  base_cols <- setdiff(union(inflow_debug_cols, outflow_debug_cols), "lh_dates")
-  if(!is.null(extra_cols)) base_cols <- c(base_cols, extra_cols)
-
+  
   enrollment_categories_all %>%
     fsubset(PersonalID %in% bad_personalIDs) %>%
     join(
-      universe_w_ppl_flags %>% fselect(base_cols),
-      on = c("PersonalID", "EnrollmentID"),
+      universe_w_ppl_flags,
+      on = c("PersonalID"),
       multiple = multiple,
       drop.dup.cols = 'y',
       keep.col.order = FALSE
     ) %>%
     setorder(PersonalID, period, EntryDate) %>%
-    fselect(c(base_cols, "lh_dates"))
+    fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
 }
