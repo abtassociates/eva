@@ -489,6 +489,8 @@ nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were 
   join(services_chk, on = "EnrollmentID", how = "left") %>%
   fgroup_by(ProjectID) %>%
   fmutate(
+    # not having this value implies EnrollmentID NOT in services_check
+    # added check that there more than 0 rows; if not, was throwing a NULL error
     miss_all_enroll = fifelse(GRPN() > 0, all(is.na(has_bn_eq_entry)), FALSE) # not having this value implies EnrollmentID NOT in services_check
   ) %>% 
   fungroup()
