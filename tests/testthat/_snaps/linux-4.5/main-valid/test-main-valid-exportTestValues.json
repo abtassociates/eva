@@ -1094,24 +1094,24 @@
         "Homeless"
       ],
       "End": [
-        "Exited, Non-Permanent",
-        "Exited, Permanent",
-        "Enrolled, Homeless",
         "Enrolled, Housed",
+        "Enrolled, Homeless",
         "Exited, Non-Permanent",
         "Exited, Permanent",
+        "Enrolled, Housed",
         "Enrolled, Homeless",
-        "Enrolled, Housed"
+        "Exited, Non-Permanent",
+        "Exited, Permanent"
       ],
       "freq": [
-        56,
-        242,
+        262,
         14,
-        261,
-        72,
-        119,
+        59,
+        240,
+        38,
         73,
-        39
+        72,
+        118
       ]
     },
     "systemDQ_download": {
