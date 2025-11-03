@@ -794,7 +794,9 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         InflowTypeDetail, 
         `Active at Start` = active_at_levels, 
         Inflow = inflow_chart_detail_levels
-      )
+      ),
+      
+      eecr = 1
     )
   
   outflows <- lecrs %>%
@@ -856,7 +858,9 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         OutflowTypeDetail,
         `Active at End` = active_at_levels, 
         Outflow = outflow_chart_detail_levels
-      )
+      ),
+      
+      lecr = 1
     )
   
   final <- join(
