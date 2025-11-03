@@ -162,7 +162,13 @@ get_clientcount_download_info <- function(file) {
 
   ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
-    fmutate(Status = paste0(Status, " (", days, " days)")) %>%
+    fmutate(
+      Status = fifelse(
+        Status %in% c("Currently Moved In", "Currently in Project"), 
+        paste0(Status, " (", days, " days)"),
+        as.character(Status)
+      )
+    ) %>%
     fselect(c(keepCols, clientCountDetailCols)) %>%
     roworder(OrganizationName, ProjectName, EntryDate)
   
