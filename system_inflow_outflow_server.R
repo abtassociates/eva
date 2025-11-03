@@ -43,23 +43,9 @@ mbm_inflow_levels <- c("Active at Start: Homeless", "Inflow")
 mbm_outflow_levels <- c("Outflow", "Active at End: Housed")
 
 # Levels for summary chart
-inflow_summary_levels <- c(
-  "Active at Start",
-  "Inflow",
-  "Continuous at Start",
-  "First-of-Month Exit",
-  "something's wrong"
-)
 inflow_summary_chart_levels <- c(
   "Active at Start",
   "Inflow",
-  "something's wrong"
-)
-outflow_summary_levels <- c(
-  "Outflow",
-  "Active at End",
-  "Continuous at End",
-  "Last-of-Month Entry",
   "something's wrong"
 )
 

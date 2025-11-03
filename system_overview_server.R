@@ -396,7 +396,7 @@ period_specific_data <- reactive({
   
   if(IN_DEV_MODE) {
     inflow_outflow_qc_checks(period_data)
-    browser()
+    # browser()
     export_for_qc(period_data)
   }
   
@@ -969,21 +969,21 @@ export_for_qc <- function(inflows_and_outflows_clean) {
 #   colorder(FlowType, Category, Old, Recent, `Active Destination+Exit`)
 # 
 # print(wide_table)
-browser()
+# browser()
 
   # update without removing (writes over existing data)
-  wb <- openxlsx2::wb_load(path)
-  unknown_reengaged <- x %>% fsubset(has_unknown_reengaged_diff, -has_other_diff, -has_unknown_reengaged_diff) %>% roworder(PersonalID)
-  wb$add_data(sheet = "Unknown-Reengaged", x = unknown_reengaged, start_col = 1, start_row = 1, na.strings="")
-  
-  other_diffs <- x %>% fsubset(has_other_diff, -has_unknown_reengaged_diff, -has_other_diff) %>% roworder(PersonalID)
-  wb$add_data(sheet = "Other diffs", x = other_diffs, start_col = 1, start_row = 1, na.strings="")
-  
-  raw_data <- enrollment_categories_all %>% fsubset(PersonalID %in% funique(x$PersonalID)) %>% roworder(PersonalID, EntryDate)
-  wb$add_data(sheet = "Raw data", x = raw_data, start_col = 1, start_row = 1, na.strings="")
-  
-  # Save the workbook
-  wb$save(path)
+  # wb <- openxlsx2::wb_load(path)
+  # unknown_reengaged <- x %>% fsubset(has_unknown_reengaged_diff, -has_other_diff, -has_unknown_reengaged_diff) %>% roworder(PersonalID)
+  # wb$add_data(sheet = "Unknown-Reengaged", x = unknown_reengaged, start_col = 1, start_row = 1, na.strings="")
+  # 
+  # other_diffs <- x %>% fsubset(has_other_diff, -has_unknown_reengaged_diff, -has_other_diff) %>% roworder(PersonalID)
+  # wb$add_data(sheet = "Other diffs", x = other_diffs, start_col = 1, start_row = 1, na.strings="")
+  # 
+  # raw_data <- enrollment_categories_all %>% fsubset(PersonalID %in% funique(x$PersonalID)) %>% roworder(PersonalID, EntryDate)
+  # wb$add_data(sheet = "Raw data", x = raw_data, start_col = 1, start_row = 1, na.strings="")
+  # 
+  # # Save the workbook
+  # wb$save(path)
 }
 
 store_enrollment_categories_all_for_qc <- function(all_filtered) {
