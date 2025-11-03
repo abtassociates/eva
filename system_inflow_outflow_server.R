@@ -323,9 +323,11 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         `Active at End: Housed` = "Housed",
         Outflow = outflow_detail_levels
       )
+    ) %>% 
+    get_counts_by_month_for_mbm() %>%
+    fsubset(
+      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
     )
-  
-  get_counts_by_month_for_mbm(monthly_data)
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
