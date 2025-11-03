@@ -116,7 +116,7 @@ output$glossary <- renderDT({
     "All Project Types",
     "A Project Type Group selection that includes all clients in all HUD-defined 
     project types, with the exclusion of Homelessness Prevention projects. This is 
-    the default selection provides for the Project Type Group filter and provides
+    the default selection for the Project Type Group filter and provides
     the most complete picture of system engagement for households who were enrolled in both 
     Residential and Non-Residential projects during the report period.",
     
@@ -471,13 +471,13 @@ output$glossary <- renderDT({
 
     "System Flow Chart",
     "Average Monthly Inflow",
-    "Average Monthly Inflow is calculated by summing all monthly Inflow values and dividing by 12.
-    Used in the System Flow Month-by-Month chart.",
+    "Average Monthly Inflow is calculated by summing all monthly Inflow values and dividing by 12. 
+    Inflow values exclude Continuous at Start and Unknown at Start. Used in the System Flow Month-by-Month chart.",
 
     "System Flow Chart",
     "Average Monthly Outflow",
-    "Average Monthly Outflow is calculated by summing all monthly Outflow values and dividing by 12.
-    Used in the System Flow Month-by-Month chart.",
+    "Average Monthly Outflow is calculated by summing all monthly Outflow values and dividing by 12. 
+    Outflow values exclude Continuous at End. Used in the System Flow Month-by-Month chart.",
 
     "System Flow Chart",
     "Average Monthly Change",
@@ -543,10 +543,12 @@ output$glossary <- renderDT({
     
     "System Flow Chart",
     "Inflow",
-    "The number of clients that entered or flowed into the system. This status
-    indicates a client entered a system project after the report period’s start
-    date. This status excludes all clients who were counted as homeless or housed
-    at the start of the report period.",
+    "The number of clients that entered or flowed into the system. This status indicates 
+    a client entered a system project after the report period’s start date. This status 
+    excludes all clients who were counted as homeless or housed at the start of the report 
+    period. In the System Flow Month-by-Month chart, Continuous at Start and Unknown at 
+    Start are not considered true inflow and are excluded from inflow counts and calculations 
+    on the chart.",
     
     "System Flow Chart",
     "First-Time Homeless",
@@ -591,10 +593,12 @@ output$glossary <- renderDT({
     
     "System Flow Chart",
     "Outflow",
-    "The number of clients that left or flowed out of the system. This status
-    indicates a client exited a system project after the report period’s start
-    date and before the report period’s end date. A client cannot be counted in
-    both outflow and active at end.",
+    "The number of clients that left or flowed out of the system. This status 
+    indicates a client exited a system project after the report period’s start 
+    date and before the report period’s end date. A client cannot be counted in 
+    both outflow and active at end. In the System Flow Month-by-Month chart, 
+    Continuous at End is not considered true outflow and is excluded from outflow 
+    counts and calculations on the chart.",
     
     "System Flow Chart",
     "Exited, Non-Permanent",
