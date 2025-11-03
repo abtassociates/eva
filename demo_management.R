@@ -28,11 +28,12 @@ observeEvent(input$pageid, {
              cause Eva to recalculate the data quality metrics with the selected
              parameters.",
            
-           "tabClientCount" = "Welcome to the Client Counts page. This
-             page helps users review the counts of households/clients served in
-             each project and verify that a project is up to date on their HMIS
-             data entry. In Demo Mode, you can see an example Client Counts
-             report.",
+           "tabClientCount" = "Welcome to the Project Dashboard page. This page 
+           helps users review the counts of households/clients served in each 
+           project and verify that a project is up to date on their HMIS data 
+           entry and following local timeliness guidelines. In Demo Mode, you 
+           can see examples of client counts and timeliness metrics for different
+           projects and download a sample Project Dashboard Report.",
            
            "tabPDDE" = "Welcome to the Project Data page. This page
              helps users review the Project Descriptor Data Element (PDDE) data
