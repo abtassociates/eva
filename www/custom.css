@@ -554,3 +554,7 @@ a:hover {
 body.idle-timeout-occurred #ss-connect-dialog {
   display: none !important;
 }
+
+#notice {
+  border: 3px solid #FCB248;
+}
