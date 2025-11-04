@@ -110,6 +110,11 @@ dashboardPage(
         fluidRow(
           box(
             width = 12,
+            id = "notice",
+            HTML("<h4>Notice: The <a href='https://hudhdx2.info/login'>HDX 2.0</a> will open for LSA uploads on Monday, November 10, 2025 at 12:00 PM ET. Note that while Eva can help with data quality to prepare for the LSA, Eva does not accept LSA uploads.</h4>")
+          ),
+          box(
+            width = 12,
             HTML("<h2>Welcome to Eva!</h2>
               <p><b>Eva</b> is an <a href = 'https://github.com/abtassociates/eva'
               target= '_blank' rel='noopener noreferrer'>open-source</a>
