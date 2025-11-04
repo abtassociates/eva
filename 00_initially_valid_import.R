@@ -87,10 +87,9 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   missing_files <- expected_files[!(expected_files %in% zipFiles)]
 
   # empty files
-  empty_files <- expected_files[
-    !file.size(paste0(tempdir(), "/", unique(cols_and_data_types$File), ".csv"))
-  ]
-    
+  empty_files <- zip_list(upload_filepath) %>% 
+    fsubset(gsub(".csv", "", filename) %in% expected_files & uncompressed_size <= 1)
+
   ### Now check whether the file is hashed, has the expected structure, and contains
   # the expected csv files
   if(grepl("/", zipContents$Name[1])) {
@@ -148,10 +147,12 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       title = "Unsuccessful Upload: You uploaded an unhashed data set"
     )
     logMetadata(session, "Unsuccessful upload - not hashed")
-  } else if(length(empty_files) > 0) {
+  } else if(nrow(empty_files) > 0) {
     show_invalid_popup(
       issueID = 150,
-      title = glue::glue("Unsuccessful Upload: In your HMIS CSV Export, the following files are empty: {paste(empty_files, collapse=', ')}")
+      title = "Unsuccessful Upload - Empty file(s)",
+      popupText = glue::glue("In your HMIS CSV Export, the following files are empty: 
+                             {paste(empty_files$filename, collapse=', ')}. All files should at least contain headers.")
     )
     logMetadata(session, "Unsuccessful upload - not hashed")
   } else {
