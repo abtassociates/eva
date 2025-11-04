@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 0b33da4b9a492e249bf7340eb956779c]",
+      "src": "[image data hash: 53cb5278fd01a336f7432be2129da28e]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -63,7 +63,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 1492.7,
+              "right": 2334.2,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -71,8 +71,6 @@
 
                 ],
                 "y": [
-                  "Invalid Move-In Date",
-                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
                   "Incomplete Living Situation Data",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -80,7 +78,9 @@
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Missing Residence Prior",
-                  "Missing Length of Stay"
+                  "Missing Length of Stay",
+                  "Bed night entered on Project Exit Date",
+                  "No bed night on Entry Date"
                 ]
               }
             },
@@ -89,7 +89,7 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 248.2131849315069,
+              "left": 248.2131849315071,
               "right": 1634.520547945205,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
@@ -191,7 +191,7 @@
       ]
     },
     "sysDQWarningByIssue": {
-      "src": "[image data hash: 4d5eda4848b09f60d44e4a4f1adfd96e]",
+      "src": "[image data hash: ad0c19a9e1ad1721ae376f73a2e6eeb2]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",

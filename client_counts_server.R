@@ -27,31 +27,24 @@ client_count_data_df <- reactive({
         RelationshipToHoH == 5 ~ "Unrelated household member",
         RelationshipToHoH == 99 ~ "Data not collected (please correct)"
       ),
-      Status = case_when(
-        ProjectType %in% c(ph_project_types) &
-          is.na(MoveInDateAdjust) &
-          is.na(ExitDate) ~ "Active No Move-In",
-        ProjectType %in% c(ph_project_types) &
-          !is.na(MoveInDateAdjust) &
-          is.na(ExitDate) ~ paste0("Currently Moved In (",
-                                   ymd(ReportEnd) - ymd(MoveInDateAdjust),
-                                   " days)"),
-        ProjectType %in% c(ph_project_types) &
-          is.na(MoveInDateAdjust) &
-          !is.na(ExitDate) ~ "Exited No Move-In",
-        ProjectType %in% c(ph_project_types) &
-          !is.na(MoveInDateAdjust) &
-          !is.na(ExitDate) ~ "Exited with Move-In",
-        !ProjectType %in% c(ph_project_types) &
-          is.na(ExitDate) ~ paste0("Currently in project (",
-                                   ymd(ReportEnd) - ymd(EntryDate),
-                                   " days)"),
-        !ProjectType %in% c(ph_project_types) &
-          !is.na(ExitDate) ~ "Exited project"
+      Status = factor(
+        fcase(
+          ProjectType %in% c(ph_project_types) & is.na(MoveInDateAdjust) & is.na(ExitDate), "Active No Move-In",
+          ProjectType %in% c(ph_project_types) & !is.na(MoveInDateAdjust) & is.na(ExitDate), "Currently Moved In",
+          ProjectType %in% c(ph_project_types) & is.na(MoveInDateAdjust) & !is.na(ExitDate), "Exited No Move-In",
+          ProjectType %in% c(ph_project_types) & !is.na(MoveInDateAdjust) & !is.na(ExitDate), "Exited with Move-In",
+          !ProjectType %in% c(ph_project_types) & is.na(ExitDate), "Currently in Project",
+          !ProjectType %in% c(ph_project_types) & !is.na(ExitDate), "Exited Project"
+        ),
+        levels = c("Currently in Project", "Active No Move-In", "Currently Moved In", "Exited Project", "Exited No Move-In", "Exited with Move-In")
       ),
-      sort = ymd(ReportEnd) - ymd(EntryDate)
+      
+      days = fcase(
+        Status == "Currently Moved In", ReportEnd - MoveInDateAdjust,
+        Status == "Currently in Project", ReportEnd - EntryDate
+      )
     ) %>%
-    roworder(-sort, HouseholdID, PersonalID) %>% 
+    roworder(-days, HouseholdID, PersonalID) %>% 
     # make sure to include all columns that will be needed for the various uses
     fselect(
       PersonalID,
@@ -65,7 +58,8 @@ client_count_data_df <- reactive({
       ProjectID,
       ProjectName,
       OrganizationName,
-      ProjectType
+      ProjectType,
+      days
     ) %>%
     fsubset(EntryDate <= ReportEnd &
              (is.na(ExitDate) | ExitDate >= ReportStart))
@@ -76,33 +70,21 @@ client_count_data_df <- reactive({
 # using the function above, it gets and then combines the counts of households
 # and people/clients
 client_count_summary_df <- reactive({
-  # this function summarizes a project-specific client_count, returning a dataset with counts by status
-  client_count_summary_by <- function(vname, client_counts) {
-    df <- client_counts %>%
-      fmutate(Status = sub(" \\(.*", "", Status)) %>%
-      fselect(vname,'Status') %>% #select(all_of(vname), Status) %>%
-      funique() %>%
-      group_by(Status)
-    return(df)
-  }
-  
   client_counts <- client_count_data_df() %>%
-    fsubset(ProjectName == input$currentProviderList)
+    fsubset(ProjectName == input$currentProviderList) %>%
+    fgroup_by(Status)
   
-  hhs <- client_count_summary_by("HouseholdID", client_counts) %>%
-    summarise(Households = n())
-  
-  clients <- client_count_summary_by("PersonalID", client_counts) %>%
-    summarise(Clients = n())
-  
-  full_join(clients, hhs, by = "Status")
+  hhs <- client_counts %>% fsummarise(Households = fnunique(HouseholdID))
+  clients <- client_counts %>% fsummarise(Clients = fnunique(PersonalID))
+
+  join(clients, hhs, on = "Status", how="full")
 })
 
 
 ##### DOWNLOADING STUFF ######
 # make sure these columns are there; they wouldn't be after pivoting if nobody had that status
 necessaryCols <- c(
-  "Currently in project",
+  "Currently in Project",
   "Active No Move-In",
   "Currently Moved In"
 )
@@ -117,36 +99,30 @@ keepCols <- c(
 pivot_and_sum <- function(df, isDateRange = FALSE) {
   if(isDateRange) necessaryCols <- c(
     necessaryCols,
-    "Exited project",
+    "Exited Project",
     "Exited with Move-In",
     "Exited No Move-In"
   )
   
   pivoted <- df %>%
-    # remove the person-specific enrollment days from those statuses (e.g. (660 days))
-    # and make sure everyone gets all necessary columns from status (even if they have no projects of that type)
-    mutate(
-      Status = sub(" \\(.*", "", Status)
-    ) %>%
-    distinct_at(vars(!!keepCols, Status, ProjectType, PersonalID)) %>%
-    select(-PersonalID) %>%
-    mutate(n = 1) %>%
-    complete(nesting(!!!syms(c(keepCols, "ProjectType"))),Status = necessaryCols, fill = list(n = 0)) %>%
-    pivot_wider(names_from = Status, values_from = n, values_fn = sum) %>%
-    mutate(
-      across(!!necessaryCols, ~ 
-               replace(., is.na(.) &
-                         ProjectType %in% c(psh_project_type,
-                                            rrh_project_type), 0)),
-      "Currently in Project" = case_when(
-        ProjectType %in% c(ph_project_types)  ~ 
-          rowSums(select(., `Currently Moved In`, `Active No Move-In`),
-                  na.rm = TRUE),
-        TRUE ~ replace_na(`Currently in project`, 0)
+    fselect(c(keepCols, "Status", "ProjectType", "PersonalID")) %>%
+    funique() %>%
+    pivot(how="wider", names = "Status", values = "PersonalID", FUN = "count", sort="names", drop=FALSE) %>%
+    fmutate(
+      across(
+        necessaryCols, 
+        \(x) fifelse(is.na(x) & .$ProjectType %in% c(psh_project_type, rrh_project_type), 0, x)
+      ),
+      "Currently in Project" = fifelse(
+        ProjectType %in% ph_project_types, 
+        rowSums(
+          fselect(., `Currently Moved In`, `Active No Move-In`),
+          na.rm = TRUE
+        ),
+        `Currently in Project`
       )
-    ) %>% 
-    relocate(`Currently in Project`, .after = ProjectName)
-  
+    )
+
   return(pivoted)
 }
 
@@ -160,33 +136,41 @@ get_clientcount_download_info <- function(file) {
     pivot_and_sum(
       validationDF, isDateRange = TRUE
     ) %>%
-    mutate(
-      "Exited Project" = case_when(
-        ProjectType %in% c(ph_project_types) ~ 
-          rowSums(select(., `Exited with Move-In`, `Exited No Move-In`),
-                  na.rm = TRUE),
-        TRUE ~ `Exited project`
+    fmutate(
+      "Exited Project" = fifelse(
+        ProjectType %in% ph_project_types, 
+        rowSums(
+          fselect(., `Exited with Move-In`, `Exited No Move-In`),
+          na.rm = TRUE
+        ),
+        `Exited Project`
       )
     ) %>%
-    relocate(`Exited Project`, .after = `Currently Moved In`) %>%
-    select(-c(`Currently in project`, `Exited project`, ProjectType)) %>%
-    arrange(OrganizationName, ProjectName)
+    fselect(-ProjectType) %>%
+    roworder(OrganizationName, ProjectName)
   
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
   validationLatest <- 
     pivot_and_sum(
       validationDF %>%
-        filter(EntryDate <= input$dateRangeCount[2] &
+        fsubset(EntryDate <= input$dateRangeCount[2] &
                  (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
     ) %>%
-    select(-c(`Currently in project`, ProjectType)) %>%
-    arrange(OrganizationName, ProjectName)
+    fselect(-ProjectType) %>%
+    roworder(OrganizationName, ProjectName)
 
   ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
-    select(!!keepCols, !!clientCountDetailCols) %>%
-    arrange(OrganizationName, ProjectName, EntryDate)
+    fmutate(
+      Status = fifelse(
+        Status %in% c("Currently Moved In", "Currently in Project"), 
+        paste0(Status, " (", days, " days)"),
+        as.character(Status)
+      )
+    ) %>%
+    fselect(c(keepCols, clientCountDetailCols)) %>%
+    roworder(OrganizationName, ProjectName, EntryDate)
   
   exportDFList <- list(
     validationLatest = validationLatest %>% nice_names(),
@@ -219,76 +203,65 @@ get_clientcount_download_info <- function(file) {
 }
 
 
-output$validate_plot <- renderPlot({
-  req(session$userData$valid_file() == 1)
-  # browser()
-  
-  detail <- client_count_data_df() %>%
-    fsubset(str_detect(Status, "Exit", negate = TRUE)) %>%
-    fmutate(Status = factor(
-      fcase(
-        str_detect(Status, "Currently in"), "Currently in project",
-        str_detect(Status, "Currently Moved"), "Currently Moved In",
-        default = Status
-      ),
-      levels = c("Currently in project",
-                 "Active No Move-In",
-                 "Currently Moved In")
-    )) %>% 
-    count(ProjectType, Status, name = "Total")
-  
-  detail_order <- detail %>%
-    group_by(ProjectType) %>%
-    summarise(InProject = sum(Total, na.rm = FALSE)) %>%
-    ungroup()
-  
-  
-  plot_data <- detail %>%
-    join(detail_order, on = "ProjectType", how = 'left') %>%
-    group_by(ProjectType) %>%
-    arrange(ProjectType, desc(Total)) %>%
-    fmutate(
-      movedin = flag(Total, default = 0),
-      text_position = fcase(
-        !ProjectType %in% c(ph_project_types), InProject / 2,
-        ProjectType %in% c(ph_project_types), 
-          Total / 2 + movedin
-      )
-    )
-  
-  validate_by_org <-
-    ggplot(
-      plot_data,
-      aes(x = reorder(project_type_abb(ProjectType), InProject),
-          y = Total, fill = Status)
-    ) +
-    geom_col(alpha = .7, position = "stack")  +
-    geom_text(aes(label = prettyNum(Total, big.mark = ","),
-                  y = text_position),
-              color = "gray14")+
-    scale_y_continuous(label = comma_format()) +
-    scale_colour_manual(
-      values = c(
-        "Currently in project" = "#71B4CB",
-        "Active No Move-In" = "#7F5D9D",
-        "Currently Moved In" = "#52BFA5"
-      ),
-      aesthetics = "fill"
-    ) +
-    labs(
-      title = "Current System-wide Counts",
-      x = "",
-      y = ""
-    ) +
-    theme_minimal(base_size = 18) +
-    theme(
-      plot.title.position = "plot",
-      title = element_text(colour = "#73655E"),
-      legend.position = "top"
-    )
-  
-  validate_by_org
-})
+# output$validate_plot <- renderPlot({
+#   req(session$userData$valid_file() == 1)
+#   
+#   detail <- client_count_data_df() %>%
+#     fsubset(str_detect(Status, "Exit", negate = TRUE)) %>%
+#     fcount(ProjectType, Status, name = "Total")
+#   
+#   detail_order <- detail %>%
+#     fgroup_by(ProjectType) %>%
+#     fsummarise(InProject = fsum(Total, na.rm = FALSE)) %>%
+#     fungroup()
+#   
+#   
+#   plot_data <- detail %>%
+#     join(detail_order, on = "ProjectType", how = 'left') %>%
+#     fgroup_by(ProjectType) %>%
+#     roworder(ProjectType, desc(Total)) %>%
+#     fmutate(
+#       movedin = flag(Total, default = 0),
+#       text_position = fcase(
+#         !ProjectType %in% c(ph_project_types), InProject / 2,
+#         ProjectType %in% c(ph_project_types), 
+#           Total / 2 + movedin
+#       )
+#     )
+#   
+#   validate_by_org <-
+#     ggplot(
+#       plot_data,
+#       aes(x = reorder(project_type_abb(ProjectType), InProject),
+#           y = Total, fill = Status)
+#     ) +
+#     geom_col(alpha = .7, position = "stack")  +
+#     geom_text(aes(label = prettyNum(Total, big.mark = ","),
+#                   y = text_position),
+#               color = "gray14")+
+#     scale_y_continuous(label = comma_format()) +
+#     scale_colour_manual(
+#       values = c(
+#         "Currently in Project" = "#71B4CB",
+#         "Active No Move-In" = "#7F5D9D",
+#         "Currently Moved In" = "#52BFA5"
+#       ),
+#       aesthetics = "fill"
+#     ) +
+#     labs(
+#       title = "Current System-wide Counts",
+#       x = "",
+#       y = ""
+#     ) +
+#     theme_minimal(base_size = 18) +
+#     theme(
+#       plot.title.position = "plot",
+#       title = element_text(colour = "#73655E"),
+#       legend.position = "top"
+#     )
+#   
+#   validate_by_org
+# })
 
 # CLIENT COUNT DETAILS - APP ----------------------------------------------
 output$clientCountData <- renderDT({
@@ -301,11 +274,14 @@ output$clientCountData <- renderDT({
   
   x <- client_count_data_df() %>%
     fsubset(ProjectName == input$currentProviderList) %>%
-    fselect(clientCountDetailCols) %>%
+    fselect(c(clientCountDetailCols, "days")) %>%
     fmutate(
-      days = as.integer(sub(".*\\((\\d+) days\\).*", "\\1", Status)),
+      Status = fifelse(!is.na(days), paste0(Status, " (", days, " days)"), as.character(Status)),
+      Status = factor(
+        Status,
+        levels = funique(Status[order(days)])
+      ),
       RelationshipToHoH = as.factor(RelationshipToHoH),
-      Status = factor(Status, levels = funique(Status[order(days)])),
       days = NULL
     ) %>%
     nice_names()

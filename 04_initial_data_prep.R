@@ -77,7 +77,8 @@ session$userData$Project0 <- project_prep %>%
          ProjectType,
          RRHSubType,
          HousingType,
-         VictimServiceProvider) %>%
+         VictimServiceProvider,
+         ContinuumProject) %>%
   funique()
 
 rm(project_prep)
