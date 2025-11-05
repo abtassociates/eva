@@ -68,7 +68,7 @@
 /* Put border around form controls so they stand out on white-background cards*/
 .form-group .bootstrap-select {
     margin-bottom: 0;
-    border: 1px solid #D0E7EC;
+    border: 1px solid var(--brand-sky);
 }
 
 /* Remove extra vertical spacing within cards*/
@@ -79,15 +79,15 @@
 /* || BUTTONS */
 .btn-default {
   color: white; /*text color*/
-  background-color:#C2462E; /*coral*/
-  border-color: #C2462E; /*coral*/
+  background-color: var(--brand-coral); /*coral*/
+  border-color: var(--brand-coral) /*coral*/
 }
 
 /*button hover and focus*/
 .btn-default:hover, .btn-default:focus {
-  color: #C2462E; /*text color - coral*/
+  color: var(--brand-coral); /*text color - coral*/
   background-color: white;
-  border-color: #C2462E; /*text color - coral*/
+  border-color: var(--brand-coral); /*text color - coral*/
 }
 
 .form-control {
@@ -152,6 +152,41 @@ to group All + Grouped Race selections*/
 /*reduce horizontal padding to better align datatable with chart*/
 #sys_inflow_outflow_monthly_table  table.dataTable tbody td {
   padding: 8px 5px;
+}
+
+/* Inflow cell in MbM DT table */
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) {
+    font-weight: bold;
+    background-color: #CCC7C4;
+    border: 2px solid black;
+    background-image: linear-gradient(black 1px, transparent 1px), linear-gradient(to right, black 1px, transparent 1px);
+    background-size: 10px 10px;
+}
+
+/* Outflow cell in MbM DT table */
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) {
+  font-weight: bold;
+  background-color: #CCC7C4;
+  border: 2px solid black;
+  background-image: repeating-linear-gradient(45deg, black 0, black 1px, transparent 0, transparent 50%);
+  background-size: 10px 10px;
+}
+
+/* div within Inflow cell in MbM DT table */
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) > div {
+  background-color: #CCC7C4;
+  color: black;
+  display: inline;
+  font-weight: bold;
+  border-color: black;
+}
+
+/* div within Outflow cell in MbM DT table */
+#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) > div {
+  background-color: #CCC7C4;
+  color: black;
+  display: inline;
+  font-weight: bold;
 }
 
 /* || CHART INFORMATION TABLES */

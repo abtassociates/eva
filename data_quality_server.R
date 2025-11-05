@@ -321,7 +321,7 @@ plot_configs <- tidyr::expand_grid(
   level = c("sys", "org"),
   issueType = names(dq_issue_type_map),
   byType = c("Org", "Project", "Issue"),
-  color = "#71B4CB"
+  color = get_brand_color('blue')
 ) %>%
   # Filter out invalid combinations (e.g., system-level "By Project")
   filter(
