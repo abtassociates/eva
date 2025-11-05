@@ -898,9 +898,12 @@ export_for_qc <- function(inflows_and_outflows_clean) {
   
   new <- inflows_and_outflows_clean %>% fselect(PersonalID, period, InflowTypeDetail, OutflowTypeDetail)
   old <- readRDS("/media/sdrive/projects/CE_Data_Toolkit/QC Datasets/mbm_10.21.25.rda") %>% 
-    fmutate(InflowTypeDetail = gsub(" \\n", " ", InflowTypeDetail), OutflowTypeDetail = gsub(" \\n", " ", OutflowTypeDetail)) %>% 
     fselect(names(new)) %>% 
-    funique()
+    funique() %>%
+    fmutate(
+      InflowTypeDetail = str_remove(InflowTypeDetail, "\n"),
+      OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n")
+    )
   x <- join(
     new, 
     old, 

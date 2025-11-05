@@ -181,9 +181,9 @@ output$sys_inflow_outflow_monthly_filter_selections <- renderUI({
 #                             <fctr>                          <fctr>         <fctr>         <fctr> <int> <int>
 # 1:                          Housed                 Active at Start         Inflow         Housed    73     1
 # 2:                        Homeless                 Active at Start         Inflow       Homeless   153     2
-# 3:           First-Time \nHomeless           First-Time \nHomeless         Inflow         Inflow   747     3
-# 4:       Returned from \nPermanent       Returned from \nPermanent         Inflow         Inflow     0     4
-# 5: Re-engaged from \nNon-Permanent Re-engaged from \nNon-Permanent         Inflow         Inflow     0     5
+# 3:           First-Time Homeless           First-Time Homeless         Inflow         Inflow   747     3
+# 4:       Returned from Permanent       Returned from Permanent         Inflow         Inflow     0     4
+# 5: Re-engaged from Non-Permanent Re-engaged from Non-Permanent         Inflow         Inflow     0     5
 # 6:                         Unknown                         Unknown         Inflow         Inflow     0     6
 # 7:          Exited,\nNon-Permanent          Exited,\nNon-Permanent        Outflow        Outflow   281     7
 # 8:              Exited,\nPermanent              Exited,\nPermanent        Outflow        Outflow   355     8
@@ -421,13 +421,13 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     if(session$userData$days_of_data < 1094)
       df <- df %>%
         ftransform(
-          Summary = fct_relabel(Summary, "Inflow \nUnspecified" = "First-Time \nHomeless")
+          Summary = fct_recode(Summary, "Inflow Unspecified" = "First-Time Homeless")
         )
 
     mid_plot <- 4.5
     fill_var <- 'Detail'
     # Use Housed, Homeless, one Inflow, and one Outflow for legend in Detail chart
-    fill_breaks <- c("Housed","Homeless","First-Time \nHomeless","Inactive")
+    fill_breaks <- c("Housed","Homeless","First-Time Homeless","Inactive")
   }
   
   total_clients <- df[InflowOutflow == "Inflow", sum(N)]
@@ -928,7 +928,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   
   if(input$mbm_status_filter == "First-Time Homeless")
     summary_data_with_change <- summary_data_wide %>%
-      fsubset(PlotFillGroups == "Inflow" & Detail == "First-Time \nHomeless") %>%
+      fsubset(PlotFillGroups == "Inflow" & Detail == "First-Time Homeless") %>%
       ftransform(PlotFillGroups = input$mbm_status_filter) %>%
       fselect(-Detail, -Summary)
   else if(input$mbm_status_filter == "Inactive")
@@ -1141,7 +1141,7 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
 
 output$sys_fth_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
-  sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless")
+  sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
 })
 
 monthly_chart_validation <- function() {
@@ -1197,7 +1197,6 @@ sys_export_monthly_info <- function() {
   month_cols <- names(monthly_counts_wide)[-1:-3]
 
   monthly_counts_detail = monthly_counts_wide %>%
-    ftransform(Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))) %>%
     fselect(-PlotFillGroups)
     
   monthly_totals <- monthly_counts_wide %>%
@@ -1241,8 +1240,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
 
     df <- sys_inflow_outflow_annual_chart_data() %>% 
       ftransform(
-        Summary = fct_collapse(Summary, !!!collapse_details),
-        Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))
+        Summary = fct_collapse(Summary, !!!collapse_details)
       )
     
     if(session$userData$days_of_data < 1094) {
@@ -1319,7 +1317,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         ),
         "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
         "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
-        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless"),
+        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
         "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
       ),
       summary_font_size = 19
