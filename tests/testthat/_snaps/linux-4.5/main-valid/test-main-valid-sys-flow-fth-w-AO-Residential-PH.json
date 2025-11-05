@@ -31,7 +31,7 @@
       ]
     },
     "sys_fth_monthly_ui_chart": {
-      "src": "[image data hash: 7fb48b3e320387746f5dff002b90c3a4]",
+      "src": "[image data hash: dc3b7382255da9d804bb4357b723fc7b]",
       "width": 1847,
       "height": 500,
       "alt": "Plot object",
@@ -49,36 +49,20 @@
               "y": null
             },
             "domain": {
-              "left": 0.505,
-              "right": 12.495,
-              "bottom": -5.25,
-              "top": 110.25,
-              "discrete_limits": {
-                "x": [
-                  "Oct 21",
-                  "Nov 21",
-                  "Dec 21",
-                  "Jan 22",
-                  "Feb 22",
-                  "Mar 22",
-                  "Apr 22",
-                  "May 22",
-                  "Jun 22",
-                  "Jul 22",
-                  "Aug 22",
-                  "Sep 22"
-                ]
-              }
+              "left": -0.05,
+              "right": 1.05,
+              "bottom": -0.05,
+              "top": 1.05
             },
             "mapping": {
-              "x": "month",
-              "y": "Count"
+              "x": null,
+              "y": null
             },
             "range": {
-              "left": 74.27397260273975,
-              "right": 1847,
-              "bottom": 481.068493150685,
-              "top": 0
+              "left": 5.479452054794522,
+              "right": 1841.520547945206,
+              "bottom": 494.5205479452055,
+              "top": 22.97027851717198
             }
           }
         ],

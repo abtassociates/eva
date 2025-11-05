@@ -128,4 +128,31 @@ original_data_fixed_cols$Organization[11, "VictimServiceProvider"] <- 1 # org 55
 # Non-VSP project (Org 49) and a project with Org 55
 original_data_fixed_cols$ProjectCoC[c(1, 28), c("Address1", "CoCCode", "GeographyType", "ZIP")] <- NA
 
+# Trigger the 'Project Missing in ProjectCoC file' High Priority Issue (checkID = 35) -------------------------
+# Remove a project from ProjectsCOC, with ContinuumProject == 1
+coc_project <- original_data_fixed_cols$Project %>% 
+      filter(ContinuumProject == 1) 
+coc_project <- coc_project$ProjectID[nrow(coc_project)]
+
+original_data_fixed_cols$ProjectCoC <- original_data_fixed_cols$ProjectCoC %>%
+  filter(ProjectID != coc_project)
+rm(coc_project)
+# Trigger the 'No Enrollments within Active Inventory' Warning Issue (checkID = 141) -------------------------
+# Get a project from the activeInventory with and EndDate
+XInventory <- original_data_fixed_cols$Inventory %>%
+   filter((is.na(Availability) | Availability != 3) &
+     BedInventory > 0 & !is.na(BedInventory)) %>%
+  select(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
+  filter(!is.na(InventoryEndDate))
+
+ainv_proj <- XInventory %>% filter(ProjectID == XInventory$ProjectID[nrow(XInventory)])
+
+# Update all the enrollments to have EntryDate 10 days after the Inventory End Date
+original_data_fixed_cols$Enrollment <- original_data_fixed_cols$Enrollment %>% 
+  mutate(EntryDate= as.Date(ifelse(ProjectID == ainv_proj$ProjectID,
+                           ymd(ainv_proj$InventoryEndDate + days(10)),
+                           ymd(EntryDate))))
+
+rm(XInventory, ainv_proj)
+
 ## add more checks here --------------------------------------------

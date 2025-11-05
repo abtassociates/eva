@@ -38,30 +38,26 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       on = "Begin", how = 'left'
     )
   
-  bar_colors <- c(
-    "Housed" = "#9E958F", 
-    "Homeless" = "#ECE7E3",
-    "Exited, Non-Permanent" = "#E8D9D1",
-    "Enrolled, Homeless" = "#B54E37",
-    "Inactive" = "#504742",
-    "Exited, Permanent" = "#DFEDEA",
-    "Enrolled, Housed" = "#326878"
-  )
+ 
+  cat_order <- unique(plot_data$End)
   
-  border_colors <- c(
-    "Exited, Non-Permanent" = "#D1AB98",
-    "Enrolled, Homeless" = "#8D3D2A",
-    "Inactive" = "black",
-    "Exited, Permanent" = "#B4C7CB",
-    "Enrolled, Housed" = "#214853"
-  )
-
+  ## set up pattern fills for Period End strata
+  if('Inactive' %in% plot_data$End){
+    stratum_bg <- sankey_bar_colors[names(sankey_bar_colors) %in% cat_order]
+    stratum_fg <- c('black',sankey_bar_colors['Enrolled, Homeless'],sankey_bar_colors['Inactive'],'black',sankey_bar_colors['Enrolled, Housed'])
+    stratum_patterns <- c(sankey_pattern,'','',sankey_pattern,'')
+  } else {
+    stratum_bg <- sankey_bar_colors[names(sankey_bar_colors) %in% cat_order]
+    stratum_fg <- c('black',sankey_bar_colors['Enrolled, Homeless'],'black',sankey_bar_colors['Enrolled, Housed'])
+    stratum_patterns <- c(sankey_pattern,'',sankey_pattern,'')
+  }
+ 
   ggplot(
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
     geom_alluvium(aes(fill = End, colour = End), reverse = TRUE, alpha = 0.8) +
-    geom_stratum(aes(fill = End), reverse = TRUE) +
+    geom_stratum(aes(fill = End)) +
     
     # construct the Begin bars
     geom_rect(
@@ -76,10 +72,10 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     ) +
     
     #Color for End stratum and alluvial flows
-    scale_fill_manual(values = bar_colors) +
-    
+    scale_fill_manual(values = sankey_bar_colors) +
+
     #Color for alluvial flow borders
-    scale_color_manual(values = border_colors) +
+    scale_color_manual(values = sankey_border_colors) +
     
     # Bar (Text) Labels
     geom_text(
@@ -96,6 +92,15 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       nudge_x = 1.2,
       size = sys_chart_text_font
     ) +
+    
+    ## use ggnewscale package to reset scales for pattern fill
+    new_scale_fill() +
+    
+    ## add boxes at end with pattern fills
+    geom_stratum(aes(fill=End)) +
+    fillpattern::scale_fill_pattern(bg = stratum_bg, 
+                       fg = stratum_fg, 
+                       patterns = stratum_patterns, min_size = unit(1, 'mm')) +
     
     # X Axis Labels
     scale_x_discrete(label = c("Period Start", "Period End"),

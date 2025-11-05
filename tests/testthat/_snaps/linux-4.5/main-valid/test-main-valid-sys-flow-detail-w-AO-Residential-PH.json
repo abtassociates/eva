@@ -67,7 +67,7 @@
               "ymin": "ystart",
               "ymax": "yend",
               "x": "group.id",
-              "fill": "PlotFillGroups"
+              "fill": ".data[[\"Detail\"]]"
             },
             "range": {
               "left": 14.4,

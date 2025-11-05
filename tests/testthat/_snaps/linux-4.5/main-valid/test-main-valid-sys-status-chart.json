@@ -68,7 +68,7 @@
             },
             "mapping": {
               "x": null,
-              "fill": "End",
+              "fill_ggnewscale_1": "End",
               "colour": "End",
               "y": "freq",
               "axis1": "Begin",

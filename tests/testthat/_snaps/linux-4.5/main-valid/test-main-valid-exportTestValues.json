@@ -13,8 +13,8 @@
     },
     "clientCountSummary": {
       "Status": [
-        "Currently in project",
-        "Exited project"
+        "Currently in Project",
+        "Exited Project"
       ],
       "Clients": [
         16,
@@ -66,13 +66,28 @@
         "Max.": 88
       },
       "Exited Project": {
-        "Min.": 1,
-        "1st Qu.": 1,
-        "Median": 2,
-        "Mean": 5,
-        "3rd Qu.": 6,
-        "Max.": 15,
-        "NA's": 168
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.1445086705202312,
+        "3rd Qu.": 0,
+        "Max.": 15
+      },
+      "Exited No Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "Exited with Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
       }
     },
     "client_count_download_date_range": {
@@ -758,84 +773,96 @@
     },
     "pdde_download_summary": {
       "Issue": [
-        "Bed Type incompatible with Housing Type",
-        "Client-level data in VSP organization",
-        "Incorrect CoC in bed inventory",
-        "Inventory Start Precedes Operating Start",
-        "Missing Address",
         "Missing Geography Information",
+        "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
-        "Project CoC missing bed inventory",
+        "Inventory Start Precedes Operating Start",
+        "No Enrollments within Active Inventory",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
-        "Zero Utilization"
+        "Zero Utilization",
+        "Bed Type incompatible with Housing Type",
+        "Project CoC missing bed inventory",
+        "Incorrect CoC in bed inventory",
+        "Client-level data in VSP organization",
+        "Project Missing in ProjectCoC file",
+        "Residential Project Missing Housing Type",
+        "Long-Term Seasonal Inventory"
       ],
       "Type": [
-        "Warning",
         "High Priority",
         "Error",
-        "Warning",
-        "Error",
-        "High Priority",
         "Error",
         "Error",
         "High Priority",
         "Warning",
+        "Warning",
         "Error",
         "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Error",
+        "High Priority",
+        "High Priority",
+        "High Priority",
         "Warning"
       ],
       "Count": [
+        6,
         3,
-        13,
-        2,
-        138,
-        2,
-        5,
         11,
         6,
         1,
-        2,
+        138,
+        1,
         1,
         13,
-        2
+        2,
+        3,
+        2,
+        3,
+        13,
+        1,
+        1,
+        111
       ]
     },
     "pdde_guidance_summary": {
       "Type": {
-        "High Priority": 3,
+        "High Priority": 5,
         "Error": 6,
-        "Warning": 4
+        "Warning": 6
       },
       "Issue": {
-        "Length": "13",
+        "Length": "17",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "13",
+        "Length": "17",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "13",
+        "Length": "17",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
-        "High Priority": 3,
+        "High Priority": 5,
         "Error": 6,
-        "Warning": 4
+        "Warning": 6
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 2,
+        "1st Qu.": 1,
         "Median": 3,
-        "Mean": 15.30769230769231,
+        "Mean": 18.58823529411765,
         "3rd Qu.": 11,
         "Max.": 138
       }
@@ -1149,14 +1176,14 @@
         "Homeless"
       ],
       "End": [
-        "Exited, Non-Permanent",
-        "Exited, Permanent",
-        "Enrolled, Homeless",
         "Enrolled, Housed",
+        "Enrolled, Homeless",
         "Exited, Non-Permanent",
         "Exited, Permanent",
+        "Enrolled, Housed",
         "Enrolled, Homeless",
-        "Enrolled, Housed"
+        "Exited, Non-Permanent",
+        "Exited, Permanent"
       ],
       "freq": [
         56,
@@ -1200,26 +1227,26 @@
         [
           "High Priority: 3  ",
           "Min.   :    2.0  ",
-          "Length:70         "
+          "Length:71         "
         ],
         [
           "Error        :38  ",
-          "1st Qu.:   23.0  ",
+          "1st Qu.:   20.0  ",
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
+          "Warning      :30  ",
           "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  861.7  ",
+          "Mean   :  850.1  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  595.5  ",
+          "3rd Qu.:  575.0  ",
           null
         ],
         [
@@ -1250,7 +1277,7 @@
         [
           null,
           null,
-          "Mean   :  59.96  ",
+          "Mean   :  59.99  ",
           null
         ],
         [
@@ -1269,8 +1296,8 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:70         ",
-          "Length:70         "
+          "Length:71         ",
+          "Length:71         "
         ],
         [
           "Error        :38  ",
@@ -1278,7 +1305,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
+          "Warning      :30  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1353,14 +1380,14 @@
       ],
       "Errors": [
         [
-          "Length:12615      ",
-          "Length:12615      ",
-          "Length:12615      ",
-          "Length:12615      ",
-          "Length:12615      ",
-          "Length:12615      ",
-          "Length:12615      ",
-          "Length:12615      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1372,7 +1399,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-05-27  "
+          "1st Qu.:2020-05-29  "
         ],
         [
           "Mode  :character  ",
@@ -1383,7 +1410,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-03-09  "
+          "Median :2021-03-08  "
         ],
         [
           null,
@@ -1394,7 +1421,7 @@
           null,
           null,
           null,
-          "Mean   :2021-01-23  "
+          "Mean   :2021-01-24  "
         ],
         [
           null,
@@ -1421,14 +1448,14 @@
       ],
       "Warnings": [
         [
-          "Length:46621      ",
-          "Length:46621      ",
-          "Length:46621      ",
-          "Length:46621      ",
-          "Length:46621      ",
-          "Length:46621      ",
-          "Length:46621      ",
-          "Length:46621      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1440,7 +1467,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-09  "
+          "1st Qu.:2020-06-10  "
         ],
         [
           "Mode  :character  ",
@@ -1489,28 +1516,28 @@
       ],
       "Overlap Details": [
         [
-          "Length:872        ",
-          "Length:872        ",
+          "Length:867        ",
+          "Length:867        ",
           "AO   :557  ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
           "Min.   :2013-12-11  ",
           "Min.   :2018-04-04  ",
           "Min.   :2020-03-20  ",
           "Min.   :2019-10-01  ",
           "Min.   :2019-09-25  ",
           "Min.   :2019-10-01  ",
-          "Length:872        ",
-          "Length:872        ",
+          "Length:867        ",
+          "Length:867        ",
           "AO   :557  ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
           "Min.   :2012-03-22  ",
           "Min.   :2012-06-01  ",
           "Min.   :2019-10-04  ",
@@ -1520,21 +1547,21 @@
         [
           "Class :character  ",
           "Class :character  ",
-          "AC   :247  ",
+          "AC   :242  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-03-29  ",
-          "1st Qu.:2020-06-02  ",
+          "1st Qu.:2020-03-27  ",
+          "1st Qu.:2020-06-01  ",
           "1st Qu.:2020-08-06  ",
           "1st Qu.:2020-07-20  ",
           "1st Qu.:2020-09-07  ",
           "1st Qu.:2020-09-10  ",
           "Class :character  ",
           "Class :character  ",
-          "AC   :247  ",
+          "AC   :242  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -1555,10 +1582,10 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2020-12-12  ",
-          "Median :2021-01-05  ",
+          "Median :2020-12-17  ",
+          "Median :2021-01-06  ",
           "Median :2021-02-24  ",
-          "Median :2021-03-31  ",
+          "Median :2021-04-04  ",
           "Median :2021-08-11  ",
           "Median :2021-08-15  ",
           "Mode  :character  ",
@@ -1569,9 +1596,9 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2020-11-10  ",
+          "Median :2020-11-11  ",
           "Median :2020-10-28  ",
-          "Median :2021-01-31  ",
+          "Median :2021-02-02  ",
           "Median :2021-06-05  ",
           "Median :2021-08-01  "
         ],
@@ -1584,10 +1611,10 @@
           null,
           null,
           null,
-          "Mean   :2021-01-12  ",
-          "Mean   :2021-01-29  ",
+          "Mean   :2021-01-14  ",
+          "Mean   :2021-01-30  ",
           "Mean   :2021-05-24  ",
-          "Mean   :2021-04-11  ",
+          "Mean   :2021-04-13  ",
           "Mean   :2021-05-08  ",
           "Mean   :2021-06-08  ",
           null,
@@ -1598,9 +1625,9 @@
           null,
           null,
           null,
-          "Mean   :2020-11-18  ",
+          "Mean   :2020-11-21  ",
           "Mean   :2020-09-19  ",
-          "Mean   :2021-02-21  ",
+          "Mean   :2021-02-22  ",
           "Mean   :2021-06-10  ",
           "Mean   :2021-07-19  "
         ],
@@ -1613,7 +1640,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-11-02  ",
+          "3rd Qu.:2021-11-05  ",
           "3rd Qu.:2021-11-01  ",
           "3rd Qu.:2022-05-30  ",
           "3rd Qu.:2021-12-16  ",
@@ -1672,11 +1699,11 @@
           null,
           null,
           null,
-          "NA's   :338  ",
-          "NA's   :810  ",
+          "NA's   :336  ",
+          "NA's   :805  ",
           "NA's   :124  ",
-          "NA's   :819  ",
-          "NA's   :819  ",
+          "NA's   :814  ",
+          "NA's   :814  ",
           null,
           null,
           "NA's :  3  ",
@@ -1686,10 +1713,10 @@
           null,
           null,
           "NA's   :3  ",
-          "NA's   :630  ",
+          "NA's   :625  ",
           "NA's   :57  ",
-          "NA's   :817  ",
-          "NA's   :817  "
+          "NA's   :812  ",
+          "NA's   :812  "
         ]
       ],
       "Referral Details": [
