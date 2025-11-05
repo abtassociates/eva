@@ -254,6 +254,7 @@ get_sankey_data <- reactive({
     mutate(
       Begin = factor(Begin, levels = rev(active_at_levels)), # Or c("Housed", "Homeless") depending on desired order
       
+      End = str_remove(End, "\n"), # Remove newlines
       End = ifelse( # Prepend "Enrolled, " for specific values
         End %in% active_at_levels,
         paste0("Enrolled, ", End),

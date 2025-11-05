@@ -13,7 +13,7 @@ bar_colors <- c(
   "Exited, Permanent" = get_brand_color('light_blue'),
   "Exited, Permanent" = get_brand_color('light_blue'),
   "Active at End: Housed" = get_brand_color("dark_blue"),
-  "Enrolled, Housed" = get_brand_color('dark_blue2'),
+  "Enrolled, Housed" = get_brand_color('dark_blue'),
   "Homeless" = get_brand_color('coral'),
   "Enrolled, Homeless" = get_brand_color('coral'),
   "Housed" = get_brand_color('dark_blue'),
