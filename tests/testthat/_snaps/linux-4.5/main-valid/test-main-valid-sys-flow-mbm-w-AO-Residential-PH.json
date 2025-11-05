@@ -204,8 +204,8 @@
             "domain": {
               "left": 0.505,
               "right": 12.495,
-              "bottom": -35.7,
-              "top": 749.7,
+              "bottom": -35.75,
+              "top": 750.75,
               "discrete_limits": {
                 "x": [
                   "Oct 21",
