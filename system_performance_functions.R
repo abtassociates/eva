@@ -796,6 +796,7 @@ expand_by_periods <- function(dt, chart_type = 'mbm') {
         exit_cutoff = startDate %m-% years(2),
         temp_key = 1
       )
+    
   } else if(chart_type == 'exits_time'){
     all_periods <- data.table(
       period = c('Current Year','Previous Year'),
@@ -828,12 +829,6 @@ expand_by_periods <- function(dt, chart_type = 'mbm') {
       on = "temp_key",
       multiple = TRUE
     ) %>%
-    fsubset(EntryDate <= endDate & ExitAdjust >= exit_cutoff) %>%
     fselect(-temp_key, -exit_cutoff) %>%
-    setkey(period) %>%
-    ftransform(
-      straddles_start = EntryDate <= startDate & ExitAdjust >= startDate,
-      straddles_end = EntryDate <= endDate & ExitAdjust >= endDate,
-      in_date_range = EntryDate <= endDate & ExitAdjust >= startDate
-    )
+    setkeyv(cols=c("PersonalID", "period", "EnrollmentID"))
 }
