@@ -217,3 +217,12 @@ to group All + Grouped Race selections*/
 #modal_demo_tour .modal-footer {
  padding: 0.5rem;
 }
+
+/*Hide "Eva has crashed..." pop-up when timeout occurs*/
+body.idle-timeout-occurred #ss-connect-dialog {
+  display: none !important;
+}
+
+#notice {
+  border: 3px solid #FCB248;
+}
