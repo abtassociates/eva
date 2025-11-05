@@ -70,6 +70,9 @@ client_count_data_df <- reactive({
 # using the function above, it gets and then combines the counts of households
 # and people/clients
 client_count_summary_df <- reactive({
+  req(session$userData$valid_file() == 1)
+  req(!is.null(input$currentProviderList))
+  
   client_counts <- client_count_data_df() %>%
     fsubset(ProjectName == input$currentProviderList) %>%
     fgroup_by(Status)
@@ -269,7 +272,6 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   
 }
 
-
 # output$validate_plot <- renderPlot({
 #   req(session$userData$valid_file() == 1)
 #   
@@ -309,9 +311,9 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
 #     scale_y_continuous(label = comma_format()) +
 #     scale_colour_manual(
 #       values = c(
-#         "Currently in Project" = "#71B4CB",
-#         "Active No Move-In" = "#7F5D9D",
-#         "Currently Moved In" = "#52BFA5"
+#         "Currently in Project" = get_brand_color('blue'),
+#         "Active No Move-In" = get_brand_color('light_purple'),
+#         "Currently Moved In" = get_brand_color('sea_green')
 #       ),
 #       aesthetics = "fill"
 #     ) +

@@ -576,7 +576,7 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                 <p>represents the Outflow value(s) minus Inflow value(s). A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
                                 <br>
                                 <h4>Month-by-Month Chart</h4>
-                                <p>The Month-by-Month Chart, which includes a stacked bar chart and a data table, shows Inflow and Outflow counts by month over a 12-month period. The stacked bar chart visually compares, by month, the total count of people that enter the homeless system <b>(Inflow)</b> or are continuingly experiencing homelessness in the system <b>(Active at Start: Homeless)</b> with the total count of people that exited the system <b>(Outflow)</b> or are permanently housed within the system <b>(Active at End: Housed)</b></p>
+                                <p>The Month-by-Month Chart, which includes a stacked bar chart and a data table, shows Inflow and Outflow counts by month over a 12-month period. The stacked bar chart visually compares, by month, the total count of people that enter the homeless system <b>(Inflow)</b> or are continuingly experiencing homelessness in the system <b>(Active at Start: Homeless)</b> with the total count of people that exited the system <b>(Outflow)</b> or are permanently housed within the system <b>(Active at End: Housed)</b> all within that given month.</p>
                                 
                                 <p>The actual counts of each category in a given month are listed in a table below the chart, including the Monthly Change value. The <b>Monthly Change</b> value:</p>
                                 <br>
@@ -655,7 +655,7 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                   <tr>
                                     <td>Total Outflow is greater than total Inflow</td>
                                     <td>In the Summary chart, the bar for Outflow
-                                    is larger than the bard for Inflow. The Total 
+                                    is larger than the bar for Inflow. The Total 
                                     Change value is a negative number, representing a reduction.</td>
                                     <td>This means there were more clients that left your system than 
                                     came into your system during the reporting period.</td>
