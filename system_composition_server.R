@@ -772,7 +772,7 @@ get_people_universe_filtered <- reactive({
   req(nrow(full_data) > 0)
   
   join(
-    period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
+    period_specific_data()[["Full"]] %>% fselect(PersonalID),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%

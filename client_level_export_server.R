@@ -69,39 +69,40 @@ output$client_level_download_btn <- downloadHandler(
       "ExitAdjust",
       "Destination"
     )
+
+    enrollment_info <- get_client_level_export() %>%
+      fselect(c(enrollment_fields, "InflowTypeDetail")) %>%
+      fmutate(
+        Destination = living_situation(Destination),
+        LivingSituation = living_situation(LivingSituation),
+        HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
+      )
+
+    earliest_report_info <- enrollment_info %>% 
+      fsubset(eecr == 1, -InflowTypeDetail)
     
-    enrollment_info <- get_client_level_export()[
-      , c(..enrollment_fields, "InflowTypeDetail")
-    ][, `:=`(
-      Destination = living_situation(Destination),
-      LivingSituation = living_situation(LivingSituation),
-      HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
-    )]
-    
-    earliest_report_info <- enrollment_info[eecr == 1][, c("eecr","lecr", "InflowTypeDetail") := NULL]
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
              new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
     
-    latest_report_info <- enrollment_info[lecr == 1][,  c("eecr","lecr", "InflowTypeDetail") := NULL]
+    latest_report_info <- enrollment_info %>%
+      fsubset(lecr == 1, -InflowTypeDetail)
+    
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
     # details tab
-    client_level_details <- unique(get_client_level_export()[
-      , 
-      c(..detail_client_fields, ..report_status_fields)
-    ])[
-      earliest_report_info, on = "PersonalID", nomatch = 0
-    ][
-      latest_report_info, on = "PersonalID", nomatch = 0
-    ][
-      , `:=`(
+    client_level_details <- get_client_level_export() %>%
+      fselect(c(detail_client_fields, unname(report_status_fields))) %>%
+      funique() %>%
+      join(earliest_report_info, on = "PersonalID", how="inner") %>%
+      join(latest_report_info, on = "PersonalID", how="inner") %>%
+      fmutate(
         InflowTypeDetail = str_remove(InflowTypeDetail, "\n"),
         OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n")
       )
-    ]
+
     setnames(client_level_details, 
              old = report_status_fields, 
              new = names(report_status_fields))
@@ -122,7 +123,7 @@ output$client_level_download_btn <- downloadHandler(
           between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE),
           TRUE
         ),
-        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, \nPermanent"),
+        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
         OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
         `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
           flast(OutflowTypeDetail),
@@ -207,7 +208,6 @@ output$client_level_download_btn <- downloadHandler(
       ),
       client_level_details = client_level_details,
       monthly_statuses,
-      enrollment_info[InflowTypeDetail == "Excluded"][ , InflowTypeDetail := NULL],
       adjusted_non_res_enrl
     )
     
@@ -216,13 +216,8 @@ output$client_level_download_btn <- downloadHandler(
       "Data Dictionary",
       "Client Details",
       "Monthly Statuses",
-      "Excluded",
       "Adjusted Non-Res"
     )
-    
-    # Drop Excluded if empty
-    client_level_export_list <- client_level_export_list %>% 
-      fsubset(names(.) != "Excluded" | nrow(.$Excluded) > 0)
     
     write_xlsx(
       client_level_export_list,
@@ -243,15 +238,19 @@ output$client_level_download_btn <- downloadHandler(
 
 # Client-level download
 get_client_level_export <- reactive({
-  join(
+  period_specific_data()[["Full"]] %>%
     join(
-      period_specific_data()[["Full"]],
       session$userData$client_categories,
       on = "PersonalID"
-    ),
-    session$userData$Client %>% select(PersonalID, !!race_cols), 
-    on="PersonalID"
-  )
+    ) %>%
+    join(
+      session$userData$Client %>% select(PersonalID, !!race_cols), 
+      on="PersonalID"
+    ) %>%
+    join(
+      session$userData$enrollment_categories %>% fselect(EnrollmentID, HouseholdType, CorrectedHoH, LivingSituation),
+      on = "EnrollmentID"
+    )
 })
 
 #source(here("sandbox/timeline_viewer.R"), local=TRUE)
