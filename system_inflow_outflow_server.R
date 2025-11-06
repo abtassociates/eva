@@ -674,7 +674,11 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         just = bar_adjust
       ) +
       geom_bar(
-        data = plot_data[InflowOutflow == "Outflow"],
+        data = plot_data[InflowOutflow == "Outflow"] %>%
+          fmutate(PlotFillGroups = fct_relevel(
+            PlotFillGroups,
+            mbm_outflow_levels
+          )),
         aes(x = month, y = Count, fill = PlotFillGroups),
         stat = "identity",
         position = "stack",
@@ -919,10 +923,12 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
 
   summary_data_wide <- sys_monthly_chart_data_wide() %>%
+    fmutate(PlotFillGroups = fct_relevel(PlotFillGroups, 'Active at Start: Homeless', 'Inflow', 'Outflow', 'Active at End: Housed')) %>% 
     fsubset(
       PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
       !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    )
+    ) %>% 
+    roworder(PlotFillGroups)
   
   req(nrow(summary_data_wide) > 0)
   
