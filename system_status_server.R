@@ -56,7 +56,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
-    geom_alluvium(aes(fill = End, colour = End), reverse = TRUE, alpha = 0.8) +
+    geom_alluvium(aes(fill = End, colour = End), alpha = 0.8) +
     geom_stratum(aes(fill = End)) +
     
     # construct the Begin bars
@@ -68,6 +68,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
         ymin = ystart,
         ymax = yend
       ),
+      linewidth = 0.5,
       colour ='black'
     ) +
     
@@ -250,5 +251,10 @@ get_sankey_data <- reactive({
   req(nrow(plot_df) > 0)
 
   plot_df %>%
-    fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq")
+    fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 
+    fmutate(Begin = fct_relevel(Begin, "Homeless", after = 0)) %>% 
+    fmutate(End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
+            End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
+            )
+  
 })
