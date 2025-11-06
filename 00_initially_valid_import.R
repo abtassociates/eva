@@ -140,7 +140,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   } else if(!is_hashed()) {
     show_invalid_popup(
       issueID = 126,
-      title = "Unsuccessful Upload: You uploaded either an unhashed or non-SHA-256 hashed data set",
+      title = "Unsuccessful Upload: Your data set is either unhashed or hashed in the wrong format",
       popupText = "Eva expects a hashed HMIS CSV Export that conforms to the SHA-256 format as specified in the HMIS CSV Format Specifications. 
       If you are not sure how to run a SHA-256 hashed HMIS CSV Export in your HMIS, please contact your HMIS vendor."
     )
