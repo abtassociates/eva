@@ -293,15 +293,22 @@ headerSubTab <- function(subtabTitle){
 logSessionData <- function(session) {
   d <- data.frame(
     SessionToken = session$token,
-    Datestamp = Sys.time(),
-    CoC = session$userData$Export$SourceID,
-    ExportID = session$userData$Export$ExportID,
-    SourceContactFirst = session$userData$Export$SourceContactFirst,
-    SourceContactLast = session$userData$Export$SourceContactLast,
-    SourceContactEmail = session$userData$Export$SourceContactEmail,
-    SoftwareName = session$userData$Export$SoftwareName,
-    ImplementationID = session$userData$Export$ImplementationID
+    Datestamp = Sys.time()
   )
+
+  export_fields_to_store <- c(
+    "CoC" = "SourceID",
+    "ExportID" = "ExportID",
+    "SourceContactFirst" = "SourceContactFirst",
+    "SourceContactLast" = "SourceContactLast",
+    "SourceContactEmail" = "SourceContactEmail",
+    "SoftwareName" = "SoftwareName",
+    "ImplementationID" = "ImplementationID"
+  )
+  
+  for(v in names(export_fields_to_store)) {
+    d[v] <- if(v %in% names(session$userData$Export)) session$userData$Export[[v]] else NA
+  }
   
   # put the export info in the log
   capture.output(d, file = stderr())
@@ -328,8 +335,8 @@ logToConsoleFull <- function(session, msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = session$userData$Export$SourceID,
-    ExportID = session$userData$Export$ExportID,
+    CoC = if(!is.null(session$userData$Export$SourceID)) session$userData$Export$SourceID else NA,
+    ExportID = if(!is.null(session$userData$Export$ExportID)) session$userData$Export$ExportID else NA,
     Msg = msg
   )
   capture.output(d, file = stderr())
