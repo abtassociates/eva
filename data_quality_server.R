@@ -782,13 +782,14 @@ bed_unit_inv <- reactive({
   } 
   
   for(q in 1:4){ # loop over the 4 quarters to pass through the functions
-    bed_unit_inv_q <- count_Beds_Units(quarters[q]) %>% mutate(PIT = quarters[q])
+    bed_unit_inv_q <- count_Beds_Units(quarters[q]) %>% 
+      fmutate(PIT = quarters[q])
     bed_unit_inv_q <- bed_unit_inv_q %>%
       join( count_Bed_Nights(quarters[q]), how = "full")
     assign(paste0("bed_unit_inv_q",q), bed_unit_inv_q)
   }
   
-  # join 4 quarters and calculate project level utilization
+  # join 4 quarters and calculate project level quarterly utilization
    project_level_util <- bed_unit_inv_q1 %>%
      join(bed_unit_inv_q2, how = "full")%>%
      join(bed_unit_inv_q3, how = "full")%>%
@@ -804,7 +805,7 @@ bed_unit_inv <- reactive({
   #[PIT Date] Unit Utilization = [PIT Date] Total Households Served / [PIT Date] Total HMIS Units
   
   system_level_util <- project_level_util %>% fungroup %>%
-    fgroup_by(PIT) %>% # for each quarter,
+    fgroup_by(PIT) %>% # for each PIT Date,
     fsummarise(  # sum all projects 
       Total_Beds = sum(PIT_Beds, na.rm = T),
       Total_Units = sum(PIT_Units, na.rm = T),
@@ -812,8 +813,9 @@ bed_unit_inv <- reactive({
       Total_HH_Served = sum(PIT_HH_Served, na.rm = T)
     ) 
   
+  # calculate system level quarterly utilization
   system_level_util <- system_level_util %>%
-    mutate(Bed_Utilization = Total_Served / Total_Beds,
+    fmutate(Bed_Utilization = Total_Served / Total_Beds,
            Unit_Utilization = Total_HH_Served / Total_Units)
   
 })
