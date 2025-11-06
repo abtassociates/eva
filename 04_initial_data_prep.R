@@ -295,7 +295,7 @@ EnrollmentAdjust <- Enrollment %>%
 
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
-  fselect(EnrollmentID, DateProvided, PersonalID) %>%
+  fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
 
 # Build validation df for app ---------------------------------------------
@@ -412,6 +412,10 @@ Event <- Event %>%
     ResultDate
   )
 
+session$userData$Services <- Services
+session$userData$Exit <- Exit
+session$userData$Enrollment <- Enrollment
+session$userData$CurrentLivingSituation <- CurrentLivingSituation
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |

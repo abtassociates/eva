@@ -27,7 +27,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = '<h4>Client Counts Detail</h4>')
+    app$set_inputs(client_count_cc_subtabs = '<h5>Client Counts Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
@@ -198,8 +198,14 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = '<h4>Client Counts Detail</h4>')
+    #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
+    #app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_cc_subtabs = '<h5>Client Counts Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_subtabs = "<h4>Timeliness</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
+    # app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
       input = c(
@@ -212,9 +218,11 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "headerClientCounts_supp",
         "clientCountData",
         "clientCountSummary",
+        "timelinessTable",
         "downloadClientCountsReportButton"
       )
     )
+    
     
     #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(pageid = "tabPDDE")

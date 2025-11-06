@@ -335,8 +335,9 @@ logToConsoleFull <- function(session, msg) {
   capture.output(d, file = stderr())
 }
   
-date_stamped_filename <- function(filename) {
-  paste(filename, Sys.Date(), ".xlsx", sep = "")
+date_stamped_filename <- function(filename, ext = '.xlsx') {
+  
+  paste(filename, Sys.Date(), ext, sep = "")
 }
 
 nice_names <- function(df){
@@ -371,6 +372,31 @@ nice_names <- function(df){
   df
 }
 
+nice_names_timeliness <- function(df, record_type){
+ 
+  if(is.null(df)){
+    return(NULL)
+  }
+  mdn_string <- switch(record_type, 
+                       'start' = 'Median Days to Project Start Record Entry',
+                       'exit' = 'Median Days to Project Exit Record Entry',
+                       'nbn' = 'Median Days to Night-by-Night Record Entry',
+                       'cls' = 'Median Days to Current Living Situation Record Entry')
+  
+  colnames(df) <- str_replace_all(names(df), 
+                               c('OrganizationName' = 'Organization Name', 
+                                 'ProjectID' = 'Project ID',
+                                 'ProjectName' = 'Project Name',
+                                 'ProjectType' = 'Project Type',
+                                 'nlt0' = '< 0 Days',
+                                 'n0' = '0 Days',
+                                 'n1_3' = '1-3 Days',
+                                 'n4_6' = '4-6 Days',
+                                 'n7_10' = '7-10 Days',
+                                 'n11p' = '11 + Days',
+                                 'mdn' = mdn_string))
+  df
+}
 
 # Sandbox -----------------------------------------------------------------
 

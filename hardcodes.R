@@ -487,5 +487,10 @@ outflow_debug_cols <- c(
   "lh_dates"
 )
 
-# IN_DEV_MODE <- FALSE
+## files included in DQ Export Interface
+dq_file_options <- data.frame(
+  all = "All Data Quality Reports",
+  report = c("Project Dashboard Report", "PDDE Report", "Data Quality Report")#, "Bed & Unit Utilization Report")
+)
+
 IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))

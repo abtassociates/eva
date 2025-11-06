@@ -279,7 +279,7 @@ page_navbar(
   ),
   # Client counts tab ----------------
   nav_panel(
-    title = "Client Counts",
+    title = "Project Dashboard",
     value = "tabClientCount",
     icon = icon("people-group"),
     card(
@@ -297,26 +297,34 @@ page_navbar(
     ),
     br(),
     card(
-      card_header(headerCard("Date Range")),
+      card_header(headerCard("Filters")),
+      layout_columns(
+        col_widths=c(3,-1, 4,-1, 2),
+        gap = '0px',
+        
       dateRangeInput(
         "dateRangeCount",
-        labe = NULL,
+        label = 'Date Range',
         format = "mm/dd/yyyy",
         start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-        end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-        width = 300
-      )
-    ),
-    
-    card(
-      card_header(headerCard("Select Project")),
+        end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))#,
+        #width = 300
+      ),
       pickerInput(
-        label = NULL,
+        label = 'Select Project',
         inputId = "currentProviderList",
         choices = NULL,
         options = pickerOptions(liveSearch = TRUE,
                                 liveSearchStyle = 'contains', 
                                 container = 'body')
+      ),
+      conditionalPanel(
+        condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
+        numericInput(inputId = 'timeliness_metric',
+                     label = 'Timeliness: Max Record Entry Days',
+                     value = 3,
+                     min = 1, max = 11)
+      )
       )
     ),
     
@@ -324,13 +332,56 @@ page_navbar(
       id = 'client_count_subtabs',
       
       nav_panel(
-        title = headerTab("Client Counts Summary"),
-        DTOutput("clientCountSummary")
+        title = headerTab("Client Counts"),
+        
+        navset_card_underline(
+          id = "client_count_cc_subtabs",
+          nav_panel(
+            title = headerSubTab("Summary"),
+            DTOutput("clientCountSummary")
+          ),
+          nav_panel(
+            title = headerSubTab("Detail"),
+            DTOutput("clientCountData")
+          ),
+        )
       ),
+      
       nav_panel(
-        title = headerTab("Client Counts Detail"),
-        DTOutput("clientCountData")
+        title = headerTab("Timeliness"),
+        navset_card_underline(
+          id = "client_count_ti_subtabs",
+          nav_panel(
+            title = headerSubTab("Record Entry"),
+            layout_column_wrap(
+              width = "250px",
+              fill = FALSE,
+
+              value_box(
+                title = "Median Days to Project Start Data Entry",
+                value = textOutput("timeliness_vb1_val"),
+                showcase = bs_icon("calendar-plus"),
+                theme = "text-primary",
+                class = "border-primary"
+              ),
+              value_box(
+                title = "Median Days to Project Exit Data Entry",
+                value = textOutput("timeliness_vb2_val"),
+                showcase = bs_icon("calendar-minus"),
+                theme = "text-primary",
+                class = "border-primary"
+              ),
+              uiOutput("timeliness_vb3", fill = TRUE)
+              
+            ),
+            br(),
+            DTOutput("timelinessTable")
+            
+          )
+        )
+        
       ),
+      
       nav_spacer(),
       nav_item(
         uiOutput("downloadClientCountsReportButton", inline = TRUE)
@@ -351,6 +402,110 @@ page_navbar(
   nav_menu(
     title = "Data Quality",
     icon = icon("square-check"),
+    
+    ## DQ Export Interface ------
+    nav_panel(
+      title = "Data Quality Export Interface",
+      value = "tabDQExport",
+      card(
+        card_title(htmlOutput("headerDQExport"))#,
+      ),
+      accordion(
+        id = 'accordion_dqexport',
+        open = FALSE,
+        accordion_panel(
+          title = "Instructions",
+          tabDQExport_instructions
+        )
+      ),  
+      br(),
+      card(
+        card_title(headerCard('Select Dates')),
+        p("This filter is only applicable for the Project Dashboard Report. All other reports will utilize the date range of the entire HMIS CSV export."),
+        br(),
+        radioButtons(
+          inputId = 'dq_export_date_options',
+          label=NULL,
+          choices = c('Date Range', 'Single Date'),
+          inline = TRUE,
+        ),
+        br(),
+        conditionalPanel(
+          condition = "input.dq_export_date_options == 'Date Range'",
+          dateRangeInput(
+            inputId = 'dq_export_date_multiple',
+            label = NULL,
+            start = NULL,
+            end = NULL,
+            min = NULL,
+            max = NULL,
+            format = "mm/dd/yyyy"
+          )
+        ),
+        conditionalPanel(
+          condition = "input.dq_export_date_options == 'Single Date'",
+          dateInput(
+            inputId = 'dq_export_date_single',
+            label = NULL,
+            value = NULL,
+            min = NULL,
+            max = NULL,
+            format = "mm/dd/yyyy"
+          )
+        )
+      ),
+      
+      card(
+        card_title(headerCard('Select Export Type')),
+        card_body(
+          p("Please select whether you would like DQ exports by organization-level or system-level (or both)."),
+          br(),
+          checkboxGroupInput(
+            inputId = 'dq_export_export_types',
+            label = NULL,
+            choices = c('Organization-level (multi-select)', 'System-level'),
+            selected = c('Organization-level (multi-select)', 'System-level'),
+            inline = TRUE
+          ),
+          br(),
+          
+          pickerInput(
+            inputId = "dq_export_orgList",
+            choices = NULL,
+            multiple = TRUE,
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains',
+                                    container = 'body',
+                                    selectAllText = 'All Organizations',
+                                    noneSelectedText = "Select Organization(s)",
+                                    #selectedTextFormat = 'count > x',
+                                    countSelectedText = 'All Organizations',
+                                    actionsBox = TRUE
+            ),
+            selected = NULL
+          )
+          
+        )
+      ),
+      
+      card(
+        
+        card_title(headerCard("Select Data Quality Exports")),
+        card_body(
+          fillable = FALSE,
+          treeInput(
+            inputId = 'dq_export_files',
+            label = NULL,
+            choices = create_tree(dq_file_options),
+            selected = "All Data Quality Reports"
+          ),
+          downloadButton('dq_export_download_btn', 
+                         label = 'Download')
+        )
+        
+      )
+    ),
+    
     ## PDDE -------------
     nav_panel(
       title = "Project Descriptor Data",
@@ -389,7 +544,7 @@ page_navbar(
     ),
     ## DQ System --------------
     nav_panel(
-      title = "System-level",
+      title = "System-level DQ",
       value = "tabDQSystem",
       
       card(
@@ -468,7 +623,7 @@ page_navbar(
     ),
     ## DQ Org -------------
     nav_panel(
-      title = "Organization-level",
+      title = "Organization-level DQ",
       value = "tabDQOrg",
       
       card(htmlOutput("headerDataQuality")),
