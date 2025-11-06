@@ -1038,10 +1038,13 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 get_sys_inflow_outflow_monthly_flextable <- function() {
   logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
   d <- sys_monthly_chart_data_wide() %>% 
+    fmutate(PlotfillGroups = fct_relevel(PlotFillGroups, 'Active at Start: Homeless', 'Inflow',
+                                         'Outflow', 'Active at End: Housed', 'Monthly Change')) %>% 
     fsubset(
       PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") & 
       !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
     ) %>%
+    roworder(PlotFillGroups) %>% 
     fselect(-Detail, -Summary)
     
   d <- collap(
