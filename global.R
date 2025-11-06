@@ -41,7 +41,7 @@ if(dir.exists(here("metadata-analysis/metadata/"))) {
 }
 source(here("hardcodes.R")) # hard-coded variables and data frames
 source(here("helper_functions.R")) # functions used throughout the app
-source(here('tab_instructions.R'), local = TRUE) # static HTML text elements
+source(here('tab_instructions.R')) # static HTML text elements
 source(here("eva_chart_colors.R"))
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
