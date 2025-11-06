@@ -710,7 +710,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
     fmutate(
       straddles_end = endDate %between% list(active_start, active_end),
       sort_var = fifelse(straddles_end, ProjectTypeWeight, as.numeric(fifelse(ExitAdjust >= startDate, ExitAdjust, active_end))),
-      sort_var2 = fifelse(straddles_end, -1*as.numeric(MoveInDateAdjust), fifelse(ExitAdjust >= startDate, Destination/400, 0))
+      sort_var2 = fifelse(straddles_end, -1*as.numeric(MoveInDateAdjust), fifelse(ExitAdjust >= startDate, Destination/400, 0)) # Destination/400 to make it a double and comparable to as.numeric(MoveInDateadjust) which is a double
     ) %>%
     roworder(PersonalID, period, straddles_end, sort_var, sort_var2, verbose = F, na.last = FALSE) %>%
     fgroup_by(PersonalID, period) %>%
