@@ -340,7 +340,6 @@ output$clientCountData <- renderDT({
   # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
   # Caused by error:
   #   ! `..1` must be of size 292 or 1, not size 0.
-  
   x <- client_count_data_df() %>%
     fsubset(ProjectName == input$currentProviderList) %>%
     fselect(c(clientCountDetailCols, "days")) %>%

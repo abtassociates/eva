@@ -155,35 +155,110 @@
         "Max.": 632
       }
     },
-    "client_count_download_timeliness_exit": {
+    "client_count_download_timeliness_cls": {
       "Organization Name": {
-        "Length": "197",
+        "Length": "34",
         "Class": "character",
         "Mode": "character"
       },
       "Project ID": {
-        "Length": "197",
+        "Length": "34",
         "Class": "character",
         "Mode": "character"
       },
       "Project Name": {
-        "Length": "197",
+        "Length": "34",
         "Class": "character",
         "Mode": "character"
       },
       "Project Type": {
-        "Min.": 0,
-        "1st Qu.": 2,
-        "Median": 6,
-        "Mean": 7.081218274111675,
-        "3rd Qu.": 13,
-        "Max.": 14
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
       },
       "< 0 Days": {
         "Min.": 0,
         "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2352941176470588,
+        "3rd Qu.": 0,
+        "Max.": 2
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 44.38235294117647,
+        "3rd Qu.": 14,
+        "Max.": 862
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
         "Median": 1,
-        "Mean": 28.50253807106599,
+        "Mean": 21.5,
+        "3rd Qu.": 8.25,
+        "Max.": 216
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 8.235294117647058,
+        "3rd Qu.": 3.75,
+        "Max.": 123
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6.117647058823529,
+        "3rd Qu.": 2.75,
+        "Max.": 81
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 2,
+        "Mean": 16.76470588235294,
+        "3rd Qu.": 15.75,
+        "Max.": 172
+      },
+      "Median Days to Current Living Situation Record Entry": {
+        "Min.": -967,
+        "1st Qu.": 0,
+        "Median": 1.25,
+        "Mean": -19.26470588235294,
+        "3rd Qu.": 5,
+        "Max.": 134
+      }
+    },
+    "client_count_download_timeliness_exit": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 27.39024390243902,
         "3rd Qu.": 15,
         "Max.": 705
       },
@@ -191,15 +266,15 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 13.21827411167513,
-        "3rd Qu.": 5,
+        "Mean": 12.70243902439024,
+        "3rd Qu.": 4,
         "Max.": 474
       },
       "1-3 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 24.91878172588833,
+        "Mean": 23.94634146341463,
         "3rd Qu.": 4,
         "Max.": 1097
       },
@@ -207,7 +282,7 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 14.87817258883249,
+        "Mean": 14.29756097560976,
         "3rd Qu.": 3,
         "Max.": 749
       },
@@ -215,16 +290,16 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 15.76649746192893,
+        "Mean": 15.15121951219512,
         "3rd Qu.": 6,
         "Max.": 1030
       },
       "11 + Days": {
         "Min.": 0,
-        "1st Qu.": 11,
-        "Median": 40,
-        "Mean": 219.5837563451777,
-        "3rd Qu.": 122,
+        "1st Qu.": 9,
+        "Median": 35,
+        "Mean": 211.0146341463415,
+        "3rd Qu.": 119,
         "Max.": 19327
       },
       "Median Days to Project Exit Record Entry": {
@@ -233,88 +308,165 @@
         "Median": 83,
         "Mean": 149.6522842639594,
         "3rd Qu.": 167,
-        "Max.": 1778
+        "Max.": 1778,
+        "NA's": 8
       }
     },
-    "client_count_download_timeliness_start": {
+    "client_count_download_timeliness_nbn": {
       "Organization Name": {
-        "Length": "201",
+        "Length": "1",
         "Class": "character",
         "Mode": "character"
       },
       "Project ID": {
-        "Length": "201",
+        "Length": "1",
         "Class": "character",
         "Mode": "character"
       },
       "Project Name": {
-        "Length": "201",
+        "Length": "1",
         "Class": "character",
         "Mode": "character"
       },
       "Project Type": {
-        "Min.": 0,
-        "1st Qu.": 2,
-        "Median": 6,
-        "Mean": 7.029850746268656,
-        "3rd Qu.": 13,
-        "Max.": 14
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
       },
       "< 0 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 1.940298507462687,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "0 Days": {
+        "Min.": 2631,
+        "1st Qu.": 2631,
+        "Median": 2631,
+        "Mean": 2631,
+        "3rd Qu.": 2631,
+        "Max.": 2631
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "Median Days to Night-by-Night Record Entry": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      }
+    },
+    "client_count_download_timeliness_start": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 1.985365853658537,
         "3rd Qu.": 1,
         "Max.": 117
       },
       "0 Days": {
         "Min.": 0,
-        "1st Qu.": 3,
+        "1st Qu.": 2,
         "Median": 15,
-        "Mean": 168.2388059701493,
-        "3rd Qu.": 42,
+        "Mean": 164.9560975609756,
+        "3rd Qu.": 41,
         "Max.": 20892
       },
       "1-3 Days": {
         "Min.": 0,
-        "1st Qu.": 2,
-        "Median": 13,
-        "Mean": 83.58706467661692,
-        "3rd Qu.": 55,
+        "1st Qu.": 1,
+        "Median": 12,
+        "Mean": 81.95121951219512,
+        "3rd Qu.": 54,
         "Max.": 3104
       },
       "4-6 Days": {
         "Min.": 0,
         "1st Qu.": 0,
-        "Median": 5,
-        "Mean": 28.40298507462687,
-        "3rd Qu.": 20,
+        "Median": 4,
+        "Mean": 27.84390243902439,
+        "3rd Qu.": 18,
         "Max.": 961
       },
       "7-10 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 2,
-        "Mean": 15.46766169154229,
-        "3rd Qu.": 11,
+        "Mean": 15.16585365853659,
+        "3rd Qu.": 10,
         "Max.": 458
       },
       "11 + Days": {
         "Min.": 0,
         "1st Qu.": 2,
-        "Median": 9,
-        "Mean": 38.90049751243781,
-        "3rd Qu.": 37,
+        "Median": 8,
+        "Mean": 38.14146341463415,
+        "3rd Qu.": 36,
         "Max.": 1127
       },
       "Median Days to Project Start Record Entry": {
-        "Min.": 0,
+        "Min.": -524,
         "1st Qu.": 1,
         "Median": 2,
-        "Mean": 13.53233830845771,
+        "Mean": 10.90547263681592,
         "3rd Qu.": 7,
-        "Max.": 308
+        "Max.": 308,
+        "NA's": 4
       }
     },
     "file_structure_analysis_main": {
@@ -1272,13 +1424,13 @@
       ],
       "End": [
         "Exited, Permanent",
-        "Housed",
+        "Enrolled, Housed",
         "Exited, Non-Permanent",
         "Exited, Non-Permanent",
-        "Homeless",
-        "Housed",
+        "Enrolled, Homeless",
+        "Enrolled, Housed",
         "Exited, Permanent",
-        "Homeless"
+        "Enrolled, Homeless"
       ],
       "freq": [
         240,

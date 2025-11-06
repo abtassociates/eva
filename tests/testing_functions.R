@@ -200,7 +200,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
     #app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Client Counts Detail</h5>')
+    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(client_count_subtabs = "<h4>Timeliness</h4>")
     app$wait_for_idle(timeout = 1e+06)
