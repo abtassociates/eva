@@ -164,8 +164,8 @@ sys_status_export_info <- function(spd) {
     ),
     Value = as.character(c(
       sum(spd$freq),
-      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Homeless", "Inactive"), "freq"]),
-      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Housed"), "freq"])
+      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Housed"), "freq"]),
+      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Homeless", "Inactive"), "freq"])
     ))
   )
 }
@@ -252,9 +252,11 @@ get_sankey_data <- reactive({
 
   plot_df %>%
     fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 
-    fmutate(Begin = fct_relevel(Begin, "Homeless", after = 0)) %>% 
-    fmutate(End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
-            End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
-            )
+    fmutate(
+      Begin = fct_drop(Begin, inflow_detail_levels),
+      Begin = fct_relevel(Begin, "Homeless", after = 0),
+      End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
+      End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
+    )
   
 })
