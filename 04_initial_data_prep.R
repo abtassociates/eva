@@ -398,7 +398,7 @@ activeInventory <- Inventory %>%
   )
 
 # Filter out overflow beds
-activeInv_no_overflow <- qDT(activeInventory) %>% 
+activeInv_no_overflow <- activeInventory %>% 
   fsubset(
     (is.na(Availability) | Availability != 3) &
       BedInventory > 0 & !is.na(BedInventory)
@@ -447,12 +447,13 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
     multiple = TRUE
   ) %>% 
   fsubset(ProjectType %in% project_types_w_beds) %>% # filter to ProjectType with Beds
-  fsubset(ProjectType!=13 | RRHSubType ==2) %>% # filter RRH projects (ProjectType 13) to subtype 2
+  fsubset(ProjectType!=rrh_project_type | RRHSubType ==2) %>% # filter RRH projects to subtype 2
   # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
   fmutate(
     ProjectHMISParticipationStart = pmax(
       HMISParticipationStatusStartDate, 
-      OperatingStartDate
+      OperatingStartDate,
+      na.rm = TRUE
     ),
     ProjectHMISParticipationEnd = pmin(
       HMISParticipationStatusEndDate,
@@ -461,7 +462,8 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
     ),
     ProjectHMISActiveParticipationStart = pmax(
       ProjectHMISParticipationStart,
-      InventoryStartDate
+      InventoryStartDate,
+      na.rm = TRUE
     ),
     ProjectHMISActiveParticipationEnd = pmin(
       ProjectHMISParticipationEnd,
