@@ -68,6 +68,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
         ymin = ystart,
         ymax = yend
       ),
+      linewidth = 0.5,
       colour ='black'
     ) +
     
