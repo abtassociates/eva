@@ -249,28 +249,6 @@ get_sankey_data <- reactive({
   
   req(nrow(plot_df) > 0)
 
-  allu <- plot_df %>%
-    count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
-    mutate(
-      Begin = factor(Begin, levels = rev(active_at_levels)), # Or c("Housed", "Homeless") depending on desired order
-      
-      End = ifelse( # Prepend "Enrolled, " for specific values
-        End %in% active_at_levels,
-        paste0("Enrolled, ", End),
-        End
-      ),
-      
-      End = factor(
-        End,
-        levels = c(
-          "Exited, Non-Permanent",
-          "Enrolled, Homeless",
-          "Inactive",
-          "Exited, Permanent",
-          "Enrolled, Housed"
-        )
-      )
-    )
-  
-  allu
+  plot_df %>%
+    fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq")
 })
