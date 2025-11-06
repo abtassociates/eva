@@ -4,13 +4,13 @@
 bar_colors <- c(
   "Inflow" = get_brand_color('med_grey'), 
   "Outflow" = get_brand_color('med_grey'),
-  "First-Time \nHomeless" = get_brand_color('med_grey'), 
-  "Returned from \nPermanent" = get_brand_color('med_grey'),
-  "Re-engaged from \nNon-Permanent" = get_brand_color('med_grey'),
-  "Exited, \nNon-Permanent" = get_brand_color('light_coral'),
+  "First-Time Homeless" = get_brand_color('med_grey'), 
+  "Returned from Permanent" = get_brand_color('med_grey'),
+  "Re-engaged from Non-Permanent" = get_brand_color('med_grey'),
+  "Exited, Non-Permanent" = get_brand_color('light_coral'),
   "Exited, Non-Permanent" = get_brand_color('light_coral'),
   "Active at Start: Homeless" = get_brand_color("coral"),
-  "Exited, \nPermanent" = get_brand_color('light_blue'),
+  "Exited, Permanent" = get_brand_color('light_blue'),
   "Exited, Permanent" = get_brand_color('light_blue'),
   "Active at End: Housed" = get_brand_color("dark_blue"),
   "Enrolled, Housed" = get_brand_color('dark_blue2'),
@@ -22,7 +22,7 @@ bar_colors <- c(
 
 mbm_bar_colors <- bar_colors[c("Active at Start: Homeless", "Inflow", "Outflow", "Active at End: Housed")]
 
-mbm_single_status_chart_colors <- bar_colors[c("First-Time \nHomeless","Inactive")]
+mbm_single_status_chart_colors <- bar_colors[c("First-Time Homeless","Inactive")]
 
 
 ## fill patterns from fillpattern package
@@ -30,12 +30,12 @@ mbm_pattern_fills <- c(
   "Housed" = '',
   "Homeless" = '',
   "Inflow" = 'grid_solid',
-  "First-Time \nHomeless" = "grid_solid",
+  "First-Time Homeless" = "grid_solid",
   "Active at Start: Homeless" = "grid_solid",
-  "Returned from \nPermanent" = "grid_solid",
-  "Re-engaged from \nNon-Permanent" = "grid_solid",
-  "Exited, \nNon-Permanent" = "stripe120_longdash",
-  "Exited, \nPermanent" = "stripe120_longdash",
+  "Returned from Permanent" = "grid_solid",
+  "Re-engaged from Non-Permanent" = "grid_solid",
+  "Exited, Non-Permanent" = "stripe120_longdash",
+  "Exited, Permanent" = "stripe120_longdash",
   "Outflow" = 'stripe120_longdash',
   "Inactive" = 'stripe120_longdash',
   "Active at End: Housed" = 'stripe120_longdash'

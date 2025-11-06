@@ -239,3 +239,12 @@ to group All + Grouped Race selections*/
   background-color: #16697A;
   border-color: #16697A;
 }
+
+/*Hide "Eva has crashed..." pop-up when timeout occurs*/
+body.idle-timeout-occurred #ss-connect-dialog {
+  display: none !important;
+}
+
+#notice {
+  border: 3px solid #FCB248;
+}

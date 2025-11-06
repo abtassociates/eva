@@ -97,11 +97,7 @@ output$client_level_download_btn <- downloadHandler(
       fselect(c(detail_client_fields, unname(report_status_fields))) %>%
       funique() %>%
       join(earliest_report_info, on = "PersonalID", how="inner") %>%
-      join(latest_report_info, on = "PersonalID", how="inner") %>%
-      fmutate(
-        InflowTypeDetail = str_remove(InflowTypeDetail, "\n"),
-        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n")
-      )
+      join(latest_report_info, on = "PersonalID", how="inner")
 
     setnames(client_level_details, 
              old = report_status_fields, 
@@ -124,7 +120,6 @@ output$client_level_download_btn <- downloadHandler(
           TRUE
         ),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
-        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
         `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
           flast(OutflowTypeDetail),
           "Exited, Permanent" ~ "Yes - Exited, Permanent",
