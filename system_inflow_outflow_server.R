@@ -732,7 +732,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             #data = plot_data[InflowOutflow == "Inflow"] %>%
             fmutate(PlotFillGroups = fct_relevel(
               PlotFillGroups,
-              "Inflow",  "Active at Start: Homeless"
+              rev(mbm_inflow_levels)
             )),
           aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
@@ -743,7 +743,11 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
           size.unit = "pt"
         ) +
         geom_label(
-          data = plot_data[InflowOutflow == "Outflow"],
+          data = plot_data[InflowOutflow == "Outflow"] %>% 
+            fmutate(PlotFillGroups = fct_relevel(
+              PlotFillGroups,
+              mbm_outflow_levels
+            )),
           aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
           color = "black",
