@@ -549,8 +549,7 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       last_lh_date + days_lh_valid,
       ExitAdjust
     ),
-    adjusted_dates = !ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type) | 
-      ProjectType %in% nbn_non_res & ExitAdjust == no_end_date
+    adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 
