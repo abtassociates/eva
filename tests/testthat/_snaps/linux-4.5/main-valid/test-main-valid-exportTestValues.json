@@ -1101,32 +1101,32 @@
       "Begin": [
         "Housed",
         "Housed",
+        "Homeless",
         "Housed",
-        "Housed",
         "Homeless",
         "Homeless",
         "Homeless",
-        "Homeless"
+        "Housed"
       ],
       "End": [
-        "Enrolled, Housed",
-        "Enrolled, Homeless",
-        "Exited, Non-Permanent",
         "Exited, Permanent",
-        "Enrolled, Housed",
-        "Enrolled, Homeless",
+        "Housed",
         "Exited, Non-Permanent",
-        "Exited, Permanent"
+        "Exited, Non-Permanent",
+        "Homeless",
+        "Housed",
+        "Exited, Permanent",
+        "Homeless"
       ],
       "freq": [
-        262,
-        14,
-        59,
         240,
-        38,
-        73,
+        262,
         72,
-        118
+        59,
+        73,
+        38,
+        118,
+        14
       ]
     },
     "systemDQ_download": {
