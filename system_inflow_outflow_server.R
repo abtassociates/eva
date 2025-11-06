@@ -732,7 +732,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             #data = plot_data[InflowOutflow == "Inflow"] %>%
             fmutate(PlotFillGroups = fct_relevel(
               PlotFillGroups,
-              "Inflow",  "Active at Start: Homeless"
+              rev(mbm_inflow_levels)
             )),
           aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
@@ -743,7 +743,11 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
           size.unit = "pt"
         ) +
         geom_label(
-          data = plot_data[InflowOutflow == "Outflow"],
+          data = plot_data[InflowOutflow == "Outflow"] %>% 
+            fmutate(PlotFillGroups = fct_relevel(
+              PlotFillGroups,
+              mbm_outflow_levels
+            )),
           aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
           color = "black",
@@ -917,18 +921,21 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 
 
 ### Table --------------------------------------
+monthly_chart_data_wide_for_tables <- function() {
+  sys_monthly_chart_data_wide() %>%
+    fsubset(
+      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
+        !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
+    ) %>% 
+    fmutate(PlotFillGroups = fct_relevel(PlotFillGroups, mbm_inflow_levels, mbm_outflow_levels)) %>% 
+    roworder(PlotFillGroups)
+}
 # The table is positioned directly under the chart
 # Making the month labels looks like both the chart's x-axis and the table's column headers
 get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
 
-  summary_data_wide <- sys_monthly_chart_data_wide() %>%
-    fmutate(PlotFillGroups = fct_relevel(PlotFillGroups, 'Active at Start: Homeless', 'Inflow', 'Outflow', 'Active at End: Housed')) %>% 
-    fsubset(
-      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
-      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    ) %>% 
-    roworder(PlotFillGroups)
+  summary_data_wide <- monthly_chart_data_wide_for_tables()
   
   req(nrow(summary_data_wide) > 0)
   
@@ -1037,11 +1044,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
   logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
-  d <- sys_monthly_chart_data_wide() %>% 
-    fsubset(
-      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") & 
-      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    ) %>%
+  d <- monthly_chart_data_wide_for_tables() %>% 
     fselect(-Detail, -Summary)
     
   d <- collap(
