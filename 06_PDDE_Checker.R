@@ -482,7 +482,7 @@ ES_BedType_HousingType <- activeInventory %>%
   fselect(PDDEcols)
 
 # No Enrollments in Services for NbN Project ------------------------------------
-
+if(nrow(Services) > 0) {
 nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were NBN and had HMIS Participation
   fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
   funique() %>%
@@ -496,6 +496,7 @@ nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were 
   fungroup()
 
 rm(nbn_w_hmis_participation, services_chk)
+
 nbn_nobns <- nbn_nobns %>% filter(miss_all_enroll) # filter to projects with all enrollmentID missing
 
 nbn_nobns <- nbn_nobns %>% 
@@ -503,7 +504,9 @@ nbn_nobns <- nbn_nobns %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols) %>%
   unique()
-
+} else {
+  nbn_nobns <- data.table()
+}
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
 activeInventory_COC_merged <-  join(
