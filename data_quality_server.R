@@ -737,14 +737,17 @@ bed_unit_inv <- reactive({
     #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
     Bed_Unit_Count <- HMIS_participating_projects_w_active_inv_no_overflow %>% 
       fgroup_by(ProjectID) %>%
+      fmutate(activeInv = InventoryStartDate <= PIT & (is.na(InventoryEndDate) | InventoryEndDate > PIT)) %>%
+      fmutate(Beds = ifelse(activeInv, BedInventory, 0),
+              Units = ifelse(activeInv, UnitInventory, 0) )
       fsummarise(
-        PIT_Beds = sum(ifelse(InventoryStartDate <= PIT & (is.na(InventoryEndDate) | InventoryEndDate > PIT), BedInventory, 0), na.rm = T),
-        PIT_Units = sum(ifelse(InventoryStartDate <= PIT & (is.na(InventoryEndDate) | InventoryEndDate > PIT), UnitInventory, 0),  na.rm = T)
+        PIT_Beds = sum(Beds, na.rm = T),
+        PIT_Units = sum(Units, na.rm = T)
        ) %>%
       fungroup()
     return(Bed_Unit_Count)
   }
-  count_Bed_Nights <-function(PIT){
+  count_Enrollments <-function(PIT){
     #For each relevant project and using the EnrollmentAdjust data frame, count the number of people "served in a bed" on each of the 4 PIT Dates.
     #For an enrollment to be considered "active" on a PIT Date it must meet the following logic: EntryDate <= [PIT Date] and ExitAdjust > [PIT Date] or is NULL
     #Exclude any ES - NbN enrollments where there is no Bed Night record on [PIT Date]
@@ -760,16 +763,16 @@ bed_unit_inv <- reactive({
     Bed_Unit_Util <- EnrollmentAdjust %>%
       join(services_qPIT, on = "EnrollmentID", how = "left") %>%
       fgroup_by(ProjectID) %>%
+      fmutate(activeEnroll = EntryDate <= PIT & (is.na(ExitAdjust) | ExitAdjust > PIT),  # Enrollment Active
+              eligProj = (ProjectType != es_nbn_project_type | any(has_bn_PIT)), # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on PIT
+              eligPerm = (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= PIT)) %>% # Enrollment NOT Permanent OR MoveInDateAdjust >= PIT
+      fmutate(Served = ifelse( activeEnroll & eligProj & eligPerm, 1, 0),
+              HH_Served = ifelse(activeEnroll & eligProj & eligPerm &
+                                   RelationshipToHoH==1, # count households by just counting enrollments that are head of household
+                                 1, 0))
       fsummarise(
-        PIT_Served = sum(ifelse(EntryDate <= PIT & (is.na(ExitAdjust) | ExitAdjust > PIT) & # Enrollment Active
-                                  (ProjectType != es_nbn_project_type | any(has_bn_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on PIT
-                                  (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= PIT), # Enrollment NOT Permanent OR MoveInDateAdjust >= PIT
-                                1, 0)),
-        PIT_HH_Served = sum(ifelse(EntryDate <= PIT & (is.na(ExitAdjust) | ExitAdjust > PIT) & # Enrollment Active
-                                     (ProjectType != es_nbn_project_type | any(has_bn_PIT)) & # Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on PIT
-                                     (!LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= PIT) & # Enrollment NOT Permanent OR MoveInDateAdjust >= PIT
-                                     RelationshipToHoH==1, # count households by just counting enrollments that are head of household
-                                   1, 0)))%>%
+        PIT_Served = sum(Served),
+        PIT_HH_Served = sum(HH_Served))%>%
       fungroup()  %>% subset(!is.na(PIT_Served))
     return(Bed_Unit_Util)
   } 
@@ -778,7 +781,7 @@ bed_unit_inv <- reactive({
     bed_unit_inv_q <- count_Beds_Units(quarters[q]) %>% 
       fmutate(PIT = quarters[q]) # add column identifying the quarter
     bed_unit_inv_q <- bed_unit_inv_q %>%
-      join( count_Bed_Nights(quarters[q]), how = "full")
+      join( count_Enrollments(quarters[q]), how = "full")
     assign(paste0("bed_unit_inv_q",q), bed_unit_inv_q)
   }
   
