@@ -37,7 +37,7 @@ output$glossary <- renderDT({
     
     "System Performance Filters",
     "Household Type",
-    "A single-select universal filter. Eva allows users to filter system performance 
+    "A single-select universal filter that allows users to filter system performance 
     data by three main household types: Adult Only, Adult Child, and Child Only. 
     Household categorization is based on the age of household members on the first day 
     of the report period (or at entry, if later). Eva also allows users to look at 
@@ -82,7 +82,7 @@ output$glossary <- renderDT({
     
     "System Performance Filters",
     "Level of Detail",
-    "A single-select universal filter. Eva allows users to filter system performance 
+    "A single-select universal filter that allows users to filter system performance 
     data by three levels of detail: All People, Heads of Household Only, and Heads 
     of Household and Adults.",
     
@@ -102,7 +102,7 @@ output$glossary <- renderDT({
     
     "System Performance Filters",
     "Project Type Group",
-    "A single-select universal filter. Eva allows users to filter system performance 
+    "A single-select universal filter that allows users to filter system performance 
     data by six project type groups: All Project Types, All Residential Projects, Residential: 
     Homeless Projects, Residential: Permanent Housing Projects, All Non-Residential Projects, 
     and Non-Residential: Street Outreach Projects. Eva system performance metrics and statuses 
@@ -114,76 +114,79 @@ output$glossary <- renderDT({
     
     "System Performance Filters",
     "All Project Types",
-    "The default Project Type Group selection that includes all clients in all HUD-defined 
-    project types, with the exclusion of Homelessness Prevention projects. This selection provides 
+    "A Project Type Group selection that includes all clients in all HUD-defined 
+    project types, with the exclusion of Homelessness Prevention projects. This is 
+    the default selection for the Project Type Group filter and provides
     the most complete picture of system engagement for households who were enrolled in both 
     Residential and Non-Residential projects during the report period.",
     
     "System Performance Filters",
     "All Residential Projects",
-    "A Project Type Group selection that only includes clients in residential projects. 
-    A residential project provides overnight accommodations and includes projects that 
-    are meant to be long-term. Project types that are considered as residential projects 
-    include: Emergency Shelter (ES) – Entry/Exit, ES - Night-by-Night, Safe Haven (SH), 
-    Transitional Housing (TH), Permanent Housing (PH) - Housing Only, PH - Housing with Services, 
-    PH - Permanent Supportive Housing, PH - Rapid Re-housing (RRH): Housing with or without services, and 
-    PH - Rapid Re-housing (RRH): Services Only. Clients enrolled in residential project 
-    types are considered to be experiencing homelessness as of the enrollment’s Project 
-    Start Date. A client enrolled in a permanent housing project who has moved into housing 
-    (i.e., has a move-in date) would no longer be considered as experiencing homelessness.",
+    "A Project Type Group selection that only includes clients in projects that provide overnight 
+    accommodation. Project types that are considered as residential projects include: Emergency 
+    Shelter (ES) – Entry/Exit, ES - Night-by-Night, Safe Haven (SH), Transitional Housing (TH), 
+    Permanent Housing (PH) - Housing Only, PH - Housing with Services, PH - Permanent Supportive Housing, 
+    PH - Rapid Re-housing (RRH): Housing with or without services, and PH - Rapid Re-housing (RRH): Services Only. 
+    Clients enrolled in residential project types are considered to be experiencing homelessness 
+    as of the enrollment’s Project Start Date. A client enrolled in a permanent housing project 
+    who has moved into housing (i.e., has a Move-In Date) would no longer be considered as experiencing 
+    homelessness. A Move-In Date that is after the Project Exit Date is considered a data quality issue, 
+    and that Move-In Date is ignored.",
 
     "System Performance Filters",
     "Residential: Homeless Projects",
     "A Project Type Group selection that only includes clients in a specific subset of residential 
-    projects. Project types that are considered as residential homeless projects include: 
-    Emergency Shelter (ES) – Entry/Exit, ES - Night-by-Night, Safe Haven (SH), and 
+    projects: Emergency Shelter (ES) – Entry/Exit, ES - Night-by-Night, Safe Haven (SH), and 
     Transitional Housing (TH). Clients enrolled in residential homeless project types are 
-    considered to be experiencing homelessness as of the enrollment’s Project Start Date. For the 
-    purposes of System Performance, for any Emergency Shelter – Night-by-Night enrollment without 
-    an Exit Date, Eva sets the Exit Date to be 15 days after the last recorded Bed Night or 15 days 
+    considered to be experiencing homelessness as of the enrollment’s Project Start Date. 
+    For the purposes of System Performance, for ES – Night-by-Night enrollments without Exit 
+    Dates, Eva sets the Exit Date to be 15 days after the last recorded Bed Night or 15 days 
     after the Entry Date, whichever is later.",
 
     "System Performance Filters",
     "Residential: Permanent Housing Projects",
-    "A Project Type Group selection that only includes clients in a specific subset of 
-    residential projects. Project types that are considered as residential permanent 
-    housing projects include: Permanent Housing (PH) - Housing Only, PH - Housing with Services, 
-    PH - Permanent Supportive Housing, PH - Rapid Re-housing (RRH): Housing with or without services, and 
-    PH - Rapid Re-housing (RRH): Services Only. Clients enrolled in residential project 
-    types are considered to be experiencing homelessness as of the enrollment’s Project Start Date. 
-    A client enrolled in a permanent housing project who has moved into housing (i.e., has a move-in date) 
-    would no longer be considered as experiencing homelessness.",
+    "A Project Type Group selection that only includes clients in a specific subset of residential 
+    projects: Permanent Housing (PH) - Housing Only, PH - Housing with Services, PH - Permanent 
+    Supportive Housing, PH - Rapid Re-housing (RRH): Housing with or without services, and 
+    PH - Rapid Re-housing (RRH): Services Only. Clients enrolled in residential project types are 
+    considered to be experiencing homelessness as of the enrollment’s Project Start Date. A client 
+    enrolled in a permanent housing project who has moved into housing (i.e., has a move-in date) 
+    would no longer be considered as experiencing homelessness. A Move-In Date that is after the 
+    Project Exit Date is considered a data quality issue, and that Move-In Date is ignored.",
     
     "System Performance Filters",
     "All Non-Residential Projects",
-    "A Project Type Group selection that only includes clients in non-residential projects. A 
-    non-residential project does not provide overnight accommodations. Project types that are 
-    considered as non-residential include: Street Outreach, Day Shelter, Supportive Services Only, 
-    Coordinated Entry, and Other. Since non-residential projects can serve both people who are 
-    experiencing homelessness and those who are housed, clients enrolled in these project types 
-    must have a documented homeless living situation in the Prior Living Situation (PLS) and/or a 
-    Current Living Situation (CLS) record to be included in Eva’s system performance calculations. 
-    For Eva to consider clients active in long-term, non-residential project enrollments, there 
-    must be a homeless living situation documented in a CLS record every 60 days with the exception 
-    of Coordinated Entry enrollments which requires a CLS record every 90 days. For the purposes of 
-    System Performance, and for all non-residential project enrollments except for Street Outreach, 
-    Eva “resets” the enrollment Entry Date to the date of the enrollment’s first literally homeless 
-    CLS record if the enrollment does not have a literally homeless PLS. Additionally, for any 
-    non-residential enrollment without an Exit Date, Eva sets the Exit Date to be 60 days after the 
-    last literally homeless CLS recorded for the enrollment or after the literally homeless PLS, 
-    whichever is later. The exception is Coordinated Entry, which uses 90 days.",
+    "A Project Type Group selection that only includes clients in projects that do not provide overnight 
+    accommodation. Project types that are considered as non-residential include: Street Outreach, 
+    Day Shelter, Supportive Services Only, Coordinated Entry, and Other. Since non-residential projects 
+    can serve both people who are experiencing homelessness and those who are housed, non-residential 
+    enrollments must have a documented homeless living situation in the Prior Living Situation (PLS) 
+    and/or a Current Living Situation (CLS) record to be included in Eva’s system performance calculations. 
+    For the purposes of System Performance, clients are considered active in long-term, non-residential 
+    project enrollments if there is a homeless living situation documented in a CLS record every 60 days. 
+    Coordinated Entry enrollments require a CLS record every 90 days to be considered active. Additionally, 
+    non-residential enrollments are considered active 15 days prior to the enrollment exit date if the exit 
+    destination is to a homeless, institutional, temporary housing, or permanent housing destination. 
+    For all non-residential project enrollments except for Street Outreach, Eva “resets” the enrollment 
+    Entry Date to the date of the enrollment’s first literally homeless CLS record if the enrollment does 
+    not have a literally homeless PLS. Additionally, for any non-residential enrollment without an Exit Date, 
+    Eva sets the Exit Date to be 60 days after the last literally homeless CLS recorded for the enrollment 
+    or after the literally homeless PLS, whichever is later. The exception is Coordinated Entry, which uses 90 days.",
 
     "System Performance Filters",
     "Non-Residential: Street Outreach Projects",
-    "A Project Type Group selection that only includes clients in Street Outreach projects. Clients 
-    enrolled in Street Outreach are assumed to be experiencing homelessness as of the enrollment’s 
-    Project Start Date. For Eva to consider clients active in long-term, Street Outreach enrollments, 
-    there must be a homeless living situation documented in a Current Living Situation (CLS) record 
-    every 60 days. Clients enrolled in Street Outreach for less than 60 days are considered to be 
-    experiencing homelessness for the entire duration of that enrollment, even if there was no CLS 
-    record entered within that time period. For any Street Outreach enrollment without an Exit Date, 
-    Eva sets the Exit Date to be 60 days after the last literally homeless CLS recorded for the 
-    enrollment or after the literally homeless PLS, whichever is later.",
+    "A Project Type Group selection that only includes clients in Street Outreach projects. 
+    Clients enrolled in Street Outreach are assumed to be experiencing homelessness as of 
+    the enrollment’s Project Start Date. For Eva to consider clients active in long-term, 
+    Street Outreach enrollments, there must be a homeless living situation documented in a 
+    Current Living Situation (CLS) record every 60 days. Additionally, inactive Street Outreach 
+    enrollments are considered active 15 days prior to the enrollment exit date if the exit 
+    destination is to a homeless, institutional, temporary housing, or permanent housing 
+    destination. Clients enrolled in Street Outreach for less than 60 days are considered 
+    to be experiencing homelessness for the entire duration of that enrollment, even if 
+    there was no CLS record entered within that time period. For any Street Outreach enrollment 
+    without an Exit Date, Eva sets the Exit Date to be 60 days after the last literally homeless 
+    CLS recorded for the enrollment or after the literally homeless PLS, whichever is later.",
     
     "System Performance Filters",
     "Race/Ethnicity Methodology Type",
@@ -452,39 +455,36 @@ output$glossary <- renderDT({
     
     "System Flow Chart",
     "Total Change",
-    "Used in the System Flow Summary and Detail charts. Total Change is calculated 
-    by subtracting the number of clients who flowed out of the system from the 
-    number of clients who flowed into the system (Inflow – Outflow). This value 
-    can be positive or negative. A negative change value means more clients left 
-    the system than flowed into the system. A positive change value means more 
-    clients flowed into the system than left the system.",
+    "Total Change is calculated by subtracting the number of clients who flowed out 
+    of the system from the number of clients who flowed into the system (Inflow – Outflow). 
+    This value can be positive or negative. A negative change value means more clients left 
+    the system than flowed into the system. A positive change value means more clients 
+    flowed into the system than left the system. Used in the System Flow Summary and Detail charts.",
 
     "System Flow Chart",
     "Monthly Change",
-    "Used in the System Flow Month-by-Month chart. Monthly Change is calculated by 
-    subtracting the number of clients who flowed out of the system from the number 
-    of clients who flowed into the system for a given month (Inflow – Outflow). 
-    This value can be positive or negative. A negative change value means more clients 
-    left the system than flowed into the system for that month. A positive change value 
-    means more clients flowed into the system than left the system.",
+    "Monthly Change is calculated by subtracting the number of clients who flowed out of the 
+    system from the number of clients who flowed into the system for a given month (Inflow – Outflow). 
+    This value can be positive or negative. A negative change value means more clients left the 
+    system than flowed into the system for that month. A positive change value means more clients 
+    flowed into the system than left the system. Used in the System Flow Month-by-Month chart.",
 
     "System Flow Chart",
     "Average Monthly Inflow",
-    "Used in the System Flow Month-by-Month chart. Average Monthly Inflow is calculated by 
-    summing all monthly Inflow values and dividing by 12.",
+    "Average Monthly Inflow is calculated by summing all monthly Inflow values and dividing by 12. 
+    Inflow values exclude Continuous at Start and Unknown at Start. Used in the System Flow Month-by-Month chart.",
 
     "System Flow Chart",
     "Average Monthly Outflow",
-    "Used in the System Flow Month-by-Month chart. Average Monthly Outflow is calculated by 
-    summing all monthly Outflow values and dividing by 12.",
+    "Average Monthly Outflow is calculated by summing all monthly Outflow values and dividing by 12. 
+    Outflow values exclude Continuous at End. Used in the System Flow Month-by-Month chart.",
 
     "System Flow Chart",
     "Average Monthly Change",
-    "Used in the System Flow Month-by-Month chart. Average Monthly Change is calculated by 
-    summing all Monthly Change values and dividing by 12. This value can be positive or 
-    negative. A negative change value means more clients left the system than flowed 
-    into the system for that month. A positive change value means more clients flowed 
-    into the system than left the system.",
+    "Average Monthly Change is calculated by summing all Monthly Change values and dividing by 12. 
+    This value can be positive or negative. A negative change value means more clients left the 
+    system than flowed into the system for that month. A positive change value means more clients 
+    flowed into the system than left the system. Used in the System Flow Month-by-Month chart.",
     
     "System Flow Chart",
     "Homeless (Active at Start)",
@@ -520,26 +520,35 @@ output$glossary <- renderDT({
 
     "System Flow Chart",
     "Continuous at Start",
-    "Used in the System Flow Month-by-Month chart. This system status indicates a 
-    client with an enrollment entry date within a given month who is not categorized 
-    as Active at Start or Inflow due to having an exit in the previous month that is 
-    within 14 days of the entry date in the given month. While this category is not 
-    displayed on the chart, monthly counts are provided in the chart’s data download.",
+    "This system status indicates a client who is not categorized as Active at Start or 
+    Inflow for a given month but who is experiencing homelessness during that month. 
+    Used in the System Flow Month-by-Month chart. While this category is not displayed 
+    on the chart, monthly counts are provided in the chart’s data download.",
 
     "System Flow Chart",
     "Continuous at End",
-    "Used in the System Flow Month-by-Month chart. This system status indicates a client 
-    with an enrollment exit date within a given month who is not categorized as Active at 
-    End or Outflow due to having an entry in the next month that is within 14 days of the 
-    exit date in the given month. While this category is not displayed on the chart, 
-    monthly counts are provided in the chart’s data download.",
+    "This system status indicates a client who is not categorized as Active at End or 
+    Outflow for a given month but who is experiencing homelessness during that month. 
+    Used in the System Flow Month-by-Month chart. While this category is not displayed 
+    on the chart, monthly counts are provided in the chart’s data download.",
+
+    "System Flow Chart",
+    "Unknown at Start",
+    "This system status indicates a client who is inactive in a non-residential 
+    enrollment at the start of the period, exits that enrollment later in the same period, 
+    and has no other enrollment entry or homeless CLS record during that period which 
+    could provide information for a different inflow status. Used in the System Flow 
+    Month-by-Month chart. While this category is not displayed on the chart, monthly 
+    counts are provided in the chart’s data download.",
     
     "System Flow Chart",
     "Inflow",
-    "The number of clients that entered or flowed into the system. This status
-    indicates a client entered a system project after the report period’s start
-    date. This status excludes all clients who were counted as homeless or housed
-    at the start of the report period.",
+    "The number of clients that entered or flowed into the system. This status indicates 
+    a client entered a system project after the report period’s start date. This status 
+    excludes all clients who were counted as homeless or housed at the start of the report 
+    period. In the System Flow Month-by-Month chart, Continuous at Start and Unknown at 
+    Start are not considered true inflow and are excluded from inflow counts and calculations 
+    on the chart.",
     
     "System Flow Chart",
     "First-Time Homeless",
@@ -559,20 +568,20 @@ output$glossary <- renderDT({
 
     "System Flow Chart",
     "Re-engaged from Non-Permanent",
-    "This inflow system status indicates a client who entered the system after the 
-    report period’s start date and who had a previous exit to a homeless, temporary, 
-    institutional destination or unknown destination within the 24 months prior to 
-    their entry. A temporary destination could be a hotel or motel paid for without 
-    an ES voucher. An institutional destination refers to group/assisted living, a 
-    medical facility, or incarceration. An unknown destination often refers to when 
-    a client does not report their exit destination. Additionally, clients may be 
-    considered Re-engaged from Non-Permanent if they are enrolled in a non-residential 
-    project in which they are considered “Inactive” as of the report period’s start 
-    date who then: (1) have a documented homeless living situation in a Current Living 
-    Situation record later during the report period, or (2) exit the Inactive enrollment, 
-    or (3) are enrolled in a different project with an entry date that overlaps with 
-    the Inactive enrollment. These clients are considered to be re-engaging with the 
-    system from an unknown situation.",
+    "This inflow system status indicates a client who entered the system after 
+    the report period’s start date and who had a previous exit to a homeless, 
+    temporary, institutional destination or unknown destination within the 24 
+    months prior to their entry. A temporary destination could be a hotel or 
+    model paid for without an ES voucher. An institutional destination refers to 
+    group/assisted living, a medical facility, or incarceration. An unknown 
+    destination often refers to when a client does not report their exit destination. 
+    Additionally, clients may be considered Re-engaged from Non-Permanent if they 
+    are enrolled in a non-residential project in which they are considered “Inactive” 
+    who then: (1) have a documented homeless living situation in a Current Living 
+    Situation record later during the report period, (2) are considered active 15 
+    days prior to an exit, or (3) are enrolled in a different project with an entry 
+    date that overlaps with the Inactive enrollment. These clients are considered 
+    as re-engaging with the system from an unknown situation (i.e., a period of inactivity).",
 
     "System Flow Chart",
     "Inflow Unspecified",
@@ -584,10 +593,12 @@ output$glossary <- renderDT({
     
     "System Flow Chart",
     "Outflow",
-    "The number of clients that left or flowed out of the system. This status
-    indicates a client exited a system project after the report period’s start
-    date and before the report period’s end date. A client cannot be counted in
-    both outflow and active at end.",
+    "The number of clients that left or flowed out of the system. This status 
+    indicates a client exited a system project after the report period’s start 
+    date and before the report period’s end date. A client cannot be counted in 
+    both outflow and active at end. In the System Flow Month-by-Month chart, 
+    Continuous at End is not considered true outflow and is excluded from outflow 
+    counts and calculations on the chart.",
     
     "System Flow Chart",
     "Exited, Non-Permanent",
