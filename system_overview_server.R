@@ -394,6 +394,7 @@ period_specific_data <- reactive({
     get_inflows_and_outflows() %>%
     remove_sequential_inactives()
   
+  exportTestValues(period_data = period_data)
   if(IN_DEV_MODE) {
     inflow_outflow_qc_checks(period_data)
     # browser()

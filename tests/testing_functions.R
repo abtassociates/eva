@@ -152,7 +152,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     "client_count_download_detail", 
     "dq_main",
     "pdde_main",
-    "universe_ppl_flags",
+    "period_data",
     "sys_comp_df",
     "dq_overlaps"
   )
