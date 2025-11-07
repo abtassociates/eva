@@ -474,10 +474,8 @@ reset_postvalid_components <- function(session) {
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
   session$sendCustomMessage('dateRangeCount', list(
-    min = NULL,
-    start = ymd(today()),
-    max = NULL,
-    end = ymd(today())
+    start = NA,
+    end = NA
   ))
   session$userData$pdde_main <- NULL
   
