@@ -466,14 +466,10 @@ inflow_debug_cols <- c(
   "PersonalID",
   "period",
   "EnrollmentID",
-  "eecr",
   "ProjectType",
   "EntryDate",
   "MoveInDateAdjust",
   "ExitAdjust",
-  "lh_prior_livingsituation",
-  "was_lh_at_start",
-  "was_housed_at_start",
   "InflowTypeDetail",
   "lh_dates"
 )
@@ -483,17 +479,18 @@ outflow_debug_cols <- c(
   "PersonalID",
   "period",
   "EnrollmentID",
-  "lecr",
   "ProjectType",
   "EntryDate",
   "MoveInDateAdjust",
   "ExitAdjust",
-  "lh_prior_livingsituation",
-  "was_lh_at_end",
-  "was_housed_at_end",
   "OutflowTypeDetail",
   "lh_dates"
 )
 
-# IN_DEV_MODE <- FALSE
+## files included in DQ Export Interface
+dq_file_options <- data.frame(
+  all = "All Data Quality Reports",
+  report = c("Project Dashboard Report", "PDDE Report", "Data Quality Report")#, "Bed & Unit Utilization Report")
+)
+
 IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))

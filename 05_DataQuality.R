@@ -1476,6 +1476,12 @@ conflicting_ncbs_entry <- base_dq_data %>%
   fselect(vars_we_want)
     
 # Missing bed night for NBN Enrollment Entry ---------------------------------------
+nbn_w_hmis_participation <- base_dq_data %>% 
+  fsubset(ProjectType == es_nbn_project_type) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) 
+
+if(nrow(Services) > 0) {
 services_chk <- Services %>%
   fselect(EnrollmentID, DateProvided)  %>% 
   join(Enrollment %>% fselect(EnrollmentID, EntryDate, ExitAdjust), on = "EnrollmentID", how = 'left') %>% 
@@ -1488,11 +1494,6 @@ services_chk <- Services %>%
     has_bn_eq_entry = any(bn_eq_entry, na.rm=TRUE),
     has_bn_eq_exit = any(bn_eq_exit, na.rm=TRUE)
   ) 
-
-nbn_w_hmis_participation <- base_dq_data %>% 
-  fsubset(ProjectType == es_nbn_project_type) %>%
-  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) 
 
 missing_bn1 <- nbn_w_hmis_participation %>% 
   join(services_chk, on = "EnrollmentID", how = 'anti') # EnrollmentID does NOT appear in services
@@ -1507,7 +1508,7 @@ missing_bn2 <- services_chk1 %>%
 missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
   merge_check_info_dt(checkIDs = 107) %>% 
   fselect(all_of(vars_we_want)) %>%
-  unique()
+  funique()
 
 # Bed night available for NBN Enrollment Exit ---------------------------------------
 bn_on_exit <- services_chk1  %>% 
@@ -1521,6 +1522,11 @@ bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
 
 rm(missing_bn1, missing_bn2, services_chk1) 
 # don't get rid of missing_bn0 & services_chk so it can be used in 06_PDDE_Checker.R
+} else {
+  services_chk <- data.table()
+  bn_on_exit <- data.table()
+  missing_bn_entry <- data.table()
+}
 
 
 # SSVF --------------------------------------------------------------------

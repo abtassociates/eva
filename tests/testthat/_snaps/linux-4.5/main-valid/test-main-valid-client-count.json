@@ -521,7 +521,7 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Child&quot;,&quot;Head of Household&quot;,&quot;Spouse or Partner&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.55952e+12\" data-max=\"1663718400000\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1569974400000\" data-max=\"1.663632e+12\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Currently in project (9 days)&quot;,&quot;Currently in project (10 days)&quot;,&quot;Currently in project (22 days)&quot;,&quot;Currently in project (29 days)&quot;,&quot;Currently in project (35 days)&quot;,&quot;Currently in project (37 days)&quot;,&quot;Currently in project (45 days)&quot;,&quot;Currently in project (57 days)&quot;,&quot;Currently in project (91 days)&quot;,&quot;Currently in project (232 days)&quot;,&quot;Currently in project (241 days)&quot;,&quot;Currently in project (313 days)&quot;,&quot;Currently in project (514 days)&quot;,&quot;Exited project&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Child&quot;,&quot;Head of Household&quot;,&quot;Spouse or Partner&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1.55952e+12\" data-max=\"1663718400000\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\" disabled=\"\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"1\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"date\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1569974400000\" data-max=\"1.663632e+12\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Currently in Project (9 days)&quot;,&quot;Currently in Project (10 days)&quot;,&quot;Currently in Project (22 days)&quot;,&quot;Currently in Project (29 days)&quot;,&quot;Currently in Project (35 days)&quot;,&quot;Currently in Project (37 days)&quot;,&quot;Currently in Project (45 days)&quot;,&quot;Currently in Project (57 days)&quot;,&quot;Currently in Project (91 days)&quot;,&quot;Currently in Project (232 days)&quot;,&quot;Currently in Project (241 days)&quot;,&quot;Currently in Project (313 days)&quot;,&quot;Currently in Project (514 days)&quot;,&quot;Exited Project&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Personal ID<\/th>\n      <th>Enrollment ID<\/th>\n      <th>Relationship to HoH<\/th>\n      <th>Entry Date<\/th>\n      <th>Move in Date <\/th>\n      <th>Exit Date<\/th>\n      <th>Status<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
@@ -776,7 +776,7 @@
       ]
     },
     "headerClientCounts": {
-      "html": "<h2>Client Counts Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerClientCounts_supp\" class=\"shiny-html-output\"><\/div>",
+      "html": "<h2>Project Dashboard Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerClientCounts_supp\" class=\"shiny-html-output\"><\/div>",
       "deps": [
 
       ]
@@ -785,6 +785,111 @@
       "html": "<h4>\n  Organization A‰\n  |\n  Organization A - ES\n<\/h4>",
       "deps": [
 
+      ]
+    },
+    "timelinessTable": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n      <th>Number of Current Living Situation Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "t",
+          "ordering": false,
+          "columnDefs": [
+            {
+              "className": "dt-right",
+              "targets": [
+                1,
+                2,
+                3
+              ]
+            },
+            {
+              "name": "Time for Record Entry",
+              "targets": 0
+            },
+            {
+              "name": "Number of Project Start Records",
+              "targets": 1
+            },
+            {
+              "name": "Number of Project Exit Records",
+              "targets": 2
+            },
+            {
+              "name": "Number of Current Living Situation Records",
+              "targets": 3
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "none",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.2",
+          "src": {
+            "href": "crosstalk-1.2.2"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
       ]
     }
   }

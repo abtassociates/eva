@@ -265,12 +265,12 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
         aes(fill = n)
       ) +
       scale_fill_gradient(
-        low = "#D2E3D9",
-        high = "#084954",
+        low = get_brand_color('light_purple'),
+        high = get_brand_color('dark_purple'),
         na.value = ifelse(
           is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
           "white",
-          "#D2E3D9"
+          get_brand_color('very_light_purple')
         )
       ) +
       # set text color to be 508 compliant contrasting
@@ -424,12 +424,12 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       aes(fill = n)
     ) +
     scale_fill_gradient(
-      low = "#D2E3D9",
-      high = "#084954",
+      low = get_brand_color('light_purple'),
+      high = get_brand_color('dark_purple'),
       na.value = ifelse(
         is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
         "white",
-        "#D2E3D9"
+        get_brand_color('very_light_purple')
       )
     ) + # na.value makes 0s invisible
     # set text color to be 508 compliant contrasting
@@ -467,9 +467,9 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       ) +
       
       scale_fill_gradient(
-        low = "#ede7e3",
-        high = "#73655e",
-        na.value = ifelse(h_total$wasRedacted, "#ede7e3", 'white')
+        low = get_brand_color('light_grey'),
+        high = get_brand_color('dark_grey'),
+        na.value = ifelse(h_total$wasRedacted, get_brand_color('light_grey'), 'white')
       ) +
       
       geom_text(
@@ -494,9 +494,9 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         aes(fill = N)
       ) +
       scale_fill_gradient(
-        low = "#ede7e3",
-        high = "#73655e",
-        na.value = ifelse(v_total$wasRedacted, "#ede7e3", 'white')
+        low = get_brand_color('light_grey'),
+        high = get_brand_color('dark_grey'),
+        na.value = ifelse(v_total$wasRedacted, get_brand_color('light_grey'), 'white')
       ) +
       
       geom_text(
@@ -772,7 +772,7 @@ get_people_universe_filtered <- reactive({
   req(nrow(full_data) > 0)
   
   join(
-    period_specific_data()[["Full"]] %>% fsubset(InflowTypeDetail !=" Excluded", PersonalID),
+    period_specific_data()[["Full"]] %>% fselect(PersonalID),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%

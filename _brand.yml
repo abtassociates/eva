@@ -9,23 +9,28 @@ logo:
 color:
   palette: 
     # primary
-    dark_blue: '#16697A' 
+    dark_blue: '#16697A'
+    dark_blue2: '#214853'
     coral: '#C2462E'
+    coral2: '#8D3D2A'
     blue: '#71B4CB'
     sky: '#D0E7EC'
     
     # secondary
-    grey: '#73655E'
-    light_blue: '#C1DDD7'
+    dark_grey: '#73655E'
+    med_grey: '#CCC7C4'
+    med_grey2: '#4E4D47'
+    light_blue: '#B4C7CB'
     light_grey: '#EDE7E3'
     yellow: '#FCB248'
     
     # data viz 
     sea_green: '#52BFA5'
     orange: '#E8812A'
-    purple: '#7F5D9D'
-    light_purple: '#D5BFE6'
-    
+    dark_purple: '#483075'
+    light_purple: '#D6D1E6'
+    very_light_purple: '#EBE9F1'
+    light_coral: '#D1AB98'
     # app background color
     grey_bg: '#ecf0f5'
   # theme colors  

@@ -9,6 +9,7 @@
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
     "accordion_client_count": null,
+    "accordion_dqexport": null,
     "accordion_dqorg": null,
     "accordion_dqsystem": null,
     "accordion_home": null,
@@ -18,7 +19,9 @@
     "accordion_upload": null,
     "card_filters1_full_screen": false,
     "card_filters2_full_screen": false,
-    "client_count_subtabs": "<h4>Client Counts Summary<\/h4>",
+    "client_count_cc_subtabs": "<h5>Summary<\/h5>",
+    "client_count_subtabs": "<h4>Client Counts<\/h4>",
+    "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
     "currentProviderList": "Organization A - ES",
     "dateRangeCount": [
       "2019-10-01",
@@ -28,6 +31,50 @@
     "dimension": [
       1920,
       1080
+    ],
+    "dq_export_date_multiple": [
+      "2019-10-01",
+      "2022-09-30"
+    ],
+    "dq_export_date_options": "Date Range",
+    "dq_export_date_single": "2022-09-30",
+    "dq_export_export_types": [
+      "Organization-level (multi-select)",
+      "System-level"
+    ],
+    "dq_export_files": [
+      "All Data Quality Reports",
+      "Project Dashboard Report",
+      "PDDE Report",
+      "Data Quality Report"
+    ],
+    "dq_export_orgList": [
+      "Organization A‰",
+      "Organization B",
+      "Organization C",
+      "Organization D",
+      "Organization E",
+      "Organization F",
+      "Organization G",
+      "Organization H",
+      "Organization I",
+      "Organization J",
+      "Organization K",
+      "Organization L",
+      "Organization M",
+      "Organization N",
+      "Organization O",
+      "Organization P",
+      "Organization Q",
+      "Organization R",
+      "Organization S",
+      "Organization T",
+      "Organization U",
+      "Organization V",
+      "Organization W",
+      "Organization X",
+      "Organization Y",
+      "Organization Z"
     ],
     "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
     "fileStructureAnalysis_cell_clicked": {
@@ -98,7 +145,7 @@
         "FY26-test-main-valid.zip"
       ],
       "size": [
-        19590337
+        19590311
       ],
       "type": [
         "application/zip"
@@ -142,6 +189,7 @@
     ],
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
+    "timeliness_metric": 3,
     "warnings_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>"
   },
