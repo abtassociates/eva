@@ -510,6 +510,51 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "brandr": {
+      "Package": "brandr",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Title": "Brand Identity Management Using brand.yml Standard",
+      "Authors@R": "c( person( given = \"Daniel\", family = \"Vartanian\", role = c(\"aut\", \"cre\", \"ccp\", \"cph\"), email = \"danvartan@gmail.com\", comment = c(ORCID = \"0000-0001-7782-759X\") ) )",
+      "Description": "A system to facilitate brand identity management using the brand.yml standard, providing functions to consistently access and apply brand colors, typography, and other visual elements across your R projects.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://danielvartan.github.io/brandr/, https://github.com/danielvartan/brandr/",
+      "BugReports": "https://github.com/danielvartan/brandr/issues/",
+      "Depends": [
+        "R (>= 4.3)"
+      ],
+      "Imports": [
+        "checkmate (>= 2.3.2)",
+        "cli (>= 3.6.3)",
+        "colorspace (>= 2.1.1)",
+        "dplyr (>= 1.1.4)",
+        "here (>= 1.0.1)",
+        "lifecycle (>= 1.0.4)",
+        "ggplot2 (>= 3.5.1)",
+        "grDevices (>= 4.3.0)",
+        "yaml (>= 2.3.10)"
+      ],
+      "Suggests": [
+        "bslib (>= 0.9.0)",
+        "covr (>= 3.6.4)",
+        "hexbin (>= 1.28.5)",
+        "knitr (>= 1.49)",
+        "magrittr (>= 2.0.3)",
+        "palmerpenguins (>= 0.1.1)",
+        "rmarkdown (>= 2.29)",
+        "spelling (>= 2.3.1)",
+        "testthat (>= 3.2.2)",
+        "tidyr (>= 1.3.1)"
+      ],
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "Language": "en-US",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "no",
+      "Author": "Daniel Vartanian [aut, cre, ccp, cph] (<https://orcid.org/0000-0001-7782-759X>)",
+      "Maintainer": "Daniel Vartanian <danvartan@gmail.com>",
+      "Repository": "CRAN"
+    },
     "brio": {
       "Package": "brio",
       "Version": "1.1.5",
@@ -1748,6 +1793,42 @@
       "NeedsCompilation": "yes",
       "Author": "Winston Chang [aut, cre], Posit Software, PBC [cph, fnd], Tessil [cph] (hopscotch_map library)",
       "Maintainer": "Winston Chang <winston@posit.co>",
+      "Repository": "CRAN"
+    },
+    "fillpattern": {
+      "Package": "fillpattern",
+      "Version": "1.0.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Patterned Fills for 'ggplot2' and 'grid' Graphics",
+      "Date": "2024-06-24",
+      "Authors@R": "c( person(\"Daniel P.\", \"Smith\", , \"dansmith01@gmail.com\", role  = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-2479-2044\")), person(\"Alkek Center for Metagenomics and Microbiome Research\", role = c(\"cph\", \"fnd\")) )",
+      "Maintainer": "Daniel P. Smith <dansmith01@gmail.com>",
+      "Description": "Adds distinctive yet unobtrusive geometric patterns where solid  color fills are normally used. Patterned figures look just as  professional when viewed by colorblind readers or when printed in black  and white. The dozen included patterns can be customized in terms of scale, rotation, color, fill, line type, and line width. Compatible with the  'ggplot2' package as well as 'grid' graphics.",
+      "URL": "https://cmmr.github.io/fillpattern/, https://github.com/cmmr/fillpattern",
+      "BugReports": "https://github.com/cmmr/fillpattern/issues",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.1",
+      "Config/Needs/website": "rmarkdown",
+      "Config/testthat/edition": "3",
+      "Config/testthat/parallel": "true",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "Imports": [
+        "ggplot2 (>= 3.5)",
+        "grDevices",
+        "grid (>= 4.1)",
+        "methods",
+        "utils"
+      ],
+      "Suggests": [
+        "ragg",
+        "testthat (>= 3.0.0)"
+      ],
+      "NeedsCompilation": "no",
+      "Author": "Daniel P. Smith [aut, cre] (<https://orcid.org/0000-0002-2479-2044>), Alkek Center for Metagenomics and Microbiome Research [cph, fnd]",
       "Repository": "CRAN"
     },
     "flextable": {

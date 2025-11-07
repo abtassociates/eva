@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 58066eab11206c04d8d69daf07b8b3f5]",
+      "src": "[image data hash: 53cb5278fd01a336f7432be2129da28e]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -191,7 +191,7 @@
       ]
     },
     "sysDQWarningByIssue": {
-      "src": "[image data hash: 4d5eda4848b09f60d44e4a4f1adfd96e]",
+      "src": "[image data hash: ad0c19a9e1ad1721ae376f73a2e6eeb2]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",

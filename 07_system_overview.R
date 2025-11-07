@@ -393,8 +393,10 @@ enrollment_categories <- enrollment_prep_hohs %>%
       ProjectType == ce_project_type, 90,
       ProjectType %in% non_res_project_types, 60,
       ProjectType == es_nbn_project_type, 15,
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.numeric(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
       default = 0
     ),
+    
     lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
       (ProjectType %in% non_res_project_types & lh_prior_livingsituation)
   ) %>% 
@@ -518,7 +520,8 @@ session$userData$lh_info <- enrollment_categories %>%
     days_lh_valid,
     lh_date,
     first_lh_date,
-    last_lh_date
+    last_lh_date,
+    EntryDate, ExitAdjust
   )
 
 session$userData$report_dates <- get_report_dates()
@@ -546,8 +549,7 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       last_lh_date + days_lh_valid,
       ExitAdjust
     ),
-    adjusted_dates = !ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type) | 
-      ProjectType %in% nbn_non_res & ExitAdjust == no_end_date
+    adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 

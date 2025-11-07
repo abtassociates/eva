@@ -1,7 +1,7 @@
 library(shinytest2)
 testthat::set_max_fails(100)
 
-create_datasets <- FALSE
+create_datasets <- FALSE # need to define this here for GHA to run
 
 test_app(".") # example filter: filter="main-valid"
 # testthat::snapshot_review()

@@ -38,30 +38,26 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       on = "Begin", how = 'left'
     )
   
-  bar_colors <- c(
-    "Housed" = "#9E958F", 
-    "Homeless" = "#ECE7E3",
-    "Exited, Non-Permanent" = "#E8D9D1",
-    "Enrolled, Homeless" = "#B54E37",
-    "Inactive" = "#504742",
-    "Exited, Permanent" = "#DFEDEA",
-    "Enrolled, Housed" = "#326878"
-  )
+ 
+  cat_order <- unique(plot_data$End)
   
-  border_colors <- c(
-    "Exited, Non-Permanent" = "#D1AB98",
-    "Enrolled, Homeless" = "#8D3D2A",
-    "Inactive" = "black",
-    "Exited, Permanent" = "#B4C7CB",
-    "Enrolled, Housed" = "#214853"
-  )
-
+  ## set up pattern fills for Period End strata
+  if('Inactive' %in% plot_data$End){
+    stratum_bg <- sankey_bar_colors[names(sankey_bar_colors) %in% cat_order]
+    stratum_fg <- c('black',sankey_bar_colors['Enrolled, Homeless'],sankey_bar_colors['Inactive'],'black',sankey_bar_colors['Enrolled, Housed'])
+    stratum_patterns <- c(sankey_pattern,'','',sankey_pattern,'')
+  } else {
+    stratum_bg <- sankey_bar_colors[names(sankey_bar_colors) %in% cat_order]
+    stratum_fg <- c('black',sankey_bar_colors['Enrolled, Homeless'],'black',sankey_bar_colors['Enrolled, Housed'])
+    stratum_patterns <- c(sankey_pattern,'',sankey_pattern,'')
+  }
+ 
   ggplot(
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
-    geom_alluvium(aes(fill = End, colour = End), reverse = TRUE, alpha = 0.8) +
-    geom_stratum(aes(fill = End), reverse = TRUE) +
+    geom_alluvium(aes(fill = End, colour = End), alpha = 0.8) +
+    geom_stratum(aes(fill = End)) +
     
     # construct the Begin bars
     geom_rect(
@@ -72,14 +68,15 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
         ymin = ystart,
         ymax = yend
       ),
+      linewidth = 0.5,
       colour ='black'
     ) +
     
     #Color for End stratum and alluvial flows
-    scale_fill_manual(values = bar_colors) +
-    
+    scale_fill_manual(values = sankey_bar_colors) +
+
     #Color for alluvial flow borders
-    scale_color_manual(values = border_colors) +
+    scale_color_manual(values = sankey_border_colors) +
     
     # Bar (Text) Labels
     geom_text(
@@ -96,6 +93,15 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       nudge_x = 1.2,
       size = sys_chart_text_font
     ) +
+    
+    ## use ggnewscale package to reset scales for pattern fill
+    new_scale_fill() +
+    
+    ## add boxes at end with pattern fills
+    geom_stratum(aes(fill=End)) +
+    fillpattern::scale_fill_pattern(bg = stratum_bg, 
+                       fg = stratum_fg, 
+                       patterns = stratum_patterns, min_size = unit(1, 'mm')) +
     
     # X Axis Labels
     scale_x_discrete(label = c("Period Start", "Period End"),
@@ -158,8 +164,8 @@ sys_status_export_info <- function(spd) {
     ),
     Value = as.character(c(
       sum(spd$freq),
-      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Homeless", "Inactive"), "freq"]),
-      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Housed"), "freq"])
+      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Housed"), "freq"]),
+      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Homeless", "Inactive"), "freq"])
     ))
   )
 }
@@ -244,29 +250,13 @@ get_sankey_data <- reactive({
   
   req(nrow(plot_df) > 0)
 
-  allu <- plot_df %>%
-    count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
-    mutate(
-      Begin = factor(Begin, levels = rev(active_at_levels)), # Or c("Housed", "Homeless") depending on desired order
-      
-      End = str_remove(End, "\n"), # Remove newlines
-      End = ifelse( # Prepend "Enrolled, " for specific values
-        End %in% active_at_levels,
-        paste0("Enrolled, ", End),
-        End
-      ),
-      
-      End = factor(
-        End,
-        levels = c(
-          "Exited, Non-Permanent",
-          "Enrolled, Homeless",
-          "Inactive",
-          "Exited, Permanent",
-          "Enrolled, Housed"
-        )
-      )
+  plot_df %>%
+    fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 
+    fmutate(
+      Begin = fct_drop(Begin, inflow_detail_levels),
+      Begin = fct_relevel(Begin, "Homeless", after = 0),
+      End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
+      End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
     )
   
-  allu
 })

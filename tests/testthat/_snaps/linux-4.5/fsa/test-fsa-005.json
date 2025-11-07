@@ -9,6 +9,7 @@
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
     "accordion_client_count": null,
+    "accordion_dqexport": null,
     "accordion_dqorg": null,
     "accordion_dqsystem": null,
     "accordion_home": null,
@@ -18,7 +19,9 @@
     "accordion_upload": null,
     "card_filters1_full_screen": false,
     "card_filters2_full_screen": false,
-    "client_count_subtabs": "<h4>Client Counts Detail<\/h4>",
+    "client_count_cc_subtabs": "<h5>Client Counts Detail<\/h5>",
+    "client_count_subtabs": "<h4>Client Counts<\/h4>",
+    "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
     "currentProviderList": null,
     "dateRangeCount": [
       "2023-10-05",
@@ -29,6 +32,23 @@
       1920,
       1080
     ],
+    "dq_export_date_multiple": [
+      "2025-10-02",
+      "2025-10-02"
+    ],
+    "dq_export_date_options": "Date Range",
+    "dq_export_date_single": "2025-10-02",
+    "dq_export_export_types": [
+      "Organization-level (multi-select)",
+      "System-level"
+    ],
+    "dq_export_files": [
+      "All Data Quality Reports",
+      "Project Dashboard Report",
+      "PDDE Report",
+      "Data Quality Report"
+    ],
+    "dq_export_orgList": null,
     "dq_summary_subtabs": "<h4>Data Quality Guidance<\/h4>",
     "fileStructureAnalysis_cell_clicked": {
 

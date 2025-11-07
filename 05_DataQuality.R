@@ -1476,6 +1476,12 @@ conflicting_ncbs_entry <- base_dq_data %>%
   fselect(vars_we_want)
     
 # Missing bed night for NBN Enrollment Entry ---------------------------------------
+nbn_w_hmis_participation <- base_dq_data %>% 
+  fsubset(ProjectType == es_nbn_project_type) %>%
+  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
+  fsubset(HMISParticipationType == 1 ) 
+
+if(nrow(Services) > 0) {
 services_chk <- Services %>%
   fselect(EnrollmentID, DateProvided)  %>% 
   join(Enrollment %>% fselect(EnrollmentID, EntryDate, ExitAdjust), on = "EnrollmentID", how = 'left') %>% 
@@ -1489,46 +1495,38 @@ services_chk <- Services %>%
     has_bn_eq_exit = any(bn_eq_exit, na.rm=TRUE)
   ) 
 
-missing_bn0 <- base_dq_data %>% 
-  fsubset(ProjectType == es_nbn_project_type) %>%
-  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) %>%
-  join(Services %>% fselect(EnrollmentID, DateProvided), on = "EnrollmentID", how = 'left')
+missing_bn1 <- nbn_w_hmis_participation %>% 
+  join(services_chk, on = "EnrollmentID", how = 'anti') # EnrollmentID does NOT appear in services
 
-missing_bn1 <- missing_bn0 %>%
-  fsubset(is.na(DateProvided)) %>% # EnrollmentID does NOT appear in services
-  fselect(-DateProvided)
+services_chk1 <- services_chk %>% # EnrollmentID appears in services
+  join(nbn_w_hmis_participation , how="inner")  # limit to Nbn & HMISParticipationType == 1
 
-missing_bn2 <- missing_bn0 %>% 
-  fsubset(!is.na(DateProvided)) %>% # EnrollmentID appears in services
-  fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
-  join(services_chk, on = "EnrollmentID", how = 'left')
-  
-missing_bn2 <- missing_bn2 %>% 
+missing_bn2 <- services_chk1 %>%
   fsubset(!has_bn_eq_entry) %>% # but it does not appear on EntryDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
-missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
   merge_check_info_dt(checkIDs = 107) %>% 
   fselect(all_of(vars_we_want)) %>%
-  unique()
+  funique()
 
 # Bed night available for NBN Enrollment Exit ---------------------------------------
-missing_bn2 <- missing_bn0 %>% 
-  fsubset(!is.na(DateProvided)) %>% # EnrollmentID appears in services
-  fselect(-DateProvided) %>% unique %>% # get unique rows after dropping DateProvided
-  join(services_chk, on = "EnrollmentID", how = 'left')
-
-missing_bn2 <- missing_bn2 %>% 
-  fsubset(has_bn_eq_exit) %>% # but it does appear on ExitDate
+bn_on_exit <- services_chk1  %>% 
+  fsubset(has_bn_eq_exit) %>%  # but it does appear on ExitDate
   fselect(-has_bn_eq_entry, -has_bn_eq_exit)
 
-bn_on_exit <- missing_bn1 %>% rbind(missing_bn2) %>% as.data.table() %>%
+bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
   merge_check_info_dt(checkIDs = 108) %>% 
   fselect(all_of(vars_we_want)) %>%
   unique()
 
-rm(missing_bn0, missing_bn1, missing_bn2, services_chk)
+rm(missing_bn1, missing_bn2, services_chk1) 
+# don't get rid of missing_bn0 & services_chk so it can be used in 06_PDDE_Checker.R
+} else {
+  services_chk <- data.table()
+  bn_on_exit <- data.table()
+  missing_bn_entry <- data.table()
+}
 
 
 # SSVF --------------------------------------------------------------------
@@ -1791,7 +1789,7 @@ calculate_outstanding_referrals <- function(dq_data){
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 # All together now --------------------------------------------------------
-dq_main <- as.data.table(rbind(
+dq_main <- rowbind(
   approx_start_after_entry,
   approx_start_v_living_situation_data,
   conflicting_health_insurance_entry,
@@ -1868,7 +1866,7 @@ dq_main <- as.data.table(rbind(
   veteran_missing_wars,
   veteran_missing_year_entered,
   veteran_missing_year_separated
-))
+)
 
 dq_main <- dq_main %>% 
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
