@@ -1141,7 +1141,7 @@
         13,
         1,
         1,
-        111
+        4
       ]
     },
     "pdde_guidance_summary": {
@@ -1176,28 +1176,28 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 18.58823529411765,
-        "3rd Qu.": 11,
+        "Mean": 12.29411764705882,
+        "3rd Qu.": 6,
         "Max.": 138
       }
     },
     "sys_comp_report_num_df": {
       "All Races/Ethnicities": [
         "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
         "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Asian or Asian American & Hispanic/Latina/o",
         "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/e/o",
-        "Hispanic/Latina/e/o alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
         "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
-        "Multi-Racial & Hispanic/Latina/e/o",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
         "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
         "White alone",
-        "White & Hispanic/Latina/e/o",
+        "White & Hispanic/Latina/o",
         "Unknown",
         "Total"
       ],
@@ -1262,20 +1262,20 @@
     "sys_comp_report_pct_df": {
       "All Races/Ethnicities": [
         "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
         "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Asian or Asian American & Hispanic/Latina/o",
         "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/e/o",
-        "Hispanic/Latina/e/o alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
         "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
-        "Multi-Racial & Hispanic/Latina/e/o",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
         "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
         "White alone",
-        "White & Hispanic/Latina/e/o",
+        "White & Hispanic/Latina/o",
         "Unknown",
         "Total"
       ],
