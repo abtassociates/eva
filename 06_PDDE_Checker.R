@@ -598,16 +598,13 @@ lt_seas_inv <- session$userData$Project0 %>%
   join(Inventory, on = "ProjectID", how = 'inner') %>% # inner join gets only ProjectID in Inventory
   fsubset(!is.na(InventoryID)) # filter to those with InventoryID not missing
 
-lt_seas_inv_1 <- lt_seas_inv %>% 
-  fsubset(is.na(Availability)) # filter to missing Availability
-
-lt_seas_inv_2 <- lt_seas_inv %>% 
+lt_seas_inv <- lt_seas_inv %>% 
   fsubset(Availability == 2) %>% # filter to seasonal Availabilty
   fmutate(avail_days = InventoryEndDate - InventoryStartDate) %>% # calculate available days
   fsubset(is.na(InventoryEndDate) | avail_days > 365) %>% # filter to missing end date or avail_days over 365
   fselect(-avail_days) 
 
-lt_seas_inv <- lt_seas_inv_1 %>% rbind(lt_seas_inv_2) %>% # rbind these together
+lt_seas_inv <- lt_seas_inv %>%
   fgroup_by(ProjectID) %>% 
   fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
                           paste0(unique(InventoryID), collapse = ", ") ))  %>%
@@ -615,8 +612,6 @@ lt_seas_inv <- lt_seas_inv_1 %>% rbind(lt_seas_inv_2) %>% # rbind these together
   merge_check_info_dt(checkIDs = 37) %>%
   fselect(PDDEcols) %>% 
   funique()
-
-rm(lt_seas_inv_1, lt_seas_inv_2)
 
 # Put it all together -----------------------------------------------------
 
