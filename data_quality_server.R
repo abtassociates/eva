@@ -678,6 +678,16 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   
 }
 
+observe({
+  
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  if(length(input$dq_export_export_types) == 0){
+    shinyjs::disable('dq_export_download_btn')
+  } else {
+    shinyjs::enable('dq_export_download_btn')
+  }
+})
+
 output$dq_export_download_btn <- downloadHandler(
   filename = date_stamped_filename('Data Quality Exports-', ext='.zip'),
   content = function(file){
