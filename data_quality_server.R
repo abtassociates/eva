@@ -827,6 +827,8 @@ output$dq_export_download_btn <- downloadHandler(
           list("Summary" = summary_df,
                "Data" = session$userData$pdde_main %>% 
                  left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+                 mutate(Type = factor(Type, levels = c('High Priority', 'Error', 'Warning'))) %>% 
+                 arrange(Type, Issue) %>% 
                  nice_names()
           ),
           path = file.path(path_prefix,pdde_filename))
