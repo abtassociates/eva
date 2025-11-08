@@ -864,16 +864,16 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       lecr = 1
     )
   
-  final <- join(
+  inflows_and_outflows <- join(
     inflows, 
-    outflows, 
+    outflows,
     on=c("PersonalID","period"), 
-    how="inner", 
-    drop.dup.cols = "y"
+    drop.dup.cols = !IN_DEV_MODE,
+    how="inner"
   )
-    
-  # final[PersonalID == 637203, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end, pre_active, next_active, active_at_start, exit_dest_perm)]
-  return(final)
+
+  # inflows_and_outflows[PersonalID == 637203, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
+  return(inflows_and_outflows)
 }
 
 remove_sequential_inactives <- function(inflows_and_outflows) {
@@ -1069,19 +1069,33 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   bad_records <- universe_w_ppl_flags_clean %>%
     fgroup_by(PersonalID) %>%
     fsummarize(
-      first_enrl_month_inflow = ffirst(fifelse(period != "Full", InflowTypeDetail, NA)),
-      full_period_inflow = ffirst(fifelse(period == "Full", InflowTypeDetail, NA)),
+      first_enrl_month_inflow = ffirst(fifelse(period != "Full", EnrollmentID, NA)),
+      full_period_inflow = ffirst(fifelse(period == "Full", EnrollmentID, NA)),
       
-      last_enrl_month_outflow = flast(fifelse(period != "Full", OutflowTypeDetail, NA)),
-      last_enrl_month_outflow_noninactive = flast(fifelse(period != "Full" & OutflowTypeDetail != "Inactive", OutflowTypeDetail, NA)),
-      full_period_outflow = flast(fifelse(period == "Full", OutflowTypeDetail, NA))
+      last_enrl_month_outflow = flast(fifelse(period != "Full", EnrollmentID_outflows, NA)),
+      last_enrl_month_outflow_noninactive = flast(fifelse(period != "Full" & OutflowTypeDetail != "Inactive", EnrollmentID_outflows, NA)),
+      full_period_outflow = flast(fifelse(period == "Full", EnrollmentID_outflows, NA)),
+      full_period_outflow_status = flast(fifelse(period == "Full", OutflowTypeDetail, NA))
     ) %>%
     fungroup() %>%
     fsubset(
       first_enrl_month_inflow != full_period_inflow |
-      (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
-      (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
+        (last_enrl_month_outflow != full_period_outflow & full_period_outflow_status == "Inactive") |
+        (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow_status != "Inactive")
+    ) %>%
+    fmutate(
+      disc = fcase(
+        first_enrl_month_inflow != full_period_inflow & (
+          (last_enrl_month_outflow != full_period_outflow & full_period_outflow_status == "Inactive") |
+            (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow_status != "Inactive")
+          ), "both",
+        first_enrl_month_inflow != full_period_inflow, "inflow",
+        (last_enrl_month_outflow != full_period_outflow & full_period_outflow_status == "Inactive") |
+          (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow_status != "Inactive"), "outflow"
+        
+      )
     )
+
   if(nrow(bad_records) > 0)  {
     logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
     if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
