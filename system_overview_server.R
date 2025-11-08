@@ -679,10 +679,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
-      sort_var = fifelse(straddles_start, ProjectTypeWeight, as.numeric(active_start))
+      sort_var = fifelse(straddles_start, ProjectTypeWeight, -as.numeric(active_start))
     ) %>%
     # New eecr
-    roworder(PersonalID, period, -straddles_start, -sort_var, ExitAdjust, verbose = F) %>%
+    roworder(PersonalID, period, -straddles_start, -sort_var, -ProjectTypeWeight, ExitAdjust, verbose = F) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="first") %>%
     fmutate(
@@ -713,7 +713,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       sort_var = fifelse(straddles_end, ProjectTypeWeight, as.numeric(fifelse(ExitAdjust >= startDate, ExitAdjust, active_end))),
       sort_var2 = fifelse(straddles_end, -1*as.numeric(MoveInDateAdjust), fifelse(ExitAdjust >= startDate, Destination/400, 0)) # Destination/400 to make it a double and comparable to as.numeric(MoveInDateadjust) which is a double
     ) %>%
-    roworder(PersonalID, period, straddles_end, sort_var, sort_var2, verbose = F, na.last = FALSE) %>%
+    roworder(PersonalID, period, straddles_end, sort_var, sort_var2, ProjectTypeWeight, verbose = F, na.last = FALSE) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="last") %>%
     fmutate(
@@ -1066,7 +1066,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   }
   
   ## First/Last Month Inflow/Outflow != Full Inflow/Outflow-------
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records_enrollid <- universe_w_ppl_flags_clean %>%
     fgroup_by(PersonalID) %>%
     fsummarize(
       first_enrl_month_inflow = ffirst(fifelse(period != "Full", EnrollmentID, NA)),
