@@ -3,17 +3,23 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "10-10-2025",
+    "11-13-2025",
     "<b>New Features</b><br>
-      - New Month-by-Month System Flow visualization<br>
+      - Month-by-Month System Flow visualization<br>
+      - Data quality export interface which allows multi-org DQ exports<br>
+      - Data quality timeliness features<br>
+      - 4 PDDE checks (IDs 35, 36, 37, 106) and 2 DQ checks (IDs 107, 108)<br>
       - Major UI update, due to upgrade to bootstrap5<br>
       - Performance improvements<br>
     <b>Bug Fixes</b> <br>
       - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
       - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
     <b>Miscellaneous</b> <br>
+      - Renamed Client Counts page to Project Dashboard. <br>
       - Updated System Overview instruction text. <br>
-      - Streamlined System Flow export. <br>
+      - Updated System Performance chart colors. <br>
+      - Updated System Performance exports. <br>
+      - Updated Glossary to include new entries related to Month-by-Month chart. <br>
       - Fix typo is glossay (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
     "09-29-2025",
     "<b>FY26 Data Standards</b> <br>
