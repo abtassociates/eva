@@ -14,13 +14,14 @@ output$changelog <- renderDT({
     <b>Bug Fixes</b> <br>
       - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
       - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
+      - Fixed DQ Check #41 (Incomplete Living Situation) to include temporary and other living situations when analyzing field 3.917B.2B (Issue <a href='https://github.com/abtassociates/eva/issues/803' target='_blank'>#803</a>).<br>
     <b>Miscellaneous</b> <br>
       - Renamed Client Counts page to Project Dashboard. <br>
       - Updated System Overview instruction text. <br>
       - Updated System Performance chart colors. <br>
       - Updated System Performance exports. <br>
       - Updated Glossary to include new entries related to Month-by-Month chart. <br>
-      - Fix typo is glossay (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
+      - Fixed typo in Glossary (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
     "09-29-2025",
     "<b>FY26 Data Standards</b> <br>
     - Updated Eva to be compliant with FY26 HMIS Data Standards",
