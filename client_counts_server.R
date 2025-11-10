@@ -415,7 +415,7 @@ calc_time_to_entry <- function(df){
       n_records = GRPN(),
       #n_lt24 = fsum(HoursToEntry < 24),
       #n_lt48 = fsum(HoursToEntry < 48),
-      n_lt_metric = fsum(HoursToEntry < (24 * input$timeliness_metric)),
+      n_lt_metric = fsum(DaysToEntry <= input$timeliness_metric),
       mdn = fmedian(DaysToEntry,na.rm=T),
       nlt0 = fsum(DaysToEntry < 0, na.rm=T),
       n0 = fsum(DaysToEntry == 0, na.rm=T),
