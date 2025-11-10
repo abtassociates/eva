@@ -55,21 +55,18 @@ output$client_level_download_btn <- downloadHandler(
       "Latest-ReportStatusDetail" = "OutflowTypeDetail"
     )
     
-    enrollment_fields <- c(
-      "PersonalID",
-      "EnrollmentID",
-      "HouseholdType",
-      "CorrectedHoH",
-      "ProjectType",
-      "EntryDate",
-      "LivingSituation",
-      "MoveInDateAdjust",
-      "ExitAdjust",
-      "Destination"
-    )
-    
     eecr_lecr_enrollment_info <- session$userData$enrollment_categories %>% 
-      fselect(enrollment_fields) %>%
+      fselect(
+        EnrollmentID,
+        HouseholdType,
+        CorrectedHoH,
+        ProjectType,
+        EntryDate,
+        LivingSituation,
+        MoveInDateAdjust,
+        ExitAdjust,
+        Destination
+      ) %>%
       fmutate(
         Destination = living_situation(Destination),
         LivingSituation = living_situation(LivingSituation),
