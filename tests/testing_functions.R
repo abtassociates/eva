@@ -25,20 +25,49 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$set_inputs(pageid = "tabClientCount")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
-    app$set_inputs(sidebarmenuid = "tabPDDE")
+    #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
+    app$set_inputs(pageid = "tabPDDE")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(pdde_subtabs = "<h4>Guidance</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "<h4>High Priority Errors</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqsystem_subtabs = "<h5>Top 10 Organizations</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "<h4>General Errors</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqsystem_subtabs = "<h5>Top 10 Organizations</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "<h4>Warnings</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqsystem_subtabs = "<h5>Top 10 Organizations</h5>")
     app$expect_values()
     
-    app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$set_inputs(pageid = "tabDQOrg")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "<h4>High Priority Errors</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqorg_subtabs = "<h5>Top 10 Projects</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "<h4>General Errors</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqorg_subtabs = "<h5>Top 10 Projects</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "<h4>Warnings</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqorg_subtabs = "<h5>Top 10 Projects</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(dq_summary_subtabs = "<h4>Data Quality Guidance</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
   })
@@ -46,7 +75,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
 
 handle_helper_data <- function(app, test_script_name, datasetname) {
   helper_data_dir <- here(glue("tests/helper_data/{gsub('test-','',test_script_name)}"))
-  print(paste0("helper data folder = ", helper_data_dir))
+  # print(paste0("helper data folder = ", helper_data_dir))
   if(!dir.exists(helper_data_dir)) {
     print("creating helper data folder")
     dir.create(helper_data_dir)
@@ -121,15 +150,15 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
   helper_datasets <- c(
     "non_ascii_files_detail", 
     "client_count_download_detail", 
-    "dq_main_reactive",
+    "dq_main",
     "pdde_main",
-    "universe_ppl_flags",
+    "period_data",
     "sys_comp_df",
     "dq_overlaps"
   )
-  if(Sys.info()["sysname"] != "ubuntu")
-    helper_datasets <- c(helper_datasets, "client_level_export_details")
-  
+  # if(Sys.info()["sysname"] != "ubuntu")
+  #   helper_datasets <- c(helper_datasets, "client_level_export_details")
+  # 
   is_gha <- Sys.info()["user"] == "runner"
   if(!is_gha)
     helper_datasets <- c(helper_datasets, "client_level_export_details")
@@ -161,14 +190,22 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     print(paste0("Just uploaded in ", test_script_name))
     app$wait_for_idle(timeout = 1e+06)
-    app$click(selector="#shiny-modal")
+    app$click(selector="#shiny-modal .btn-default")
     app$expect_values(name="just-uploaded", input=TRUE, output=TRUE)
     
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(sidebarmenuid = "tabClientCount")
+    app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
+    #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
+    #app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_subtabs = "<h4>Timeliness</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
+    # app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
       input = c(
@@ -181,19 +218,21 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "headerClientCounts_supp",
         "clientCountData",
         "clientCountSummary",
+        "timelinessTable",
         "downloadClientCountsReportButton"
       )
     )
     
-    app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
-    app$set_inputs(sidebarmenuid = "tabPDDE")
+    
+    #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
+    app$set_inputs(pageid = "tabPDDE")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(pdde_subtabs = "<h4>Guidance</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "pdde",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
-        "sidebarmenuid",
+        "pageid",
         inputs_no_bindings(DTs = c("pdde_guidance_summary", "pdde_summary_table"))
       ),
       output = c(
@@ -204,23 +243,41 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       )
     )
     
-    app$set_inputs(sidebarmenuid = "tabDQSystem")
+    app$set_inputs(pageid = "tabDQSystem")
     app$wait_for_idle(timeout = 1e+06)
+    # not needed right now as this is the default subtab
+    #app$set_inputs(tabDQSystem_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqsystem_subtabs = "<h5>Top 10 Organizations</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "<h4>General Errors</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqsystem_subtabs = "<h5>Top 10 Organizations</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQSystem_subtabs = "<h4>Warnings</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqsystem_subtabs = "<h5>Top 10 Organizations</h5>")
     app$expect_values(
       name = "dq-system",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
-        "sidebarmenuid"
+        #"sidebarCollapsed",
+        #"sidebarItemExpanded",
+        "pageid"
       ),
       output = c(
         "headerSystemDQ",
-        "systemDQErrorByIssue",
-        "systemDQErrorsByIssue_ui",
-        "systemDQHighPriorityErrorsByIssue",
-        "systemDQHighPriorityErrorsByIssue_ui",
-        "systemDQWarningByIssue",
-        "systemDQWarningsByIssue_ui",
+        "sysDQErrorByIssue",
+        "sysDQErrorByIssue_ui",
+        "sysDQHighPriorityByIssue",
+        "sysDQHighPriorityByIssue_ui",
+        "sysDQWarningByIssue",
+        "sysDQWarningByIssue_ui",
+        "sysDQErrorByProject",
+        "sysDQErrorByProject_ui",
+        "sysDQHighPriorityByProject",
+        "sysDQHighPriorityByProject_ui",
+        "sysDQWarningByProject",
+        "sysDQWarningByProject_ui",
         "downloadSystemDQReportButton"
       )
     )
@@ -230,14 +287,28 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "dq_organization_summary_table"
     )
     
-    app$set_inputs(sidebarmenuid = "tabDQOrg")
+    app$set_inputs(pageid = "tabDQOrg")
     app$wait_for_idle(timeout = 1e+06)
+    # not needed right now as this is the default subtab
+    #app$set_inputs(tabDQOrg_subtabs = "High Priority Errors")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(hp_errors_dqorg_subtabs = "<h5>Top 10 Projects</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "<h4>General Errors</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(g_errors_dqorg_subtabs = "<h5>Top 10 Projects</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(tabDQOrg_subtabs = "<h4>Warnings</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(warnings_dqorg_subtabs = "<h5>Top 10 Projects</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(dq_summary_subtabs = "<h4>Data Quality Guidance</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    
     app$expect_values(
       name = "dq-org",
       input = c(
-        "sidebarCollapsed",
-        "sidebarItemExpanded",
-        "sidebarmenuid",
+        "pageid",
         "orgList",
         inputs_no_bindings(DTs = c("dq_org_guidance_summary", "dq_organization_summary_table"))
       ),
@@ -246,11 +317,17 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "dq_org_guidance_summary",
         "dq_organization_summary_table",
         "orgDQErrorByIssue",
-        "orgDQErrorsByIssue_ui",
-        "orgDQHighPriorityErrorsByIssue",
-        "orgDQHighPriorityErrorsByIssue_ui",
+        "orgDQErrorByIssue_ui",
+        "orgDQHighPriorityByIssue",
+        "orgDQHighPriorityByIssue_ui",
         "orgDQWarningByIssue",
-        "orgDQWarningsByIssue_ui",
+        "orgDQWarningByIssue_ui",
+        "orgDQErrorByProject",
+        "orgDQErrorByProject_ui",
+        "orgDQHighPriorityByProject",
+        "orgDQHighPriorityByProject_ui",
+        "orgDQWarningByProject",
+        "orgDQWarningByProject_ui",
         "downloadOrgDQReportButton"
       ),
       export = non_download_dq_org_exports
@@ -278,73 +355,123 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "syso_tabbox"
     )
     
-    sys_act_inputs <- c(
-      "sidebarmenuid",
+    sys_inflow_outflow_inputs <- c(
+      "pageid",
       "sys_inflow_outflow_subtabs",
       sys_universe_filters,
       sys_flow_filters,
       sys_other_inputs
     )
-    sys_act_summary_outputs <- c(
+    sys_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
-      "sys_act_summary_filter_selections",
-      "sys_act_summary_ui_chart"
+      "sys_inflow_outflow_summary_filter_selections",
+      "sys_inflow_outflow_summary_ui_chart"
     )
     
-    app$set_inputs(sidebarmenuid = "tabSystemOverview")
+    app$set_inputs(pageid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary",
-      input = sys_act_inputs,
-      output = sys_act_summary_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_summary_outputs
     )
     
-    sys_act_detail_outputs <- c(
+    sys_inflow_outflow_detail_outputs <- c(
       "headerSystemOverview",
-      "sys_act_detail_filter_selections",
-      "sys_act_detail_ui_chart"
+      "sys_inflow_outflow_detail_filter_selections",
+      "sys_inflow_outflow_detail_ui_chart"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "Detail Chart")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-detail",
-      input = sys_act_inputs,
-      output = sys_act_detail_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
     )
 
     
     # change universe filters
-    app$set_inputs(syso_hh_type = "AO", syso_project_type = "Residential")
+    app$set_inputs(syso_hh_type = "AO", syso_project_type = "LHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-flow-detail-w-AO-Residential",
-      input = sys_act_inputs,
-      output = sys_act_detail_outputs
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
+    )
+    
+    # change universe filters
+    app$set_inputs(syso_project_type = "PHRes")
+    app$wait_for_idle(timeout = 2e+06)
+    app$expect_values(
+      name = "sys-flow-detail-w-AO-Residential-PH",
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
     )
     
     # go back to summary tab
-    app$set_inputs(sys_inflow_outflow_subtabs = "Summary Chart")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-summary-w-AO-Residential",
-      input = sys_act_inputs,
-      output = sys_act_summary_outputs
+      name = "sys-flow-summary-w-AO-Residential-PH",
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_summary_outputs
+    )
+    
+    # go Month-by-Month tab
+    sys_inflow_outflow_mbm_outputs <- c(
+      "headerSystemOverview",
+      "sys_inflow_outflow_monthly_filter_selections"
+    )
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-mbm-w-AO-Residential-PH",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_inflow_outflow_monthly_ui_chart",
+        "sys_inflow_outflow_monthly_table"
+      )
+    )
+    
+    # go to FTH chart
+    app$set_inputs(mbm_status_filter = "First-Time Homeless")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-fth-w-AO-Residential-PH",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_fth_monthly_ui_chart"
+      )
+    )
+    
+    # go to Inactive chart
+    app$set_inputs(mbm_status_filter = "Inactive")
+    app$wait_for_idle(timeout = 1e+06)
+    app$expect_values(
+      name = "sys-flow-inactive-w-AO-Residential-PH",
+      input = sys_inflow_outflow_inputs,
+      output = c(
+        sys_inflow_outflow_mbm_outputs,
+        "sys_inactive_monthly_ui_chart"
+      )
     )
     
     # go to information
-    app$set_inputs(sys_inflow_outflow_subtabs = "Information")
+    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-information",
       input = c(
-        "sidebarmenuid",
+        "pageid",
         "sys_inflow_outflow_subtabs"
       )
     )
     
     # System Status/Sankey
     sys_status_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_status_subtabs",
       sys_universe_filters,
       sys_flow_filters,
@@ -355,7 +482,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "sankey_filter_selections",
       "sankey_ui_chart"
     )
-    app$set_inputs(syso_tabbox = "Client System Status")
+    app$set_inputs(syso_tabbox = "<h4>Client System Status</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-status-chart",
@@ -363,7 +490,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_status_outputs
     )
     
-    app$set_inputs(sys_status_subtabs = "Information")
+    app$set_inputs(sys_status_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-status-information",
@@ -373,7 +500,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     # System Composition/Demographics
     sys_comp_inputs <- c(
-      "sidebarmenuid",
+      "pageid",
       "sys_comp_subtabs",
       sys_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 
@@ -389,7 +516,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       "sys_comp_summary_ui_chart"
     )
     
-    app$set_inputs(syso_tabbox = "System Demographics")
+    app$set_inputs(syso_tabbox = "<h4>System Demographics</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-chart-default",
@@ -405,7 +532,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("VeteranStatus", "All Races/Ethnicities"))
+    app$set_inputs(system_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-comp-all-re-veteran",
@@ -413,7 +540,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_comp_outputs
     )
     
-    app$set_inputs(sys_comp_subtabs = "Information")
+    app$set_inputs(sys_comp_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-information",
@@ -447,6 +574,9 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       print(paste0("handling ", df_name))
       handle_helper_data(app, test_script_name, df_name)
     })
+    
+    print("saving shiny log")
+    view(app$get_logs())
   })
 }
 
@@ -476,16 +606,16 @@ review_helper <- function(datasetname, test_script_name = "main-valid", comparis
   
   if(comparison_type == 1) {
     # For simple differences, view more visually with one of these methods
-    diffviewer::visual_diff(old_path, new_path)
+    print(diffviewer::visual_diff(old_path, new_path))
   } else if(comparison_type == 2) {
     # Full records if at all different
     records_in_one_or_another(old, new, datasetname)
   } else if(comparison_type == 3) {
     # summary of differences
-    waldo::compare(old, new) 
+    print(waldo::compare(old, new))
   } else if(comparison_type == 4) {
     # Summary of differences
-    diffobj::diffObj(old, new)
+    print(diffobj::diffObj(old, new))
   }
 }
 
@@ -513,7 +643,7 @@ accept_helpers <- function(datasetnames = NULL, test_script_name = "main-valid")
     accept_helper(datasetname, test_script_name)
   }
 }
-accept_helper <- function(datasetname, test_script_name) {
+accept_helper <- function(datasetname, test_script_name = "main-valid") {
   helper_data_dir <- glue(here("tests/helper_data/{test_script_name}"))
   
   old_path <- glue("{helper_data_dir}/{datasetname}.csv")

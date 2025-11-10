@@ -13,8 +13,8 @@
     },
     "clientCountSummary": {
       "Status": [
-        "Currently in project",
-        "Exited project"
+        "Currently in Project",
+        "Exited Project"
       ],
       "Clients": [
         16,
@@ -66,13 +66,28 @@
         "Max.": 88
       },
       "Exited Project": {
-        "Min.": 1,
-        "1st Qu.": 1,
-        "Median": 2,
-        "Mean": 5,
-        "3rd Qu.": 6,
-        "Max.": 15,
-        "NA's": 168
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.1445086705202312,
+        "3rd Qu.": 0,
+        "Max.": 15
+      },
+      "Exited No Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "Exited with Move in": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
       }
     },
     "client_count_download_date_range": {
@@ -140,6 +155,320 @@
         "Max.": 632
       }
     },
+    "client_count_download_timeliness_cls": {
+      "Organization Name": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2352941176470588,
+        "3rd Qu.": 0,
+        "Max.": 2
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 44.38235294117647,
+        "3rd Qu.": 14,
+        "Max.": 862
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 1,
+        "Mean": 21.5,
+        "3rd Qu.": 8.25,
+        "Max.": 216
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 8.235294117647058,
+        "3rd Qu.": 3.75,
+        "Max.": 123
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6.117647058823529,
+        "3rd Qu.": 2.75,
+        "Max.": 81
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 2,
+        "Mean": 16.76470588235294,
+        "3rd Qu.": 15.75,
+        "Max.": 172
+      },
+      "Median Days to Current Living Situation Record Entry": {
+        "Min.": -967,
+        "1st Qu.": 0,
+        "Median": 1.25,
+        "Mean": -19.26470588235294,
+        "3rd Qu.": 5,
+        "Max.": 134
+      }
+    },
+    "client_count_download_timeliness_exit": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 27.39024390243902,
+        "3rd Qu.": 15,
+        "Max.": 705
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 12.70243902439024,
+        "3rd Qu.": 4,
+        "Max.": 474
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 23.94634146341463,
+        "3rd Qu.": 4,
+        "Max.": 1097
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 14.29756097560976,
+        "3rd Qu.": 3,
+        "Max.": 749
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 15.15121951219512,
+        "3rd Qu.": 6,
+        "Max.": 1030
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 9,
+        "Median": 35,
+        "Mean": 211.0146341463415,
+        "3rd Qu.": 119,
+        "Max.": 19327
+      },
+      "Median Days to Project Exit Record Entry": {
+        "Min.": -218,
+        "1st Qu.": 24,
+        "Median": 83,
+        "Mean": 149.6522842639594,
+        "3rd Qu.": 167,
+        "Max.": 1778,
+        "NA's": 8
+      }
+    },
+    "client_count_download_timeliness_nbn": {
+      "Organization Name": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "0 Days": {
+        "Min.": 2631,
+        "1st Qu.": 2631,
+        "Median": 2631,
+        "Mean": 2631,
+        "3rd Qu.": 2631,
+        "Max.": 2631
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "Median Days to Night-by-Night Record Entry": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      }
+    },
+    "client_count_download_timeliness_start": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 1.985365853658537,
+        "3rd Qu.": 1,
+        "Max.": 117
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 15,
+        "Mean": 164.9560975609756,
+        "3rd Qu.": 41,
+        "Max.": 20892
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 12,
+        "Mean": 81.95121951219512,
+        "3rd Qu.": 54,
+        "Max.": 3104
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 4,
+        "Mean": 27.84390243902439,
+        "3rd Qu.": 18,
+        "Max.": 961
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 2,
+        "Mean": 15.16585365853659,
+        "3rd Qu.": 10,
+        "Max.": 458
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 8,
+        "Mean": 38.14146341463415,
+        "3rd Qu.": 36,
+        "Max.": 1127
+      },
+      "Median Days to Project Start Record Entry": {
+        "Min.": -524,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 10.90547263681592,
+        "3rd Qu.": 7,
+        "Max.": 308,
+        "NA's": 4
+      }
+    },
     "file_structure_analysis_main": {
       "Issue": [
         "Nulls not allowed or incorrect data type",
@@ -203,7 +532,7 @@
         ],
         [
           null,
-          "Mean   : 23.85  ",
+          "Mean   : 23.89  ",
           null
         ],
         [
@@ -219,14 +548,14 @@
       ],
       "Project Summary": [
         [
-          "Length:122        ",
+          "Length:123        ",
           "High Priority: 5  ",
           "Min.   :  1.000  ",
-          "Length:122        "
+          "Length:123        "
         ],
         [
           "Class :character  ",
-          "Error        :52  ",
+          "Error        :53  ",
           "1st Qu.:  1.000  ",
           "Class :character  "
         ],
@@ -239,7 +568,7 @@
         [
           null,
           null,
-          "Mean   :  8.992  ",
+          "Mean   :  8.935  ",
           null
         ],
         [
@@ -342,14 +671,14 @@
       ],
       "Errors": [
         [
-          "Length:236        ",
-          "Length:236        ",
-          "Length:236        ",
-          "Length:236        ",
-          "Length:236        ",
-          "Length:236        ",
-          "Length:236        ",
-          "Length:236        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
+          "Length:238        ",
           "Min.   :2018-06-27  "
         ],
         [
@@ -361,7 +690,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2021-01-17  "
+          "1st Qu.:2021-01-26  "
         ],
         [
           "Mode  :character  ",
@@ -372,7 +701,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-08-18  "
+          "Median :2021-08-19  "
         ],
         [
           null,
@@ -383,7 +712,7 @@
           null,
           null,
           null,
-          "Mean   :2021-06-17  "
+          "Mean   :2021-06-21  "
         ],
         [
           null,
@@ -394,7 +723,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-24  "
+          "3rd Qu.:2022-01-25  "
         ],
         [
           null,
@@ -480,7 +809,7 @@
         [
           "Length:50         ",
           "Length:50         ",
-          "AO:25  ",
+          "AO   :21  ",
           "Length:50         ",
           "Length:50         ",
           "Length:50         ",
@@ -494,7 +823,7 @@
           "Min.   :NA  ",
           "Length:50         ",
           "Length:50         ",
-          "AO:24  ",
+          "AO   :20  ",
           "Length:50         ",
           "Length:50         ",
           "Length:50         ",
@@ -509,7 +838,7 @@
         [
           "Class :character  ",
           "Class :character  ",
-          "AC:25  ",
+          "AC   :23  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -523,7 +852,7 @@
           "1st Qu.:NA  ",
           "Class :character  ",
           "Class :character  ",
-          "AC:25  ",
+          "AC   :23  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -538,7 +867,7 @@
         [
           "Mode  :character  ",
           "Mode  :character  ",
-          "CO: 0  ",
+          "CO   : 0  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -552,7 +881,7 @@
           "Median :NA  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "CO: 1  ",
+          "CO   : 1  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -567,7 +896,7 @@
         [
           null,
           null,
-          "UN: 0  ",
+          "UN   : 0  ",
           null,
           null,
           null,
@@ -581,7 +910,7 @@
           "Mean   :NaN  ",
           null,
           null,
-          "UN: 0  ",
+          "UN   : 0  ",
           null,
           null,
           null,
@@ -596,7 +925,7 @@
         [
           null,
           null,
-          null,
+          "AC-PY: 2  ",
           null,
           null,
           null,
@@ -610,7 +939,7 @@
           "3rd Qu.:NA  ",
           null,
           null,
-          null,
+          "AC-PY: 2  ",
           null,
           null,
           null,
@@ -625,7 +954,7 @@
         [
           null,
           null,
-          null,
+          "AO-UY: 4  ",
           null,
           null,
           null,
@@ -639,7 +968,7 @@
           "Max.   :NA  ",
           null,
           null,
-          null,
+          "AO-UY: 4  ",
           null,
           null,
           null,
@@ -758,85 +1087,97 @@
     },
     "pdde_download_summary": {
       "Issue": [
-        "Bed Type incompatible with Housing Type",
-        "Client-level data in VSP organization",
-        "Incorrect CoC in bed inventory",
-        "Inventory Start Precedes Operating Start",
-        "Missing Address",
         "Missing Geography Information",
+        "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "Overlapping HMIS Participation Records",
-        "Project CoC missing bed inventory",
+        "Inventory Start Precedes Operating Start",
+        "No Enrollments within Active Inventory",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
-        "Zero Utilization"
+        "Zero Utilization",
+        "Bed Type incompatible with Housing Type",
+        "Project CoC missing bed inventory",
+        "Incorrect CoC in bed inventory",
+        "Client-level data in VSP organization",
+        "Project Missing in ProjectCoC file",
+        "Residential Project Missing Housing Type",
+        "Long-Term Seasonal Inventory"
       ],
       "Type": [
-        "Warning",
         "High Priority",
         "Error",
-        "Warning",
-        "Error",
-        "High Priority",
         "Error",
         "Error",
         "High Priority",
         "Warning",
+        "Warning",
         "Error",
         "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Error",
+        "High Priority",
+        "High Priority",
+        "High Priority",
         "Warning"
       ],
       "Count": [
+        6,
         3,
-        13,
-        2,
-        138,
-        2,
-        5,
         11,
         6,
         1,
-        2,
+        138,
+        1,
         1,
         13,
-        2
+        2,
+        3,
+        2,
+        3,
+        13,
+        1,
+        1,
+        4
       ]
     },
     "pdde_guidance_summary": {
       "Type": {
-        "High Priority": 3,
+        "High Priority": 5,
         "Error": 6,
-        "Warning": 4
+        "Warning": 6
       },
       "Issue": {
-        "Length": "13",
+        "Length": "17",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "13",
+        "Length": "17",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "13",
+        "Length": "17",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
-        "High Priority": 3,
+        "High Priority": 5,
         "Error": 6,
-        "Warning": 4
+        "Warning": 6
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 2,
+        "1st Qu.": 1,
         "Median": 3,
-        "Mean": 15.30769230769231,
-        "3rd Qu.": 11,
+        "Mean": 12.29411764705882,
+        "3rd Qu.": 6,
         "Max.": 138
       }
     },
@@ -851,33 +1192,71 @@
         "Hispanic/Latina/e/o alone",
         "Middle Eastern or North African alone",
         "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial & Hispanic/Latina/e/o",
         "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
         "Native Hawaiian or Pacific Islander alone",
         "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
-        "Unknown",
         "White alone",
         "White & Hispanic/Latina/e/o",
+        "Unknown",
         "Total"
       ],
-      "n": [
-        74,
+      "Veteran": [
+        16,
+        1,
+        0,
+        0,
+        85,
+        1,
+        0,
+        0,
+        0,
+        11,
+        2,
+        0,
+        0,
+        358,
         19,
-        23,
+        2,
+        495
+      ],
+      "Non-Veteran/Unknown": [
+        11,
+        5,
+        6,
+        0,
+        284,
+        7,
+        1,
+        0,
+        0,
+        63,
         4,
-        1035,
-        26,
-        12,
         0,
-        0,
-        15,
-        181,
-        9,
+        2,
+        1007,
+        54,
         3,
-        19,
-        2984,
-        205,
-        4609
+        1447
+      ],
+      "Total": [
+        27,
+        6,
+        6,
+        0,
+        369,
+        8,
+        1,
+        0,
+        0,
+        74,
+        6,
+        0,
+        2,
+        1365,
+        73,
+        5,
+        1942
       ]
     },
     "sys_comp_report_pct_df": {
@@ -891,164 +1270,177 @@
         "Hispanic/Latina/e/o alone",
         "Middle Eastern or North African alone",
         "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial & Hispanic/Latina/e/o",
         "Multi-Racial (not Hispanic/Latina/e/o)",
+        "Multi-Racial & Hispanic/Latina/e/o",
         "Native Hawaiian or Pacific Islander alone",
         "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
-        "Unknown",
         "White alone",
         "White & Hispanic/Latina/e/o",
+        "Unknown",
         "Total"
       ],
-      "pct": [
-        "1.6%",
+      "Veteran": [
+        "3.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "17.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "0%",
+        "2.2%",
         "0.4%",
+        "0%",
+        "0%",
+        "72.3%",
+        "3.8%",
+        "0.4%",
+        "25.5%"
+      ],
+      "Non-Veteran/Unknown": [
+        "0.8%",
+        "0.3%",
+        "0.4%",
+        "0%",
+        "19.6%",
         "0.5%",
         "0.1%",
-        "22.5%",
-        "0.6%",
-        "0.3%",
         "0%",
         "0%",
-        "0.3%",
-        "3.9%",
-        "0.2%",
-        "0.1%",
-        "0.4%",
-        "64.7%",
         "4.4%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "69.6%",
+        "3.7%",
+        "0.2%",
+        "74.5%"
+      ],
+      "Total": [
+        "1.4%",
+        "0.3%",
+        "0.3%",
+        "0%",
+        "19%",
+        "0.4%",
+        "0.1%",
+        "0%",
+        "0%",
+        "3.8%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "70.3%",
+        "3.8%",
+        "0.3%",
         "100%"
       ]
     },
     "sys_inflow_outflow_report": {
-      "PersonalID": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "active_at_start_homeless_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1369060533738338,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "active_at_start_housed_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1245389455413322,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "return_from_perm_client": {
-        "Mode": "logical",
-        "FALSE": "4320",
-        "TRUE": "289"
-      },
-      "reengaged_from_temp_client": {
-        "Mode": "logical",
-        "FALSE": "4072",
-        "TRUE": "537"
-      },
-      "InflowTypeSummary": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "InflowTypeDetail": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "perm_dest_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.3300065090041224,
-        "3rd Qu.": 1,
-        "Max.": 1
-      },
-      "temp_dest_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.3862009112605772,
-        "3rd Qu.": 1,
-        "Max.": 1
-      },
-      "homeless_at_end_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1657626383163376,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "housed_at_end_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.1180299414189629,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "unknown_at_end_client": {
-        "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 0.008895638967238013,
-        "3rd Qu.": 0,
-        "Max.": 1
-      },
-      "OutflowTypeSummary": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      },
-      "OutflowTypeDetail": {
-        "Length": "4609",
-        "Class": "character",
-        "Mode": "character"
-      }
-    },
-    "sys_status_report": {
-      "Begin": [
-        "Homeless",
-        "Homeless",
-        "Homeless",
-        "Homeless",
-        "Homeless",
+      "Detail": [
         "Housed",
-        "Housed",
-        "Housed",
-        "Housed",
-        "Housed"
-      ],
-      "End": [
-        "Enrolled, Homeless",
-        "Enrolled, Housed",
+        "Homeless",
+        "First-Time Homeless",
+        "Returned from Permanent",
+        "Re-engaged from Non-Permanent",
         "Exited, Non-Permanent",
         "Exited, Permanent",
         "Inactive",
-        "Enrolled, Homeless",
+        "Homeless",
+        "Housed"
+      ],
+      "Summary": [
+        "Active at Start",
+        "Active at Start",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Active at End",
+        "Active at End"
+      ],
+      "InflowOutflow": [
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow"
+      ],
+      "PlotFillGroups": [
+        "Housed",
+        "Homeless",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Homeless",
+        "Housed"
+      ],
+      "N": [
+        575,
+        301,
+        970,
+        61,
+        35,
+        288,
+        663,
+        0,
+        344,
+        647
+      ],
+      "order": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "sys_status_report": {
+      "Begin": [
+        "Housed",
+        "Housed",
+        "Homeless",
+        "Housed",
+        "Homeless",
+        "Homeless",
+        "Homeless",
+        "Housed"
+      ],
+      "End": [
+        "Exited, Permanent",
         "Enrolled, Housed",
         "Exited, Non-Permanent",
+        "Exited, Non-Permanent",
+        "Enrolled, Homeless",
+        "Enrolled, Housed",
         "Exited, Permanent",
-        "Inactive"
+        "Enrolled, Homeless"
       ],
       "freq": [
-        127,
-        47,
-        217,
-        239,
-        1,
-        23,
-        249,
-        67,
-        231,
-        4
+        240,
+        262,
+        72,
+        59,
+        73,
+        38,
+        118,
+        14
       ]
     },
     "systemDQ_download": {
@@ -1081,58 +1473,58 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    2  ",
-          "Length:67         "
+          "Min.   :    2.0  ",
+          "Length:71         "
         ],
         [
-          "Error        :35  ",
-          "1st Qu.:   29  ",
+          "Error        :38  ",
+          "1st Qu.:   20.0  ",
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
-          "Median :  152  ",
+          "Warning      :30  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  839  ",
+          "Mean   :  850.1  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  529  ",
+          "3rd Qu.:  575.0  ",
           null
         ],
         [
           null,
-          "Max.   :11744  ",
+          "Max.   :11744.0  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-          "Length:998        ",
+          "Length:1006       ",
           "High Priority: 56  ",
           "Min.   :   1.00  ",
-          "Length:998        "
+          "Length:1006       "
         ],
         [
           "Class :character  ",
-          "Error        :437  ",
+          "Error        :442  ",
           "1st Qu.:   3.00  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :505  ",
+          "Warning      :508  ",
           "Median :   9.00  ",
           "Mode  :character  "
         ],
         [
           null,
           null,
-          "Mean   :  56.32  ",
+          "Mean   :  59.99  ",
           null
         ],
         [
@@ -1151,16 +1543,16 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:67         ",
-          "Length:67         "
+          "Length:71         ",
+          "Length:71         "
         ],
         [
-          "Error        :35  ",
+          "Error        :38  ",
           "Class :character  ",
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
+          "Warning      :30  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1235,14 +1627,14 @@
       ],
       "Errors": [
         [
-          "Length:8441       ",
-          "Length:8441       ",
-          "Length:8441       ",
-          "Length:8441       ",
-          "Length:8441       ",
-          "Length:8441       ",
-          "Length:8441       ",
-          "Length:8441       ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
+          "Length:12628      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1254,7 +1646,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-05-07  "
+          "1st Qu.:2020-05-29  "
         ],
         [
           "Mode  :character  ",
@@ -1265,7 +1657,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-02  "
+          "Median :2021-03-08  "
         ],
         [
           null,
@@ -1276,7 +1668,7 @@
           null,
           null,
           null,
-          "Mean   :2020-12-13  "
+          "Mean   :2021-01-24  "
         ],
         [
           null,
@@ -1287,7 +1679,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-11-16  "
+          "3rd Qu.:2021-12-14  "
         ],
         [
           null,
@@ -1303,14 +1695,14 @@
       ],
       "Warnings": [
         [
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
-          "Length:46687      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
+          "Length:46644      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1344,7 +1736,7 @@
           null,
           null,
           null,
-          "Mean   :2021-02-14  "
+          "Mean   :2021-02-13  "
         ],
         [
           null,
@@ -1355,7 +1747,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-07  "
+          "3rd Qu.:2022-01-06  "
         ],
         [
           null,
@@ -1371,28 +1763,28 @@
       ],
       "Overlap Details": [
         [
-          "Length:872        ",
-          "Length:872        ",
-          "AO:586  ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
+          "Length:867        ",
+          "Length:867        ",
+          "AO   :557  ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
           "Min.   :2013-12-11  ",
           "Min.   :2018-04-04  ",
           "Min.   :2020-03-20  ",
           "Min.   :2019-10-01  ",
           "Min.   :2019-09-25  ",
           "Min.   :2019-10-01  ",
-          "Length:872        ",
-          "Length:872        ",
-          "AO  :588  ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
-          "Length:872        ",
+          "Length:867        ",
+          "Length:867        ",
+          "AO   :557  ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
+          "Length:867        ",
           "Min.   :2012-03-22  ",
           "Min.   :2012-06-01  ",
           "Min.   :2019-10-04  ",
@@ -1402,21 +1794,21 @@
         [
           "Class :character  ",
           "Class :character  ",
-          "AC:285  ",
+          "AC   :242  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-03-29  ",
-          "1st Qu.:2020-06-02  ",
+          "1st Qu.:2020-03-27  ",
+          "1st Qu.:2020-06-01  ",
           "1st Qu.:2020-08-06  ",
           "1st Qu.:2020-07-20  ",
           "1st Qu.:2020-09-07  ",
           "1st Qu.:2020-09-10  ",
           "Class :character  ",
           "Class :character  ",
-          "AC  :279  ",
+          "AC   :242  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -1431,71 +1823,71 @@
         [
           "Mode  :character  ",
           "Mode  :character  ",
-          "CO:  1  ",
+          "CO   :  1  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2020-12-12  ",
-          "Median :2021-01-05  ",
+          "Median :2020-12-17  ",
+          "Median :2021-01-06  ",
           "Median :2021-02-24  ",
-          "Median :2021-03-31  ",
+          "Median :2021-04-04  ",
           "Median :2021-08-11  ",
           "Median :2021-08-15  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "CO  :  2  ",
+          "CO   :  2  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2020-11-10  ",
+          "Median :2020-11-11  ",
           "Median :2020-10-28  ",
-          "Median :2021-01-31  ",
+          "Median :2021-02-02  ",
           "Median :2021-06-05  ",
           "Median :2021-08-01  "
         ],
         [
           null,
           null,
-          "UN:  0  ",
+          "UN   :  0  ",
           null,
           null,
           null,
           null,
           null,
-          "Mean   :2021-01-12  ",
-          "Mean   :2021-01-29  ",
+          "Mean   :2021-01-14  ",
+          "Mean   :2021-01-30  ",
           "Mean   :2021-05-24  ",
-          "Mean   :2021-04-11  ",
+          "Mean   :2021-04-13  ",
           "Mean   :2021-05-08  ",
           "Mean   :2021-06-08  ",
           null,
           null,
-          "UN  :  0  ",
+          "UN   :  0  ",
           null,
           null,
           null,
           null,
           null,
-          "Mean   :2020-11-18  ",
+          "Mean   :2020-11-21  ",
           "Mean   :2020-09-19  ",
-          "Mean   :2021-02-21  ",
+          "Mean   :2021-02-22  ",
           "Mean   :2021-06-10  ",
           "Mean   :2021-07-19  "
         ],
         [
           null,
           null,
+          "AC-PY: 38  ",
           null,
           null,
           null,
           null,
           null,
-          null,
-          "3rd Qu.:2021-11-02  ",
+          "3rd Qu.:2021-11-05  ",
           "3rd Qu.:2021-11-01  ",
           "3rd Qu.:2022-05-30  ",
           "3rd Qu.:2021-12-16  ",
@@ -1503,7 +1895,7 @@
           "3rd Qu.:2022-02-06  ",
           null,
           null,
-          "NA's:  3  ",
+          "AC-PY: 32  ",
           null,
           null,
           null,
@@ -1518,7 +1910,7 @@
         [
           null,
           null,
-          null,
+          "AO-UY: 29  ",
           null,
           null,
           null,
@@ -1532,7 +1924,7 @@
           "Max.   :2022-09-30  ",
           null,
           null,
-          null,
+          "AO-UY: 31  ",
           null,
           null,
           null,
@@ -1554,24 +1946,24 @@
           null,
           null,
           null,
-          "NA's   :338  ",
-          "NA's   :810  ",
+          "NA's   :336  ",
+          "NA's   :805  ",
           "NA's   :124  ",
-          "NA's   :819  ",
-          "NA's   :819  ",
+          "NA's   :814  ",
+          "NA's   :814  ",
           null,
           null,
-          null,
+          "NA's :  3  ",
           null,
           null,
           null,
           null,
           null,
           "NA's   :3  ",
-          "NA's   :630  ",
+          "NA's   :625  ",
           "NA's   :57  ",
-          "NA's   :817  ",
-          "NA's   :817  "
+          "NA's   :812  ",
+          "NA's   :812  "
         ]
       ],
       "Referral Details": [
@@ -1647,6 +2039,40 @@
           null,
           "Max.   :1394.0  "
         ]
+      ]
+    },
+    "timelinessTable": {
+      "Time for Record Entry": [
+        "< 0 days",
+        "0 days",
+        "1-3 days",
+        "4-6 days",
+        "7-10 days",
+        "11+ days"
+      ],
+      "Number of Project Start Records": [
+        1,
+        18,
+        139,
+        58,
+        31,
+        84
+      ],
+      "Number of Project Exit Records": [
+        94,
+        9,
+        34,
+        20,
+        25,
+        143
+      ],
+      "Number of Current Living Situation Records": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0
       ]
     }
   }
