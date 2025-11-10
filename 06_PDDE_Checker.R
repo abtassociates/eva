@@ -604,11 +604,17 @@ lt_seas_inv <- lt_seas_inv %>%
   fsubset(is.na(InventoryEndDate) | avail_days > 365) %>% # filter to missing end date or avail_days over 365
   fselect(-avail_days) 
 
-lt_seas_inv <- lt_seas_inv %>%
-  fgroup_by(ProjectID) %>% 
-  fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
-                          paste0(unique(InventoryID), collapse = ", ") ))  %>%
-  fungroup %>%
+if(nrow(lt_seas_inv) > 0){
+  lt_seas_inv <- lt_seas_inv %>%
+    fgroup_by(ProjectID) %>% 
+    fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
+                           paste0(unique(InventoryID), collapse = ", ") ))  %>%
+    fungroup 
+}else{
+  lt_seas_inv <- lt_seas_inv %>%
+    fmutate(Detail = "")
+}
+lt_seas_inv <- lt_seas_inv %>% 
   merge_check_info_dt(checkIDs = 37) %>%
   fselect(PDDEcols) %>% 
   funique()

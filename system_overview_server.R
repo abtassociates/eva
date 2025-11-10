@@ -394,6 +394,7 @@ period_specific_data <- reactive({
     get_inflows_and_outflows() %>%
     remove_sequential_inactives()
   
+  exportTestValues(period_data = period_data)
   if(IN_DEV_MODE) {
     inflow_outflow_qc_checks(period_data)
     # browser()
@@ -678,10 +679,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
-      sort_var = fifelse(straddles_start, ProjectTypeWeight, as.numeric(active_start))
+      sort_var = fifelse(straddles_start, ProjectTypeWeight, -as.numeric(active_start))
     ) %>%
     # New eecr
-    roworder(PersonalID, period, -straddles_start, -sort_var, ExitAdjust, verbose = F) %>%
+    roworder(PersonalID, period, -straddles_start, -sort_var, -ProjectTypeWeight, ExitAdjust, verbose = F) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="first") %>%
     fmutate(
@@ -712,7 +713,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       sort_var = fifelse(straddles_end, ProjectTypeWeight, as.numeric(fifelse(ExitAdjust >= startDate, ExitAdjust, active_end))),
       sort_var2 = fifelse(straddles_end, -1*as.numeric(MoveInDateAdjust), fifelse(ExitAdjust >= startDate, Destination/400, 0)) # Destination/400 to make it a double and comparable to as.numeric(MoveInDateadjust) which is a double
     ) %>%
-    roworder(PersonalID, period, straddles_end, sort_var, sort_var2, verbose = F, na.last = FALSE) %>%
+    roworder(PersonalID, period, straddles_end, sort_var, sort_var2, ProjectTypeWeight, verbose = F, na.last = FALSE) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="last") %>%
     fmutate(
@@ -794,9 +795,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         InflowTypeDetail, 
         `Active at Start` = active_at_levels, 
         Inflow = inflow_chart_detail_levels
-      ),
-      
-      eecr = 1
+      )
     )
   
   outflows <- lecrs %>%
@@ -858,21 +857,33 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         OutflowTypeDetail,
         `Active at End` = active_at_levels, 
         Outflow = outflow_chart_detail_levels
-      ),
-      
-      lecr = 1
+      )
     )
   
-  final <- join(
+  inflows_and_outflows <- join(
     inflows, 
-    outflows, 
+    outflows,
     on=c("PersonalID","period"), 
-    how="inner", 
-    drop.dup.cols = "y"
-  )
-    
-  # final[PersonalID == 637203, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end, pre_active, next_active, active_at_start, exit_dest_perm)]
-  return(final)
+    how = "inner",
+    suffix = "_lecr"
+  ) %>%
+    fselect(
+      PersonalID, 
+      period, 
+      InflowTypeDetail, OutflowTypeDetail, 
+      InflowTypeSummary, OutflowTypeSummary, 
+      EnrollmentID, EnrollmentID_lecr, 
+      first_active_date_in_period, prev_active
+    )
+  
+  if(!IN_DEV_MODE) {
+    # only need these vars for QC checks
+    inflows_and_outflows <- inflows_and_outflows %>%
+      fselect(-first_active_date_in_period, -prev_active)
+  }
+
+  # inflows_and_outflows[PersonalID == 637203, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
+  return(inflows_and_outflows)
 }
 
 remove_sequential_inactives <- function(inflows_and_outflows) {
@@ -1011,15 +1022,15 @@ store_enrollment_categories_all_for_qc <- function(all_filtered) {
 }
 
 
-inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
+inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
   
   ## Inflow Unknown in Full Period -------
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records <- inflows_and_outflows_clean %>%
     fsubset(InflowTypeDetail == "Unknown" & period == "Full")
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There's an Inflow-Unknown in the Full Annual data")
     if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
-      bad_records <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean) %>% 
+      bad_records <- get_all_enrollments_for_debugging(bad_records, inflows_and_outflows_clean) %>% 
         fselect(inflow_debug_cols)
       view(bad_records)
       browser()
@@ -1027,7 +1038,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   }
   
   ## Something's Wrong -------
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records <- inflows_and_outflows_clean %>%
     fsubset(
       InflowTypeSummary == "something's wrong" | 
         OutflowTypeSummary == "something's wrong"
@@ -1035,7 +1046,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   if(nrow(bad_records) > 0) {
     logToConsole(session, "ERROR: There are clients whose Inflow or Outflow is 'something's wrong'")
     if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
-      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, universe_w_ppl_flags_clean, multiple=TRUE) %>%
+      somethings_wrongs <- get_all_enrollments_for_debugging(bad_records, inflows_and_outflows_clean, multiple=TRUE) %>%
         fgroup_by(PersonalID) %>%
         fmutate(
           has_inflow_wrong = anyv(InflowTypeDetail, "something's wrong"),
@@ -1065,28 +1076,42 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   }
   
   ## First/Last Month Inflow/Outflow != Full Inflow/Outflow-------
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records_enrollid <- inflows_and_outflows_clean %>%
     fgroup_by(PersonalID) %>%
     fsummarize(
-      first_enrl_month_inflow = ffirst(fifelse(period != "Full", InflowTypeDetail, NA)),
-      full_period_inflow = ffirst(fifelse(period == "Full", InflowTypeDetail, NA)),
+      first_enrl_month_inflow = ffirst(fifelse(period != "Full", EnrollmentID, NA)),
+      full_period_inflow = ffirst(fifelse(period == "Full", EnrollmentID, NA)),
       
-      last_enrl_month_outflow = flast(fifelse(period != "Full", OutflowTypeDetail, NA)),
-      last_enrl_month_outflow_noninactive = flast(fifelse(period != "Full" & OutflowTypeDetail != "Inactive", OutflowTypeDetail, NA)),
-      full_period_outflow = flast(fifelse(period == "Full", OutflowTypeDetail, NA))
+      last_enrl_month_outflow = flast(fifelse(period != "Full", EnrollmentID_lecr, NA)),
+      last_enrl_month_outflow_noninactive = flast(fifelse(period != "Full" & OutflowTypeDetail != "Inactive", EnrollmentID_lecr, NA)),
+      full_period_outflow = flast(fifelse(period == "Full", EnrollmentID_lecr, NA)),
+      full_period_outflow_status = flast(fifelse(period == "Full", OutflowTypeDetail, NA))
     ) %>%
     fungroup() %>%
     fsubset(
       first_enrl_month_inflow != full_period_inflow |
-      (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
-      (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
+        (last_enrl_month_outflow != full_period_outflow & full_period_outflow_status == "Inactive") |
+        (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow_status != "Inactive")
+    ) %>%
+    fmutate(
+      disc = fcase(
+        first_enrl_month_inflow != full_period_inflow & (
+          (last_enrl_month_outflow != full_period_outflow & full_period_outflow_status == "Inactive") |
+            (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow_status != "Inactive")
+          ), "both",
+        first_enrl_month_inflow != full_period_inflow, "inflow",
+        (last_enrl_month_outflow != full_period_outflow & full_period_outflow_status == "Inactive") |
+          (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow_status != "Inactive"), "outflow"
+        
+      )
     )
+
   if(nrow(bad_records) > 0)  {
     logToConsole(session, "ERROR: There are clients whose first-month Inflow != Full Period Inflow and/or last-month Outflow != Full Period outflow")
     if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_first_inflow_records <- get_all_enrollments_for_debugging(
         bad_records[first_enrl_month_inflow != full_period_inflow],
-        universe_w_ppl_flags_clean,
+        inflows_and_outflows_clean,
         multiple = TRUE
       )
       if(nrow(bad_first_inflow_records) > 0) {
@@ -1111,7 +1136,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
           (last_enrl_month_outflow != full_period_outflow & full_period_outflow == "Inactive") |
             (last_enrl_month_outflow_noninactive != full_period_outflow & full_period_outflow != "Inactive")
         ],
-        universe_w_ppl_flags_clean,
+        inflows_and_outflows_clean,
         multiple = TRUE
       )
       if(nrow(bad_last_outflow_records) > 0) {
@@ -1130,12 +1155,12 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
           browser()
         }
       }
-      # universe_w_ppl_flags_clean[PersonalID == 565354, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
+      # inflows_and_outflows_clean[PersonalID == 565354, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
     }
   }
   
   ## ASHomeless and EntryDate on first of month with no recent days_since_last_lh -------
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records <- inflows_and_outflows_clean %>%
     join(enrollment_categories_all, on="PersonalID", how="left", multiple=TRUE) %>%
     fsubset(period != "Full") %>%
     fsubset(
@@ -1148,7 +1173,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
     if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_ashomeless <- get_all_enrollments_for_debugging(
         bad_records,
-        universe_w_ppl_flags_clean,
+        inflows_and_outflows_clean,
         multiple = TRUE
       )
       view(bad_ashomeless)
@@ -1157,7 +1182,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   }
   
   ## Re-Engaged/Return after Non-Exit ---
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records <- inflows_and_outflows_clean %>%
     fsubset(
       period != "Full", 
       PersonalID, period, InflowTypeDetail, OutflowTypeDetail
@@ -1177,7 +1202,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
     if(IN_DEV_MODE) {
       bad_return_after_nonexit <- get_all_enrollments_for_debugging(
         bad_records,
-        universe_w_ppl_flags_clean,
+        inflows_and_outflows_clean,
         multiple = TRUE
       ) %>%
         fselect(
@@ -1192,7 +1217,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
   }
   
   ## Non-Re-Engaged/Return after Exit ---
-  bad_records <- universe_w_ppl_flags_clean %>%
+  bad_records <- inflows_and_outflows_clean %>%
     fsubset(
       period != "Full", 
       PersonalID, period, InflowTypeDetail, OutflowTypeDetail
@@ -1212,7 +1237,7 @@ inflow_outflow_qc_checks <- function(universe_w_ppl_flags_clean) {
     if(IN_DEV_MODE) {
       bad_nonreturn_after_exit <- get_all_enrollments_for_debugging(
         bad_records,
-        universe_w_ppl_flags_clean,
+        inflows_and_outflows_clean,
         multiple = TRUE
       ) %>%
         fselect(

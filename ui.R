@@ -277,7 +277,7 @@ page_navbar(
       )
     )
   ),
-  
+
   # Data Quality tab ----------------------
   nav_menu(
     title = "Data Quality",
@@ -315,10 +315,8 @@ page_navbar(
           dateRangeInput(
             inputId = 'dq_export_date_multiple',
             label = NULL,
-            start = NULL,
-            end = NULL,
-            min = NULL,
-            max = NULL,
+            start = NA,
+            end = NA,
             format = "mm/dd/yyyy"
           )
         ),
@@ -327,9 +325,7 @@ page_navbar(
           dateInput(
             inputId = 'dq_export_date_single',
             label = NULL,
-            value = NULL,
-            min = NULL,
-            max = NULL,
+            value = NA,
             format = "mm/dd/yyyy"
           )
         )
@@ -414,8 +410,8 @@ page_navbar(
             "dateRangeCount",
             label = 'Date Range',
             format = "mm/dd/yyyy",
-            start = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today())),
-            end = if_else(isTRUE(getOption("shiny.testmode")), ymd("20231005"), ymd(today()))#,
+            start = NA,
+            end = NA
             #width = 300
           ),
           pickerInput(
