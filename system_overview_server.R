@@ -864,7 +864,6 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
     inflows, 
     outflows,
     on=c("PersonalID","period"), 
-    drop.dup.cols = !IN_DEV_MODE,
     how = "inner",
     suffix = "_lecr"
   ) %>%

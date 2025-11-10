@@ -107,14 +107,19 @@ output$client_level_download_btn <- downloadHandler(
     #Monthly Statuses
 
     monthly_statuses <- period_specific_data()[["Months"]] %>%
+      join(
+        session$userData$enrollment_categories %>% 
+          fmutate(
+            moved_into_housing = ProjectType %in% ph_project_types & 
+              between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE)
+          ) %>%
+          fselect(EnrollmentID, moved_into_housing),
+        on = "EnrollmentID"
+      ) %>%
       fsubset(
         InflowTypeSummary == "Inflow" |
         OutflowTypeSummary == "Outflow" |
         !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_export
-      ) %>%
-      fmutate(
-        moved_into_housing = ProjectType %in% ph_project_types & 
-                between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE)
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
