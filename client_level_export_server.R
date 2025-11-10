@@ -57,8 +57,6 @@ output$client_level_download_btn <- downloadHandler(
     
     enrollment_fields <- c(
       "PersonalID",
-      "eecr",
-      "lecr",
       "EnrollmentID",
       "HouseholdType",
       "CorrectedHoH",
@@ -69,24 +67,27 @@ output$client_level_download_btn <- downloadHandler(
       "ExitAdjust",
       "Destination"
     )
-
-    enrollment_info <- get_client_level_export() %>%
-      fselect(c(enrollment_fields, "InflowTypeDetail")) %>%
+    
+    eecr_lecr_enrollment_info <- session$userData$enrollment_categories %>% 
+      fselect(enrollment_fields) %>%
       fmutate(
         Destination = living_situation(Destination),
         LivingSituation = living_situation(LivingSituation),
         HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
       )
 
-    earliest_report_info <- enrollment_info %>% 
-      fsubset(eecr == 1, -InflowTypeDetail)
-    
+
+    earliest_report_info <- get_client_level_export() %>%
+      fselect(PersonalID, EnrollmentID) %>%
+      join(eecr_lecr_enrollment_info, on="EnrollmentID")
+
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
              new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
     
-    latest_report_info <- enrollment_info %>%
-      fsubset(lecr == 1, -InflowTypeDetail)
+    latest_report_info <- get_client_level_export() %>%
+      fselect(PersonalID, EnrollmentID = EnrollmentID_lecr) %>%
+      join(eecr_lecr_enrollment_info, on="EnrollmentID")
     
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 

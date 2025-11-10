@@ -795,9 +795,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         InflowTypeDetail, 
         `Active at Start` = active_at_levels, 
         Inflow = inflow_chart_detail_levels
-      ),
-      
-      eecr = 1
+      )
     )
   
   outflows <- lecrs %>%
@@ -859,9 +857,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         OutflowTypeDetail,
         `Active at End` = active_at_levels, 
         Outflow = outflow_chart_detail_levels
-      ),
-      
-      lecr = 1
+      )
     )
   
   inflows_and_outflows <- join(
@@ -869,8 +865,23 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
     outflows,
     on=c("PersonalID","period"), 
     drop.dup.cols = !IN_DEV_MODE,
-    how="inner"
-  )
+    how = "inner",
+    suffix = "_lecr"
+  ) %>%
+    fselect(
+      PersonalID, 
+      period, 
+      InflowTypeDetail, OutflowTypeDetail, 
+      InflowTypeSummary, OutflowTypeSummary, 
+      EnrollmentID, EnrollmentID_lecr, 
+      first_active_date_in_period, prev_active
+    )
+  
+  if(!IN_DEV_MODE) {
+    # only need these vars for QC checks
+    inflows_and_outflows <- inflows_and_outflows %>%
+      fselect(-first_active_date_in_period, -prev_active)
+  }
 
   # inflows_and_outflows[PersonalID == 637203, .(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail)]
   return(inflows_and_outflows)
