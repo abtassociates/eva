@@ -131,6 +131,25 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
 
 get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
+  client_counts_metadata <- data.table(
+    Chart = c(
+      "Export Date",
+      "Export Start",
+      "Export End",
+      "Start Date",
+      "End Date",
+      "Timeliness: Max Record Entry Days"
+    ),
+    Value = c(
+      strftime(session$userData$meta_HUDCSV_Export_Date,"%m/%d/%y"),
+      strftime(session$userData$meta_HUDCSV_Export_Start,"%m/%d/%y"),
+      strftime(session$userData$meta_HUDCSV_Export_End,"%m/%d/%y"),
+      strftime(input$dateRangeCount[1], "%m/%d/%y"),
+      strftime(input$dateRangeCount[2], "%m/%d/%y"),
+      input$timeliness_metric
+    )
+  )
+  
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
@@ -215,6 +234,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
  
   
   exportDFList <- list(
+    Metadata = client_counts_metadata,
     validationDateRange = validationDateRange %>% nice_names(),
     validationFullExportRange = validationFullExportRange %>% nice_names(),
     validationDetail = validationDetail %>% nice_names(),
@@ -223,6 +243,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   )
   
   names(exportDFList) = c(
+    "Metadata", 
     "validation - Date Range",
     "validation - Full Export Range",
     "validation - Detail",
