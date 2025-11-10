@@ -11,6 +11,7 @@ output$changelog <- renderDT({
       - 4 PDDE checks (IDs 35, 36, 37, 106) and 2 DQ checks (IDs 107, 108)<br>
       - Major UI update, due to upgrade to bootstrap5<br>
       - Performance improvements<br>
+      - Fixes to System Inflow and Outflow logic<br>
     <b>Bug Fixes</b> <br>
       - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
       - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
