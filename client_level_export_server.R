@@ -112,24 +112,26 @@ output$client_level_download_btn <- downloadHandler(
         OutflowTypeSummary == "Outflow" |
         !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_export
       ) %>%
+      fmutate(
+        moved_into_housing = ProjectType %in% ph_project_types & 
+                between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE)
+      ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
-        `Moved into Housing During Report` = anyv(
-          lecr & 
-          ProjectType %in% ph_project_types & 
-          between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE),
-          TRUE
-        ),
+        `Moved into Housing During Report` = anyv(moved_into_housing, TRUE),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
+        last_outflow = flast(OutflowTypeDetail)
+      ) %>%
+      fungroup() %>%
+      fmutate(
         `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
-          flast(OutflowTypeDetail),
+          last_outflow,
           "Exited, Permanent" ~ "Yes - Exited, Permanent",
           "Housed" ~ "Yes - Enrolled, Housed",
           "Homeless" ~ "No - Enrolled, Homeless",
-          .default = paste0("No - ", flast(OutflowTypeDetail))
+          .default = paste0("No - ", last_outflow)
         )
       ) %>%
-      fungroup() %>%
       fselect(
         PersonalID, 
         `Moved into Housing During Report`,
