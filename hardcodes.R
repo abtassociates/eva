@@ -87,7 +87,7 @@ non_res_nonlh_project_types <- setdiff(non_res_project_types, out_project_type)
 
 nbn_non_res <- c(es_nbn_project_type, non_res_project_types)
 
-project_types_w_cls <- c(1, 4, 6, 14)
+project_types_w_cls <- c(1, 4, 6, 7, 11, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 

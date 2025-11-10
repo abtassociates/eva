@@ -572,7 +572,7 @@ output$timeliness_vb3 <- renderUI({
   num_hours <- 24 * input$timeliness_metric
   num_hours_var <- "n_lt_metric"
   
-  if(cc_project_type() == 1 & !is.null(tl_df_nbn())){
+  if(!is.null(tl_df_nbn())){
     num_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
     den_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
   } else {
@@ -580,7 +580,7 @@ output$timeliness_vb3 <- renderUI({
     den_nbn <- 0
   }
   
-  if(cc_project_type() %in% c(0,1,6,14) & !is.null(tl_df_cls())){
+  if(!is.null(tl_df_cls())){
     num_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
     den_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
   } else {
@@ -653,7 +653,7 @@ output$timelinessTable <- renderDT({
     dat$nbn <- NULL
   }
   
-  if(cc_project_type() %in% c(0,1,6,14) & input$currentProviderList %in% tl_df_cls()$ProjectName){
+  if(cc_project_type() %in% project_types_w_cls & input$currentProviderList %in% tl_df_cls()$ProjectName){
     dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$cls <- NULL
