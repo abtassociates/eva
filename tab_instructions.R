@@ -563,7 +563,8 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                 <br>
                                 <h4>Summary and Detail Charts</h4>
                                 <p>The Summary and Detail Charts show the total number of clients active in the system at the start and end of the period and whether they are homeless at that time or housed (and still receiving assistance). The Summary Chart shows the inflow and outflow of clients that occurred throughout the period. The Detail Chart breaks down inflow and outflow into several categories. </p>
-                                
+
+                                <br>
                                 <ul>
                                   <li><b>Inflow</b> is categorized into three groups: 
                                   \"First-Time Homeless,\" \"Returned from Permanent,\" and 
@@ -572,30 +573,35 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                   \"Exited, Non-Permanent,\" \"Exited, Permanent,\" and \"Inactive.\"</li>
                                 </ul>
                                 
-                                <p>In the Summary and Detail Charts, the Total Change value: </p><br>
+                                <p>In the Summary and Detail Charts, the Total Change value is the Outflow value(s) minus Inflow value(s) and is represented by: </p><br>
                                 <pre><code>Total Change = Inflow value(s) - Outflow value(s)</code></pre><br>
 
-                                <p>represents the Outflow value(s) minus Inflow value(s). A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
+                                <p>A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
                                 <br>
                                 <h4>Month-by-Month Chart</h4>
                                 <p>The Month-by-Month Chart, which includes a stacked bar chart and a data table, shows Inflow and Outflow counts by month over a 12-month period. The stacked bar chart visually compares, by month, the total count of people that enter the homeless system <b>(Inflow)</b> or are continuingly experiencing homelessness in the system <b>(Active at Start: Homeless)</b> with the total count of people that exited the system <b>(Outflow)</b> or are permanently housed within the system <b>(Active at End: Housed)</b> all within that given month.</p>
-                                
-                                <p>The actual counts of each category in a given month are listed in a table below the chart, including the Monthly Change value. The <b>Monthly Change</b> value:</p>
+
+                                <br>
+                                <p>Note that a client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March. The actual counts of each category in a given month are listed in a table below the chart, including the <b>Monthly Change</b> value which is represented by:</p>
                                 <br>
                                 <pre><code>Monthly Change = Inflow (for a given month) - Outflow (for a given month)</code></pre>
                                 <br>
                                 <p>A negative Monthly Change value means more clients left your system than flowed into your system during a given month. A positive Monthly Change value means more clients flowed into your system than left your system during a given month. The months that have the most inflow and the most outflow are colored in the table.</p>
-                                
+
+                                <br>
                                 <p>The <b>Average Monthly Change, Average Monthly Inflow, and Average Monthly Outflow</b> values have the same underlying calculation represented by:</p>
                                 <br>
                                 <pre><code>Average Monthly [Value] = (Month Value 1 + Month Value 2 + ...) / 12</code></pre>
                                 <br>
                                 <p>A negative Average Monthly Change value means, on average, more clients left your system than flowed into your system each month. A positive Average Monthly Change value means, on average, more clients flowed into your system than left your system each month. </p>
                                 <br>
-                                <p>Note: A client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March.</p>
+                                <p>The Month-by-Month Chart also has three Flow Type Filters for viewing monthly \"First-Time Homeless\" and \"Inactive\" client counts.</p>
                                 <br>
-                                <p>The Month-by-Month Chart also has Flow Type Filters for viewing \"First-Time Homeless\" and \"Inactive\" client counts. The default Flow Type Filter is \"All\" which shows the Inflow, Outflow, and baseline numbers together.</p>
-                                <br>
+                                <ul>
+                                  <li> The <b>\"All\" filter view</b> shows the Active at Start: Homeless, Inflow, Outflow, and Active at End: Housed numbers together. This is the chart's default Flow Type Filter.</li>
+                                  <li> The <b>\"First-Time Homeless\" filter view</b> shows the monthly counts of clients with this Inflow status. You can use this view to see when \"First-Time Homeless\" clients are flowing into your system.</li>
+                                  <li> The <b>\"Inactive\" filter view</b> shows the monthly counts of clients with this Outflow status. You can use this view to see when clients are becoming inactive in your system.</li>
+                                </ul>
                                 
                                 <h4>Interpretation Tips</h4>
                                 <p>This section provides general tips on how to 
