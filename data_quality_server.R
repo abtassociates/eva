@@ -40,13 +40,15 @@ output$downloadPDDEReport <- downloadHandler(
     summary_df <- session$userData$pdde_main %>% 
       fgroup_by(Issue, Type) %>%
       fsummarise(Count = GRPN()) %>%
-      fungroup()
+      fungroup() %>% 
+      roworder(Type, Issue) 
     
     data_df <-session$userData$pdde_main %>% 
       join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
       colorder(ProjectName, ProjectType, pos="after") %>%
       fmutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
-      nice_names() 
+      roworder(Type, Issue) %>% 
+      nice_names()
     
     write_xlsx(
       list("Summary" = summary_df,
@@ -67,10 +69,10 @@ output$pdde_summary_table <- renderDT({
   req(nrow(session$userData$pdde_main) > 0)
 
   a <- session$userData$pdde_main %>%
-    group_by(Issue, Type) %>%
-    summarise(Count = n()) %>%
-    ungroup() %>%
-    arrange(Type)
+    fgroup_by(Issue, Type) %>%
+    fsummarise(Count = GRPN()) %>%
+    fungroup() %>%
+    roworder(Type)
   
   exportTestValues(pdde_summary_table = summarize_df(a))
   
@@ -89,9 +91,9 @@ output$pdde_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
   req(nrow(session$userData$pdde_main) > 0)
   guidance <- session$userData$pdde_main %>%
-    select(Type, Issue, Guidance) %>%
-    arrange(Type, Issue) %>%
-    unique()
+    fselect(Type, Issue, Guidance) %>%
+    roworder(Type, Issue) %>%
+    funique()
   
   exportTestValues(pdde_guidance_summary = summarize_df(guidance))
   
@@ -113,17 +115,17 @@ output$dq_organization_summary_table <- renderDT({
   req(nrow(session$userData$dq_main) > 0)
 
   a <- session$userData$dq_main %>%
-    filter(OrganizationName %in% c(input$orgList)) %>%
-    select(ProjectName, 
+    fsubset(OrganizationName %in% c(input$orgList)) %>%
+    fselect(ProjectName, 
            Type, 
            Issue, 
            PersonalID) %>%
-    group_by(ProjectName, 
+    fgroup_by(ProjectName, 
              Type, 
              Issue) %>%
-    summarise(Clients = n()) %>%
-    arrange(Type, desc(Clients)) %>%
-    select("Project Name" = ProjectName, 
+    fsummarise(Clients = GRPN()) %>%
+    roworder(Type, -Clients) %>%
+    fselect("Project Name" = ProjectName, 
            Type, 
            Issue, 
            Clients)
@@ -147,9 +149,6 @@ output$dq_org_guidance_summary <- renderDT({
   guidance <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(Type, Issue, Guidance) %>%
-    fmutate(Type = factor(Type, levels = c("High Priority",
-                                          "Error",
-                                          "Warning"))) %>%
     roworder(Type, Issue) %>%
     funique()
   
@@ -489,10 +488,9 @@ getDQReportDataList <- function(
   
   
   guidance <- dqData %>%
-    select(Type, Issue, Guidance) %>%
-    unique() %>%
-    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-    arrange(Type)
+    fselect(Type, Issue, Guidance) %>%
+    funique() %>%
+    roworder(Type)
   
   exportDetail <- data.table(
     `Export Field` = c("Export Start", "Export End", "Export Date"),
@@ -740,10 +738,11 @@ output$dq_export_download_btn <- downloadHandler(
         for(i in orgs_to_save){
           
           summary_df <- session$userData$pdde_main %>% 
-            filter(OrganizationName == i) %>% 
-            group_by(Issue, Type) %>%
-            summarise(Count = n()) %>%
-            ungroup()
+            fsubset(OrganizationName == i) %>% 
+            fgroup_by(Issue, Type) %>%
+            fsummarise(Count = GRPN()) %>%
+            fungroup() %>% 
+            roworder(Type, Issue)
           
           if(nrow(summary_df) == 0) next
           
@@ -758,8 +757,10 @@ output$dq_export_download_btn <- downloadHandler(
           write_xlsx(
             list("Summary" = summary_df,
                  "Data" = session$userData$pdde_main %>% 
-                   filter(OrganizationName == i) %>% 
-                   left_join(session$userData$Project0 %>% filter(OrganizationName == i) %>% select(ProjectID, ProjectType), by="ProjectID") %>%
+                   fsubset(OrganizationName == i) %>% 
+                   join(session$userData$Project0 %>% fsubset(OrganizationName == i) %>% fselect(ProjectID, ProjectType), 
+                        how = "left", on="ProjectID") %>%
+                   roworder(Type, Issue) %>% 
                    nice_names()
             ),
             path = file.path(tempdir(), str_glue(zip_prefix, pdde_filename))
@@ -827,18 +828,18 @@ output$dq_export_download_btn <- downloadHandler(
         pdde_filename <- date_stamped_filename("System-level PDDE Report-")
         
         summary_df <- session$userData$pdde_main %>% 
-          group_by(Issue, Type) %>%
-          summarise(Count = n()) %>%
-          ungroup()
+          fgroup_by(Issue, Type) %>%
+          fsummarise(Count = GRPN()) %>%
+          fungroup() %>% 
+          roworder(Type, Issue) 
         
         if(nrow(summary_df) == 0) break
 
         write_xlsx(
           list("Summary" = summary_df,
                "Data" = session$userData$pdde_main %>% 
-                 left_join(session$userData$Project0 %>% select(ProjectID, ProjectType), by="ProjectID") %>%
-                 mutate(Type = factor(Type, levels = c('High Priority', 'Error', 'Warning'))) %>% 
-                 arrange(Type, Issue) %>% 
+                 join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
+                 roworder(Type, Issue) %>% 
                  nice_names()
           ),
           path = file.path(path_prefix,pdde_filename))
