@@ -131,13 +131,32 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
 
 get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
+  client_counts_metadata <- data.table(
+    Chart = c(
+      "Export Date",
+      "Export Start",
+      "Export End",
+      "Start Date",
+      "End Date",
+      "Timeliness: Max Record Entry Days"
+    ),
+    Value = c(
+      strftime(session$userData$meta_HUDCSV_Export_Date,"%m/%d/%y"),
+      strftime(session$userData$meta_HUDCSV_Export_Start,"%m/%d/%y"),
+      strftime(session$userData$meta_HUDCSV_Export_End,"%m/%d/%y"),
+      strftime(input$dateRangeCount[1], "%m/%d/%y"),
+      strftime(input$dateRangeCount[2], "%m/%d/%y"),
+      input$timeliness_metric
+    )
+  )
+  
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
   
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
-  validationDateRange <- 
+  validationFullExportRange <- 
     pivot_and_sum(
       validationDF, isDateRange = TRUE
     ) %>%
@@ -156,7 +175,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
-  validationLatest <- 
+  validationDateRange <- 
     pivot_and_sum(
       validationDF %>%
         fsubset(EntryDate <= input$dateRangeCount[2] &
@@ -215,26 +234,28 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
  
   
   exportDFList <- list(
-    validationLatest = validationLatest %>% nice_names(),
+    Metadata = client_counts_metadata,
     validationDateRange = validationDateRange %>% nice_names(),
+    validationFullExportRange = validationFullExportRange %>% nice_names(),
     validationDetail = validationDetail %>% nice_names(),
     validationStart = validationStart,
     validationExit = validationExit
   )
   
   names(exportDFList) = c(
-    "validation - Latest in Range",
+    "Metadata", 
     "validation - Date Range",
+    "validation - Full Export Range",
     "validation - Detail",
     "validation - Timeliness Start",
     "validation - Timeliness Exit"
   )
   
   exportTestValues(
-    client_count_download_current = summarize_df(validationLatest %>% nice_names())
+    client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
   exportTestValues(
-    client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
+    client_count_download_full_export_range = summarize_df(validationFullExportRange %>% nice_names())
   )
   exportTestValues(
     client_count_download_detail = validationDetail %>% nice_names()
@@ -394,7 +415,7 @@ calc_time_to_entry <- function(df){
       n_records = GRPN(),
       #n_lt24 = fsum(HoursToEntry < 24),
       #n_lt48 = fsum(HoursToEntry < 48),
-      n_lt_metric = fsum(HoursToEntry < (24 * input$timeliness_metric)),
+      n_lt_metric = fsum(DaysToEntry <= input$timeliness_metric),
       mdn = fmedian(DaysToEntry,na.rm=T),
       nlt0 = fsum(DaysToEntry < 0, na.rm=T),
       n0 = fsum(DaysToEntry == 0, na.rm=T),
@@ -551,7 +572,7 @@ output$timeliness_vb3 <- renderUI({
   num_hours <- 24 * input$timeliness_metric
   num_hours_var <- "n_lt_metric"
   
-  if(cc_project_type() == 1 & !is.null(tl_df_nbn())){
+  if(!is.null(tl_df_nbn())){
     num_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
     den_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
   } else {
@@ -559,7 +580,7 @@ output$timeliness_vb3 <- renderUI({
     den_nbn <- 0
   }
   
-  if(cc_project_type() %in% c(0,1,6,14) & !is.null(tl_df_cls())){
+  if(!is.null(tl_df_cls())){
     num_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
     den_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
   } else {
@@ -632,7 +653,7 @@ output$timelinessTable <- renderDT({
     dat$nbn <- NULL
   }
   
-  if(cc_project_type() %in% c(0,1,6,14) & input$currentProviderList %in% tl_df_cls()$ProjectName){
+  if(cc_project_type() %in% project_types_w_cls & input$currentProviderList %in% tl_df_cls()$ProjectName){
     dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$cls <- NULL
