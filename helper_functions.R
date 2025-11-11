@@ -294,13 +294,13 @@ logSessionData <- function(session) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = session$userData$Export$SourceID,
-    ExportID = session$userData$Export$ExportID,
-    SourceContactFirst = session$userData$Export$SourceContactFirst,
-    SourceContactLast = session$userData$Export$SourceContactLast,
-    SourceContactEmail = session$userData$Export$SourceContactEmail,
-    SoftwareName = session$userData$Export$SoftwareName,
-    ImplementationID = session$userData$Export$ImplementationID
+    CoC = if(is.null(session$userData$Export$SourceID)) NA else session$userData$Export$SourceID,
+    ExportID = if(is.null(session$userData$Export$ExportID)) NA else session$userData$Export$ExportID,
+    SourceContactFirst = if(is.null(session$userData$Export$SourceContactFirst)) NA else session$userData$Export$SourceContactFirst,
+    SourceContactLast = if(is.null(session$userData$Export$SourceContactLast)) NA else session$userData$Export$SourceContactLast,
+    SourceContactEmail = if(is.null(session$userData$Export$SourceContactEmail)) NA else session$userData$Export$SourceContactEmail,
+    SoftwareName = if(is.null(session$userData$Export$SoftwareName)) NA else session$userData$Export$SoftwareName,
+    ImplementationID = if(is.null(session$userData$Export$ImplementationID)) NA else session$userData$Export$ImplementationID
   )
   
   # put the export info in the log
@@ -474,10 +474,8 @@ reset_postvalid_components <- function(session) {
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
   session$sendCustomMessage('dateRangeCount', list(
-    min = NULL,
-    start = ymd(today()),
-    max = NULL,
-    end = ymd(today())
+    start = NA,
+    end = NA
   ))
   session$userData$pdde_main <- NULL
   
