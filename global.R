@@ -39,11 +39,10 @@ source(here("helper_functions.R")) # functions used throughout the app
 source(here('tab_instructions.R')) # static HTML text elements
 source(here("eva_chart_colors.R"))
 
-metadata_path <- ifelse(IN_DEV_MODE, here("metadata-analysis/metadata/"), "/srv/shiny-efs/eva/metadata-analysis/")
-if(dir.exists(metadata_path)) {
+if(dir.exists(METADATA_PATH)) {
   capture.output("All good", file = stderr())
 } else {
-  dir.create(metadata_path)
+  dir.create(METADATA_PATH)
 }
 
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
