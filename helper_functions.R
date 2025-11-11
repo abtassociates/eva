@@ -246,7 +246,7 @@ logMetadata <- function(session, detail) {
     Details = detail
   )
   
-  filename <- here("metadata-analysis/metadata/metadata.csv")
+  filename <- paste0(METADATA_PATH,"/metadata.csv")
   
   invisible(write_csv(
     x = d,
@@ -307,7 +307,7 @@ logSessionData <- function(session) {
   capture.output(d, file = stderr())
   
     
-  filename <- here("metadata-analysis/metadata/sessiondata.csv")
+  filename <- paste0(METADATA_PATH, "/sessiondata.csv")
   write_csv(
     x = d,
     filename,
