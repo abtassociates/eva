@@ -277,127 +277,7 @@ page_navbar(
       )
     )
   ),
-  # Client counts tab ----------------
-  nav_panel(
-    title = "Project Dashboard",
-    value = "tabClientCount",
-    icon = icon("people-group"),
-    card(
-      card_title(
-        htmlOutput("headerClientCounts")
-      )
-    ),
-    accordion(
-      id = 'accordion_client_count',
-      open = FALSE,
-      accordion_panel(
-        title = "Instructions",
-        tabClientCount_instructions
-      )
-    ),
-    br(),
-    card(
-      card_header(headerCard("Filters")),
-      layout_columns(
-        col_widths=c(3,-1, 4,-1, 2),
-        gap = '0px',
-        
-      dateRangeInput(
-        "dateRangeCount",
-        label = 'Date Range',
-        format = "mm/dd/yyyy",
-        start = NA,
-        end = NA,
-        #width = 300
-      ),
-      pickerInput(
-        label = 'Select Project',
-        inputId = "currentProviderList",
-        choices = NULL,
-        options = pickerOptions(liveSearch = TRUE,
-                                liveSearchStyle = 'contains', 
-                                container = 'body')
-      ),
-      conditionalPanel(
-        condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
-        numericInput(inputId = 'timeliness_metric',
-                     label = 'Timeliness: Max Record Entry Days',
-                     value = 3,
-                     min = 1, max = 11)
-      )
-      )
-    ),
-    
-    navset_card_underline(
-      id = 'client_count_subtabs',
-      
-      nav_panel(
-        title = headerTab("Client Counts"),
-        
-        navset_card_underline(
-          id = "client_count_cc_subtabs",
-          nav_panel(
-            title = headerSubTab("Summary"),
-            DTOutput("clientCountSummary")
-          ),
-          nav_panel(
-            title = headerSubTab("Detail"),
-            DTOutput("clientCountData")
-          ),
-        )
-      ),
-      
-      nav_panel(
-        title = headerTab("Timeliness"),
-        navset_card_underline(
-          id = "client_count_ti_subtabs",
-          nav_panel(
-            title = headerSubTab("Record Entry"),
-            layout_column_wrap(
-              width = "250px",
-              fill = FALSE,
 
-              value_box(
-                title = "Median Days to Project Start Data Entry",
-                value = textOutput("timeliness_vb1_val"),
-                showcase = bs_icon("calendar-plus"),
-                theme = "text-primary",
-                class = "border-primary"
-              ),
-              value_box(
-                title = "Median Days to Project Exit Data Entry",
-                value = textOutput("timeliness_vb2_val"),
-                showcase = bs_icon("calendar-minus"),
-                theme = "text-primary",
-                class = "border-primary"
-              ),
-              uiOutput("timeliness_vb3", fill = TRUE)
-              
-            ),
-            br(),
-            DTOutput("timelinessTable")
-            
-          )
-        )
-        
-      ),
-      
-      nav_spacer(),
-      nav_item(
-        uiOutput("downloadClientCountsReportButton", inline = TRUE)
-      )
-    )
-    # card(
-    #   card_header("Client Counts Summary"),
-    #   DTOutput("clientCountSummary"),
-    #   width = 12
-    # ),
-    # card(
-    #   card_header("Client Counts Detail"),
-    #   DTOutput("clientCountData"),
-    #   width = 12
-    # )
-  ),
   # Data Quality tab ----------------------
   nav_menu(
     title = "Data Quality",
@@ -500,6 +380,127 @@ page_navbar(
         )
         
       )
+    ),
+    
+    # Client counts tab ----------------
+    nav_panel(
+      title = "Project Dashboard",
+      value = "tabClientCount",
+      card(
+        card_title(
+          htmlOutput("headerClientCounts")
+        )
+      ),
+      accordion(
+        id = 'accordion_client_count',
+        open = FALSE,
+        accordion_panel(
+          title = "Instructions",
+          tabClientCount_instructions
+        )
+      ),
+      br(),
+      card(
+        card_header(headerCard("Filters")),
+        layout_columns(
+          col_widths=c(3,-1, 4,-1, 2),
+          gap = '0px',
+          
+          dateRangeInput(
+            "dateRangeCount",
+            label = 'Date Range',
+            format = "mm/dd/yyyy",
+            start = NA,
+            end = NA
+            #width = 300
+          ),
+          pickerInput(
+            label = 'Select Project',
+            inputId = "currentProviderList",
+            choices = NULL,
+            options = pickerOptions(liveSearch = TRUE,
+                                    liveSearchStyle = 'contains', 
+                                    container = 'body')
+          ),
+          conditionalPanel(
+            condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
+            numericInput(inputId = 'timeliness_metric',
+                         label = 'Timeliness: Max Record Entry Days',
+                         value = 3,
+                         min = 1, max = 11)
+          )
+        )
+      ),
+      
+      navset_card_underline(
+        id = 'client_count_subtabs',
+        
+        nav_panel(
+          title = headerTab("Client Counts"),
+          
+          navset_card_underline(
+            id = "client_count_cc_subtabs",
+            nav_panel(
+              title = headerSubTab("Summary"),
+              DTOutput("clientCountSummary")
+            ),
+            nav_panel(
+              title = headerSubTab("Detail"),
+              DTOutput("clientCountData")
+            ),
+          )
+        ),
+        
+        nav_panel(
+          title = headerTab("Timeliness"),
+          navset_card_underline(
+            id = "client_count_ti_subtabs",
+            nav_panel(
+              title = headerSubTab("Record Entry"),
+              layout_column_wrap(
+                width = "250px",
+                fill = FALSE,
+                
+                value_box(
+                  title = "Median Days to Project Start Data Entry",
+                  value = textOutput("timeliness_vb1_val"),
+                  showcase = bs_icon("calendar-plus"),
+                  theme = "text-primary",
+                  class = "border-primary"
+                ),
+                value_box(
+                  title = "Median Days to Project Exit Data Entry",
+                  value = textOutput("timeliness_vb2_val"),
+                  showcase = bs_icon("calendar-minus"),
+                  theme = "text-primary",
+                  class = "border-primary"
+                ),
+                uiOutput("timeliness_vb3", fill = TRUE)
+                
+              ),
+              br(),
+              DTOutput("timelinessTable")
+              
+            )
+          )
+          
+        ),
+        
+        nav_spacer(),
+        nav_item(
+          uiOutput("downloadClientCountsReportButton", inline = TRUE)
+        )
+      )
+      # card(
+      #   card_header("Client Counts Summary"),
+      #   DTOutput("clientCountSummary"),
+      #   width = 12
+      # ),
+      # card(
+      #   card_header("Client Counts Detail"),
+      #   DTOutput("clientCountData"),
+      #   width = 12
+      # )
     ),
     
     ## PDDE -------------
@@ -1028,11 +1029,15 @@ nav_panel(
 #     )
 #   )
 # ),
-# Glossary tab -------------
+
+# Resources menu -----------
+nav_menu(
+  title = 'Resources',
+  icon = icon("book"),
+  # Glossary tab -------------
   nav_panel(
     title = "Glossary",
     value = "tabGlossary",
-    icon = icon("book"),
     card(
       card_header(HTML("<h2>Glossary</h2>")),
       card_body(
@@ -1047,7 +1052,6 @@ nav_panel(
   nav_panel(
     title = "Changelog",
     value = "tabChangelog",
-    icon = icon("clipboard"),
     card(
       card_header(HTML("<h2>Changelog</h2>"),class = 'cardhdr'),
       card_body(
@@ -1056,22 +1060,26 @@ nav_panel(
       ), min_height = 1000, fill = FALSE
       
     )
-  ),
-  nav_spacer(),
-  nav_item(
-    input_switch(
-      id = 'in_demo_mode',
-      label = tooltip(
-        id = "demo_mode_tooltip",
-        trigger = list('DEMO MODE', bs_icon('info-circle')),
-        HTML('
+  )
+), 
+
+nav_spacer(),
+nav_item(
+  input_switch(
+    id = 'in_demo_mode',
+    label = tooltip(
+      id = "demo_mode_tooltip",
+      trigger = list('DEMO MODE', bs_icon('info-circle')),
+      HTML('
        <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
        <strong>On</strong>: Uses a demo HMIS CSV Export.'
-        )
-      ),
-      value=FALSE
+      )
     ),
-    id="demo_wrapper",
-    style="text-align: right;"
-  )
+    value=FALSE
+  ),
+  id="demo_wrapper",
+  style="text-align: right;"
+)
+
+
 )
