@@ -3,18 +3,26 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "10-10-2025",
+    "11-13-2025",
     "<b>New Features</b><br>
-      - New Month-by-Month System Flow visualization<br>
+      - Month-by-Month System Flow visualization<br>
+      - Data quality export interface which allows multi-org DQ exports<br>
+      - Data quality timeliness features<br>
+      - 4 PDDE checks (IDs 35, 36, 37, 106) and 2 DQ checks (IDs 107, 108)<br>
       - Major UI update, due to upgrade to bootstrap5<br>
       - Performance improvements<br>
+      - Fixes to System Inflow and Outflow logic<br>
     <b>Bug Fixes</b> <br>
       - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
       - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
+      - Fixed DQ Check #41 (Incomplete Living Situation) to include temporary and other living situations when analyzing field 3.917B.2B (Issue <a href='https://github.com/abtassociates/eva/issues/803' target='_blank'>#803</a>).<br>
     <b>Miscellaneous</b> <br>
+      - Renamed Client Counts page to Project Dashboard. <br>
       - Updated System Overview instruction text. <br>
-      - Streamlined System Flow export. <br>
-      - Fix typo is glossay (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
+      - Updated System Performance chart colors. <br>
+      - Updated System Performance exports. <br>
+      - Updated Glossary to include new entries related to Month-by-Month chart. <br>
+      - Fixed typo in Glossary (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
     "09-29-2025",
     "<b>FY26 Data Standards</b> <br>
     - Updated Eva to be compliant with FY26 HMIS Data Standards",

@@ -300,8 +300,8 @@ page_navbar(
       ),  
       br(),
       card(
-        card_title(headerCard('Select Dates')),
-        p("This filter is only applicable for the Project Dashboard Report. All other reports will utilize the date range of the entire HMIS CSV export."),
+        card_title(headerCard('Select Dates for Project Dashboard Report')),
+        p("This filter only applies to the Project Dashboard Report. All other DQ reports will use the full date range of the HMIS CSV export. Please see the page instructions for more details."),
         br(),
         radioButtons(
           inputId = 'dq_export_date_options',
