@@ -202,37 +202,12 @@ export_id_client <- Client %>%
   fselect(issue_display_cols) %>%
   funique()
 
-# CHECK: Invalid demographic values
-# first, get a mapping of variables and their expected values
-cols <- c("VeteranStatus", race_cols)
-
-valid_values <- list(yes_no_enhanced, c(dkr_dnc, NA), yes_no, yes_no, yes_no, yes_no, 
-                     yes_no, yes_no, yes_no)
-
-
-# Only take existing columns - this solves the issue of misspelled demographic 
-# columns
-existing_cols <- base::intersect(cols, names(Client))
-
-# Create a named list of valid values for existing columns
-valid_values_named <- setNames(valid_values, cols)[existing_cols]
-
-# looping through only the columns that are actually (not misspelled) in Client
-# check if it's an unexpected, non-na value. That's what the [[.]] does -
-# it refers to the particular column in the loop. Equivalent to pull(.)
-# The ~ defines an anonymous function, as opposed to creating a specific function
-get_unexpected_count <- function(col_name) {
-  unexpected <- !Client[[col_name]] %in% valid_values_named[[col_name]]
-  data.table(name = col_name, n = sum(unexpected))
-}
-
-valid_values_client <- existing_cols %>%
-  lapply(., get_unexpected_count) %>%
-  rbindlist() %>%
-  fsubset(n > 0) %>%
-  merge_check_info_dt(checkIDs = 50) %>%
-  fmutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
-  fselect(issue_display_cols)
+# Invalid values -----------------------------
+source("detect_invalid_values.R", local=TRUE)
+valid_values <- final_summary %>%
+  merge_check_info(checkIDs = 50) %>%
+  mutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
+  select(all_of(issue_display_cols))
 
 # CHECK: duplicate client ID
 duplicate_client_id <- Client %>%
