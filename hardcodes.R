@@ -495,4 +495,4 @@ dq_file_options <- data.frame(
 
 IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
 
-METADATA_PATH <- ifelse(IN_DEV_MODE, here("metadata-analysis/metadata"), "/srv/shiny-efs/eva/metadata-analysis/metadata")
+METADATA_PATH <- ifelse(grepl("ad.abt.local", Sys.info()[["nodename"]]), here("metadata-analysis/metadata"), "/srv/shiny-efs/eva/metadata-analysis/metadata")
