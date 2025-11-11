@@ -12,18 +12,18 @@ get_race_ethnicity_vars <- function(v) {
   }
 }
 
-syscomp_detailBox <- function(session) {
+syscomp_detailBox <- function() {
   return(
     list(
       strong("Date Range: "),
       
-      format(ReportStart(), "%m-%d-%Y"),
+      format(session$userData$ReportStart, "%m-%d-%Y"),
       " to ",
-      format(ReportEnd(), "%m-%d-%Y"),
+      format(session$userData$ReportEnd, "%m-%d-%Y"),
       br(),
       
       if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type Group", syso_project_types, input$syso_project_type),
+        chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
       
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
       HTML(glue(
@@ -54,11 +54,11 @@ get_var_cols <- function() {
 remove_non_applicables <- function(.data) {
   # remove children when vets is selected - since Vets can't be children
   if("Veteran Status (Adult Only)" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
   } 
   # filter to just HoHs and Adults for DV
   else if ("Domestic Violence status" %in% input$system_composition_selections) {
-    .data %>% filter(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
+    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
   } else {
     .data
   }
@@ -103,8 +103,9 @@ get_sys_comp_plot_df_2vars <- function(comp_df) {
   # then we'd combine 0 to 12 with White, 0 to 12 with Black,
   # 13 to 24 with White, etc.
   process_combination <- function(v1, v2, comp_df) {
-    logToConsole(glue("processing combination of {v1} and {v2}"))
-    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
+    logToConsole(session, glue("processing combination of {v1} and {v2}"))
+    
+    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]), return="data.frame")
     names(freq_df) <- c(
       selections[1],
       selections[2],
@@ -177,20 +178,21 @@ get_selection_cats <- function(selection) {
 # then suppress the next lowest value in that group
 suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   if(length(input$system_composition_selections) > 1) {
-    .data <- .data %>% group_by(!!sym(group_v))
+    .data <- .data %>% fgroup_by(group_v)
   }
+
   return(
     .data %>%
-      mutate(
-        count_redacted = sum(wasRedacted, na.rm = TRUE),
-        next_lowest = min(!!sym(n_v), na.rm = TRUE),
-        wasRedacted = ifelse(count_redacted == 1 & (
-          (wasRedacted & is.na(!!sym(n_v))) |
-            (!wasRedacted & !!sym(n_v) == next_lowest)
+      fmutate(
+        count_redacted = fsum(wasRedacted),
+        next_lowest = fmin(get(n_v)),
+        wasRedacted = fifelse(count_redacted == 1 & (
+          (wasRedacted & is.na(n_v)) |
+          (!wasRedacted & n_v == next_lowest)
         ), TRUE, wasRedacted)
       ) %>%
-      ungroup() %>%
-      select(-c(count_redacted, next_lowest))
+      fungroup() %>%
+      fselect(-c(count_redacted, next_lowest))
   )
 }
 
@@ -203,7 +205,16 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   var_cols <- get_var_cols()
   selection <- input$system_composition_selections
 
-  comp_df <- sys_df_people_universe_filtered_r() %>%
+  universe <- get_people_universe_filtered()
+  
+  validate(
+    need(
+      nrow(universe) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  comp_df <- universe %>%
     remove_non_applicables() %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
@@ -310,14 +321,24 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   if (selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
     selections <- c(selections[2], selections[1])
   }
-  
+
   # get dataset underlying the freqs we will produce below
-  comp_df <- sys_df_people_universe_filtered_r() %>%
+  universe <- get_people_universe_filtered()
+  validate(
+    need(
+      nrow(universe) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  comp_df <- universe %>%
     remove_non_applicables() %>%
     select(
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
-      unname(var_cols[[selections[2]]]))
+      unname(var_cols[[selections[2]]])
+    ) %>%
+    funique()
   
   validate(
     need(
@@ -532,7 +553,7 @@ sys_comp_selections_info <- reactive({
     Value = c(
       input$system_composition_selections[1],
       input$system_composition_selections[2],
-      nrow(sys_df_people_universe_filtered_r() %>% remove_non_applicables())
+      nrow(get_people_universe_filtered() %>% remove_non_applicables())
     )
   )
 })
@@ -572,17 +593,19 @@ output$sys_comp_download_btn <- downloadHandler(
 
       # Create x.y% version
       pct_df <- num_df %>%
-        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
-                        replace_na(0) %>%
-          round(1) %>%
-          paste0("%")))
+        ftransformv(vars = num_vars(., return="names"),  FUN = function(x) {
+          (x / fsum(x) * 100) %>% 
+            replace_na(0) %>%
+            round(1) %>%
+            paste0("%")
+        })
       
       # create totals, but only for Method1
       if(input$methodology_type == 1) { 
         # create total row
         total_num_row <- num_df %>%
           summarise(!!selections[1] := "Total",
-                    across(where(is.numeric), sum, na.rm = TRUE)) %>%
+                    across(where(is.numeric), ~ sum(., na.rm = TRUE))) %>%
           rename(!!selections[2] := !!selections[1])
         
         total_n <- sum(sys_comp_plot_df()$n, na.rm = TRUE)
@@ -617,7 +640,7 @@ output$sys_comp_download_btn <- downloadHandler(
       num_df <- sys_comp_plot_df()
       
       pct_df <- num_df %>%
-        mutate(across(where(is.numeric), ~ (. / sum(., na.rm = TRUE) * 100) %>%
+        fmutate(across(where(is.numeric), function(x) (x / sum(x, na.rm = TRUE) * 100) %>%
                         round(1) %>%
                         paste0("%")))  %>% 
         rename("pct" = n)
@@ -653,26 +676,13 @@ output$sys_comp_download_btn <- downloadHandler(
       col_names = TRUE
     )
     
-    logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+    exportTestValues(sys_comp_df = get_people_universe_filtered())
     exportTestValues(sys_comp_report_num_df = num_df)
     exportTestValues(sys_comp_report_pct_df = pct_df)
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   }
 )
-
-sys_comp_p <- reactive({
-  req(
-    !is.null(input$system_composition_selections) &
-      valid_file() == 1 &
-      between(length(input$system_composition_selections), 1, 2)
-  )
-  
-  if(length(input$system_composition_selections) == 1) {
-    sys_comp_plot_1var()
-  } else {
-    sys_comp_plot_2vars()
-  }
-})
 
 observeEvent(input$system_composition_selections, {
   # they can select up to 2
@@ -695,15 +705,27 @@ observeEvent(input$system_composition_selections, {
 
 
 output$sys_comp_summary_selections <- renderUI({
-  req(!is.null(input$system_composition_selections) & valid_file() == 1)
+  req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
   syscomp_detailBox()
 })
 
 output$sys_comp_summary_ui_chart <- renderPlot({
-  sys_comp_p()
+  req(
+    !is.null(input$system_composition_selections) &
+    session$userData$valid_file() == 1 &
+    between(length(input$system_composition_selections), 1, 2)
+  )
+
+  if(length(input$system_composition_selections) == 1) {
+    sys_comp_plot_1var()
+  } else {
+    sys_comp_plot_2vars()
+  }
 }, height = function() {
   ifelse(!is.null(input$system_composition_selections), 700, 100)
 }, width = function() {
+  input$sys_comp_subtabs
+  input$syso_tabbox
   if (length(input$system_composition_selections) == 1 |
       isTRUE(getOption("shiny.testmode"))) {
     500
@@ -724,18 +746,35 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),
-      plot_slide_title = paste0(
-        "System Demographics: ",
-        input$system_composition_selections[1],
-        " by ",
-        input$system_composition_selections[2]
+      plots = setNames(
+        list(
+          if (length(input$system_composition_selections) == 1) {
+            sys_comp_plot_1var(isExport = TRUE)
+          } else {
+            sys_comp_plot_2vars(isExport = TRUE)
+          }
+        ),
+        paste0(
+          "System Demographics: ",
+          input$system_composition_selections[1],
+          " by ",
+          input$system_composition_selections[2]
+        )
       ),
-      plot1 = if (length(input$system_composition_selections) == 1) {
-        sys_comp_plot_1var(isExport = TRUE)
-      } else {
-        sys_comp_plot_2vars(isExport = TRUE)
-      },
       summary_font_size = 28
     )
   }
 )
+
+# System Composition/Demographics data for chart
+get_people_universe_filtered <- reactive({
+  full_data <- period_specific_data()[["Full"]]
+  req(nrow(full_data) > 0)
+  
+  join(
+    period_specific_data()[["Full"]] %>% fselect(PersonalID),
+    session$userData$client_categories,
+    on = "PersonalID"
+  ) %>%
+    funique()
+})

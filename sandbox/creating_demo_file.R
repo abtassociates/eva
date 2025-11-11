@@ -87,7 +87,7 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
           AmIndAKNative = 0,
           Asian = 0,
           BlackAfAmerican = 0,
-          HispanicLatinaeo = 0,
+          HispanicLatinao = 0,
           MidEastNAfrican = 0,
           NativeHIPacific = 1,
           White = 0,

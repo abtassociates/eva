@@ -1,8 +1,6 @@
 {
   "input": {
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabDQSystem"
+    "pageid": "tabDQSystem"
   },
   "output": {
     "downloadSystemDQReportButton": {
@@ -45,8 +43,8 @@
 
       ]
     },
-    "systemDQErrorByIssue": {
-      "src": "[image data hash: 36562890c6cecb393dff414a35400150]",
+    "sysDQErrorByIssue": {
+      "src": "[image data hash: 53cb5278fd01a336f7432be2129da28e]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -65,7 +63,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 1367.3,
+              "right": 2334.2,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -73,8 +71,6 @@
 
                 ],
                 "y": [
-                  "Invalid Move-In Date",
-                  "Conflicting Health Insurance yes/no at Exit",
                   "Missing Months or Times Homeless",
                   "Incomplete Living Situation Data",
                   "Conflicting Health Insurance yes/no at Entry",
@@ -82,7 +78,9 @@
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Missing Residence Prior",
-                  "Missing Length of Stay"
+                  "Missing Length of Stay",
+                  "Bed night entered on Project Exit Date",
+                  "No bed night on Entry Date"
                 ]
               }
             },
@@ -91,7 +89,7 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 248.2131849315069,
+              "left": 248.2131849315071,
               "right": 1634.520547945205,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
@@ -104,8 +102,8 @@
         }
       }
     },
-    "systemDQErrorsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+    "sysDQErrorByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"sysDQErrorByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -122,7 +120,7 @@
         }
       ]
     },
-    "systemDQHighPriorityErrorsByIssue": {
+    "sysDQHighPriorityByIssue": {
       "src": "[image data hash: fdc307e31c12218c349c35b42f4d07de]",
       "width": 1640,
       "height": 400,
@@ -174,8 +172,8 @@
         }
       }
     },
-    "systemDQHighPriorityErrorsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQHighPriorityErrorsByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+    "sysDQHighPriorityByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"sysDQHighPriorityByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",
@@ -192,8 +190,8 @@
         }
       ]
     },
-    "systemDQWarningByIssue": {
-      "src": "[image data hash: 205264a358d3b9184c573baa20e44401]",
+    "sysDQWarningByIssue": {
+      "src": "[image data hash: ad0c19a9e1ad1721ae376f73a2e6eeb2]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -220,13 +218,13 @@
 
                 ],
                 "y": [
-                  "Unknown Veteran Status",
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
                   "Unknown Race/Ethnicity",
                   "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Unknown Disabling Condition",
+                  "Days since Most Recent CLS Exceeds Local Settings",
                   "Invalid Homelessness Start Date/Number of Months Homeless",
                   "Unknown SSN",
                   "Unknown Destination"
@@ -251,8 +249,8 @@
         }
       }
     },
-    "systemDQWarningsByIssue_ui": {
-      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"systemDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
+    "sysDQWarningByIssue_ui": {
+      "html": "<div class=\"shiny-plot-output html-fill-item\" id=\"sysDQWarningByIssue\" style=\"width:1640px;height:400px;\"><\/div>",
       "deps": [
         {
           "name": "htmltools-fill",

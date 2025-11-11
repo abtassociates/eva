@@ -59,9 +59,20 @@ e <- e %>%
     MentalHealthConsultation = sample(valid_vals, size = fnrow(.), replace=TRUE)
   )
 
+# Update Export.csv version to 2026
+x <- importFile(upload_filepath, "Export") %>%
+  fmutate(
+    CSVVersion = "2026 v1"
+  )
 
 # Write new files
 temp_folder <- here("sandbox/temp_data")
+write.csv(
+  x,
+  paste0(temp_folder,"/Export.csv"), 
+  row.names = FALSE, 
+  na = ""
+)
 write.csv(
   e,
   paste0(temp_folder,"/Enrollment.csv"), 
@@ -83,7 +94,7 @@ write.csv(
 
 # Zip em up
 system("sync")
-zipr(
+zip::zipr(
   zipfile = here("tests/FY26-test-good.zip"), 
   files = list.files(temp_folder, pattern = "*.csv$", full.names = TRUE),
   mode = "cherry-pick" # so the files are at the top directory

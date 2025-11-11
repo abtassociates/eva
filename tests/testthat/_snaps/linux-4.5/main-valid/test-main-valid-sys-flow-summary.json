@@ -1,8 +1,8 @@
 {
   "input": {
     "methodology_type": "1",
-    "sidebarmenuid": "tabSystemOverview",
-    "sys_inflow_outflow_subtabs": "Summary Chart",
+    "pageid": "tabSystemOverview",
+    "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -21,7 +21,7 @@
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "System Flow"
+    "syso_tabbox": "<h4>System Flow<\/h4>"
   },
   "output": {
     "headerSystemOverview": {
@@ -30,17 +30,17 @@
 
       ]
     },
-    "sys_act_summary_filter_selections": {
+    "sys_inflow_outflow_summary_filter_selections": {
       "html": "<br/>\n<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Method 1 <br>",
       "deps": [
 
       ]
     },
-    "sys_act_summary_ui_chart": {
-      "src": "[image data hash: c43b0892cf307193fc1fb6247e1fa0b7]",
+    "sys_inflow_outflow_summary_ui_chart": {
+      "src": "[image data hash: 2313cd3574e0919ab4adda6b0c276a05]",
       "width": 1113,
       "height": 500,
-      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n              the report period. The summary view of this chart includes four components: \n              Active at Start, Inflow, Outflow, and Active at End.",
+      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n      the report period. The summary view of this chart includes four components: \n      Active at Start, Inflow, Outflow, and Active at End.",
       "coordmap": {
         "panels": [
           {
@@ -58,7 +58,7 @@
               "left": 0.5225,
               "right": 4.4275,
               "bottom": 0,
-              "top": 8705
+              "top": 9449
             },
             "mapping": {
               "y": null,

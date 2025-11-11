@@ -1,22 +1,22 @@
 output$sankey_filter_selections <- renderUI({ 
-  req(valid_file() == 1)
+  req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
 
 render_sankey_plot <- function(plot_data, isExport = FALSE) {
   begin_labels <- plot_data %>%
-    group_by(Begin) %>%
-    summarize(freq = sum(freq)) %>%
-    arrange(desc(Begin)) %>%
-    mutate(label_pos = cumsum(freq) - freq/2,
+    fgroup_by(Begin) %>%
+    fsummarize(freq = fsum(freq)) %>%
+    roworder(-Begin) %>%
+    fmutate(label_pos = fcumsum(freq) - freq/2,
            End = 0,
            Begin = glue("{freq} {Begin}"))
   
   end_labels <- plot_data %>%
-    group_by(End) %>%
-    summarize(freq = sum(freq)) %>%
-    arrange(desc(End)) %>%
-    mutate(label_pos = cumsum(freq) - freq/2,
+    fgroup_by(End) %>%
+    fsummarize(freq = fsum(freq)) %>%
+    roworder(-End) %>%
+    fmutate(label_pos = fcumsum(freq) - freq/2,
            Begin = 0,
            End = glue("{freq} {End}"))
   
@@ -25,17 +25,17 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
   # this way, if there's only one End gorup for a Begin group, the Begin bar
   # will remain gray, not take on the color of the End group
   plot_data <- plot_data %>%
-    left_join(
+    join(
       plot_data %>%
-        group_by(Begin) %>%
-        summarise(cumfreq = sum(freq)) %>%
-        ungroup() %>%
-        arrange(desc(Begin)) %>%
-        mutate(
-          ystart = lag(cumfreq, default = 0),
+        fgroup_by(Begin) %>%
+        fsummarise(cumfreq = fsum(freq)) %>%
+        fungroup() %>%
+        roworder(-Begin) %>%
+        fmutate(
+          ystart = flag(cumfreq, fill = 0),
           yend = ystart + cumfreq
         ),
-      by = "Begin"
+      on = "Begin", how = 'left'
     )
   
   bar_colors <- c(
@@ -126,9 +126,10 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     )
 }
 output$sankey_ui_chart <- renderPlot({
-  req(valid_file() == 1)
+  logToConsole(session, "in sankey_ui_chart")
+  req(session$userData$valid_file() == 1)
   
-  plot_data <- sankey_plot_data()
+  plot_data <- get_sankey_data()
   
   validate(
     need(
@@ -157,8 +158,8 @@ sys_status_export_info <- function(spd) {
     ),
     Value = as.character(c(
       sum(spd$freq),
-      sum(spd[spd$End == "Exited, Permanent", "freq"]),
-      sum(spd[spd$End == "Exited, Non-Permanent", "freq"])
+      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Homeless", "Inactive"), "freq"]),
+      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Housed"), "freq"])
     ))
   )
 }
@@ -167,7 +168,7 @@ output$sys_status_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Status Report - "),
   content = function(file) {
     # create a list of the 3 excel tabs and export
-    spd <- sankey_plot_data() %>% 
+    spd <- get_sankey_data() %>% 
       xtabs(freq ~ End + Begin, data=.) %>% 
       addmargins(FUN = sum) %>% 
       as.data.frame.matrix() %>%
@@ -179,7 +180,7 @@ output$sys_status_download_btn <- downloadHandler(
     tab_names <- list(
       "System Status Metadata" = sys_export_summary_initial_df() %>%
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sankey_plot_data())) %>%
+        bind_rows(sys_status_export_info(get_sankey_data())) %>%
         rename("System Status" = Value),
       "System Status Detail" = spd
     )
@@ -190,10 +191,11 @@ output$sys_status_download_btn <- downloadHandler(
       format_headers = FALSE,
       col_names = TRUE
     )
+
+    exportTestValues(sys_status_report = get_sankey_data())
     
-    logMetadata(paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    exportTestValues(sys_status_report = sankey_plot_data())
   }
 )
 
@@ -208,10 +210,63 @@ output$sys_status_download_btn_ppt <- downloadHandler(
       summary_items = sys_export_summary_initial_df() %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_export_filter_selections()) %>%
-        bind_rows(sys_status_export_info(sankey_plot_data())),
-      plot_slide_title = "Client System Status",
-      plot1 = render_sankey_plot(sankey_plot_data(), isExport=TRUE),
+        bind_rows(sys_status_export_info(get_sankey_data())),
+      plots = list(
+        "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
+      ),
       summary_font_size = 21
     )
   }
 )
+
+
+# The universe is anyone who was Housed or Homeless at Period Start
+# We also need the latest exit for the folks in the Exited categories
+get_sankey_data <- reactive({
+  logToConsole(session, "in get_sankey_data")
+  full_data <- get_inflow_outflow_full()
+  
+  req(nrow(full_data) > 0)
+  
+  plot_df <- full_data[
+    InflowTypeDetail %in% active_at_levels,
+    .(PersonalID, InflowTypeDetail, OutflowTypeDetail)
+  ]
+  
+  shinyjs::toggle(
+    "sys_status_download_btn",
+    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
+  )
+  shinyjs::toggle(
+    "sys_status_download_btn_ppt",
+    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
+  )
+  
+  req(nrow(plot_df) > 0)
+
+  allu <- plot_df %>%
+    count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
+    mutate(
+      Begin = factor(Begin, levels = rev(active_at_levels)), # Or c("Housed", "Homeless") depending on desired order
+      
+      End = str_remove(End, "\n"), # Remove newlines
+      End = ifelse( # Prepend "Enrolled, " for specific values
+        End %in% active_at_levels,
+        paste0("Enrolled, ", End),
+        End
+      ),
+      
+      End = factor(
+        End,
+        levels = c(
+          "Exited, Non-Permanent",
+          "Enrolled, Homeless",
+          "Inactive",
+          "Exited, Permanent",
+          "Enrolled, Housed"
+        )
+      )
+    )
+  
+  allu
+})

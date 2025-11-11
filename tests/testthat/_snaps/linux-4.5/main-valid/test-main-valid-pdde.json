@@ -1,5 +1,6 @@
 {
   "input": {
+    "pageid": "tabPDDE",
     "pdde_guidance_summary_cell_clicked": {
 
     },
@@ -12,14 +13,31 @@
       2,
       3,
       4,
-      5
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
     ],
     "pdde_guidance_summary_rows_current": [
       1,
       2,
       3,
       4,
-      5
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
     ],
     "pdde_guidance_summary_rows_selected": null,
     "pdde_guidance_summary_search": "",
@@ -82,14 +100,31 @@
       2,
       3,
       4,
-      5
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
     ],
     "pdde_summary_table_rows_current": [
       1,
       2,
       3,
       4,
-      5
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
@@ -134,10 +169,7 @@
           }
         }
       ]
-    },
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE"
+    }
   },
   "output": {
     "downloadPDDEReportButton": {
@@ -171,7 +203,7 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",

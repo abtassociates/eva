@@ -8,21 +8,38 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
+    "accordion_client_count": null,
+    "accordion_dqorg": null,
+    "accordion_dqsystem": null,
+    "accordion_home": null,
+    "accordion_local_settings": null,
+    "accordion_pdde": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+    "card_filters1_full_screen": false,
+    "card_filters2_full_screen": false,
+    "client_count_subtabs": "<h4>Client Counts Detail<\/h4>",
     "currentProviderList": null,
     "dateRangeCount": [
       "2023-10-05",
       "2023-10-05"
     ],
+    "demo_mode_tooltip": false,
     "dimension": [
       1920,
       1080
     ],
+    "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
+    "g_errors_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>",
+    "hp_errors_dqorg_subtabs": "<h5>Issues<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Issues<\/h5>",
     "imported": {
       "name": [
         "FY26-test-missing-multiple-files.zip"
       ],
       "size": [
-        6478
+        6553
       ],
       "type": [
         "application/zip"
@@ -31,15 +48,15 @@
         "0.zip"
       ]
     },
-    "isdemo": false,
+    "in_demo_mode": false,
+    "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": null,
-    "sidebarCollapsed": false,
-    "sidebarItemExpanded": "AssessDataQuality",
-    "sidebarmenuid": "tabPDDE",
-    "sys_comp_subtabs": "Chart",
-    "sys_inflow_outflow_subtabs": "Summary Chart",
-    "sys_status_subtabs": "Chart",
+    "pageid": "tabPDDE",
+    "pdde_subtabs": "<h4>Guidance<\/h4>",
+    "sys_comp_subtabs": "<h5>Chart<\/h5>",
+    "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
+    "sys_status_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -58,11 +75,15 @@
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "System Flow",
+    "syso_tabbox": "<h4>System Flow<\/h4>",
     "system_composition_selections": [
       "Age",
       "All Races/Ethnicities"
-    ]
+    ],
+    "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
+    "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
+    "warnings_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
+    "warnings_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>"
   },
   "output": {
     "clientCountData": [

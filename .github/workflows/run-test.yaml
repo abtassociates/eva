@@ -31,7 +31,7 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
               
       - uses: r-lib/actions/setup-renv@v2
       
@@ -39,22 +39,20 @@ jobs:
         run: |
           testthat::set_max_fails(Inf)
         shell: Rscript {0}
-
-      - name: Update chromote so back-to-back tests work
-        run: |
-          install.packages('chromote', repos = c('https://rstudio.r-universe.dev', 'https://cloud.r-project.org'))
-          library(rvest)
-          chromote::local_chrome_version(binary = "chrome-headless-shell", quiet = FALSE)
-        shell: Rscript {0}
       
       - uses: rstudio/shinytest2/actions/test-app@v1
         with:
           app-dir: "."
           upload-snapshots: true
           
+      - name: Get R version
+        id: r-version
+        run: echo "R_VERSION=$(Rscript -e 'cat(R.version$major, R.version$minor, sep=".")')" >> $GITHUB_ENV
+        shell: bash
+  
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-4.2-tests
+          name: ${{ runner.os }}-${{ env.R_VERSION }}-tests
           path: tests
