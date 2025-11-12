@@ -498,5 +498,5 @@ IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOpti
 METADATA_PATH <- ifelse(
   grepl("ad.abt.local", Sys.info()[["nodename"]]) | isTRUE(getOption("shiny.testmode")), 
   here("metadata-analysis/metadata"), 
-  "/srv/shiny-efs/eva/metadata-analysis/metadata"
+  paste0("/srv/shiny-efs/{basename(here())}/metadata-analysis/metadata")
 )
