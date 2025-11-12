@@ -713,7 +713,7 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(length(dq_export_list) <= 1) next
           
-          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          path_prefix <- file.path(tempdir(), i)
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
@@ -747,7 +747,7 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(nrow(summary_df) == 0) next
           
-          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          path_prefix <- file.path(tempdir(), i)
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
@@ -786,7 +786,7 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(nrow(validationDF) == 0) next
           
-          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          path_prefix <- file.path(tempdir(), i)
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
