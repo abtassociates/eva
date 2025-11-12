@@ -288,8 +288,6 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   write_xlsx(exportDFList,
              path = file)
   
-  logMetadata(session, paste0("Downloaded Client Counts Report",
-                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
 }
 
@@ -689,5 +687,11 @@ output$downloadClientCountsReportButton  <- renderUI({
 # just the current date.
 output$downloadClientCountsReport <- downloadHandler(
   filename = date_stamped_filename("System-level Project Dashboard Report-"),
-  content = get_clientcount_download_info
+  content = {
+    logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
+                                input$dateRangeCount,']',
+                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+    get_clientcount_download_info
+   
+  }
 )
