@@ -724,7 +724,8 @@ output$dq_export_download_btn <- downloadHandler(
                      path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename))
                      )
           zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
-         
+          logMetadata(session, paste0("Downloaded Org-Level Data Quality Report - ",i,
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         }
     
       }
@@ -767,6 +768,8 @@ output$dq_export_download_btn <- downloadHandler(
           )
           
           zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+          logMetadata(session, paste0("Downloaded Org-Level PDDE Report - ",i,
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         }  
         
       }
@@ -793,6 +796,17 @@ output$dq_export_download_btn <- downloadHandler(
                                         orgList = i, dateRangeEnd = dq_export_date_range_end())
           zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
           
+          if(input$dq_export_date_options == 'Date Range'){
+            logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Report - ",i, 
+                                        " with Date Range = [",paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          } else {
+            logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Report - ",i, 
+                                        " with End Date = ",dq_export_date_range_end(),
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          }
+          
+          
         }
         
       }
@@ -817,8 +831,16 @@ output$dq_export_download_btn <- downloadHandler(
         
         zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
         
-        logMetadata(session, paste0("Downloaded Project Dashboard Report",
-                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        if(input$dq_export_date_options == 'Date Range'){
+          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
+                                      paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        } else {
+          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
+                                      dq_export_date_range_end(),
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+        
       }
       
       if("PDDE Report" %in% input$dq_export_files){
@@ -844,7 +866,7 @@ output$dq_export_download_btn <- downloadHandler(
           ),
           path = file.path(path_prefix,pdde_filename))
         zip_files <- c(zip_files, paste0(zip_prefix, pdde_filename))
-        logMetadata(session, paste0("Downloaded PDDE Report",
+        logMetadata(session, paste0("Downloaded System-level PDDE Report",
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
       }
