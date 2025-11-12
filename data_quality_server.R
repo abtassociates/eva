@@ -707,7 +707,7 @@ output$dq_export_download_btn <- downloadHandler(
 
         orgs_to_save <- input$dq_export_orgList
         logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
-                                    length(orgs_to_save),'organizations',
+                                    length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         
         for(i in orgs_to_save){
@@ -738,7 +738,7 @@ output$dq_export_download_btn <- downloadHandler(
         
         orgs_to_save <- input$dq_export_orgList
         logMetadata(session, paste0("Downloaded Org-Level PDDE Reports for ",
-                                    length(orgs_to_save),'organizations',
+                                    length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         for(i in orgs_to_save){
           
@@ -869,7 +869,7 @@ output$dq_export_download_btn <- downloadHandler(
                  nice_names()
           ),
           path = file.path(path_prefix,pdde_filename))
-        zip_files <- c(zip_files, paste0(zip_prefix, pdde_filename))
+        zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
         logMetadata(session, paste0("Downloaded System-level PDDE Report",
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
@@ -888,7 +888,7 @@ output$dq_export_download_btn <- downloadHandler(
         write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
         logMetadata(session, paste0("Downloaded System-level DQ Report",
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-        zip_files <- c(zip_files, paste0(zip_prefix, dq_system_filename))
+        zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
       } 
       
     }
