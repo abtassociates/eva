@@ -25,7 +25,7 @@
         320
       ]
     },
-    "client_count_download_current": {
+    "client_count_download_date_range": {
       "Organization Name": {
         "Length": "173",
         "Class": "character",
@@ -90,7 +90,7 @@
         "Max.": 0
       }
     },
-    "client_count_download_date_range": {
+    "client_count_download_full_export_range": {
       "Organization Name": {
         "Length": "205",
         "Class": "character",
@@ -1087,61 +1087,61 @@
     },
     "pdde_download_summary": {
       "Issue": [
+        "Client-level data in VSP organization",
         "Missing Geography Information",
+        "Overlapping HMIS Participation Records",
+        "Project Missing in ProjectCoC file",
+        "Residential Project Missing Housing Type",
+        "Incorrect CoC in bed inventory",
         "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
-        "Overlapping HMIS Participation Records",
-        "Inventory Start Precedes Operating Start",
-        "No Enrollments within Active Inventory",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
-        "Zero Utilization",
         "Bed Type incompatible with Housing Type",
+        "Inventory Start Precedes Operating Start",
+        "Long-Term Seasonal Inventory",
+        "No Enrollments within Active Inventory",
         "Project CoC missing bed inventory",
-        "Incorrect CoC in bed inventory",
-        "Client-level data in VSP organization",
-        "Project Missing in ProjectCoC file",
-        "Residential Project Missing Housing Type",
-        "Long-Term Seasonal Inventory"
+        "Zero Utilization"
       ],
       "Type": [
         "High Priority",
-        "Error",
-        "Error",
-        "Error",
-        "High Priority",
-        "Warning",
-        "Warning",
-        "Error",
-        "Error",
-        "Warning",
-        "Warning",
-        "Warning",
-        "Error",
         "High Priority",
         "High Priority",
         "High Priority",
+        "High Priority",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
         "Warning"
       ],
       "Count": [
+        13,
         6,
+        1,
+        1,
+        1,
+        3,
         3,
         11,
         6,
         1,
+        13,
+        3,
         138,
+        4,
         1,
-        1,
-        13,
         2,
-        3,
-        2,
-        3,
-        13,
-        1,
-        1,
-        4
+        2
       ]
     },
     "pdde_guidance_summary": {
@@ -2065,14 +2065,6 @@
         20,
         25,
         143
-      ],
-      "Number of Current Living Situation Records": [
-        1,
-        0,
-        1,
-        0,
-        0,
-        0
       ]
     }
   }
