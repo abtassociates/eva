@@ -443,7 +443,6 @@ session$userData$CurrentLivingSituation <- CurrentLivingSituation
 #   activeInv_no_overflow %>% pull(ProjectID) %>% funique(), 
 #   hmis_participating_projects)
 
-set_collapse(na.rm = TRUE, verbose = FALSE)
 HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
   join(activeInv_no_overflow, 
