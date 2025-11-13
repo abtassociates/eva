@@ -391,8 +391,12 @@ period_specific_data <- reactive({
   period_data <- all_filtered %>% 
     expand_by_periods() %>% # expand/repeat enrollments across periods
     get_active_info(all_filtered) %>%
-    get_inflows_and_outflows() %>%
-    remove_sequential_inactives()
+    get_inflows_and_outflows()
+  
+  if(nrow(period_data) > 0) {
+    period_data <- period_data %>%
+      remove_sequential_inactives()
+  }
   
   exportTestValues(period_data = period_data)
   if(IN_DEV_MODE) {
