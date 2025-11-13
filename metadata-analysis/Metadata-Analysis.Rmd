@@ -53,6 +53,8 @@ new_way <-
              "Unsuccessful upload - not hashed",
              "Unsuccessful upload - wrong dataset",
              "Unsuccessful upload - wrong/incomplete dataset",
+             "Unsuccessful upload - incomplete dataset",
+             "Unsuccessful upload - zip file not .zip",
              "Unsuccessful upload - file was mistructured",
              "Unsuccessful upload - zip file was misstructured",
              "Unsuccessful upload - out of date HMIS CSV Export"
@@ -93,8 +95,10 @@ old_way <- rowbind(uploads_df, visits_df) %>%
         "Unsuccessful upload - not hashed",
         "Unsuccessful upload - wrong dataset",
         "Unsuccessful upload - wrong/incomplete dataset",
+        "Unsuccessful upload - incomplete dataset",
         "Unsuccessful upload - file was mistructured",
         "Unsuccessful upload - zip file was misstructured",
+        "Unsuccessful upload - zip file not .zip",
         "Unsuccessful upload - out of date HMIS CSV Export")
       , "Unsuccessful upload",
       Event %in% c("Successful upload") , "Successful Upload",
@@ -269,7 +273,8 @@ staging_last6months %>%
   funique(cols=c('SessionID', 'Event')) %>%
   fmutate(Tab = fcase(
     str_detect(Event, "tabChangelog") , "Changelog",
-    str_detect(Event, "tabClientCount") , "Client Counts",
+    str_detect(Event, "tabDQExport"), "DQ Export Interface",
+    str_detect(Event, "tabClientCount") , "Project Dashboard",
     str_detect(Event, "tabDQOrg") , "Organization DQ",
     str_detect(Event, "tabDQSystem") , "System DQ",
     str_detect(Event, "tabLocalSettings") , "Local Settings",
@@ -277,14 +282,15 @@ staging_last6months %>%
     str_detect(Event, "tabSystemOverview") , "System Overview",
     str_detect(Event, "tabGlossary") , "Glossary",
     default = as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
   fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
   scale_fill_manual(values = 
                    c("Changelog" = "#16697a",
-                      "Client Counts" = "#C2462E",
+                     "DQ Export Interface" = "#7F5D9D",
+                      "Project Dashboard" = "#C2462E",
                       "Organization DQ" = "#71B4CB",
                       "System DQ" = "#73655E",
                       "Local Settings" = "#C1DDD7",
@@ -670,7 +676,8 @@ staging_last6months %>%
   funique(cols=c('SessionID', 'Event')) %>%
   fmutate(Tab = fcase(
     str_detect(Event, "tabChangelog") , "Changelog",
-    str_detect(Event, "tabClientCount") , "Client Counts",
+    str_detect(Event, "tabDQExport"), "DQ Export Interface",
+    str_detect(Event, "tabClientCount") , "Project Dashboard",
     str_detect(Event, "tabDQOrg") , "Organization DQ",
     str_detect(Event, "tabDQSystem") , "System DQ",
     str_detect(Event, "tabLocalSettings") , "Local Settings",
@@ -678,14 +685,15 @@ staging_last6months %>%
     str_detect(Event, "tabSystemOverview") , "System Overview",
     str_detect(Event, "tabGlossary") , "Glossary",
     default = as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Client Counts", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
   fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = scales::percent(n/sum(n))), color = "gray15", vjust = -0.5) +
   scale_fill_manual(values = 
                    c("Changelog" = "#16697a",
-                      "Client Counts" = "#C2462E",
+                     "DQ Export Interface" = "#7F5D9D",
+                      "Project Dashboard" = "#C2462E",
                       "Organization DQ" = "#71B4CB",
                       "System DQ" = "#73655E",
                       "Local Settings" = "#C1DDD7",

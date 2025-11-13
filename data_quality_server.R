@@ -706,6 +706,9 @@ output$dq_export_download_btn <- downloadHandler(
         )
 
         orgs_to_save <- input$dq_export_orgList
+        logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
+                                    length(orgs_to_save),' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         
         for(i in orgs_to_save){
           
@@ -713,7 +716,7 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(length(dq_export_list) <= 1) next
           
-          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          path_prefix <- file.path(tempdir(), i)
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
@@ -724,7 +727,7 @@ output$dq_export_download_btn <- downloadHandler(
                      path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename))
                      )
           zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
-         
+          
         }
     
       }
@@ -734,7 +737,9 @@ output$dq_export_download_btn <- downloadHandler(
         req(session$userData$valid_file() == 1)
         
         orgs_to_save <- input$dq_export_orgList
-        
+        logMetadata(session, paste0("Downloaded Org-Level PDDE Reports for ",
+                                    length(orgs_to_save),' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         for(i in orgs_to_save){
           
           summary_df <- session$userData$pdde_main %>% 
@@ -746,7 +751,7 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(nrow(summary_df) == 0) next
           
-          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          path_prefix <- file.path(tempdir(), i)
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
@@ -767,6 +772,7 @@ output$dq_export_download_btn <- downloadHandler(
           )
           
           zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+         
         }  
         
       }
@@ -775,6 +781,17 @@ output$dq_export_download_btn <- downloadHandler(
         req(session$userData$valid_file() == 1)
         
         orgs_to_save <- input$dq_export_orgList
+        if(input$dq_export_date_options == 'Date Range'){
+          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for ",
+                                      length(orgs_to_save), ' Organizations',
+                                      " with Date Range = [",paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        } else {
+          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for - ",
+                                      length(orgs_to_save), ' Organizations',
+                                      " with End Date = ",dq_export_date_range_end(),
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
         
         for(i in orgs_to_save){
           
@@ -783,7 +800,7 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(nrow(validationDF) == 0) next
           
-          path_prefix <- file.path(tempdir(), str_glue('{i}'))
+          path_prefix <- file.path(tempdir(), i)
           zip_prefix <- str_glue('{i}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
@@ -792,6 +809,7 @@ output$dq_export_download_btn <- downloadHandler(
           get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), 
                                         orgList = i, dateRangeEnd = dq_export_date_range_end())
           zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
+          
           
         }
         
@@ -817,8 +835,16 @@ output$dq_export_download_btn <- downloadHandler(
         
         zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
         
-        logMetadata(session, paste0("Downloaded Project Dashboard Report",
-                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        if(input$dq_export_date_options == 'Date Range'){
+          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
+                                      paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        } else {
+          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
+                                      dq_export_date_range_end(),
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+        
       }
       
       if("PDDE Report" %in% input$dq_export_files){
@@ -843,8 +869,8 @@ output$dq_export_download_btn <- downloadHandler(
                  nice_names()
           ),
           path = file.path(path_prefix,pdde_filename))
-        zip_files <- c(zip_files, paste0(zip_prefix, pdde_filename))
-        logMetadata(session, paste0("Downloaded PDDE Report",
+        zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+        logMetadata(session, paste0("Downloaded System-level PDDE Report",
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     
       }
@@ -862,7 +888,7 @@ output$dq_export_download_btn <- downloadHandler(
         write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
         logMetadata(session, paste0("Downloaded System-level DQ Report",
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-        zip_files <- c(zip_files, paste0(zip_prefix, dq_system_filename))
+        zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
       } 
       
     }
