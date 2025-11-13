@@ -457,7 +457,9 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # segment_size <- get_segment_size(s/num_segments)
   total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
 
-  cat_order <- as.character(unique(df[[fill_var]]))
+  uniq_vals <- unique(df[[fill_var]])
+  cat_order <- as.character(uniq_vals[order(uniq_vals)])
+  
   bar_patterns <- unname(mbm_pattern_fills[cat_order])
   bar_bg <- unname(bar_colors[cat_order])
   
