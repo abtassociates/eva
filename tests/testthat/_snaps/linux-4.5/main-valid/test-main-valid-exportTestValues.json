@@ -25,7 +25,7 @@
         320
       ]
     },
-    "client_count_download_current": {
+    "client_count_download_date_range": {
       "Organization Name": {
         "Length": "173",
         "Class": "character",
@@ -90,7 +90,7 @@
         "Max.": 0
       }
     },
-    "client_count_download_date_range": {
+    "client_count_download_full_export_range": {
       "Organization Name": {
         "Length": "205",
         "Class": "character",
@@ -1087,61 +1087,61 @@
     },
     "pdde_download_summary": {
       "Issue": [
+        "Client-level data in VSP organization",
         "Missing Geography Information",
+        "Overlapping HMIS Participation Records",
+        "Project Missing in ProjectCoC file",
+        "Residential Project Missing Housing Type",
+        "Incorrect CoC in bed inventory",
         "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
-        "Overlapping HMIS Participation Records",
-        "Inventory Start Precedes Operating Start",
-        "No Enrollments within Active Inventory",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
-        "Zero Utilization",
         "Bed Type incompatible with Housing Type",
+        "Inventory Start Precedes Operating Start",
+        "Long-Term Seasonal Inventory",
+        "No Enrollments within Active Inventory",
         "Project CoC missing bed inventory",
-        "Incorrect CoC in bed inventory",
-        "Client-level data in VSP organization",
-        "Project Missing in ProjectCoC file",
-        "Residential Project Missing Housing Type",
-        "Long-Term Seasonal Inventory"
+        "Zero Utilization"
       ],
       "Type": [
         "High Priority",
-        "Error",
-        "Error",
-        "Error",
-        "High Priority",
-        "Warning",
-        "Warning",
-        "Error",
-        "Error",
-        "Warning",
-        "Warning",
-        "Warning",
-        "Error",
         "High Priority",
         "High Priority",
         "High Priority",
+        "High Priority",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
         "Warning"
       ],
       "Count": [
+        13,
         6,
+        1,
+        1,
+        1,
+        3,
         3,
         11,
         6,
         1,
+        13,
+        3,
         138,
+        4,
         1,
-        1,
-        13,
         2,
-        3,
-        2,
-        3,
-        13,
-        1,
-        1,
-        111
+        2
       ]
     },
     "pdde_guidance_summary": {
@@ -1176,28 +1176,28 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 18.58823529411765,
-        "3rd Qu.": 11,
+        "Mean": 12.29411764705882,
+        "3rd Qu.": 6,
         "Max.": 138
       }
     },
     "sys_comp_report_num_df": {
       "All Races/Ethnicities": [
         "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
         "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Asian or Asian American & Hispanic/Latina/o",
         "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/e/o",
-        "Hispanic/Latina/e/o alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
         "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
-        "Multi-Racial & Hispanic/Latina/e/o",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
         "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
         "White alone",
-        "White & Hispanic/Latina/e/o",
+        "White & Hispanic/Latina/o",
         "Unknown",
         "Total"
       ],
@@ -1262,20 +1262,20 @@
     "sys_comp_report_pct_df": {
       "All Races/Ethnicities": [
         "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
         "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Asian or Asian American & Hispanic/Latina/o",
         "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/e/o",
-        "Hispanic/Latina/e/o alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
         "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
-        "Multi-Racial & Hispanic/Latina/e/o",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
         "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
         "White alone",
-        "White & Hispanic/Latina/e/o",
+        "White & Hispanic/Latina/o",
         "Unknown",
         "Total"
       ],
@@ -2065,14 +2065,6 @@
         20,
         25,
         143
-      ],
-      "Number of Current Living Situation Records": [
-        1,
-        0,
-        1,
-        0,
-        0,
-        0
       ]
     }
   }

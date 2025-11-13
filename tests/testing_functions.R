@@ -27,7 +27,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Client Counts Detail</h5>')
+    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
@@ -152,7 +152,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     "client_count_download_detail", 
     "dq_main",
     "pdde_main",
-    "universe_ppl_flags",
+    "period_data",
     "sys_comp_df",
     "dq_overlaps"
   )

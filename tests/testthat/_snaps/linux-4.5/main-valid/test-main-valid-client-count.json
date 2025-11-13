@@ -791,7 +791,7 @@
       "x": {
         "filter": "none",
         "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n      <th>Number of Current Living Situation Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
           "ordering": false,
@@ -800,8 +800,7 @@
               "className": "dt-right",
               "targets": [
                 1,
-                2,
-                3
+                2
               ]
             },
             {
@@ -815,10 +814,6 @@
             {
               "name": "Number of Project Exit Records",
               "targets": 2
-            },
-            {
-              "name": "Number of Current Living Situation Records",
-              "targets": 3
             }
           ],
           "order": [

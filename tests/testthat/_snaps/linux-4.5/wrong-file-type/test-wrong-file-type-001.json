@@ -19,13 +19,13 @@
     "accordion_upload": null,
     "card_filters1_full_screen": false,
     "card_filters2_full_screen": false,
-    "client_count_cc_subtabs": "<h5>Client Counts Summary<\/h5>",
+    "client_count_cc_subtabs": "<h5>Summary<\/h5>",
     "client_count_subtabs": "<h4>Client Counts<\/h4>",
     "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
     "currentProviderList": null,
     "dateRangeCount": [
-      "2023-10-05",
-      "2023-10-05"
+      null,
+      null
     ],
     "demo_mode_tooltip": false,
     "dimension": [
@@ -33,11 +33,13 @@
       1080
     ],
     "dq_export_date_multiple": [
-      "2025-10-02",
-      "2025-10-02"
+      null,
+      null
     ],
     "dq_export_date_options": "Date Range",
-    "dq_export_date_single": "2025-10-02",
+    "dq_export_date_single": [
+
+    ],
     "dq_export_export_types": [
       "Organization-level (multi-select)",
       "System-level"
@@ -102,6 +104,7 @@
     ],
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
+    "timeliness_metric": 3,
     "warnings_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>"
   },

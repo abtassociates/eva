@@ -87,7 +87,7 @@ non_res_nonlh_project_types <- setdiff(non_res_project_types, out_project_type)
 
 nbn_non_res <- c(es_nbn_project_type, non_res_project_types)
 
-project_types_w_cls <- c(1, 4, 6, 14)
+project_types_w_cls <- c(1, 4, 6, 7, 11, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
@@ -202,8 +202,8 @@ syso_race_ethnicity_method2 <- list(
       "AsianMethod2Detailed",
     "Black, African American, or African" =
       "BlackAfAmericanMethod2Detailed",
-    "Hispanic/Latina/e/o" =
-      "LatineMethod2Detailed",
+    "Hispanic/Latina/o" =
+      "LatinoMethod2Detailed",
     "Middle Eastern or North African" =
       "MidEastNAfricanMethod2Detailed",
     "Native Hawaiian or Pacific Islander" =
@@ -212,12 +212,12 @@ syso_race_ethnicity_method2 <- list(
       "WhiteMethod2Detailed"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/e/o" =
-      "BlackAfAmericanLatineMethod2Summarized",
-    "Hispanic/Latina/e/o alone" =
-      "LatineAloneMethod2Summarized",
-    "Hispanic/Latina/e/o" =
-      "LatineMethod2Summarized"
+    "Black, African American or African and Hispanic/Latina/o" =
+      "BlackAfAmericanLatinoMethod2Summarized",
+    "Hispanic/Latina/o alone" =
+      "LatinoAloneMethod2Summarized",
+    "Hispanic/Latina/o" =
+      "LatinoMethod2Summarized"
   )
 )
 syso_race_ethnicity_method1 <- list(
@@ -225,34 +225,34 @@ syso_race_ethnicity_method1 <- list(
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous alone" =
       "AmIndAKNativeAloneMethod1Detailed",
-    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
-      "AmIndAKNativeLatineMethod1Detailed",
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o" =
+      "AmIndAKNativeLatinoMethod1Detailed",
     "Asian or Asian American alone" =
       "AsianAloneMethod1Detailed",
-    "Asian or Asian American & Hispanic/Latina/e/o" =
-      "AsianLatineMethod1Detailed",
+    "Asian or Asian American & Hispanic/Latina/o" =
+      "AsianLatinoMethod1Detailed",
     "Black, African American, or African alone" =
       "BlackAfAmericanAloneMethod1Detailed",
-    "Black, African American, or African & Hispanic/Latina/e/o" =
-      "BlackAfAmericanLatineMethod1Detailed",
-    "Hispanic/Latina/e/o alone" =
-      "LatineAloneMethod1Detailed",
+    "Black, African American, or African & Hispanic/Latina/o" =
+      "BlackAfAmericanLatinoMethod1Detailed",
+    "Hispanic/Latina/o alone" =
+      "LatinoAloneMethod1Detailed",
     "Middle Eastern or North African alone" =
       "MidEastNAfricanAloneMethod1Detailed",
-    "Middle Eastern or North African & Hispanic/Latina/e/o" =
-      "MidEastNAfricanLatineMethod1Detailed",
-    "Multi-Racial (not Hispanic/Latina/e/o)" =
-      "MultipleNotLatineMethod1Detailed",
-    "Multi-Racial & Hispanic/Latina/e/o" =
-      "MultipleLatineMethod1Detailed",
+    "Middle Eastern or North African & Hispanic/Latina/o" =
+      "MidEastNAfricanLatinoMethod1Detailed",
+    "Multi-Racial (not Hispanic/Latina/o)" =
+      "MultipleNotLatinoMethod1Detailed",
+    "Multi-Racial & Hispanic/Latina/o" =
+      "MultipleLatinoMethod1Detailed",
     "Native Hawaiian or Pacific Islander alone" =
       "NativeHIPacificAloneMethod1Detailed",
-    "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
-      "NativeHIPacificLatineMethod1Detailed" ,
+    "Native Hawaiian or Pacific Islander & Hispanic/Latina/o" =
+      "NativeHIPacificLatinoMethod1Detailed" ,
     "White alone" =
       "WhiteAloneMethod1Detailed",
-    "White & Hispanic/Latina/e/o" =
-      "WhiteLatineMethod1Detailed"
+    "White & Hispanic/Latina/o" =
+      "WhiteLatinoMethod1Detailed"
   ),
   "Summarized" = c("All People of Color" = "BILPOCMethod1Summarized",
                    "White alone" = "WhiteMethod1Summarized")
@@ -494,3 +494,9 @@ dq_file_options <- data.frame(
 )
 
 IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
+
+METADATA_PATH <- ifelse(
+  grepl("ad.abt.local", Sys.info()[["nodename"]]) | isTRUE(getOption("shiny.testmode")), 
+  here("metadata-analysis/metadata"), 
+  "/srv/shiny-efs/eva/metadata-analysis/metadata"
+)

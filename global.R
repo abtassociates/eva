@@ -34,15 +34,17 @@ options(shiny.stacktraceon = TRUE)
 options(BRANDR_BRAND_YML = here::here("_brand.yml"))
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
 
-if(dir.exists(here("metadata-analysis/metadata/"))) {
-  capture.output("All good", file = stderr())
-} else {
-  dir.create(here("metadata-analysis/metadata/"))
-}
 source(here("hardcodes.R")) # hard-coded variables and data frames
 source(here("helper_functions.R")) # functions used throughout the app
 source(here('tab_instructions.R')) # static HTML text elements
 source(here("eva_chart_colors.R"))
+
+if(dir.exists(METADATA_PATH)) {
+  capture.output("All good", file = stderr())
+} else {
+  dir.create(METADATA_PATH)
+}
+
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
 # Create DQ and PDDE script environment
