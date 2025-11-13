@@ -248,7 +248,12 @@ get_sankey_data <- reactive({
     condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
   )
   
-  req(nrow(plot_df) > 0)
+  validate(
+    need(
+      nrow(plot_df) > 0,
+      message = no_data_msg
+    )
+  )
 
   plot_df %>%
     fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 
