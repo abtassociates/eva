@@ -989,7 +989,7 @@ bed_unit_inv <- reactive({
   
   logToConsole(session, "bed_unit_inv")
   # get the last date in activeInventory
-  lastday <- as.Date(fmax(HMIS_participating_projects_w_active_inv_no_overflow$ProjectHMISActiveParticipationEnd))
+  lastday <- as.Date(fmax(HMIS_participating_projects_w_active_inv_no_overflow$ProjectHMISParticipationEnd))
   y_last <- year(lastday)
   # the quarters end on the last wednedsay of january, april, july & october
   # create a function to get the exact date given a month and year
@@ -1032,13 +1032,13 @@ bed_unit_inv <- reactive({
         on="temp", 
         multiple=T
       ) %>%
-      fsubset(
-        InventoryStartDate <= as.Date(PIT) & (is.na(InventoryEndDate) | InventoryEndDate > as.Date(PIT))
+      fmutate(
+        activeInv = InventoryStartDate <= as.Date(PIT) & (is.na(InventoryEndDate) | InventoryEndDate > as.Date(PIT))
       ) %>%
       fgroup_by(PIT, ProjectID) %>%
       fsummarize(
-        PIT_Beds = fsum(BedInventory),
-        PIT_Units = fsum(UnitInventory)
+        PIT_Beds = fsum(fifelse(activeInv,BedInventory,0)),
+        PIT_Units = fsum(fifelse(activeInv,UnitInventory,0))
       ) %>% fungroup()
     #For each relevant project, count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
     #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
@@ -1052,33 +1052,30 @@ bed_unit_inv <- reactive({
     #Exclude any permanent housing enrollments where MoveInDateAdjust < [PIT Date]
     services_qPIT <- Services %>%
       fselect(EnrollmentID, DateProvided)  %>% 
+      join(EnrollmentAdjust %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
       fmutate(temp = 1) %>%
       join( # expand rows for each PIT date
         pit_dates %>% fmutate(temp=1), 
         on="temp", 
         multiple=T
       ) %>%
-      join(EnrollmentAdjust %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'left')  %>% 
-      fmutate(bn_PIT = as.Date(DateProvided) == PIT) %>%  
+      fmutate(bn_PIT = as.Date(DateProvided) == as.Date(PIT)) %>%  
+      fmutate(bn_PIT = fifelse(is.na(bn_PIT),FALSE,bn_PIT)) %>%  
       fgroup_by(EnrollmentID, PIT) %>% # For each enrollment & PIT Date,
-      fsummarise( # flag if it has any Service records where DateProvided == PIT
+      fsummarise( # flag if Enrollment has any Service records where DateProvided == PIT
         has_bn_PIT = any(bn_PIT, na.rm=TRUE)
-      ) 
+      )  %>% fungroup()
     Bed_Unit_Util <- EnrollmentAdjust %>%
-      join(services_qPIT, on = "EnrollmentID", how = "left") %>%
-      fgroup_by(ProjectID, PIT) %>%
-      fsubset(# Enrollment Active
-        EntryDate <= as.Date(PIT) & (is.na(InventoryEndDate) | InventoryEndDate > as.Date(PIT)) 
-      ) %>%
-      fsubset(# Enrollment NOT NbN Project OR at least 1 enrollment with Bed Night on PIT
-        ProjectType != es_nbn_project_type | any(has_bn_PIT) 
-      ) %>%
-      fsubset(# Enrollment NOT Permanent OR MoveInDateAdjust >= PIT
-        !LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= PIT 
+      join(services_qPIT, on = "EnrollmentID", how = "left", multiple = T) %>%
+      fmutate(# Enrollment Active
+        activeEnroll = EntryDate <= as.Date(PIT) & (is.na(ExitAdjust) | ExitAdjust > as.Date(PIT)),
+        eligProj = ProjectType != es_nbn_project_type | any(has_bn_PIT) ,
+        eligLS = !LivingSituation %in% perm_livingsituation | MoveInDateAdjust >= as.Date(PIT)
       ) %>% 
-      fmutate(Served = 1, # count each enrollment once
-              HH_Served = fifelse(RelationshipToHoH==1, # count households by just counting enrollments that are head of household
+      fmutate(Served = fifelse(activeEnroll & eligProj & eligLS, 1, 0), # flag active & eligible enrollments
+              HH_Served = fifelse(activeEnroll & eligProj & eligLS & RelationshipToHoH==1, # count households by just flagging active/elig enrollments that are head of household
                                  1, 0)) %>%
+      fgroup_by(ProjectID, PIT) %>%
       fsummarise(
         PIT_Served = fsum(Served),
         PIT_HH_Served = fsum(HH_Served))%>%
@@ -1088,8 +1085,8 @@ bed_unit_inv <- reactive({
   
   # full join the results of passing quarters through each function
   project_level_util <- count_Beds_Units(quarters) %>%
-    join(count_Enrollments(quarters), how = "full")
-
+    join(count_Enrollments(quarters), how = "left")
+  
   # calculate project level quarterly utilization
    project_level_util <- project_level_util %>%
      fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
