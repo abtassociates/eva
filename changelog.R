@@ -1,7 +1,28 @@
 output$changelog <- renderDT({
-  tribble(
+  
+  changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "11-13-2025",
+    "<b>New Features</b><br>
+      - Month-by-Month System Flow visualization<br>
+      - Data quality export interface which allows multi-org DQ exports<br>
+      - Data quality timeliness features<br>
+      - 4 PDDE checks (IDs 35, 36, 37, 106) and 2 DQ checks (IDs 107, 108)<br>
+      - Major UI update, due to upgrade to bootstrap5<br>
+      - Performance improvements<br>
+      - Fixes to System Inflow and Outflow logic<br>
+    <b>Bug Fixes</b> <br>
+      - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
+      - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
+      - Fixed DQ Check #41 (Incomplete Living Situation) to include temporary and other living situations when analyzing field 3.917B.2B (Issue <a href='https://github.com/abtassociates/eva/issues/803' target='_blank'>#803</a>).<br>
+    <b>Miscellaneous</b> <br>
+      - Renamed Client Counts page to Project Dashboard. <br>
+      - Updated System Overview instruction text. <br>
+      - Updated System Performance chart colors. <br>
+      - Updated System Performance exports. <br>
+      - Updated Glossary to include new entries related to Month-by-Month chart. <br>
+      - Fixed typo in Glossary (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
     "09-29-2025",
     "<b>FY26 Data Standards</b> <br>
     - Updated Eva to be compliant with FY26 HMIS Data Standards",
@@ -14,7 +35,7 @@ output$changelog <- renderDT({
       - Adjust how move-in date is computed for household members.<br>
       - Fixed issue with Project Type column in DQ Export.<br>
      <b>Miscellaneous</b> <br>
-      - Update Long Stayers check for ES NbN projects to use Bed Nights, rather than CLS records.",
+      - Update Long Stayers check for ES NbN projects to use Bed Nights, rather than CLS records.<br>",
     "04-03-2025",
     "<b>New Features</b> <br>
       - Added new PDDE check for active inventory with no enrollments during the inventory dates.<br>
@@ -430,5 +451,9 @@ output$changelog <- renderDT({
       - Rewrote PDDE issues' Guidance so that it is general guidance,
     then added Details column to include IDs to help admins find specific issues."
     
-  )
-}, rownames = FALSE, escape = FALSE)
+  ) %>% 
+   fmutate(Date = as.Date(Date, format='%m-%d-%Y'))
+  
+  datatable(changelog_dt, escape=FALSE, style='default', rownames=FALSE) 
+    
+})

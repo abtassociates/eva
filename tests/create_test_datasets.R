@@ -4,6 +4,7 @@
 library(tidyverse)
 library(zip)
 library(here)
+library(collapse)
 source(here("hardcodes.R"), local = TRUE)
 source(here("helper_functions.R"), local = TRUE)
 
@@ -26,8 +27,10 @@ save_new_zip <- function(zipfname, files_directory) {
 # store the original data as an R data set, so we can modify from scratch each time
 csv_files <- list.files(here("tests/temp"), pattern = "*.csv$",
                         full.names = TRUE)
+
 names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
-original_data <- lapply(csv_files, data.table::fread)
+original_data <- lapply(names(csv_files), importFile, upload_filepath = here("tests/FY26-test-good.zip"))
+names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
 # remove unused files
 original_data <- original_data[!names(original_data) %in% c("Affiliation",

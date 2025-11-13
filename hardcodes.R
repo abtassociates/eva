@@ -29,8 +29,6 @@ allowed_living_situations <-
 
 perm_livingsituation <- c(400:499)
 
-homeless_livingsituation <- c(100:199)
-
 homeless_livingsituation_incl_TH <- c(100:199, 302)
 
 temp_livingsituation <- c(300:399)
@@ -57,10 +55,6 @@ other_project_project_type <- 7
 
 sh_project_type <- 8
 
-ph_housing_only_project_type <- 9
-
-ph_housing_services_project_type <- 10
-
 day_project_type <- 11
 
 hp_project_type <- 12
@@ -69,17 +63,17 @@ rrh_project_type <- 13
 
 ce_project_type <- 14
 
-lh_project_types_nc <- c(0, 2, 8)
+lh_project_types_nonbn <- c(0, 2, 8)
 
 lh_residential_project_types <- c(0, 1, 2, 8)
 
 lh_project_types <- c(0, 1, 2, 4, 8)
 
-psh_oph_project_types <- c(3, 9, 10)
-
-ph_project_types <- c(3, 9, 10, 13)
-
 ph_other_project_types <- c(9, 10)
+
+psh_oph_project_types <- c(psh_project_type, ph_other_project_types)
+
+ph_project_types <- c(psh_oph_project_types, rrh_project_type)
 
 lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
 
@@ -89,13 +83,17 @@ project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
 
 non_res_project_types <- c(4, 6, 7, 11, 12, 14)
 
-project_types_w_cls <- c(1, 4, 6, 14)
+non_res_nonlh_project_types <- setdiff(non_res_project_types, out_project_type)
+
+nbn_non_res <- c(es_nbn_project_type, non_res_project_types)
+
+project_types_w_cls <- c(1, 4, 6, 7, 11, 14)
 
 long_stayer_98_percentile_project_types <- c(0, 2, 8, 12, 13)
 
 project_types_enrolled_homeless <- c(lh_project_types, 14)
    
-long_stayer_percentile_project_types <- c(0, 2, 3, 8, 9, 10, 12, 13)
+long_stayer_percentile_project_types <- c(long_stayer_98_percentile_project_types, psh_oph_project_types)
 
 all_project_types <- c(0, 1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14) 
 # All means All HUD-defined project types, so it excludes "Other"
@@ -122,7 +120,7 @@ dkr <- c(8, 9)
 # Expected upload schema (files, columns, and data types) ------------------
 cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
-  filter(!(File %in% c("Affiliation",
+  fsubset(!(File %in% c("Affiliation",
                        "AssessmentResults",
                        "AssessmentQuestions",
                        "Disabilities")))
@@ -155,6 +153,13 @@ syso_hh_types <- list(
   "Child Only" = "CO"
 )
 
+hh_types_in_exports <- list(
+  AC = "ACminusPY",
+  "AC-PY" = "PY",
+  AO = "AOminusUY",
+  "AO-UY" = "UY"
+)
+
 syso_level_of_detail <- list(
   "All People" = "All", 
   "Heads of Household and Adults" = "HoHsAndAdults", 
@@ -163,8 +168,11 @@ syso_level_of_detail <- list(
 
 syso_project_types <- list(
   "All Project Types" = "All",
-  "Residential" = "Residential",
-  "Non-residential" = "NonResidential"
+  "All Residential Projects" = "AllRes",
+  "- Residential: Homeless Projects" = "LHRes",
+  "- Residential: Permanent Housing Projects" = "PHRes",
+  "All Non-Residential" = "AllNonRes",
+  "- Non-Residential: Street Outreach" = "SO"
 )
 
 syso_age_cats <- c(
@@ -194,8 +202,8 @@ syso_race_ethnicity_method2 <- list(
       "AsianMethod2Detailed",
     "Black, African American, or African" =
       "BlackAfAmericanMethod2Detailed",
-    "Hispanic/Latina/e/o" =
-      "LatineMethod2Detailed",
+    "Hispanic/Latina/o" =
+      "LatinoMethod2Detailed",
     "Middle Eastern or North African" =
       "MidEastNAfricanMethod2Detailed",
     "Native Hawaiian or Pacific Islander" =
@@ -204,12 +212,12 @@ syso_race_ethnicity_method2 <- list(
       "WhiteMethod2Detailed"
   ),
   "Summarized" = c(
-    "Black, African American or African and Hispanic/Latina/e/o" =
-      "BlackAfAmericanLatineMethod2Summarized",
-    "Hispanic/Latina/e/o alone" =
-      "LatineAloneMethod2Summarized",
-    "Hispanic/Latina/e/o" =
-      "LatineMethod2Summarized"
+    "Black, African American or African and Hispanic/Latina/o" =
+      "BlackAfAmericanLatinoMethod2Summarized",
+    "Hispanic/Latina/o alone" =
+      "LatinoAloneMethod2Summarized",
+    "Hispanic/Latina/o" =
+      "LatinoMethod2Summarized"
   )
 )
 syso_race_ethnicity_method1 <- list(
@@ -217,34 +225,34 @@ syso_race_ethnicity_method1 <- list(
   "Detailed" = c(
     "American Indian, Alaska Native, or Indigenous alone" =
       "AmIndAKNativeAloneMethod1Detailed",
-    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o" =
-      "AmIndAKNativeLatineMethod1Detailed",
+    "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o" =
+      "AmIndAKNativeLatinoMethod1Detailed",
     "Asian or Asian American alone" =
       "AsianAloneMethod1Detailed",
-    "Asian or Asian American & Hispanic/Latina/e/o" =
-      "AsianLatineMethod1Detailed",
+    "Asian or Asian American & Hispanic/Latina/o" =
+      "AsianLatinoMethod1Detailed",
     "Black, African American, or African alone" =
       "BlackAfAmericanAloneMethod1Detailed",
-    "Black, African American, or African & Hispanic/Latina/e/o" =
-      "BlackAfAmericanLatineMethod1Detailed",
-    "Hispanic/Latina/e/o alone" =
-      "LatineAloneMethod1Detailed",
+    "Black, African American, or African & Hispanic/Latina/o" =
+      "BlackAfAmericanLatinoMethod1Detailed",
+    "Hispanic/Latina/o alone" =
+      "LatinoAloneMethod1Detailed",
     "Middle Eastern or North African alone" =
       "MidEastNAfricanAloneMethod1Detailed",
-    "Middle Eastern or North African & Hispanic/Latina/e/o" =
-      "MidEastNAfricanLatineMethod1Detailed",
-    "Multi-Racial (not Hispanic/Latina/e/o)" =
-      "MultipleNotLatineMethod1Detailed",
-    "Multi-Racial & Hispanic/Latina/e/o" =
-      "MultipleLatineMethod1Detailed",
+    "Middle Eastern or North African & Hispanic/Latina/o" =
+      "MidEastNAfricanLatinoMethod1Detailed",
+    "Multi-Racial (not Hispanic/Latina/o)" =
+      "MultipleNotLatinoMethod1Detailed",
+    "Multi-Racial & Hispanic/Latina/o" =
+      "MultipleLatinoMethod1Detailed",
     "Native Hawaiian or Pacific Islander alone" =
       "NativeHIPacificAloneMethod1Detailed",
-    "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o" =
-      "NativeHIPacificLatineMethod1Detailed" ,
+    "Native Hawaiian or Pacific Islander & Hispanic/Latina/o" =
+      "NativeHIPacificLatinoMethod1Detailed" ,
     "White alone" =
       "WhiteAloneMethod1Detailed",
-    "White & Hispanic/Latina/e/o" =
-      "WhiteLatineMethod1Detailed"
+    "White & Hispanic/Latina/o" =
+      "WhiteLatinoMethod1Detailed"
   ),
   "Summarized" = c("All People of Color" = "BILPOCMethod1Summarized",
                    "White alone" = "WhiteMethod1Summarized")
@@ -289,8 +297,9 @@ syso_grouping_detail <- c(
 # EvaChecks data (contains issue, type, guidance for each check) ----------
 evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
-evachecks_no_dupes <- evachecks %>%
-  janitor::get_dupes(ID) %>% nrow() == 0
+if(collapse::any_duplicated(evachecks$ID)) {
+  stop("EvaChecks has duplicate IDs!")
+}
 
 # Funding and Project Type Considerations DQ ------------------------------
 
@@ -346,7 +355,7 @@ inc_ncb_hi_required_prep <- tribble(
 # this will break out all the project types so they each get a row
 
 inc_ncb_hi_required <- unnest_longer(inc_ncb_hi_required_prep, ProjectType) %>%
-  unique()
+  funique()
 
 sys_comp_selection_choices = c(
   "Age", 
@@ -380,3 +389,114 @@ sys_chart_title_font <- sys_axis_text_font # 16 pts
 sys_chart_export_font_reduction <- 0.7
 ppt_summary_slide_font <- 19 # 19 pts = 25px
 ppt_chart_title_font_size <- 36
+
+# Upload-specific static variables shared across session --------------------
+# These are variables/datasets shared outside the process_upload scope
+sessionVars <- c(
+  "validation", 
+  "Export", 
+  "initially_valid_import",
+  "valid_file", 
+  "file_structure_analysis_main", 
+  "Project0", 
+  "Client",
+  "ReportStart", 
+  "ReportEnd", 
+  "days_of_data",
+  "meta_HUDCSV_Export_Start", 
+  "meta_HUDCSV_Export_End", 
+  "meta_HUDCSV_Export_Date", 
+  "overlap_details",
+  "dq_main", 
+  "outstanding_referrals",
+  "pdde_main", 
+  "dq_pdde_mirai_complete",
+  "enrollment_categories",
+  "client_categories",
+  "lh_non_res",
+  "lh_nbn"
+)
+
+reactive_session_vars <- c(
+  "valid_file", 
+  "initially_valid_import", 
+  "file_structure_analysis_main", 
+  "dq_pdde_mirai_complete"
+)
+
+# environment depencies for DQ and PDDE mirai
+dq_mirai_dependencies <- c(
+  "Enrollment",
+  "Client",
+  "ProjectSegments",
+  "HealthAndDV",
+  "CurrentLivingSituation",
+  "projects_funders_types",
+  "Funder",
+  "IncomeBenefits",
+  "Services",
+  "Event"
+)
+
+pdde_mirai_dependencies <- c(
+  "Inventory",
+  "Enrollment",
+  "ProjectCoC",
+  "activeInventory",
+  "HMISParticipation",
+  "CEParticipation"
+)
+
+enrollment_cols <- c(
+  "PersonalID",
+  "EnrollmentID",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "lh_prior_livingsituation"
+)
+
+non_res_lh_cols <- c(
+  "InformationDate",
+  "DateProvided"
+)
+
+inflow_debug_cols <- c(
+  "PersonalID",
+  "period",
+  "EnrollmentID",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "InflowTypeDetail",
+  "lh_dates"
+)
+
+
+outflow_debug_cols <- c(
+  "PersonalID",
+  "period",
+  "EnrollmentID",
+  "ProjectType",
+  "EntryDate",
+  "MoveInDateAdjust",
+  "ExitAdjust",
+  "OutflowTypeDetail",
+  "lh_dates"
+)
+
+## files included in DQ Export Interface
+dq_file_options <- data.frame(
+  all = "All Data Quality Reports",
+  report = c("Project Dashboard Report", "PDDE Report", "Data Quality Report")#, "Bed & Unit Utilization Report")
+)
+
+IN_DEV_MODE <- grepl("ad.abt.local", Sys.info()[["nodename"]]) & !isTRUE(getOption("shiny.testmode"))
+
+METADATA_PATH <- ifelse(
+  grepl("ad.abt.local", Sys.info()[["nodename"]]) | isTRUE(getOption("shiny.testmode")), 
+  here("metadata-analysis/metadata"), 
+  glue::glue("/srv/shiny-efs/{basename(here())}/metadata-analysis/metadata")
+)

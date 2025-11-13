@@ -7,14 +7,14 @@
 ######################
 
 show_invalid_popup <- function(popupText = NULL, issueID, title) {
-  reset_app()
+  reset_app(session)
   
   showModal(
     modalDialog(
       HTML(
         ifelse(
           is.null(popupText), 
-          evachecks %>% filter(ID == issueID) %>% pull(Guidance), 
+          evachecks %>% fsubset(ID == issueID) %>% pull(Guidance), 
           popupText
         )
       ),
@@ -24,19 +24,27 @@ show_invalid_popup <- function(popupText = NULL, issueID, title) {
   )
 }
 
-hasGT1ExportRow <- function() {
-  Export(importFile(upload_filepath, "Export"))
+hasNoExportRow <- function() {
+  returnVal <- FALSE # assume there's 1+ rows
+
+  # This is the first time we're importing Export.csv. 
+  # Saving it for easier reference later
+  session$userData$Export <- importFile(upload_filepath, "Export")
   
-  # this is the soonest we can log the session data, with 
-  # the export info, since this is the first time we import the Export.csv file
-  logSessionData() 
-  
-  return(nrow(Export()) > 1)
+  if(fnrow(session$userData$Export) == 0) {
+    # in order to log the session (which we do here because it's the soonest we 
+    # have access to the Export data needed for logging the session)
+    # we need to add a row to it
+    session$userData$Export <- rowbind(session$userData$Export, tibble_row())
+    returnVal <- TRUE
+  }
+  logSessionData(session)
+  return(returnVal)
 }
 
 isFY2026Export <- function() {
   return(
-    grepl("2026", as.character(Export()$CSVVersion))
+    grepl("2026", as.character(session$userData$Export$CSVVersion))
   )
 }
 
@@ -45,14 +53,14 @@ isFY2026Export <- function() {
 is_hashed <- function() {
 
   # read Client file
-  Client <- importFile(upload_filepath, "Client")
+  session$userData$Client <- importFile(upload_filepath, "Client")
   
   # decide if the export is hashed
   return(  
     # TRUE
-    Export()$HashStatus == 4 &
-      min(nchar(Client$FirstName), na.rm = TRUE) ==
-      max(nchar(Client$FirstName), na.rm = TRUE)
+    session$userData$Export$HashStatus == 4 &
+      min(nchar(session$userData$Client$FirstName), na.rm = TRUE) ==
+      max(nchar(session$userData$Client$FirstName), na.rm = TRUE)
   )
 }
 
@@ -66,7 +74,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
     issueID = 127, 
     title = "Unsuccessful Upload: You did not upload a zip file"
   )
-  logMetadata("Unsuccessful upload - zip file not .zip")
+  logMetadata(session, "Unsuccessful upload - zip file not .zip")
 } else {
   zipContents <- utils::unzip(zipfile = upload_filepath, list = TRUE)
     
@@ -85,7 +93,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       issueID = 122,
       title = "Unsuccessful Upload: Misstructured directory"
     )
-    logMetadata("Unsuccessful upload - zip file was misstructured")
+    logMetadata(session, "Unsuccessful upload - zip file was misstructured")
   } else if(length(missing_files)) {
     missing_files_list <- paste(
       glue::glue('<li>{missing_files}.csv</li>'),
@@ -106,8 +114,16 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       issueID = 125,
       title = "Unsuccessful Upload: Missing files"
     )
-    logMetadata("Unsuccessful upload - incomplete dataset")
-  } else if(hasGT1ExportRow()) {
+    logMetadata(session, "Unsuccessful upload - incomplete dataset")
+  } else if(hasNoExportRow()) {
+    show_invalid_popup(
+      issueID = 142,
+      title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file has no data.",
+      popupText = "Export.csv should have one and only one row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
+      If you are not sure how to resolve this issue, please contact your HMIS vendor."
+    )
+    logMetadata(session, "Unsuccessful upload - Export.csv has no rows")
+  } else if(fnrow(session$userData$Export) > 1) {
     show_invalid_popup(
       issueID = 140,
       title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file contains more than 1 row.",
@@ -120,14 +136,16 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       issueID = 124,
       title = "Unsuccessful Upload: Your HMIS CSV Export is out of date"
     )
-    logMetadata("Unsuccessful upload - out of date HMIS CSV Export")
+    logMetadata(session, "Unsuccessful upload - out of date HMIS CSV Export")
   } else if(!is_hashed()) {
     show_invalid_popup(
       issueID = 126,
-      title = "Unsuccessful Upload: You uploaded an unhashed data set"
+      title = "Unsuccessful Upload: Your data set is either unhashed or hashed in the wrong format",
+      popupText = "Eva expects a hashed HMIS CSV Export that conforms to the SHA-256 format as specified in the HMIS CSV Format Specifications. 
+      If you are not sure how to run a SHA-256 hashed HMIS CSV Export in your HMIS, please contact your HMIS vendor."
     )
-    logMetadata("Unsuccessful upload - not hashed")
+    logMetadata(session, "Unsuccessful upload - not hashed")
   } else {
-    initially_valid_import(1)
+    session$userData$initially_valid_import(1)
   }
 }
