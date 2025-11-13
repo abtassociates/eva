@@ -634,7 +634,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
       prev_exit_dest_perm = ExitAdjust == prev_exit & Destination %in% perm_livingsituation
     ) %>%
     fgroup_by(PersonalID, period) %>%
-    fmutate(prev_exit_dest_perm = any(prev_exit_dest_perm, na.rm=TRUE)) %>%
+    ftransform(prev_exit_dest_perm = any(prev_exit_dest_perm, na.rm=TRUE)) %>%
     fungroup() %>%
     fselect(
       PersonalID, 
