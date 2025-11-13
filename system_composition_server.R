@@ -309,7 +309,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
 suppress_values <- function(.data, count_var) {
   return(mutate(
     .data,
-    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
+    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA_integer_, !!sym(count_var))
   ))
 }
 
@@ -768,11 +768,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
-  full_data <- period_specific_data()[["Full"]]
+  full_data <- enrollments_filtered()
   req(nrow(full_data) > 0)
   
   join(
-    period_specific_data()[["Full"]] %>% fselect(PersonalID),
+    full_data %>% fselect(PersonalID),
     session$userData$client_categories,
     on = "PersonalID"
   ) %>%
