@@ -309,7 +309,7 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
 suppress_values <- function(.data, count_var) {
   return(mutate(
     .data,
-    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA, !!sym(count_var))
+    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA_integer_, !!sym(count_var))
   ))
 }
 
