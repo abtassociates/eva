@@ -391,11 +391,15 @@ period_specific_data <- reactive({
   period_data <- all_filtered %>% 
     expand_by_periods() %>% # expand/repeat enrollments across periods
     get_active_info(all_filtered) %>%
-    get_inflows_and_outflows() %>%
-    remove_sequential_inactives()
+    get_inflows_and_outflows()
+  
+  if(nrow(period_data) > 0) {
+    period_data <- period_data %>%
+      remove_sequential_inactives()
+  }
   
   exportTestValues(period_data = period_data)
-  if(IN_DEV_MODE) {
+  if(IN_DEV_MODE && nrow(period_data) > 0) {
     inflow_outflow_qc_checks(period_data)
     # browser()
     export_for_qc(period_data)
@@ -634,7 +638,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
       prev_exit_dest_perm = ExitAdjust == prev_exit & Destination %in% perm_livingsituation
     ) %>%
     fgroup_by(PersonalID, period) %>%
-    fmutate(prev_exit_dest_perm = any(prev_exit_dest_perm, na.rm=TRUE)) %>%
+    ftransform(prev_exit_dest_perm = any(prev_exit_dest_perm, na.rm=TRUE)) %>%
     fungroup() %>%
     fselect(
       PersonalID, 

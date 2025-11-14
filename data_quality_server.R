@@ -679,7 +679,9 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
 observe({
   
   req(session$userData$dq_pdde_mirai_complete() == 1)
-  if(length(input$dq_export_export_types) == 0){
+  ## disable DQ Export button if either (1) org-level and system-level are both unchecked, or 
+  ## (2) org-level is selected but all orgs are de-selected
+  if(length(input$dq_export_export_types) == 0 | ("Organization-level (multi-select)" %in% input$dq_export_export_types & length(input$dq_export_orgList) == 0)){
     shinyjs::disable('dq_export_download_btn')
   } else {
     shinyjs::enable('dq_export_download_btn')
