@@ -735,7 +735,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             fmutate(PlotFillGroups = fct_relevel(
               PlotFillGroups,
               rev(mbm_inflow_levels)
-            )),
+            )) %>% 
+            # hide labels if value is 0
+            fmutate(Count = na_if(Count, 0)),
           aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
           color = "black",
@@ -749,7 +751,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             fmutate(PlotFillGroups = fct_relevel(
               PlotFillGroups,
               mbm_outflow_levels
-            )),
+            )) %>% 
+            # hide labels if value is 0
+            fmutate(Count = na_if(Count, 0)),
           aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
           color = "black",
