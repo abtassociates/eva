@@ -1102,8 +1102,7 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 sys_monthly_single_status_ui_chart <- function(varname, status) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
-  monthly_status_data <- get_inflow_outflow_monthly() %>%
-    fsubset(.[[varname]] == status)
+  monthly_status_data <- get_inflow_outflow_monthly()
   
   if(nrow(monthly_status_data) == 0) 
     return(
@@ -1118,6 +1117,9 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
         labs(title = suppression_msg) + 
         theme_minimal()
     )
+  
+  monthly_status_data <- monthly_status_data %>%
+    fsubset(.[[varname]] == status)
   
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
   plot_data$PlotFillGroups <- status
