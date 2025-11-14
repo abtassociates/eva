@@ -385,22 +385,6 @@ sys_monthly_chart_data_wide <- reactive({
     roworder(PlotFillGroups)
 })
 
-### Inactive + FTH ------------------------
-sys_inflow_outflow_monthly_single_status_chart_data <- function(monthly_status_data) {
-  logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
-  
-  monthly_status_data %>%
-    fgroup_by(month) %>%
-    fsummarise(Count = GRPN()) %>%
-    roworder(month) %>%
-    join(
-      data.table(month = unique(monthly_status_data$month)),
-      on = "month",
-      how = "right"
-    ) %>%
-    replace_na(value = 0, cols = "Count")
-}
-
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
 # Function called in the renderPlot and exports
 get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
@@ -735,7 +719,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             fmutate(PlotFillGroups = fct_relevel(
               PlotFillGroups,
               rev(mbm_inflow_levels)
-            )),
+            )) %>% 
+            # hide labels if value is 0
+            fmutate(Count = na_if(Count, 0)),
           aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
           color = "black",
@@ -749,7 +735,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             fmutate(PlotFillGroups = fct_relevel(
               PlotFillGroups,
               mbm_outflow_levels
-            )),
+            )) %>% 
+            # hide labels if value is 0
+            fmutate(Count = na_if(Count, 0)),
           aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
           stat = "identity",
           color = "black",
@@ -1098,24 +1086,16 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 sys_monthly_single_status_ui_chart <- function(varname, status) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
-  monthly_status_data <- get_inflow_outflow_monthly() %>%
-    fsubset(.[[varname]] == status)
+  plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+    fsubset(Detail == status)
   
-  if(nrow(monthly_status_data) == 0) 
+  if(fsum(plot_data$Count) == 0) 
     return(
       ggplot() + 
         labs(title = no_data_msg) + 
         theme_minimal()
     )
   
-  if(fndistinct(monthly_status_data$PersonalID) <= 10) 
-    return(
-      ggplot() + 
-        labs(title = suppression_msg) + 
-        theme_minimal()
-    )
-  
-  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
   plot_data$PlotFillGroups <- status
  
   cat_order <- as.character(unique(plot_data$PlotFillGroups))
