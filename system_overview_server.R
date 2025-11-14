@@ -646,7 +646,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
       prev_exit_dest_perm = ExitAdjust == prev_exit & Destination %in% perm_livingsituation
     ) %>%
     fgroup_by(PersonalID, period) %>%
-    ftransform(prev_exit_dest_perm = any(prev_exit_dest_perm, na.rm=TRUE)) %>%
+    fmutate(prev_exit_dest_perm = fmax(prev_exit_dest_perm)) %>%
     fungroup() %>%
     fselect(
       PersonalID, 
@@ -700,7 +700,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
     fmutate(
       prev_active = fcoalesce(prev_active, as.Date(-Inf)),
       prev_exit = fcoalesce(prev_exit, as.Date(-Inf)),
-      prev_exit_dest_perm = fcoalesce(prev_exit_dest_perm, FALSE),
+      prev_exit_dest_perm = fcoalesce(as.logical(prev_exit_dest_perm), FALSE),
       first_active_date_in_period = fcoalesce(first_active_date_in_period, as.Date(Inf)),
       
       active_at_start = (
