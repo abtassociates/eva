@@ -415,10 +415,18 @@ period_specific_data <- reactive({
         levels = format(get_months_in_report_period(), "%b %y")
       ))
   )
-}) %>%
+})
+
+# AS 11/14/25: This is a short-term fix. 
+# Eventually, better to build out additional shinytests dedicated to testing different sets of filters
+# The reason we do this is that we are now adding a Race/Ethnicity = Hisp... filter in main-valid
+# If we left caching on, then it would have cached the previous combo of filters such that when we undid the Hisp/Latino filter
+# it would not have re-run the period_specific_data reactive and re-updated the period_data helper_data file back to the fuller set
+if(!isTRUE(getOption("shiny.testmode"))) 
   # This saves the *results* in the cache so if they change inputs back to 
   # something already seen, it doesn't have to re-run the code
-  bindCache(
+  period_specific_data <- bindCache(
+    period_specific_data,
     if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
 
     # Client-level filters
