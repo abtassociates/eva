@@ -390,14 +390,10 @@ sys_inflow_outflow_monthly_single_status_chart_data <- function(monthly_status_d
   logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
   
   monthly_status_data %>%
-    fgroup_by(month) %>%
-    fsummarise(Count = GRPN()) %>%
-    roworder(month) %>%
-    join(
-      data.table(month = unique(monthly_status_data$month)),
-      on = "month",
-      how = "right"
-    ) %>%
+    ## retains the 12 factor levels for each month, even if some are 0s 
+    findex_by(month) %>% 
+    fcount(name = 'Count') %>%
+    fmutate(month = factor(month, levels = levels(monthly_status_data$month))) %>% 
     replace_na(value = 0, cols = "Count")
 }
 
