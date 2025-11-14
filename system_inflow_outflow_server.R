@@ -1100,13 +1100,6 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
 
   monthly_status_data <- get_inflow_outflow_monthly()
   
-  if(nrow(monthly_status_data) == 0) 
-    return(
-      ggplot() + 
-        labs(title = no_data_msg) + 
-        theme_minimal()
-    )
-  
   if(fndistinct(monthly_status_data$PersonalID) <= 10) 
     return(
       ggplot() + 
@@ -1116,6 +1109,14 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   
   monthly_status_data <- monthly_status_data %>%
     fsubset(.[[varname]] == status)
+  
+  if(nrow(monthly_status_data) == 0) 
+    return(
+      ggplot() + 
+        labs(title = no_data_msg) + 
+        theme_minimal()
+    )
+  
   
   plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
   plot_data$PlotFillGroups <- status
