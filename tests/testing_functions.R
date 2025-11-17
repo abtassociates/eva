@@ -408,6 +408,19 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_inflow_outflow_detail_outputs
     )
     
+    # change client filter to Hispanic/Latino. This should lead to < 11 people to check validation/redacting
+    # AS TODO: Add Demographic output?
+    app$set_inputs(syso_race_ethnicity = "LatinoAloneMethod1Detailed")
+    app$wait_for_idle(timeout = 2e+06)
+    app$expect_values(
+      name = "sys-flow-detail-w-AO-Residential-PH-hisp",
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
+    )
+    
+    app$set_inputs(syso_race_ethnicity = "All")
+    app$wait_for_idle(timeout = 2e+06)
+    
     # go back to summary tab
     app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
