@@ -388,14 +388,16 @@ rrh_so_w_inventory <- activeInventory %>%
 # (this will need a lot more detail, hold on this one)
 
 # Overlapping participations ----------------------------------------------
-overlapping_ce_participation <- CEParticipation %>%
+overlapping_ce_participation <- if(nrow(CEParticipation) > 0) {
+  logToConsole(session, "checking overlaps in CEParticipation")
+  CEParticipation %>%
   join(session$userData$Project0 %>% fselect(ProjectID, OrganizationName, ProjectName),
-            on = "ProjectID", how = 'left') %>%
+       on = "ProjectID", how = 'left') %>%
   fgroup_by(ProjectID) %>%
   roworder(ProjectID, CEParticipationStatusStartDate) %>%
-  fmutate(PreviousCEParticipationID = lag(CEParticipationID),
-         PreviousCEStart = lag(CEParticipationStatusStartDate),
-         PreviousCEEnd = lag(CEParticipationStatusEndDate)) %>%
+  fmutate(PreviousCEParticipationID = flag(CEParticipationID),
+          PreviousCEStart = flag(CEParticipationStatusStartDate),
+          PreviousCEEnd = flag(CEParticipationStatusEndDate)) %>%
   fungroup() %>%
   fsubset(!is.na(PreviousCEParticipationID)) %>%
   fmutate(ParticipationPeriod =
@@ -426,8 +428,11 @@ overlapping_ce_participation <- CEParticipation %>%
          )) %>%
   merge_check_info_dt(checkIDs = 128) %>%
   fselect(PDDEcols)
+} else data.table()
 
-overlapping_hmis_participation <- HMISParticipation %>%
+overlapping_hmis_participation <- if(nrow(HMISParticipation) > 0) {
+  logToConsole(session, "checking overlaps in HMISParticipation")
+  HMISParticipation %>%
   join(session$userData$Project0 %>% fselect(ProjectID, OrganizationName, ProjectName),
             on = "ProjectID", how = 'left') %>%
   fgroup_by(ProjectID) %>%
@@ -466,7 +471,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
    )) %>%
   merge_check_info_dt(checkIDs = 131) %>%
   fselect(PDDEcols)
-
+} else data.table()
 
 # Bed Type incompatible with Housing Type -----------------------------------
 # For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds) or 3 (Other bed type). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
