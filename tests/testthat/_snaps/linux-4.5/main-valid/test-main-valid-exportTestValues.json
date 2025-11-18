@@ -550,7 +550,7 @@
         [
           "Length:121        ",
           "High Priority: 5  ",
-          "Length:123        ",
+          "Length:121        ",
           "Min.   :  1.000  "
         ],
         [
@@ -561,7 +561,7 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :65  ",
+          "Warning      :63  ",
           "Mode  :character  ",
           "Median :  3.000  "
         ],
@@ -569,7 +569,7 @@
           null,
           null,
           null,
-          "Mean   :  8.935  "
+          "Mean   :  9.058  "
         ],
         [
           null,
@@ -1506,7 +1506,7 @@
         [
           "Length:999        ",
           "High Priority: 56  ",
-          "Length:1006       ",
+          "Length:999        ",
           "Min.   :   1.00  "
         ],
         [
@@ -1517,7 +1517,7 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :508  ",
+          "Warning      :501  ",
           "Mode  :character  ",
           "Median :   9.00  "
         ],
@@ -1525,7 +1525,7 @@
           null,
           null,
           null,
-          "Mean   :  59.99  "
+          "Mean   :  60.32  "
         ],
         [
           null,
