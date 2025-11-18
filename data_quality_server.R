@@ -263,41 +263,44 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
   
   if(level == "sys") {
     plot_df <- dq_data %>%
-      left_join(session$userData$Project0 %>%
-                  select(ProjectID, OrganizationID) %>%
-                  unique(), by = "ProjectID") %>%
-      select(PersonalID,
+      join(
+        session$userData$Project0 %>%
+          fselect(ProjectID, OrganizationID) %>%
+          funique(), 
+        on = "ProjectID"
+      ) %>%
+      fselect(PersonalID,
              OrganizationID,
              OrganizationName,
              HouseholdID,
              Issue,
              Type) %>%
-      unique()
+      funique()
   } else {
     plot_df <- dq_data %>%
-      select(PersonalID,
+      fselect(PersonalID,
              ProjectID,
              ProjectName,
              OrganizationName,
              HouseholdID,
              Issue,
              Type) %>%
-      unique()
+      funique()
   }
   
   
   # Each project type gets its own Issue text+Guidance etc.
   if(level == "org") {
     plot_df <- plot_df %>% 
-      filter(OrganizationName %in% c(input$orgList))
+      fsubset(OrganizationName %in% input$orgList)
   }
   
   plot_data <- plot_df %>%
-    filter(Type == issueType) %>% 
-    group_by(across(all_of(groupVars))) %>%
-    summarise(countVar = n()) %>%
-    ungroup() %>%
-    arrange(desc(countVar))
+    fsubset(Type == issueType) %>% 
+    fgroup_by(groupVars) %>%
+    fsummarize(countVar = GRPN()) %>%
+    fungroup() %>%
+    roworder(-countVar)
   
   return(plot_data)
 }
@@ -335,19 +338,19 @@ renderDQPlot <- function(level, issueType, byType, color) {
   plot_output_id = paste0(level, "DQ", issueType, "By", byType)
   ui_output_id = paste0(plot_output_id, "_ui")
   
-  groupVars = case_when(
-    level == "sys" & byType == "Org" ~ list(c("OrganizationName", "OrganizationID")),
-    level == "sys" & byType == "Issue" ~ list("Issue"),
-    level == "org" & byType == "Project" ~ list(c("OrganizationName", "ProjectName", "ProjectID")),
-    level == "org" & byType == "Issue" ~ list(c("OrganizationName", "Issue")),
-    TRUE ~ list(NULL)
+  groupVars = fcase(
+    level == "sys" & byType == "Org", list(c("OrganizationName", "OrganizationID")),
+    level == "sys" & byType == "Issue", list("Issue"),
+    level == "org" & byType == "Project", list(c("OrganizationName", "ProjectName", "ProjectID")),
+    level == "org" & byType == "Issue", list(c("OrganizationName", "Issue")),
+    default = list(NULL)
   )
   
   # Derive the x-axis variable for the plot
-  x_group = case_when(
-    byType == "Org" ~ "OrganizationName",
-    byType == "Project" ~ "ProjectName",
-    byType == "Issue" ~ "Issue"
+  x_group = fcase(
+    byType == "Org", "OrganizationName",
+    byType == "Project", "ProjectName",
+    byType == "Issue", "Issue"
   )
   
   # RENDER THE UI (The Plot's Container)
@@ -355,7 +358,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
     req(nrow(dq_full()) > 0)
     
     plotOutput(plot_output_id,
-               height = if_else(nrow(dq_full()) == 0, 50, 400),
+               height = if_else(fnrow(dq_full()) == 0, 50, 400),
                width = ifelse(isTRUE(getOption("shiny.testmode")),
                               "1640",
                               "100%"))
@@ -363,7 +366,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
-    req(nrow(dq_full()) > 0)
+    req(fnrow(dq_full()) > 0)
 
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
     
@@ -371,7 +374,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
     
     validate(
       need(
-        nrow(plot_data) > 0,
+        fnrow(plot_data) > 0,
         message = paste0("Great job! No ", issueTypeDisplay, " to show.")
       )
     )
@@ -439,23 +442,23 @@ getDQReportDataList <- function(
   )
   
   high_priority <- dqData %>%
-    filter(Type == "High Priority") %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(all_of(select_list))
+    fsubset(Type == "High Priority") %>%
+    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+    fselect(select_list)
   
   errors <- dqData %>%
-    filter(Type == "Error") %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(all_of(select_list))
+    fsubset(Type == "Error") %>%
+    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+    fselect(select_list)
   
   warnings <- dqData %>%
-    filter(Type == "Warning") %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(all_of(select_list))
+    fsubset(Type == "Warning") %>%
+    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+    fselect(select_list)
   
   dqReferralDetails <- dqReferrals %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(
+    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+    fselect(
       OrganizationName,
       ProjectID,
       ProjectName,
@@ -469,23 +472,20 @@ getDQReportDataList <- function(
     )
   
   mainsummary <- dqData %>% 
-    select(Type, Issue, PersonalID) %>%
+    fselect(Type, Issue, PersonalID) %>%
     # group_by(ProjectName, Type, Issue) %>%
-    group_by(Type, Issue) %>%
-    summarise(Enrollments = n()) %>%
-    ungroup() %>%
-    select(Type, Enrollments, Issue) %>%
-    arrange(Type, desc(Enrollments))
+    fgroup_by(Type, Issue) %>%
+    fsummarize(Enrollments = GRPN()) %>%
+    fungroup() %>%
+    fselect(Type, Enrollments, Issue) %>%
+    roworder(Type, -Enrollments)
 
-  bySummaryLevel2 <- rlang::sym(bySummaryLevel)
   byunitsummary <- dqData %>% 
-    select(!!bySummaryLevel2, Type, Issue, PersonalID) %>%
-    group_by(!!bySummaryLevel2, Type, Issue) %>%
-    summarise(Enrollments = n()) %>%
-    ungroup() %>%
-    select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
-    arrange(Type, desc(Enrollments), !!bySummaryLevel2)
-  
+    fselect(c(bySummaryLevel, "Type", "Issue", "PersonalID")) %>%
+    fgroup_by(c(bySummaryLevel, "Type", "Issue")) %>%
+    fsummarize(Enrollments = GRPN()) %>%
+    fungroup() %>%
+    roworderv(cols = c("Type", "Enrollments", bySummaryLevel), decreasing = c(FALSE, TRUE, FALSE))
   
   guidance <- dqData %>%
     fselect(Type, Issue, Guidance) %>%
@@ -551,15 +551,14 @@ dqDownloadInfo <- reactive({
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_full() %>%
-    filter(OrganizationName %in% c(input$orgList))
+    fsubset(OrganizationName %in% input$orgList)
   
   orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    filter(OrganizationName %in% c(input$orgList) | 
-             PreviousOrganizationName %in% c(input$orgList))
+    fsubset(OrganizationName %in% input$orgList | 
+             PreviousOrganizationName %in% input$orgList)
   
-  orgDQReferrals <- 
-    session$userData$outstanding_referrals %>%
-    filter(OrganizationName %in% c(input$orgList))
+  orgDQReferrals <- session$userData$outstanding_referrals %>%
+    fsubset(OrganizationName %in% input$orgList)
 
   # return a list for reference in downloadHandler
   list(
@@ -644,15 +643,14 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
   
   orgDQData <- dq_full() %>%
-    filter(OrganizationName %in% c(org_name))
+    fsubset(OrganizationName %in% org_name)
   
   orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    filter(OrganizationName %in% c(org_name) | 
-             PreviousOrganizationName %in% c(org_name))
+    fsubset(OrganizationName %in% org_name | 
+             PreviousOrganizationName %in% org_name)
   
-  orgDQReferrals <- 
-    session$userData$outstanding_referrals %>%
-    filter(OrganizationName %in% c(org_name))
+  orgDQReferrals <- session$userData$outstanding_referrals %>%
+    fsubset(OrganizationName %in% org_name)
   
   # return a list for reference in downloadHandler
   

@@ -550,38 +550,38 @@
         [
           "Length:121        ",
           "High Priority: 5  ",
-          "Min.   :  1.000  ",
-          "Length:121        "
+          "Length:123        ",
+          "Min.   :  1.000  "
         ],
         [
           "Class :character  ",
           "Error        :53  ",
-          "1st Qu.:  1.000  ",
-          "Class :character  "
+          "Class :character  ",
+          "1st Qu.:  1.000  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :63  ",
-          "Median :  3.000  ",
-          "Mode  :character  "
+          "Warning      :65  ",
+          "Mode  :character  ",
+          "Median :  3.000  "
         ],
         [
           null,
           null,
-          "Mean   :  9.058  ",
-          null
+          null,
+          "Mean   :  8.935  "
         ],
         [
           null,
           null,
-          "3rd Qu.:  7.000  ",
-          null
+          null,
+          "3rd Qu.:  7.000  "
         ],
         [
           null,
           null,
-          "Max.   :181.000  ",
-          null
+          null,
+          "Max.   :181.000  "
         ]
       ],
       "Guidance": [
@@ -1506,38 +1506,38 @@
         [
           "Length:999        ",
           "High Priority: 56  ",
-          "Min.   :   1.00  ",
-          "Length:999        "
+          "Length:1006       ",
+          "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
           "Error        :442  ",
-          "1st Qu.:   3.00  ",
-          "Class :character  "
+          "Class :character  ",
+          "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :501  ",
-          "Median :   9.00  ",
-          "Mode  :character  "
+          "Warning      :508  ",
+          "Mode  :character  ",
+          "Median :   9.00  "
         ],
         [
           null,
           null,
-          "Mean   :  60.32  ",
-          null
+          null,
+          "Mean   :  59.99  "
         ],
         [
           null,
           null,
-          "3rd Qu.:  26.00  ",
-          null
+          null,
+          "3rd Qu.:  26.00  "
         ],
         [
           null,
           null,
-          "Max.   :5367.00  ",
-          null
+          null,
+          "Max.   :5367.00  "
         ]
       ],
       "Guidance": [

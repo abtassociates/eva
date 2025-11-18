@@ -1,3 +1,6 @@
+library(collapse)
+library(data.table)
+
 print("updating test good for DQ")
 
 set.seed(12345)
@@ -15,37 +18,43 @@ select_random_rows <- function(cond) {
 # we split up the 6 rows into 3 groups of 2, to test 3 issues
 split_rows <- select_random_rows(original_data_fixed_cols$Exit$Destination == 435)
 original_data_fixed_cols$Exit <- original_data_fixed_cols$Exit %>%
-  mutate(DestinationSubsidyType = 
-           case_when(
-             row_number() %in% split_rows[[1]] ~ NA, # null values
-             row_number() %in% split_rows[[2]] ~ 99, # 99 (Data not collected, generally) values
-             row_number() %in% split_rows[[3]] ~ 238, # nonsense values
-             TRUE ~ DestinationSubsidyType
-           )
+  fmutate(
+    rn = seq_row(.),
+    DestinationSubsidyType = fcase(
+      rn %in% split_rows[[1]], NA_real_, # null values
+      rn %in% split_rows[[2]], 99, # 99 (Data not collected, generally) values
+      rn %in% split_rows[[3]], 238, # nonsense values
+      default = DestinationSubsidyType
+    ),
+    rn = NULL
   )
 
 # CLS Subsidy Type -------------------------------------------------------------
 split_rows <- select_random_rows(original_data_fixed_cols$CurrentLivingSituation$CurrentLivingSituation == 435)
 original_data_fixed_cols$CurrentLivingSituation <- original_data_fixed_cols$CurrentLivingSituation %>%
-  mutate(CLSSubsidyType = 
-           case_when(
-             row_number() %in% split_rows[[1]] ~ NA, # null values
-             row_number() %in% split_rows[[2]] ~ 99, # 99 (Data not collected, generally) values
-             row_number() %in% split_rows[[3]] ~ 234, # nonsense values
-             TRUE ~ CLSSubsidyType
-           )
+  fmutate(
+    rn = seq_row(.),
+    CLSSubsidyType = fcase(
+      rn %in% split_rows[[1]], NA_real_, # null values
+      rn %in% split_rows[[2]], 99, # 99 (Data not collected, generally) values
+      rn %in% split_rows[[3]], 234, # nonsense values
+      default = CLSSubsidyType
+    ),
+    rn = NULL
   )
 
 # Prior Living Situation Subsidy -----------------------------------------------
 split_rows <- select_random_rows(original_data_fixed_cols$Enrollment$LivingSituation == 435)
 original_data_fixed_cols$Enrollment <- original_data_fixed_cols$Enrollment %>%
-  mutate(RentalSubsidyType = 
-           case_when(
-             row_number() %in% split_rows[[1]] ~ NA, # null values
-             row_number() %in% split_rows[[2]] ~ 99, # 99 (Data not collected, generally) values
-             row_number() %in% split_rows[[3]] ~ 234, # nonsense values
-             TRUE ~ RentalSubsidyType
-           )
+  fmutate(
+    rn = seq_row(.),
+    RentalSubsidyType = fcase(
+      rn %in% split_rows[[1]], NA_real_, # null values
+      rn %in% split_rows[[2]], 99, # 99 (Data not collected, generally) values
+      rn %in% split_rows[[3]], 234, # nonsense values
+      default = RentalSubsidyType
+    ),
+    rn = NULL
   )
 
 # Participation overlap (checkIDs = 131) ---------------------------------------
@@ -54,10 +63,10 @@ original_data_fixed_cols$Enrollment <- original_data_fixed_cols$Enrollment %>%
 # to create a "gap", simply add/change the number to a positive number
 date_shift <- -2
 overlaps_temp <- original_data_fixed_cols$HMISParticipation %>%
-  filter(HMISParticipationType == 1 &
+  fsubset(HMISParticipationType == 1 &
            !is.na(HMISParticipationStatusEndDate)) %>%
   sample_n(1) %>%
-  mutate(
+  fmutate(
     HMISParticipationStatusStartDate = HMISParticipationStatusEndDate + days(date_shift),
     HMISParticipationStatusEndDate = NA,
     HMISParticipationID = paste0(HMISParticipationID, abs(date_shift))
@@ -67,36 +76,42 @@ original_data_fixed_cols$HMISParticipation <- bind_rows(overlaps_temp, original_
 # RRH-SO projects with active inventory (checkID = 132) ------------------------
 # this selects a random project with inventory and projecttype = 13
 random_project <- original_data_fixed_cols$Inventory %>% 
-  filter(BedInventory > 0) %>%
-  semi_join(
+  fsubset(BedInventory > 0) %>%
+  join(
     original_data_fixed_cols$Project %>% 
-      filter(ProjectType == 13 & RRHSubType != 1), 
-    by = "ProjectID") %>%
+      fsubset(ProjectType == rrh_project_type & RRHSubType != 1), 
+    on = "ProjectID",
+    how = "semi") %>%
   sample_n(1) %>%
   pull(ProjectID)
 
 # Update RRHSubType for that project to 1
 original_data_fixed_cols$Project <- original_data_fixed_cols$Project %>%
-  mutate(
-    RRHSubType = if_else(ProjectID == random_project, 1, RRHSubType) #,
+  fmutate(
+    RRHSubType = fifelse(ProjectID == random_project, 1, RRHSubType) #,
     # RRHSOActivePeriod =
     #   interval(OperatingStartDate,
     #     coalesce(OperatingEndDate, original_data_fixed_cols$Export$ExportEndDate))
-    )
+  )
 
 # finally, make sure inventory period overlaps project operating period
 original_data_fixed_cols$Inventory <- original_data_fixed_cols$Inventory %>% 
-  left_join(original_data_fixed_cols$Project %>% 
-              select(ProjectID, OperatingStartDate, OperatingEndDate), 
-            by = "ProjectID") %>%
-  mutate(InventoryStartDate = OperatingStartDate - days(1),
+  join(
+    original_data_fixed_cols$Project %>% 
+      fselect(ProjectID, OperatingStartDate, OperatingEndDate), 
+    on = "ProjectID"
+  ) %>%
+  fmutate(InventoryStartDate = OperatingStartDate - days(1),
          InventoryEndDate = OperatingEndDate + days(1)) %>%
-  select(-c(OperatingStartDate, OperatingEndDate))
+  fselect(-c(OperatingStartDate, OperatingEndDate))
 
 # there are deleted records in the data -----------------------------------
 
-original_data_fixed_cols$Organization <- rbind(original_data_fixed_cols$Organization[1,], original_data_fixed_cols$Organization) %>%
-  mutate(DateDeleted = if_else(row_number() == 1, ymd("20231101"), NA))
+original_data_fixed_cols$Organization <- rbind(
+  original_data_fixed_cols$Organization[1,], 
+  original_data_fixed_cols$Organization
+  ) %>%
+  fmutate(DateDeleted = fifelse(seq_row(.) == 1, ymd("20231101"), NA))
 
 # add some periods of zero utilization ------------------------------------
 # This should make project 1376 flag for Zero Utilization^
@@ -107,7 +122,7 @@ tables_to_filter <- c("Enrollment",
                       "YouthEducationStatus")
 original_data_fixed_cols[tables_to_filter] <- lapply(
   original_data_fixed_cols[tables_to_filter],
-  function(df) df %>% filter(EnrollmentID != "696923")
+  function(df) df %>% fsubset(EnrollmentID != "696923")
 )
 
 # impermissible characters
@@ -131,25 +146,25 @@ original_data_fixed_cols$ProjectCoC[c(1, 28), c("Address1", "CoCCode", "Geograph
 # Trigger the 'Project Missing in ProjectCoC file' High Priority Issue (checkID = 35) -------------------------
 # Remove a project from ProjectsCOC, with ContinuumProject == 1
 coc_project <- original_data_fixed_cols$Project %>% 
-      filter(ContinuumProject == 1) 
-coc_project <- coc_project$ProjectID[nrow(coc_project)]
+      fsubset(ContinuumProject == 1) 
+coc_project <- coc_project$ProjectID[fnrow(coc_project)]
 
 original_data_fixed_cols$ProjectCoC <- original_data_fixed_cols$ProjectCoC %>%
-  filter(ProjectID != coc_project)
+  fsubset(ProjectID != coc_project)
 rm(coc_project)
 # Trigger the 'No Enrollments within Active Inventory' Warning Issue (checkID = 141) -------------------------
 # Get a project from the activeInventory with and EndDate
 XInventory <- original_data_fixed_cols$Inventory %>%
-   filter((is.na(Availability) | Availability != 3) &
+  fsubset((is.na(Availability) | Availability != 3) &
      BedInventory > 0 & !is.na(BedInventory)) %>%
-  select(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
-  filter(!is.na(InventoryEndDate))
+  fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
+  fsubset(!is.na(InventoryEndDate))
 
-ainv_proj <- XInventory %>% filter(ProjectID == XInventory$ProjectID[nrow(XInventory)])
+ainv_proj <- XInventory %>% fsubset(ProjectID == XInventory$ProjectID[fnrow(XInventory)])
 
 # Update all the enrollments to have EntryDate 10 days after the Inventory End Date
 original_data_fixed_cols$Enrollment <- original_data_fixed_cols$Enrollment %>% 
-  mutate(EntryDate= as.Date(ifelse(ProjectID == ainv_proj$ProjectID,
+  fmutate(EntryDate = as.Date(fifelse(ProjectID == ainv_proj$ProjectID,
                            ymd(ainv_proj$InventoryEndDate + days(10)),
                            ymd(EntryDate))))
 
