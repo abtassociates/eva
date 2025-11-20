@@ -604,3 +604,9 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     setorder(PersonalID, period, EntryDate) %>%
     fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
 }
+
+# removes special characters from org nameswhen using them for DQ Export file names
+standardize_org_name <- function(orgname){
+  stringr::str_replace_all(orgname, "[/\\[+<>()|\\:&;#?*'\\]]", "_")
+  
+}
