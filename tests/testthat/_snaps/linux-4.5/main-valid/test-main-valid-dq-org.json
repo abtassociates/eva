@@ -50,8 +50,7 @@
       40,
       41,
       42,
-      43,
-      44
+      43
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -238,9 +237,7 @@
       114,
       115,
       116,
-      117,
-      118,
-      119
+      117
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -888,7 +885,7 @@
       ]
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: c6f3027a0ee121a8ee9a42381b595f6d]",
+      "src": "[image data hash: 5a5d7906177f9fa1a0066840b6b40866]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -917,8 +914,8 @@
                 "y": [
                   "Unknown Months or Times Homeless",
                   "Unknown Living Situation",
-                  "Incomplete or Unknown Name",
                   "Overlap with a Emergency Shelter (E/E) project",
+                  "Incomplete or Unknown Name",
                   "Future Entry Date",
                   "Homelessness Start Date conflicts with Living Situation data",
                   "Days since Most Recent CLS Exceeds Local Settings",
@@ -965,7 +962,7 @@
       ]
     },
     "orgDQWarningByProject": {
-      "src": "[image data hash: b33166bb046c6c53dd342bb1f900504d]",
+      "src": "[image data hash: 298f2f55a50de1beaa9c07da4e1bee8d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most Warnings.",
@@ -984,7 +981,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 261.8,
+              "right": 260.7,
               "bottom": 0.4,
               "top": 9.6,
               "discrete_limits": {
@@ -1046,32 +1043,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 20
+        "Warning": 19
       },
       "Issue": {
-        "Length": "44",
+        "Length": "43",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "44",
+        "Length": "43",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "119",
+        "Length": "117",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 53,
-        "Warning": 61
+        "Warning": 59
       },
       "Issue": {
-        "Length": "119",
+        "Length": "117",
         "Class": "character",
         "Mode": "character"
       },
@@ -1079,7 +1076,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.61344537815126,
+        "Mean": 8.735042735042734,
         "3rd Qu.": 7,
         "Max.": 181
       }
