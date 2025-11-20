@@ -722,13 +722,15 @@ output$dq_export_download_btn <- downloadHandler(
           
           if(length(dq_export_list) <= 1) next
           
-          path_prefix <- file.path(tempdir(), i)
-          zip_prefix <- str_glue('{i}/')
+          org_name_std <- standardize_org_name(i)
+          
+          path_prefix <- file.path(tempdir(), org_name_std)
+          zip_prefix <- str_glue('{org_name_std}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
           }
           
-          dq_org_filename <- date_stamped_filename(str_glue('{i} - Data Quality Report-'))
+          dq_org_filename <- date_stamped_filename(str_glue('{org_name_std} - Data Quality Report-'))
           write_xlsx(dq_export_list, 
                      path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename))
                      )
@@ -756,14 +758,14 @@ output$dq_export_download_btn <- downloadHandler(
             roworder(Type, Issue)
           
           if(nrow(summary_df) == 0) next
-          
-          path_prefix <- file.path(tempdir(), i)
-          zip_prefix <- str_glue('{i}/')
+          org_name_std <- standardize_org_name(i)
+          path_prefix <- file.path(tempdir(), org_name_std)
+          zip_prefix <- str_glue('{org_name_std}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
           }
           
-          pdde_filename <- date_stamped_filename(str_glue("{i} - PDDE Report-"))
+          pdde_filename <- date_stamped_filename(str_glue("{org_name_std} - PDDE Report-"))
           
           write_xlsx(
             list("Summary" = summary_df,
@@ -805,13 +807,13 @@ output$dq_export_download_btn <- downloadHandler(
             fsubset(OrganizationName == i)
           
           if(nrow(validationDF) == 0) next
-          
-          path_prefix <- file.path(tempdir(), i)
-          zip_prefix <- str_glue('{i}/')
+          org_name_std <- standardize_org_name(i)
+          path_prefix <- file.path(tempdir(), org_name_std)
+          zip_prefix <- str_glue('{org_name_std}/')
           if(!dir.exists(path_prefix)){
             dir.create(path_prefix)
           }
-          proj_dash_filename <- date_stamped_filename(str_glue('{i} - Project Dashboard Report-'))
+          proj_dash_filename <- date_stamped_filename(str_glue('{org_name_std} - Project Dashboard Report-'))
           get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), 
                                         orgList = i, dateRangeEnd = dq_export_date_range_end())
           zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))

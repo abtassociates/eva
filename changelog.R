@@ -3,6 +3,10 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "11-20-2025",
+    "<b>Bug Fixes</b> <br>
+      - Fixed handling of null rows in Participation datasets for overlaps. (Issue <a href='https://github.com/abtassociates/eva/issues/880' target='_blank'>#880</a>).<br>
+      - Standardized DQ Export Download file names using underscores when special characters are present (Issue <a href='https://github.com/abtassociates/eva/issues/890' target='_blank'>#890</a>).<br>",
     "11-13-2025",
     "<b>New Features</b><br>
       - Month-by-Month System Flow visualization<br>
