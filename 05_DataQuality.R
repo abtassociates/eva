@@ -1105,6 +1105,7 @@ if(nrow(Services) > 0) {
 
 # Exclude first enrollment and do not compare RRH to PSH
 overlap_dt <- overlap_dt %>% 
+  fungroup() %>% 
   fsubset(
     !is.na(PreviousEnrollmentID) &
     !(
