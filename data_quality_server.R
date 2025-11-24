@@ -221,7 +221,8 @@ dq_full <- reactive({
   req(session$userData$dq_pdde_mirai_complete() == 1)
 
   logToConsole(session, "in dq_full")
-  long_stayers <- if(!is.null(session$userData$long_stayers) > 0) {
+  long_stayers <- if(!is.null(session$userData$long_stayers) & 
+                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
     session$userData$long_stayers %>%
       fmutate(
         too_many_days = case_match(
