@@ -1030,6 +1030,7 @@ enrollment_x_operating_period <- enrollment_positions %>%
 # Create an initial dataset of possible overlaps
 # and establish initial Enrollment intervals, based on project type
 # NOTE: this data.table version is slightly faster than the collapse equivalent
+logToConsole(session, paste0("base_dq_data: ", nrow(base_dq_data), ' rows'))
 overlap_staging <- base_dq_data[
   EntryDate != ExitAdjust & 
     ((
@@ -1049,6 +1050,7 @@ overlap_staging <- base_dq_data[
     ),
     EnrollmentEnd = as.Date(ExitAdjust))
 ]
+logToConsole(session, paste0("overlap_staging: ", nrow(overlap_staging), ' rows'))
 
 # For NbNs, modify EnrollmentStart/End to be the first/last DateProvided 
 # for a given enrollment
@@ -1080,6 +1082,8 @@ if(nrow(Services) > 0) {
         EnrollmentEnd
       )                    
     )
+  logToConsole(session, paste0("overlap_staging with Services merge: ", nrow(overlap_staging), ' rows'))
+  
 }
 
 # get previous enrollment info using "lag"
@@ -1092,6 +1096,8 @@ overlap_dt <- overlap_staging %>%
     PreviousEnrollmentEnd = flag(EnrollmentEnd),
     PreviousProjectType = flag(ProjectType)
   )
+  logToConsole(session, paste0("overlap_dt: ", nrow(overlap_dt), ' rows'))
+
 
 if(nrow(Services) > 0) {
 # doing these now, to be used for overlap_details later
