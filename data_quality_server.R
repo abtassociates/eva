@@ -878,20 +878,21 @@ output$dq_export_download_btn <- downloadHandler(
           fungroup() %>% 
           roworder(Type, Issue) 
         
-        if(nrow(summary_df) == 0) break
-
-        write_xlsx(
-          list("Summary" = summary_df,
-               "Data" = session$userData$pdde_main %>% 
-                 join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
-                 roworder(Type, Issue) %>% 
-                 nice_names()
-          ),
-          path = file.path(path_prefix,pdde_filename))
-        zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
-        logMetadata(session, paste0("Downloaded System-level PDDE Report",
-                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    
+        
+        if(nrow(summary_df) > 0){
+          write_xlsx(
+            list("Summary" = summary_df,
+                 "Data" = session$userData$pdde_main %>% 
+                   join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
+                   roworder(Type, Issue) %>% 
+                   nice_names()
+            ),
+            path = file.path(path_prefix,pdde_filename))
+          zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+          logMetadata(session, paste0("Downloaded System-level PDDE Report",
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+        
       }
       if("Data Quality Report" %in% input$dq_export_files){
         
