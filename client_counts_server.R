@@ -689,7 +689,7 @@ output$downloadClientCountsReport <- downloadHandler(
   filename = date_stamped_filename("System-level Project Dashboard Report-"),
   content = {
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
-                                input$dateRangeCount,']',
+                                paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     get_clientcount_download_info
    
