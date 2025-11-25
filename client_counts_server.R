@@ -76,7 +76,9 @@ client_count_summary_df <- reactive({
   client_counts <- client_count_data_df() %>%
     fsubset(ProjectName == input$currentProviderList) %>%
     fgroup_by(Status)
-  
+  if(nrow(client_counts) == 0){
+    return(NULL)
+  }
   hhs <- client_counts %>% fsummarise(Households = fnunique(HouseholdID))
   clients <- client_counts %>% fsummarise(Clients = fnunique(PersonalID))
 
@@ -389,6 +391,13 @@ output$clientCountSummary <- renderDT({
   req(session$userData$valid_file() == 1)
   
   exportTestValues(clientCountSummary = client_count_summary_df())
+  
+  validate(
+    need(
+      nrow(client_count_summary_df()) > 0,
+      message = no_data_msg
+    )
+  )
   
   datatable(
     client_count_summary_df() %>%

@@ -66,8 +66,17 @@ output$downloadPDDEReport <- downloadHandler(
 # summary table
 output$pdde_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(session$userData$pdde_main) > 0)
+  
 
+  validate(
+    need(
+      nrow(session$userData$pdde_main) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  req(nrow(session$userData$pdde_main) > 0)
+  
   a <- session$userData$pdde_main %>%
     fgroup_by(Issue, Type) %>%
     fsummarise(Count = GRPN()) %>%
@@ -89,6 +98,14 @@ output$pdde_summary_table <- renderDT({
 
 output$pdde_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
+  
+  validate(
+    need(
+      nrow(session$userData$pdde_main) > 0,
+      message = no_data_msg
+    )
+  )
+  
   req(nrow(session$userData$pdde_main) > 0)
   guidance <- session$userData$pdde_main %>%
     fselect(Type, Issue, Guidance) %>%
@@ -112,8 +129,17 @@ output$pdde_guidance_summary <- renderDT({
 
 output$dq_organization_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(session$userData$dq_main) > 0)
 
+  validate(
+    need(
+      nrow(session$userData$dq_main) > 0,
+      message = no_data_msg
+    )
+  )
+
+  req(nrow(session$userData$dq_main) > 0)
+  
+    
   a <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(ProjectName, 
@@ -146,6 +172,13 @@ output$dq_organization_summary_table <- renderDT({
 output$dq_org_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
 
+  validate(
+    need(
+      nrow(session$userData$dq_main) > 0,
+      message = no_data_msg
+    )
+  )
+  
   guidance <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(Type, Issue, Guidance) %>%
@@ -367,18 +400,19 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
+    
+    validate(
+      need(
+        fnrow(dq_full()) > 0,
+        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+      )
+    )
+    
     req(fnrow(dq_full()) > 0)
 
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
     
     issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
-    
-    validate(
-      need(
-        fnrow(plot_data) > 0,
-        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
-      )
-    )
     
     # Your ggplot code remains identical
     ggplot(head(plot_data, 10L), aes(x = reorder(!!as.name(x_group), countVar), y = countVar)) +
