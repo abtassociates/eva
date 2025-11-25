@@ -915,12 +915,16 @@ output$dq_export_download_btn <- downloadHandler(
       
     }
     
+    logToConsole(session, paste0('valid DQ Export files: ', length(zip_files)))  
     
-    
-   
-      
-    
-    zip::zip(file, files = zip_files, root = tempdir())
+    if(length(zip_files) > 0){
+      return(
+        zip::zip(file, files = zip_files, root = tempdir())
+      )
+    } else {
+      showNotification('No valid download files available. Please try selecting additional options.', type='error')
+      warning('No valid download files available.')
+    }
                                                      
   }
 )
