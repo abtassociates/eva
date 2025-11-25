@@ -554,9 +554,14 @@ dqDownloadInfo <- reactive({
   orgDQData <- dq_full() %>%
     fsubset(OrganizationName %in% input$orgList)
   
-  orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    fsubset(OrganizationName %in% input$orgList | 
-             PreviousOrganizationName %in% input$orgList)
+  if(!is.null(session$userData$overlap_details)){
+    orgDQoverlapDetails <- session$userData$overlap_details %>% 
+      fsubset(OrganizationName %in% input$orgList | 
+                PreviousOrganizationName %in% input$orgList)
+  } else {
+    orgDQoverlapDetails <- NULL
+  }
+  
   
   orgDQReferrals <- session$userData$outstanding_referrals %>%
     fsubset(OrganizationName %in% input$orgList)
@@ -646,9 +651,14 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   orgDQData <- dq_full() %>%
     fsubset(OrganizationName %in% org_name)
   
-  orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    fsubset(OrganizationName %in% org_name | 
-             PreviousOrganizationName %in% org_name)
+  if(!is.null(session$userData$overlap_details)){
+    orgDQoverlapDetails <- session$userData$overlap_details %>% 
+      fsubset(OrganizationName %in% org_name | 
+                PreviousOrganizationName %in% org_name)
+  } else {
+    orgDQoverlapDetails <- NULL
+  }
+  
   
   orgDQReferrals <- session$userData$outstanding_referrals %>%
     fsubset(OrganizationName %in% org_name)
@@ -868,20 +878,21 @@ output$dq_export_download_btn <- downloadHandler(
           fungroup() %>% 
           roworder(Type, Issue) 
         
-        if(nrow(summary_df) == 0) break
-
-        write_xlsx(
-          list("Summary" = summary_df,
-               "Data" = session$userData$pdde_main %>% 
-                 join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
-                 roworder(Type, Issue) %>% 
-                 nice_names()
-          ),
-          path = file.path(path_prefix,pdde_filename))
-        zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
-        logMetadata(session, paste0("Downloaded System-level PDDE Report",
-                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    
+        
+        if(nrow(summary_df) > 0){
+          write_xlsx(
+            list("Summary" = summary_df,
+                 "Data" = session$userData$pdde_main %>% 
+                   join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
+                   roworder(Type, Issue) %>% 
+                   nice_names()
+            ),
+            path = file.path(path_prefix,pdde_filename))
+          zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+          logMetadata(session, paste0("Downloaded System-level PDDE Report",
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+        
       }
       if("Data Quality Report" %in% input$dq_export_files){
         
@@ -893,21 +904,27 @@ output$dq_export_download_btn <- downloadHandler(
         )
        
         dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
-        
-        write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
-        logMetadata(session, paste0("Downloaded System-level DQ Report",
-                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-        zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
+        if(length(dqDownloadInfo()$systemDQData) > 1) {
+          write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
+          logMetadata(session, paste0("Downloaded System-level DQ Report",
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
+        }
+      
       } 
       
     }
     
+    logToConsole(session, paste0('valid DQ Export files: ', length(zip_files)))  
     
-    
-   
-      
-    
-    zip::zip(file, files = zip_files, root = tempdir())
+    if(length(zip_files) > 0){
+      return(
+        zip::zip(file, files = zip_files, root = tempdir())
+      )
+    } else {
+      showNotification('No valid download files available. Please try selecting additional options.', type='error')
+      warning('No valid download files available.')
+    }
                                                      
   }
 )
