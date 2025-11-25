@@ -554,9 +554,14 @@ dqDownloadInfo <- reactive({
   orgDQData <- dq_full() %>%
     fsubset(OrganizationName %in% input$orgList)
   
-  orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    fsubset(OrganizationName %in% input$orgList | 
-             PreviousOrganizationName %in% input$orgList)
+  if(!is.null(session$userData$overlap_details)){
+    orgDQoverlapDetails <- session$userData$overlap_details %>% 
+      fsubset(OrganizationName %in% input$orgList | 
+                PreviousOrganizationName %in% input$orgList)
+  } else {
+    orgDQoverlapDetails <- NULL
+  }
+  
   
   orgDQReferrals <- session$userData$outstanding_referrals %>%
     fsubset(OrganizationName %in% input$orgList)
@@ -646,9 +651,14 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   orgDQData <- dq_full() %>%
     fsubset(OrganizationName %in% org_name)
   
-  orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    fsubset(OrganizationName %in% org_name | 
-             PreviousOrganizationName %in% org_name)
+  if(!is.null(session$userData$overlap_details)){
+    orgDQoverlapDetails <- session$userData$overlap_details %>% 
+      fsubset(OrganizationName %in% org_name | 
+                PreviousOrganizationName %in% org_name)
+  } else {
+    orgDQoverlapDetails <- NULL
+  }
+  
   
   orgDQReferrals <- session$userData$outstanding_referrals %>%
     fsubset(OrganizationName %in% org_name)

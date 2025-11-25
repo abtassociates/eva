@@ -342,6 +342,10 @@ date_stamped_filename <- function(filename, ext = '.xlsx') {
 
 nice_names <- function(df){
   
+  if(is.null(df)){
+    return(data.table())
+  }
+  
   names_from_janitor <- c("Ho h", "Co c", "Adjust")
   hmis_abbreviations <- c("HoH", "CoC", "")
   
