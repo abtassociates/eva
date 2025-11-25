@@ -398,6 +398,13 @@ activeInventory <- Inventory %>%
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 
+# Filter out overflow beds
+activeInv_no_overflow <- activeInventory %>% 
+  fsubset(
+    (is.na(Availability) | Availability != 3) &
+      BedInventory > 0 & !is.na(BedInventory)
+  ) 
+
 # Event (Used in DQ)
 Event <- Event %>% 
   fselect(
@@ -422,3 +429,51 @@ session$userData$CurrentLivingSituation <- CurrentLivingSituation
 #        exited_between(., today() - years(1), today())) &
 #       ProjectType %in% lh_ph_hp_project_types) %>%
 #   dplyr::select(ProjectName) %>% unique()
+
+# HMIS Participation ------------------------------------------------------
+# hmis_participating_projects <- session$userData$Project0 %>%
+#   join(HMISParticipation %>% 
+#          fsubset(HMISParticipationType %in% c(0,1,2)),
+#        on = "ProjectID", how = 'inner') %>%
+#   subset(ProjectType %in% project_types_w_beds) %>% 
+#   pull(ProjectID) %>%
+#   funique()
+# 
+# HMIS_participating_projects_w_active_inv_no_overflow <- base::intersect(
+#   activeInv_no_overflow %>% pull(ProjectID) %>% funique(), 
+#   hmis_participating_projects)
+
+HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
+  fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
+  join(activeInv_no_overflow, 
+    on = "ProjectID",
+    how = "inner",
+    multiple = TRUE
+  ) %>% 
+  fsubset(ProjectType %in% project_types_w_beds) %>% # filter to ProjectType with Beds
+  fsubset(ProjectType!=rrh_project_type | RRHSubType ==2) %>% # filter RRH projects to subtype 2
+  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
+  fmutate(
+    ProjectHMISParticipationStart = pmax(
+      HMISParticipationStatusStartDate, 
+      OperatingStartDate,
+      na.rm = TRUE
+    ),
+    ProjectHMISParticipationEnd = pmin(
+      HMISParticipationStatusEndDate,
+      OperatingEndDate,
+      na.rm = TRUE
+    ),
+    ProjectHMISActiveParticipationStart = pmax(
+      ProjectHMISParticipationStart,
+      InventoryStartDate,
+      na.rm = TRUE
+    ),
+    ProjectHMISActiveParticipationEnd = pmin(
+      ProjectHMISParticipationEnd,
+      InventoryEndDate,
+      na.rm = TRUE
+    )
+  )
+
+
