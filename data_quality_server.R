@@ -904,11 +904,13 @@ output$dq_export_download_btn <- downloadHandler(
         )
        
         dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
-        
-        write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
-        logMetadata(session, paste0("Downloaded System-level DQ Report",
-                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-        zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
+        if(length(dqDownloadInfo()$systemDQData) > 1) {
+          write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
+          logMetadata(session, paste0("Downloaded System-level DQ Report",
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
+        }
+      
       } 
       
     }
