@@ -498,5 +498,3 @@ HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
           YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
           CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory
   )
-
-browser()
