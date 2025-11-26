@@ -387,9 +387,11 @@ renderDQPlot <- function(level, issueType, byType, color) {
     byType == "Issue", "Issue"
   )
   
+    
   # RENDER THE UI (The Plot's Container)
   output[[ui_output_id]] <- renderUI({
-    req(nrow(dq_full()) > 0)
+    
+    #req(fnrow(dq_full()) > 0)
     
     plotOutput(plot_output_id,
                height = if_else(fnrow(dq_full()) == 0, 50, 400),
@@ -400,6 +402,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
+    issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
     
     validate(
       need(
@@ -408,11 +411,17 @@ renderDQPlot <- function(level, issueType, byType, color) {
       )
     )
     
-    req(fnrow(dq_full()) > 0)
 
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
     
-    issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
+    req(fnrow(dq_full()) > 0)
+    
+    validate(
+      need(
+        fnrow(plot_data) > 0,
+        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+      )
+    )
     
     # Your ggplot code remains identical
     ggplot(head(plot_data, 10L), aes(x = reorder(!!as.name(x_group), countVar), y = countVar)) +
@@ -620,8 +629,8 @@ dqDownloadInfo <- reactive({
 
 
 dq_export_date_range_end <- reactive({
-  req(session$userData$dq_pdde_mirai_complete() == 1)
-  
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
+  req(session$userData$valid_file() == 1)
   if(input$dq_export_date_options == 'Date Range'){
     input$dq_export_date_multiple[2]
   } else if(input$dq_export_date_options == 'Single Date'){
@@ -630,7 +639,8 @@ dq_export_date_range_end <- reactive({
 })
 
 observeEvent(input$dateRangeCount, {
-  req(session$userData$dq_pdde_mirai_complete() == 1)
+  req(session$userData$valid_file() == 1)
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
   if(input$pageid == 'tabClientCount'){
     
       updateDateRangeInput(session, 'dq_export_date_multiple',
@@ -648,7 +658,8 @@ observeEvent({
   c(input$dq_export_date_multiple,
     input$dq_export_date_single)}, {
       
-  req(session$userData$dq_pdde_mirai_complete() == 1)
+  req(session$userData$valid_file() == 1)
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
       
   if(input$pageid == 'tabDQExport'){
     
@@ -663,16 +674,7 @@ observeEvent({
   }
 }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
-observe({
 
-  if('Organization-level (multi-select)' %in% input$dq_export_export_types){
-    shinyjs::show(id = 'dq_export_orgList')
-  } else {
-    shinyjs::hide(id = 'dq_export_orgList')
-  }
-  
-  shinyjs::toggle("dq_export_download_btn", condition = (session$userData$dq_pdde_mirai_complete() == 1))
-})
 
 # list of data frames to include in DQ Org Report
 get_dqDownloadInfo_export <- function(org_name, value = "org"){
@@ -721,7 +723,20 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
 
 observe({
   
-  req(session$userData$dq_pdde_mirai_complete() == 1)
+  if('Organization-level (multi-select)' %in% input$dq_export_export_types){
+    shinyjs::show(id = 'dq_export_orgList')
+  } else {
+    shinyjs::hide(id = 'dq_export_orgList')
+  }
+  
+  shinyjs::toggle("dq_export_download_btn", 
+                  condition = (session$userData$valid_file() == 1))
+                  #condition = (session$userData$dq_pdde_mirai_complete() == 1))
+})
+
+observe({
+  req(session$userData$valid_file() == 1)
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
   ## disable DQ Export button if any of these cases are true
   if(
     ## (1) org-level and system-level are both unchecked
@@ -740,8 +755,8 @@ observe({
 output$dq_export_download_btn <- downloadHandler(
   filename = date_stamped_filename('Data Quality Exports-', ext='.zip'),
   content = function(file){
-    
-    req(session$userData$dq_pdde_mirai_complete() == 1)
+    req(session$userData$valid_file() == 1)
+    #req(session$userData$dq_pdde_mirai_complete() == 1)
     
     zip_files <- c()
     
@@ -883,20 +898,22 @@ output$dq_export_download_btn <- downloadHandler(
         req(session$userData$valid_file() == 1)
         
         proj_dash_filename <- date_stamped_filename('System-level Project Dashboard Report-')
-        
-        get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename), dateRangeEnd = dq_export_date_range_end())
-        
-        zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
-        
-        if(input$dq_export_date_options == 'Date Range'){
-          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
-                                      paste0(input$dq_export_date_multiple, collapse=', '),']',
-                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-        } else {
-          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
-                                      dq_export_date_range_end(),
-                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        if(fnrow(client_count_data_df()) > 0){
+          get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename), dateRangeEnd = dq_export_date_range_end())
+          
+          zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
+          
+          if(input$dq_export_date_options == 'Date Range'){
+            logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
+                                        paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          } else {
+            logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
+                                        dq_export_date_range_end(),
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          }
         }
+       
         
       }
       
