@@ -883,20 +883,22 @@ output$dq_export_download_btn <- downloadHandler(
         req(session$userData$valid_file() == 1)
         
         proj_dash_filename <- date_stamped_filename('System-level Project Dashboard Report-')
-        
-        get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename), dateRangeEnd = dq_export_date_range_end())
-        
-        zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
-        
-        if(input$dq_export_date_options == 'Date Range'){
-          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
-                                      paste0(input$dq_export_date_multiple, collapse=', '),']',
-                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-        } else {
-          logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
-                                      dq_export_date_range_end(),
-                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        if(fnrow(client_count_data_df()) > 0){
+          get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename), dateRangeEnd = dq_export_date_range_end())
+          
+          zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
+          
+          if(input$dq_export_date_options == 'Date Range'){
+            logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
+                                        paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          } else {
+            logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
+                                        dq_export_date_range_end(),
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          }
         }
+       
         
       }
       
