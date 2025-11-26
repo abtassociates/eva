@@ -474,7 +474,7 @@ HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
       InventoryEndDate,
       na.rm = TRUE
     )
-  )
+  ) %>% select(-InvHMISParticipationStart, - InvHMISParticipationEnd) # drop the interim step vars 
 
 
 HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
@@ -492,6 +492,7 @@ HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
              CHBedInventory = fsum(CHBedInventory)) %>% 
   fungroup()
 
+# Estimate Dedicated Vet, Youth, and CH (Child) units based on ratio of beds
 HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
   fmutate(HMISActiveParticipationDuration = fifelse(is.na(ProjectHMISActiveParticipationEnd),
                                                     Sys.Date() - as.Date(ProjectHMISActiveParticipationStart),
@@ -501,5 +502,3 @@ HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
           CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory
   )
 
-
-browser()
