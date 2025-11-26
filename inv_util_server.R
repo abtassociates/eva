@@ -347,7 +347,7 @@ observe({
 
 source("client_level_export_server.R", local=TRUE)
 
-# Get period report_dates --------------------------------------------
+# report date functions --------------------------------------------
 get_months_in_report_period <- function() {
   seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
 } 
@@ -363,58 +363,205 @@ get_report_dates <- function() {
     )
   )
 }
+# make function to get quarterly PIT dates
+get_quarters <- function(){
+  # get the last date in activeInventory
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  # the quarters end on the last wednedsay of january, april, july & october
+  # create a function to get the exact date given a month and year
+  last_wednesday <- function(year, month) {
+    # Get the last day of the month
+    last_day <- ceiling_date(ymd(paste(year, month, "01", sep = "-")), "month") - days(1)
+    # Find the weekday of the last day (1 = Sunday, 7 = Saturday)
+    weekday <- wday(last_day)
+    # Calculate the difference to the last Wednesday (4 = Wednesday)
+    diff <- ifelse(weekday >= 4, weekday - 4, weekday + 3)
+    # Subtract the difference to get the last Wednesday
+    last_day - days(diff)
+  }
+  
+  q1_PIT <- as.Date(fifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
+                             last_wednesday(y_last,1), # use last wedensday of this january
+                             last_wednesday(y_last-1,1))) # else use last wednesday of last january
+  q2_PIT <- as.Date(fifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
+                             last_wednesday(y_last,4), # use last wedensday of this april
+                             last_wednesday(y_last-1,4))) # else use last wednesday of last april
+  q3_PIT <- as.Date(fifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
+                             last_wednesday(y_last,7), # use last wedensday of this july
+                             last_wednesday(y_last-1,7))) # else use last wednesday of last july
+  q4_PIT <- as.Date(fifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
+                             last_wednesday(y_last,10), # use last wedensday of this october
+                             last_wednesday(y_last-1,10))) # else use last wednesday of last october
+  
+  quarters <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT) # create vector of quarterly dates
+  return(quarters)
+}
+# counting functions -----------------------------------------------
+# create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments)
+# if nightly_avg, use 365 / length of pit_dates to calculate the 'report length' and calculate nightly averages
+count_Beds_Units <- function(pit_dates, nightly_avg = TRUE){
+  pit_dates <- data.frame("PIT" = pit_dates) %>% fmutate(temp=1)
+  
+  Bed_Unit_Count <- HMIS_project_active_inventories %>% 
+    fselect(ProjectID, BedInventory, UnitInventory, InventoryStartDate, InventoryEndDate) %>%
+    fmutate(temp = 1) %>%
+    join( # expand rows for each PIT date
+      pit_dates, 
+      on="temp", 
+      multiple=T
+    ) %>%
+    fmutate(
+      activeInv = InventoryStartDate <= as.Date(PIT) & (is.na(InventoryEndDate) | InventoryEndDate > as.Date(PIT))
+    ) %>%
+    fgroup_by(PIT, ProjectID) %>%
+    fsummarize(
+      PIT_Beds = fsum(fifelse(activeInv,BedInventory,0)),
+      PIT_Units = fsum(fifelse(activeInv,UnitInventory,0))
+    ) %>% fungroup()
+  #For each relevant project, count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
+  #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
+  if(nightly_avg){
+    # calculate length of range 
+    report_length <- 365 / nrow(pit_dates)
+    Bed_Unit_Count <- Bed_Unit_Count %>% # use it to calculate average nightly beds/units
+      fmutate(Avg_Nightly_Beds = PIT_Beds / report_length ,
+              Avg_Nightly_Units = PIT_Units / report_length )
+  }
+  return(Bed_Unit_Count)
+}
+count_Enrollments <-function(pit_dates, nightly_avg = TRUE){
+  pit_dates <- data.frame("PIT" = pit_dates) %>% fmutate(temp=1)
+  #For each relevant project and using the EnrollmentAdjust data frame, count the number of people "served in a bed" on each of the 4 PIT Dates.
+  #For an enrollment to be considered "active" on a PIT Date it must meet the following logic: EntryDate <= [PIT Date] and ExitAdjust > [PIT Date] or is NULL
+  #Exclude any ES - NbN enrollments where there is no Bed Night record on [PIT Date]
+  #Exclude any permanent housing enrollments where MoveInDateAdjust < [PIT Date]
+  services_qPIT <- Services %>%
+    fselect(EnrollmentID, DateProvided)  %>% 
+    join(EnrollmentAdjust %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
+    fmutate(temp = 1) %>%
+    join( # expand rows for each PIT date
+      pit_dates %>% fmutate(temp=1), 
+      on="temp", 
+      multiple=T
+    ) %>%
+    fmutate(bn_PIT = as.Date(DateProvided) == as.Date(PIT)) %>%  
+    fmutate(bn_PIT = fifelse(is.na(bn_PIT),FALSE,bn_PIT)) %>%  
+    fgroup_by(EnrollmentID, PIT) %>% # For each enrollment & PIT Date,
+    fsummarise( # flag if Enrollment has any Service records where DateProvided == PIT
+      has_bn_PIT = any(bn_PIT, na.rm=TRUE)
+    )  %>% fungroup()
+  Bed_Unit_Util <- EnrollmentAdjust %>%
+    join(services_qPIT, on = "EnrollmentID", how = "left", multiple = T) %>%
+    fmutate(# Enrollment Active
+      activeEnroll = EntryDate <= as.Date(PIT) & (is.na(ExitAdjust) | ExitAdjust > as.Date(PIT)),
+      eligProjNBN = ProjectType != es_nbn_project_type | any(has_bn_PIT) ,
+      eligProjPerm = !(ProjectType %in% c(3,9,10,13)) | fifelse(is.na(MoveInDateAdjust), 
+                                                                FALSE, # if MoveInDateAdjust is missing, use FALSE to count zero days
+                                                                MoveInDateAdjust >= as.Date(PIT))
+    ) %>% 
+    fmutate(Served = fifelse(activeEnroll & eligProjNBN & eligProjPerm, 1, 0), # flag active & eligible enrollments
+            HH_Served = fifelse(activeEnroll & eligProjNBN & eligProjPerm & RelationshipToHoH==1, # count households by just flagging active/elig enrollments that are head of household
+                                1, 0)) %>%
+    fgroup_by(ProjectID, PIT) %>%
+    fsummarise(
+      PIT_Served = fsum(Served),
+      PIT_HH_Served = fsum(HH_Served))%>%
+    fungroup()  %>% fsubset(!is.na(PIT_Served))
+  
+  if(nightly_avg){
+    # calculate length of range 
+    report_length <- 365 / nrow(pit_dates)
+    Bed_Unit_Util <- Bed_Unit_Util %>% # use it to calculate average nightly beds/units
+      fmutate(Avg_Nightly_Served = PIT_Served / report_length ,
+              Avg_Nightly_HH_Served = PIT_HH_Served / report_length )
+  }
+  return(Bed_Unit_Util)
+} 
 
-# Get period-specific universe_ppl_flag datasets ---------------------------
-period_specific_data <- reactive({
-  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  logToConsole(session, "in period_specific_data")
+# create versions that sum counts over a range of dates
+# use difference in dates to calculate the 'report length' and calculate nightly averages
+count_Beds_Units_rng <- function(range_start,range_end){
   
-  empty_return <- list(Full = data.table(), Months = data.table())
+  Bed_Unit_Count <- count_Beds_Units(seq(from = report_start, to = report_end, by = 1), nightly_avg = FALSE) 
   
-  # Get filtered records based on user selection
-  filtered_enrollments <- enrollments_filtered()
-  filtered_clients <- client_categories_filtered() 
+  Bed_Unit_Count <- Bed_Unit_Count %>%  fgroup_by(ProjectID) %>%
+    fsummarize(
+      Total_Beds = fsum(PIT_Beds), # sum active beds over all days in range
+      Total_Units = fsum(PIT_Units) # sum active units over all days in range
+    )
+  # calculate length of range 
+  report_length <- as.numeric(range_end - range_start)
+  Bed_Unit_Count <- Bed_Unit_Count %>% # use it to calculate average nightly beds/units
+    fmutate(Avg_Nightly_Beds = Total_Beds / report_length ,
+            Avg_Nightly_Units = Total_Units / report_length )
   
-  # If either are empty, return empty
-  if(nrow(filtered_clients) == 0 || nrow(filtered_enrollments) == 0) return(empty_return)
+  return(Bed_Unit_Count)
+}
+count_Enrollments_rng <-function(range_start,range_end){
   
-  # Apply all filters
-  all_filtered <- filtered_enrollments %>% 
-    join( 
-      if(!IN_DEV_MODE) fselect(filtered_clients, PersonalID) else filtered_clients,
-      on = "PersonalID",
-      how = "inner"
+  Bed_Unit_Util <- count_Enrollments(seq(from = report_start, to = report_end, by = 1), nightly_avg = FALSE) 
+  Bed_Unit_Util <- Bed_Unit_Util %>% fgroup_by(ProjectID) %>%
+    fsummarise(
+      Total_Served = fsum(PIT_Served), # sum enrollments over all days in range
+      Total_HH_Served = fsum(PIT_HH_Served) # sum HOH enrollments over all days in range
     )
   
-  if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
+  # calculate length of range 
+  report_length <- as.numeric(range_end - range_start)
+  Bed_Unit_Util <- Bed_Unit_Util %>% # use it to calculate average served beds/units
+    fmutate(Avg_Nightly_Served = Total_Served / report_length ,
+            Avg_Nightly_HH_Served = Total_HH_Served / report_length )
+  
+  return(Bed_Unit_Util)
+} 
 
-  period_data <- all_filtered %>% 
-    expand_by_periods() %>% # expand/repeat enrollments across periods
-    get_active_info(all_filtered) %>%
-    get_inflows_and_outflows()
+## Get Bed/Unit Inventory Data Function ------------------------------------------
+proj_bed_unit_inv <- reactive({
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   
-  if(nrow(period_data) > 0) {
-    period_data <- period_data %>%
-      remove_sequential_inactives()
-  }
+  logToConsole(session, "bed_unit_inv")
+  quarters <- get_quarters()
   
-  exportTestValues(period_data = period_data)
-  if(IN_DEV_MODE && nrow(period_data) > 0) {
-    inflow_outflow_qc_checks(period_data)
-    # browser()
-    export_for_qc(period_data)
-  }
+  # full join the results of passing quarters through counting functions
+  project_level_util <- count_Beds_Units(quarters) %>%
+    join(count_Enrollments(quarters), how = "left")
   
-  # Split into months and full-period datasets
-  list(
-    Full = fsubset(period_data, period == "Full"),
-    Months = period_data %>%
-      fsubset(period != "Full") %>%
-      fmutate(month = factor(
-        format(as.Date(period), "%b %y"), 
-        levels = format(get_months_in_report_period(), "%b %y")
-      ))
-  )
+  # calculate project level quarterly utilization
+  project_level_util <- project_level_util %>%
+    fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
+            Unit_Utilization = PIT_HH_Served / PIT_Units,
+            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
+            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+  
+  # get projects with at least one  active period
+  any_active <- HMIS_projects_w_active_inv %>% filter(HMISParticipationType == 1)
+  any_active <- unique(any_active$ProjectID)
+  project_level_util %>% filter(ProjectID %in% any_active)
+})
+
+sys_bed_unit_inv <- reactive({
+  
+  # calculate system level totals
+  system_level_util <- proj_bed_unit_inv %>% fungroup %>%
+    fgroup_by(PIT) %>% # for each PIT Date,
+    fsummarise(  # sum all projects 
+      Total_Beds = fsum(PIT_Beds),
+      Total_Units = fsum(PIT_Units),
+      Total_Served = fsum(PIT_Served),
+      Total_HH_Served = fsum(PIT_HH_Served),
+      Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
+      Avg_Nightly_Units = fsum(Avg_Nightly_Units),
+      Avg_Nightly_Served = fsum(Avg_Nightly_Served),
+      Avg_Nightly_HH_Served = fsum(Avg_Nightly_HH_Served)
+    ) %>% fungroup()
+  
+  # calculate system level quarterly utilization
+  system_level_util %>%
+    fmutate(Bed_Utilization = Total_Served / Total_Beds,
+            Unit_Utilization = Total_HH_Served / Total_Units,
+            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
+            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
 })
 
 # AS 11/14/25: This is a short-term fix. 
