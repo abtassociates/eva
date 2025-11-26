@@ -494,11 +494,9 @@ HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
 
 # Estimate Dedicated Vet, Youth, and CH (Child) units based on ratio of beds
 HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
-  fmutate(HMISActiveParticipationDuration = fifelse(is.na(ProjectHMISActiveParticipationEnd),
-                                                    Sys.Date() - as.Date(ProjectHMISActiveParticipationStart),
-                                                    as.Date(ProjectHMISActiveParticipationEnd) - as.Date(ProjectHMISActiveParticipationStart)),
-          VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
+  fmutate(VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
           YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
           CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory
   )
 
+browser()
