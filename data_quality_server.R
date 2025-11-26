@@ -387,9 +387,11 @@ renderDQPlot <- function(level, issueType, byType, color) {
     byType == "Issue", "Issue"
   )
   
+    
   # RENDER THE UI (The Plot's Container)
   output[[ui_output_id]] <- renderUI({
-    req(nrow(dq_full()) > 0)
+    
+    #req(fnrow(dq_full()) > 0)
     
     plotOutput(plot_output_id,
                height = if_else(fnrow(dq_full()) == 0, 50, 400),
@@ -400,6 +402,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
+    issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
     
     validate(
       need(
@@ -408,11 +411,17 @@ renderDQPlot <- function(level, issueType, byType, color) {
       )
     )
     
-    req(fnrow(dq_full()) > 0)
 
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
     
-    issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
+    req(fnrow(dq_full()) > 0)
+    
+    validate(
+      need(
+        fnrow(plot_data) > 0,
+        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+      )
+    )
     
     # Your ggplot code remains identical
     ggplot(head(plot_data, 10L), aes(x = reorder(!!as.name(x_group), countVar), y = countVar)) +
