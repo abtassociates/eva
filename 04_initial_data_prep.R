@@ -443,10 +443,10 @@ session$userData$CurrentLivingSituation <- CurrentLivingSituation
 #   activeInv_no_overflow %>% pull(ProjectID) %>% funique(), 
 #   hmis_participating_projects)
 
-HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
+HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
-  join(activeInv_no_overflow, 
-    on = "ProjectID",
+  join(activeInv_no_overflow %>% select(-DateCreated,-DateUpdated,-UserID,-DateDeleted), 
+    ##on = "ProjectID",
     how = "inner",
     multiple = TRUE
   ) %>% 
@@ -454,26 +454,52 @@ HMIS_participating_projects_w_active_inv_no_overflow <- qDT(ProjectSegments) %>%
   fsubset(ProjectType!=rrh_project_type | RRHSubType ==2) %>% # filter RRH projects to subtype 2
   # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
   fmutate(
-    ProjectHMISParticipationStart = pmax(
+    InvHMISParticipationStart = pmax( # start of Operating & Participating 
       HMISParticipationStatusStartDate, 
       OperatingStartDate,
       na.rm = TRUE
     ),
-    ProjectHMISParticipationEnd = pmin(
+    InvHMISParticipationEnd = pmin( # end of Operating & Participating
       HMISParticipationStatusEndDate,
       OperatingEndDate,
       na.rm = TRUE
     ),
-    ProjectHMISActiveParticipationStart = pmax(
-      ProjectHMISParticipationStart,
+    InvHMISActiveParticipationStart = pmax( # start of (Operating & Participating) & Active Inventory
+      InvHMISParticipationStart,
       InventoryStartDate,
       na.rm = TRUE
     ),
-    ProjectHMISActiveParticipationEnd = pmin(
-      ProjectHMISParticipationEnd,
+    InvHMISActiveParticipationEnd = pmin( # end of (Operating & Participating) & Active Inventory
+      InvHMISParticipationEnd,
       InventoryEndDate,
       na.rm = TRUE
     )
   )
 
 
+HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
+  fgroup_by(ProjectID, HMISParticipationType, VictimServiceProvider, HousingType, TargetPopulation, HouseholdType, ESBedType, Availability) %>%
+  fsummarise(ProjectHMISActiveParticipationStart = fmin(InvHMISActiveParticipationStart), # first active inv start with HMISPartiicpationType 
+             ProjectHMISActiveParticipationEnd = fmax(InvHMISActiveParticipationEnd), # last active inv end with HMISPartiicpationType
+             #TargetPopulation = list(sort(unique(TargetPopulation))), # sum?
+             UnitInventory = fsum(UnitInventory),
+             BedInventory = fsum(BedInventory),
+             CHVetBedInventory = fsum(CHVetBedInventory),
+             YouthVetBedInventory = fsum(YouthVetBedInventory),
+             VetBedInventory = fsum(VetBedInventory),
+             CHYouthBedInventory = fsum(CHYouthBedInventory),
+             YouthBedInventory = fsum(YouthBedInventory),
+             CHBedInventory = fsum(CHBedInventory)) %>% 
+  fungroup()
+
+HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
+  fmutate(HMISActiveParticipationDuration = fifelse(is.na(ProjectHMISActiveParticipationEnd),
+                                                    Sys.Date() - as.Date(ProjectHMISActiveParticipationStart),
+                                                    as.Date(ProjectHMISActiveParticipationEnd) - as.Date(ProjectHMISActiveParticipationStart)),
+          VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
+          YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory
+  )
+
+
+browser()
