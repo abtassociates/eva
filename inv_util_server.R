@@ -364,6 +364,18 @@ get_report_dates <- function() {
   )
 }
 # make function to get quarterly PIT dates
+# this always returns the last 4 quarterly end dates, even when they come before session$userDate$ReportStart
+# for example, if the report start was january 1st 2024 and the report end is december 31st 2024
+# this returns the last wednesday in january, april, july, and october of 2024
+# In our calculations,
+# q1 would track end of january 2024 - end of april 2024
+# q2 would track end of april 2024 - end of july 2024
+# q3 would track end of july 2024 - end of october 2024
+# q4 would track end of october 2023 - end of january 2024
+# since the current 4th quarter is not complete until end of january 2025, it displays the last Q4
+# annual totals will therefore be looking at end of october 2023 - end of october 2024
+# we don't consider ReportStart at all. We do sort the quarters when they are used.
+# however, annual totals will look at dates a year prior to 
 get_quarters <- function(){
   # get the last date in activeInventory
   lastday <- as.Date(session$userData$ReportEnd)
@@ -398,6 +410,22 @@ get_quarters <- function(){
   names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
   return(quarters)
 }
+get_months <- function(){
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  m_last <- month(lastday)
+  end_month = ymd(paste(y_last,m_last,"01", sep="-")) # first day of ending month
+  # if last_day is the last day of the month (first day of next month minus a day)
+  end_month <- as.Date(ifelse(last_day == end_month + months(1) - days(1), 
+                      end_month, # the month is complete
+                      end_month - months(1) # otherwise, use the previous month
+                   ))
+  months <- seq(end_month - months(11), end_month, by = "months")
+  
+  names(months) <- month.abb[month(months)]
+  return(months)
+}  
+
 # counting functions -----------------------------------------------
 # create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments)
 # if nightly_avg, use 365 / length of pit_dates to calculate the 'report length' and calculate nightly averages
@@ -523,79 +551,87 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL){
   return(Bed_Unit_Util)
 } 
 
-## Get Bed/Unit Inventory Data Function ------------------------------------------
-proj_bed_unit_inv <- reactive({
-  req(session$userData$dq_pdde_mirai_complete() == 1)
+nightly_avg <- function(period, labels ){
   
-  logToConsole(session, "bed_unit_inv")
-  quarters <- get_quarters() %>% sort
-  
-  # full join the results of passing quarters through counting functions
-  # Counts on PIT Dates
-  project_level_util <- count_Beds_Units(quarters) %>%
-    join(count_Enrollments(quarters), how = "left")
-  
-  # Counts over Quarters 
-  for (q in 1:length(quarters)){
+  for (q in 1:length(period)){
     
-    if(q!=length(quarters)){ # IF NOT LAST
-      nightly_avg_q <- count_Beds_Units_rng(quarters[q], quarters[q+1]) %>%
-        join(count_Enrollments_rng(quarters[q], quarters[q+1]), how = "left") %>%
-        fmutate(PIT = quarters[q],
-                label = names(quarters)[q])
+    if(q!=length(period)){ # IF NOT LAST
+      nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1]) %>%
+        join(count_Enrollments_rng(period[q], period[q+1]), how = "left") %>%
+        fmutate(PIT = period[q],
+                label = labels[q])
+      
     }else{ # IF LAST, use a year from first quarter minus a day (so full range is 365)
-      nightly_avg_q <- count_Beds_Units_rng(quarters[q], quarters[1] + years(1) - days(1)) %>%
-        join(count_Enrollments_rng(quarters[q], quarters[1] + years(1) - days(1)), how = "left") %>%
-        fmutate(PIT = quarters[q],
-                label = names(quarters)[q])
+      nightly_avg_q <- count_Beds_Units_rng(period[q], period[1] + years(1) - days(1)) %>%
+        join(count_Enrollments_rng(period[q], period[1] + years(1) - days(1)), how = "left") %>%
+        fmutate(PIT = period[q],
+                label = labels[q])
     }
     if(q==1){
       nightly_avg <- nightly_avg_q
     }else{
       nightly_avg <- nightly_avg %>% rowbind(nightly_avg_q)
     }
-    rm(nightly_avg_q) # delete quarter
+    #rm(nightly_avg_q) # delete quarter
   }
   
   nightly_avg_ann <- nightly_avg %>% fgroup_by(ProjectID) %>%
-    fsummarise(
-      PIT = NA,
-      label = "Annual",
-      Total_Beds = fsum(Total_Beds),
-      Total_Units = fsum(Total_Units),
-      Total_Served = fsum(Total_Served),
-      Total_HH_Served = fsum(Total_HH_Served)
-    ) %>% fungroup %>%
+    fsummarise(Total_Beds = fsum(Total_Beds),
+               Total_Units = fsum(Total_Units),
+               Total_Served = fsum(Total_Served),
+               Total_HH_Served = fsum(Total_HH_Served)) %>% 
+    fungroup %>%
     fmutate(
+      PIT = as.Date(NA),
+      label = "Annual",
       Avg_Nightly_Beds = Total_Beds / 365,
       Avg_Nightly_Units = Total_Units / 365,
       Avg_Nightly_Served = Total_Served / 365,
       Avg_Nightly_HH_Served = Total_HH_Served / 365
     )
   
-  nightly_avg <- nightly_avg %>% rowbind(nightly_avg_ann)
+  nightly_avg <- nightly_avg %>% rowbind(nightly_avg_ann) %>%
+    fmutate(Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
+            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+  return(nightly_avg)
+}
+
+## Get Bed/Unit Inventory Data Function ------------------------------------------
+
+# Quarterly Project Level Utilization
+q_proj_bed_unit_inv <- reactive({
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   
-  project_level_util <- project_level_util %>% join(nightly_avg, how = "full") 
-  rm(nightly_avg, nightly_avg_ann)
+  logToConsole(session, "quarterly bed unit inventory")
+  quarters <- get_quarters() %>% sort
+  
+  # full join the results of passing quarters through counting functions
+  # Counts on PIT Dates
+  project_level_util_q <- count_Beds_Units(quarters) %>%
+    join(count_Enrollments(quarters), how = "left")
+  
+  # Avg over Quarters 
+  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters))
+  
+  project_level_util_q <- project_level_util_q %>% join(nightly_avg, how = "full") 
+  rm(nightly_avg)
   
   # calculate project level quarterly utilization
-  project_level_util <- project_level_util %>%
+  project_level_util_q <- project_level_util_q %>%
     fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
-            Unit_Utilization = PIT_HH_Served / PIT_Units,
-            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
-            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+            Unit_Utilization = PIT_HH_Served / PIT_Units)
   
   
-  project_level_util
+  project_level_util_q
 })
-
-sys_bed_unit_inv <- reactive({
+# Quarterly System Level Utilization
+q_sys_bed_unit_inv <- reactive({
   
   # calculate system level totals
   
   # should this use the reactive name?
   #system_level_util <- proj_bed_unit_inv %>% fungroup %>%
-  system_level_util <- project_level_util %>% fungroup %>% 
+  system_level_util_q <- project_level_util_q %>% fungroup %>% 
     fgroup_by(PIT) %>% # for each PIT Date,
     fsummarise(  # sum all projects 
       Total_Beds = fsum(PIT_Beds),
@@ -609,12 +645,66 @@ sys_bed_unit_inv <- reactive({
     ) %>% fungroup()
   
   # calculate system level quarterly utilization
-  system_level_util <- system_level_util %>%
+  system_level_util_q <- system_level_util_q %>%
     fmutate(Bed_Utilization = Total_Served / Total_Beds,
             Unit_Utilization = Total_HH_Served / Total_Units,
             Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
             Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
-  system_level_util
+  system_level_util_q
+  
+})
+
+# Monthly Project Level Utilization
+m_proj_bed_unit_inv <- reactive({
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  
+  logToConsole(session, "monthly bed unit inventory")
+  months <- get_months() %>% sort # should already be sorted but w/e
+  
+  # full join the results of passing months through counting functions
+  # Counts on PIT Dates
+  project_level_util_m <- count_Beds_Units(months) %>%
+    join(count_Enrollments(months), how = "left")
+  
+  # Avg over Months 
+  nightly_avg <- nightly_avg(period = months, labels = names(months))
+  project_level_util_m <- project_level_util_m %>% join(nightly_avg, how = "full") 
+  rm(nightly_avg)
+  
+  # calculate project level quarterly utilization
+  project_level_util_m <- project_level_util_m %>%
+    fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
+            Unit_Utilization = PIT_HH_Served / PIT_Units)
+  
+  project_level_util_m
+})
+# Monthly System Level Utilization
+m_sys_bed_unit_inv <- reactive({
+  
+  # calculate system level totals
+  
+  # should this use the reactive name?
+  #system_level_util <- proj_bed_unit_inv %>% fungroup %>%
+  system_level_util_m <- project_level_util_m %>% fungroup %>% 
+    fgroup_by(PIT) %>% # for each PIT Date,
+    fsummarise(  # sum all projects 
+      Total_Beds = fsum(PIT_Beds),
+      Total_Units = fsum(PIT_Units),
+      Total_Served = fsum(PIT_Served),
+      Total_HH_Served = fsum(PIT_HH_Served),
+      Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
+      Avg_Nightly_Units = fsum(Avg_Nightly_Units),
+      Avg_Nightly_Served = fsum(Avg_Nightly_Served),
+      Avg_Nightly_HH_Served = fsum(Avg_Nightly_HH_Served)
+    ) %>% fungroup()
+  
+  # calculate system level quarterly utilization
+  system_level_util_m <- system_level_util_m %>%
+    fmutate(Bed_Utilization = Total_Served / Total_Beds,
+            Unit_Utilization = Total_HH_Served / Total_Units,
+            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
+            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+  system_level_util_m
   
 })
 
