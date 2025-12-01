@@ -1030,6 +1030,70 @@ nav_panel(
 #   )
 # ),
 
+# Inventory and Utilization menu  -----------
+nav_menu(
+  title = 'Inventory and Utilization',
+  icon = icon("book"),
+  # Project Level tab -------------
+  nav_panel(
+    title = "Project-Level",
+    value = "tabProjectLevelInvUtil",
+    card(
+      card_header(headerCard("Filters")),
+      layout_columns(
+        col_widths=c(6,6),
+        gap = '0px',
+        
+        pickerInput(
+          label = 'Select Project',
+          inputId = "currentProviderList",
+          choices = NULL,
+          options = pickerOptions(liveSearch = TRUE,
+                                  liveSearchStyle = 'contains', 
+                                  container = 'body')
+        ),
+        pickerInput(
+          label = "Inventory Level",
+          inputId = "inventory_level",
+          choices = c("Beds","Units"),
+          selected = "Beds",
+          options = pickerOptions(container = "body")
+        )
+      )
+    ),
+    nav_panel(
+      id = 'projLevelInv',
+      title = headerTab('Inventory'),
+      
+      navset_underline(
+        id = "project_level_box",
+        selected = headerSubTab("Inventory"),
+        nav_panel(
+          title = headerSubTab('Inventory'),
+          uiOutput("proj_inv_filtered") %>%
+            withSpinner(),
+          plotOutput("sys_inflow_outflow_summary_ui_chart",
+                     width = "70%",
+                     height = "500") %>%
+            withSpinner()
+        )
+      )
+    )
+  ),
+  # System Level tab --------------
+  nav_panel(
+    title = "System-level",
+    value = "tabSystemLevelInvUtil",
+    card(
+      card_header(HTML("<h2>Changelog</h2>"),class = 'cardhdr'),
+      card_body(
+        tabChangelog_instructions,
+        dataTableOutput("changelog")
+      ), min_height = 1000, fill = FALSE
+      
+    )
+  )
+), 
 # Resources menu -----------
 nav_menu(
   title = 'Resources',
@@ -1062,7 +1126,6 @@ nav_menu(
     )
   )
 ), 
-
 nav_spacer(),
 nav_item(
   input_switch(
