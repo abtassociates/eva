@@ -1,7 +1,9 @@
-# when user changes chart tabs
+# when user changes chart tabs ------------
 # hide demographic filters for Composition chart
-# hide other stuff if valid file is not uploaded
 # move chart download button to be inline with subtabs
+# hide other stuff if valid file is not uploaded
+
+# if tab observed, and upload is valid, toggle filters
 observeEvent(input$syso_tabbox, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox,
@@ -15,28 +17,24 @@ observeEvent(input$syso_tabbox, {
   "))
 }, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
 
-
+# if subtabs observed, and upload is valid, log the clicks to metadata
 observeEvent(input$sys_inflow_outflow_subtabs, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-
 observeEvent(input$sys_status_subtabs, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-
 observeEvent(input$sys_comp_subtabs, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
-
+# if method type observed, update selection choices of syso_race_ethnicity based on method type
 observeEvent(input$methodology_type, {
   
   updatePickerInput(
@@ -55,6 +53,7 @@ observeEvent(input$methodology_type, {
 },
 ignoreInit = TRUE)
 
+# if filter inputs observed, count number of PersonalID and disable download buttons if 10 or fewer people
 observeEvent(
   list(
     input$syso_age,
@@ -498,7 +497,7 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
     fgroup_by(grouping_vars) %>%
     fsummarise(
       PIT_Served = fsum(Served),
-      PIT_HH_Served = fsum(HH_Served))%>%
+      PIT_HH_Served = fsum(HHServed))%>%
     fungroup()  %>% fsubset(!is.na(PIT_Served))
   
   return(Bed_Unit_Util)
@@ -546,7 +545,7 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL){
   report_length <- as.numeric(range_end - range_start)
   Bed_Unit_Util <- Bed_Unit_Util %>% # use it to calculate average served beds/units
     fmutate(Avg_Nightly_Served = Total_Served / report_length ,
-            Avg_Nightly_HH_Served = Total_HH_Served / report_length )
+            Avg_Nightly_HHServed = Total_HHServed / report_length )
   
   return(Bed_Unit_Util)
 } 
@@ -579,7 +578,7 @@ nightly_avg <- function(period, labels ){
     fsummarise(Total_Beds = fsum(Total_Beds),
                Total_Units = fsum(Total_Units),
                Total_Served = fsum(Total_Served),
-               Total_HH_Served = fsum(Total_HH_Served)) %>% 
+               Total_HHServed = fsum(Total_HHServed)) %>% 
     fungroup %>%
     fmutate(
       PIT = as.Date(NA),
@@ -587,12 +586,12 @@ nightly_avg <- function(period, labels ){
       Avg_Nightly_Beds = Total_Beds / 365,
       Avg_Nightly_Units = Total_Units / 365,
       Avg_Nightly_Served = Total_Served / 365,
-      Avg_Nightly_HH_Served = Total_HH_Served / 365
+      Avg_Nightly_HHServed = Total_HHServed / 365
     )
   
   nightly_avg <- nightly_avg %>% rowbind(nightly_avg_ann) %>%
     fmutate(Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
-            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
   return(nightly_avg)
 }
 
@@ -619,7 +618,7 @@ q_proj_bed_unit_inv <- reactive({
   # calculate project level quarterly utilization
   project_level_util_q <- project_level_util_q %>%
     fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
-            Unit_Utilization = PIT_HH_Served / PIT_Units)
+            Unit_Utilization = PIT_HHServed / PIT_Units)
   
   
   project_level_util_q
@@ -641,7 +640,7 @@ q_sys_bed_unit_inv <- reactive({
       Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
       Avg_Nightly_Units = fsum(Avg_Nightly_Units),
       Avg_Nightly_Served = fsum(Avg_Nightly_Served),
-      Avg_Nightly_HH_Served = fsum(Avg_Nightly_HH_Served)
+      Avg_Nightly_HHServed = fsum(Avg_Nightly_HHServed)
     ) %>% fungroup()
   
   # calculate system level quarterly utilization
@@ -649,9 +648,19 @@ q_sys_bed_unit_inv <- reactive({
     fmutate(Bed_Utilization = Total_Served / Total_Beds,
             Unit_Utilization = Total_HH_Served / Total_Units,
             Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
-            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
   system_level_util_q
   
+})
+
+proj_inv_filtered <- reactive({
+  
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_q %>% fselect(ProjectID, colnames(project_level_util_q)[grepl(tolower(colnames(project_level_util_q)), 'bed|_served')])
+  }else{
+    proj_inv_filtered<-project_level_util_q %>% fselect(ProjectID, colnames(project_level_util_q)[grepl(tolower(colnames(project_level_util_q)), 'bed|_served')])
+  }
+  proj_inv_filtered
 })
 
 # Monthly Project Level Utilization
@@ -674,7 +683,7 @@ m_proj_bed_unit_inv <- reactive({
   # calculate project level quarterly utilization
   project_level_util_m <- project_level_util_m %>%
     fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
-            Unit_Utilization = PIT_HH_Served / PIT_Units)
+            Unit_Utilization = PIT_HHServed / PIT_Units)
   
   project_level_util_m
 })
@@ -695,7 +704,7 @@ m_sys_bed_unit_inv <- reactive({
       Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
       Avg_Nightly_Units = fsum(Avg_Nightly_Units),
       Avg_Nightly_Served = fsum(Avg_Nightly_Served),
-      Avg_Nightly_HH_Served = fsum(Avg_Nightly_HH_Served)
+      Avg_Nightly_HHServed = fsum(Avg_Nightly_HHServed)
     ) %>% fungroup()
   
   # calculate system level quarterly utilization
@@ -703,7 +712,7 @@ m_sys_bed_unit_inv <- reactive({
     fmutate(Bed_Utilization = Total_Served / Total_Beds,
             Unit_Utilization = Total_HH_Served / Total_Units,
             Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
-            Avg_Nightly_Unit_Util = Avg_Nightly_HH_Served / Avg_Nightly_Units)
+            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
   system_level_util_m
   
 })
@@ -713,24 +722,24 @@ m_sys_bed_unit_inv <- reactive({
 # The reason we do this is that we are now adding a Race/Ethnicity = Hisp... filter in main-valid
 # If we left caching on, then it would have cached the previous combo of filters such that when we undid the Hisp/Latino filter
 # it would not have re-run the period_specific_data reactive and re-updated the period_data helper_data file back to the fuller set
-if(!isTRUE(getOption("shiny.testmode"))) 
-  # This saves the *results* in the cache so if they change inputs back to 
-  # something already seen, it doesn't have to re-run the code
-  period_specific_data <- bindCache(
-    period_specific_data,
-    if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
-
-    # Client-level filters
-    input$syso_age,
-    input$syso_race_ethnicity,
-    input$syso_spec_pops,
-
-    # Enrollment-level filters
-    input$syso_hh_type,
-    input$syso_level_of_detail,
-    input$syso_project_type,
-    cache = "session"
-  )
+# if(!isTRUE(getOption("shiny.testmode"))) 
+#   # This saves the *results* in the cache so if they change inputs back to 
+#   # something already seen, it doesn't have to re-run the code
+#   period_specific_data <- bindCache(
+#     period_specific_data,
+#     if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
+# 
+#     # Client-level filters
+#     input$syso_age,
+#     input$syso_race_ethnicity,
+#     input$syso_spec_pops,
+# 
+#     # Enrollment-level filters
+#     input$syso_hh_type,
+#     input$syso_level_of_detail,
+#     input$syso_project_type,
+#     cache = "session"
+#   )
 
 # Client-level flags, filtered ----------------------------------------------------
 client_categories_filtered <- reactive({
