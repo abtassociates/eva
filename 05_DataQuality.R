@@ -1776,6 +1776,7 @@ CoordinatedEntry <- calculate_long_stayers_local_settings_dt(ce_project_type) #1
 
 long_stayers <- rowbind(
   list(
+    ESNbN,
     Outreach,
     ServicesOnly,
     Other,
