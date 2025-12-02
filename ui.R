@@ -369,12 +369,7 @@ page_navbar(
         card_title(headerCard("Select Data Quality Exports")),
         card_body(
           fillable = FALSE,
-          treeInput(
-            inputId = 'dq_export_files',
-            label = NULL,
-            choices = create_tree(dq_file_options),
-            selected = "All Data Quality Reports"
-          ),
+          uiOutput("dq_export_report_selections"),
           uiOutput("dq_reports_invalid_msg"),
           downloadButton('dq_export_download_btn', 
                          label = 'Download')

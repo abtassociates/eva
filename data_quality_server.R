@@ -775,6 +775,24 @@ observe({
   }
 })
 
+output$dq_export_report_selections <- renderUI({
+  
+  ## if an error occurs in dq_full, exclude the DQ report checkbox option
+  if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
+    tree_choices <- create_tree(dq_file_options[1:2,])
+  } else {
+     tree_choices <- create_tree(dq_file_options)
+  }
+ 
+    treeInput(
+      inputId = 'dq_export_files',
+      label = NULL,
+      choices = tree_choices,
+      selected = "All Data Quality Reports"
+    )
+  
+})
+
 output$dq_reports_invalid_msg <- renderUI({
   
     if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
