@@ -1774,15 +1774,30 @@ Other <- calculate_long_stayers_local_settings_dt(other_project_project_type) #7
 DayShelter <- calculate_long_stayers_local_settings_dt(day_project_type) #11
 CoordinatedEntry <- calculate_long_stayers_local_settings_dt(ce_project_type) #14
 
-long_stayers <- rowbind(
-  list(
-    Outreach,
-    ServicesOnly,
-    Other,
-    DayShelter,
-    CoordinatedEntry
+if(all(sapply(list(ESNbN, Outreach, ServicesOnly, Other, DayShelter, CoordinatedEntry), is.null))){
+  logToConsole(session, "All long_stayers data tables are null. No session$userData$long_stayers DQ data available.")
+  long_stayers <- NULL
+} else {
+  
+  long_stayers <- tryCatch( 
+    rowbind(
+      list(
+        ESNbN,
+        Outreach,
+        ServicesOnly,
+        Other,
+        DayShelter,
+        CoordinatedEntry
+      ),
+      return = "data.table"
+    )
   )
-)
+}
+
+
+if(inherits(long_stayers, 'simpleError')){
+  logToConsole(session, "No session$userData$long_stayers DQ data available.")
+}
 
 # Outstanding Referrals --------------------------------------------
 calculate_outstanding_referrals <- function(dq_data){
