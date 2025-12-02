@@ -254,33 +254,49 @@ dq_full <- reactive({
   req(session$userData$dq_pdde_mirai_complete() == 1)
 
   logToConsole(session, "in dq_full")
-  long_stayers <- if(!is.null(session$userData$long_stayers) & 
-                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
-    session$userData$long_stayers %>%
-      fmutate(
-        too_many_days = case_match(
-          ProjectType,
-          es_nbn_project_type ~ input$ESNbNLongStayers,
-          out_project_type ~ input$OUTLongStayers,
-          sso_project_type ~ input$ServicesOnlyLongStayers,
-          other_project_project_type ~ input$OtherLongStayers,
-          day_project_type ~ input$DayShelterLongStayers,
-          ce_project_type ~ input$CELongStayers
-        )
-      ) %>% 
-      fsubset(DaysSinceLastKnown > too_many_days) %>%
-      fselect(vars_we_want) %>%
-      fmutate(Type = factor(Type, levels = issue_levels))
-  } else data.table()
   
-  outstanding_referrals <- if(!is.null(session$userData$outstanding_referrals) > 0) {
-    session$userData$outstanding_referrals %>%
+  if(!is.null(session$userData$long_stayers) &&
+                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
+    long_stayers_tc <- tryCatch(
+      long_stayers <- session$userData$long_stayers %>%
+        fmutate(
+          too_many_days = case_match(
+            ProjectType,
+            es_nbn_project_type ~ input$ESNbNLongStayers,
+            out_project_type ~ input$OUTLongStayers,
+            sso_project_type ~ input$ServicesOnlyLongStayers,
+            other_project_project_type ~ input$OtherLongStayers,
+            day_project_type ~ input$DayShelterLongStayers,
+            ce_project_type ~ input$CELongStayers
+          )
+        ) %>% 
+        fsubset(DaysSinceLastKnown > too_many_days) %>%
+        fselect(vars_we_want) %>%
+        fmutate(Type = factor(Type, levels = issue_levels)),
+     error = function(e){e}
+    )
+    
+    if(inherits(long_stayers_tc, 'simpleError')){
+      logToConsole(session, paste0('Error in long_stayers_tc... colnames: ', paste0(names(session$userData$long_stayers), collapse=',')))
+
+      long_stayers <- data.table()
+    } else {
+      long_stayers <- long_stayers_tc
+    }
+  } else {
+    long_stayers <- data.table()
+  }
+  
+  if(!is.null(session$userData$outstanding_referrals) > 0) {
+    outstanding_referrals <- session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
       fselect(vars_we_want) %>%
       fmutate(Type = factor(Type, levels = issue_levels))
-  } else data.table()
-
+  } else {
+    outstanding_referrals <- data.table()
+  }
+  
   bind_rows(
     session$userData$dq_main,
     long_stayers,
@@ -391,10 +407,9 @@ renderDQPlot <- function(level, issueType, byType, color) {
   # RENDER THE UI (The Plot's Container)
   output[[ui_output_id]] <- renderUI({
     
-    #req(fnrow(dq_full()) > 0)
-    
+    cond <- inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")
     plotOutput(plot_output_id,
-               height = if_else(fnrow(dq_full()) == 0, 50, 400),
+               height = if_else(!cond && fnrow(dq_full()) > 0, 400, 50),
                width = ifelse(isTRUE(getOption("shiny.testmode")),
                               "1640",
                               "100%"))
@@ -406,15 +421,12 @@ renderDQPlot <- function(level, issueType, byType, color) {
     
     validate(
       need(
-        fnrow(dq_full()) > 0,
+        !inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError") && fnrow(dq_full()) > 0,
         message = paste0("Great job! No ", issueTypeDisplay, " to show.")
       )
     )
-    
 
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
-    
-    req(fnrow(dq_full()) > 0)
     
     validate(
       need(
