@@ -421,11 +421,18 @@ renderDQPlot <- function(level, issueType, byType, color) {
     
     validate(
       need(
-        !inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError") && fnrow(dq_full()) > 0,
-        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+        !inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError"),
+        message = paste0("An error occurred in data quality calculations. This may be an issue in the code. Please reach out to Eva team via GitHub.")
       )
     )
 
+    validate(
+      need(
+        fnrow(dq_full()) > 0,
+        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+      )
+    )
+    
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
     
     validate(
@@ -692,6 +699,10 @@ observeEvent({
 get_dqDownloadInfo_export <- function(org_name, value = "org"){
   logToConsole(session, "in dqDownloadInfo_export")
   req(session$userData$dq_pdde_mirai_complete() == 1)
+  
+  if(inherits(tryCatch(dq_full(), error=function(e){e}), "simpleError")){
+    return(NULL)
+  }
   
   exportTestValues(dq_main = dq_full() %>% nice_names())
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
