@@ -375,6 +375,7 @@ page_navbar(
             choices = create_tree(dq_file_options),
             selected = "All Data Quality Reports"
           ),
+          uiOutput("dq_reports_invalid_msg"),
           downloadButton('dq_export_download_btn', 
                          label = 'Download')
         )

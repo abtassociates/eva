@@ -775,6 +775,19 @@ observe({
   }
 })
 
+output$dq_reports_invalid_msg <- renderUI({
+  
+    if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
+      return(
+        HTML(
+        paste0("There is an error in the Data Quality Reports. This may be an issue in the code. Please reach out to Eva team via GitHub. You may still be able to download Project Dashboard and PDDE Reports.")
+        )
+      )
+    } else {
+      return(NULL)
+    }
+})
+
 output$dq_export_download_btn <- downloadHandler(
   filename = date_stamped_filename('Data Quality Exports-', ext='.zip'),
   content = function(file){
