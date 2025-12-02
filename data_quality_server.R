@@ -206,6 +206,7 @@ output$downloadOrgDQReportButton  <- renderUI({
     nrow(session$userData$long_stayers) > 0 || 
     nrow(session$userData$outstanding_referrals) > 0
   )
+  req(length(dqDownloadInfo()$orgDQData) > 1)
   downloadButton(outputId = "downloadOrgDQReport",
                  label = "Download")
 })
@@ -214,10 +215,16 @@ output$downloadOrgDQReport <- downloadHandler(
   filename = reactive(date_stamped_filename(
     str_glue("{input$orgList} Data Quality Report-"))),
   content = function(file) {
-    write_xlsx(dqDownloadInfo()$orgDQData, path = file)
-    logMetadata(session, paste0("Downloaded Org-level DQ Report",
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
+    if(length(dqDownloadInfo()$orgDQData) <= 1){
+      showNotification("No DQ issues to report for this Organization.")
+      
+    } else {
+      write_xlsx(dqDownloadInfo()$orgDQData, path = file)
+      logMetadata(session, paste0("Downloaded Org-level DQ Report",
+                                  if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
+    }
+   
   }
 )
 
@@ -254,33 +261,49 @@ dq_full <- reactive({
   req(session$userData$dq_pdde_mirai_complete() == 1)
 
   logToConsole(session, "in dq_full")
-  long_stayers <- if(!is.null(session$userData$long_stayers) & 
-                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
-    session$userData$long_stayers %>%
-      fmutate(
-        too_many_days = case_match(
-          ProjectType,
-          es_nbn_project_type ~ input$ESNbNLongStayers,
-          out_project_type ~ input$OUTLongStayers,
-          sso_project_type ~ input$ServicesOnlyLongStayers,
-          other_project_project_type ~ input$OtherLongStayers,
-          day_project_type ~ input$DayShelterLongStayers,
-          ce_project_type ~ input$CELongStayers
-        )
-      ) %>% 
-      fsubset(DaysSinceLastKnown > too_many_days) %>%
-      fselect(vars_we_want) %>%
-      fmutate(Type = factor(Type, levels = issue_levels))
-  } else data.table()
   
-  outstanding_referrals <- if(!is.null(session$userData$outstanding_referrals) > 0) {
-    session$userData$outstanding_referrals %>%
+  if(!is.null(session$userData$long_stayers) &&
+                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
+    long_stayers_tc <- tryCatch(
+      long_stayers <- session$userData$long_stayers %>%
+        fmutate(
+          too_many_days = case_match(
+            ProjectType,
+            es_nbn_project_type ~ input$ESNbNLongStayers,
+            out_project_type ~ input$OUTLongStayers,
+            sso_project_type ~ input$ServicesOnlyLongStayers,
+            other_project_project_type ~ input$OtherLongStayers,
+            day_project_type ~ input$DayShelterLongStayers,
+            ce_project_type ~ input$CELongStayers
+          )
+        ) %>% 
+        fsubset(DaysSinceLastKnown > too_many_days) %>%
+        fselect(vars_we_want) %>%
+        fmutate(Type = factor(Type, levels = issue_levels)),
+     error = function(e){e}
+    )
+    
+    if(inherits(long_stayers_tc, 'simpleError')){
+      logToConsole(session, paste0('Error in long_stayers_tc... colnames: ', paste0(names(session$userData$long_stayers), collapse=',')))
+
+      long_stayers <- data.table()
+    } else {
+      long_stayers <- long_stayers_tc
+    }
+  } else {
+    long_stayers <- data.table()
+  }
+  
+  if(!is.null(session$userData$outstanding_referrals) > 0) {
+    outstanding_referrals <- session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
       fselect(vars_we_want) %>%
       fmutate(Type = factor(Type, levels = issue_levels))
-  } else data.table()
-
+  } else {
+    outstanding_referrals <- data.table()
+  }
+  
   bind_rows(
     session$userData$dq_main,
     long_stayers,
@@ -391,10 +414,9 @@ renderDQPlot <- function(level, issueType, byType, color) {
   # RENDER THE UI (The Plot's Container)
   output[[ui_output_id]] <- renderUI({
     
-    #req(fnrow(dq_full()) > 0)
-    
+    cond <- inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")
     plotOutput(plot_output_id,
-               height = if_else(fnrow(dq_full()) == 0, 50, 400),
+               height = if_else(!cond && fnrow(dq_full()) > 0, 400, 50),
                width = ifelse(isTRUE(getOption("shiny.testmode")),
                               "1640",
                               "100%"))
@@ -406,15 +428,19 @@ renderDQPlot <- function(level, issueType, byType, color) {
     
     validate(
       need(
+        !inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError"),
+        message = paste0("An error occurred in data quality calculations. This may be an issue in the code. Please reach out to Eva team via GitHub.")
+      )
+    )
+
+    validate(
+      need(
         fnrow(dq_full()) > 0,
         message = paste0("Great job! No ", issueTypeDisplay, " to show.")
       )
     )
     
-
     plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
-    
-    req(fnrow(dq_full()) > 0)
     
     validate(
       need(
@@ -681,6 +707,10 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   logToConsole(session, "in dqDownloadInfo_export")
   req(session$userData$dq_pdde_mirai_complete() == 1)
   
+  if(inherits(tryCatch(dq_full(), error=function(e){e}), "simpleError")){
+    return(NULL)
+  }
+  
   exportTestValues(dq_main = dq_full() %>% nice_names())
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
   
@@ -750,6 +780,37 @@ observe({
   } else {
     shinyjs::enable('dq_export_download_btn')
   }
+})
+
+output$dq_export_report_selections <- renderUI({
+  
+  ## if an error occurs in dq_full, exclude the DQ report checkbox option
+  if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
+    tree_choices <- create_tree(dq_file_options[1:2,])
+  } else {
+     tree_choices <- create_tree(dq_file_options)
+  }
+ 
+    treeInput(
+      inputId = 'dq_export_files',
+      label = NULL,
+      choices = tree_choices,
+      selected = "All Data Quality Reports"
+    )
+  
+})
+
+output$dq_reports_invalid_msg <- renderUI({
+  
+    if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
+      return(
+        HTML(
+        paste0("There is an error in the Data Quality Reports. This may be an issue in the code. Please reach out to Eva team via GitHub. You may still be able to download Project Dashboard and PDDE Reports.")
+        )
+      )
+    } else {
+      return(NULL)
+    }
 })
 
 output$dq_export_download_btn <- downloadHandler(
