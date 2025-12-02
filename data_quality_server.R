@@ -206,6 +206,7 @@ output$downloadOrgDQReportButton  <- renderUI({
     nrow(session$userData$long_stayers) > 0 || 
     nrow(session$userData$outstanding_referrals) > 0
   )
+  req(length(dqDownloadInfo()$orgDQData) > 1)
   downloadButton(outputId = "downloadOrgDQReport",
                  label = "Download")
 })
@@ -214,10 +215,16 @@ output$downloadOrgDQReport <- downloadHandler(
   filename = reactive(date_stamped_filename(
     str_glue("{input$orgList} Data Quality Report-"))),
   content = function(file) {
-    write_xlsx(dqDownloadInfo()$orgDQData, path = file)
-    logMetadata(session, paste0("Downloaded Org-level DQ Report",
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
+    if(length(dqDownloadInfo()$orgDQData) <= 1){
+      showNotification("No DQ issues to report for this Organization.")
+      
+    } else {
+      write_xlsx(dqDownloadInfo()$orgDQData, path = file)
+      logMetadata(session, paste0("Downloaded Org-level DQ Report",
+                                  if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
+    }
+   
   }
 )
 
