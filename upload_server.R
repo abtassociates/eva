@@ -17,6 +17,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     )
     setProgress(detail = "Reading your files..", value = .2)
     source("01_get_Export.R", local = TRUE)
+    #source("01_get_export.R", local = TRUE)
     
     source("02_export_dates.R", local = TRUE)
     
@@ -43,9 +44,11 @@ process_upload <- function(upload_filename, upload_filepath) {
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)
+      #source("05_data_quality.R", local = TRUE)
       
       logToConsole(session, "About to run pdde_mirai")
       source("06_PDDE_Checker.R", local = TRUE)
+      #source("06_pdde_checker.R", local = TRUE)
       
       list(
         dq_main = dq_main,

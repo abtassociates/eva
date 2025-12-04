@@ -129,22 +129,30 @@ function(input, output, session) {
   })
   
   source("upload_server.R", local=TRUE)
+  #source("sever_01_upload.R", local=TRUE)
   
   source("client_counts_server.R", local = TRUE)
+  #source("sever_02_client_counts.R", local=TRUE)
   
   source("fsa_server.R", local = TRUE)
+  #source("sever_03_fsa.R", local=TRUE)
   
   source("data_quality_server.R", local = TRUE)
+  #source("sever_04_data_quality.R", local=TRUE)
   
   source("system_overview_server.R", local = TRUE)
+  #source("sever_05_system_overview.R", local=TRUE)
   
   source("system_inflow_outflow_server.R", local = TRUE)
-    
-  source("system_composition_server.R", local = TRUE)
-
-  source("system_status_server.R", local = TRUE)
+  #source("sever_06_system_inflow_outflow.R", local=TRUE)
   
-  source("inv_util_server.R", local = TRUE)
+  source("system_composition_server.R", local = TRUE)
+  #source("sever_07_system_composition.R", local=TRUE)
+  
+  source("system_status_server.R", local = TRUE)
+  #source("sever_08_system_status.R", local=TRUE)
+  
+  source("server_09_inv_util.R", local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
