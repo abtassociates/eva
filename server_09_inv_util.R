@@ -653,14 +653,28 @@ q_sys_bed_unit_inv <- reactive({
   
 })
 
-proj_inv_filtered <- reactive({
+
+output$proj_inv_filtered <- renderDT({# <- reactive({
   
+  project_level_util_q <- session$userData$project_level_util_q
+  #project_level_util_q <- q_proj_bed_unit_inv() - do this when we have different grouping vars to pass?
   if(input$inventory_level == "Beds"){
-    proj_inv_filtered<-project_level_util_q %>% fselect(colnames(project_level_util_q)[!grepl(tolower(colnames(project_level_util_q)), 'unit|hhserved')]) # columns not containing 'unit' or 'hhserved'
+    #logToConsole(colnames(project_level_util_q))
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
   }else{
-    proj_inv_filtered<-project_level_util_q %>% fselect(ProjectID, colnames(project_level_util_q)[grepl(tolower(colnames(project_level_util_q)), 'unit|hhserved')]) # ProjectID & columns containing 'unit' or 'hhserved'
+    #logToConsole(colnames(project_level_util_q))
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
   }
-  proj_inv_filtered
+   
+   datatable(
+     proj_inv_filtered,
+     rownames = FALSE,
+     options = list(dom = 't', 
+                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                    pageLength = -1,
+                    autoWidth = TRUE),
+     style = "default"
+   )
 })
 
 # Monthly Project Level Utilization
