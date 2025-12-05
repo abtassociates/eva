@@ -492,12 +492,12 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
                                                                 MoveInDateAdjust >= as.Date(PIT))
     ) %>% 
     fmutate(Served = fifelse(activeEnroll & eligProjNBN & eligProjPerm, 1, 0), # flag active & eligible enrollments
-            HH_Served = fifelse(activeEnroll & eligProjNBN & eligProjPerm & RelationshipToHoH==1, # count households by just flagging active/elig enrollments that are head of household
+            HHServed = fifelse(activeEnroll & eligProjNBN & eligProjPerm & RelationshipToHoH==1, # count households by just flagging active/elig enrollments that are head of household
                                 1, 0)) %>%
     fgroup_by(grouping_vars) %>%
     fsummarise(
       PIT_Served = fsum(Served),
-      PIT_HH_Served = fsum(HHServed))%>%
+      PIT_HHServed = fsum(HHServed))%>%
     fungroup()  %>% fsubset(!is.na(PIT_Served))
   
   return(Bed_Unit_Util)
@@ -538,7 +538,7 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL){
   Bed_Unit_Util <- Bed_Unit_Util %>% fgroup_by(grouping_vars) %>%
     fsummarise(
       Total_Served = fsum(PIT_Served), # sum enrollments over all days in range
-      Total_HH_Served = fsum(PIT_HH_Served) # sum HOH enrollments over all days in range
+      Total_HHServed = fsum(PIT_HHServed) # sum HOH enrollments over all days in range
     )
   
   # calculate length of range 
@@ -571,7 +571,7 @@ nightly_avg <- function(period, labels ){
     }else{
       nightly_avg <- nightly_avg %>% rowbind(nightly_avg_q)
     }
-    #rm(nightly_avg_q) # delete quarter
+    rm(nightly_avg_q) # delete quarter
   }
   
   nightly_avg_ann <- nightly_avg %>% fgroup_by(ProjectID) %>%
@@ -636,7 +636,7 @@ q_sys_bed_unit_inv <- reactive({
       Total_Beds = fsum(PIT_Beds),
       Total_Units = fsum(PIT_Units),
       Total_Served = fsum(PIT_Served),
-      Total_HH_Served = fsum(PIT_HH_Served),
+      Total_HHServed = fsum(PIT_HHServed),
       Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
       Avg_Nightly_Units = fsum(Avg_Nightly_Units),
       Avg_Nightly_Served = fsum(Avg_Nightly_Served),
@@ -646,7 +646,7 @@ q_sys_bed_unit_inv <- reactive({
   # calculate system level quarterly utilization
   system_level_util_q <- system_level_util_q %>%
     fmutate(Bed_Utilization = Total_Served / Total_Beds,
-            Unit_Utilization = Total_HH_Served / Total_Units,
+            Unit_Utilization = Total_HHServed / Total_Units,
             Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
             Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
   system_level_util_q
@@ -656,9 +656,9 @@ q_sys_bed_unit_inv <- reactive({
 proj_inv_filtered <- reactive({
   
   if(input$inventory_level == "Beds"){
-    proj_inv_filtered<-project_level_util_q %>% fselect(ProjectID, colnames(project_level_util_q)[grepl(tolower(colnames(project_level_util_q)), 'bed|_served')])
+    proj_inv_filtered<-project_level_util_q %>% fselect(colnames(project_level_util_q)[!grepl(tolower(colnames(project_level_util_q)), 'unit|hhserved')]) # columns not containing 'unit' or 'hhserved'
   }else{
-    proj_inv_filtered<-project_level_util_q %>% fselect(ProjectID, colnames(project_level_util_q)[grepl(tolower(colnames(project_level_util_q)), 'bed|_served')])
+    proj_inv_filtered<-project_level_util_q %>% fselect(ProjectID, colnames(project_level_util_q)[grepl(tolower(colnames(project_level_util_q)), 'unit|hhserved')]) # ProjectID & columns containing 'unit' or 'hhserved'
   }
   proj_inv_filtered
 })
@@ -700,7 +700,7 @@ m_sys_bed_unit_inv <- reactive({
       Total_Beds = fsum(PIT_Beds),
       Total_Units = fsum(PIT_Units),
       Total_Served = fsum(PIT_Served),
-      Total_HH_Served = fsum(PIT_HH_Served),
+      Total_HHServed = fsum(PIT_HHServed),
       Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
       Avg_Nightly_Units = fsum(Avg_Nightly_Units),
       Avg_Nightly_Served = fsum(Avg_Nightly_Served),
@@ -710,7 +710,7 @@ m_sys_bed_unit_inv <- reactive({
   # calculate system level quarterly utilization
   system_level_util_m <- system_level_util_m %>%
     fmutate(Bed_Utilization = Total_Served / Total_Beds,
-            Unit_Utilization = Total_HH_Served / Total_Units,
+            Unit_Utilization = Total_HHServed / Total_Units,
             Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
             Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
   system_level_util_m
