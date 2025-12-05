@@ -41,6 +41,7 @@ process_upload <- function(upload_filename, upload_filepath) {
         validation = session$userData$validation
       )
     )
+    
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)
@@ -73,8 +74,10 @@ process_upload <- function(upload_filename, upload_filepath) {
       if(IN_DEV_MODE) browser()
     }
     
-    setProgress(detail = "Preparing System Overview Data", value = .85)
+    setProgress(detail = "Preparing System Overview Data", value = .8)
     source("07_system_overview.R", local = TRUE)
+    setProgress(detail = "Preparing Inventory and Utilization Data", value = .85)
+    source("08_inv_util.R", local = TRUE) 
     
     setProgress(detail = "Done!", value = 1)
     
