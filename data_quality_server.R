@@ -821,6 +821,14 @@ output$dq_export_download_btn <- downloadHandler(
     
     zip_files <- c()
     
+    progress <- Progress$new(
+      session = session,
+      min = 0,
+      max = 1
+    )
+    on.exit(progress$close())
+    
+    
     ## org-level downloads
     if('Organization-level (multi-select)' %in% input$dq_export_export_types){
       
@@ -832,6 +840,12 @@ output$dq_export_download_btn <- downloadHandler(
             nrow(session$userData$outstanding_referrals) > 0
         )
 
+        progress$set(
+          value = 0, 
+          message = "Org-Level Data Quality Reports",
+          detail = NULL
+        )
+        
         orgs_to_save <- input$dq_export_orgList
         logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
                                     length(orgs_to_save),' organizations',
@@ -840,7 +854,9 @@ output$dq_export_download_btn <- downloadHandler(
         for(i in orgs_to_save){
           
           dq_export_list <- get_dqDownloadInfo_export(i, value = "org")
-          
+          progress$inc(amount = 1 / length(orgs_to_save),
+                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))          
+         
           if(length(dq_export_list) <= 1) next
           
           org_name_std <- standardize_org_name(i)
@@ -865,11 +881,20 @@ output$dq_export_download_btn <- downloadHandler(
         
         req(session$userData$valid_file() == 1)
         
+        progress$set(
+          value = 0, 
+          message = "Org-Level PDDE Reports",
+          detail = NULL
+        )
+        
         orgs_to_save <- input$dq_export_orgList
         logMetadata(session, paste0("Downloaded Org-Level PDDE Reports for ",
                                     length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         for(i in orgs_to_save){
+          
+          progress$inc(amount = 1 / length(orgs_to_save),
+                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
           
           summary_df <- session$userData$pdde_main %>% 
             fsubset(OrganizationName == i) %>% 
@@ -909,6 +934,12 @@ output$dq_export_download_btn <- downloadHandler(
       if("Project Dashboard Report" %in% input$dq_export_files){
         req(session$userData$valid_file() == 1)
         
+        progress$set(
+          value = 0, 
+          message = "Org-Level Project Dashboard Reports",
+          detail = NULL
+        )
+        
         orgs_to_save <- input$dq_export_orgList
         if(input$dq_export_date_options == 'Date Range'){
           logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for ",
@@ -923,6 +954,9 @@ output$dq_export_download_btn <- downloadHandler(
         }
         
         for(i in orgs_to_save){
+          
+          progress$inc(amount = 1 / length(orgs_to_save),
+                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
           
           validationDF <- client_count_data_df() %>% 
             fsubset(OrganizationName == i)
@@ -1028,7 +1062,7 @@ output$dq_export_download_btn <- downloadHandler(
     }
     
     logToConsole(session, paste0('valid DQ Export files: ', length(zip_files)))  
-    
+    progress$close()
     if(length(zip_files) > 0){
       return(
         zip::zip(file, files = zip_files, root = tempdir())
