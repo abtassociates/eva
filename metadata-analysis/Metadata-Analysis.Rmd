@@ -26,6 +26,50 @@ visits <- read_lines(here("metadata-analysis/metadata/site_visits.txt"))
 uploads <- read_lines(here("metadata-analysis/metadata/upload_metadata.txt"))
 
 
+
+
+session_data_b4_mbm <- read_csv(here("metadata-analysis/metadata/last_before_mbm/sessiondata.csv")) %>%
+  group_by(SessionToken) %>%
+  count(CoC)
+
+
+new_way_b4_mbm <-
+  read_csv(here("metadata-analysis/metadata/last_before_mbm/metadata.csv")) %>% # <- don't change this
+  # ^ change where your file is in your project directory
+  fgroup_by(SessionToken) %>%
+  fmutate(sessionTime = difftime(fmax(Datestamp), fmin(Datestamp), units = "mins"),
+          is_timeout = sessionTime >= 10 & sessionTime < 11,
+          Details = fifelse(Details == "Session started" & is_timeout == TRUE , 
+                            "Session restarted after timeout", 
+                            Details
+          )
+  ) %>%
+  fungroup() %>%
+  fselect("SessionID" = SessionToken,
+          "Date" = Datestamp,
+          "Event" = Details) %>%
+  fmutate(WeekEnding = ceiling_date(Date, unit = "week", week_start = 1),
+          MonthEnding = floor_date(Date, unit = "month"),
+          EventCategory = fcase(
+            Event %in% c(
+              "Unsuccessful upload - not structurally valid",
+              "Unsuccessful upload - not hashed",
+              "Unsuccessful upload - wrong dataset",
+              "Unsuccessful upload - wrong/incomplete dataset",
+              "Unsuccessful upload - incomplete dataset",
+              "Unsuccessful upload - zip file not .zip",
+              "Unsuccessful upload - file was mistructured",
+              "Unsuccessful upload - zip file was misstructured",
+              "Unsuccessful upload - out of date HMIS CSV Export"
+            )
+            , "Unsuccessful upload",
+            Event %in% c("Successful upload") , "Successful upload",
+            grepl("Downloaded", Event, ignore.case = TRUE) , "Downloaded",
+            default = "Other"
+          )) %>%
+  fsubset(today() >= WeekEnding)
+
+
 session_data <- read_csv(here("metadata-analysis/metadata/sessiondata.csv")) %>%
   group_by(SessionToken) %>%
   count(CoC)
@@ -107,7 +151,7 @@ old_way <- rowbind(uploads_df, visits_df) %>%
     )
   )
 
-staging <- rowbind(new_way, old_way) %>%
+staging <- rowbind(new_way, new_way_b4_mbm, old_way) %>%
   fmutate(Event = fifelse(Event == "Session started", "Site hits", Event),
          WeekEnding = as.Date(WeekEnding),
          MonthEnding = as.Date(MonthEnding),
@@ -282,7 +326,7 @@ staging_last6months %>%
     str_detect(Event, "tabSystemOverview") , "System Overview",
     str_detect(Event, "tabGlossary") , "Glossary",
     default = as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "DQ Export Interface", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
   fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
@@ -418,7 +462,31 @@ counts_by_week %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
-  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  fmutate(Event2 = fcase(
+        Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
+        Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
+        Event == "Downloaded File Structure Analysis Report","Downloaded File Structure Analysis Report",           
+        Event == "Downloaded Client Counts Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded Project Dashboard Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded PDDE Report", "Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Data Quality Reports"), "Downloaded Org-Level DQ Report",
+        str_detect(Event, "Downloaded Org-Level PDDE Reports"), "Downloaded Org-Level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Project Dashboard Reports"), "Downloaded Org-Level Project Dashboard Report",
+        Event == "Downloaded System-level PDDE Report","Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        default = "Other"
+  )) %>% 
+  fmutate(
+    n_old = 1, 
+    n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
+                       n_old * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
+                       n_old)
+  ) %>% 
+  fgroup_by(WeekEnding, Event2) %>% 
+  fsummarize(n = sum(n, na.rm=T)) %>% 
+  fungroup() %>% 
+  ggplot(aes(x = WeekEnding, y = n, group = Event2, color = Event2, label = n)) +
   geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
@@ -442,6 +510,7 @@ counts_by_week %>%
   fsubset(str_detect(Event, "Download")) %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
+  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>% 
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(linewidth=0.75) +
   geom_point(size=1) +
@@ -468,6 +537,10 @@ counts_by_week_download_types <- counts_by_week %>%
   fmutate(Event2 = fcase((!str_detect(Event, "System Overview")), "DQ download",
                               (str_detect(Event, "Powerpoint")) , "System Overview image/ppt download",
                               (str_detect(Event, "Tabular Data")) , "System Overview tabular data download")) %>% 
+   fmutate(n_old = n,
+            n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
+                       n * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
+                       n)) %>% 
   fgroup_by(WeekEnding, Event2) %>%
   fsummarise(n2 = sum(n)) %>%
   fungroup() %>% 
@@ -522,8 +595,30 @@ counts_by_month %>%
   fsubset(!str_detect(Event, "Client Level Export")) %>% 
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fmutate(Event2 = fcase(
+        Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
+        Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
+        Event == "Downloaded File Structure Analysis Report","Downloaded File Structure Analysis Report",           
+        Event == "Downloaded Client Counts Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded Project Dashboard Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded PDDE Report", "Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Data Quality Reports"), "Downloaded Org-Level DQ Report",
+        str_detect(Event, "Downloaded Org-Level PDDE Reports"), "Downloaded Org-Level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Project Dashboard Reports"), "Downloaded Org-Level Project Dashboard Report",
+        Event == "Downloaded System-level PDDE Report","Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        default = "Other"
+  )) %>% 
+  fmutate(n_old = n,
+          n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
+                     n * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
+                     n)) %>% 
+  fgroup_by(MonthEnding, Event2) %>% 
+  fsummarize(n = fsum(n, na.rm=T)) %>% 
+  fungroup() %>% 
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
-  ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
+  ggplot(aes(x = MonthEnding, y = n, group = Event2, color = Event2, label = n)) +
   geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
@@ -538,6 +633,7 @@ counts_by_month %>%
 
 
 ```
+
 ```{r fig.width=10, fig.height=5}
 
 counts_by_month %>%
@@ -545,6 +641,10 @@ counts_by_month %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>%
+  fgroup_by(MonthEnding, Event) %>% 
+  fsummarize(n = sum(n, na.rm=T)) %>% 
+  fungroup() %>% 
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
   ggplot(aes(x = MonthEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(linewidth=0.8) +
@@ -593,8 +693,30 @@ staging_last6months_downloads <- staging_last6months %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
-  group_by(Event) %>% 
-  count(Event)
+   fmutate(Event2 = fcase(
+        Event == "Downloaded Client Level Export","Downloaded Client Level Export",
+        Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
+        Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
+        Event == "Downloaded File Structure Analysis Report","Downloaded File Structure Analysis Report",           
+        Event == "Downloaded Client Counts Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded Project Dashboard Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded PDDE Report", "Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Data Quality Reports"), "Downloaded Org-Level DQ Report",
+        str_detect(Event, "Downloaded Org-Level PDDE Reports"), "Downloaded Org-Level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Project Dashboard Reports"), "Downloaded Org-Level Project Dashboard Report",
+        Event == "Downloaded System-level PDDE Report","Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        default = "Other"
+  )) %>% 
+  # fgroup_by(Event2) %>% 
+  # fcount(Event2)
+  fmutate(n_old = 1,
+                    n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
+                               n_old * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
+                               n_old)) %>%  
+  fgroup_by(Event2) %>% 
+  fsummarize(n = sum(n))
   
 staging_last6months %>%
   fsubset(str_detect(Event, "Download")) %>%
@@ -602,9 +724,31 @@ staging_last6months %>%
   fsubset(!str_detect(Event, "Client Level Export")) %>% 
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>% 
-  group_by(Event, EventCategory) %>% 
-  count(Event) %>%
-  ggplot(aes(fill=Event, y=n, x=EventCategory)) + 
+   fmutate(Event2 = fcase(
+        Event == "Downloaded Client Level Export","Downloaded Client Level Export",
+        Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
+        Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
+        Event == "Downloaded File Structure Analysis Report","Downloaded File Structure Analysis Report",           
+        Event == "Downloaded Client Counts Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded Project Dashboard Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded PDDE Report", "Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Data Quality Reports"), "Downloaded Org-Level DQ Report",
+        str_detect(Event, "Downloaded Org-Level PDDE Reports"), "Downloaded Org-Level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Project Dashboard Reports"), "Downloaded Org-Level Project Dashboard Report",
+        Event == "Downloaded System-level PDDE Report","Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        default = "Other"
+  )) %>% 
+  fmutate(n_old = 1,
+                  n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
+                             n_old * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
+                             n_old)) %>%  
+  fgroup_by(Event2, EventCategory) %>% 
+  fsummarize(n = sum(n, na.rm=T)) %>%
+  fungroup() %>% 
+  #count(Event2) %>%
+  ggplot(aes(fill=Event2, y=n, x=EventCategory)) + 
   geom_bar(position="fill", stat="identity") +
   #scale_color_brewer(palette = "Dark2") +
   scale_fill_manual(values = eva_colors) +
@@ -685,7 +829,7 @@ staging_last6months %>%
     str_detect(Event, "tabSystemOverview") , "System Overview",
     str_detect(Event, "tabGlossary") , "Glossary",
     default = as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "DQ Export Interface","PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
   fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
@@ -717,7 +861,29 @@ counts_by_week %>%
   fsubset(str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
-  ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
+  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>% 
+  fmutate(Event2 = fcase(
+    Event == "Downloaded File Structure Analysis Report - DEMO MODE","Downloaded File Structure Analysis Report - DEMO MODE",
+    Event == "Downloaded System-level DQ Report - DEMO MODE", "Downloaded System-level DQ Report - DEMO MODE",
+    Event == "Downloaded Client Level Export - DEMO MODE","Downloaded Client Level Export - DEMO MODE",
+    Event == "Downloaded PDDE Report - DEMO MODE","Downloaded System-level PDDE Report - DEMO MODE",
+    Event == "Downloaded Org-level DQ Report - DEMO MODE","Downloaded Org-Level DQ Report - DEMO MODE",
+    Event == "Downloaded Client Counts Report - DEMO MODE","Downloaded System-level Project Dashboard Report - DEMO MODE",
+    Event == "Downloaded System-level PDDE Report - DEMO MODE", "Downloaded System-level PDDE Report - DEMO MODE",
+    str_detect(Event, "Downloaded Org-Level Data Quality Reports for \\d{1,5} organizations"), "Downloaded Org-Level DQ Report - DEMO MODE",
+    str_detect(Event, "Downloaded Org-Level PDDE Reports for \\d{1,5} organizations"), "Downloaded Org-Level PDDE Report - DEMO MODE",
+    str_detect(Event, "Downloaded Org-Level Project Dashboard Reports for \\d{1,5} Organizations"), "Downloaded Org-Level Project Dashboard Report - DEMO MODE",
+    str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report - DEMO MODE",
+    str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report - DEMO MODE",
+    default = "Other"
+  )) %>% 
+  fmutate(n_old = 1,
+                  n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
+                             n_old * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
+                             n_old)) %>%  
+  fgroup_by(WeekEnding, Event2) %>% 
+  fsummarize(n = sum(n, na.rm=T)) %>% 
+  ggplot(aes(x = WeekEnding, y = n, group = Event2, color = Event2, label = n)) +
   geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
@@ -740,6 +906,7 @@ counts_by_week %>%
 counts_by_week %>%
   fsubset(str_detect(Event, "Downloaded System Overview")) %>%
   fsubset(str_detect(Event, "DEMO MODE")) %>%
+  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>% 
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(linewidth=0.8) +
   geom_point(size=1) +
