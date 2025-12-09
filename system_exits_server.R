@@ -222,7 +222,6 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   
   # get dataset underlying the freqs we will produce below
   
-  
   comp_df <- all_filtered_syse_demog() %>% 
     remove_non_applicables(selection = selections) %>% 
     select(
@@ -1466,37 +1465,24 @@ enrollments_filtered_syse <- reactive({
   
 })
 
-enrollments_last_lh_syse <- reactive({
-  enrollments_filtered_syse() %>%
-    get_lookbacks() %>% 
-    get_days_since_last_lh() %>%
-    get_days_to_next_lh()
-})
 
 all_filtered_syse <- reactive({
   logToConsole(session, "in all_filtered_syse")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
- 
-   eecr_and_lecr <- enrollments_last_lh_syse() %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_was_lh_info(tmp) %>%
-    get_eecr_and_lecr()
-    
-  join( 
-    eecr_and_lecr,
+  
+  tmp <- join( 
+    enrollments_filtered_syse(),
     syse_client_categories_filtered(),
     on = "PersonalID",
     how = "inner"
-  ) %>% 
-    fmutate(
-      continuous_at_end = lecr & 
-        endDate < session$userData$ReportEnd &
-        ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
-      exited_system =  lecr &
-        ExitAdjust <= endDate & 
-        (days_to_next_lh > 14 | is.na(days_to_next_lh))
-    ) %>% 
-    fsubset(period == 'Full' & exited_system) 
+  ) 
+  
+  period_data <- tmp %>% 
+    expand_by_periods(chart_type = 'exits_types') %>% 
+    get_active_info(tmp) %>%
+    get_inflows_and_outflows(chart_type = 'exits')
+  
+  period_data
   
 })
 
@@ -1504,26 +1490,19 @@ all_filtered_syse_time <- reactive({
   logToConsole(session, "in all_filtered_syse_time")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode)) 
   
-  eecr_and_lecr <- enrollments_last_lh_syse() %>% 
-    expand_by_periods(chart_type = 'exits_time') %>% 
-    get_was_lh_info(tmp, time_chart = TRUE) %>%
-    get_eecr_and_lecr()
-  
-  join( 
-    eecr_and_lecr,
+  tmp <- join( 
+    enrollments_filtered_syse(),
     syse_client_categories_filtered(),
     on = "PersonalID",
     how = "inner"
-  ) %>% 
-    fmutate(
-      continuous_at_end = lecr & 
-        endDate < session$userData$ReportEnd &
-        ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
-      exited_system =  lecr &
-        ExitAdjust <= endDate & 
-        (days_to_next_lh > 14 | is.na(days_to_next_lh))
-    ) %>% 
-    fsubset(exited_system) 
+  ) 
+  
+  period_data <- tmp %>% 
+    expand_by_periods(chart_type = 'exits_time') %>% 
+    get_active_info(tmp) %>%
+    get_inflows_and_outflows(chart_type = 'exits')
+  
+  period_data
  
 })
 
@@ -1531,27 +1510,19 @@ all_filtered_syse_demog <- reactive({
   logToConsole(session, "in all_filtered_syse")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  eecr_and_lecr <- enrollments_last_lh_syse() %>% 
+  tmp <-  enrollments_filtered_syse()
+
+  period_data <- tmp %>% 
     expand_by_periods(chart_type = 'exits_demog') %>% 
-    get_was_lh_info(tmp) %>%
-    get_eecr_and_lecr()
+    get_active_info(tmp) %>%
+    get_inflows_and_outflows(chart_type = 'exits')
   
   join( 
-    eecr_and_lecr,
+    period_data,
     session$userData$client_categories,
     on = "PersonalID",
     how = "inner"
-  ) %>% 
-    fmutate(
-      continuous_at_end = lecr & 
-        endDate < session$userData$ReportEnd &
-        ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
-      exited_system = lecr &
-        ExitAdjust <= endDate & 
-        (days_to_next_lh > 14 | is.na(days_to_next_lh))
-    ) %>% 
-    fsubset(period == 'Full' & exited_system) 
-  
+  ) 
 })
 
 output$syse_compare_download_btn_ppt <- downloadHandler(filename = function(){

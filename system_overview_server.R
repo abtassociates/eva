@@ -456,7 +456,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   return(all_filtered_w_active_info)
 }
 
-get_inflows_and_outflows <- function(all_filtered_w_active_info) {
+get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm') {
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
@@ -640,22 +640,42 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
         Outflow = outflow_chart_detail_levels
       )
     )
+ 
+  if(chart_type == 'mbm'){
+    inflows_and_outflows <- join(
+      inflows, 
+      outflows,
+      on=c("PersonalID","period"), 
+      how = "inner",
+      suffix = "_lecr"
+    ) %>%
+      fselect(
+        PersonalID, 
+        period, 
+        InflowTypeDetail, OutflowTypeDetail, 
+        InflowTypeSummary, OutflowTypeSummary, 
+        EnrollmentID, EnrollmentID_lecr, 
+        first_active_date_in_period, prev_active
+      )
+  } else if (chart_type == 'exits') {
+    inflows_and_outflows <- join(
+      inflows, 
+      outflows,
+      on=c("PersonalID","period"), 
+      how = "inner",
+      suffix = "_lecr"
+    ) %>%
+      fselect(
+        PersonalID, 
+        period, 
+        InflowTypeDetail, OutflowTypeDetail, 
+        InflowTypeSummary, OutflowTypeSummary, 
+        Destination,
+        EnrollmentID, EnrollmentID_lecr, 
+        first_active_date_in_period, prev_active
+      )
+  }
   
-  inflows_and_outflows <- join(
-    inflows, 
-    outflows,
-    on=c("PersonalID","period"), 
-    how = "inner",
-    suffix = "_lecr"
-  ) %>%
-    fselect(
-      PersonalID, 
-      period, 
-      InflowTypeDetail, OutflowTypeDetail, 
-      InflowTypeSummary, OutflowTypeSummary, 
-      EnrollmentID, EnrollmentID_lecr, 
-      first_active_date_in_period, prev_active
-    )
   
   if(!IN_DEV_MODE) {
     # only need these vars for QC checks
