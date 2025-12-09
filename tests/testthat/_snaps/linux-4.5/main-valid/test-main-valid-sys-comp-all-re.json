@@ -38,7 +38,7 @@
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: a2e01633899a2fe37e47119f061ab5ba]",
+      "src": "[image data hash: db49e88e6f597c6bbf5e142ba5acf34c]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
@@ -64,20 +64,20 @@
                 "x": "",
                 "y": [
                   "Unknown",
-                  "White & Hispanic/Latina/e/o",
+                  "White & Hispanic/Latina/o",
                   "White alone",
-                  "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+                  "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
                   "Native Hawaiian or Pacific Islander alone",
-                  "Multi-Racial & Hispanic/Latina/e/o",
-                  "Multi-Racial (not Hispanic/Latina/e/o)",
-                  "Middle Eastern or North African & Hispanic/Latina/e/o",
+                  "Multi-Racial & Hispanic/Latina/o",
+                  "Multi-Racial (not Hispanic/Latina/o)",
+                  "Middle Eastern or North African & Hispanic/Latina/o",
                   "Middle Eastern or North African alone",
-                  "Hispanic/Latina/e/o alone",
-                  "Black, African American, or African & Hispanic/Latina/e/o",
+                  "Hispanic/Latina/o alone",
+                  "Black, African American, or African & Hispanic/Latina/o",
                   "Black, African American, or African alone",
-                  "Asian or Asian American & Hispanic/Latina/e/o",
+                  "Asian or Asian American & Hispanic/Latina/o",
                   "Asian or Asian American alone",
-                  "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+                  "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
                   "American Indian, Alaska Native, or Indigenous alone"
                 ]
               }

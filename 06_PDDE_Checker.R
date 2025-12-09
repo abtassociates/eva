@@ -193,34 +193,35 @@ operating_end_precedes_inventory_end <- activeInventory %>%
 # Active Inventory with No Enrollments ---------
 # Active inventory records (with non-overflow beds) should have enrollments within their bounds
 get_active_inventory_no_enrollments <- function() {
+  
   if(fnrow(activeInventory) == 0) return(NULL)
   
   active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
     fsubset(
       (is.na(Availability) | Availability != 3) &
         BedInventory > 0 & !is.na(BedInventory)
-    ) 
-  
-  if(fnrow(active_inventory_w_no_enrollments) == 0) return(NULL)
-  
-  active_inventory_w_no_enrollments %>%
+    ) %>% 
     fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
     join(
       Enrollment %>% fselect(ProjectID, EntryDate, ExitAdjust),
       on = "ProjectID",
       multiple = TRUE,
       how="inner"
-    ) %>%
-    fmutate(
-      # Check if inventory span overlaps with any enrollments
+    )
+  
+  if(fnrow(active_inventory_w_no_enrollments) == 0) return(NULL)
+  
+  active_inventory_w_no_enrollments <- active_inventory_w_no_enrollments %>%
+     fmutate(
+      # Check if inventory span overlaps with each enrollment
       inventory_overlap = (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
         ExitAdjust >= InventoryStartDate
     ) %>%
-    fgroup_by(ProjectID) %>%
+    fgroup_by(ProjectID) %>% # check if a project has any enrollments overlapping active inventories
     fmutate(any_inventory_overlap = any(inventory_overlap, na.rm=TRUE)) %>%
     fungroup() %>%
-    fsubset(!any_inventory_overlap) %>%
-    funique(cols = c("ProjectID")) %>%
+    fsubset(!any_inventory_overlap) %>% # filter to FALSE
+    funique(cols = c("ProjectID")) %>% # get unique Project ID
     # Bring in DQ cols
     join(
       session$userData$Project0,
@@ -388,14 +389,16 @@ rrh_so_w_inventory <- activeInventory %>%
 # (this will need a lot more detail, hold on this one)
 
 # Overlapping participations ----------------------------------------------
-overlapping_ce_participation <- CEParticipation %>%
+overlapping_ce_participation <- if(nrow(CEParticipation) > 0) {
+  logToConsole(session, "checking overlaps in CEParticipation")
+  CEParticipation %>%
   join(session$userData$Project0 %>% fselect(ProjectID, OrganizationName, ProjectName),
-            on = "ProjectID", how = 'left') %>%
+       on = "ProjectID", how = 'left') %>%
   fgroup_by(ProjectID) %>%
   roworder(ProjectID, CEParticipationStatusStartDate) %>%
-  fmutate(PreviousCEParticipationID = lag(CEParticipationID),
-         PreviousCEStart = lag(CEParticipationStatusStartDate),
-         PreviousCEEnd = lag(CEParticipationStatusEndDate)) %>%
+  fmutate(PreviousCEParticipationID = flag(CEParticipationID),
+          PreviousCEStart = flag(CEParticipationStatusStartDate),
+          PreviousCEEnd = flag(CEParticipationStatusEndDate)) %>%
   fungroup() %>%
   fsubset(!is.na(PreviousCEParticipationID)) %>%
   fmutate(ParticipationPeriod =
@@ -426,8 +429,11 @@ overlapping_ce_participation <- CEParticipation %>%
          )) %>%
   merge_check_info_dt(checkIDs = 128) %>%
   fselect(PDDEcols)
+} else data.table()
 
-overlapping_hmis_participation <- HMISParticipation %>%
+overlapping_hmis_participation <- if(nrow(HMISParticipation) > 0) {
+  logToConsole(session, "checking overlaps in HMISParticipation")
+  HMISParticipation %>%
   join(session$userData$Project0 %>% fselect(ProjectID, OrganizationName, ProjectName),
             on = "ProjectID", how = 'left') %>%
   fgroup_by(ProjectID) %>%
@@ -466,7 +472,7 @@ overlapping_hmis_participation <- HMISParticipation %>%
    )) %>%
   merge_check_info_dt(checkIDs = 131) %>%
   fselect(PDDEcols)
-
+} else data.table()
 
 # Bed Type incompatible with Housing Type -----------------------------------
 # For ES projects, if HousingType is 1 or 2 (site-based), then BedType should be 1 (facility based beds) or 3 (Other bed type). If HousingType is 3 (tenant-based), then BedType should be 2 (voucher beds).
@@ -482,7 +488,7 @@ ES_BedType_HousingType <- activeInventory %>%
   fselect(PDDEcols)
 
 # No Enrollments in Services for NbN Project ------------------------------------
-
+if(nrow(Services) > 0) {
 nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were NBN and had HMIS Participation
   fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
   funique() %>%
@@ -496,6 +502,7 @@ nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were 
   fungroup()
 
 rm(nbn_w_hmis_participation, services_chk)
+
 nbn_nobns <- nbn_nobns %>% filter(miss_all_enroll) # filter to projects with all enrollmentID missing
 
 nbn_nobns <- nbn_nobns %>% 
@@ -503,7 +510,9 @@ nbn_nobns <- nbn_nobns %>%
   fmutate(Detail = "") %>%
   fselect(PDDEcols) %>%
   unique()
-
+} else {
+  nbn_nobns <- data.table()
+}
 # Project CoC Missing Bed Inventory & Incorrect CoC in bed inventory -----------------------------------
 
 activeInventory_COC_merged <-  join(
@@ -595,25 +604,26 @@ lt_seas_inv <- session$userData$Project0 %>%
   join(Inventory, on = "ProjectID", how = 'inner') %>% # inner join gets only ProjectID in Inventory
   fsubset(!is.na(InventoryID)) # filter to those with InventoryID not missing
 
-lt_seas_inv_1 <- lt_seas_inv %>% 
-  fsubset(is.na(Availability)) # filter to missing Availability
-
-lt_seas_inv_2 <- lt_seas_inv %>% 
+lt_seas_inv <- lt_seas_inv %>% 
   fsubset(Availability == 2) %>% # filter to seasonal Availabilty
   fmutate(avail_days = InventoryEndDate - InventoryStartDate) %>% # calculate available days
   fsubset(is.na(InventoryEndDate) | avail_days > 365) %>% # filter to missing end date or avail_days over 365
   fselect(-avail_days) 
 
-lt_seas_inv <- lt_seas_inv_1 %>% rbind(lt_seas_inv_2) %>% # rbind these together
-  fgroup_by(ProjectID) %>% 
-  fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
-                          paste0(unique(InventoryID), collapse = ", ") ))  %>%
-  fungroup %>%
+if(nrow(lt_seas_inv) > 0){
+  lt_seas_inv <- lt_seas_inv %>%
+    fgroup_by(ProjectID) %>% 
+    fmutate(Detail = paste("Seasonal inventory record(s) that may need updated inventory dates:",
+                           paste0(unique(InventoryID), collapse = ", ") ))  %>%
+    fungroup 
+}else{
+  lt_seas_inv <- lt_seas_inv %>%
+    fmutate(Detail = "")
+}
+lt_seas_inv <- lt_seas_inv %>% 
   merge_check_info_dt(checkIDs = 37) %>%
   fselect(PDDEcols) %>% 
   funique()
-
-rm(lt_seas_inv_1, lt_seas_inv_2)
 
 # Put it all together -----------------------------------------------------
 

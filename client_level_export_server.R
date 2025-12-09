@@ -10,27 +10,27 @@ output$client_level_download_btn <- downloadHandler(
       "AmIndAKNative",
       "Asian",
       "BlackAfAmerican",
-      "HispanicLatine" = "HispanicLatinao",
+      "HispanicLatino" = "HispanicLatinao",
       "MidEastNAf" = "MidEastNAfrican",
       "NativeHIPacific",
       "White",
       "RaceEthnicityUnknown",
       
       "AmIndAKNativeAloneMethod1Detailed",
-      "AmIndAKNativeLatineMethod1Detailed",
+      "AmIndAKNativeLatinoMethod1Detailed",
       "AsianAloneMethod1Detailed",
-      "AsianLatineMethod1Detailed",
+      "AsianLatinoMethod1Detailed",
       "BlackAfAmericanAloneMethod1Detailed",
-      "BlackAfAmericanLatineMethod1Detailed",
-      "LatineAloneMethod1Detailed",
+      "BlackAfAmericanLatinoMethod1Detailed",
+      "LatinoAloneMethod1Detailed",
       "MidEastNAfricanAloneMethod1Detailed",
-      "MidEastNAfricanLatineMethod1Detailed",
+      "MidEastNAfricanLatinoMethod1Detailed",
       "NativeHIPacificAloneMethod1Detailed",
-      "NativeHIPacificLatineMethod1Detailed",
+      "NativeHIPacificLatinoMethod1Detailed",
       "WhiteAloneMethod1Detailed",
-      "WhiteLatineMethod1Detailed",
-      "MultipleNotLatineMethod1Detailed",
-      "MultipleLatineMethod1Detailed",
+      "WhiteLatinoMethod1Detailed",
+      "MultipleNotLatinoMethod1Detailed",
+      "MultipleLatinoMethod1Detailed",
       
       "BILPOCMethod1Summarized",
       "WhiteMethod1Summarized",
@@ -38,14 +38,14 @@ output$client_level_download_btn <- downloadHandler(
       "AmIndAKNativeMethod2Detailed",
       "AsianMethod2Detailed",
       "BlackAfAmericanMethod2Detailed",
-      "LatineMethod2Detailed",
+      "LatinoMethod2Detailed",
       "MidEastNAfricanMethod2Detailed",
       "NativeHIPacificMethod2Detailed",
       "WhiteMethod2Detailed",
       
-      "BlackAfAmericanLatineMethod2Summarized",
-      "LatineMethod2Summarized",
-      "LatineAloneMethod2Summarized"
+      "BlackAfAmericanLatinoMethod2Summarized",
+      "LatinoMethod2Summarized",
+      "LatinoAloneMethod2Summarized"
     )
     
     report_status_fields <- c(
@@ -55,38 +55,36 @@ output$client_level_download_btn <- downloadHandler(
       "Latest-ReportStatusDetail" = "OutflowTypeDetail"
     )
     
-    enrollment_fields <- c(
-      "PersonalID",
-      "eecr",
-      "lecr",
-      "EnrollmentID",
-      "HouseholdType",
-      "CorrectedHoH",
-      "ProjectType",
-      "EntryDate",
-      "LivingSituation",
-      "MoveInDateAdjust",
-      "ExitAdjust",
-      "Destination"
-    )
-
-    enrollment_info <- get_client_level_export() %>%
-      fselect(c(enrollment_fields, "InflowTypeDetail")) %>%
+    eecr_lecr_enrollment_info <- session$userData$enrollment_categories %>% 
+      fselect(
+        EnrollmentID,
+        HouseholdType,
+        CorrectedHoH,
+        ProjectType,
+        EntryDate,
+        LivingSituation,
+        MoveInDateAdjust,
+        ExitAdjust,
+        Destination
+      ) %>%
       fmutate(
         Destination = living_situation(Destination),
         LivingSituation = living_situation(LivingSituation),
         HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
       )
 
-    earliest_report_info <- enrollment_info %>% 
-      fsubset(eecr == 1, -InflowTypeDetail)
-    
+
+    earliest_report_info <- get_client_level_export() %>%
+      fselect(PersonalID, EnrollmentID) %>%
+      join(eecr_lecr_enrollment_info, on="EnrollmentID")
+
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
              new = paste0("Earliest-", setdiff(names(earliest_report_info), "PersonalID")))
     
-    latest_report_info <- enrollment_info %>%
-      fsubset(lecr == 1, -InflowTypeDetail)
+    latest_report_info <- get_client_level_export() %>%
+      fselect(PersonalID, EnrollmentID = EnrollmentID_lecr) %>%
+      join(eecr_lecr_enrollment_info, on="EnrollmentID")
     
     setnames(latest_report_info, 
              old = setdiff(names(latest_report_info), "PersonalID"), 
@@ -97,11 +95,7 @@ output$client_level_download_btn <- downloadHandler(
       fselect(c(detail_client_fields, unname(report_status_fields))) %>%
       funique() %>%
       join(earliest_report_info, on = "PersonalID", how="inner") %>%
-      join(latest_report_info, on = "PersonalID", how="inner") %>%
-      fmutate(
-        InflowTypeDetail = str_remove(InflowTypeDetail, "\n"),
-        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n")
-      )
+      join(latest_report_info, on = "PersonalID", how="inner")
 
     setnames(client_level_details, 
              old = report_status_fields, 
@@ -110,6 +104,15 @@ output$client_level_download_btn <- downloadHandler(
     #Monthly Statuses
 
     monthly_statuses <- period_specific_data()[["Months"]] %>%
+      join(
+        session$userData$enrollment_categories %>% 
+          fmutate(
+            moved_into_housing = ProjectType %in% ph_project_types & 
+              between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE)
+          ) %>%
+          fselect(EnrollmentID, moved_into_housing),
+        on = "EnrollmentID"
+      ) %>%
       fsubset(
         InflowTypeSummary == "Inflow" |
         OutflowTypeSummary == "Outflow" |
@@ -117,23 +120,20 @@ output$client_level_download_btn <- downloadHandler(
       ) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
-        `Moved into Housing During Report` = anyv(
-          lecr & 
-          ProjectType %in% ph_project_types & 
-          between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE),
-          TRUE
-        ),
+        `Moved into Housing During Report` = anyv(moved_into_housing, TRUE),
         `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
-        OutflowTypeDetail = str_remove(OutflowTypeDetail, "\n"),
+        last_outflow = flast(OutflowTypeDetail)
+      ) %>%
+      fungroup() %>%
+      fmutate(
         `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
-          flast(OutflowTypeDetail),
+          last_outflow,
           "Exited, Permanent" ~ "Yes - Exited, Permanent",
           "Housed" ~ "Yes - Enrolled, Housed",
           "Homeless" ~ "No - Enrolled, Homeless",
-          .default = paste0("No - ", flast(OutflowTypeDetail))
+          .default = paste0("No - ", last_outflow)
         )
       ) %>%
-      fungroup() %>%
       fselect(
         PersonalID, 
         `Moved into Housing During Report`,

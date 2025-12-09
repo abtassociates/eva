@@ -246,7 +246,7 @@ logMetadata <- function(session, detail) {
     Details = detail
   )
   
-  filename <- here("metadata-analysis/metadata/metadata.csv")
+  filename <- paste0(METADATA_PATH,"/metadata.csv")
   
   invisible(write_csv(
     x = d,
@@ -294,20 +294,20 @@ logSessionData <- function(session) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = session$userData$Export$SourceID,
-    ExportID = session$userData$Export$ExportID,
-    SourceContactFirst = session$userData$Export$SourceContactFirst,
-    SourceContactLast = session$userData$Export$SourceContactLast,
-    SourceContactEmail = session$userData$Export$SourceContactEmail,
-    SoftwareName = session$userData$Export$SoftwareName,
-    ImplementationID = session$userData$Export$ImplementationID
+    CoC = if(is.null(session$userData$Export$SourceID)) NA else session$userData$Export$SourceID,
+    ExportID = if(is.null(session$userData$Export$ExportID)) NA else session$userData$Export$ExportID,
+    SourceContactFirst = if(is.null(session$userData$Export$SourceContactFirst)) NA else session$userData$Export$SourceContactFirst,
+    SourceContactLast = if(is.null(session$userData$Export$SourceContactLast)) NA else session$userData$Export$SourceContactLast,
+    SourceContactEmail = if(is.null(session$userData$Export$SourceContactEmail)) NA else session$userData$Export$SourceContactEmail,
+    SoftwareName = if(is.null(session$userData$Export$SoftwareName)) NA else session$userData$Export$SoftwareName,
+    ImplementationID = if(is.null(session$userData$Export$ImplementationID)) NA else session$userData$Export$ImplementationID
   )
   
   # put the export info in the log
   capture.output(d, file = stderr())
   
     
-  filename <- here("metadata-analysis/metadata/sessiondata.csv")
+  filename <- paste0(METADATA_PATH, "/sessiondata.csv")
   write_csv(
     x = d,
     filename,
@@ -335,11 +335,16 @@ logToConsoleFull <- function(session, msg) {
   capture.output(d, file = stderr())
 }
   
-date_stamped_filename <- function(filename) {
-  paste(filename, Sys.Date(), ".xlsx", sep = "")
+date_stamped_filename <- function(filename, ext = '.xlsx') {
+  
+  paste(filename, Sys.Date(), ext, sep = "")
 }
 
 nice_names <- function(df){
+  
+  if(is.null(df)){
+    return(data.table())
+  }
   
   names_from_janitor <- c("Ho h", "Co c", "Adjust")
   hmis_abbreviations <- c("HoH", "CoC", "")
@@ -371,6 +376,31 @@ nice_names <- function(df){
   df
 }
 
+nice_names_timeliness <- function(df, record_type){
+ 
+  if(is.null(df)){
+    return(NULL)
+  }
+  mdn_string <- switch(record_type, 
+                       'start' = 'Median Days to Project Start Record Entry',
+                       'exit' = 'Median Days to Project Exit Record Entry',
+                       'nbn' = 'Median Days to Night-by-Night Record Entry',
+                       'cls' = 'Median Days to Current Living Situation Record Entry')
+  
+  colnames(df) <- str_replace_all(names(df), 
+                               c('OrganizationName' = 'Organization Name', 
+                                 'ProjectID' = 'Project ID',
+                                 'ProjectName' = 'Project Name',
+                                 'ProjectType' = 'Project Type',
+                                 'nlt0' = '< 0 Days',
+                                 'n0' = '0 Days',
+                                 'n1_3' = '1-3 Days',
+                                 'n4_6' = '4-6 Days',
+                                 'n7_10' = '7-10 Days',
+                                 'n11p' = '11 + Days',
+                                 'mdn' = mdn_string))
+  df
+}
 
 # Sandbox -----------------------------------------------------------------
 
@@ -448,10 +478,8 @@ reset_postvalid_components <- function(session) {
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
   session$sendCustomMessage('dateRangeCount', list(
-    min = NULL,
-    start = ymd(today()),
-    max = NULL,
-    end = ymd(today())
+    start = NA,
+    end = NA
   ))
   session$userData$pdde_main <- NULL
   
@@ -587,8 +615,9 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
       keep.col.order = FALSE
     ) %>%
     setorder(PersonalID, period, EntryDate) %>%
-  fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
+    fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
 }
+
 
 ## list all destination types and subtypes based on allowed_destinations vector
 ## used for systems exit data downloads
@@ -607,8 +636,8 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
   
   if(add_totals){
     total_row <- data.table(
-        dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
-      ) %>% 
+      dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
+    ) %>% 
       fmutate(
         dest_type = factor(
           dest_type, 
@@ -617,20 +646,25 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
         `Destination Type Detail` = paste0('Total ', dest_type)
       ) %>% 
       frename(dest_type = 'Destination Type')
-      
+    
     destinations_df <- rowbind(destinations_df, total_row) %>% 
       roworder(`Destination Type`)
-   
+    
   }
   
   ## assumes you are passing a df with columns for Destination Type (Homeless, Temporary, Permanent, Institutionl, Other/Unknown)
   joined_df <- join(destinations_df, df, on=c('Destination Type','Destination Type Detail')) 
   
   if(fill_zero){
-   joined_df %>% 
-    replace_na(0)
+    joined_df %>% 
+      replace_na(0)
   } else {
     joined_df 
   }
-  
+}
+
+# removes special characters from org names when using them for DQ Export file names
+standardize_org_name <- function(orgname){
+  orgname <- gsub('\\\\','/',orgname)
+  stringr::str_replace_all(orgname, "[@\\$%~\\^,/\\[+<>()|\\:&;#?*'\\]]", "_")
 }

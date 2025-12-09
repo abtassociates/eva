@@ -25,7 +25,7 @@
         320
       ]
     },
-    "client_count_download_current": {
+    "client_count_download_date_range": {
       "Organization Name": {
         "Length": "173",
         "Class": "character",
@@ -90,7 +90,7 @@
         "Max.": 0
       }
     },
-    "client_count_download_date_range": {
+    "client_count_download_full_export_range": {
       "Organization Name": {
         "Length": "205",
         "Class": "character",
@@ -155,6 +155,320 @@
         "Max.": 632
       }
     },
+    "client_count_download_timeliness_cls": {
+      "Organization Name": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "34",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2352941176470588,
+        "3rd Qu.": 0,
+        "Max.": 2
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 44.38235294117647,
+        "3rd Qu.": 14,
+        "Max.": 862
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 1,
+        "Mean": 21.5,
+        "3rd Qu.": 8.25,
+        "Max.": 216
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 8.235294117647058,
+        "3rd Qu.": 3.75,
+        "Max.": 123
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6.117647058823529,
+        "3rd Qu.": 2.75,
+        "Max.": 81
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 2,
+        "Mean": 16.76470588235294,
+        "3rd Qu.": 15.75,
+        "Max.": 172
+      },
+      "Median Days to Current Living Situation Record Entry": {
+        "Min.": -967,
+        "1st Qu.": 0,
+        "Median": 1.25,
+        "Mean": -19.26470588235294,
+        "3rd Qu.": 5,
+        "Max.": 134
+      }
+    },
+    "client_count_download_timeliness_exit": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 27.39024390243902,
+        "3rd Qu.": 15,
+        "Max.": 705
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 12.70243902439024,
+        "3rd Qu.": 4,
+        "Max.": 474
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 23.94634146341463,
+        "3rd Qu.": 4,
+        "Max.": 1097
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 14.29756097560976,
+        "3rd Qu.": 3,
+        "Max.": 749
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 15.15121951219512,
+        "3rd Qu.": 6,
+        "Max.": 1030
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 9,
+        "Median": 35,
+        "Mean": 211.0146341463415,
+        "3rd Qu.": 119,
+        "Max.": 19327
+      },
+      "Median Days to Project Exit Record Entry": {
+        "Min.": -218,
+        "1st Qu.": 24,
+        "Median": 83,
+        "Mean": 149.6522842639594,
+        "3rd Qu.": 167,
+        "Max.": 1778,
+        "NA's": 8
+      }
+    },
+    "client_count_download_timeliness_nbn": {
+      "Organization Name": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "1",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "0 Days": {
+        "Min.": 2631,
+        "1st Qu.": 2631,
+        "Median": 2631,
+        "Mean": 2631,
+        "3rd Qu.": 2631,
+        "Max.": 2631
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "Median Days to Night-by-Night Record Entry": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      }
+    },
+    "client_count_download_timeliness_start": {
+      "Organization Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 1.985365853658537,
+        "3rd Qu.": 1,
+        "Max.": 117
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 15,
+        "Mean": 164.9560975609756,
+        "3rd Qu.": 41,
+        "Max.": 20892
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 12,
+        "Mean": 81.95121951219512,
+        "3rd Qu.": 54,
+        "Max.": 3104
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 4,
+        "Mean": 27.84390243902439,
+        "3rd Qu.": 18,
+        "Max.": 961
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 2,
+        "Mean": 15.16585365853659,
+        "3rd Qu.": 10,
+        "Max.": 458
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 2,
+        "Median": 8,
+        "Mean": 38.14146341463415,
+        "3rd Qu.": 36,
+        "Max.": 1127
+      },
+      "Median Days to Project Start Record Entry": {
+        "Min.": -524,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 10.90547263681592,
+        "3rd Qu.": 7,
+        "Max.": 308,
+        "NA's": 4
+      }
+    },
     "file_structure_analysis_main": {
       "Issue": [
         "Nulls not allowed or incorrect data type",
@@ -204,21 +518,21 @@
         [
           "High Priority: 3  ",
           "Min.   :  1.00  ",
-          "Length:46         "
+          "Length:45         "
         ],
         [
           "Error        :21  ",
-          "1st Qu.:  2.25  ",
+          "1st Qu.:  3.00  ",
           "Class :character  "
         ],
         [
-          "Warning      :22  ",
+          "Warning      :21  ",
           "Median : 10.00  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   : 23.89  ",
+          "Mean   : 24.36  ",
           null
         ],
         [
@@ -234,47 +548,47 @@
       ],
       "Project Summary": [
         [
-          "Length:123        ",
+          "Length:121        ",
           "High Priority: 5  ",
-          "Min.   :  1.000  ",
-          "Length:123        "
+          "Length:121        ",
+          "Min.   :  1.000  "
         ],
         [
           "Class :character  ",
           "Error        :53  ",
-          "1st Qu.:  1.000  ",
-          "Class :character  "
+          "Class :character  ",
+          "1st Qu.:  1.000  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :65  ",
-          "Median :  3.000  ",
-          "Mode  :character  "
+          "Warning      :63  ",
+          "Mode  :character  ",
+          "Median :  3.000  "
         ],
         [
           null,
           null,
-          "Mean   :  8.935  ",
-          null
+          null,
+          "Mean   :  9.058  "
         ],
         [
           null,
           null,
-          "3rd Qu.:  7.000  ",
-          null
+          null,
+          "3rd Qu.:  7.000  "
         ],
         [
           null,
           null,
-          "Max.   :181.000  ",
-          null
+          null,
+          "Max.   :181.000  "
         ]
       ],
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:46         ",
-          "Length:46         "
+          "Length:45         ",
+          "Length:45         "
         ],
         [
           "Error        :21  ",
@@ -282,7 +596,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :22  ",
+          "Warning      :21  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -425,14 +739,14 @@
       ],
       "Warnings": [
         [
-          "Length:846        ",
-          "Length:846        ",
-          "Length:846        ",
-          "Length:846        ",
-          "Length:846        ",
-          "Length:846        ",
-          "Length:846        ",
-          "Length:846        ",
+          "Length:843        ",
+          "Length:843        ",
+          "Length:843        ",
+          "Length:843        ",
+          "Length:843        ",
+          "Length:843        ",
+          "Length:843        ",
+          "Length:843        ",
           "Min.   :2019-08-17  "
         ],
         [
@@ -444,7 +758,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-11-10  "
+          "1st Qu.:2020-11-08  "
         ],
         [
           "Mode  :character  ",
@@ -455,7 +769,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-08-18  "
+          "Median :2021-08-16  "
         ],
         [
           null,
@@ -493,30 +807,30 @@
       ],
       "Overlap Details": [
         [
-          "Length:50         ",
-          "Length:50         ",
-          "AO   :21  ",
-          "Length:50         ",
-          "Length:50         ",
-          "Length:50         ",
-          "Length:50         ",
-          "Length:50         ",
+          "Length:43         ",
+          "Length:43         ",
+          "AO   :14  ",
+          "Length:43         ",
+          "Length:43         ",
+          "Length:43         ",
+          "Length:43         ",
+          "Length:43         ",
           "Min.   :2019-10-02  ",
           "Min.   :2019-10-04  ",
           "Min.   :NA  ",
           "Min.   :2020-01-06  ",
           "Min.   :NA  ",
           "Min.   :NA  ",
-          "Length:50         ",
-          "Length:50         ",
-          "AO   :20  ",
-          "Length:50         ",
-          "Length:50         ",
-          "Length:50         ",
-          "Length:50         ",
-          "Length:50         ",
+          "Length:43         ",
+          "Length:43         ",
+          "AO   :13  ",
+          "Length:43         ",
+          "Length:43         ",
+          "Length:43         ",
+          "Length:43         ",
+          "Length:43         ",
           "Min.   :2019-09-17  ",
-          "Min.   :2020-09-09  ",
+          "Min.   :2021-07-23  ",
           "Min.   :2019-10-05  ",
           "Min.   :NA  ",
           "Min.   :NA  "
@@ -544,9 +858,9 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2021-02-21  ",
-          "1st Qu.:2021-08-01  ",
-          "1st Qu.:2021-03-07  ",
+          "1st Qu.:2021-01-30  ",
+          "1st Qu.:2021-09-08  ",
+          "1st Qu.:2021-02-13  ",
           "1st Qu.:NA  ",
           "1st Qu.:NA  "
         ],
@@ -559,10 +873,10 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-06-26  ",
-          "Median :2021-06-08  ",
+          "Median :2021-04-17  ",
+          "Median :2021-04-04  ",
           "Median :NA  ",
-          "Median :2021-12-08  ",
+          "Median :2021-08-20  ",
           "Median :NA  ",
           "Median :NA  ",
           "Mode  :character  ",
@@ -573,9 +887,9 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-06-05  ",
-          "Median :2021-10-14  ",
-          "Median :2021-04-21  ",
+          "Median :2021-03-14  ",
+          "Median :2021-10-25  ",
+          "Median :2021-03-20  ",
           "Median :NA  ",
           "Median :NA  "
         ],
@@ -588,10 +902,10 @@
           null,
           null,
           null,
-          "Mean   :2021-07-06  ",
-          "Mean   :2021-06-20  ",
+          "Mean   :2021-06-17  ",
+          "Mean   :2021-05-26  ",
           "Mean   :NaN  ",
-          "Mean   :2021-10-15  ",
+          "Mean   :2021-09-28  ",
           "Mean   :NaN  ",
           "Mean   :NaN  ",
           null,
@@ -602,9 +916,9 @@
           null,
           null,
           null,
-          "Mean   :2021-05-31  ",
-          "Mean   :2021-10-21  ",
-          "Mean   :2021-06-27  ",
+          "Mean   :2021-05-07  ",
+          "Mean   :2021-09-27  ",
+          "Mean   :2021-05-22  ",
           "Mean   :NaN  ",
           "Mean   :NaN  "
         ],
@@ -617,10 +931,10 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-07-03  ",
-          "3rd Qu.:2022-01-24  ",
+          "3rd Qu.:2022-07-08  ",
+          "3rd Qu.:2021-12-01  ",
           "3rd Qu.:NA  ",
-          "3rd Qu.:2022-08-11  ",
+          "3rd Qu.:2022-08-06  ",
           "3rd Qu.:NA  ",
           "3rd Qu.:NA  ",
           null,
@@ -631,9 +945,9 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-08  ",
-          "3rd Qu.:2022-01-04  ",
-          "3rd Qu.:2022-05-10  ",
+          "3rd Qu.:2021-11-13  ",
+          "3rd Qu.:2021-10-30  ",
+          "3rd Qu.:2022-03-05  ",
           "3rd Qu.:NA  ",
           "3rd Qu.:NA  "
         ],
@@ -660,9 +974,9 @@
           null,
           null,
           null,
-          "Max.   :2022-08-19  ",
-          "Max.   :2022-08-19  ",
-          "Max.   :2022-09-10  ",
+          "Max.   :2022-08-04  ",
+          "Max.   :2021-11-05  ",
+          "Max.   :2022-09-09  ",
           "Max.   :NA  ",
           "Max.   :NA  "
         ],
@@ -677,10 +991,10 @@
           null,
           null,
           "NA's   :5  ",
-          "NA's   :50  ",
-          "NA's   :7  ",
-          "NA's   :50  ",
-          "NA's   :50  ",
+          "NA's   :43  ",
+          "NA's   :3  ",
+          "NA's   :43  ",
+          "NA's   :43  ",
           null,
           null,
           null,
@@ -691,9 +1005,9 @@
           null,
           null,
           "NA's   :40  ",
-          "NA's   :6  ",
-          "NA's   :50  ",
-          "NA's   :50  "
+          "NA's   :5  ",
+          "NA's   :43  ",
+          "NA's   :43  "
         ]
       ],
       "Referral Details": [
@@ -773,61 +1087,61 @@
     },
     "pdde_download_summary": {
       "Issue": [
+        "Client-level data in VSP organization",
         "Missing Geography Information",
+        "Overlapping HMIS Participation Records",
+        "Project Missing in ProjectCoC file",
+        "Residential Project Missing Housing Type",
+        "Incorrect CoC in bed inventory",
         "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
-        "Overlapping HMIS Participation Records",
-        "Inventory Start Precedes Operating Start",
-        "No Enrollments within Active Inventory",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
-        "Zero Utilization",
         "Bed Type incompatible with Housing Type",
+        "Inventory Start Precedes Operating Start",
+        "Long-Term Seasonal Inventory",
+        "No Enrollments within Active Inventory",
         "Project CoC missing bed inventory",
-        "Incorrect CoC in bed inventory",
-        "Client-level data in VSP organization",
-        "Project Missing in ProjectCoC file",
-        "Residential Project Missing Housing Type",
-        "Long-Term Seasonal Inventory"
+        "Zero Utilization"
       ],
       "Type": [
         "High Priority",
-        "Error",
-        "Error",
-        "Error",
-        "High Priority",
-        "Warning",
-        "Warning",
-        "Error",
-        "Error",
-        "Warning",
-        "Warning",
-        "Warning",
-        "Error",
         "High Priority",
         "High Priority",
         "High Priority",
+        "High Priority",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
+        "Warning",
         "Warning"
       ],
       "Count": [
+        13,
         6,
+        1,
+        1,
+        1,
+        3,
         3,
         11,
         6,
         1,
+        13,
+        3,
         138,
+        4,
         1,
-        1,
-        13,
         2,
-        3,
-        2,
-        3,
-        13,
-        1,
-        1,
-        111
+        2
       ]
     },
     "pdde_guidance_summary": {
@@ -862,28 +1176,28 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 18.58823529411765,
-        "3rd Qu.": 11,
+        "Mean": 12.29411764705882,
+        "3rd Qu.": 6,
         "Max.": 138
       }
     },
     "sys_comp_report_num_df": {
       "All Races/Ethnicities": [
         "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
         "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Asian or Asian American & Hispanic/Latina/o",
         "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/e/o",
-        "Hispanic/Latina/e/o alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
         "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
-        "Multi-Racial & Hispanic/Latina/e/o",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
         "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
         "White alone",
-        "White & Hispanic/Latina/e/o",
+        "White & Hispanic/Latina/o",
         "Unknown",
         "Total"
       ],
@@ -948,20 +1262,20 @@
     "sys_comp_report_pct_df": {
       "All Races/Ethnicities": [
         "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/e/o",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
         "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/e/o",
+        "Asian or Asian American & Hispanic/Latina/o",
         "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/e/o",
-        "Hispanic/Latina/e/o alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
         "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/e/o",
-        "Multi-Racial (not Hispanic/Latina/e/o)",
-        "Multi-Racial & Hispanic/Latina/e/o",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
         "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/e/o",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
         "White alone",
-        "White & Hispanic/Latina/e/o",
+        "White & Hispanic/Latina/o",
         "Unknown",
         "Total"
       ],
@@ -1168,32 +1482,32 @@
       "Begin": [
         "Housed",
         "Housed",
+        "Homeless",
         "Housed",
-        "Housed",
         "Homeless",
         "Homeless",
         "Homeless",
-        "Homeless"
+        "Housed"
       ],
       "End": [
-        "Enrolled, Housed",
-        "Enrolled, Homeless",
-        "Exited, Non-Permanent",
         "Exited, Permanent",
         "Enrolled, Housed",
-        "Enrolled, Homeless",
         "Exited, Non-Permanent",
-        "Exited, Permanent"
+        "Exited, Non-Permanent",
+        "Enrolled, Homeless",
+        "Enrolled, Housed",
+        "Exited, Permanent",
+        "Enrolled, Homeless"
       ],
       "freq": [
-        56,
-        242,
-        14,
-        261,
+        240,
+        262,
         72,
-        119,
+        59,
         73,
-        39
+        38,
+        118,
+        14
       ]
     },
     "systemDQ_download": {
@@ -1226,22 +1540,22 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    2.0  ",
+          "Min.   :    1.0  ",
           "Length:71         "
         ],
         [
           "Error        :38  ",
-          "1st Qu.:   20.0  ",
+          "1st Qu.:   19.0  ",
           "Class :character  "
         ],
         [
           "Warning      :30  ",
-          "Median :  152.0  ",
+          "Median :  147.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  850.1  ",
+          "Mean   :  848.7  ",
           null
         ],
         [
@@ -1257,40 +1571,40 @@
       ],
       "Organization Summary": [
         [
-          "Length:1006       ",
+          "Length:999        ",
           "High Priority: 56  ",
-          "Min.   :   1.00  ",
-          "Length:1006       "
+          "Length:999        ",
+          "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
           "Error        :442  ",
-          "1st Qu.:   3.00  ",
-          "Class :character  "
+          "Class :character  ",
+          "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :508  ",
-          "Median :   9.00  ",
-          "Mode  :character  "
+          "Warning      :501  ",
+          "Mode  :character  ",
+          "Median :   9.00  "
         ],
         [
           null,
           null,
-          "Mean   :  59.99  ",
-          null
+          null,
+          "Mean   :  60.32  "
         ],
         [
           null,
           null,
-          "3rd Qu.:  26.00  ",
-          null
+          null,
+          "3rd Qu.:  26.00  "
         ],
         [
           null,
           null,
-          "Max.   :5367.00  ",
-          null
+          null,
+          "Max.   :5367.00  "
         ]
       ],
       "Guidance": [
@@ -1448,14 +1762,14 @@
       ],
       "Warnings": [
         [
-          "Length:46644      ",
-          "Length:46644      ",
-          "Length:46644      ",
-          "Length:46644      ",
-          "Length:46644      ",
-          "Length:46644      ",
-          "Length:46644      ",
-          "Length:46644      ",
+          "Length:46547      ",
+          "Length:46547      ",
+          "Length:46547      ",
+          "Length:46547      ",
+          "Length:46547      ",
+          "Length:46547      ",
+          "Length:46547      ",
+          "Length:46547      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1516,28 +1830,28 @@
       ],
       "Overlap Details": [
         [
-          "Length:867        ",
-          "Length:867        ",
-          "AO   :557  ",
-          "Length:867        ",
-          "Length:867        ",
-          "Length:867        ",
-          "Length:867        ",
-          "Length:867        ",
+          "Length:759        ",
+          "Length:759        ",
+          "AO   :462  ",
+          "Length:759        ",
+          "Length:759        ",
+          "Length:759        ",
+          "Length:759        ",
+          "Length:759        ",
           "Min.   :2013-12-11  ",
           "Min.   :2018-04-04  ",
           "Min.   :2020-03-20  ",
           "Min.   :2019-10-01  ",
           "Min.   :2019-09-25  ",
           "Min.   :2019-10-01  ",
-          "Length:867        ",
-          "Length:867        ",
-          "AO   :557  ",
-          "Length:867        ",
-          "Length:867        ",
-          "Length:867        ",
-          "Length:867        ",
-          "Length:867        ",
+          "Length:759        ",
+          "Length:759        ",
+          "AO   :470  ",
+          "Length:759        ",
+          "Length:759        ",
+          "Length:759        ",
+          "Length:759        ",
+          "Length:759        ",
           "Min.   :2012-03-22  ",
           "Min.   :2012-06-01  ",
           "Min.   :2019-10-04  ",
@@ -1547,29 +1861,29 @@
         [
           "Class :character  ",
           "Class :character  ",
-          "AC   :242  ",
+          "AC   :232  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-03-27  ",
-          "1st Qu.:2020-06-01  ",
-          "1st Qu.:2020-08-06  ",
-          "1st Qu.:2020-07-20  ",
+          "1st Qu.:2020-03-25  ",
+          "1st Qu.:2020-05-27  ",
+          "1st Qu.:2020-09-15  ",
+          "1st Qu.:2020-07-19  ",
           "1st Qu.:2020-09-07  ",
           "1st Qu.:2020-09-10  ",
           "Class :character  ",
           "Class :character  ",
-          "AC   :242  ",
+          "AC   :229  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-03-09  ",
-          "1st Qu.:2020-01-16  ",
-          "1st Qu.:2020-05-31  ",
+          "1st Qu.:2020-03-03  ",
+          "1st Qu.:2019-09-13  ",
+          "1st Qu.:2020-05-12  ",
           "1st Qu.:2020-10-15  ",
           "1st Qu.:2020-11-24  "
         ],
@@ -1582,10 +1896,10 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2020-12-17  ",
+          "Median :2020-12-07  ",
           "Median :2021-01-06  ",
           "Median :2021-02-24  ",
-          "Median :2021-04-04  ",
+          "Median :2021-03-26  ",
           "Median :2021-08-11  ",
           "Median :2021-08-15  ",
           "Mode  :character  ",
@@ -1596,9 +1910,9 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2020-11-11  ",
-          "Median :2020-10-28  ",
-          "Median :2021-02-02  ",
+          "Median :2020-11-13  ",
+          "Median :2020-10-23  ",
+          "Median :2021-01-23  ",
           "Median :2021-06-05  ",
           "Median :2021-08-01  "
         ],
@@ -1611,10 +1925,10 @@
           null,
           null,
           null,
-          "Mean   :2021-01-14  ",
-          "Mean   :2021-01-30  ",
+          "Mean   :2021-01-11  ",
+          "Mean   :2021-01-28  ",
           "Mean   :2021-05-24  ",
-          "Mean   :2021-04-13  ",
+          "Mean   :2021-04-01  ",
           "Mean   :2021-05-08  ",
           "Mean   :2021-06-08  ",
           null,
@@ -1625,37 +1939,37 @@
           null,
           null,
           null,
-          "Mean   :2020-11-21  ",
-          "Mean   :2020-09-19  ",
-          "Mean   :2021-02-22  ",
+          "Mean   :2020-11-18  ",
+          "Mean   :2020-07-13  ",
+          "Mean   :2021-02-17  ",
           "Mean   :2021-06-10  ",
           "Mean   :2021-07-19  "
         ],
         [
           null,
           null,
-          "AC-PY: 38  ",
+          "AC-PY: 35  ",
           null,
           null,
           null,
           null,
           null,
-          "3rd Qu.:2021-11-05  ",
           "3rd Qu.:2021-11-01  ",
-          "3rd Qu.:2022-05-30  ",
-          "3rd Qu.:2021-12-16  ",
+          "3rd Qu.:2021-11-01  ",
+          "3rd Qu.:2022-05-29  ",
+          "3rd Qu.:2021-12-10  ",
           "3rd Qu.:2022-01-10  ",
           "3rd Qu.:2022-02-06  ",
           null,
           null,
-          "AC-PY: 32  ",
+          "AC-PY: 29  ",
           null,
           null,
           null,
           null,
           null,
           "3rd Qu.:2021-08-30  ",
-          "3rd Qu.:2021-08-08  ",
+          "3rd Qu.:2021-04-30  ",
           "3rd Qu.:2021-11-15  ",
           "3rd Qu.:2022-06-10  ",
           "3rd Qu.:2022-06-27  "
@@ -1677,7 +1991,7 @@
           "Max.   :2022-09-30  ",
           null,
           null,
-          "AO-UY: 31  ",
+          "AO-UY: 29  ",
           null,
           null,
           null,
@@ -1699,24 +2013,24 @@
           null,
           null,
           null,
-          "NA's   :336  ",
-          "NA's   :805  ",
-          "NA's   :124  ",
-          "NA's   :814  ",
-          "NA's   :814  ",
-          null,
-          null,
-          "NA's :  3  ",
+          "NA's   :305  ",
+          "NA's   :728  ",
+          "NA's   :76  ",
+          "NA's   :706  ",
+          "NA's   :706  ",
           null,
           null,
           null,
           null,
           null,
-          "NA's   :3  ",
-          "NA's   :625  ",
-          "NA's   :57  ",
-          "NA's   :812  ",
-          "NA's   :812  "
+          null,
+          null,
+          null,
+          null,
+          "NA's   :594  ",
+          "NA's   :47  ",
+          "NA's   :704  ",
+          "NA's   :704  "
         ]
       ],
       "Referral Details": [
@@ -1792,6 +2106,32 @@
           null,
           "Max.   :1394.0  "
         ]
+      ]
+    },
+    "timelinessTable": {
+      "Time for Record Entry": [
+        "< 0 days",
+        "0 days",
+        "1-3 days",
+        "4-6 days",
+        "7-10 days",
+        "11+ days"
+      ],
+      "Number of Project Start Records": [
+        1,
+        18,
+        139,
+        58,
+        31,
+        84
+      ],
+      "Number of Project Exit Records": [
+        94,
+        9,
+        34,
+        20,
+        25,
+        143
       ]
     }
   }

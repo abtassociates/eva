@@ -3,18 +3,51 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "10-10-2025",
+    "11-26-2025",
+    "<b>Bug Fixes</b> <br>
+      - Allow Homelessness Prevention Only files to bypass System Performance portion of Eva; The System Performance Overview page will be hidden for these types of files.<br>
+      - Fixed \"No data\" validation statements for System DQ and Org DQ charts. Previous fix was causing an error to appear on data quality charts.<br>
+      - Allowed skipping of long_stayers DQ check when no data available<br>
+      - Added 0-row checks to System-level Project Dashboard report within DQ Export downloads<br>
+      - Changed logic used for displaying and enabling the DQ Export download button. It should now display and be clickable if any reports are available.",
+    "11-25-2025",
+    "<b>Bug Fixes</b> <br>
+      - Allowed skipping overlap DQ check if no overlap data is present<br>
+      - Removed additional symbols from DQ Export Org folder names, to reduce chance of unsuccessful downloads<br>
+      - Added checks for system-level DQ report downloads, so it does not attempt to download if no DQ data is present<br>
+      - Added screen notification if DQ Export download is attempted but 0 valid reports can be generated<br>
+      - Add validate statements to show \"No data\" for Project Dashboard, System DQ, and Organization DQ tabs, when 0 rows of data are found.",
+    "11-24-2025",
+    "<b>Bug Fixes</b> <br>
+      - Modify DQ code to skip long_stayers dataset if DaysSinceLastKnown field is not available.<br>
+      - Added logging to 05_Data_Quality.R for additional DQ troubleshooting ",
+    "11-21-2025",
+    "<b>Bug Fixes</b> <br>
+      - Added temporary bug fix for overlap DQ check when data without overlaps is uploaded",
+    "11-20-2025",
+    "<b>Bug Fixes</b> <br>
+      - Fixed handling of null rows in Participation datasets for overlaps. (Issue <a href='https://github.com/abtassociates/eva/issues/880' target='_blank'>#880</a>).<br>
+      - Standardized DQ Export Download file names using underscores when special characters are present (Issue <a href='https://github.com/abtassociates/eva/issues/890' target='_blank'>#890</a>).<br>",
+    "11-13-2025",
     "<b>New Features</b><br>
-      - New Month-by-Month System Flow visualization<br>
+      - Month-by-Month System Flow visualization<br>
+      - Data quality export interface which allows multi-org DQ exports<br>
+      - Data quality timeliness features<br>
+      - 4 PDDE checks (IDs 35, 36, 37, 106) and 2 DQ checks (IDs 107, 108)<br>
       - Major UI update, due to upgrade to bootstrap5<br>
       - Performance improvements<br>
+      - Fixes to System Inflow and Outflow logic<br>
     <b>Bug Fixes</b> <br>
       - Fixed underreporting of DQ checks for enrollments outside project operation/participation.<br>
       - Convert columns to numeric if they are expected to be numeric but coming in as character, and there are no non-numeric values (Issue <a href='https://github.com/abtassociates/eva/issues/776' target='_blank'>#776</a>).<br>
+      - Fixed DQ Check #41 (Incomplete Living Situation) to include temporary and other living situations when analyzing field 3.917B.2B (Issue <a href='https://github.com/abtassociates/eva/issues/803' target='_blank'>#803</a>).<br>
     <b>Miscellaneous</b> <br>
+      - Renamed Client Counts page to Project Dashboard. <br>
       - Updated System Overview instruction text. <br>
-      - Streamlined System Flow export. <br>
-      - Fix typo is glossay (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
+      - Updated System Performance chart colors. <br>
+      - Updated System Performance exports. <br>
+      - Updated Glossary to include new entries related to Month-by-Month chart. <br>
+      - Fixed typo in Glossary (Issue <a href='https://github.com/abtassociates/eva/issues/802' target='_blank'>#802</a>).",
     "09-29-2025",
     "<b>FY26 Data Standards</b> <br>
     - Updated Eva to be compliant with FY26 HMIS Data Standards",

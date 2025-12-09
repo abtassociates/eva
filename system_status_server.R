@@ -56,7 +56,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     data = plot_data,
     aes(axis1 = Begin, axis2 = End, y = freq)
   ) +
-    geom_alluvium(aes(fill = End, colour = End), reverse = TRUE, alpha = 0.8) +
+    geom_alluvium(aes(fill = End, colour = End), alpha = 0.8) +
     geom_stratum(aes(fill = End)) +
     
     # construct the Begin bars
@@ -68,6 +68,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
         ymin = ystart,
         ymax = yend
       ),
+      linewidth = 0.5,
       colour ='black'
     ) +
     
@@ -163,8 +164,8 @@ sys_status_export_info <- function(spd) {
     ),
     Value = as.character(c(
       sum(spd$freq),
-      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Homeless", "Inactive"), "freq"]),
-      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Housed"), "freq"])
+      sum(spd[spd$End %in% c("Exited, Permanent", "Enrolled, Housed"), "freq"]),
+      sum(spd[spd$End %in% c("Exited, Non-Permanent", "Enrolled, Homeless", "Inactive"), "freq"])
     ))
   )
 }
@@ -252,31 +253,20 @@ get_sankey_data <- reactive({
     condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
   )
   
-  req(nrow(plot_df) > 0)
+  validate(
+    need(
+      nrow(plot_df) > 0,
+      message = no_data_msg
+    )
+  )
 
-  allu <- plot_df %>%
-    count(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>%
-    mutate(
-      Begin = factor(Begin, levels = rev(active_at_levels)), # Or c("Housed", "Homeless") depending on desired order
-      
-      End = str_remove(End, "\n"), # Remove newlines
-      End = ifelse( # Prepend "Enrolled, " for specific values
-        End %in% active_at_levels,
-        paste0("Enrolled, ", End),
-        End
-      ),
-      
-      End = factor(
-        End,
-        levels = c(
-          "Exited, Non-Permanent",
-          "Enrolled, Homeless",
-          "Inactive",
-          "Exited, Permanent",
-          "Enrolled, Housed"
-        )
-      )
+  plot_df %>%
+    fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 
+    fmutate(
+      Begin = fct_drop(Begin, inflow_detail_levels),
+      Begin = fct_relevel(Begin, "Homeless", after = 0),
+      End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
+      End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
     )
   
-  allu
 })

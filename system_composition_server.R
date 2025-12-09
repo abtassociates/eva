@@ -121,6 +121,13 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
   )
 }
 
+suppress_values <- function(.data, count_var) {
+  return(mutate(
+    .data,
+    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA_integer_, !!sym(count_var))
+  ))
+}
+
 sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   var_cols <- get_var_cols(methodology_type)
@@ -473,13 +480,22 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
-  full_data <- period_specific_data()[["Full"]]
+  full_data <- enrollments_filtered() %>%
+    join(session$userData$lh_info %>% fselect(EnrollmentID, lh_date), on="EnrollmentID", multiple = TRUE) %>%
+    fsubset(ExitAdjust >= session$userData$ReportStart & (
+      ProjectType %in% c(ph_project_types, lh_project_types_nonbn) | # defintiionally active the whole time
+      EntryDate + days_lh_valid >= session$userData$ReportStart | # (active) entry in period
+      (!Destination %in% other_livingsituation & !is.na(Destination)) |  # active exit
+      lh_date >= session$userData$ReportStart | lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
+    )) %>%
+    fselect(PersonalID) %>%
+    funique()
+
   req(nrow(full_data) > 0)
   
   join(
-    period_specific_data()[["Full"]] %>% fselect(PersonalID),
+    full_data,
     session$userData$client_categories,
     on = "PersonalID"
-  ) %>%
-    funique()
+  )
 })

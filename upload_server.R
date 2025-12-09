@@ -69,9 +69,16 @@ process_upload <- function(upload_filename, upload_filepath) {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       if(IN_DEV_MODE) browser()
     }
+    ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
+    if(all(EnrollmentAdjust$ProjectType == 12)){
+      logToConsole(session, "Only HP enrollments found - skipping System Performance")
+      nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
+    } else {
+      nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
+      setProgress(detail = "Preparing System Overview Data", value = .85)
+      source("07_system_overview.R", local = TRUE)
+    }
     
-    setProgress(detail = "Preparing System Overview Data", value = .85)
-    source("07_system_overview.R", local = TRUE)
     
     setProgress(detail = "Done!", value = 1)
     
@@ -150,12 +157,33 @@ process_upload <- function(upload_filename, upload_filepath) {
                         inputId = "orgList",
                         choices = c(unique(sort(Organization$OrganizationName))))
       
+      updatePickerInput(session = session,
+                        inputId = 'dq_export_orgList',
+                        choices = sort(unique(Organization$OrganizationName)),
+                        options = pickerOptions(
+                          selectedTextFormat = paste("count >", length(unique(Organization$OrganizationName))-1),
+                        ), selected = sort(unique(Organization$OrganizationName)))
+      
       updateDateRangeInput(session = session,
                            inputId = "dateRangeCount",
                            min = session$userData$meta_HUDCSV_Export_Start,
                            start = session$userData$meta_HUDCSV_Export_Start,
                            max = session$userData$meta_HUDCSV_Export_End,
                            end = session$userData$meta_HUDCSV_Export_End)
+      
+      updateDateRangeInput(session = session,
+                           inputId = "dq_export_date_multiple",
+                           min = session$userData$meta_HUDCSV_Export_Start,
+                           start = session$userData$meta_HUDCSV_Export_Start,
+                           max = session$userData$meta_HUDCSV_Export_End,
+                           end = session$userData$meta_HUDCSV_Export_End)
+      
+      updateDateInput(session = session,
+                           inputId = "dq_export_date_single",
+                           min = session$userData$meta_HUDCSV_Export_Start,
+                           max = session$userData$meta_HUDCSV_Export_End,
+                           value = session$userData$meta_HUDCSV_Export_End)
+      
     }
     
     toggle_sys_components(prefix='sys', session$userData$valid_file() == 1)

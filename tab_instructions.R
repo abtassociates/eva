@@ -309,15 +309,16 @@ tabLocalSettings_long_stayers <-  HTML("
 )
 
 tabClientCount_instructions <- HTML("
-               <h4>Client Counts Report</h4>
-               <p>The Client Counts Report provides the number of households/clients
-               who have been served in each project and their enrollment status
-               at the time of CSV Export generation. This report can be used to
-               verify that a project is up to date on their HMIS data entry by
-               comparing counts reported with the number of households/clients
-               that are known to be served in each project. Permanent housing
-               projects can check that the number of households/clients who have
-               not yet moved into housing is correct.</p>
+               <h4>Project Dashboard Report</h4>
+               <p>The Project Dashboard Report provides the number of households/clients 
+                who have been served in each project and their enrollment status at the 
+                time of CSV Export generation. This report can be used to verify that a project is up to date 
+                on their HMIS data entry by comparing counts reported with the number of households/clients that 
+                are known to be served in each project. Permanent housing projects can check that the number of 
+                households/clients who have not yet moved into housing is correct. The report also contains 
+                record entry timeliness metrics that show how long it takes for a project to enter Project 
+                Start and Project Exit records into HMIS. Certain project types will also see timeliness 
+                metrics for Current Living Situation (CLS) and Bed Night service records.</p>
                
                <h4>Inputs</h4>
                <p>Select a project from the drop list and adjust the the Date
@@ -328,10 +329,14 @@ tabClientCount_instructions <- HTML("
                number of households/clients who exited during that timeframe
                with and without a Move-In Date. Note that setting the Start Date
                to the Export End Date will show the current status for all
-               enrollments for the project.</p>
+               enrollments for the project. Timeliness metrics only include enrollment data entered within 
+              the specified date range. Additionally, while on the Timeliness panel, 
+              users can adjust the value in the \'Timeliness: Max Record Entry Days\' box to 
+              see the percentage of all records entered within a specific number 
+              of days for a project.</p>
                
-               <h4>Summary</h4>
-               <p>The Summary panel provides a count of households/clients who
+               <h4>Client Counts Summary</h4>
+               <p>The Summary tab of the Client Counts panel provides a count of households/clients who
                have statuses of the following within the selected project:
                <ul>
                <li>Active No Move-In Date</li>
@@ -343,7 +348,7 @@ tabClientCount_instructions <- HTML("
                </ul>
                
                <h4>Client Counts Detail</h4>
-               <p>In this panel you will see the Personal ID, Relationship to HoH,
+               <p>The Detail tab of the Client Counts panel you will see the Personal ID, Relationship to HoH,
                Entry Date, Move-In Date, Exit Date, and the Status for each client
                served by the selected project within the Date Range selected. The
                rows are ordered by Entry Date (oldest on top), Household ID (not
@@ -352,15 +357,27 @@ tabClientCount_instructions <- HTML("
                together. All columns are searchable. For example, to find all
                enrollments with a Status of \'Active No Move-In Date\', you can
                type \'act\' in the Status search bar and the data table will
-               react and filter in that way.
+               react and filter in that way.</p>
+
+              <h4>Timeliness Record Entry</h4>
+               <p>The Record Entry tab of the Timeliness panel provides counts of different 
+              record types for a project along with timeliness metrics. Time for Record Entry 
+              is calculated by comapring a record's Created Date against the:
+               <ul>
+               <li>Entry Date for Project Start records</li>
+               <li>Exit Date for Project Exit records</li>
+               <li>Information Date for Current Living Situation records</li>
+               <li>Date Provided for Bed Night service records</li>
+               </ul>
                
-               <h4>Download System-wide Client Counts</h4>
-               To download client count data for all projects in your HMIS CSV Export, 
+               <h4>Download System-wide Project Dashboard Report</h4>
+               <p>To download client count data for all projects in your HMIS CSV Export, 
                click the System-wide download button. The download contains a Current 
                tab limited to just the current date, a Date Range tab limited to the 
                Date Range set, and a Detail tab with clients' PersonalIDs, Entry Date, 
                Move-In Date (if applicable), Exit Date (if applicable), and
-               project status.")
+               project status. There are also separate Timeliness tabs for metrics on 
+              Project Start, Project Exit, CLS records, and Bed Night service records data entry.</p>")
 
 tabPDDE_instructions <-   HTML("
                <h4>Project Descriptor Data Element (PDDE) Check Summary</h4>
@@ -546,7 +563,8 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                 <br>
                                 <h4>Summary and Detail Charts</h4>
                                 <p>The Summary and Detail Charts show the total number of clients active in the system at the start and end of the period and whether they are homeless at that time or housed (and still receiving assistance). The Summary Chart shows the inflow and outflow of clients that occurred throughout the period. The Detail Chart breaks down inflow and outflow into several categories. </p>
-                                
+
+                                <br>
                                 <ul>
                                   <li><b>Inflow</b> is categorized into three groups: 
                                   \"First-Time Homeless,\" \"Returned from Permanent,\" and 
@@ -555,30 +573,35 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                   \"Exited, Non-Permanent,\" \"Exited, Permanent,\" and \"Inactive.\"</li>
                                 </ul>
                                 
-                                <p>In the Summary and Detail Charts, the Total Change value: </p><br>
+                                <p>In the Summary and Detail Charts, the Total Change value is the Outflow value(s) minus Inflow value(s) and is represented by: </p><br>
                                 <pre><code>Total Change = Inflow value(s) - Outflow value(s)</code></pre><br>
 
-                                <p>represents the Outflow value(s) minus Inflow value(s). A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
+                                <p>A negative Total Change value means more clients left your system than flowed into your system. A positive Total Change value means more clients flowed into your system than left your system.</p>
                                 <br>
                                 <h4>Month-by-Month Chart</h4>
                                 <p>The Month-by-Month Chart, which includes a stacked bar chart and a data table, shows Inflow and Outflow counts by month over a 12-month period. The stacked bar chart visually compares, by month, the total count of people that enter the homeless system <b>(Inflow)</b> or are continuingly experiencing homelessness in the system <b>(Active at Start: Homeless)</b> with the total count of people that exited the system <b>(Outflow)</b> or are permanently housed within the system <b>(Active at End: Housed)</b> all within that given month.</p>
-                                
-                                <p>The actual counts of each category in a given month are listed in a table below the chart, including the Monthly Change value. The <b>Monthly Change</b> value:</p>
+
+                                <br>
+                                <p>Note that a client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March. The actual counts of each category in a given month are listed in a table below the chart, including the <b>Monthly Change</b> value which is represented by:</p>
                                 <br>
                                 <pre><code>Monthly Change = Inflow (for a given month) - Outflow (for a given month)</code></pre>
                                 <br>
                                 <p>A negative Monthly Change value means more clients left your system than flowed into your system during a given month. A positive Monthly Change value means more clients flowed into your system than left your system during a given month. The months that have the most inflow and the most outflow are colored in the table.</p>
-                                
+
+                                <br>
                                 <p>The <b>Average Monthly Change, Average Monthly Inflow, and Average Monthly Outflow</b> values have the same underlying calculation represented by:</p>
                                 <br>
                                 <pre><code>Average Monthly [Value] = (Month Value 1 + Month Value 2 + ...) / 12</code></pre>
                                 <br>
                                 <p>A negative Average Monthly Change value means, on average, more clients left your system than flowed into your system each month. A positive Average Monthly Change value means, on average, more clients flowed into your system than left your system each month. </p>
                                 <br>
-                                <p>Note: A client may be counted more than once in the Month-by-Month Chart. For example, a client who outflows in January and inflows again two months later in March would be counted in both January and March.</p>
+                                <p>The Month-by-Month Chart also has three Flow Type Filters for viewing monthly \"First-Time Homeless\" and \"Inactive\" client counts.</p>
                                 <br>
-                                <p>The Month-by-Month Chart also has Flow Type Filters for viewing \"First-Time Homeless\" and \"Inactive\" client counts. The default Flow Type Filter is \"All\" which shows the Inflow, Outflow, and baseline numbers together.</p>
-                                <br>
+                                <ul>
+                                  <li> The <b>\"All\" filter view</b> shows the Active at Start: Homeless, Inflow, Outflow, and Active at End: Housed numbers together. This is the chart's default Flow Type Filter.</li>
+                                  <li> The <b>\"First-Time Homeless\" filter view</b> shows the monthly counts of clients with this Inflow status. You can use this view to see when \"First-Time Homeless\" clients are flowing into your system.</li>
+                                  <li> The <b>\"Inactive\" filter view</b> shows the monthly counts of clients with this Outflow status. You can use this view to see when clients are becoming inactive in your system.</li>
+                                </ul>
                                 
                                 <h4>Interpretation Tips</h4>
                                 <p>This section provides general tips on how to 
@@ -919,6 +942,44 @@ tabSystemExits_instructions <- HTML("<h2>Placeholder for Instructions</h2>")
 tab_syse_types_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
 tab_syse_compare_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
 tab_syse_phd_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
+
+tabDQExport_instructions <- HTML("<h4>Data Quality Export Interface</h4>
+                                 <p>The Data Quality Export Interface provides a centralized location to download all data quality reports generated by Eva, eliminating the need to visit individual pages. Data quality reports available for export include those from the Project Dashboard, Project Descriptor Data, System-level Data Quality, and Organization-level Data Quality pages. These reports help verify the accuracy, completeness, and timeliness of HMIS data entry across projects and organizations. 
+                                 On this page, users can customize their export by selecting the scope (organization-level or system-level), choosing specific reports to download, and applying date filters where applicable. </p>
+                                 <h5>Select Dates for Project Dashboard Report</h5> 
+                                 <p>You can specify a date range or a single date for the cohort of clients you want to see in the Project Dasboard Report. Client counts and timeliness metrics seen in the Project Dashboard Report are impacted based on the date selection. All other Data Quality reports will use the full date range of the HMIS CSV Export.</p>
+                                 <ul>
+                                  <li>Date Range: Shows the status of project enrollments within the specified date range and includes timeliness metrics for enrollment data entered during the date range.</li>
+                                  <li>Single Date: Shows the status of project enrollments as of the specified date and includes timeliness metrics for enrollment data entered on the specified date.</li>
+                                 </ul>
+                                 <p>Use this option to review project status or timeliness metrics for a defined period rather than the entire export. </p>
+                                 
+                                 <h5>Select Export Type </h5>
+                                 <p>Choose whether to generate reports at the organization level, the system level, or both: </p>
+                                 <ul>
+                                  <li>Organization-level: Select one or more organizations to view data quality metrics specific to those entities. </li>
+                                  <li>System-level: Includes all projects in the HMIS CSV Export for a comprehensive view. </li>
+                                 </ul>
+                                 <p>This flexibility allows users to analyze data quality for individual organizations or across the entire system. </p>
+                                 
+                                 <h5>Select Data Quality Exports</h5> 
+                                 <p>Users can select one or more of the following reports: </p>
+                                 <ul>
+                                  <li>Project Dashboard Report: Provides client counts, enrollment statuses, and timeliness metrics for selected projects. </li>
+                                  <li>PDDE Report: Displays data quality checks related to project descriptor data elements. </li>
+                                  <li>Data Quality Report: Summarizes missing or invalid data elements across client records. </li>
+                                 </ul>
+                                 <p>Selecting All Data Quality Reports will include all available report types in the export. </p>
+                                 
+                                 <h5>Download Reports</h5>
+                                 <p>After setting your export parameters, click the “Download” button to export the chosen reports. Selected reports will be delivered in a .zip file. Depending on the selected export types, the .zip file may contain: 
+                                 <ul>
+                                  <li>A folder for each selected organization with organization-level data quality reports </li>
+                                  <li>A system-level folder with system-wide data quality reports </li>
+                                 </ul>
+                                 <p>The reports are in Excel format for easy review and analysis. You can send an organization folder to authorized HMIS users at that organization so they can work on correcting their data. 
+                                 
+                                 Note that protected personal information (PPI), such as Personal ID in combination with other data elements, is contained in the Project Dashboard and Data Quality Reports. Users must follow all applicable HMIS privacy and security policies when storing, transmitting, and disclosing files with client records. </p>")
 
 tabGlossary_instructions <- HTML("
                <p>This glossary provides definitions for the terms used throughout 

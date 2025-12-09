@@ -169,6 +169,19 @@ to group All + Grouped Race selections*/
   margin: 0 auto;
 }
 
+#dateRangeCount > div, #dateRangeCount > div > span > span {
+  height: 3rem;
+}
+
+#timeliness_metric {
+  height: 3rem;
+  max-width:220px;
+}
+
+#timeliness_metric-label {
+  min-width: 220px;
+}
+
 /* MbM*/
 /*reduce horizontal padding to better align datatable with chart*/
 #sys_inflow_outflow_monthly_table  table.dataTable tbody td {
@@ -237,6 +250,16 @@ to group All + Grouped Race selections*/
 
 #modal_demo_tour .modal-footer {
  padding: 0.5rem;
+}
+
+.treejs .treejs-node__checked > .treejs-checkbox:before {
+  background-color: #16697A !important;
+  border-color: #16697A !important;
+}
+
+.treejs .treejs-node__halfchecked > .treejs-checkbox:before {
+  background-color: #16697A !important;
+  border-color: #16697A !important;
 }
 
 /*Hide "Eva has crashed..." pop-up when timeout occurs*/
