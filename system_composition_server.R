@@ -121,13 +121,6 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
   )
 }
 
-suppress_values <- function(.data, count_var) {
-  return(mutate(
-    .data,
-    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA_integer_, !!sym(count_var))
-  ))
-}
-
 sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   var_cols <- get_var_cols(methodology_type)
