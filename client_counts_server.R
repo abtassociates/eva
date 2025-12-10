@@ -160,22 +160,32 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
-    validationFullExportRange <- 
+    pivot_att <- tryCatch(
       pivot_and_sum(
         validationDF, isDateRange = TRUE
-      ) %>%
-      fmutate(
-        "Exited Project" = fifelse(
-          ProjectType %in% ph_project_types, 
-          rowSums(
-            fselect(., `Exited with Move-In`, `Exited No Move-In`),
-            na.rm = TRUE
-          ),
-          `Exited Project`
-        )
-      ) %>%
-      fselect(-ProjectType) %>%
-      roworder(OrganizationName, ProjectName)
+      ), 
+      error = function(e){e}
+    )
+    
+    if(inherits(pivot_att, 'simpleError')){
+      logToConsole('Project Dashboard error: pivot for validationFullExportRange has no rows of data to use.')
+      validationFullExportRange <- NULL
+    } else {
+      validationFullExportRange <- pivot_att %>%
+        fmutate(
+          "Exited Project" = fifelse(
+            ProjectType %in% ph_project_types, 
+            rowSums(
+              fselect(., `Exited with Move-In`, `Exited No Move-In`),
+              na.rm = TRUE
+            ),
+            `Exited Project`
+          )
+        ) %>%
+        fselect(-ProjectType) %>%
+        roworder(OrganizationName, ProjectName)
+    }
+    
   } else {
     validationFullExportRange <- NULL
   }
@@ -183,14 +193,23 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
-    validationDateRange <- 
+    pivot_att <- tryCatch(
       pivot_and_sum(
         validationDF %>%
           fsubset(EntryDate <= input$dateRangeCount[2] &
                     (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
-      ) %>%
-      fselect(-ProjectType) %>%
-      roworder(OrganizationName, ProjectName)
+      ), error = function(e){e}
+    )
+    
+    if(inherits(pivot_att, 'simpleError')){
+      logToConsole('Project Dashboard error: pivot for validationDateRange has no rows of data to use.')
+      validationDateRange <- NULL
+    } else {
+      validationDateRange <- pivot_att %>%
+        fselect(-ProjectType) %>%
+        roworder(OrganizationName, ProjectName)
+    }
+   
   } else {
     validationDateRange <- NULL
   }
