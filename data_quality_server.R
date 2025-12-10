@@ -847,9 +847,10 @@ output$dq_export_download_btn <- downloadHandler(
         )
         
         orgs_to_save <- input$dq_export_orgList
-        logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
+        logMetadata(session, paste0("Attempting to Download Org-Level Data Quality Reports for ",
                                     length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        dq_counter <- 0
         
         for(i in orgs_to_save){
           
@@ -857,8 +858,11 @@ output$dq_export_download_btn <- downloadHandler(
           progress$inc(amount = 1 / length(orgs_to_save),
                        detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))          
          
-          if(length(dq_export_list) <= 1) next
-          
+          if(length(dq_export_list) <= 1) {
+            next
+          } else {
+            dq_counter <- dq_counter + 1 
+          }
           org_name_std <- standardize_org_name(i)
           
           path_prefix <- file.path(tempdir(), org_name_std)
@@ -874,7 +878,9 @@ output$dq_export_download_btn <- downloadHandler(
           zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
           
         }
-    
+        logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
+                                    dq_counter,' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       }
       
       if("PDDE Report" %in% input$dq_export_files){
@@ -888,9 +894,10 @@ output$dq_export_download_btn <- downloadHandler(
         )
         
         orgs_to_save <- input$dq_export_orgList
-        logMetadata(session, paste0("Downloaded Org-Level PDDE Reports for ",
+        logMetadata(session, paste0("Attempting to Download Org-Level PDDE Reports for ",
                                     length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        pdde_counter <- 0
         for(i in orgs_to_save){
           
           progress$inc(amount = 1 / length(orgs_to_save),
@@ -903,7 +910,11 @@ output$dq_export_download_btn <- downloadHandler(
             fungroup() %>% 
             roworder(Type, Issue)
           
-          if(nrow(summary_df) == 0) next
+          if(nrow(summary_df) == 0){
+            next
+          } else {
+            pdde_counter <- pdde_counter + 1
+          }
           org_name_std <- standardize_org_name(i)
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
@@ -928,6 +939,9 @@ output$dq_export_download_btn <- downloadHandler(
           zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
          
         }  
+        logMetadata(session, paste0("Downloaded Org-Level PDDE Reports for ",
+                                    pdde_counter,' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         
       }
       
@@ -936,22 +950,24 @@ output$dq_export_download_btn <- downloadHandler(
         
         progress$set(
           value = 0, 
-          message = "Org-Level Project Dashboard Reports",
+          message = "Org-level Project Dashboard Reports",
           detail = NULL
         )
         
         orgs_to_save <- input$dq_export_orgList
         if(input$dq_export_date_options == 'Date Range'){
-          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for ",
+          logMetadata(session, paste0("Attempting to Download Org-Level Project Dashboard Reports for ",
                                       length(orgs_to_save), ' Organizations',
                                       " with Date Range = [",paste0(input$dq_export_date_multiple, collapse=', '),']',
                                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         } else {
-          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for - ",
+          logMetadata(session, paste0("Attempting to Download Org-Level Project Dashboard Reports for - ",
                                       length(orgs_to_save), ' Organizations',
                                       " with End Date = ",dq_export_date_range_end(),
                                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         }
+        
+        proj_dash_counter <- 0
         
         for(i in orgs_to_save){
           
@@ -961,7 +977,11 @@ output$dq_export_download_btn <- downloadHandler(
           validationDF <- client_count_data_df() %>% 
             fsubset(OrganizationName == i)
           
-          if(nrow(validationDF) == 0) next
+          if(nrow(validationDF) == 0) {
+            next
+          } else {
+            proj_dash_counter <- proj_dash_counter + 1
+          }
           org_name_std <- standardize_org_name(i)
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
@@ -975,13 +995,29 @@ output$dq_export_download_btn <- downloadHandler(
           
           
         }
-        
+        if(input$dq_export_date_options == 'Date Range'){
+          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for ",
+                                      proj_dash_counter, ' Organizations',
+                                      " with Date Range = [",paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        } else {
+          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for - ",
+                                      proj_dash_counter, ' Organizations',
+                                      " with End Date = ",dq_export_date_range_end(),
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
       }
      
     }
     
     ## system-level downloads
     if ('System-level' %in% input$dq_export_export_types){
+      
+      progress$set(
+        value = 0, 
+        message = "System-level Data Quality Reports",
+        detail = NULL
+      )
       
       path_prefix <- file.path(tempdir(), 'System-level')
       zip_prefix <- 'System-level/'
@@ -991,6 +1027,9 @@ output$dq_export_download_btn <- downloadHandler(
       
       if("Project Dashboard Report" %in% input$dq_export_files){
         req(session$userData$valid_file() == 1)
+        
+        progress$set(value = 1/3,
+                     detail = 'Project Dashboard Report')
         
         proj_dash_filename <- date_stamped_filename('System-level Project Dashboard Report-')
         if(fnrow(client_count_data_df()) > 0){
@@ -1015,6 +1054,9 @@ output$dq_export_download_btn <- downloadHandler(
       if("PDDE Report" %in% input$dq_export_files){
         
         req(session$userData$valid_file() == 1)
+        
+        progress$set(value = 2 / 3,
+                     detail = 'PDDE Report')
         
         pdde_filename <- date_stamped_filename("System-level PDDE Report-")
         
@@ -1049,6 +1091,9 @@ output$dq_export_download_btn <- downloadHandler(
             nrow(session$userData$outstanding_referrals) > 0
         )
        
+        progress$set(value = 3/3,
+                     detail = 'Data Quality Report')
+        
         dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
         if(length(dqDownloadInfo()$systemDQData) > 1) {
           write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
@@ -1062,7 +1107,7 @@ output$dq_export_download_btn <- downloadHandler(
     }
     
     logToConsole(session, paste0('valid DQ Export files: ', length(zip_files)))  
-    progress$close()
+    
     if(length(zip_files) > 0){
       return(
         zip::zip(file, files = zip_files, root = tempdir())
