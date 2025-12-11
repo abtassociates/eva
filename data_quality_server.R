@@ -970,19 +970,22 @@ output$dq_export_download_btn <- downloadHandler(
         proj_dash_counter <- 0
         
         for(i in orgs_to_save){
-          
+          logToConsole(session, paste0("Checking Org #",which(orgs_to_save == i),", Orgname: ", i))
           progress$inc(amount = 1 / length(orgs_to_save),
                        detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
           
           validationDF <- client_count_data_df() %>% 
             fsubset(OrganizationName == i)
           
-          if(nrow(validationDF) == 0) {
+          if(is.null(validationDF) | nrow(validationDF) == 0) {
+            logToConsole(session, paste0("Skipping report for Org #",which(orgs_to_save == i),", Orgname: ", i))
             next
           } else {
             proj_dash_counter <- proj_dash_counter + 1
           }
           org_name_std <- standardize_org_name(i)
+          logToConsole(session, paste0("standardized org name: ", org_name_std))
+          
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
           if(!dir.exists(path_prefix)){
