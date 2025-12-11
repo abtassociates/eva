@@ -156,6 +156,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
+  logToConsole(session, "after defining validationDF")
   
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
@@ -187,8 +188,11 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     }
     
   } else {
+    logToConsole(session, "validationDF is NULL or has 0 rows. validationFullExportRange set to NULL.")
+    
     validationFullExportRange <- NULL
   }
+  logToConsole(session, "after defining validationFullExportRange")
   
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
@@ -211,10 +215,12 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     }
    
   } else {
+    logToConsole(session, "validationDF is NULL or has 0 rows. validationDateRange set to NULL.")
+    
     validationDateRange <- NULL
   }
+  logToConsole(session, "after defining validationDateRange")
   
-
   ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
     fmutate(
@@ -226,6 +232,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     ) %>%
     fselect(c(keepCols, clientCountDetailCols)) %>%
     roworder(OrganizationName, ProjectName, EntryDate)
+  logToConsole(session, "after defining validationDetail")
   
   validationStart <- tl_df_project_start() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
@@ -233,6 +240,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'start')
+  logToConsole(session, "after defining validationStart")
   
   validationExit <- tl_df_project_exit() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
@@ -240,7 +248,8 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'exit')
- 
+  logToConsole(session, "after defining validationExit")
+  
   if(!is.null(tl_df_cls())){
     validationCLS <- tl_df_cls() %>% 
       fsubset(OrganizationName %in% orgList) %>% 
@@ -251,6 +260,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationCLS <- NULL
   }
+  logToConsole(session, "after defining validationCLS")
   
   if(!is.null(tl_df_nbn())){
     validationNbN <- tl_df_nbn() %>% 
@@ -262,7 +272,8 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationNbN <- NULL
   }
- 
+  logToConsole(session, "after defining validationNbN")
+  
   
   exportDFList <- list(
     Metadata = client_counts_metadata,
@@ -281,6 +292,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     "validation - Timeliness Start",
     "validation - Timeliness Exit"
   )
+  logToConsole(session, "after defining exportDFList")
   
   exportTestValues(
     client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
@@ -299,7 +311,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   exportTestValues(
     client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
-  
+
   if(!is.null(validationCLS)){
     exportDFList[[length(exportDFList) + 1]] <- validationCLS
     names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CLS"
@@ -315,6 +327,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
       client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
     )
   }
+  logToConsole(session, "before writing xlsx")
   
   write_xlsx(exportDFList,
              path = file)
