@@ -740,8 +740,8 @@ syse_subpop_export <- reactive({
              total_count = count_subpop + count_comparison,
              pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
              pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
-      fselect(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Comparison Group %' = pct_comparison, 
-             'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Comparison Group Count' = count_comparison, 'Total Count' = total_count)
+      fselect(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Everyone Else %' = pct_comparison, 
+             'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Everyone Else Count' = count_comparison, 'Total Count' = total_count)
 })
 
 everyone_else <- reactive({
@@ -794,7 +794,7 @@ get_syse_compare_subpop_data <- reactive({
   )
   
   data.table(
-    subpop_summ = c("Subpopulation","Comparison Group","Percent Difference"),
+    subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
   round(
     rowbind(
       pct_subpop,
@@ -915,7 +915,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   
   subgroup_colors <- c(
    "Subpopulation" = "#D5BFE6",
-   "Comparison Group" = "#9E958F"
+   "Everyone Else" = "#9E958F"
   )
   
   ## use adjusted locations for point placement 
@@ -981,7 +981,7 @@ get_syse_compare_subpop_table <- function(tab){
   
   subgroup_colors <- c(
     "Subpopulation" = "#D5BFE6",
-    "Comparison Group" = "#9E958F"
+    "Everyone Else" = "#9E958F"
   )
   
   datatable(tab, 
@@ -1002,7 +1002,7 @@ get_syse_compare_subpop_table <- function(tab){
   rownames = FALSE) %>% DT::formatPercentage(
     columns = -1 
   ) %>% 
-    # Highlight only the first column of "Subpopulation" and "Comparison Group" rows
+    # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
     formatStyle(
       columns = 1,  # First column
       target = "cell",
@@ -1066,7 +1066,7 @@ get_syse_compare_subpop_flextable <- function(tab) {
   # Formatting the subpopulation row labels
   subgroup_colors <- c(
     "Subpopulation" = "#D5BFE6",
-    "Comparison Group" = "#9E958F"
+    "Everyone Else" = "#9E958F"
   )
   
   ft <- ft %>%
@@ -1336,7 +1336,7 @@ output$syse_compare_download_btn <- downloadHandler(filename = date_stamped_file
         "SystemExitsSubpopMetadata" = sys_export_summary_initial_df(type = 'exits') %>%
           rowbind(
             sys_export_filter_selections(type = 'exits_subpop'),
-            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Comparison Group'),
+            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
                        Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
             )
           ) %>% 
