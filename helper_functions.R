@@ -495,8 +495,11 @@ reset_postvalid_components <- function(session) {
   shinyjs::hide("syse_types_download_btn")
   shinyjs::hide("syse_types_download_btn_ppt")
   
-  shinyjs::hide("syse_compare_download_btn")
-  shinyjs::hide("syse_compare_download_btn_ppt")
+  shinyjs::hide("syse_time_download_btn")
+  shinyjs::hide("syse_time_download_btn_ppt")
+  
+  shinyjs::hide("syse_subpop_download_btn")
+  shinyjs::hide("syse_subpop_download_btn_ppt")
   
   shinyjs::hide("syse_phd_download_btn")
   shinyjs::hide("syse_phd_download_btn_ppt")

@@ -209,7 +209,8 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                  ),
                  'syse' = c(
                    "System Exit Types" = "types",
-                   "System Exit Comparisons" = "compare",
+                   "Exits by Year" = "time",
+                   "Exits by Subpopulation" = "subpop",
                    "Permanent Housing Demographics" = "phd"
                  )
   )
