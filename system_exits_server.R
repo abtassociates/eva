@@ -1,11 +1,27 @@
 
+
+output$syse_compare_subpop_filter_selections <-renderUI({ 
+  req(session$userData$valid_file() == 1)
+  
+  sys_detailBox(
+    detail_type = 'subpop',
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+  )
+})
+
 #### DISPLAY FILTER SELECTIONS ###
-output$syse_compare_subpop_filter_selections <- 
+ 
   output$syse_types_filter_selections <- renderUI({ 
     req(session$userData$valid_file() == 1)
     
     sys_detailBox(
-      detail_type = 'subpop',
+      detail_type = 'types',
       methodology_type = input$syse_methodology_type,
       cur_project_types = input$syse_project_type,
       startDate = session$userData$ReportStart,
