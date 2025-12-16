@@ -940,7 +940,8 @@ tabDQSystem_instructions <-  HTML("
 tabSystemExits_instructions <- HTML("<h2>Placeholder for Instructions</h2>")
 
 tab_syse_types_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
-tab_syse_compare_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
+tab_syse_time_chart_information <- HTML("<h4>Placeholder for chart information</h4>")
+tab_syse_subpop_chart_information <- HTML("<h4>Placeholder for chart information</h4>")
 tab_syse_phd_subtabs_information <- HTML("<h4>Placeholder for chart information</h4>")
 
 tabDQExport_instructions <- HTML("<h4>Data Quality Export Interface</h4>

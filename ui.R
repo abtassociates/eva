@@ -1154,14 +1154,13 @@ nav_menu(
             downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
             downloadButton("syse_types_download_btn_ppt", "Image Download")
           ),
-          
           nav_panel(
-            title = headerTab('System Exit Comparisons'),
+            title = headerTab('Exits by Year'),
             navset_underline(
-              id = "syse_compare_subtabs",
-              selected = headerSubTab("Time Chart"),
+              id = "syse_time_subtabs",
+              selected = headerSubTab('Chart'),
               nav_panel(
-                title = headerSubTab("Time Chart"),
+                title = headerSubTab('Chart'),
                 uiOutput("syse_compare_time_filter_selections") %>%
                   withSpinner(),
                 div(
@@ -1176,27 +1175,40 @@ nav_menu(
                   withSpinner()
               ),
               nav_panel(
-                title = headerSubTab("Subpopulation Chart"),
+                title = headerSubTab('Information'),
+                tab_syse_time_chart_information
+              )
+            ),
+            downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_time_download_btn_ppt", "Image Download")
+          ),
+          nav_panel(
+            title = headerTab('Exits by Subpopulation'),
+            navset_underline(
+              id = "syse_subpop_subtabs",
+              selected = headerSubTab('Chart'),
+              nav_panel(
+                title = headerSubTab('Chart'),
                 uiOutput("syse_compare_subpop_filter_selections") %>%
                   withSpinner(),
-                br(),
                 div(
                   style='margin-left:40px;',
                   plotOutput("syse_compare_subpop_chart",
-                             width = "85%", height = "500"
-                      ) %>% withSpinner()
+                             width = "85%",
+                             height = "500"
+                  ) %>% withSpinner()
                 ),
+                
                 DTOutput("syse_compare_subpop_table") %>%
                   withSpinner()
               ),
-              
               nav_panel(
-                title = headerSubTab("Information"),
-                tab_syse_compare_subtabs_information
+                title = headerSubTab('Information'),
+                tab_syse_subpop_chart_information
               )
             ),
-            downloadButton("syse_compare_download_btn", "Data Download", style='margin-right:2px'),
-            downloadButton("syse_compare_download_btn_ppt", "Image Download")
+            downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_subpop_download_btn_ppt", "Image Download")
           ),
           
           nav_panel(
