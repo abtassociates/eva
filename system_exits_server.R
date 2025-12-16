@@ -1,4 +1,6 @@
 
+compare_export_bar_width <- 0.5
+compare_bar_width <- 0.4
 
 output$syse_compare_subpop_filter_selections <-renderUI({ 
   req(session$userData$valid_file() == 1)
@@ -951,26 +953,18 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   ## add x-axis labels for PPT download only
   if(isExport){
     dest_type_labels <- subpop_segment_df$dest_type
+    bar_width <- compare_export_bar_width
+    
   } else {
     dest_type_labels <- rep(NA,5)    
+    bar_width <- compare_bar_width
+    
   }
-  
-  g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
-    geom_point(aes(fill = subpop_summ), size = 10, shape = 21, color = 'black') +
-    geom_arrowsegment(data=subpop_segment_df,
-                       aes(x = dest_type_adj, xend = dest_type_adj, y = `Comparison Group`, yend = Subpopulation),
-                       color = "black",
-                       linewidth = 1.5, 
-                       arrows = arrow(length = unit(0.125, 'in')),
-                       position = position_attractsegment(start_shave = 0.05, 
-                                                          end_shave = 0.05)
-    ) +
-    scale_fill_manual(values=subgroup_colors, guide = guide_legend(ncol = 2)) +
+  g <- ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct)) +
+    geom_bar(aes(fill = subpop_summ), width = bar_width, stat='identity', position='dodge') +
+    scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_continuous(limits = c(0.95, 5.05), 
-                       labels = dest_type_labels,
-                       breaks =  adj_x_vals,                      
-                       expand = expansion( add = ifelse(isExport, 0.1, 0))) +
+    scale_x_discrete(labels = dest_type_labels) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
@@ -1210,26 +1204,16 @@ syse_compare_time_chart <- function( isExport = FALSE){
   ## add x-axis labels for PPT download only
   if(isExport){
     dest_type_labels <- time_segment_df$dest_type
+    bar_width <- compare_export_bar_width
   } else {
     dest_type_labels <- rep(NA,5)    
+    bar_width <- compare_bar_width
   }
-  
-  g <- ggplot(time_chart_df, aes(x = dest_type_adj, y = time_pct )) +
-    geom_point(aes(fill = time_summ), size = 10, shape = 21) +
-    geom_arrowsegment(data=time_segment_df,
-                 aes(x = dest_type_adj, xend = dest_type_adj, y = `Previous Year`, yend = `Current Year`),
-                 color = "black",
-                 linewidth = 1.5,
-                 arrows = arrow(length = unit(0.125, 'in')),
-                 position = position_attractsegment(start_shave = 0.05,
-                                                    end_shave = 0.05)
-                 ) +
-    scale_fill_manual(values=time_colors,guide =  guide_legend(ncol = 2)) +
+  g <- ggplot(time_chart_df, aes(x = dest_type, y = time_pct )) +
+    geom_bar(aes(fill = factor(time_summ, levels=c('Previous Year', 'Current Year'))), width = bar_width, stat = "identity", position = 'dodge') +
+    scale_fill_manual(values=rev(time_colors),guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_continuous(limits = c(0.95, 5.05), 
-                       labels = dest_type_labels,
-                       breaks = adj_x_vals,
-                       expand = expansion(mult = 0, add = ifelse(isExport, 0.1, 0))) +
+    scale_x_discrete(labels = dest_type_labels) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
