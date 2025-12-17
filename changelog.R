@@ -3,6 +3,11 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "12-17-2025",
+    "<b>Bug Fixes</b> <br>
+      - Added check for catching upload System Overview script failures before crashing. If there are errors, it now hides the System Performance portion of Eva instead of crashing.<br>
+    <b>New Features</b><br> 
+      - Added progress bars for downloads on DQ Export Interface page.",
     "11-26-2025",
     "<b>Bug Fixes</b> <br>
       - Allow Homelessness Prevention Only files to bypass System Performance portion of Eva; The System Performance Overview page will be hidden for these types of files.<br>
