@@ -937,8 +937,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   )
   
   ## use adjusted locations for point placement 
-  adj_x_vals <- c(1.085, 1.97, 2.87, 3.8, 4.85)
-  
+  adj_x_vals <- c(0.85, 1.83, 2.87, 3.94, 5.15)
   ## long format needed for plotting points
   subpop_chart_df <- get_syse_compare_subpop_data() %>% 
     fsubset(subpop_summ != "Percent Difference") %>% 
@@ -960,11 +959,11 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
     bar_width <- compare_bar_width
     
   }
-  g <- ggplot(subpop_chart_df, aes(x = dest_type, y = subpop_pct)) +
+  g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
     geom_bar(aes(fill = subpop_summ), width = bar_width, stat='identity', position='dodge') +
     scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
-    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_discrete(labels = dest_type_labels) +
+    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
+    scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(
@@ -1188,8 +1187,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
   )
   
   ## use adjusted locations for point placement 
-  adj_x_vals <- c(1.085, 1.97, 2.87, 3.8, 4.85)
-  
+  adj_x_vals <- c(0.85, 1.83, 2.87, 3.94, 5.15)
   ## long format needed for plotting points
   time_chart_df <- get_syse_compare_time_data() %>% 
     fsubset(time_summ != "Percent Change") %>% 
@@ -1209,11 +1207,11 @@ syse_compare_time_chart <- function( isExport = FALSE){
     dest_type_labels <- rep(NA,5)    
     bar_width <- compare_bar_width
   }
-  g <- ggplot(time_chart_df, aes(x = dest_type, y = time_pct )) +
+  g <- ggplot(time_chart_df, aes(x = dest_type_adj, y = time_pct )) +
     geom_bar(aes(fill = factor(time_summ, levels=c('Previous Year', 'Current Year'))), width = bar_width, stat = "identity", position = 'dodge') +
     scale_fill_manual(values=rev(time_colors),guide =  guide_legend(ncol = 2)) +
-    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent()) +
-    scale_x_discrete(labels = dest_type_labels) +
+    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
+    scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
     labs(x = '', y = '') +
     theme_minimal() +
     theme(

@@ -1164,9 +1164,9 @@ nav_menu(
                 uiOutput("syse_compare_time_filter_selections") %>%
                   withSpinner(),
                 div(
-                  style='margin-left:20px;',
+                  style='margin-left:17px;',
                   plotOutput("syse_compare_time_chart",
-                             width = "85%",
+                             width = "92%",
                              height = "500"
                   ) %>% withSpinner()
                 ),
@@ -1192,11 +1192,10 @@ nav_menu(
                 uiOutput("syse_compare_subpop_filter_selections") %>%
                   withSpinner(),
                 div(
-                  style='margin-left:40px;',
+                  style='margin-left:17px;',
                   plotOutput("syse_compare_subpop_chart",
-                             width = "85%",
-                             height = "500"
-                  ) %>% withSpinner()
+                             width = "92%",
+                             height = "500")
                 ),
                 
                 DTOutput("syse_compare_subpop_table") %>%
