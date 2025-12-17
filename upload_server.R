@@ -76,7 +76,14 @@ process_upload <- function(upload_filename, upload_filepath) {
     } else {
       nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
       setProgress(detail = "Preparing System Overview Data", value = .85)
-      source("07_system_overview.R", local = TRUE)
+      
+      src_07_att <- tryCatch(source("07_system_overview.R", local = TRUE), #catch.aborts=TRUE),
+                             error = function(e) {e})
+      if(inherits(src_07_att, 'simpleError')){
+        logToConsole(session, src_07_att)
+        logToConsole(session, "Error occured in 07_system_overview.R - hiding System Performance")
+        nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
+      }
     }
     
     
