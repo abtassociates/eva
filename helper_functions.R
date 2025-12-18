@@ -491,6 +491,18 @@ reset_postvalid_components <- function(session) {
   
   shinyjs::hide("sys_comp_download_btn")
   shinyjs::hide("sys_comp_download_btn_ppt")
+  
+  shinyjs::hide("syse_types_download_btn")
+  shinyjs::hide("syse_types_download_btn_ppt")
+  
+  shinyjs::hide("syse_time_download_btn")
+  shinyjs::hide("syse_time_download_btn_ppt")
+  
+  shinyjs::hide("syse_subpop_download_btn")
+  shinyjs::hide("syse_subpop_download_btn_ppt")
+  
+  shinyjs::hide("syse_phd_download_btn")
+  shinyjs::hide("syse_phd_download_btn_ppt")
 }
 
 reset_app <- function(session) {
@@ -609,9 +621,53 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
 }
 
+
+## list all destination types and subtypes based on allowed_destinations vector
+## used for systems exit data downloads
+list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
+  destinations_df <- data.table(Destination = allowed_destinations) %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    )) %>% 
+    fmutate(`Destination Type Detail`= living_situation(Destination)) %>% 
+    fselect(-Destination)
+  
+  if(add_totals){
+    total_row <- data.table(
+      dest_type = c('Permanent','Homeless','Temporary','Institutional','Other/Unknown')
+    ) %>% 
+      fmutate(
+        dest_type = factor(
+          dest_type, 
+          levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')
+        ),
+        `Destination Type Detail` = paste0('Total ', dest_type)
+      ) %>% 
+      frename(dest_type = 'Destination Type')
+    
+    destinations_df <- rowbind(destinations_df, total_row) %>% 
+      roworder(`Destination Type`)
+    
+  }
+  
+  ## assumes you are passing a df with columns for Destination Type (Homeless, Temporary, Permanent, Institutionl, Other/Unknown)
+  joined_df <- join(destinations_df, df, on=c('Destination Type','Destination Type Detail')) 
+  
+  if(fill_zero){
+    joined_df %>% 
+      replace_na(0)
+  } else {
+    joined_df 
+  }
+}
+
 # removes special characters from org names when using them for DQ Export file names
 standardize_org_name <- function(orgname){
   orgname <- gsub('\\\\','/',orgname)
   stringr::str_replace_all(orgname, "[@\\$%~\\^,/\\[+<>()|\\:&;#?*'\\]]", "_")
-  
 }

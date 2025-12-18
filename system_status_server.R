@@ -184,8 +184,8 @@ output$sys_status_download_btn <- downloadHandler(
       select("Status at Period End", everything())
     
     tab_names <- list(
-      "System Status Metadata" = sys_export_summary_initial_df() %>%
-        bind_rows(sys_export_filter_selections()) %>%
+      "System Status Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
+        bind_rows(sys_export_filter_selections(type = 'overview')) %>%
         bind_rows(sys_status_export_info(get_sankey_data())) %>%
         rename("System Status" = Value),
       "System Status Detail" = spd
@@ -210,17 +210,22 @@ output$sys_status_download_btn_ppt <- downloadHandler(
     paste("System Status_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    sys_overview_ppt_export(
+    sys_perf_ppt_export(
       file = file,
+      type = 'overview',
       title_slide_title = "Client System Status",
-      summary_items = sys_export_summary_initial_df() %>%
+      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
-        bind_rows(sys_export_filter_selections()) %>%
+        bind_rows(sys_export_filter_selections(type = 'overview')) %>%
         bind_rows(sys_status_export_info(get_sankey_data())),
       plots = list(
         "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
       ),
-      summary_font_size = 21
+      summary_font_size = 21,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
     )
   }
 )
