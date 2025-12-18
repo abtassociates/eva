@@ -574,22 +574,27 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
     fungroup() %>% 
     fmutate(Percent = Count/fsum(Count),
            text_color = fifelse(`Destination Type` %in% c('Temporary','Institutional','Other/Unknown'), 'black', 'white'),
-           label = str_c(`Destination Type`, ':\n', scales::label_comma()(Count),
+           label = str_c(`Destination Type`, ': ', scales::label_comma()(Count),
                          ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
            )) %>% 
-    fmutate(border_color = "black")
+    fmutate(border_color = "black") %>% 
+    fmutate(subgroup2 = factor(
+      fifelse(`Destination Type` %in% c('Permanent','Homeless'), 'group1', 'group2'),
+      levels = c('group1','group2'))
+    ) %>%
+    roworder('subgroup2', 'Destination Type') 
   
     if(show_legend == FALSE){
-      ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
-                                  label = label, subgroup = border_color)) +
-        labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
-                            syse_level_of_detail_text(), " in ",
-                            str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-                            if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
-        ) +
-        geom_treemap(start = "left",color = "black", size = 2, show.legend = FALSE) +
-        geom_treemap_text(aes(color = text_color), start = "left", place = "center", grow = FALSE) +
-        geom_treemap_subgroup_border(color = "black", size = 4, show.legend = FALSE) +
+        ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
+                   label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
+          labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+                              syse_level_of_detail_text(), " in ",
+                              str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                              if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
+          ) +
+        geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE) +
+        geom_treemap_text(layout='squarified', start='bottomright',aes(color = text_color),  place = "center", grow = FALSE, reflow = TRUE) +
+        geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE) +
         scale_color_identity() +
         scale_fill_manual(values = tree_colors) +
         theme_minimal() +
@@ -599,16 +604,16 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
         )
   
     } else if (show_legend == TRUE){
-    ggplot(tree_exits_summ, aes(area = Count, fill = label,
-                                label = label, subgroup = border_color)) +
-      labs(title = paste0(scales::label_comma()(nr), " System Exits for ", 
-                          syse_level_of_detail_text(), " in ", 
-                          str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "), 
-                          if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
-      ) +
-      geom_treemap(start = "left", color = "black", size = 2, show.legend = TRUE) +
-      geom_treemap_text(aes(color = text_color), start = "left", place = "center", grow = FALSE) +
-      geom_treemap_subgroup_border(color = "black", size = 4, show.legend = TRUE) +
+      ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
+                                  label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
+        labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+                            syse_level_of_detail_text(), " in ",
+                            str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                            if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
+        ) +
+        geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE,) +
+        geom_treemap_text(layout='squarified', start='bottomright',aes(color = text_color),  place = "center", grow = FALSE, reflow = TRUE) +
+        geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE)
       scale_color_identity() +
       scale_fill_manual("",breaks = tree_exits_summ$label, values = setNames(tree_colors, tree_exits_summ$label)) +
       theme_minimal() +
