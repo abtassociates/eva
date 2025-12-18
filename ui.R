@@ -1129,7 +1129,7 @@ nav_menu(
           id = 'syse_tabbox',
           
           nav_panel(
-            title = headerTab('System Exit Types'),
+            title = headerTab('Exits by Type'),
 
             navset_underline(
               id = "syse_types_subtabs",

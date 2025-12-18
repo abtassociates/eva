@@ -622,10 +622,10 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
 }
 
 
-output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exit Types Report - "),
+output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits by Type Report - "),
                                                    content = function(file) 
     {
-     logToConsole(session, "System Exit Types data download")
+     logToConsole(session, "System Exits by Type data download")
      
      write_xlsx(
        list(
@@ -652,7 +652,7 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
 })
 
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
-  paste("System Exit Types_", Sys.Date(), ".pptx", sep = "")
+  paste("System Exits by Type_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
     logToConsole(session, "In syse_types_download_btn_ppt")
