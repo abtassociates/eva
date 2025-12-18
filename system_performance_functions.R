@@ -554,34 +554,31 @@ sys_detailBox <- function(
       )
     )
   } else if (detail_type == 'subpop') {
-    subpop_mini_header <- list(HTML("<b>Selected Subpopulation:</b> <br>") )
+    subpop_mini_header <- list(HTML("<b>Selected Subpopulation</b> <br>") )
   }
   
   if(race_eth != "All"){
     
-  
-  project_and_methodology_type <- list(
-    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
-    HTML(glue(
-      "<b>Race/Ethnicity Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types , methodology_type), start = 1, end = 8)} <br>"
-    ))
-  )
-  
-    if (cur_project_types != "All"){
-      project_and_methodology_type <- c(
-        list(chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- "))),
-        project_and_methodology_type
-      )
-    }
+    race_eth_methodology_type <- list(
+      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+      HTML(glue(
+        "<b>Race/Ethnicity Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types , methodology_type), start = 1, end = 8)} <br>"
+      ))
+    )
+    
   } else {
-    if (cur_project_types != "All"){
-      project_and_methodology_type <- 
-        list(chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")))
-    } else {
-      project_and_methodology_type <- NULL
-    }
-     
+    race_eth_methodology_type <- NULL
   }
+  
+  if (cur_project_types != "All"){
+    
+    project_type <- c(
+      list(chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")))
+    )
+  } else {
+    project_type <- NULL
+  }
+  
   # For System Comp/Demographics and System Exits, the demographic items to display 
   # are which checkboxes user selected for the chart. Otherwise, they're the selected filter values
   demographics <- if(!is.null(selection)) {
@@ -606,10 +603,10 @@ sys_detailBox <- function(
   }
   
   if(detail_type == 'subpop'){
-    return(c(date_range, subpop_mini_header, project_and_methodology_type, demographics))
+    return(c(date_range, race_eth_methodology_type, subpop_mini_header, project_type, demographics))
     
   } else {
-    return(c(date_range, project_and_methodology_type, demographics))
+    return(c(date_range, race_eth_methodology_type, project_type, demographics))
     
   }
 }
