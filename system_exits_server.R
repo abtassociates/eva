@@ -960,7 +960,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
     
   }
   g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
-    geom_bar(aes(fill = subpop_summ), width = bar_width, stat='identity', position='dodge') +
+    geom_bar(aes(fill = subpop_summ), color = 'black', width = bar_width, stat='identity', position='dodge') +
     scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
@@ -1208,7 +1208,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
     bar_width <- compare_bar_width
   }
   g <- ggplot(time_chart_df, aes(x = dest_type_adj, y = time_pct )) +
-    geom_bar(aes(fill = factor(time_summ, levels=c('Previous Year', 'Current Year'))), width = bar_width, stat = "identity", position = 'dodge') +
+    geom_bar(aes(fill = factor(time_summ, levels=c('Previous Year', 'Current Year'))), color = 'black', width = bar_width, stat = "identity", position = 'dodge') +
     scale_fill_manual(values=rev(time_colors),guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
