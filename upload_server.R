@@ -151,6 +151,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       updatePickerInput(session = session,
                         inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
+      updatePickerInput(session = session,
+                        inputId = "currentProviderList1",
+                        choices = sort(Project$ProjectName))
       
       updatePickerInput(session = session,
                         inputId = "orgList",

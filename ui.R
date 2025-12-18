@@ -1047,7 +1047,7 @@ nav_menu(
         
         pickerInput(
           label = 'Select Project',
-          inputId = "currentProviderList",
+          inputId = "currentProviderList1",
           choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains', 
