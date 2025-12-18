@@ -468,8 +468,6 @@ dkr_living_situation <- base_dq_data %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate > hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(dkr_dnc) |
-               TimesHomelessPastThreeYears %in% c(dkr_dnc) |
                LivingSituation %in% c(dkr_dnc)
            )
   ) %>%
