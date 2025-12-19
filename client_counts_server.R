@@ -197,21 +197,29 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
-    pivot_att <- tryCatch(
-      pivot_and_sum(
-        validationDF %>%
-          fsubset(EntryDate <= input$dateRangeCount[2] &
-                    (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
-      ), error = function(e){e}
-    )
     
-    if(inherits(pivot_att, 'simpleError')){
-      logToConsole('Project Dashboard error: pivot for validationDateRange has no rows of data to use.')
+    validation_filt <- validationDF %>%
+      fsubset(EntryDate <= dateRangeEnd &
+                (is.na(ExitDate) | ExitDate >= dateRangeEnd))
+    if(is.null(validation_filt) | fnrow(validation_filt) == 0){
+      logToConsole(session, 'Project Dashboard error: pivot for validationDateRange has no rows of data to use.')
       validationDateRange <- NULL
+     
     } else {
-      validationDateRange <- pivot_att %>%
-        fselect(-ProjectType) %>%
-        roworder(OrganizationName, ProjectName)
+      pivot_att <- tryCatch(
+        pivot_and_sum(
+         validation_filt, 
+        ), error = function(e){e}
+      )
+      
+      if(inherits(pivot_att, 'simpleError')){
+        logToConsole(session, 'Project Dashboard error: pivot for validationDateRange has no rows of data to use.')
+        validationDateRange <- NULL
+      } else {
+        validationDateRange <- pivot_att %>%
+          fselect(-ProjectType) %>%
+          roworder(OrganizationName, ProjectName)
+      }
     }
    
   } else {
