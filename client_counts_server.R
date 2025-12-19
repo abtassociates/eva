@@ -613,8 +613,8 @@ cc_project_type <- reactive({
 
 output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
-
-  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+  
+  if(tl_df_project_start() && input$currentProviderList %in% tl_df_project_start()$ProjectName){
     tl_df_project_start() %>%  
       fsubset(ProjectName == input$currentProviderList) %>% 
       pull(mdn)
@@ -627,7 +627,7 @@ output$timeliness_vb1_val <- renderText({
 output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
   
-  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+  if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectName){
     tl_df_project_exit() %>% 
       fsubset(ProjectName == input$currentProviderList) %>% 
       pull(mdn)
@@ -661,8 +661,8 @@ output$timeliness_vb3 <- renderUI({
     
     num <- sum(
       c(
-      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
-      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
+        ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
+        ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
       num_nbn,
       num_cls
       ), 
@@ -670,8 +670,8 @@ output$timeliness_vb3 <- renderUI({
     )
     den <-  sum(
       c(
-      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
-      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
+      ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
+      ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
       den_nbn,
       den_cls
       ), 
@@ -706,13 +706,13 @@ output$timelinessTable <- renderDT({
     time_period = c("< 0 days", "0 days", "1-3 days", "4-6 days", "7-10 days", "11+ days")
     )
   
-  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+  if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectName){
     dat$proj_start <- tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$proj_start <- 0
   }
   
-  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+  if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectName){
     dat$proj_exit <- tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$proj_exit <- 0
