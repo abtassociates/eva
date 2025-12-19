@@ -169,7 +169,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     )
     
     if(inherits(pivot_att, 'simpleError')){
-      logToConsole('Project Dashboard error: pivot for validationFullExportRange has no rows of data to use.')
+      logToConsole(session, 'Project Dashboard error: pivot for validationFullExportRange has no rows of data to use.')
       validationFullExportRange <- NULL
     } else {
       validationFullExportRange <- pivot_att %>%
