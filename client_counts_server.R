@@ -230,7 +230,8 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   logToConsole(session, "after defining validationDateRange")
   
   ### DETAIL TAB ###
-  validationDetail <- validationDF %>% # full dataset for the detail
+  if(!is.null(validationDF) & fnrow(validationDF) > 0){
+    validationDetail <- validationDF %>% # full dataset for the detail
     fmutate(
       Status = fifelse(
         Status %in% c("Currently Moved In", "Currently in Project"), 
@@ -240,22 +241,35 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     ) %>%
     fselect(c(keepCols, clientCountDetailCols)) %>%
     roworder(OrganizationName, ProjectName, EntryDate)
+  } else {
+    logToConsole(session, "validationDF is NULL or has 0 rows. validationDetail set to NULL.")
+    validationDetail <- NULL
+  }
   logToConsole(session, "after defining validationDetail")
   
+  if(!is.null(tl_df_project_start())){
   validationStart <- tl_df_project_start() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
     select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
     mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'start')
+  } else {
+    validationStart <- NULL
+  }
   logToConsole(session, "after defining validationStart")
   
-  validationExit <- tl_df_project_exit() %>% 
-    fsubset(OrganizationName %in% orgList) %>% 
-    select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-    mutate(ProjectType = project_type(ProjectType)) %>% 
-    arrange(OrganizationName, ProjectName) %>% 
-    nice_names_timeliness(record_type = 'exit')
+  if(!is.null(tl_df_project_exit())){
+    validationExit <- tl_df_project_exit() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'exit')
+  } else {
+    validationExit <- NULL
+  }
+ 
   logToConsole(session, "after defining validationExit")
   
   if(!is.null(tl_df_cls())){
