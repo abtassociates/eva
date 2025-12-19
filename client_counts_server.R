@@ -349,12 +349,10 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
       client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
     )
   }
-  logToConsole(session, "before writing xlsx")
-  
-  write_xlsx(exportDFList,
-             path = file)
+  logToConsole(session, "returning from get_clientcount_download_info")
   
   
+  return(exportDFList[lengths(exportDFList) > 0])
 }
 
 # output$validate_plot <- renderPlot({
@@ -764,7 +762,9 @@ output$downloadClientCountsReport <- downloadHandler(
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
                                 paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    get_clientcount_download_info
+    df_xl <- get_clientcount_download_info()
    
+    write_xlsx(df_xl,
+               path = file)
   }
 )
