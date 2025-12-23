@@ -35,6 +35,20 @@ get_quarters <- function(){
   names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
   return(quarters)
 } # get quarterly dates - copied from 08_inv_util.r
+get_months <- function(){
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  m_last <- month(lastday)
+  end_month = ymd(paste(y_last,m_last,"01", sep="-")) # first day of ending month
+  # if last_day is the last day of the month (first day of next month minus a day)
+  end_month <- as.Date(ifelse(last_day == end_month + months(1) - days(1), 
+                              end_month, # the month is complete
+                              end_month - months(1) # otherwise, use the previous month
+  ))
+  months <- seq(end_month - months(11), end_month, by = "months")
+  names(months) <- month.abb[month(months)]
+  return(months)
+} # get monthly dates - copied from 08_inv_util.r
 # create versions of counting functions (08_inv_util.R) that sum counts over a range of dates
 # these take longer so only run them for projects we select
 count_Beds_Units_rng <- function(range_start,range_end, extra_groups = NULL, proj_list){
@@ -364,6 +378,54 @@ output$q_proj_inv_filtered <- renderDT({# <- reactive({
 #     cache = "session"
 #   )
 
+# Monthly Filtered Project Level Table -------------
+output$m_proj_inv_filtered <- renderDT({# <- reactive({
+  req(!is.null(input$currentProviderList1))
+  
+  selectedProjs <- session$userData$Project0 %>% # get selected projects
+    fsubset(ProjectName %in% input$currentProviderList1)
+  selectedProjs <- unique(selectedProjs$ProjectID)
+  
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% selectedProjs)
+  
+  stopifnot(nrow(project_level_util_m)>0)
+  
+  mons <- get_months() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = mons, labels = names(mons), selectedProjs)
+  
+  # join with selected project PIT date details
+  project_level_util_m <-  project_level_util_m %>% 
+    join(nightly_avg, how = "full") %>% arrange(ProjectID, PIT)
+  
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  proj_inv_filtered <- proj_inv_filtered %>% fselect(-ProjectType,-eligProjNBN)
+  setcolorder(proj_inv_filtered, inv_colorder)
+  inv_cols <- colnames(proj_inv_filtered)
+  
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- inv_cols %>% gsub(pattern = "_", replacement = " ")
+  
+  datatable( # return table
+    proj_inv_filtered,
+    rownames = FALSE,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
 
 # OLD commented out code from old sys_overview_server ------------------------
 # when user changes chart tabs 
