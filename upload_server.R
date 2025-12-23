@@ -74,9 +74,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       if(IN_DEV_MODE) browser()
     }
     
-    setProgress(detail = "Preparing System Overview Data", value = .8)
+    setProgress(detail = "Preparing System Overview Data", value = .85)
     source("07_system_overview.R", local = TRUE)
-    setProgress(detail = "Preparing Inventory and Utilization Data", value = .85)
+    setProgress(detail = "Preparing Inventory and Utilization Data", value = .95)
     source("08_inv_util.R", local = TRUE) 
     
     setProgress(detail = "Done!", value = 1)
@@ -151,9 +151,10 @@ process_upload <- function(upload_filename, upload_filepath) {
       updatePickerInput(session = session,
                         inputId = "currentProviderList",
                         choices = sort(Project$ProjectName))
+      
       updatePickerInput(session = session,
                         inputId = "currentProviderList1",
-                        choices = sort(Project$ProjectName))
+                        choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
       
       updatePickerInput(session = session,
                         inputId = "orgList",
