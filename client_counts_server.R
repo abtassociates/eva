@@ -76,7 +76,9 @@ client_count_summary_df <- reactive({
   client_counts <- client_count_data_df() %>%
     fsubset(ProjectName == input$currentProviderList) %>%
     fgroup_by(Status)
-  
+  if(nrow(client_counts) == 0){
+    return(NULL)
+  }
   hhs <- client_counts %>% fsummarise(Households = fnunique(HouseholdID))
   clients <- client_counts %>% fsummarise(Clients = fnunique(PersonalID))
 
@@ -131,7 +133,8 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
 
 get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
-  client_counts_metadata <- data.table(
+  logToConsole(session, "in get_clientcount_download_info")
+   client_counts_metadata <- data.table(
     Chart = c(
       "Export Date",
       "Export Start",
@@ -156,33 +159,42 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
-  validationFullExportRange <- 
-    pivot_and_sum(
-      validationDF, isDateRange = TRUE
-    ) %>%
-    fmutate(
-      "Exited Project" = fifelse(
-        ProjectType %in% ph_project_types, 
-        rowSums(
-          fselect(., `Exited with Move-In`, `Exited No Move-In`),
-          na.rm = TRUE
-        ),
-        `Exited Project`
-      )
-    ) %>%
-    fselect(-ProjectType) %>%
-    roworder(OrganizationName, ProjectName)
+  if(!is.null(validationDF) & fnrow(validationDF) > 0){
+    validationFullExportRange <- 
+      pivot_and_sum(
+        validationDF, isDateRange = TRUE
+      ) %>%
+      fmutate(
+        "Exited Project" = fifelse(
+          ProjectType %in% ph_project_types, 
+          rowSums(
+            fselect(., `Exited with Move-In`, `Exited No Move-In`),
+            na.rm = TRUE
+          ),
+          `Exited Project`
+        )
+      ) %>%
+      fselect(-ProjectType) %>%
+      roworder(OrganizationName, ProjectName)
+  } else {
+    validationFullExportRange <- NULL
+  }
   
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
-  validationDateRange <- 
-    pivot_and_sum(
-      validationDF %>%
-        fsubset(EntryDate <= input$dateRangeCount[2] &
-                 (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
-    ) %>%
-    fselect(-ProjectType) %>%
-    roworder(OrganizationName, ProjectName)
+  if(!is.null(validationDF) & fnrow(validationDF) > 0){
+    validationDateRange <- 
+      pivot_and_sum(
+        validationDF %>%
+          fsubset(EntryDate <= input$dateRangeCount[2] &
+                    (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
+      ) %>%
+      fselect(-ProjectType) %>%
+      roworder(OrganizationName, ProjectName)
+  } else {
+    validationDateRange <- NULL
+  }
+  
 
   ### DETAIL TAB ###
   validationDetail <- validationDF %>% # full dataset for the detail
@@ -389,6 +401,13 @@ output$clientCountSummary <- renderDT({
   req(session$userData$valid_file() == 1)
   
   exportTestValues(clientCountSummary = client_count_summary_df())
+  
+  validate(
+    need(
+      nrow(client_count_summary_df()) > 0,
+      message = no_data_msg
+    )
+  )
   
   datatable(
     client_count_summary_df() %>%
@@ -689,7 +708,7 @@ output$downloadClientCountsReport <- downloadHandler(
   filename = date_stamped_filename("System-level Project Dashboard Report-"),
   content = {
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
-                                input$dateRangeCount,']',
+                                paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     get_clientcount_download_info
    

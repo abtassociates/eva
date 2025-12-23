@@ -193,34 +193,35 @@ operating_end_precedes_inventory_end <- activeInventory %>%
 # Active Inventory with No Enrollments ---------
 # Active inventory records (with non-overflow beds) should have enrollments within their bounds
 get_active_inventory_no_enrollments <- function() {
+  
   if(fnrow(activeInventory) == 0) return(NULL)
   
   active_inventory_w_no_enrollments <- qDT(activeInventory) %>% 
     fsubset(
       (is.na(Availability) | Availability != 3) &
         BedInventory > 0 & !is.na(BedInventory)
-    ) 
-  
-  if(fnrow(active_inventory_w_no_enrollments) == 0) return(NULL)
-  
-  active_inventory_w_no_enrollments %>%
+    ) %>% 
     fselect(ProjectID, InventoryID, InventoryStartDate, InventoryEndDate) %>%
     join(
       Enrollment %>% fselect(ProjectID, EntryDate, ExitAdjust),
       on = "ProjectID",
       multiple = TRUE,
       how="inner"
-    ) %>%
-    fmutate(
-      # Check if inventory span overlaps with any enrollments
+    )
+  
+  if(fnrow(active_inventory_w_no_enrollments) == 0) return(NULL)
+  
+  active_inventory_w_no_enrollments <- active_inventory_w_no_enrollments %>%
+     fmutate(
+      # Check if inventory span overlaps with each enrollment
       inventory_overlap = (EntryDate <= InventoryEndDate | is.na(InventoryEndDate)) & 
         ExitAdjust >= InventoryStartDate
     ) %>%
-    fgroup_by(ProjectID) %>%
+    fgroup_by(ProjectID) %>% # check if a project has any enrollments overlapping active inventories
     fmutate(any_inventory_overlap = any(inventory_overlap, na.rm=TRUE)) %>%
     fungroup() %>%
-    fsubset(!any_inventory_overlap) %>%
-    funique(cols = c("ProjectID")) %>%
+    fsubset(!any_inventory_overlap) %>% # filter to FALSE
+    funique(cols = c("ProjectID")) %>% # get unique Project ID
     # Bring in DQ cols
     join(
       session$userData$Project0,

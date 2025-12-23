@@ -3,6 +3,32 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "12-17-2025",
+    "<b>Bug Fixes</b> <br>
+      - Added check for catching upload System Overview script failures before crashing. If there are errors, it now hides the System Performance portion of Eva instead of crashing.<br>
+    <b>New Features</b><br> 
+      - Added progress bars for downloads on DQ Export Interface page.",
+    "11-26-2025",
+    "<b>Bug Fixes</b> <br>
+      - Allow Homelessness Prevention Only files to bypass System Performance portion of Eva; The System Performance Overview page will be hidden for these types of files.<br>
+      - Fixed \"No data\" validation statements for System DQ and Org DQ charts. Previous fix was causing an error to appear on data quality charts.<br>
+      - Allowed skipping of long_stayers DQ check when no data available<br>
+      - Added 0-row checks to System-level Project Dashboard report within DQ Export downloads<br>
+      - Changed logic used for displaying and enabling the DQ Export download button. It should now display and be clickable if any reports are available.",
+    "11-25-2025",
+    "<b>Bug Fixes</b> <br>
+      - Allowed skipping overlap DQ check if no overlap data is present<br>
+      - Removed additional symbols from DQ Export Org folder names, to reduce chance of unsuccessful downloads<br>
+      - Added checks for system-level DQ report downloads, so it does not attempt to download if no DQ data is present<br>
+      - Added screen notification if DQ Export download is attempted but 0 valid reports can be generated<br>
+      - Add validate statements to show \"No data\" for Project Dashboard, System DQ, and Organization DQ tabs, when 0 rows of data are found.",
+    "11-24-2025",
+    "<b>Bug Fixes</b> <br>
+      - Modify DQ code to skip long_stayers dataset if DaysSinceLastKnown field is not available.<br>
+      - Added logging to 05_Data_Quality.R for additional DQ troubleshooting ",
+    "11-21-2025",
+    "<b>Bug Fixes</b> <br>
+      - Added temporary bug fix for overlap DQ check when data without overlaps is uploaded",
     "11-20-2025",
     "<b>Bug Fixes</b> <br>
       - Fixed handling of null rows in Participation datasets for overlaps. (Issue <a href='https://github.com/abtassociates/eva/issues/880' target='_blank'>#880</a>).<br>
