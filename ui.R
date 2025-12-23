@@ -1049,6 +1049,7 @@ nav_menu(
           label = 'Select Project',
           inputId = "currentProviderList1",
           choices = NULL,
+          multiple = TRUE,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains', 
                                   container = 'body')
@@ -1071,14 +1072,12 @@ nav_menu(
         id = "project_level_box",
         selected = headerSubTab("Inventory"),
         nav_panel(
-          title = headerSubTab('Inventory'),
-          DTOutput("proj_inv_filtered"),
-          #uiOutput("proj_inv_filtered") %>%
-           # withSpinner(),
-          plotOutput("sys_inflow_outflow_summary_ui_chart",
-                     width = "70%",
-                     height = "500") %>%
-            withSpinner()
+          title = headerSubTab('Quarterly Inventory'),
+          DTOutput("q_proj_inv_filtered") %>% withSpinner()
+          #plotOutput("sys_inflow_outflow_summary_ui_chart",
+          #           width = "70%",
+          #           height = "500") %>%
+          #  withSpinner()
         )
       )
     )
