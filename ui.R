@@ -1070,7 +1070,7 @@ nav_menu(
       
       navset_underline(
         id = "project_level_box",
-        selected = headerSubTab("Inventory"),
+        selected = headerSubTab("Quarterly Inventory"),
         nav_panel(
           title = headerSubTab('Quarterly Inventory'),
           DTOutput("q_proj_inv_filtered") %>% withSpinner()
@@ -1078,6 +1078,10 @@ nav_menu(
           #           width = "70%",
           #           height = "500") %>%
           #  withSpinner()
+        ),
+        nav_panel(
+          title = headerSubTab("Monthly Inventory"),
+          DTOutput("m_proj_inv_filtered")
         )
       )
     )
