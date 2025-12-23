@@ -74,7 +74,7 @@ count_Beds_Units_rng <- function(range_start,range_end, extra_groups = NULL, pro
     fsubset(ProjectID %in% proj_list) 
   
   Bed_Unit_Count$active_days <- mapply(activeDays, inv_start = Bed_Unit_Count$InventoryStartDate, inv_end = Bed_Unit_Count$InventoryEndDate) # count days of enrollment overlapping with days of range
-  print(unique(Bed_Unit_Count %>% select(ProjectID, active_days)))
+  #print(unique(Bed_Unit_Count %>% select(ProjectID, active_days)))
   
   Bed_Unit_Count <- Bed_Unit_Count %>% fgroup_by(grouping_vars) %>%
     fsummarize(
