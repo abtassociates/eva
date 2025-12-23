@@ -1064,28 +1064,58 @@ nav_menu(
       )
     ),
       ### Project Level Inventory ----------------
-    nav_panel(
-      id = 'projLevelInv',
-      title = headerTab('Inventory'),
-      
-      navset_underline(
-        id = "project_level_box",
-        selected = headerSubTab("Quarterly Inventory"),
-        nav_panel(
-          title = headerSubTab('Quarterly Inventory'),
-          DTOutput("q_proj_inv_filtered") %>% withSpinner()
-          #plotOutput("sys_inflow_outflow_summary_ui_chart",
-          #           width = "70%",
-          #           height = "500") %>%
-          #  withSpinner()
-        ),
-        nav_panel(
-          title = headerSubTab("Monthly Inventory"),
-          DTOutput("m_proj_inv_filtered")
+    navset_underline(
+      id = "project_level_box",
+      selected = headerTab("Inventory"),
+    
+      nav_panel(
+        title = headerTab('Inventory'),
+        
+        navset_underline(
+          id = "project_level_box_inv",
+          selected = headerSubTab("Quarterly Inventory"),
+          nav_panel(
+            title = headerSubTab('Quarterly Inventory'),
+            DTOutput("q_proj_inv_filtered") %>% withSpinner()
+            #plotOutput("sys_inflow_outflow_summary_ui_chart",
+            #           width = "70%",
+            #           height = "500") %>%
+            #  withSpinner()
+          ),
+          nav_panel(
+            title = headerSubTab("Monthly Inventory"),
+            DTOutput("m_proj_inv_filtered")
+          ),
+          nav_panel(
+            title = headerSubTab("Information")
+          )
+        )
+      ),
+      nav_panel(
+          title = headerSubTab("Utilization"),
+          
+          navset_underline(
+            id = "project_level_box_util",
+            selected = headerSubTab("Quarterly Utilization"),
+            nav_panel(
+              title = headerSubTab('Quarterly Utilization'),
+              #DTOutput("q_proj_inv_filtered") %>% withSpinner()
+              #plotOutput("sys_inflow_outflow_summary_ui_chart",
+              #           width = "70%",
+              #           height = "500") %>%
+              #  withSpinner()
+            ),
+            nav_panel(
+              title = headerSubTab("Monthly Utilization"),
+              #DTOutput("m_proj_inv_filtered")
+            ),
+            nav_panel(
+              title = headerSubTab("Information")
+            )
+          )
         )
       )
-    )
-  ),
+    ),
     ## System Level tab --------------
   nav_panel(
     title = "System-level",
