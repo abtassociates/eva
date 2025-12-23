@@ -468,8 +468,6 @@ dkr_living_situation <- base_dq_data %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate > hc_prior_living_situation_required &
            (
-             MonthsHomelessPastThreeYears %in% c(dkr_dnc) |
-               TimesHomelessPastThreeYears %in% c(dkr_dnc) |
                LivingSituation %in% c(dkr_dnc)
            )
   ) %>%
@@ -535,7 +533,7 @@ dkr_disabilities <- base_dq_data %>%
 
 # Long Stayers ------------------------------------------------------------
 
-top_percents_long_stayers <- base_dq_data %>%
+top_percents_long_stayer_pop <- base_dq_data %>%
   fselect(vars_prep) %>%
   fsubset(
     ProjectType %in% c(long_stayer_percentile_project_types) &
@@ -547,20 +545,39 @@ top_percents_long_stayers <- base_dq_data %>%
               !is.na(MoveInDateAdjust)
           )
       )
-  ) %>%
-  fmutate(Days = as.numeric(difftime(
+  )
+
+if(fnrow(top_percents_long_stayer_pop) > 0){
+  top_percents_long_stayers <- base_dq_data %>%
+    fselect(vars_prep) %>%
+    fsubset(
+      ProjectType %in% c(long_stayer_percentile_project_types) &
+        is.na(ExitDate) &
+        (
+          !ProjectType %in% c(ph_project_types) |
+            (
+              ProjectType %in% c(ph_project_types) &
+                !is.na(MoveInDateAdjust)
+            )
+        )
+    ) %>%
+    fmutate(Days = as.numeric(difftime(
       session$userData$meta_HUDCSV_Export_Date, 
       fifelse(ProjectType %in% c(ph_project_types), MoveInDateAdjust, EntryDate)
-  ))) %>%
-  fgroup_by(ProjectType, sort = FALSE) %>%
-  roworder(-Days) %>%
-  fmutate(quantDays = quantile(Days, fifelse(
-    ProjectType %in% long_stayer_98_percentile_project_types, .98, .99
-  ))) %>%
-  fungroup() %>%
-  fsubset(Days > quantDays) %>%
-  merge_check_info_dt(checkIDs = 104) %>%
-  fselect(vars_we_want)
+    ))) %>%
+    fgroup_by(ProjectType, sort = FALSE) %>%
+    roworder(-Days) %>%
+    fmutate(quantDays = quantile(Days, fifelse(
+      ProjectType %in% long_stayer_98_percentile_project_types, .98, .99
+    ))) %>%
+    fungroup() %>%
+    fsubset(Days > quantDays) %>%
+    merge_check_info_dt(checkIDs = 104) %>%
+    fselect(vars_we_want)
+} else {
+  top_percents_long_stayers <- data.table()
+}
+
 
 # long stayers flags that come from inputs come from calculate_long_stayers()
 
@@ -1087,234 +1104,240 @@ if(nrow(Services) > 0) {
 }
 
 # get previous enrollment info using "lag"
-overlap_dt <- overlap_staging %>%
-  roworder(PersonalID, EnrollmentStart, EnrollmentEnd) %>%
-  fgroup_by(PersonalID) %>%
-  fmutate(
-    PreviousEnrollmentID = flag(EnrollmentID),
-    PreviousEnrollmentStart = flag(EnrollmentStart),
-    PreviousEnrollmentEnd = flag(EnrollmentEnd),
-    PreviousProjectType = flag(ProjectType)
-  )
-  logToConsole(session, paste0("overlap_dt: ", nrow(overlap_dt), ' rows'))
-
-
-if(nrow(Services) > 0) {
-# doing these now, to be used for overlap_details later
-  overlap_dt <- overlap_dt %>%
-    fmutate(
-      PreviousFirstDateProvided = flag(FirstDateProvided),
-      PreviousLastDateProvided = flag(LastDateProvided)
-    ) %>%
-    fungroup()
-}
-
-# Exclude first enrollment and do not compare RRH to PSH
-overlap_dt <- overlap_dt %>% 
-  fungroup() %>% 
-  fsubset(
-    !is.na(PreviousEnrollmentID) &
-    !(
-      (ProjectType == rrh_project_type &
-         PreviousProjectType %in% psh_oph_project_types) |
-        (PreviousProjectType == rrh_project_type &
-           ProjectType %in% psh_oph_project_types)
-    )
-  )
-
-# flag overlaps
-# since the dataset is ordered by EnrollmentStart, there are 4 scenarios to consider:
-# 1. 2nd enrl start < 1st enrl end, but 2nd enrl end > 1st enrl end - overlap by 1 day
-# ----
-#   ------
-# 
-# 2a. 2nd enrl fully contained within 1st - overlap 1 day
-# ------
-#   -
-# 
-# 2b. 2nd enrl fully contained within 1st - No overlap
-# ------
-#      -
-#
-# 2c. 2nd enrl fully contained within 1st - overlap 1 day
-# ------
-#     --
-#
-# 2d. 2nd enrl fully contained within 1st - overlap 1 days
-# ------
-# -
-#
-# 2e. 2nd enrl fully contained within 1st - overlap 2 days
-# ------
-# --
-#
-# 3. No overlap
-# ------
-#      ----
-#
-# 4. No overlap
-# ------
-#        ----
-#
-# The below method of calculating overlap days handles all 3 scenarios
-# a non-overlap will have -OverlapDays, which will be handled correctly below
-# when flagging if it's an overlap
-overlap_dt <- overlap_dt %>%
-  fmutate(
-    OverlapDays = as.numeric(
-      pmin(EnrollmentEnd, PreviousEnrollmentEnd) - 
-        pmax(EnrollmentStart, PreviousEnrollmentStart)
-    ),
-    OverlapDays = fifelse(
-      EnrollmentEnd < PreviousEnrollmentEnd,
-      OverlapDays + 1,
-      OverlapDays
-    ),
-    IsOverlap = fifelse(
-      # NbN and EE, then overlap must be more than 2 days
-      (
-        (ProjectType == es_nbn_project_type & PreviousProjectType == es_ee_project_type) |
-        (ProjectType == es_ee_project_type & PreviousProjectType == es_nbn_project_type)
-      ),
-      OverlapDays > 2,
-      # otherwise, if not both NbN, any overlap counts (other than previous end == start)
-      # if both NbN, we handle that differently later, looking only at Service records
-      fifelse(
-        !(ProjectType == es_nbn_project_type & PreviousProjectType == es_nbn_project_type),
-        OverlapDays > 0 & EnrollmentStart != PreviousEnrollmentEnd,
-        FALSE
-      )
-    )
-  ) %>%
-  fsubset(IsOverlap == TRUE)
-
-# for NbN vs. NbN, if any DateProvided are the same, that's an overlap
-# but because DatePRovided is m:1 with Enrollment, we need to process separately
-# from the enrollment-level data above
-if(nrow(Services) > 0) {
-  overlap_dt <- Services %>%
-    roworder(PersonalID, DateProvided) %>%
+if(nrow(overlap_staging) > 0){
+  overlap_dt <- overlap_staging %>%
+    roworder(PersonalID, EnrollmentStart, EnrollmentEnd) %>%
     fgroup_by(PersonalID) %>%
     fmutate(
       PreviousEnrollmentID = flag(EnrollmentID),
-      IsOverlap = fduplicated(list(PersonalID, DateProvided))
-    ) %>%
-    fungroup() %>%
-    fmutate(PreviousProjectType = es_nbn_project_type) %>%
-    fsubset(
-      IsOverlap == TRUE & !is.na(PreviousEnrollmentID),
-      PersonalID, EnrollmentID, PreviousEnrollmentID, DateProvided, IsOverlap, PreviousProjectType
-    ) %>%
-    rbind(overlap_dt, fill=T)
-}
-
-# Bring in EvaChecks info, but overwrite Issue with overlap-specific text
-# that indicates the project type being overlapped with
-cols_to_keep <- c(
-  "EnrollmentID",
-  "PreviousEnrollmentID",
-  "Issue",
-  "Type",
-  "Guidance"
-)
-if(nrow(Services) > 0) {
-  cols_to_keep <- c(
-    cols_to_keep,
-    "DateProvided",
-    "FirstDateProvided",
-    "LastDateProvided",
-    "PreviousFirstDateProvided",
-    "PreviousLastDateProvided"
-  )
-}
-
-overlap_dt <- merge_check_info_dt(overlap_dt, 77) %>% 
-  fmutate(
-    Issue = paste(
-      "Overlap with",
-      fifelse(str_sub(PreviousProjectType, 1, 1) %in% c("A", "E", "I", "O", "U"), "an", "a"),
-      project_type(PreviousProjectType),
-      "project"
+      PreviousEnrollmentStart = flag(EnrollmentStart),
+      PreviousEnrollmentEnd = flag(EnrollmentEnd),
+      PreviousProjectType = flag(ProjectType)
     )
-  ) %>% 
-  fselect(cols_to_keep)
-
-# Bring in additional enrollment details used to contextualize the flagged enrollment
-# e.g. EntryDate, ExitAdjust, etc.
-overlap_dt <- join(
-  overlap_dt,
-  base_dq_data %>% fselect(c(vars_prep, "HouseholdType")),
-  on = "EnrollmentID"
-)
-
-# For the Overlap Details tab of the export
-# we want the same set of details for the overlapping enrollment (i.e. the "previous")
-
-# this wide dataset is saved in the overlap_details() reactiveValue
-# OverlappingDateProvided vs. FirstDateProvided vs. LastDateProvided:
-# - OverlappingDateProvided is only relevant for NbN vs. NbN overlaps
-# - FirstDateProvided and LastDateProvided are within a particular enrollment, 
-#   constructing a range, used for NbN vs. any other type
-get_overlap_col_order <- function() {
-  main_enrl_cols <- vars_prep
+    logToConsole(session, paste0("overlap_dt: ", nrow(overlap_dt), ' rows'))
+  
+  
+  
   if(nrow(Services) > 0) {
-    main_enrl_cols <- c(main_enrl_cols,
-                        "FirstDateProvided",
-                        "LastDateProvided"
+  # doing these now, to be used for overlap_details later
+    overlap_dt <- overlap_dt %>%
+      fmutate(
+        PreviousFirstDateProvided = flag(FirstDateProvided),
+        PreviousLastDateProvided = flag(LastDateProvided)
+      ) %>%
+      fungroup()
+  }
+  
+  # Exclude first enrollment and do not compare RRH to PSH
+  overlap_dt <- overlap_dt %>% 
+    fungroup() %>% 
+    fsubset(
+      !is.na(PreviousEnrollmentID) &
+      !(
+        (ProjectType == rrh_project_type &
+           PreviousProjectType %in% psh_oph_project_types) |
+          (PreviousProjectType == rrh_project_type &
+             ProjectType %in% psh_oph_project_types)
+      )
+    )
+  
+  # flag overlaps
+  # since the dataset is ordered by EnrollmentStart, there are 4 scenarios to consider:
+  # 1. 2nd enrl start < 1st enrl end, but 2nd enrl end > 1st enrl end - overlap by 1 day
+  # ----
+  #   ------
+  # 
+  # 2a. 2nd enrl fully contained within 1st - overlap 1 day
+  # ------
+  #   -
+  # 
+  # 2b. 2nd enrl fully contained within 1st - No overlap
+  # ------
+  #      -
+  #
+  # 2c. 2nd enrl fully contained within 1st - overlap 1 day
+  # ------
+  #     --
+  #
+  # 2d. 2nd enrl fully contained within 1st - overlap 1 days
+  # ------
+  # -
+  #
+  # 2e. 2nd enrl fully contained within 1st - overlap 2 days
+  # ------
+  # --
+  #
+  # 3. No overlap
+  # ------
+  #      ----
+  #
+  # 4. No overlap
+  # ------
+  #        ----
+  #
+  # The below method of calculating overlap days handles all 3 scenarios
+  # a non-overlap will have -OverlapDays, which will be handled correctly below
+  # when flagging if it's an overlap
+  overlap_dt <- overlap_dt %>%
+    fmutate(
+      OverlapDays = as.numeric(
+        pmin(EnrollmentEnd, PreviousEnrollmentEnd) - 
+          pmax(EnrollmentStart, PreviousEnrollmentStart)
+      ),
+      OverlapDays = fifelse(
+        EnrollmentEnd < PreviousEnrollmentEnd,
+        OverlapDays + 1,
+        OverlapDays
+      ),
+      IsOverlap = fifelse(
+        # NbN and EE, then overlap must be more than 2 days
+        (
+          (ProjectType == es_nbn_project_type & PreviousProjectType == es_ee_project_type) |
+          (ProjectType == es_ee_project_type & PreviousProjectType == es_nbn_project_type)
+        ),
+        OverlapDays > 2,
+        # otherwise, if not both NbN, any overlap counts (other than previous end == start)
+        # if both NbN, we handle that differently later, looking only at Service records
+        fifelse(
+          !(ProjectType == es_nbn_project_type & PreviousProjectType == es_nbn_project_type),
+          OverlapDays > 0 & EnrollmentStart != PreviousEnrollmentEnd,
+          FALSE
+        )
+      )
+    ) %>%
+    fsubset(IsOverlap == TRUE)
+  
+  # for NbN vs. NbN, if any DateProvided are the same, that's an overlap
+  # but because DatePRovided is m:1 with Enrollment, we need to process separately
+  # from the enrollment-level data above
+  if(nrow(Services) > 0) {
+    overlap_dt <- Services %>%
+      roworder(PersonalID, DateProvided) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        PreviousEnrollmentID = flag(EnrollmentID),
+        IsOverlap = fduplicated(list(PersonalID, DateProvided))
+      ) %>%
+      fungroup() %>%
+      fmutate(PreviousProjectType = es_nbn_project_type) %>%
+      fsubset(
+        IsOverlap == TRUE & !is.na(PreviousEnrollmentID),
+        PersonalID, EnrollmentID, PreviousEnrollmentID, DateProvided, IsOverlap, PreviousProjectType
+      ) %>%
+      rbind(overlap_dt, fill=T)
+  }
+  
+  # Bring in EvaChecks info, but overwrite Issue with overlap-specific text
+  # that indicates the project type being overlapped with
+  cols_to_keep <- c(
+    "EnrollmentID",
+    "PreviousEnrollmentID",
+    "Issue",
+    "Type",
+    "Guidance"
+  )
+  if(nrow(Services) > 0) {
+    cols_to_keep <- c(
+      cols_to_keep,
+      "DateProvided",
+      "FirstDateProvided",
+      "LastDateProvided",
+      "PreviousFirstDateProvided",
+      "PreviousLastDateProvided"
     )
   }
   
-  # add HouseholdType
-  main_enrl_cols <- append(main_enrl_cols,
-                           "HouseholdType",
-                           after = which(main_enrl_cols == "HouseholdID"))
+  overlap_dt <- merge_check_info_dt(overlap_dt, 77) %>% 
+    fmutate(
+      Issue = paste(
+        "Overlap with",
+        fifelse(str_sub(PreviousProjectType, 1, 1) %in% c("A", "E", "I", "O", "U"), "an", "a"),
+        project_type(PreviousProjectType),
+        "project"
+      )
+    ) %>% 
+    fselect(cols_to_keep)
   
-  previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
-  col_order <- c(main_enrl_cols, previous_enrl_cols)
-  
-  # add in OverlappingDateProvided
-  if(nrow(Services) > 0) {
-    col_order <- append(col_order,
-                        c("OverlappingDateProvided" = "DateProvided"),
-                        after = which(col_order == "MoveInDateAdjust"))
-  }  
-  
-  return(col_order)
-}
-col_order <- get_overlap_col_order()
-
-overlap_details <- join(
-  # Recode ProjectType to a more readable version
-  overlap_dt %>% fmutate(ProjectType = project_type(ProjectType)),
-  # Rename columns for previous enrollment
-  base_dq_data %>%
-    frename(
-      function(c) paste0("Previous", c),
-      cols = c(vars_prep, "HouseholdType")
-    ),
-  on = "PreviousEnrollmentID"
-) %>%
-  fmutate(
-    PreviousProjectType = project_type(PreviousProjectType),
-    HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports),
-    PreviousHouseholdType = fct_collapse(PreviousHouseholdType, !!!hh_types_in_exports)
-  ) %>%
-  fselect(col_order)
-
-# Remove unecessary columns
-cols_to_remove <- "PreviousEnrollmentID"
-if(nrow(Services) > 0) {
-  cols_to_remove <- c(
-    cols_to_remove,
-    "DateProvided",
-    "FirstDateProvided",
-    "LastDateProvided",
-    "PreviousFirstDateProvided",
-    "PreviousLastDateProvided"
+  # Bring in additional enrollment details used to contextualize the flagged enrollment
+  # e.g. EntryDate, ExitAdjust, etc.
+  overlap_dt <- join(
+    overlap_dt,
+    base_dq_data %>% fselect(c(vars_prep, "HouseholdType")),
+    on = "EnrollmentID"
   )
+  
+  # For the Overlap Details tab of the export
+  # we want the same set of details for the overlapping enrollment (i.e. the "previous")
+  
+  # this wide dataset is saved in the overlap_details() reactiveValue
+  # OverlappingDateProvided vs. FirstDateProvided vs. LastDateProvided:
+  # - OverlappingDateProvided is only relevant for NbN vs. NbN overlaps
+  # - FirstDateProvided and LastDateProvided are within a particular enrollment, 
+  #   constructing a range, used for NbN vs. any other type
+  get_overlap_col_order <- function() {
+    main_enrl_cols <- vars_prep
+    if(nrow(Services) > 0) {
+      main_enrl_cols <- c(main_enrl_cols,
+                          "FirstDateProvided",
+                          "LastDateProvided"
+      )
+    }
+    
+    # add HouseholdType
+    main_enrl_cols <- append(main_enrl_cols,
+                             "HouseholdType",
+                             after = which(main_enrl_cols == "HouseholdID"))
+    
+    previous_enrl_cols <- paste("Previous", main_enrl_cols, sep="")
+    col_order <- c(main_enrl_cols, previous_enrl_cols)
+    
+    # add in OverlappingDateProvided
+    if(nrow(Services) > 0) {
+      col_order <- append(col_order,
+                          c("OverlappingDateProvided" = "DateProvided"),
+                          after = which(col_order == "MoveInDateAdjust"))
+    }  
+    
+    return(col_order)
+  }
+  col_order <- get_overlap_col_order()
+  
+  overlap_details <- join(
+    # Recode ProjectType to a more readable version
+    overlap_dt %>% fmutate(ProjectType = project_type(ProjectType)),
+    # Rename columns for previous enrollment
+    base_dq_data %>%
+      frename(
+        function(c) paste0("Previous", c),
+        cols = c(vars_prep, "HouseholdType")
+      ),
+    on = "PreviousEnrollmentID"
+  ) %>%
+    fmutate(
+      PreviousProjectType = project_type(PreviousProjectType),
+      HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports),
+      PreviousHouseholdType = fct_collapse(PreviousHouseholdType, !!!hh_types_in_exports)
+    ) %>%
+    fselect(col_order)
+  
+  # Remove unecessary columns
+  cols_to_remove <- "PreviousEnrollmentID"
+  if(nrow(Services) > 0) {
+    cols_to_remove <- c(
+      cols_to_remove,
+      "DateProvided",
+      "FirstDateProvided",
+      "LastDateProvided",
+      "PreviousFirstDateProvided",
+      "PreviousLastDateProvided"
+    )
+  }
+  
+  get_vars(overlap_dt, c(cols_to_remove, "HouseholdType")) <- NULL
+} else {
+  overlap_dt <- data.table()
+  overlap_details <- NULL
 }
-
-get_vars(overlap_dt, c(cols_to_remove, "HouseholdType")) <- NULL
 
 # Invalid Move-in Date ----------------------------------------------------
 
@@ -1749,15 +1772,30 @@ Other <- calculate_long_stayers_local_settings_dt(other_project_project_type) #7
 DayShelter <- calculate_long_stayers_local_settings_dt(day_project_type) #11
 CoordinatedEntry <- calculate_long_stayers_local_settings_dt(ce_project_type) #14
 
-long_stayers <- rowbind(
-  list(
-    Outreach,
-    ServicesOnly,
-    Other,
-    DayShelter,
-    CoordinatedEntry
+if(all(sapply(list(ESNbN, Outreach, ServicesOnly, Other, DayShelter, CoordinatedEntry), is.null))){
+  logToConsole(session, "All long_stayers data tables are null. No session$userData$long_stayers DQ data available.")
+  long_stayers <- NULL
+} else {
+  
+  long_stayers <- tryCatch( 
+    rowbind(
+      list(
+        ESNbN,
+        Outreach,
+        ServicesOnly,
+        Other,
+        DayShelter,
+        CoordinatedEntry
+      ),
+      return = "data.table"
+    )
   )
-)
+}
+
+
+if(inherits(long_stayers, 'simpleError')){
+  logToConsole(session, "No session$userData$long_stayers DQ data available.")
+}
 
 # Outstanding Referrals --------------------------------------------
 calculate_outstanding_referrals <- function(dq_data){
