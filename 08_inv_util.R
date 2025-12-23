@@ -1,5 +1,64 @@
 
 logToConsole(session, "quarterly bed unit inventory")
+# Create Data for HMIS Participation ------------------------------------------------------
+
+HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
+  fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
+  join(activeInv_no_overflow %>% select(-DateCreated,-DateUpdated,-UserID,-DateDeleted), 
+       ##on = "ProjectID",
+       how = "inner",
+       multiple = TRUE
+  ) %>% 
+  fsubset(ProjectType %in% project_types_w_beds) %>% # filter to ProjectType with Beds
+  fsubset(ProjectType!=rrh_project_type | RRHSubType ==2) %>% # filter RRH projects to subtype 2
+  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
+  fmutate(
+    InvHMISParticipationStart = pmax( # start of Operating & Participating 
+      HMISParticipationStatusStartDate, 
+      OperatingStartDate,
+      na.rm = TRUE
+    ),
+    InvHMISParticipationEnd = pmin( # end of Operating & Participating
+      HMISParticipationStatusEndDate,
+      OperatingEndDate,
+      na.rm = TRUE
+    ),
+    InvHMISActiveParticipationStart = pmax( # start of (Operating & Participating) & Active Inventory
+      InvHMISParticipationStart,
+      InventoryStartDate,
+      na.rm = TRUE
+    ),
+    InvHMISActiveParticipationEnd = pmin( # end of (Operating & Participating) & Active Inventory
+      InvHMISParticipationEnd,
+      InventoryEndDate,
+      na.rm = TRUE
+    )
+  ) %>% select(-InvHMISParticipationStart, - InvHMISParticipationEnd) # drop the interim step vars 
+
+
+HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
+  fgroup_by(ProjectID, HMISParticipationType, VictimServiceProvider, HousingType, TargetPopulation, HouseholdType, ESBedType, Availability) %>%
+  fsummarise(ProjectHMISActiveParticipationStart = fmin(InvHMISActiveParticipationStart), # first active inv start with HMISPartiicpationType 
+             ProjectHMISActiveParticipationEnd = fmax(InvHMISActiveParticipationEnd), # last active inv end with HMISPartiicpationType
+             #TargetPopulation = list(sort(unique(TargetPopulation))), # sum?
+             UnitInventory = fsum(UnitInventory),
+             BedInventory = fsum(BedInventory),
+             CHVetBedInventory = fsum(CHVetBedInventory),
+             YouthVetBedInventory = fsum(YouthVetBedInventory),
+             VetBedInventory = fsum(VetBedInventory),
+             CHYouthBedInventory = fsum(CHYouthBedInventory),
+             YouthBedInventory = fsum(YouthBedInventory),
+             CHBedInventory = fsum(CHBedInventory)) %>% 
+  fungroup()
+
+# Estimate Dedicated Vet, Youth, and CH (Child) units based on ratio of beds
+HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
+  fmutate(VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
+          YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory
+  ) %>% join(Project, how="left") # join project to get full details
+
+
 
 # make function to get quarterly PIT dates
 # this always returns the last 4 quarterly end dates, even when they come before session$userDate$ReportStart
