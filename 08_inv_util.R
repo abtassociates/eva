@@ -1,6 +1,6 @@
 
-logToConsole(session, "quarterly bed unit inventory")
-# Create Data for HMIS Participation ------------------------------------------------------
+logToConsole(session, "building HMIS Participation Datasets")
+## Create Data for HMIS Participation ------------------------------------------------------
 
 HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
@@ -59,8 +59,8 @@ HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
   ) %>% join(Project, how="left") # join project to get full details
 
 
-
-# make function to get quarterly PIT dates
+## Functions --------------------------------
+# make function to get quarterly PIT dates -----------------------
 # this always returns the last 4 quarterly end dates, even when they come before session$userDate$ReportStart
 # for example, if the report start was january 1st 2024 and the report end is december 31st 2024
 # this returns the last wednesday in january, april, july, and october of 2024
@@ -123,6 +123,21 @@ get_months <- function(){
   return(months)
 }  
 
+# make function to get monthly PIT dates ----------
+get_months <- function(){
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  m_last <- month(lastday)
+  end_month = ymd(paste(y_last,m_last,"01", sep="-")) # first day of ending month
+  # if last_day is the last day of the month (first day of next month minus a day)
+  end_month <- as.Date(ifelse(last_day == end_month + months(1) - days(1), 
+                              end_month, # the month is complete
+                              end_month - months(1) # otherwise, use the previous month
+  ))
+  months <- seq(end_month - months(11), end_month, by = "months")
+  names(months) <- month.abb[month(months)]
+  return(months)
+}
 # counting functions -----------------------------------------------
 # create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments)
 count_Beds_Units <- function(pit_dates, extra_groups = NULL){ # use NULL so length == 0
@@ -200,8 +215,10 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
   return(Bed_Unit_Util)
 } 
 
+## Build Project Level data ----------------------------
+logToConsole(session, "building project-level utilization")
 quarters <- get_quarters() %>% sort
-
+mons <- get_months() %>% sort
 # full join the results of passing quarters through counting functions
 # Counts on PIT Dates
 project_level_util_q <- count_Beds_Units(quarters) %>%
@@ -209,8 +226,15 @@ project_level_util_q <- count_Beds_Units(quarters) %>%
   fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds *100, digits = 1), "%"),
           PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units*100, digits = 1), "%"))
 
+project_level_util_m <- count_Beds_Units(mons) %>%
+  join(count_Enrollments(mons), how = "left") %>%
+  fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds *100, digits = 1), "%"),
+          PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units*100, digits = 1), "%"))
+
 # pass results to session for server_09_inv_util.R
 session$userData$project_level_util_q <- project_level_util_q 
+session$userData$project_level_util_m <- project_level_util_m 
 session$userData$HMIS_project_active_inventories <- HMIS_project_active_inventories 
 session$userData$EnrollmentAdjust <- EnrollmentAdjust
+
 
