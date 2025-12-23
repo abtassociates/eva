@@ -195,62 +195,6 @@ nightly_avg <- function(period, labels, projlist ){
 
 ## Get Bed/Unit Inventory Data Reactives ------------------------------------------
 
-# Quarterly Project Level Utilization (suppressed) ------------
-#q_proj_bed_unit_inv <- reactive({
-#  req(session$userData$dq_pdde_mirai_complete() == 1)
-#  
-#  logToConsole(session, "quarterly bed unit inventory")
-#  quarters <- get_quarters() %>% sort
-  
-  # full join the results of passing quarters through counting functions
-  # Counts on PIT Dates
-#  project_level_util_q <- count_Beds_Units(quarters) %>%
-#    join(count_Enrollments(quarters), how = "left")
-  
-  # Avg over Quarters 
-#  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters))
-  
-#  project_level_util_q <- project_level_util_q %>% join(nightly_avg, how = "full") 
-#  rm(nightly_avg)
-  
-  # calculate project level quarterly utilization
-#  project_level_util_q <- project_level_util_q %>%
-#    fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
-#            Unit_Utilization = PIT_HHServed / PIT_Units)
-#  
-  
-#  project_level_util_q
-#})
-# Quarterly System Level Utilization (suppressed) ---------------
-#q_sys_bed_unit_inv <- reactive({
-  
-  # calculate system level totals
-  
-  # should this use the reactive name?
-  #system_level_util <- proj_bed_unit_inv %>% fungroup %>%
-#  system_level_util_q <- project_level_util_q %>% fungroup %>% 
-#    fgroup_by(PIT) %>% # for each PIT Date,
-#    fsummarise(  # sum all projects 
-#      Total_Beds = fsum(PIT_Beds),
-#      Total_Units = fsum(PIT_Units),
-#      Total_Served = fsum(PIT_Served),
-#      Total_HHServed = fsum(PIT_HHServed),
-#      Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
-#      Avg_Nightly_Units = fsum(Avg_Nightly_Units),
-#      Avg_Nightly_Served = fsum(Avg_Nightly_Served),
-#      Avg_Nightly_HHServed = fsum(Avg_Nightly_HHServed)
-#    ) %>% fungroup()
-  
-  # calculate system level quarterly utilization
-#  system_level_util_q <- system_level_util_q %>%
-#    fmutate(Bed_Utilization = Total_Served / Total_Beds,
-#            Unit_Utilization = Total_HHServed / Total_Units,
-#            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
-#            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
-#  system_level_util_q
-  
-#})
-
 # Quarterly Filtered Project Level Table -------------
 output$q_proj_inv_filtered <- renderDT({# <- reactive({
   req(!is.null(input$currentProviderList1))
@@ -299,84 +243,6 @@ output$q_proj_inv_filtered <- renderDT({# <- reactive({
      style = "default"
   )
 })
-
-# Monthly Project Level Utilization (suppressed) --------------
-#m_proj_bed_unit_inv <- reactive({
-#  req(session$userData$dq_pdde_mirai_complete() == 1)
-#  
-#  logToConsole(session, "monthly bed unit inventory")
-#  months <- get_months() %>% sort # should already be sorted but w/e
-#  
-#  # full join the results of passing months through counting functions
-#  # Counts on PIT Dates
-#  project_level_util_m <- count_Beds_Units(months) %>%
-#    join(count_Enrollments(months), how = "left")
-#  
-#  # Avg over Months 
-#  nightly_avg <- nightly_avg(period = months, labels = names(months))
-#  project_level_util_m <- project_level_util_m %>% join(nightly_avg, how = "full") 
-#  rm(nightly_avg)
-#  
-#  # calculate project level quarterly utilization
-#  project_level_util_m <- project_level_util_m %>%
-#    fmutate(Bed_Utilization = PIT_Served / PIT_Beds,
-#            Unit_Utilization = PIT_HHServed / PIT_Units)
-#  
-#  project_level_util_m
-#})
-# Monthly System Level Utilization (suppressed) ---------------
-# m_sys_bed_unit_inv <- reactive({
-  
-  # calculate system level totals
-  
-  # should this use the reactive name?
-  #system_level_util <- proj_bed_unit_inv %>% fungroup %>%
-#  system_level_util_m <- project_level_util_m %>% fungroup %>% 
-#    fgroup_by(PIT) %>% # for each PIT Date,
-#    fsummarise(  # sum all projects 
-#      Total_Beds = fsum(PIT_Beds),
-#      Total_Units = fsum(PIT_Units),
-#      Total_Served = fsum(PIT_Served),
-#      Total_HHServed = fsum(PIT_HHServed),
-#      Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
-#      Avg_Nightly_Units = fsum(Avg_Nightly_Units),
-#      Avg_Nightly_Served = fsum(Avg_Nightly_Served),
-#      Avg_Nightly_HHServed = fsum(Avg_Nightly_HHServed)
-#    ) %>% fungroup()
-  
-#  # calculate system level quarterly utilization
-#  system_level_util_m <- system_level_util_m %>%
-#    fmutate(Bed_Utilization = Total_Served / Total_Beds,
-#            Unit_Utilization = Total_HHServed / Total_Units,
-#            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
-#            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
-#  system_level_util_m
-  
-#})
-
-# AS 11/14/25: This is a short-term fix. 
-# Eventually, better to build out additional shinytests dedicated to testing different sets of filters
-# The reason we do this is that we are now adding a Race/Ethnicity = Hisp... filter in main-valid
-# If we left caching on, then it would have cached the previous combo of filters such that when we undid the Hisp/Latino filter
-# it would not have re-run the period_specific_data reactive and re-updated the period_data helper_data file back to the fuller set
-# if(!isTRUE(getOption("shiny.testmode"))) 
-#   # This saves the *results* in the cache so if they change inputs back to 
-#   # something already seen, it doesn't have to re-run the code
-#   period_specific_data <- bindCache(
-#     period_specific_data,
-#     if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
-# 
-#     # Client-level filters
-#     input$syso_age,
-#     input$syso_race_ethnicity,
-#     input$syso_spec_pops,
-# 
-#     # Enrollment-level filters
-#     input$syso_hh_type,
-#     input$syso_level_of_detail,
-#     input$syso_project_type,
-#     cache = "session"
-#   )
 
 # Monthly Filtered Project Level Table -------------
 output$m_proj_inv_filtered <- renderDT({# <- reactive({
@@ -427,7 +293,92 @@ output$m_proj_inv_filtered <- renderDT({# <- reactive({
   )
 })
 
-# OLD commented out code from old sys_overview_server ------------------------
+# Quarterly System Level Utilization (suppressed) ---------------
+#q_sys_bed_unit_inv <- reactive({
+
+# calculate system level totals
+
+# should this use the reactive name?
+#system_level_util <- proj_bed_unit_inv %>% fungroup %>%
+#  system_level_util_q <- project_level_util_q %>% fungroup %>% 
+#    fgroup_by(PIT) %>% # for each PIT Date,
+#    fsummarise(  # sum all projects 
+#      Total_Beds = fsum(PIT_Beds),
+#      Total_Units = fsum(PIT_Units),
+#      Total_Served = fsum(PIT_Served),
+#      Total_HHServed = fsum(PIT_HHServed),
+#      Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
+#      Avg_Nightly_Units = fsum(Avg_Nightly_Units),
+#      Avg_Nightly_Served = fsum(Avg_Nightly_Served),
+#      Avg_Nightly_HHServed = fsum(Avg_Nightly_HHServed)
+#    ) %>% fungroup()
+
+# calculate system level quarterly utilization
+#  system_level_util_q <- system_level_util_q %>%
+#    fmutate(Bed_Utilization = Total_Served / Total_Beds,
+#            Unit_Utilization = Total_HHServed / Total_Units,
+#            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
+#            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
+#  system_level_util_q
+
+#})
+
+
+# Monthly System Level Utilization (suppressed) ---------------
+# m_sys_bed_unit_inv <- reactive({
+
+# calculate system level totals
+
+# should this use the reactive name?
+#system_level_util <- proj_bed_unit_inv %>% fungroup %>%
+#  system_level_util_m <- project_level_util_m %>% fungroup %>% 
+#    fgroup_by(PIT) %>% # for each PIT Date,
+#    fsummarise(  # sum all projects 
+#      Total_Beds = fsum(PIT_Beds),
+#      Total_Units = fsum(PIT_Units),
+#      Total_Served = fsum(PIT_Served),
+#      Total_HHServed = fsum(PIT_HHServed),
+#      Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
+#      Avg_Nightly_Units = fsum(Avg_Nightly_Units),
+#      Avg_Nightly_Served = fsum(Avg_Nightly_Served),
+#      Avg_Nightly_HHServed = fsum(Avg_Nightly_HHServed)
+#    ) %>% fungroup()
+
+#  # calculate system level quarterly utilization
+#  system_level_util_m <- system_level_util_m %>%
+#    fmutate(Bed_Utilization = Total_Served / Total_Beds,
+#            Unit_Utilization = Total_HHServed / Total_Units,
+#            Avg_Nightly_Bed_Util = Avg_Nightly_Served / Avg_Nightly_Beds,
+#            Avg_Nightly_Unit_Util = Avg_Nightly_HHServed / Avg_Nightly_Units)
+#  system_level_util_m
+
+#})
+
+# AS 11/14/25: This is a short-term fix. 
+# Eventually, better to build out additional shinytests dedicated to testing different sets of filters
+# The reason we do this is that we are now adding a Race/Ethnicity = Hisp... filter in main-valid
+# If we left caching on, then it would have cached the previous combo of filters such that when we undid the Hisp/Latino filter
+# it would not have re-run the period_specific_data reactive and re-updated the period_data helper_data file back to the fuller set
+# if(!isTRUE(getOption("shiny.testmode"))) 
+#   # This saves the *results* in the cache so if they change inputs back to 
+#   # something already seen, it doesn't have to re-run the code
+#   period_specific_data <- bindCache(
+#     period_specific_data,
+#     if(isTruthy(input$in_demo_mode)) "demo" else input$imported$name,
+# 
+#     # Client-level filters
+#     input$syso_age,
+#     input$syso_race_ethnicity,
+#     input$syso_spec_pops,
+# 
+#     # Enrollment-level filters
+#     input$syso_hh_type,
+#     input$syso_level_of_detail,
+#     input$syso_project_type,
+#     cache = "session"
+#   )
+
+# OLD commented out code from sys_overview_server ------------------------
 # when user changes chart tabs 
 # hide demographic filters for Composition chart
 # move chart download button to be inline with subtabs
