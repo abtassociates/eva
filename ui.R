@@ -1148,6 +1148,7 @@ nav_menu(
               ),
               nav_panel(
                 title = headerSubTab("Information"),
+                br(),
                 tab_syse_types_subtabs_information
               )
             ),
@@ -1176,6 +1177,7 @@ nav_menu(
               ),
               nav_panel(
                 title = headerSubTab('Information'),
+                br(),
                 tab_syse_time_chart_information
               )
             ),
@@ -1203,6 +1205,7 @@ nav_menu(
               ),
               nav_panel(
                 title = headerSubTab('Information'),
+                br(),
                 tab_syse_subpop_chart_information
               )
             ),
@@ -1257,6 +1260,7 @@ nav_menu(
               ),
               nav_panel(
                 title = headerSubTab("Information"),
+                br(),
                 tab_syse_phd_subtabs_information
               )
             ),

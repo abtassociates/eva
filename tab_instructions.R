@@ -937,7 +937,7 @@ tabDQSystem_instructions <-  HTML("
                your CoC leadership, a broader view of the state of your HMIS
                data quality.</p>")
 
-tabSystemExits_instructions <- HTML("<h2>System Exits</h2>
+tabSystemExits_instructions <- HTML("<h4>System Exits</h4>
                 <p>The System Exits page in Eva features four system performance panels, 
 each with their own set of charts: the System Exits by Types Panel, the System Exits by Year Panel, the System Exits by Subpopulation, 
 and the Permanent Housing Demographics Panel. The charts display system performance data, pulled 
