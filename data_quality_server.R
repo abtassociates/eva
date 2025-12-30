@@ -1084,7 +1084,7 @@ output$dq_export_download_btn <- downloadHandler(
 #       detail,
 #       aes(x = Type, y = Total)
 #     ) +
-#     geom_col(fill = "#71b4cb", alpha = .7, width = .4) +
+#     geom_col(fill = get_brand_color("blue), alpha = .7, width = .4) +
 #     scale_y_continuous(label = comma_format()) +
 #     labs(
 #       title = "System-wide Data Quality Issues",
@@ -1093,7 +1093,7 @@ output$dq_export_download_btn <- downloadHandler(
 #     theme_minimal(base_size = 18) +
 #     theme(
 #       plot.title.position = "plot",
-#       title = element_text(colour = "#73655E")
+#       title = element_text(colour = get_brand_color('dark_grey'))
 #     ) +
 #     geom_text(aes(label = prettyNum(Total, big.mark = ",")),
 #                vjust = -.5,
@@ -1134,7 +1134,7 @@ output$dq_export_download_btn <- downloadHandler(
 #             mutate(OrganizationName = fct_reorder(OrganizationName, Total)),
 #           aes(x = OrganizationName, y = Total)
 #         ) +
-#         geom_col(fill = "#D5BFE6", alpha = .7)+
+#         geom_col(fill = get_brand_color('med_purple'), alpha = .7)+
 #         scale_y_continuous(label = comma_format()) +
 #         labs(
 #           title = paste("Highest Counts of",
@@ -1148,7 +1148,7 @@ output$dq_export_download_btn <- downloadHandler(
 #         theme_minimal(base_size = 18) +
 #         theme(
 #           plot.title.position = "plot",
-#           title = element_text(colour = "#73655E")
+#           title = element_text(colour = get_brand_color('dark_grey'))
 #         ) +
 #         geom_text(aes(label = prettyNum(Total, big.mark = ",")),
 #                   nudge_y = 2,

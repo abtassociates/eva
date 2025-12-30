@@ -185,13 +185,13 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
         aes(fill = frac)
       ) +
       scale_fill_gradient(
-        low = "#D2E3D9",
-        high = "#084954",
+        low = get_brand_color('light_green'),
+        high = get_brand_color('dark_green'),
         breaks = seq(0, 1, by = 0.05),
         na.value = ifelse(
           is.na(plot_df_joined$wasRedacted) | !plot_df_joined$wasRedacted,
           "white",
-          "#D2E3D9"
+          get_brand_color('light_green')
         )
       ) +
       # set text color to be 508 compliant contrasting
@@ -418,13 +418,13 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       aes(fill = frac)
     ) +
     scale_fill_gradient(
-      low = "#D2E3D9",
-      high = "#084954",
+      low = get_brand_color('light_green'),
+      high = get_brand_color('dark_green'),
       breaks = seq(0,1,by=0.05),
       na.value = ifelse(
         is.na(plot_df_joined$wasRedacted) | !plot_df_joined$wasRedacted,
         "white",
-        "#D2E3D9"
+        get_brand_color('light_green')
       )
     ) + # na.value makes 0s invisible
     # set text color to be 508 compliant contrasting
@@ -462,10 +462,10 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       ) +
       
       scale_fill_gradient(
-        low = "#ede7e3",
-        high = "#73655e",
+        low = get_brand_color('light_grey'),
+        high = get_brand_color('dark_grey'),
         breaks = seq(0,1,by=0.05),
-        na.value = ifelse(h_total_joined$wasRedacted, "#ede7e3", 'white')
+        na.value = ifelse(h_total_joined$wasRedacted, get_brand_color('light_grey'), 'white')
       ) +
       
       geom_text(
@@ -489,10 +489,10 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
         aes(fill = frac)
       ) +
       scale_fill_gradient(
-        low = "#ede7e3",
-        high = "#73655e",
+        low = get_brand_color('light_grey'),
+        high = get_brand_color('dark_grey'),
         breaks = seq(0,1,by=0.05),
-        na.value = ifelse(v_total_joined$wasRedacted, "#ede7e3", 'white')
+        na.value = ifelse(v_total_joined$wasRedacted, get_brand_color('light_grey'), 'white')
       ) +
       
       geom_text(
@@ -556,11 +556,11 @@ tree_exits_data <- reactive({
 syse_types_chart <- function(varname, status, show_legend = FALSE){
   
   tree_colors <- c(
-    "Permanent" = "#16697A",
-    "Homeless" = "#C2462E",
-    "Institutional" = "#CCC7C4",
-    "Temporary" = "#CCC7C4",
-    "Other/Unknown" = "#CCC7C4"
+    "Permanent" = get_brand_color('dark_blue'),
+    "Homeless" = get_brand_color('coral'),
+    "Institutional" = get_brand_color('med_grey'),
+    "Temporary" = get_brand_color('med_grey'),
+    "Other/Unknown" = get_brand_color('med_grey')
   )
   nr <- nrow(tree_exits_data())
   
@@ -937,8 +937,8 @@ get_syse_compare_time_data <- reactive({
 syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   
   subgroup_colors <- c(
-   "Subpopulation" = "#D5BFE6",
-   "Everyone Else" = "#9E958F"
+   "Subpopulation" = get_brand_color('med_purple'),
+   "Everyone Else" = get_brand_color('med_grey2')
   )
   
   ## use adjusted locations for point placement 
@@ -995,8 +995,8 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
 get_syse_compare_subpop_table <- function(tab){
   
   subgroup_colors <- c(
-    "Subpopulation" = "#D5BFE6",
-    "Everyone Else" = "#9E958F"
+    "Subpopulation" = get_brand_color('med_purple'),
+    "Everyone Else" = get_brand_color('med_grey2')
   )
   
   datatable(tab, 
@@ -1080,8 +1080,8 @@ get_syse_compare_subpop_flextable <- function(tab) {
   
   # Formatting the subpopulation row labels
   subgroup_colors <- c(
-    "Subpopulation" = "#D5BFE6",
-    "Everyone Else" = "#9E958F"
+    "Subpopulation" = get_brand_color('med_purple'),
+    "Everyone Else" = get_brand_color('med_grey2')
   )
   
   ft <- ft %>%
@@ -1138,8 +1138,8 @@ get_syse_compare_time_flextable <- function(tab) {
   
   ## formatting the time row labels
   time_colors <- c(
-    "Current Year" = "#D5BFE6",
-    "Previous Year" = "#9E958F"
+    "Current Year" = get_brand_color('med_purple'),
+    "Previous Year" = get_brand_color('med_grey2')
   )
   
   ft <- ft %>%
@@ -1188,8 +1188,8 @@ output$syse_compare_subpop_table <- renderDT({
 syse_compare_time_chart <- function( isExport = FALSE){
   
   time_colors <- c(
-    "Current Year" = "#D5BFE6",
-    "Previous Year" = "#9E958F"
+    "Current Year" = get_brand_color('med_purple'),
+    "Previous Year" = get_brand_color('med_grey2')
   )
   
   ## use adjusted locations for point placement 
@@ -1244,8 +1244,8 @@ syse_compare_time_chart <- function( isExport = FALSE){
 get_syse_compare_time_table <- function(tab){
   
   time_colors <- c(
-    "Current Year" = "#D5BFE6",
-    "Previous Year" = "#9E958F"
+    "Current Year" = get_brand_color('med_purple'),
+    "Previous Year" = get_brand_color('med_grey2')
   )
   
   datatable(tab, 
