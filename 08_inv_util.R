@@ -107,21 +107,6 @@ get_quarters <- function(){
   names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
   return(quarters)
 }
-get_months <- function(){
-  lastday <- as.Date(session$userData$ReportEnd)
-  y_last <- year(lastday)
-  m_last <- month(lastday)
-  end_month = ymd(paste(y_last,m_last,"01", sep="-")) # first day of ending month
-  # if last_day is the last day of the month (first day of next month minus a day)
-  end_month <- as.Date(ifelse(last_day == end_month + months(1) - days(1), 
-                              end_month, # the month is complete
-                              end_month - months(1) # otherwise, use the previous month
-  ))
-  months <- seq(end_month - months(11), end_month, by = "months")
-  
-  names(months) <- month.abb[month(months)]
-  return(months)
-}  
 
 # make function to get monthly PIT dates ----------
 get_months <- function(){
@@ -130,7 +115,7 @@ get_months <- function(){
   m_last <- month(lastday)
   end_month = ymd(paste(y_last,m_last,"01", sep="-")) # first day of ending month
   # if last_day is the last day of the month (first day of next month minus a day)
-  end_month <- as.Date(ifelse(last_day == end_month + months(1) - days(1), 
+  end_month <- as.Date(ifelse(lastday == end_month + months(1) - days(1), 
                               end_month, # the month is complete
                               end_month - months(1) # otherwise, use the previous month
   ))
