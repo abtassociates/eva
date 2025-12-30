@@ -1,5 +1,5 @@
 
-compare_export_bar_width <- 0.5
+compare_export_bar_width <- 0.4
 compare_bar_width <- 0.4
 
 output$syse_compare_subpop_filter_selections <-renderUI({ 
@@ -969,7 +969,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
     scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
-    labs(x = '', y = '') +
+    labs(x = '', y = 'Percentage of System Exits') +
     theme_minimal() +
     theme(
           panel.grid.major = element_blank(),
@@ -979,7 +979,8 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
           legend.justification = 'left',
           legend.position = 'top',
           legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
-          axis.text.y = element_text(size = sys_axis_text_font)
+          axis.text.y = element_text(size = sys_axis_text_font),
+          axis.title.y = element_text(size = sys_axis_text_font)
         )
   if(isExport){
     g + theme(
@@ -1217,7 +1218,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
     scale_fill_manual(values=rev(time_colors),guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
-    labs(x = '', y = '') +
+    labs(x = '', y = 'Percentage of System Exits') +
     theme_minimal() +
     theme(
       panel.grid.major = element_blank(),
@@ -1228,6 +1229,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
       legend.position = 'top',
       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       axis.text.y = element_text(size = sys_axis_text_font),
+      axis.title.y = element_text(size = sys_axis_text_font)
     )
   if(isExport){
     g + theme(
