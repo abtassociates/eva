@@ -168,10 +168,6 @@ process_upload <- function(upload_filename, upload_filepath) {
                         choices = sort(Project$ProjectName))
       
       updatePickerInput(session = session,
-                        inputId = "currentProviderList1",
-                        choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
-      
-      updatePickerInput(session = session,
                         inputId = "orgList",
                         choices = c(unique(sort(Organization$OrganizationName))))
       
