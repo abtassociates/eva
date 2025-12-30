@@ -92,7 +92,7 @@ function(input, output, session) {
   
   output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
-  output$headerSystemExit <- headerGeneric(session, "System Exit")
+  output$headerSystemExit <- headerGeneric(session, "System Exits")
 
   # output$headerUtilization <- renderUI({
   #   list(h2("Bed and Unit Utilization"),
@@ -136,6 +136,8 @@ function(input, output, session) {
   
   source("data_quality_server.R", local = TRUE)
   
+  source("system_performance_functions.R", local = TRUE)
+  
   source("system_overview_server.R", local = TRUE)
   
   source("system_inflow_outflow_server.R", local = TRUE)
@@ -143,6 +145,8 @@ function(input, output, session) {
   source("system_composition_server.R", local = TRUE)
 
   source("system_status_server.R", local = TRUE)
+  
+  source("system_exits_server.R", local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
