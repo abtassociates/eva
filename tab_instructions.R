@@ -1018,7 +1018,7 @@ summarizes the total exits from the system into five destination categories: Per
 Institutional, and Other/Unknown. The chart is read by looking at the relative size of each box, which corresponds 
 to the number of exits in that category. Percentages represent each category’s share of the total exits during the 
 reporting period. Larger boxes mean more exits to that type of destination.</p>
-
+                                <br>
                                 <p>The client universe for this chart is the number of clients who exited the homeless 
 system and who were not active in the system on the last day of the report. A system exit is defined as an exit from any 
 project where there is no subsequent enrollment in any project for the client in the 14 days following the exit. While a 
@@ -1063,8 +1063,19 @@ if certain project types have more Other/Unknown destinations over other project
                                   </tr>
                                  </table>")
 
-tab_syse_time_chart_information <- HTML("<h4>Chart Overview</h4>")
-tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>")
+tab_syse_time_chart_information <- HTML("<h4>Chart Overview</h4>
+                                        <p>The System Exits by Time chart compares the current year's system exits against the previous year's system exits. This chart can help with system modeling as it highlights potential trends in system exits by destination type across time.<p>
+                                        <br>
+                                        <p>Each destination type has two bars that represent the percentage of exits for the current year and previous year. These bars show whether the percentage increased, decreased, or stayed the same from one year to the next. Below the chart is a table with the percentages, as well as the percentage change between the two years.<p>
+                                        <br>
+                                        <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
+
+tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
+                                          <p>The System Exits by Subpopulation chart compares system exits for a specific, user-selected subpopulation against the system exits of everyone else not part of that subpopulation. This chart can help with system modeling as it highlights potential trends in system exits across various subpopulations.</p>
+                                          <br>
+                                          <p>To view this chart, you must make at least one change to the demographic filters (Age, Veteran Status, and Race/Ethnicity). Each destination type has two bars that represent the percentage of exits for the subpopulation group and everyone else. Below the chart is a table with the percentages, as well as the percentage difference between the two groups.</p>
+                                          <br>
+                                          <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
 
 tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                          <p>The Permanent Housing Demographics chart shows the demographic make-up of the 
@@ -1072,18 +1083,18 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                          important trends among various demographic groups. The client universe for this 
                                          chart is the number of clients that exited your system to a permanent 
                                          destination by the end of the report period.</p>
-                                         
+                                         <br>
                                           <p>Under the chart tab are five demographic categories you can choose from: 
                                          Age, All Races/Ethnicities, a second race/ethnicity option, and Veteran Status. 
                                          Please note, the second race/ethnicity option differs for each Race/Ethnicity 
                                          Methodology Type selection you made earlier on the Filter Menu.</p>
-
+                                        <br>      
                                          <p>For a simple count of totals within a demographic category, select only one category. 
                                          To see the intersection of two demographic categories, select both categories to create a 
                                          crosstab chart. To change your crosstab selection, uncheck at least one of your previous 
                                          selections before selecting a new category. Please note that you can only select one race/ethnicity 
                                          category to display in the chart at a time.</p>
-
+                                        <br>
                                          <p>Each cell in the chart is a unique combination of demographic characteristics. For example, 
                                          if you selected Age and Race/Ethnicity, a unique demographic combination would be \"25 to 34” and 
                                          \"Black alone.” The darker the color in a cell, the greater the value of that cell. Each cell shows the following:</p>
