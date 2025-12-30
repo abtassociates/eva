@@ -123,8 +123,11 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL, pro
   Bed_Unit_Util$active_days <- mapply(activeDays, inv_start = Bed_Unit_Util$EntryDate, inv_end = Bed_Unit_Util$ExitAdjust) # count days of enrollment overlapping with days of range
   #print(unique(Bed_Unit_Util %>% select(ProjectID, active_days)))
   
-  stopifnot(nrow(Bed_Unit_Util)>0)
-  
+  if(nrow(Bed_Unit_Util)==0){ 
+    return(Bed_Unit_Util %>% fselect(grouping_vars) %>% fselect(-ProjectType) %>%
+             fmutate(Total_Served = 0, Total_HHServed = 0,
+                     Avg_Nightly_Served = 0, Avg_Nightly_HHServed = 0)) 
+  }
   
   Bed_Unit_Util <- Bed_Unit_Util %>% fmutate(# Enrollment Active
     enrollDays = fifelse(!is.na(bn_rng), bn_rng, active_days)) %>% # if enrollment_id is in services, use bn_rng to count days, otherwise, use active_days
@@ -149,17 +152,17 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL, pro
 # pass quarter start/end dates through ranged counting functions
 # use difference in dates to calculate the 'report length' and calculate nightly averages
 nightly_avg <- function(period, labels, projlist ){
-  for (q in 1:length(period)){
+  for (q in 1:length(period)){ # q stands for quarter, but this is generalized to work for months too
     
     if(q!=length(period)){ # IF NOT LAST
       nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1], proj_list = projlist) %>%
-        join(count_Enrollments_rng(period[q], period[q+1], proj_list = projlist), how = "left") %>%
+        join(count_Enrollments_rng(period[q], period[q+1], proj_list = projlist), how = "full") %>%
         fmutate(PIT = period[q],
                 label = labels[q])
       
     }else{ # IF LAST, use a year from first quarter minus a day (so full range is 365)
       nightly_avg_q <- count_Beds_Units_rng(period[q], period[1] + years(1) - days(1), proj_list = projlist) %>%
-        join(count_Enrollments_rng(period[q], period[1] + years(1) - days(1), proj_list = projlist), how = "left") %>%
+        join(count_Enrollments_rng(period[q], period[1] + years(1) - days(1), proj_list = projlist), how = "full") %>%
         fmutate(PIT = period[q],
                 label = labels[q])
     }
@@ -197,10 +200,10 @@ nightly_avg <- function(period, labels, projlist ){
 
 # Quarterly Filtered Project Level Table -------------
 output$q_proj_inv_filtered <- renderDT({# <- reactive({
-  req(!is.null(input$currentProviderList1))
+  req(!is.null(input$HMISprojects))
   
   selectedProjs <- session$userData$Project0 %>% # get selected projects
-    fsubset(ProjectName %in% input$currentProviderList1)
+    fsubset(ProjectName %in% input$HMISprojects)
   selectedProjs <- unique(selectedProjs$ProjectID)
   
   project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% selectedProjs)
@@ -246,10 +249,10 @@ output$q_proj_inv_filtered <- renderDT({# <- reactive({
 
 # Monthly Filtered Project Level Table -------------
 output$m_proj_inv_filtered <- renderDT({# <- reactive({
-  req(!is.null(input$currentProviderList1))
+  req(!is.null(input$HMISprojects))
   
   selectedProjs <- session$userData$Project0 %>% # get selected projects
-    fsubset(ProjectName %in% input$currentProviderList1)
+    fsubset(ProjectName %in% input$HMISprojects)
   selectedProjs <- unique(selectedProjs$ProjectID)
   
   project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% selectedProjs)
