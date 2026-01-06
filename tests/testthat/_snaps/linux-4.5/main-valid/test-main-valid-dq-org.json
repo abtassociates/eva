@@ -235,9 +235,7 @@
       112,
       113,
       114,
-      115,
-      116,
-      117
+      115
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -885,7 +883,7 @@
       ]
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 5a5d7906177f9fa1a0066840b6b40866]",
+      "src": "[image data hash: 5113bfaadcfbb767779a5aad9f85d9e4]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -912,8 +910,8 @@
 
                 ],
                 "y": [
+                  "Unknown Disabling Condition",
                   "Unknown Months or Times Homeless",
-                  "Unknown Living Situation",
                   "Overlap with a Emergency Shelter (E/E) project",
                   "Incomplete or Unknown Name",
                   "Future Entry Date",
@@ -962,7 +960,7 @@
       ]
     },
     "orgDQWarningByProject": {
-      "src": "[image data hash: 298f2f55a50de1beaa9c07da4e1bee8d]",
+      "src": "[image data hash: 3c6eb2cb4095b6fe435e869a27e1a518]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most Warnings.",
@@ -981,7 +979,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 260.7,
+              "right": 243.1,
               "bottom": 0.4,
               "top": 9.6,
               "discrete_limits": {
@@ -1058,17 +1056,17 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "117",
+        "Length": "115",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 53,
-        "Warning": 59
+        "Warning": 57
       },
       "Issue": {
-        "Length": "117",
+        "Length": "115",
         "Class": "character",
         "Mode": "character"
       },
@@ -1076,7 +1074,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.735042735042734,
+        "Mean": 8.704347826086957,
         "3rd Qu.": 7,
         "Max.": 181
       }
