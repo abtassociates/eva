@@ -163,20 +163,17 @@ staging <- rowbind(new_way, new_way_b4_mbm, old_way) %>%
 matching_columns <- c("SessionID", "DateTimeMinute", "EventCategory" ) # Columns to check for matching values
 
 # Identify rows to drop
-to_drop <- c()
-#if (staging$Date < as.Date('2025-03-06')) { ######## VERIFY THIS IS CORRECT BEFORE PUSH
-for (i in seq_len(nrow(staging) - 1)) {
-  if (all(staging[i, matching_columns] == staging[i + 1, matching_columns]) 
-      && grepl("Downloaded System Overview Powerpoint", staging[i, "Event"])
-      && grepl("Downloaded System Overview Tabular Data", staging[i + 1, "Event"])
-      ) {
-    to_drop <- c(to_drop, i + 1)
-  }
-}
-#}
-  
-# Drop the rows from staging
-staging <- staging[-to_drop, ]
+staging <- staging %>% 
+  ## dropping these rows - much faster than old loop
+  fsubset(
+    !(
+      (SessionID == flag(SessionID, n = -1)) &
+        (DateTimeMinute == flag(DateTimeMinute, n = -1)) &
+        (EventCategory == flag(EventCategory, n = -1)) &
+        grepl("Downloaded System Overview Powerpoint", Event) &
+        grepl("Downloaded System Overview Tabular Data", flag(Event, n = -1))
+      )
+)
 
 #all_week <- staging %>%
 #  filter(WeekEnding >= ceiling_date(max(ymd_hms(staging$Date)),
@@ -877,6 +874,7 @@ counts_by_week %>%
     str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report - DEMO MODE",
     default = "Other"
   )) %>% 
+  fsubset(Event2 != 'Other') %>% 
   fmutate(n_old = 1,
                   n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
                              n_old * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
