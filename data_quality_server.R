@@ -730,6 +730,10 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
     fsubset(OrganizationName %in% org_name)
   
   # return a list for reference in downloadHandler
+  if(fnrow(orgDQData) == 0 && fnrow(orgDQoverlapDetails) == 0 && fnrow(orgDQReferrals) == 0){
+    logToConsole(session, 'no data found for DQ Report generation. exiting from get_dqDownloadInfo')
+    return(NULL)
+  }
   
   if(value == "org"){
     return(
@@ -853,12 +857,13 @@ output$dq_export_download_btn <- downloadHandler(
         dq_counter <- 0
         
         for(i in orgs_to_save){
-          
+          logToConsole(session, paste0("Checking Org #",which(orgs_to_save == i),", Orgname: ", i))
           dq_export_list <- get_dqDownloadInfo_export(i, value = "org")
           progress$inc(amount = 1 / length(orgs_to_save),
                        detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))          
          
           if(length(dq_export_list) <= 1) {
+            logToConsole(session, paste0("Skipping report for Org #",which(orgs_to_save == i),", Orgname: ", i))
             next
           } else {
             dq_counter <- dq_counter + 1 
