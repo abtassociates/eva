@@ -3,6 +3,13 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "01-09-2026",
+    "<b>Bug Fixes</b> <br>
+      - Added better error-catching to Project Dashboard and Data Quality report download functions<br>
+      - Added missing data checks to Timeliness info boxes<br>
+    <b>Improvements</b> <br>
+      - Sped up DQ report skipping for organizations without DQ issues<br>
+      - Increased report download timeout from 45 seconds to 60 seconds",
     "12-17-2025",
     "<b>Bug Fixes</b> <br>
       - Added check for catching upload System Overview script failures before crashing. If there are errors, it now hides the System Performance portion of Eva instead of crashing.<br>
