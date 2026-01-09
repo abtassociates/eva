@@ -264,7 +264,6 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     validationExit <- NULL
   }
  
-
   if(!is.null(tl_df_cls())){
     validationCLS <- tl_df_cls() %>% 
       fsubset(OrganizationName %in% orgList) %>% 

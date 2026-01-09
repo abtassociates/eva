@@ -906,9 +906,7 @@ output$dq_export_download_btn <- downloadHandler(
            
             write_xlsx(dq_export_list, path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename)))
             zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
-          } else {
-            logToConsole(session, paste0("No valid data in DQ report for org #", which(orgs_to_save == i),", so did not write to a file."))
-          }
+          } 
         }
         logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
                                     dq_counter,' organizations',
@@ -1026,9 +1024,7 @@ output$dq_export_download_btn <- downloadHandler(
           if(length(pd_org_export) > 1){
             write_xlsx(pd_org_export, path = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)))
             zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
-          } else {
-            logToConsole(session, paste0("No valid data in Project Dashboard report for org #", which(orgs_to_save == i),", so did not write to a file."))
-          }
+          } 
           
         }
         if(input$dq_export_date_options == 'Date Range'){
@@ -1075,8 +1071,7 @@ output$dq_export_download_btn <- downloadHandler(
             zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
           } else {
             logToConsole(session, paste0("No valid data in System-level Project Dashboard report, so did not write to a file."))
-            zip_files <- c(zip_files, paste0(zip_prefix, proj_dash_filename))
-            
+
           }
           
           

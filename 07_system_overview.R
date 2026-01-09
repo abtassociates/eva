@@ -310,7 +310,6 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
-
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
 # enrollment_prep %>%
@@ -349,7 +348,6 @@ enrollment_prep_hohs <- enrollment_prep %>%
 
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
-
 
 # Full Enrollment-level Data Prep ----------------------------------------------
 # **ProjectTypeWeight** helps determine eecr/lecr
@@ -428,7 +426,6 @@ enrollment_categories <- enrollment_prep_hohs %>%
   ) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
-
 # Get dataset of literally homeless CLS records. This will be used to:
 # 1. remove problematic enrollments
 # 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
@@ -439,8 +436,6 @@ lh_cls <- CurrentLivingSituation %>%
     EnrollmentID, InformationDate
   ) %>%
   funique()
-
-
 
 # Remove "problematic" enrollments ----------------------------------
 # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
@@ -463,7 +458,6 @@ enrollment_categories <- enrollment_categories %>%
 # MoveInDateAdjust is used to determine if/when a person was Housed.
 enrollment_categories <- enrollment_categories %>%
   ftransform(MoveInDateAdjust = MoveInDateAdjust)
-
 
 # This step does 2 things:
 #  1. Compute lh_date, first_lh_date. and last_lh_date
