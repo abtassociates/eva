@@ -38,7 +38,6 @@ system_person_ages <- EnrollmentAdjustAge %>%
   ) %>%
   fselect(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)
 
-logToConsole(session, "Done with age")
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
@@ -262,7 +261,6 @@ session$userData$client_categories <- qDT(Client) %>%
     )
   )
 session$userData$client_categories[, (race_cols) := NULL]
-logToConsole(session, "Done with client-level flags")
 
 # Data prep ---------------------------------------------------------------
 
@@ -312,7 +310,6 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
-logToConsole(session, "Done with data prep")
 
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
@@ -353,7 +350,6 @@ enrollment_prep_hohs <- enrollment_prep %>%
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
 
-logToConsole(session, "Done with hh_adjustments")
 
 # Full Enrollment-level Data Prep ----------------------------------------------
 # **ProjectTypeWeight** helps determine eecr/lecr
@@ -432,7 +428,6 @@ enrollment_categories <- enrollment_prep_hohs %>%
   ) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
-logToConsole(session, "Done with enrollment-level data prep")
 
 # Get dataset of literally homeless CLS records. This will be used to:
 # 1. remove problematic enrollments
@@ -445,7 +440,6 @@ lh_cls <- CurrentLivingSituation %>%
   ) %>%
   funique()
 
-logToConsole(session, "Done with CLS")
 
 
 # Remove "problematic" enrollments ----------------------------------
@@ -470,7 +464,6 @@ enrollment_categories <- enrollment_categories %>%
 enrollment_categories <- enrollment_categories %>%
   ftransform(MoveInDateAdjust = MoveInDateAdjust)
 
-logToConsole(session, "Done with problematic enrollments")
 
 # This step does 2 things:
 #  1. Compute lh_date, first_lh_date. and last_lh_date
@@ -536,7 +529,6 @@ session$userData$lh_info <- enrollment_categories %>%
     last_lh_date,
     EntryDate, ExitAdjust
   )
-logToConsole(session, "Done with lh_info")
 
 session$userData$report_dates <- get_report_dates()
 
@@ -566,9 +558,7 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
-logToConsole(session, "Done with enrollment_categories")
 
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
 period_specific_data()
-logToConsole(session, "Done with period_specific_data and all 07 script")

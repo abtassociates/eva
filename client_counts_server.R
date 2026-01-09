@@ -156,8 +156,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
-  logToConsole(session, "after defining validationDF")
-  
+
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
@@ -192,8 +191,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     
     validationFullExportRange <- NULL
   }
-  logToConsole(session, "after defining validationFullExportRange")
-  
+
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
@@ -224,11 +222,9 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
    
   } else {
     logToConsole(session, "validationDF is NULL or has 0 rows. validationDateRange set to NULL.")
-    
     validationDateRange <- NULL
   }
-  logToConsole(session, "after defining validationDateRange")
-  
+
   ### DETAIL TAB ###
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
     validationDetail <- validationDF %>% # full dataset for the detail
@@ -245,8 +241,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     logToConsole(session, "validationDF is NULL or has 0 rows. validationDetail set to NULL.")
     validationDetail <- NULL
   }
-  logToConsole(session, "after defining validationDetail")
-  
+
   if(!is.null(tl_df_project_start())){
   validationStart <- tl_df_project_start() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
@@ -257,8 +252,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationStart <- NULL
   }
-  logToConsole(session, "after defining validationStart")
-  
+
   if(!is.null(tl_df_project_exit())){
     validationExit <- tl_df_project_exit() %>% 
       fsubset(OrganizationName %in% orgList) %>% 
@@ -270,8 +264,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     validationExit <- NULL
   }
  
-  logToConsole(session, "after defining validationExit")
-  
+
   if(!is.null(tl_df_cls())){
     validationCLS <- tl_df_cls() %>% 
       fsubset(OrganizationName %in% orgList) %>% 
@@ -282,8 +275,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationCLS <- NULL
   }
-  logToConsole(session, "after defining validationCLS")
-  
+
   if(!is.null(tl_df_nbn())){
     validationNbN <- tl_df_nbn() %>% 
       fsubset(OrganizationName %in% orgList) %>% 
@@ -294,8 +286,6 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationNbN <- NULL
   }
-  logToConsole(session, "after defining validationNbN")
-  
   
   exportDFList <- list(
     Metadata = client_counts_metadata,
@@ -314,8 +304,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     "validation - Timeliness Start",
     "validation - Timeliness Exit"
   )
-  logToConsole(session, "after defining exportDFList")
-  
+
   exportTestValues(
     client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
@@ -612,7 +601,7 @@ cc_project_type <- reactive({
 output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
   
-  if(tl_df_project_start() && input$currentProviderList %in% tl_df_project_start()$ProjectName){
+  if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectName){
     tl_df_project_start() %>%  
       fsubset(ProjectName == input$currentProviderList) %>% 
       pull(mdn)

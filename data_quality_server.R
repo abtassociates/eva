@@ -883,13 +883,11 @@ output$dq_export_download_btn <- downloadHandler(
         dq_counter <- 0
         
         for(i in orgs_to_save){
-          logToConsole(session, paste0("Checking Org #",which(orgs_to_save == i),", Orgname: ", i))
           dq_export_list <- get_dqDownloadInfo_export(i, value = "org")
           progress$inc(amount = 1 / length(orgs_to_save),
                        detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))          
          
           if(length(dq_export_list) <= 1) {
-            logToConsole(session, paste0("Skipping report for Org #",which(orgs_to_save == i),", Orgname: ", i))
             next
           } else {
             dq_counter <- dq_counter + 1 
@@ -1004,7 +1002,6 @@ output$dq_export_download_btn <- downloadHandler(
         proj_dash_counter <- 0
         
         for(i in orgs_to_save){
-          logToConsole(session, paste0("Checking Org #",which(orgs_to_save == i),", Orgname: ", i))
           progress$inc(amount = 1 / length(orgs_to_save),
                        detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
           
@@ -1012,14 +1009,12 @@ output$dq_export_download_btn <- downloadHandler(
             fsubset(OrganizationName == i)
           
           if(is.null(validationDF) | nrow(validationDF) == 0) {
-            logToConsole(session, paste0("Skipping report for Org #",which(orgs_to_save == i),", Orgname: ", i))
             next
           } else {
             proj_dash_counter <- proj_dash_counter + 1
           }
           org_name_std <- standardize_org_name(i)
-          logToConsole(session, paste0("standardized org name: ", org_name_std))
-          
+
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
           if(!dir.exists(path_prefix)){
