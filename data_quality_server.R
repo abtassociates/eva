@@ -533,7 +533,7 @@ getDQReportDataList <- function(
     warnings <- NULL
   }
  
-  if(!is.null(dqReferrrals) && fnrow(dqReferrals) > 0){
+  if(!is.null(dqReferrals) && fnrow(dqReferrals) > 0){
     dqReferralDetails <- dqReferrals %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
       fselect(
