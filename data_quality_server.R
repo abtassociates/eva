@@ -511,56 +511,73 @@ getDQReportDataList <- function(
     "EntryDate"
   )
   
-  high_priority <- dqData %>%
-    fsubset(Type == "High Priority") %>%
-    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-    fselect(select_list)
+  if(!is.null(dqData) && fnrow(dqData) > 0){
+    high_priority <- dqData %>%
+      fsubset(Type == "High Priority") %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(select_list)
+    
+    errors <- dqData %>%
+      fsubset(Type == "Error") %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(select_list)
+    
+    warnings <- dqData %>%
+      fsubset(Type == "Warning") %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(select_list)
+    
+  } else {
+    high_priority <- NULL
+    errors <- NULL
+    warnings <- NULL
+  }
+ 
+  if(!is.null(dqReferrrals) && fnrow(dqReferrals) > 0){
+    dqReferralDetails <- dqReferrals %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(
+        OrganizationName,
+        ProjectID,
+        ProjectName,
+        ProjectType,
+        EventID,
+        PersonalID,
+        EnrollmentID,
+        EventDate,
+        EventType,
+        Days
+      )
+  }
+ 
   
-  errors <- dqData %>%
-    fsubset(Type == "Error") %>%
-    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-    fselect(select_list)
-  
-  warnings <- dqData %>%
-    fsubset(Type == "Warning") %>%
-    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-    fselect(select_list)
-  
-  dqReferralDetails <- dqReferrals %>%
-    fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-    fselect(
-      OrganizationName,
-      ProjectID,
-      ProjectName,
-      ProjectType,
-      EventID,
-      PersonalID,
-      EnrollmentID,
-      EventDate,
-      EventType,
-      Days
-    )
-  
-  mainsummary <- dqData %>% 
-    fselect(Type, Issue, PersonalID) %>%
-    # group_by(ProjectName, Type, Issue) %>%
-    fgroup_by(Type, Issue) %>%
-    fsummarize(Enrollments = GRPN()) %>%
-    fungroup() %>%
-    fselect(Type, Enrollments, Issue) %>%
-    roworder(Type, -Enrollments)
-
-  byunitsummary <- dqData %>% 
-    fselect(c(bySummaryLevel, "Type", "Issue", "PersonalID")) %>%
-    fgroup_by(c(bySummaryLevel, "Type", "Issue")) %>%
-    fsummarize(Enrollments = GRPN()) %>%
-    fungroup() %>%
-    roworderv(cols = c("Type", "Enrollments", bySummaryLevel), decreasing = c(FALSE, TRUE, FALSE))
-  
-  guidance <- dqData %>%
-    fselect(Type, Issue, Guidance) %>%
-    funique() %>%
-    roworder(Type)
+  if(!is.null(dqData) && fnrow(dqData) > 0){
+    mainsummary <- dqData %>% 
+      fselect(Type, Issue, PersonalID) %>%
+      # group_by(ProjectName, Type, Issue) %>%
+      fgroup_by(Type, Issue) %>%
+      fsummarize(Enrollments = GRPN()) %>%
+      fungroup() %>%
+      fselect(Type, Enrollments, Issue) %>%
+      roworder(Type, -Enrollments)
+    
+    byunitsummary <- dqData %>% 
+      fselect(c(bySummaryLevel, "Type", "Issue", "PersonalID")) %>%
+      fgroup_by(c(bySummaryLevel, "Type", "Issue")) %>%
+      fsummarize(Enrollments = GRPN()) %>%
+      fungroup() %>%
+      roworderv(cols = c("Type", "Enrollments", bySummaryLevel), decreasing = c(FALSE, TRUE, FALSE))
+    
+    guidance <- dqData %>%
+      fselect(Type, Issue, Guidance) %>%
+      funique() %>%
+      roworder(Type)
+  } else {
+    mainsummary <- NULL
+    byunitsummary <- NULL
+    guidance <- NULL
+  }
+ 
   
   exportDetail <- data.table(
     `Export Field` = c("Export Start", "Export End", "Export Date"),
@@ -605,8 +622,7 @@ getDQReportDataList <- function(
     "Referral Details"
   )
   
-  exportDFList <- exportDFList[sapply(exportDFList, 
-                                      function(x) dim(x)[1]) > 0]
+  exportDFList <- exportDFList[lengths(exportDFList) > 0]
   
   return(exportDFList)
 }
@@ -714,8 +730,12 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   exportTestValues(dq_main = dq_full() %>% nice_names())
   exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
   
-  orgDQData <- dq_full() %>%
-    fsubset(OrganizationName %in% org_name)
+  if(!is.null(dq_full())){
+    orgDQData <- dq_full() %>%
+      fsubset(OrganizationName %in% org_name)
+  } else {
+    orgDQData <- NULL
+  }
   
   if(!is.null(session$userData$overlap_details)){
     orgDQoverlapDetails <- session$userData$overlap_details %>% 
@@ -725,12 +745,18 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
     orgDQoverlapDetails <- NULL
   }
   
-  
-  orgDQReferrals <- session$userData$outstanding_referrals %>%
-    fsubset(OrganizationName %in% org_name)
+  if(!is.null(session$userData$outstanding_referrals)){
+    orgDQReferrals <- session$userData$outstanding_referrals %>%
+      fsubset(OrganizationName %in% org_name)
+  } else {
+    orgDQReferrals <- NULL
+  }
+ 
   
   # return a list for reference in downloadHandler
-  if(fnrow(orgDQData) == 0 && fnrow(orgDQoverlapDetails) == 0 && fnrow(orgDQReferrals) == 0){
+  if((is.null(orgDQData) || fnrow(orgDQData) == 0) && 
+     (is.null(orgDQOverlapDetails) || fnrow(orgDQoverlapDetails) == 0) && 
+     (is.null(orgDQReferrals) || fnrow(orgDQReferrals) == 0) ){
     logToConsole(session, 'no data found for DQ Report generation. exiting from get_dqDownloadInfo')
     return(NULL)
   }
@@ -877,11 +903,14 @@ output$dq_export_download_btn <- downloadHandler(
           }
           
           dq_org_filename <- date_stamped_filename(str_glue('{org_name_std} - Data Quality Report-'))
-          write_xlsx(dq_export_list, 
-                     path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename))
-                     )
-          zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
           
+          if(length(dq_export_list) > 1){
+           
+            write_xlsx(dq_export_list, path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename)))
+            zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
+          } else {
+            logToConsole(session, paste0("No valid data in DQ report for org #", which(orgs_to_save == i),", so did not write to a file."))
+          }
         }
         logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
                                     dq_counter,' organizations',
