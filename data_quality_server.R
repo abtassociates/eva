@@ -548,6 +548,8 @@ getDQReportDataList <- function(
         EventType,
         Days
       )
+  } else {
+    dqReferralDetails <- NULL
   }
  
   
