@@ -3,6 +3,9 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "01-12-2026",
+    "<b>Bug Fixes</b> <br>
+      - Fixed logic for DQ report downloads when Referrals sheet was empty, which was causing downloads to fail.",
     "01-09-2026",
     "<b>Bug Fixes</b> <br>
       - Added better error-catching to Project Dashboard and Data Quality report download functions<br>
