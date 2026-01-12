@@ -757,7 +757,7 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
   
   # return a list for reference in downloadHandler
   if((is.null(orgDQData) || fnrow(orgDQData) == 0) && 
-     (is.null(orgDQOverlapDetails) || fnrow(orgDQoverlapDetails) == 0) && 
+     (is.null(orgDQoverlapDetails) || fnrow(orgDQoverlapDetails) == 0) && 
      (is.null(orgDQReferrals) || fnrow(orgDQReferrals) == 0) ){
     logToConsole(session, 'no data found for DQ Report generation. exiting from get_dqDownloadInfo')
     return(NULL)
