@@ -54,7 +54,7 @@ output$client_level_download_btn <- downloadHandler(
       "Latest-ReportStatus" = "OutflowTypeSummary",
       "Latest-ReportStatusDetail" = "OutflowTypeDetail"
     )
-    
+    logToConsole(session, "before eecr_lecr_enrollment_info")
     eecr_lecr_enrollment_info <- session$userData$enrollment_categories %>% 
       fselect(
         EnrollmentID,
@@ -73,10 +73,12 @@ output$client_level_download_btn <- downloadHandler(
         HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports)
       )
 
-
+    logToConsole(session, "after eecr_lecr_enrollment_info")
+    
     earliest_report_info <- get_client_level_export() %>%
       fselect(PersonalID, EnrollmentID) %>%
       join(eecr_lecr_enrollment_info, on="EnrollmentID")
+
 
     setnames(earliest_report_info, 
              old = setdiff(names(earliest_report_info), "PersonalID"), 
@@ -102,7 +104,8 @@ output$client_level_download_btn <- downloadHandler(
              new = names(report_status_fields))
     
     #Monthly Statuses
-
+    logToConsole(session, "before monthly_statuses")
+    
     monthly_statuses <- period_specific_data()[["Months"]] %>%
       join(
         session$userData$enrollment_categories %>% 
@@ -153,6 +156,7 @@ output$client_level_download_btn <- downloadHandler(
         how = "wider"
       )
     
+    logToConsole(session, "after monthly_statuses")
     
     # User's filter selections - metadata tab
     export_date_info <- tibble(
@@ -180,6 +184,8 @@ output$client_level_download_btn <- downloadHandler(
     )
     colnames(filter_selections) <- c("Filter","Selection")
     
+    logToConsole(session, "after filter_selections")
+    
     adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
       fsubset(
         adjusted_dates == TRUE, 
@@ -195,7 +201,11 @@ output$client_level_download_btn <- downloadHandler(
             fsubset(lh_dates != "NA"),
           on = "EnrollmentID"
         )
+    } else {
+      logToConsole(session, "session lh_info was empty, so adjusted_non_res_enrl set to NULL")
+      adjusted_non_res_enrl <- NULL
     }
+    logToConsole(session, "after adjusted_non_res_enrl")
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
@@ -210,6 +220,7 @@ output$client_level_download_btn <- downloadHandler(
       monthly_statuses,
       adjusted_non_res_enrl
     )
+    logToConsole(session, paste0("before naming, length(client_level_export_list) = ", length(client_level_export_list)))
     
     names(client_level_export_list) = c(
       "Metadata",
@@ -218,6 +229,7 @@ output$client_level_download_btn <- downloadHandler(
       "Monthly Statuses",
       "Adjusted Non-Res"
     )
+    logToConsole(session, paste0("after naming, length(client_level_export_list) = ", length(client_level_export_list)))
     
     write_xlsx(
       client_level_export_list,
