@@ -156,48 +156,78 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   # initial dataset that will make summarizing easier
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
-  
+
   ### session$userData$validation DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
-    validationFullExportRange <- 
+    pivot_att <- tryCatch(
       pivot_and_sum(
         validationDF, isDateRange = TRUE
-      ) %>%
-      fmutate(
-        "Exited Project" = fifelse(
-          ProjectType %in% ph_project_types, 
-          rowSums(
-            fselect(., `Exited with Move-In`, `Exited No Move-In`),
-            na.rm = TRUE
-          ),
-          `Exited Project`
-        )
-      ) %>%
-      fselect(-ProjectType) %>%
-      roworder(OrganizationName, ProjectName)
+      ), 
+      error = function(e){e}
+    )
+    
+    if(inherits(pivot_att, 'simpleError')){
+      logToConsole(session, 'Project Dashboard error: pivot for validationFullExportRange has no rows of data to use.')
+      validationFullExportRange <- NULL
+    } else {
+      validationFullExportRange <- pivot_att %>%
+        fmutate(
+          "Exited Project" = fifelse(
+            ProjectType %in% ph_project_types, 
+            rowSums(
+              fselect(., `Exited with Move-In`, `Exited No Move-In`),
+              na.rm = TRUE
+            ),
+            `Exited Project`
+          )
+        ) %>%
+        fselect(-ProjectType) %>%
+        roworder(OrganizationName, ProjectName)
+    }
+    
   } else {
+    logToConsole(session, "validationDF is NULL or has 0 rows. validationFullExportRange set to NULL.")
+    
     validationFullExportRange <- NULL
   }
-  
+
   ### CURRENT TAB ###
   # counts for each status, by project for just the current date
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
-    validationDateRange <- 
-      pivot_and_sum(
-        validationDF %>%
-          fsubset(EntryDate <= input$dateRangeCount[2] &
-                    (is.na(ExitDate) | ExitDate >= input$dateRangeCount[2]))
-      ) %>%
-      fselect(-ProjectType) %>%
-      roworder(OrganizationName, ProjectName)
+    
+    validation_filt <- validationDF %>%
+      fsubset(EntryDate <= dateRangeEnd &
+                (is.na(ExitDate) | ExitDate >= dateRangeEnd))
+    if(is.null(validation_filt) | fnrow(validation_filt) == 0){
+      logToConsole(session, 'Project Dashboard error: pivot for validationDateRange has no rows of data to use.')
+      validationDateRange <- NULL
+     
+    } else {
+      pivot_att <- tryCatch(
+        pivot_and_sum(
+         validation_filt, 
+        ), error = function(e){e}
+      )
+      
+      if(inherits(pivot_att, 'simpleError')){
+        logToConsole(session, 'Project Dashboard error: pivot for validationDateRange has no rows of data to use.')
+        validationDateRange <- NULL
+      } else {
+        validationDateRange <- pivot_att %>%
+          fselect(-ProjectType) %>%
+          roworder(OrganizationName, ProjectName)
+      }
+    }
+   
   } else {
+    logToConsole(session, "validationDF is NULL or has 0 rows. validationDateRange set to NULL.")
     validationDateRange <- NULL
   }
-  
 
   ### DETAIL TAB ###
-  validationDetail <- validationDF %>% # full dataset for the detail
+  if(!is.null(validationDF) & fnrow(validationDF) > 0){
+    validationDetail <- validationDF %>% # full dataset for the detail
     fmutate(
       Status = fifelse(
         Status %in% c("Currently Moved In", "Currently in Project"), 
@@ -207,20 +237,32 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     ) %>%
     fselect(c(keepCols, clientCountDetailCols)) %>%
     roworder(OrganizationName, ProjectName, EntryDate)
-  
+  } else {
+    logToConsole(session, "validationDF is NULL or has 0 rows. validationDetail set to NULL.")
+    validationDetail <- NULL
+  }
+
+  if(!is.null(tl_df_project_start())){
   validationStart <- tl_df_project_start() %>% 
     fsubset(OrganizationName %in% orgList) %>% 
     select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
     mutate(ProjectType = project_type(ProjectType)) %>% 
     arrange(OrganizationName, ProjectName) %>% 
     nice_names_timeliness(record_type = 'start')
-  
-  validationExit <- tl_df_project_exit() %>% 
-    fsubset(OrganizationName %in% orgList) %>% 
-    select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-    mutate(ProjectType = project_type(ProjectType)) %>% 
-    arrange(OrganizationName, ProjectName) %>% 
-    nice_names_timeliness(record_type = 'exit')
+  } else {
+    validationStart <- NULL
+  }
+
+  if(!is.null(tl_df_project_exit())){
+    validationExit <- tl_df_project_exit() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'exit')
+  } else {
+    validationExit <- NULL
+  }
  
   if(!is.null(tl_df_cls())){
     validationCLS <- tl_df_cls() %>% 
@@ -232,7 +274,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationCLS <- NULL
   }
-  
+
   if(!is.null(tl_df_nbn())){
     validationNbN <- tl_df_nbn() %>% 
       fsubset(OrganizationName %in% orgList) %>% 
@@ -243,7 +285,6 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   } else {
     validationNbN <- NULL
   }
- 
   
   exportDFList <- list(
     Metadata = client_counts_metadata,
@@ -262,7 +303,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
     "validation - Timeliness Start",
     "validation - Timeliness Exit"
   )
-  
+
   exportTestValues(
     client_count_download_date_range = summarize_df(validationDateRange %>% nice_names())
   )
@@ -280,7 +321,7 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
   exportTestValues(
     client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
-  
+
   if(!is.null(validationCLS)){
     exportDFList[[length(exportDFList) + 1]] <- validationCLS
     names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CLS"
@@ -296,11 +337,10 @@ get_clientcount_download_info <- function(file, orgList = unique(client_count_da
       client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
     )
   }
-  
-  write_xlsx(exportDFList,
-             path = file)
+  logToConsole(session, "returning from get_clientcount_download_info")
   
   
+  return(exportDFList[lengths(exportDFList) > 0])
 }
 
 # output$validate_plot <- renderPlot({
@@ -559,8 +599,8 @@ cc_project_type <- reactive({
 
 output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
-
-  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+  
+  if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectName){
     tl_df_project_start() %>%  
       fsubset(ProjectName == input$currentProviderList) %>% 
       pull(mdn)
@@ -573,7 +613,7 @@ output$timeliness_vb1_val <- renderText({
 output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
   
-  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+  if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectName){
     tl_df_project_exit() %>% 
       fsubset(ProjectName == input$currentProviderList) %>% 
       pull(mdn)
@@ -607,8 +647,8 @@ output$timeliness_vb3 <- renderUI({
     
     num <- sum(
       c(
-      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
-      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var),
+        ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
+        ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
       num_nbn,
       num_cls
       ), 
@@ -616,8 +656,8 @@ output$timeliness_vb3 <- renderUI({
     )
     den <-  sum(
       c(
-      tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
-      tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records),
+      ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
+      ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
       den_nbn,
       den_cls
       ), 
@@ -652,13 +692,13 @@ output$timelinessTable <- renderDT({
     time_period = c("< 0 days", "0 days", "1-3 days", "4-6 days", "7-10 days", "11+ days")
     )
   
-  if(input$currentProviderList %in% tl_df_project_start()$ProjectName){
+  if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectName){
     dat$proj_start <- tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$proj_start <- 0
   }
   
-  if(input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+  if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectName){
     dat$proj_exit <- tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$proj_exit <- 0
@@ -710,7 +750,9 @@ output$downloadClientCountsReport <- downloadHandler(
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
                                 paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    get_clientcount_download_info
+    df_xl <- get_clientcount_download_info()
    
+    write_xlsx(df_xl,
+               path = file)
   }
 )
