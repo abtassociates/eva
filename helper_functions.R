@@ -635,3 +635,17 @@ show_trycatch_popup <- function(script_name){
     )
   )
 }
+
+# run script inside tryCatch block, create modal if script fails
+source_trycatch <- function(script_name){
+  src_att <- tryCatch(source(script_name, local = TRUE), 
+                      error = function(e) {e})
+  if(inherits(src_att, 'simpleError')){
+    logToConsole(session, src_att)
+    logToConsole(session, paste0("Error occured in ", script_name))
+    show_trycatch_popup(script_name)
+    return(NULL)
+  } else {
+    
+  }
+}
