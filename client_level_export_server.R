@@ -1,6 +1,7 @@
 
 output$client_level_download_btn <- downloadHandler(
-  filename = date_stamped_filename("Client Level Export - "),
+  #filename = date_stamped_filename("Client Level Export - "),
+  filename = date_stamped_filename("Client Level Export - ",ext = '.zip')
   content = function(file) {
     detail_client_fields <- c(
       "PersonalID",
@@ -239,12 +240,20 @@ output$client_level_download_btn <- downloadHandler(
       'max characters: ', paste0(names(client_level_export_list), ': ', unlist(lapply(lapply(client_level_export_list, nchar), max)), collapse=', ')))
     logToConsole(session, paste0("dimensions: ", paste0(names(client_level_export_list),': ',sapply(client_level_export_list, nrow, simplify=T), 'x',sapply(client_level_export_list, ncol, simplify=T), collapse=', ')))
     
-    write_xlsx(
-      client_level_export_list,
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
+    for(i in 1:5){
+      write_csv(
+        client_level_export_list[[i]],file = file.path(tempdir(), paste0(names(client_level_export_list)[i], '.csv'))
+      )
+    }
+    
+    zip::zip(file, files = paste0(names(client_level_export_list), '.csv'), root = tempdir())
+    # write_xlsx(
+    #   client_level_export_list,
+    #   path = file,
+    #   format_headers = FALSE,
+    #   col_names = TRUE
+    # )
+    # 
     
     logToConsole(session, "Downloaded Client Level Export")
     logMetadata(session, paste0(
