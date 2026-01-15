@@ -229,9 +229,12 @@ output$client_level_download_btn <- downloadHandler(
       "Monthly Statuses",
       "Adjusted Non-Res"
     )
+    
     logToConsole(session, paste0("after naming, length(client_level_export_list) = ", length(client_level_export_list)))
     logToConsole(session, paste0(
       'class: ', paste0(names(client_level_export_list), ': ', sapply(client_level_export_list, class), collapse=', ')))
+    tmp <- unlist(lapply(lapply(client_level_export_list, nchar),function(x) which(x > 32000)))
+    logToConsole(session,  paste0("max fields: ", paste0(names(tmp), ': ', tmp, collapse=', ')))
     logToConsole(session, paste0(
       'max characters: ', paste0(names(client_level_export_list), ': ', unlist(lapply(lapply(client_level_export_list, nchar), max)), collapse=', ')))
     logToConsole(session, paste0("dimensions: ", paste0(names(client_level_export_list),': ',sapply(client_level_export_list, nrow, simplify=T), 'x',sapply(client_level_export_list, ncol, simplify=T), collapse=', ')))
