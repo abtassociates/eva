@@ -113,6 +113,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$dq_pdde_mirai_complete(1)
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
+      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
       if(IN_DEV_MODE) browser()
     }
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
