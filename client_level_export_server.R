@@ -1,7 +1,7 @@
 
 output$client_level_download_btn <- downloadHandler(
   #filename = date_stamped_filename("Client Level Export - "),
-  filename = date_stamped_filename("Client Level Export - ",ext = '.zip')
+  filename = date_stamped_filename("Client Level Export - ",ext = '.zip'),
   content = function(file) {
     detail_client_fields <- c(
       "PersonalID",
