@@ -73,7 +73,7 @@
       }
     },
     "sys_inflow_outflow_monthly_filter_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<b>Methodology Type:<\/b> Method 1 <br>",
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>",
       "deps": [
 
       ]

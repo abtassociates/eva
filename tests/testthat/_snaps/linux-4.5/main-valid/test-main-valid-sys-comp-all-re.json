@@ -32,13 +32,13 @@
       ]
     },
     "sys_comp_summary_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<b>Methodology Type:<\/b> Method 1 <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
       "deps": [
 
       ]
     },
     "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: db49e88e6f597c6bbf5e142ba5acf34c]",
+      "src": "[image data hash: 082fd1c0771155f609ca77e7c5ca9a6d]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",

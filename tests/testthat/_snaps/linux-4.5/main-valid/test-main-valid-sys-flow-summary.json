@@ -31,7 +31,7 @@
       ]
     },
     "sys_inflow_outflow_summary_filter_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Methodology Type:<\/b> Method 1 <br>",
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>",
       "deps": [
 
       ]
