@@ -131,7 +131,7 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
   return(pivoted)
 }
 
-get_clientcount_download_info <- function(file, orgList = unique(client_count_data_df()$OrganizationName),
+get_clientcount_download_info <- function(orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
   logToConsole(session, "in get_clientcount_download_info")
    client_counts_metadata <- data.table(
@@ -746,7 +746,7 @@ output$downloadClientCountsReportButton  <- renderUI({
 # just the current date.
 output$downloadClientCountsReport <- downloadHandler(
   filename = date_stamped_filename("System-level Project Dashboard Report-"),
-  content = {
+  content = function(file){
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
                                 paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
