@@ -731,300 +731,545 @@ page_navbar(
     )
 ),
 
+
+# System Performance menu  ------------------------------------------------
+nav_menu(
+  title = 'System Performance',
+
 # System Performance Overview tab -------------------
-nav_panel(
-  title = "System Performance Overview",
-  value = "tabSystemOverview",
-  icon = icon("chart-simple"),
-  
-  card(
-    htmlOutput("headerSystemOverview")
-  ),
-  accordion(
-    id = 'accordion_systemoverview',
-    open = FALSE,
-    accordion_panel(
-      title = 'Instructions',
-      tabSystemOverview_instructions
-    )
-  ),
-  br(),
-  ## Filters --------------
-  card(
-    card_header(headerCard('Filters')),
-    layout_columns(
-      col_widths=c(6,6),
-      gap = 0,
-      card(
-        id = 'card_filters1',
-        style='border-width:0;border-radius:0',
-        layout_columns(
-          col_widths = c(4,4,4,6,6),
-          fill = T,
-          
-          pickerInput(
-            label = "Household Type",
-            inputId = "syso_hh_type",
-            choices = syso_hh_types,
-            selected = syso_hh_types[1],
-            options = pickerOptions(container = "body")
-          ),
-          pickerInput(
-            label = "Level of Detail",
-            inputId = "syso_level_of_detail",
-            choices = syso_level_of_detail,
-            selected = syso_level_of_detail[1],
-            options = pickerOptions(container = "body")
-          ),
-          pickerInput(
-            label = "Project Type Group",
-            inputId = "syso_project_type",
-            choices = syso_project_types,
-            selected = syso_project_types[1],
-            options = pickerOptions(container = "body")
-          ),
-          pickerInput(
-            inputId = "syso_age",
-            label = "Age",
-            selected = syso_age_cats,
-            choices = syso_age_cats,
-            multiple = TRUE,
-            options = pickerOptions(
-              actionsBox = TRUE,
-              selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-              countSelectedText = "All Ages",
-              noneSelectedText = "All Ages",
-              container = "body"
+  nav_panel(
+    title = "System Overview",
+    value = "tabSystemOverview",
+    icon = icon("chart-simple"),
+    
+    card(
+      htmlOutput("headerSystemOverview")
+    ),
+    accordion(
+      id = 'accordion_systemoverview',
+      open = FALSE,
+      accordion_panel(
+        title = 'Instructions',
+        tabSystemOverview_instructions
+      )
+    ),
+    br(),
+    ## Filters --------------
+    card(
+      card_header(headerCard('Filters')),
+      layout_columns(
+        col_widths=c(6,6),
+        gap = 0,
+        card(
+          id = 'syso_filters_left',
+          style='border-width:0;border-radius:0',
+          layout_columns(
+            col_widths = c(4,4,4,6,6),
+            fill = T,
+            
+            pickerInput(
+              label = "Household Type",
+              inputId = "syso_hh_type",
+              choices = sys_hh_types,
+              selected = sys_hh_types[1],
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              label = "Level of Detail",
+              inputId = "syso_level_of_detail",
+              choices = sys_level_of_detail,
+              selected = sys_level_of_detail[1],
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              label = "Project Type Group",
+              inputId = "syso_project_type",
+              choices = sys_project_types,
+              selected = sys_project_types[1],
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              inputId = "syso_age",
+              label = "Age",
+              selected = sys_age_cats,
+              choices = sys_age_cats,
+              multiple = TRUE,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                countSelectedText = "All Ages",
+                noneSelectedText = "All Ages",
+                container = "body"
+              )
+            ),
+            pickerInput(
+              label = "Veteran Status",
+              inputId = "syso_spec_pops",
+              choices = sys_spec_pops_people,
+              selected = sys_spec_pops_people[1],
+              options = pickerOptions(container = "body")
             )
-          ),
-          pickerInput(
-            label = "Veteran Status",
-            inputId = "syso_spec_pops",
-            choices = syso_spec_pops_people,
-            selected = syso_spec_pops_people[1],
-            options = pickerOptions(container = "body")
           )
-        )
-      ),
-      card(
-        id = 'card_filters2',
-        style="border-width:0;border-left-width: 1px; border-radius:0",
-        layout_columns(
-          col_widths = c(12,12),
-          pickerInput(
-            label = "Race/Ethnicity Methodology Type",
-            inputId = "methodology_type",
-            multiple = FALSE,
-            selected = syso_methodology_types[1],
-            choices = syso_methodology_types,
-            options = pickerOptions(container = "body")
-          ),
-          pickerInput(
-            label = "Race/Ethnicity",
-            inputId = "syso_race_ethnicity",
-            choices = syso_race_ethnicity_method1,
-            selected = syso_race_ethnicity_method1,
-            options = list(
-              `dropdown-align-right` = TRUE,
-              `dropup-auto` = FALSE,
-              container = "body"
+        ),
+        card(
+          id = 'syso_card_filters_right',
+          style="border-width:0;border-left-width: 1px; border-radius:0",
+          layout_columns(
+            col_widths = c(12,12),
+            pickerInput(
+              label = "Race/Ethnicity Methodology Type",
+              inputId = "syso_methodology_type",
+              multiple = FALSE,
+              selected = sys_methodology_types[1],
+              choices = sys_methodology_types,
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syso_race_ethnicity",
+              choices = sys_race_ethnicity_method1,
+              selected = sys_race_ethnicity_method1,
+              options = list(
+                `dropdown-align-right` = TRUE,
+                `dropup-auto` = FALSE,
+                container = "body"
+              )
             )
           )
         )
       )
-    )
+
+    ),
     
-  ),
-  
-  navset_card_underline(
-    id = 'syso_tabbox',
-    
-    ## System Flow -------------
-    nav_panel(
-      id = 'syso_inflowoutflow',
-      title = headerTab('System Flow'),
+    navset_card_underline(
+      id = 'syso_tabbox',
       
-      navset_underline(
-        id = "sys_inflow_outflow_subtabs",
-        selected = headerSubTab("Summary Chart"),
-        nav_panel(
-          title = headerSubTab('Summary Chart'),
-          uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
-            withSpinner(),
-          plotOutput("sys_inflow_outflow_summary_ui_chart",
-                     width = "70%",
-                     height = "500") %>%
-            withSpinner()
-        ),
-        nav_panel(
-          title = headerSubTab('Detail Chart'),
-          uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
-            withSpinner(),
-          plotOutput("sys_inflow_outflow_detail_ui_chart",
-                     width = "100%",
-                     height = "500") %>%
-            withSpinner()
-        ),
-        nav_panel(
-          title = headerSubTab("Month-by-Month Chart"), 
-          uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
-           withSpinner(),
-          radioGroupButtons(
-            inputId = "mbm_status_filter",
-            label = "Flow Type Filters",
-            choices = c("All", "First-Time Homeless", "Inactive"),
-            #Inactive
-            selected = "All",
-            individual = TRUE,
-            checkIcon = list(yes = icon("check"))
-          ), 
-          conditionalPanel(
-            condition = "input.mbm_status_filter == 'Inactive'",
-            plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
-          ), 
-          conditionalPanel(
-            condition = "input.mbm_status_filter == 'First-Time Homeless'",
-            plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
-          ),
-          conditionalPanel(
-            condition = "input.mbm_status_filter == 'All'",
-            plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+      ## System Flow -------------
+      nav_panel(
+        id = 'syso_inflowoutflow',
+        title = headerTab('System Flow'),
+        
+        navset_underline(
+          id = "sys_inflow_outflow_subtabs",
+          selected = headerSubTab("Summary Chart"),
+          nav_panel(
+            title = headerSubTab('Summary Chart'),
+            uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
+              withSpinner(),
+            plotOutput("sys_inflow_outflow_summary_ui_chart",
+                       width = "70%",
+                       height = "500") %>%
               withSpinner()
           ),
-          conditionalPanel(
-            condition = "input.mbm_status_filter == 'All'",
-            DTOutput("sys_inflow_outflow_monthly_table") %>%
+          nav_panel(
+            title = headerSubTab('Detail Chart'),
+            uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
+              withSpinner(),
+            plotOutput("sys_inflow_outflow_detail_ui_chart",
+                       width = "100%",
+                       height = "500") %>%
               withSpinner()
+          ),
+          nav_panel(
+            title = headerSubTab("Month-by-Month Chart"), 
+            uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+             withSpinner(),
+            radioGroupButtons(
+              inputId = "mbm_status_filter",
+              label = "Flow Type Filters",
+              choices = c("All", "First-Time Homeless", "Inactive"),
+              #Inactive
+              selected = "All",
+              individual = TRUE,
+              checkIcon = list(yes = icon("check"))
+            ), 
+            conditionalPanel(
+              condition = "input.mbm_status_filter == 'Inactive'",
+              plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
+            ), 
+            conditionalPanel(
+              condition = "input.mbm_status_filter == 'First-Time Homeless'",
+              plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
+            ),
+            conditionalPanel(
+              condition = "input.mbm_status_filter == 'All'",
+              plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+                withSpinner()
+            ),
+            conditionalPanel(
+              condition = "input.mbm_status_filter == 'All'",
+              DTOutput("sys_inflow_outflow_monthly_table") %>%
+                withSpinner()
+            )
+          ),
+          # nav_panel(
+          #   title = "Timeline Chart",
+          #          plotlyOutput("timelinePlot", height = "600px"),
+          #          selectizeInput(
+          #            inputId = "enrollmentIDFilter",
+          #            label = "Search by Enrollment ID",
+          #            choices = NULL, # We'll populate this dynamically
+          #            options = list(
+          #              placeholder = "Type to search for Enrollment ID",
+          #              closeAfterSelect = TRUE
+          #            ),
+          #            multiple = TRUE
+          #          ),
+          #          
+          #          # PersonalID Filter
+          #          selectizeInput(
+          #            inputId = "personalIDFilter",
+          #            label = "Search by Personal ID",
+          #            choices = NULL, # We'll populate this dynamically
+          #            options = list(
+          #              placeholder = "Type to search for Personal ID",
+          #              closeAfterSelect = TRUE
+          #            ),
+          #            multiple = TRUE
+          #          ),
+          #          conditionalPanel(
+          #            condition = "len(input.personalIDFilter)",
+          #            h4("Person's Monthly Inflow/Outflow"),
+          #            verbatimTextOutput("personDetails")
+          #          )
+          #          
+          # ),
+          nav_panel(
+            title = headerSubTab("Information"),
+            br(),
+            tab_sys_inflow_outflow_subtabs_information
           )
         ),
-        # nav_panel(
-        #   title = "Timeline Chart",
-        #          plotlyOutput("timelinePlot", height = "600px"),
-        #          selectizeInput(
-        #            inputId = "enrollmentIDFilter",
-        #            label = "Search by Enrollment ID",
-        #            choices = NULL, # We'll populate this dynamically
-        #            options = list(
-        #              placeholder = "Type to search for Enrollment ID",
-        #              closeAfterSelect = TRUE
-        #            ),
-        #            multiple = TRUE
-        #          ),
-        #          
-        #          # PersonalID Filter
-        #          selectizeInput(
-        #            inputId = "personalIDFilter",
-        #            label = "Search by Personal ID",
-        #            choices = NULL, # We'll populate this dynamically
-        #            options = list(
-        #              placeholder = "Type to search for Personal ID",
-        #              closeAfterSelect = TRUE
-        #            ),
-        #            multiple = TRUE
-        #          ),
-        #          conditionalPanel(
-        #            condition = "len(input.personalIDFilter)",
-        #            h4("Person's Monthly Inflow/Outflow"),
-        #            verbatimTextOutput("personDetails")
-        #          )
-        #          
-        # ),
-        nav_panel(
-          title = headerSubTab("Information"),
-          br(),
-          tab_sys_inflow_outflow_subtabs_information
-        )
+        downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
+        downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
       ),
-      downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
-    ),
-    
-    ## System Status/Sankey ----------------
-    nav_panel(
-      id = 'syso_systemstatus',
-      title = headerTab("Client System Status"),
-      navset_underline(
-        id = 'sys_status_subtabs',
-        selected = headerSubTab("Chart"),
-        
-        nav_panel(
-          title = headerSubTab("Chart"),   
-          uiOutput("sankey_filter_selections") %>% withSpinner(),
-          plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
-        ),
-        nav_panel(
-          title = headerSubTab("Information"),
-          br(),
-          tab_sys_status_subtabs_information
-        )
-      ),
-      downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("sys_status_download_btn_ppt", "Image Download"),
-    ),
-    
-    ## System Demographics/Composition --------------
-    nav_panel(
-      id = 'syso_composition',
-      title = headerTab("System Demographics"),
       
-      navset_underline(
-        id = 'sys_comp_subtabs',
-        selected = headerSubTab("Chart"),
-        nav_panel(
-          title = headerSubTab("Chart"),
-          card(
-            br(),
-            strong("Select Demographic Crosstab Categories (up to 2)"),
-            p(str_glue(
-              "For a simple count of totals within a demographic 
-                                 category, select only one category. To see the 
-                                 intersection of two demographic categories, select 
-                                 both categories to create a crosstab chart. To 
-                                 change your crosstab selection, uncheck at least 
-                                 one of your previous selections before selecting 
-                                 new categories. Note that you can only select one Race/Ethnicity 
-                                 category to display in the chart at a time."
-            )),
-            checkboxGroupInput(
-              "system_composition_selections",
-              label = "",
-              choices = sys_comp_selection_choices,
-              selected = c("All Races/Ethnicities", "Age"),
-              inline = TRUE
-            ),
-            width = 12
-          ),
-          br(),
-          uiOutput("sys_comp_summary_selections",inline = TRUE),
-          plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
-        ),
-        nav_panel(
-          title = headerSubTab("Information"),
-          br(),
-          tab_sys_comp_subtabs_information
+      ## System Status/Sankey ----------------
+      nav_panel(
+        id = 'syso_systemstatus',
+        title = headerTab("Client System Status"),
+        navset_underline(
+          id = 'sys_status_subtabs',
+          selected = headerSubTab("Chart"),
           
-        )
+          nav_panel(
+            title = headerSubTab("Chart"),   
+            uiOutput("sankey_filter_selections") %>% withSpinner(),
+            plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
+          ),
+          nav_panel(
+            title = headerSubTab("Information"),
+            br(),
+            tab_sys_status_subtabs_information
+          )
+        ),
+        downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
+        downloadButton("sys_status_download_btn_ppt", "Image Download"),
       ),
-      downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("sys_comp_download_btn_ppt", "Image Download")
-    )
+      
+      ## System Demographics/Composition --------------
+      nav_panel(
+        id = 'syso_composition',
+        title = headerTab("System Demographics"),
+        
+        navset_underline(
+          id = 'sys_comp_subtabs',
+          selected = headerSubTab("Chart"),
+          nav_panel(
+            title = headerSubTab("Chart"),
+            card(
+              br(),
+              strong("Select Demographic Crosstab Categories (up to 2)"),
+              p(str_glue(
+                "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+              )),
+              checkboxGroupInput(
+                "system_composition_selections",
+                label = "",
+                choices = sys_heatmap_selection_choices,
+                selected = c("All Races/Ethnicities", "Age"),
+                inline = TRUE
+              ),
+              width = 12
+            ),
+            br(),
+            uiOutput("sys_comp_summary_selections",inline = TRUE),
+            plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+          ),
+          nav_panel(
+            title = headerSubTab("Information"),
+            br(),
+            tab_sys_comp_subtabs_information
+            
+          )
+        ),
+        downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
+        downloadButton("sys_comp_download_btn_ppt", "Image Download")
+      )
+      
+      ),
+      downloadButton("client_level_download_btn", "Client Level Download")
+    
     
     ),
-    downloadButton("client_level_download_btn", "Client Level Download")
-  
-  
-  ),
 
-# nav_panel(
-#   title = "System Exits",
-#   value = "systemExitDetail",
-#   card(
-#     card_header(htmlOutput("headerSystemExit")),
-#     card_body(
-#       HTML("<h2>Placeholder</h2>")
-#     )
-#   )
-# ),
+# System Exits tab --------------------------------------------------------
+  nav_panel(
+    title = "System Exits",
+    value = "tabSystemExits",
+    icon = icon('door-open'),
+    
+    card(
+      htmlOutput("headerSystemExit")
+      ),
+    accordion(
+      id = 'accordion_systemexits',
+      open = FALSE,
+      accordion_panel(
+        title = 'Instructions',
+        tabSystemExits_instructions
+      )
+    ),
+    br(),
+    ## Filters --------------
+    card(
+      card_header(headerCard('Filters')),
+      layout_columns(
+        col_widths=c(6,6),
+        gap = 0,
+        card(
+          id = 'syse_filters_left',
+          style='border-width:0;border-radius:0',
+          layout_columns(
+            col_widths = c(4,4,4,6,6),
+            fill = T,
+            
+            pickerInput(
+              label = "Household Type",
+              inputId = "syse_hh_type",
+              choices = sys_hh_types,
+              selected = sys_hh_types[1],
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              label = "Level of Detail",
+              inputId = "syse_level_of_detail",
+              choices = sys_level_of_detail,
+              selected = sys_level_of_detail[1],
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              label = "Project Type Group",
+              inputId = "syse_project_type",
+              choices = sys_project_types,
+              selected = sys_project_types[1],
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              inputId = "syse_age",
+              label = "Age",
+              selected = sys_age_cats,
+              choices = sys_age_cats,
+              multiple = TRUE,
+              options = pickerOptions(
+                actionsBox = TRUE,
+                selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                countSelectedText = "All Ages",
+                noneSelectedText = "All Ages",
+                container = "body"
+              )
+            ),
+            pickerInput(
+              label = "Veteran Status",
+              inputId = "syse_spec_pops",
+              choices = sys_spec_pops_people,
+              selected = sys_spec_pops_people[1],
+              options = pickerOptions(container = "body")
+            )
+          )
+        ),
+        card(
+          id = 'syse_filters_right',
+          style="border-width:0;border-left-width: 1px; border-radius:0",
+          layout_columns(
+            col_widths = c(12,12),
+            pickerInput(
+              label = "Race/Ethnicity Methodology Type",
+              inputId = "syse_methodology_type",
+              multiple = FALSE,
+              selected = sys_methodology_types[1],
+              choices = sys_methodology_types,
+              options = pickerOptions(container = "body")
+            ),
+            pickerInput(
+              label = "Race/Ethnicity",
+              inputId = "syse_race_ethnicity",
+              choices = sys_race_ethnicity_method1,
+              selected = sys_race_ethnicity_method1,
+              options = list(
+                `dropdown-align-right` = TRUE,
+                `dropup-auto` = FALSE,
+                container = "body"
+              )
+            )
+          )
+        )
+    )
+          
+        ),
+        
+        navset_card_underline(
+          id = 'syse_tabbox',
+          
+          nav_panel(
+            title = headerTab('Exits by Type'),
+
+            navset_underline(
+              id = "syse_types_subtabs",
+              selected = headerSubTab("Chart"),
+              
+              nav_panel(
+                title = headerSubTab("Chart"),
+                  uiOutput("syse_types_filter_selections") %>%
+                    withSpinner(),
+               
+                plotOutput("syse_types_ui_chart",
+                           #width = "75%"
+                           height = "700px"
+                           ) %>%
+                  withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab("Information"),
+                br(),
+                tab_syse_types_subtabs_information
+              )
+            ),
+            downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_types_download_btn_ppt", "Image Download")
+          ),
+          nav_panel(
+            title = headerTab('Exits by Year'),
+            navset_underline(
+              id = "syse_time_subtabs",
+              selected = headerSubTab('Chart'),
+              nav_panel(
+                title = headerSubTab('Chart'),
+                uiOutput("syse_compare_time_filter_selections") %>%
+                  withSpinner(),
+                div(
+                  style='margin-left:17px;',
+                  plotOutput("syse_compare_time_chart",
+                             width = "92%",
+                             height = "500"
+                  ) %>% withSpinner()
+                ),
+                
+                DTOutput("syse_compare_time_table") %>%
+                  withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab('Information'),
+                br(),
+                tab_syse_time_chart_information
+              )
+            ),
+            downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_time_download_btn_ppt", "Image Download")
+          ),
+          nav_panel(
+            title = headerTab('Exits by Subpopulation'),
+            navset_underline(
+              id = "syse_subpop_subtabs",
+              selected = headerSubTab('Chart'),
+              nav_panel(
+                title = headerSubTab('Chart'),
+                uiOutput("syse_compare_subpop_filter_selections") %>%
+                  withSpinner(),
+                div(
+                  style='margin-left:17px;',
+                  plotOutput("syse_compare_subpop_chart",
+                             width = "92%",
+                             height = "500")
+                ),
+                
+                DTOutput("syse_compare_subpop_table") %>%
+                  withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab('Information'),
+                br(),
+                tab_syse_subpop_chart_information
+              )
+            ),
+            downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+          ),
+          
+          nav_panel(
+            title = headerTab('Permanent Housing Demographics'),
+            navset_underline(
+              id = "syse_phd_subtabs",
+              selected = headerSubTab("Chart"),
+              
+              nav_panel(
+                title = headerSubTab("Chart"),
+                card(
+                 
+                  strong("Select Demographic Crosstab Categories (up to 2)"),
+                  p(str_glue(
+                    "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+                  )),
+                  checkboxGroupInput(
+                    "syse_phd_selections",
+                    label = "",
+                    choices = sys_heatmap_selection_choices,
+                    selected = c("All Races/Ethnicities", "Age"),
+                    inline = TRUE
+                  ),
+                  width = 12
+                ),
+                br(),
+               
+                  uiOutput("syse_phd_summary_selections",inline = TRUE),
+                  #plotOutput("syse_phd_chart", width="100%") %>% withSpinner()
+                  conditionalPanel(
+                    condition = 'input.syse_phd_selections.length == 1',
+                    plotOutput("syse_phd_chart_1d",height=700,width=500) %>% withSpinner(),
+                  ),
+                  conditionalPanel(
+                    condition = 'input.syse_phd_selections.length == 2',
+                    plotOutput("syse_phd_chart_2d", height=700,width="auto") %>% withSpinner()
+                    
+                  )
+                  
+              ),
+              nav_panel(
+                title = headerSubTab("Information"),
+                br(),
+                tab_syse_phd_subtabs_information
+              )
+            ),
+            downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_phd_download_btn_ppt", "Image Download")
+          )
+    )
+  )
+),
 
 # Resources menu -----------
 nav_menu(
