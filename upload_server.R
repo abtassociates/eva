@@ -102,7 +102,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     } else {
      
       err <- source_trycatch("07_system_overview.R")
-      if(is.null(err)) {
+      if(!is.null(err)) {
         nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
       } else {
         nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
