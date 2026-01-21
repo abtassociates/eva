@@ -1021,7 +1021,7 @@ output$dq_export_download_btn <- downloadHandler(
             dir.create(path_prefix)
           }
           proj_dash_filename <- date_stamped_filename(str_glue('{org_name_std} - Project Dashboard Report-'))
-          pd_org_export <- get_clientcount_download_info(file = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)), 
+          pd_org_export <- get_clientcount_download_info( 
                                         orgList = i, dateRangeEnd = dq_export_date_range_end())
           if(length(pd_org_export) > 1){
             write_xlsx(pd_org_export, path = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)))
@@ -1067,7 +1067,7 @@ output$dq_export_download_btn <- downloadHandler(
         
         proj_dash_filename <- date_stamped_filename('System-level Project Dashboard Report-')
         if(fnrow(client_count_data_df()) > 0){
-          pd_sys_export <- get_clientcount_download_info(file = file.path(path_prefix, proj_dash_filename), dateRangeEnd = dq_export_date_range_end())
+          pd_sys_export <- get_clientcount_download_info(dateRangeEnd = dq_export_date_range_end())
           if(length(pd_sys_export) > 1){
             write_xlsx(pd_sys_export, path = file.path(path_prefix, proj_dash_filename))
             zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
