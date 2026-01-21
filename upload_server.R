@@ -1,14 +1,3 @@
-try_catch <- function(script_name) {
-  src_att <- tryCatch(source(script_name, local = TRUE), 
-                      error = function(e) {e})
-  if(inherits(src_att, 'simpleError')){
-    logToConsole(session, src_att)
-    logToConsole(session, paste0("Error occured in ", script_name))
-    show_trycatch_popup(script_name)
-    return(NULL)
-  } else {}
-}
-
 process_upload <- function(upload_filename, upload_filepath) {
   hide('imported_progress')
   withProgress({
@@ -16,7 +5,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Checking initial validity ", value = .05)
     
-    try_catch("00_initially_valid_import.R")
+    source_trycatch("00_initially_valid_import.R")
     
     if(session$userData$initially_valid_import() == 0) 
       return(NULL)
@@ -30,20 +19,20 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Reading your files..", value = .2)
     
-    try_catch("01_get_Export.R")
+    source_trycatch("01_get_Export.R")
     
-    try_catch("02_export_dates.R")
+    source_trycatch("02_export_dates.R")
     
     setProgress(detail = "Checking file structure", value = .35)
     
-    try_catch("03_file_structure_analysis.R")
+    source_trycatch("03_file_structure_analysis.R")
     
     if(session$userData$valid_file() == 0)
       return(NULL)
     
     setProgress(detail = "Prepping initial data..", value = .4)
     
-    try_catch("04_initial_data_prep.R")
+    source_trycatch("04_initial_data_prep.R")
     
     setProgress(detail = "Assessing your data quality..", value = .7)
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
