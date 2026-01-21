@@ -4,7 +4,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     # run script inside tryCatch block, create modal if script fails
     source_trycatch <- function(script_name){
-      src_att <- tryCatch(source(script_name, local = TRUE), 
+      src_att <- tryCatch(source(script_name, local = parent.env(environment())), 
                           error = function(e) {e})
 
       if(inherits(src_att, 'simpleError')){
