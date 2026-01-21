@@ -44,12 +44,6 @@
       "Organization-level (multi-select)",
       "System-level"
     ],
-    "dq_export_files": [
-      "All Data Quality Reports",
-      "Project Dashboard Report",
-      "PDDE Report",
-      "Data Quality Report"
-    ],
     "dq_export_orgList": null,
     "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
     "g_errors_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
