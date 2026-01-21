@@ -1,22 +1,29 @@
 process_upload <- function(upload_filename, upload_filepath) {
   hide('imported_progress')
   withProgress({
-    setProgress(message = "Processing...", value = .01)
     
-    setProgress(detail = "Checking initial validity ", value = .05)
-    
-    src_00_att <- tryCatch(source("00_initially_valid_import.R", local = TRUE), 
-                           error = function(e) {e})
-    if(inherits(src_00_att, 'simpleError')){
-      logToConsole(session, src_00_att)
-      logToConsole(session, "Error occured in 00_initially_valid_import.R")
-      show_trycatch_popup("00_initially_valid_import.R")
-      return(NULL)
-    } else {
+    # run script inside tryCatch block, create modal if script fails
+    source_trycatch <- function(script_name){
+      src_att <- tryCatch(source(script_name, local = parent.env(environment())), 
+                          error = function(e) {e})
+
+      if(inherits(src_att, 'simpleError')){
+        logToConsole(session, src_att)
+        logToConsole(session, paste0("Error occured in ", script_name))
+        show_trycatch_popup(script_name)
+        return("err")
+      } else {}
       
     }
     
-    if(session$userData$initially_valid_import() == 0) 
+    setProgress(message = "Processing...", value = .01)
+    
+    setProgress(detail = "Checking initial validity ", value = .05)
+
+    err <- source_trycatch("00_initially_valid_import.R")
+    if(!is.null(err)) return(NULL)
+
+    if(session$userData$initially_valid_import() == 0)
       return(NULL)
     
     setProgress(detail = "Unzipping...", value = .10)
@@ -25,55 +32,27 @@ process_upload <- function(upload_filename, upload_filepath) {
       files = paste0(unique(cols_and_data_types$File), ".csv"),
       exdir = tempdir()
     )
-
+    
     setProgress(detail = "Reading your files..", value = .2)
+
+    err <- source_trycatch("01_get_Export.R")
+    if(!is.null(err)) return(NULL)
     
-    src_01_att <- tryCatch(source("01_get_Export.R", local = TRUE), 
-                           error = function(e) {e})
-    if(inherits(src_01_att, 'simpleError')){
-      logToConsole(session, src_01_att)
-      logToConsole(session, "Error occured in 01_get_Export.R")
-      show_trycatch_popup("01_get_Export.R")
-      return(NULL)
-    } else {
-    }
-    
-    src_02_att <- tryCatch(source("02_export_dates.R", local = TRUE),
-                           error = function(e) {e})
-    if(inherits(src_02_att, 'simpleError')){
-      logToConsole(session, src_02_att)
-      logToConsole(session, "Error occured in 02_export_dates.R")
-      show_trycatch_popup("02_export_dates.R")
-      return(NULL)
-    } else {
-      
-    }
+    err <- source_trycatch("02_export_dates.R")
+    if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Checking file structure", value = .35)
-    src_03_att <- tryCatch(source("03_file_structure_analysis.R", local = TRUE),
-                           error = function(e) {e})
-    if(inherits(src_03_att, 'simpleError')){
-      logToConsole(session, src_03_att)
-      logToConsole(session, "Error occured in 03_file_structure_analysis.R")
-      show_trycatch_popup("03_file_structure_analysis.R")
-      #return(NULL)
-    } else {
-    } 
+    
+    err <- source_trycatch("03_file_structure_analysis.R")
+    if(!is.null(err)) return(NULL)
     
     if(session$userData$valid_file() == 0)
       return(NULL)
     
     setProgress(detail = "Prepping initial data..", value = .4)
     
-    src_04_att <- tryCatch(source("04_initial_data_prep.R", local = TRUE),
-                           error = function(e) {e})
-    if(inherits(src_04_att, 'simpleError')){
-      logToConsole(session, src_04_att)
-      logToConsole(session, "Error occured in 04_initial_data_prep.R")
-      show_trycatch_popup("04_initial_data_prep.R")
-      return(NULL)
-    } else {
-    } 
+    err <- source_trycatch("04_initial_data_prep.R")
+    if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Assessing your data quality..", value = .7)
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
@@ -122,13 +101,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
     } else {
      
-      src_07_att <- tryCatch(source("07_system_overview.R", local = TRUE),
-                             error = function(e) {e})
-      if(inherits(src_07_att, 'simpleError')){
-        logToConsole(session, src_07_att)
-        logToConsole(session, "Error occured in 07_system_overview.R - hiding System Performance")
+      err <- source_trycatch("07_system_overview.R")
+      if(is.null(err)) {
         nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
-        show_trycatch_popup("07_system_overview.R")
       } else {
         nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
         setProgress(detail = "Preparing System Overview Data", value = .85)
@@ -235,10 +210,10 @@ process_upload <- function(upload_filename, upload_filepath) {
                            end = session$userData$meta_HUDCSV_Export_End)
       
       updateDateInput(session = session,
-                           inputId = "dq_export_date_single",
-                           min = session$userData$meta_HUDCSV_Export_Start,
-                           max = session$userData$meta_HUDCSV_Export_End,
-                           value = session$userData$meta_HUDCSV_Export_End)
+                      inputId = "dq_export_date_single",
+                      min = session$userData$meta_HUDCSV_Export_Start,
+                      max = session$userData$meta_HUDCSV_Export_End,
+                      value = session$userData$meta_HUDCSV_Export_End)
       
     }
     
