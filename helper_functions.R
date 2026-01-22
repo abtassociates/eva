@@ -615,3 +615,23 @@ standardize_org_name <- function(orgname){
   stringr::str_replace_all(orgname, "[@\\$%~\\^,/\\[+<>()|\\:&;#?*'\\]]", "_")
   
 }
+
+# show popup if upload scripts encounter errors
+show_trycatch_popup <- function(script_name){
+  script_num <- as.numeric(substr(script_name, 1, 2))
+  title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
+  showModal(
+    modalDialog(
+      HTML(
+        "<p>Your upload encountered an issue in Eva's processing pipeline. Please report this issue on our <a target = '_blank' href = 'https://github.com/abtassociates/eva/issues'>GitHub</a> page, with the following information:</p><br>",
+        paste0("<b>Location: </b>", script_name,'<br>',
+               '<b>Date of Issue: </b>', Sys.Date(), '<br>',
+               '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+      ),
+      
+      easyClose = TRUE,
+      title = title,
+      footer = modalButton("OK")
+    )
+  )
+}

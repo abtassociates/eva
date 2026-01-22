@@ -1,12 +1,29 @@
 process_upload <- function(upload_filename, upload_filepath) {
   hide('imported_progress')
   withProgress({
+    
+    # run script inside tryCatch block, create modal if script fails
+    source_trycatch <- function(script_name){
+      src_att <- tryCatch(source(script_name, local = parent.env(environment())), 
+                          error = function(e) {e})
+
+      if(inherits(src_att, 'simpleError')){
+        logToConsole(session, src_att)
+        logToConsole(session, paste0("Error occured in ", script_name))
+        show_trycatch_popup(script_name)
+        return("err")
+      } else {}
+      
+    }
+    
     setProgress(message = "Processing...", value = .01)
     
     setProgress(detail = "Checking initial validity ", value = .05)
-    source("00_initially_valid_import.R", local = TRUE)
-    
-    if(session$userData$initially_valid_import() == 0) 
+
+    err <- source_trycatch("00_initially_valid_import.R")
+    if(!is.null(err)) return(NULL)
+
+    if(session$userData$initially_valid_import() == 0)
       return(NULL)
     
     setProgress(detail = "Unzipping...", value = .10)
@@ -15,19 +32,27 @@ process_upload <- function(upload_filename, upload_filepath) {
       files = paste0(unique(cols_and_data_types$File), ".csv"),
       exdir = tempdir()
     )
-    setProgress(detail = "Reading your files..", value = .2)
-    source("01_get_Export.R", local = TRUE)
     
-    source("02_export_dates.R", local = TRUE)
+    setProgress(detail = "Reading your files..", value = .2)
+
+    err <- source_trycatch("01_get_Export.R")
+    if(!is.null(err)) return(NULL)
+    
+    err <- source_trycatch("02_export_dates.R")
+    if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Checking file structure", value = .35)
-    source("03_file_structure_analysis.R", local = TRUE)
+    
+    err <- source_trycatch("03_file_structure_analysis.R")
+    if(!is.null(err)) return(NULL)
     
     if(session$userData$valid_file() == 0)
       return(NULL)
     
     setProgress(detail = "Prepping initial data..", value = .4)
-    source("04_initial_data_prep.R", local = TRUE) 
+    
+    err <- source_trycatch("04_initial_data_prep.R")
+    if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Assessing your data quality..", value = .7)
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
@@ -67,6 +92,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$dq_pdde_mirai_complete(1)
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
+      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
       if(IN_DEV_MODE) browser()
     }
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
@@ -75,11 +101,8 @@ process_upload <- function(upload_filename, upload_filepath) {
       nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
     } else {
      
-      src_07_att <- tryCatch(source("07_system_overview.R", local = TRUE), #catch.aborts=TRUE),
-                             error = function(e) {e})
-      if(inherits(src_07_att, 'simpleError')){
-        logToConsole(session, src_07_att)
-        logToConsole(session, "Error occured in 07_system_overview.R - hiding System Performance")
+      err <- source_trycatch("07_system_overview.R")
+      if(!is.null(err)) {
         nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
       } else {
         nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
@@ -187,10 +210,10 @@ process_upload <- function(upload_filename, upload_filepath) {
                            end = session$userData$meta_HUDCSV_Export_End)
       
       updateDateInput(session = session,
-                           inputId = "dq_export_date_single",
-                           min = session$userData$meta_HUDCSV_Export_Start,
-                           max = session$userData$meta_HUDCSV_Export_End,
-                           value = session$userData$meta_HUDCSV_Export_End)
+                      inputId = "dq_export_date_single",
+                      min = session$userData$meta_HUDCSV_Export_Start,
+                      max = session$userData$meta_HUDCSV_Export_End,
+                      value = session$userData$meta_HUDCSV_Export_End)
       
     }
     

@@ -39,7 +39,8 @@ bracket_files_detail <- function() {
 # update_fsa <- function() {
 output$fileStructureAnalysis <- renderDT({
   req(session$userData$initially_valid_import() == 1)
-
+  req(!is.null(session$userData$file_structure_analysis_main()))
+  
   a <- session$userData$file_structure_analysis_main() %>%
     group_by(Type, Issue) %>%
     summarise(Count = n()) %>%
