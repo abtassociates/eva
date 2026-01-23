@@ -40,13 +40,15 @@ output$downloadPDDEReport <- downloadHandler(
     summary_df <- session$userData$pdde_main %>% 
       fgroup_by(Issue, Type) %>%
       fsummarise(Count = GRPN()) %>%
-      fungroup()
+      fungroup() %>% 
+      roworder(Type, Issue) 
     
     data_df <-session$userData$pdde_main %>% 
       join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
       colorder(ProjectName, ProjectType, pos="after") %>%
       fmutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
-      nice_names() 
+      roworder(Type, Issue) %>% 
+      nice_names()
     
     write_xlsx(
       list("Summary" = summary_df,
@@ -64,13 +66,22 @@ output$downloadPDDEReport <- downloadHandler(
 # summary table
 output$pdde_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(session$userData$pdde_main) > 0)
+  
 
+  validate(
+    need(
+      nrow(session$userData$pdde_main) > 0,
+      message = no_data_msg
+    )
+  )
+  
+  req(nrow(session$userData$pdde_main) > 0)
+  
   a <- session$userData$pdde_main %>%
-    group_by(Issue, Type) %>%
-    summarise(Count = n()) %>%
-    ungroup() %>%
-    arrange(Type)
+    fgroup_by(Issue, Type) %>%
+    fsummarise(Count = GRPN()) %>%
+    fungroup() %>%
+    roworder(Type)
   
   exportTestValues(pdde_summary_table = summarize_df(a))
   
@@ -87,11 +98,19 @@ output$pdde_summary_table <- renderDT({
 
 output$pdde_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
+  
+  validate(
+    need(
+      nrow(session$userData$pdde_main) > 0,
+      message = no_data_msg
+    )
+  )
+  
   req(nrow(session$userData$pdde_main) > 0)
   guidance <- session$userData$pdde_main %>%
-    select(Type, Issue, Guidance) %>%
-    arrange(Type, Issue) %>%
-    unique()
+    fselect(Type, Issue, Guidance) %>%
+    roworder(Type, Issue) %>%
+    funique()
   
   exportTestValues(pdde_guidance_summary = summarize_df(guidance))
   
@@ -110,20 +129,29 @@ output$pdde_guidance_summary <- renderDT({
 
 output$dq_organization_summary_table <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(session$userData$dq_main) > 0)
 
+  validate(
+    need(
+      nrow(session$userData$dq_main) > 0,
+      message = no_data_msg
+    )
+  )
+
+  req(nrow(session$userData$dq_main) > 0)
+  
+    
   a <- session$userData$dq_main %>%
-    filter(OrganizationName %in% c(input$orgList)) %>%
-    select(ProjectName, 
+    fsubset(OrganizationName %in% c(input$orgList)) %>%
+    fselect(ProjectName, 
            Type, 
            Issue, 
            PersonalID) %>%
-    group_by(ProjectName, 
+    fgroup_by(ProjectName, 
              Type, 
              Issue) %>%
-    summarise(Clients = n()) %>%
-    arrange(Type, desc(Clients)) %>%
-    select("Project Name" = ProjectName, 
+    fsummarise(Clients = GRPN()) %>%
+    roworder(Type, -Clients) %>%
+    fselect("Project Name" = ProjectName, 
            Type, 
            Issue, 
            Clients)
@@ -144,12 +172,16 @@ output$dq_organization_summary_table <- renderDT({
 output$dq_org_guidance_summary <- renderDT({
   req(session$userData$valid_file() == 1)
 
+  validate(
+    need(
+      nrow(session$userData$dq_main) > 0,
+      message = no_data_msg
+    )
+  )
+  
   guidance <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(Type, Issue, Guidance) %>%
-    fmutate(Type = factor(Type, levels = c("High Priority",
-                                          "Error",
-                                          "Warning"))) %>%
     roworder(Type, Issue) %>%
     funique()
   
@@ -174,6 +206,7 @@ output$downloadOrgDQReportButton  <- renderUI({
     nrow(session$userData$long_stayers) > 0 || 
     nrow(session$userData$outstanding_referrals) > 0
   )
+  req(length(dqDownloadInfo()$orgDQData) > 1)
   downloadButton(outputId = "downloadOrgDQReport",
                  label = "Download")
 })
@@ -182,10 +215,16 @@ output$downloadOrgDQReport <- downloadHandler(
   filename = reactive(date_stamped_filename(
     str_glue("{input$orgList} Data Quality Report-"))),
   content = function(file) {
-    write_xlsx(dqDownloadInfo()$orgDQData, path = file)
-    logMetadata(session, paste0("Downloaded Org-level DQ Report",
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
+    if(length(dqDownloadInfo()$orgDQData) <= 1){
+      showNotification("No DQ issues to report for this Organization.")
+      
+    } else {
+      write_xlsx(dqDownloadInfo()$orgDQData, path = file)
+      logMetadata(session, paste0("Downloaded Org-level DQ Report",
+                                  if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
+    }
+   
   }
 )
 
@@ -222,32 +261,49 @@ dq_full <- reactive({
   req(session$userData$dq_pdde_mirai_complete() == 1)
 
   logToConsole(session, "in dq_full")
-  long_stayers <- if(!is.null(session$userData$long_stayers) > 0) {
-    session$userData$long_stayers %>%
-      fmutate(
-        too_many_days = case_match(
-          ProjectType,
-          es_nbn_project_type ~ input$ESNbNLongStayers,
-          out_project_type ~ input$OUTLongStayers,
-          sso_project_type ~ input$ServicesOnlyLongStayers,
-          other_project_project_type ~ input$OtherLongStayers,
-          day_project_type ~ input$DayShelterLongStayers,
-          ce_project_type ~ input$CELongStayers
-        )
-      ) %>% 
-      fsubset(DaysSinceLastKnown > too_many_days) %>%
-      fselect(vars_we_want) %>%
-      fmutate(Type = factor(Type, levels = issue_levels))
-  } else data.table()
   
-  outstanding_referrals <- if(!is.null(session$userData$outstanding_referrals) > 0) {
-    session$userData$outstanding_referrals %>%
+  if(!is.null(session$userData$long_stayers) &&
+                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
+    long_stayers_tc <- tryCatch(
+      long_stayers <- session$userData$long_stayers %>%
+        fmutate(
+          too_many_days = case_match(
+            ProjectType,
+            es_nbn_project_type ~ input$ESNbNLongStayers,
+            out_project_type ~ input$OUTLongStayers,
+            sso_project_type ~ input$ServicesOnlyLongStayers,
+            other_project_project_type ~ input$OtherLongStayers,
+            day_project_type ~ input$DayShelterLongStayers,
+            ce_project_type ~ input$CELongStayers
+          )
+        ) %>% 
+        fsubset(DaysSinceLastKnown > too_many_days) %>%
+        fselect(vars_we_want) %>%
+        fmutate(Type = factor(Type, levels = issue_levels)),
+     error = function(e){e}
+    )
+    
+    if(inherits(long_stayers_tc, 'simpleError')){
+      logToConsole(session, paste0('Error in long_stayers_tc... colnames: ', paste0(names(session$userData$long_stayers), collapse=',')))
+
+      long_stayers <- data.table()
+    } else {
+      long_stayers <- long_stayers_tc
+    }
+  } else {
+    long_stayers <- data.table()
+  }
+  
+  if(!is.null(session$userData$outstanding_referrals) > 0) {
+    outstanding_referrals <- session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
       fselect(vars_we_want) %>%
       fmutate(Type = factor(Type, levels = issue_levels))
-  } else data.table()
-
+  } else {
+    outstanding_referrals <- data.table()
+  }
+  
   bind_rows(
     session$userData$dq_main,
     long_stayers,
@@ -264,41 +320,44 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
   
   if(level == "sys") {
     plot_df <- dq_data %>%
-      left_join(session$userData$Project0 %>%
-                  select(ProjectID, OrganizationID) %>%
-                  unique(), by = "ProjectID") %>%
-      select(PersonalID,
+      join(
+        session$userData$Project0 %>%
+          fselect(ProjectID, OrganizationID) %>%
+          funique(), 
+        on = "ProjectID"
+      ) %>%
+      fselect(PersonalID,
              OrganizationID,
              OrganizationName,
              HouseholdID,
              Issue,
              Type) %>%
-      unique()
+      funique()
   } else {
     plot_df <- dq_data %>%
-      select(PersonalID,
+      fselect(PersonalID,
              ProjectID,
              ProjectName,
              OrganizationName,
              HouseholdID,
              Issue,
              Type) %>%
-      unique()
+      funique()
   }
   
   
   # Each project type gets its own Issue text+Guidance etc.
   if(level == "org") {
     plot_df <- plot_df %>% 
-      filter(OrganizationName %in% c(input$orgList))
+      fsubset(OrganizationName %in% input$orgList)
   }
   
   plot_data <- plot_df %>%
-    filter(Type == issueType) %>% 
-    group_by(across(all_of(groupVars))) %>%
-    summarise(countVar = n()) %>%
-    ungroup() %>%
-    arrange(desc(countVar))
+    fsubset(Type == issueType) %>% 
+    fgroup_by(groupVars) %>%
+    fsummarize(countVar = GRPN()) %>%
+    fungroup() %>%
+    roworder(-countVar)
   
   return(plot_data)
 }
@@ -321,7 +380,7 @@ plot_configs <- tidyr::expand_grid(
   level = c("sys", "org"),
   issueType = names(dq_issue_type_map),
   byType = c("Org", "Project", "Issue"),
-  color = "#71B4CB"
+  color = get_brand_color('blue')
 ) %>%
   # Filter out invalid combinations (e.g., system-level "By Project")
   filter(
@@ -336,27 +395,28 @@ renderDQPlot <- function(level, issueType, byType, color) {
   plot_output_id = paste0(level, "DQ", issueType, "By", byType)
   ui_output_id = paste0(plot_output_id, "_ui")
   
-  groupVars = case_when(
-    level == "sys" & byType == "Org" ~ list(c("OrganizationName", "OrganizationID")),
-    level == "sys" & byType == "Issue" ~ list("Issue"),
-    level == "org" & byType == "Project" ~ list(c("OrganizationName", "ProjectName", "ProjectID")),
-    level == "org" & byType == "Issue" ~ list(c("OrganizationName", "Issue")),
-    TRUE ~ list(NULL)
+  groupVars = fcase(
+    level == "sys" & byType == "Org", list(c("OrganizationName", "OrganizationID")),
+    level == "sys" & byType == "Issue", list("Issue"),
+    level == "org" & byType == "Project", list(c("OrganizationName", "ProjectName", "ProjectID")),
+    level == "org" & byType == "Issue", list(c("OrganizationName", "Issue")),
+    default = list(NULL)
   )
   
   # Derive the x-axis variable for the plot
-  x_group = case_when(
-    byType == "Org" ~ "OrganizationName",
-    byType == "Project" ~ "ProjectName",
-    byType == "Issue" ~ "Issue"
+  x_group = fcase(
+    byType == "Org", "OrganizationName",
+    byType == "Project", "ProjectName",
+    byType == "Issue", "Issue"
   )
   
+    
   # RENDER THE UI (The Plot's Container)
   output[[ui_output_id]] <- renderUI({
-    req(nrow(dq_full()) > 0)
     
+    cond <- inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")
     plotOutput(plot_output_id,
-               height = if_else(nrow(dq_full()) == 0, 50, 400),
+               height = if_else(!cond && fnrow(dq_full()) > 0, 400, 50),
                width = ifelse(isTRUE(getOption("shiny.testmode")),
                               "1640",
                               "100%"))
@@ -364,15 +424,27 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
-    req(nrow(dq_full()) > 0)
-
-    plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
-    
     issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
     
     validate(
       need(
-        nrow(plot_data) > 0,
+        !inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError"),
+        message = paste0("An error occurred in data quality calculations. This may be an issue in the code. Please reach out to Eva team via GitHub.")
+      )
+    )
+
+    validate(
+      need(
+        fnrow(dq_full()) > 0,
+        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+      )
+    )
+    
+    plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
+    
+    validate(
+      need(
+        fnrow(plot_data) > 0,
         message = paste0("Great job! No ", issueTypeDisplay, " to show.")
       )
     )
@@ -439,60 +511,75 @@ getDQReportDataList <- function(
     "EntryDate"
   )
   
-  high_priority <- dqData %>%
-    filter(Type == "High Priority") %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(all_of(select_list))
+  if(!is.null(dqData) && fnrow(dqData) > 0){
+    high_priority <- dqData %>%
+      fsubset(Type == "High Priority") %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(select_list)
+    
+    errors <- dqData %>%
+      fsubset(Type == "Error") %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(select_list)
+    
+    warnings <- dqData %>%
+      fsubset(Type == "Warning") %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(select_list)
+    
+  } else {
+    high_priority <- NULL
+    errors <- NULL
+    warnings <- NULL
+  }
+ 
+  if(!is.null(dqReferrals) && fnrow(dqReferrals) > 0){
+    dqReferralDetails <- dqReferrals %>%
+      fmutate(ProjectType = project_type_abb(ProjectType)) %>%
+      fselect(
+        OrganizationName,
+        ProjectID,
+        ProjectName,
+        ProjectType,
+        EventID,
+        PersonalID,
+        EnrollmentID,
+        EventDate,
+        EventType,
+        Days
+      )
+  } else {
+    dqReferralDetails <- NULL
+  }
+ 
   
-  errors <- dqData %>%
-    filter(Type == "Error") %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(all_of(select_list))
-  
-  warnings <- dqData %>%
-    filter(Type == "Warning") %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(all_of(select_list))
-  
-  dqReferralDetails <- dqReferrals %>%
-    mutate(ProjectType = project_type_abb(ProjectType)) %>%
-    select(
-      OrganizationName,
-      ProjectID,
-      ProjectName,
-      ProjectType,
-      EventID,
-      PersonalID,
-      EnrollmentID,
-      EventDate,
-      EventType,
-      Days
-    )
-  
-  mainsummary <- dqData %>% 
-    select(Type, Issue, PersonalID) %>%
-    # group_by(ProjectName, Type, Issue) %>%
-    group_by(Type, Issue) %>%
-    summarise(Enrollments = n()) %>%
-    ungroup() %>%
-    select(Type, Enrollments, Issue) %>%
-    arrange(Type, desc(Enrollments))
-
-  bySummaryLevel2 <- rlang::sym(bySummaryLevel)
-  byunitsummary <- dqData %>% 
-    select(!!bySummaryLevel2, Type, Issue, PersonalID) %>%
-    group_by(!!bySummaryLevel2, Type, Issue) %>%
-    summarise(Enrollments = n()) %>%
-    ungroup() %>%
-    select(!!bySummaryLevel2, Type, Enrollments, Issue) %>%
-    arrange(Type, desc(Enrollments), !!bySummaryLevel2)
-  
-  
-  guidance <- dqData %>%
-    select(Type, Issue, Guidance) %>%
-    unique() %>%
-    mutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>%
-    arrange(Type)
+  if(!is.null(dqData) && fnrow(dqData) > 0){
+    mainsummary <- dqData %>% 
+      fselect(Type, Issue, PersonalID) %>%
+      # group_by(ProjectName, Type, Issue) %>%
+      fgroup_by(Type, Issue) %>%
+      fsummarize(Enrollments = GRPN()) %>%
+      fungroup() %>%
+      fselect(Type, Enrollments, Issue) %>%
+      roworder(Type, -Enrollments)
+    
+    byunitsummary <- dqData %>% 
+      fselect(c(bySummaryLevel, "Type", "Issue", "PersonalID")) %>%
+      fgroup_by(c(bySummaryLevel, "Type", "Issue")) %>%
+      fsummarize(Enrollments = GRPN()) %>%
+      fungroup() %>%
+      roworderv(cols = c("Type", "Enrollments", bySummaryLevel), decreasing = c(FALSE, TRUE, FALSE))
+    
+    guidance <- dqData %>%
+      fselect(Type, Issue, Guidance) %>%
+      funique() %>%
+      roworder(Type)
+  } else {
+    mainsummary <- NULL
+    byunitsummary <- NULL
+    guidance <- NULL
+  }
+ 
   
   exportDetail <- data.table(
     `Export Field` = c("Export Start", "Export End", "Export Date"),
@@ -537,8 +624,7 @@ getDQReportDataList <- function(
     "Referral Details"
   )
   
-  exportDFList <- exportDFList[sapply(exportDFList, 
-                                      function(x) dim(x)[1]) > 0]
+  exportDFList <- exportDFList[lengths(exportDFList) > 0]
   
   return(exportDFList)
 }
@@ -553,15 +639,19 @@ dqDownloadInfo <- reactive({
   
   # org-level data prep (filtering to selected org)
   orgDQData <- dq_full() %>%
-    filter(OrganizationName %in% c(input$orgList))
+    fsubset(OrganizationName %in% input$orgList)
   
-  orgDQoverlapDetails <- session$userData$overlap_details %>% 
-    filter(OrganizationName %in% c(input$orgList) | 
-             PreviousOrganizationName %in% c(input$orgList))
+  if(!is.null(session$userData$overlap_details)){
+    orgDQoverlapDetails <- session$userData$overlap_details %>% 
+      fsubset(OrganizationName %in% input$orgList | 
+                PreviousOrganizationName %in% input$orgList)
+  } else {
+    orgDQoverlapDetails <- NULL
+  }
   
-  orgDQReferrals <- 
-    session$userData$outstanding_referrals %>%
-    filter(OrganizationName %in% c(input$orgList))
+  
+  orgDQReferrals <- session$userData$outstanding_referrals %>%
+    fsubset(OrganizationName %in% input$orgList)
 
   # return a list for reference in downloadHandler
   list(
@@ -580,6 +670,495 @@ dqDownloadInfo <- reactive({
       )
   )
 })
+
+
+dq_export_date_range_end <- reactive({
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
+  req(session$userData$valid_file() == 1)
+  if(input$dq_export_date_options == 'Date Range'){
+    input$dq_export_date_multiple[2]
+  } else if(input$dq_export_date_options == 'Single Date'){
+    input$dq_export_date_single
+  }
+})
+
+observeEvent(input$dateRangeCount, {
+  req(session$userData$valid_file() == 1)
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
+  if(input$pageid == 'tabClientCount'){
+    
+      updateDateRangeInput(session, 'dq_export_date_multiple',
+                           start = input$dateRangeCount[1],
+                           end = input$dateRangeCount[2])
+    
+      updateDateInput(session, 'dq_export_date_single',
+                      value = input$dateRangeCount[2])
+    
+  }
+
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
+
+observeEvent({
+  c(input$dq_export_date_multiple,
+    input$dq_export_date_single)}, {
+      
+  req(session$userData$valid_file() == 1)
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
+      
+  if(input$pageid == 'tabDQExport'){
+    
+    if(input$dq_export_date_options == 'Date Range'){
+      updateDateRangeInput(session, 'dateRangeCount',
+                           start = input$dq_export_date_multiple[1],
+                           end = input$dq_export_date_multiple[2])
+    } else if(input$dq_export_date_options == 'Single Date'){
+      updateDateRangeInput(session, 'dateRangeCount',
+                           end = input$dq_export_date_single)
+    }
+  }
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
+
+
+
+# list of data frames to include in DQ Org Report
+get_dqDownloadInfo_export <- function(org_name, value = "org"){
+  logToConsole(session, "in dqDownloadInfo_export")
+  req(session$userData$dq_pdde_mirai_complete() == 1)
+  
+  if(inherits(tryCatch(dq_full(), error=function(e){e}), "simpleError")){
+    return(NULL)
+  }
+  
+  exportTestValues(dq_main = dq_full() %>% nice_names())
+  exportTestValues(dq_overlaps = session$userData$overlap_details %>% nice_names())
+  
+  if(!is.null(dq_full())){
+    orgDQData <- dq_full() %>%
+      fsubset(OrganizationName %in% org_name)
+  } else {
+    orgDQData <- NULL
+  }
+  
+  if(!is.null(session$userData$overlap_details)){
+    orgDQoverlapDetails <- session$userData$overlap_details %>% 
+      fsubset(OrganizationName %in% org_name | 
+                PreviousOrganizationName %in% org_name)
+  } else {
+    orgDQoverlapDetails <- NULL
+  }
+  
+  if(!is.null(session$userData$outstanding_referrals)){
+    orgDQReferrals <- session$userData$outstanding_referrals %>%
+      fsubset(OrganizationName %in% org_name)
+  } else {
+    orgDQReferrals <- NULL
+  }
+ 
+  
+  # return a list for reference in downloadHandler
+  if((is.null(orgDQData) || fnrow(orgDQData) == 0) && 
+     (is.null(orgDQoverlapDetails) || fnrow(orgDQoverlapDetails) == 0) && 
+     (is.null(orgDQReferrals) || fnrow(orgDQReferrals) == 0) ){
+    logToConsole(session, 'no data found for DQ Report generation. exiting from get_dqDownloadInfo')
+    return(NULL)
+  }
+  
+  if(value == "org"){
+    return(
+      getDQReportDataList(orgDQData,
+                          orgDQoverlapDetails,
+                          "ProjectName",
+                          orgDQReferrals
+      )
+    )
+  } else if(value == "system"){
+    return(
+      getDQReportDataList(dq_full(),
+                          session$userData$overlap_details,
+                          "OrganizationName",
+                          session$userData$outstanding_referrals
+      )
+    )
+  }
+  
+}
+
+observe({
+  
+  if('Organization-level (multi-select)' %in% input$dq_export_export_types){
+    shinyjs::show(id = 'dq_export_orgList')
+  } else {
+    shinyjs::hide(id = 'dq_export_orgList')
+  }
+  
+  shinyjs::toggle("dq_export_download_btn", 
+                  condition = (session$userData$valid_file() == 1))
+                  #condition = (session$userData$dq_pdde_mirai_complete() == 1))
+})
+
+observe({
+  req(session$userData$valid_file() == 1)
+  #req(session$userData$dq_pdde_mirai_complete() == 1)
+  ## disable DQ Export button if any of these cases are true
+  if(
+    ## (1) org-level and system-level are both unchecked
+    length(input$dq_export_export_types) == 0 | 
+    ## (2) org-level is selected but all orgs are de-selected
+     ("Organization-level (multi-select)" %in% input$dq_export_export_types & length(input$dq_export_orgList) == 0) | 
+    ## (3) one or both checkboxes are checked, but all report types are unchecked
+    (length(input$dq_export_files) == 0 )
+  ){
+    shinyjs::disable('dq_export_download_btn')
+  } else {
+    shinyjs::enable('dq_export_download_btn')
+  }
+})
+
+output$dq_export_report_selections <- renderUI({
+  
+  ## if an error occurs in dq_full, exclude the DQ report checkbox option
+  if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
+    tree_choices <- create_tree(dq_file_options[1:2,])
+  } else {
+     tree_choices <- create_tree(dq_file_options)
+  }
+ 
+    treeInput(
+      inputId = 'dq_export_files',
+      label = NULL,
+      choices = tree_choices,
+      selected = "All Data Quality Reports"
+    )
+  
+})
+
+output$dq_reports_invalid_msg <- renderUI({
+  
+    if(inherits(tryCatch(dq_full(), error = function(e){e}), "simpleError")){
+      return(
+        HTML(
+        paste0("There is an error in the Data Quality Reports. This may be an issue in the code. Please reach out to Eva team via GitHub. You may still be able to download Project Dashboard and PDDE Reports.")
+        )
+      )
+    } else {
+      return(NULL)
+    }
+})
+
+output$dq_export_download_btn <- downloadHandler(
+  filename = date_stamped_filename('Data Quality Exports-', ext='.zip'),
+  content = function(file){
+    req(session$userData$valid_file() == 1)
+    #req(session$userData$dq_pdde_mirai_complete() == 1)
+    
+    zip_files <- c()
+    
+    progress <- Progress$new(
+      session = session,
+      min = 0,
+      max = 1
+    )
+    on.exit(progress$close())
+    
+    
+    ## org-level downloads
+    if('Organization-level (multi-select)' %in% input$dq_export_export_types){
+      
+      if("Data Quality Report" %in% input$dq_export_files){
+        req(session$userData$dq_pdde_mirai_complete() == 1)
+        req(
+          nrow(session$userData$dq_main) > 0 || 
+            nrow(session$userData$long_stayers) > 0 || 
+            nrow(session$userData$outstanding_referrals) > 0
+        )
+
+        progress$set(
+          value = 0, 
+          message = "Org-Level Data Quality Reports",
+          detail = NULL
+        )
+        
+        orgs_to_save <- input$dq_export_orgList
+        logMetadata(session, paste0("Attempting to Download Org-Level Data Quality Reports for ",
+                                    length(orgs_to_save),' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        dq_counter <- 0
+        
+        for(i in orgs_to_save){
+          dq_export_list <- get_dqDownloadInfo_export(i, value = "org")
+          progress$inc(amount = 1 / length(orgs_to_save),
+                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))          
+         
+          if(length(dq_export_list) <= 1) {
+            next
+          } else {
+            dq_counter <- dq_counter + 1 
+          }
+          org_name_std <- standardize_org_name(i)
+          
+          path_prefix <- file.path(tempdir(), org_name_std)
+          zip_prefix <- str_glue('{org_name_std}/')
+          if(!dir.exists(path_prefix)){
+            dir.create(path_prefix)
+          }
+          
+          dq_org_filename <- date_stamped_filename(str_glue('{org_name_std} - Data Quality Report-'))
+          
+          if(length(dq_export_list) > 1){
+           
+            write_xlsx(dq_export_list, path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename)))
+            zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
+          } 
+        }
+        logMetadata(session, paste0("Downloaded Org-Level Data Quality Reports for ",
+                                    dq_counter,' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+      }
+      
+      if("PDDE Report" %in% input$dq_export_files){
+        
+        req(session$userData$valid_file() == 1)
+        
+        progress$set(
+          value = 0, 
+          message = "Org-Level PDDE Reports",
+          detail = NULL
+        )
+        
+        orgs_to_save <- input$dq_export_orgList
+        logMetadata(session, paste0("Attempting to Download Org-Level PDDE Reports for ",
+                                    length(orgs_to_save),' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        pdde_counter <- 0
+        for(i in orgs_to_save){
+          
+          progress$inc(amount = 1 / length(orgs_to_save),
+                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
+          
+          summary_df <- session$userData$pdde_main %>% 
+            fsubset(OrganizationName == i) %>% 
+            fgroup_by(Issue, Type) %>%
+            fsummarise(Count = GRPN()) %>%
+            fungroup() %>% 
+            roworder(Type, Issue)
+          
+          if(nrow(summary_df) == 0){
+            next
+          } else {
+            pdde_counter <- pdde_counter + 1
+          }
+          org_name_std <- standardize_org_name(i)
+          path_prefix <- file.path(tempdir(), org_name_std)
+          zip_prefix <- str_glue('{org_name_std}/')
+          if(!dir.exists(path_prefix)){
+            dir.create(path_prefix)
+          }
+          
+          pdde_filename <- date_stamped_filename(str_glue("{org_name_std} - PDDE Report-"))
+          
+          write_xlsx(
+            list("Summary" = summary_df,
+                 "Data" = session$userData$pdde_main %>% 
+                   fsubset(OrganizationName == i) %>% 
+                   join(session$userData$Project0 %>% fsubset(OrganizationName == i) %>% fselect(ProjectID, ProjectType), 
+                        how = "left", on="ProjectID") %>%
+                   roworder(Type, Issue) %>% 
+                   nice_names()
+            ),
+            path = file.path(tempdir(), str_glue(zip_prefix, pdde_filename))
+          )
+          
+          zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+         
+        }  
+        logMetadata(session, paste0("Downloaded Org-Level PDDE Reports for ",
+                                    pdde_counter,' organizations',
+                                    if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        
+      }
+      
+      if("Project Dashboard Report" %in% input$dq_export_files){
+        req(session$userData$valid_file() == 1)
+        
+        progress$set(
+          value = 0, 
+          message = "Org-level Project Dashboard Reports",
+          detail = NULL
+        )
+        
+        orgs_to_save <- input$dq_export_orgList
+        if(input$dq_export_date_options == 'Date Range'){
+          logMetadata(session, paste0("Attempting to Download Org-Level Project Dashboard Reports for ",
+                                      length(orgs_to_save), ' Organizations',
+                                      " with Date Range = [",paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        } else {
+          logMetadata(session, paste0("Attempting to Download Org-Level Project Dashboard Reports for - ",
+                                      length(orgs_to_save), ' Organizations',
+                                      " with End Date = ",dq_export_date_range_end(),
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+        
+        proj_dash_counter <- 0
+        
+        for(i in orgs_to_save){
+          progress$inc(amount = 1 / length(orgs_to_save),
+                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
+          
+          validationDF <- client_count_data_df() %>% 
+            fsubset(OrganizationName == i)
+          
+          if(is.null(validationDF) | nrow(validationDF) == 0) {
+            next
+          } else {
+            proj_dash_counter <- proj_dash_counter + 1
+          }
+          org_name_std <- standardize_org_name(i)
+
+          path_prefix <- file.path(tempdir(), org_name_std)
+          zip_prefix <- str_glue('{org_name_std}/')
+          if(!dir.exists(path_prefix)){
+            dir.create(path_prefix)
+          }
+          proj_dash_filename <- date_stamped_filename(str_glue('{org_name_std} - Project Dashboard Report-'))
+          pd_org_export <- get_clientcount_download_info( 
+                                        orgList = i, dateRangeEnd = dq_export_date_range_end())
+          if(length(pd_org_export) > 1){
+            write_xlsx(pd_org_export, path = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)))
+            zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
+          } 
+          
+        }
+        if(input$dq_export_date_options == 'Date Range'){
+          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for ",
+                                      proj_dash_counter, ' Organizations',
+                                      " with Date Range = [",paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        } else {
+          logMetadata(session, paste0("Downloaded Org-Level Project Dashboard Reports for - ",
+                                      proj_dash_counter, ' Organizations',
+                                      " with End Date = ",dq_export_date_range_end(),
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+      }
+     
+    }
+    
+    ## system-level downloads
+    if ('System-level' %in% input$dq_export_export_types){
+      
+      progress$set(
+        value = 0, 
+        message = "System-level Data Quality Reports",
+        detail = NULL
+      )
+      
+      path_prefix <- file.path(tempdir(), 'System-level')
+      zip_prefix <- 'System-level/'
+      if(!dir.exists(path_prefix)){
+        dir.create(path_prefix)
+      }
+      
+      if("Project Dashboard Report" %in% input$dq_export_files){
+        req(session$userData$valid_file() == 1)
+        
+        progress$set(value = 1/3,
+                     detail = 'Project Dashboard Report')
+        
+        proj_dash_filename <- date_stamped_filename('System-level Project Dashboard Report-')
+        if(fnrow(client_count_data_df()) > 0){
+          pd_sys_export <- get_clientcount_download_info(dateRangeEnd = dq_export_date_range_end())
+          if(length(pd_sys_export) > 1){
+            write_xlsx(pd_sys_export, path = file.path(path_prefix, proj_dash_filename))
+            zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
+          } else {
+            logToConsole(session, paste0("No valid data in System-level Project Dashboard report, so did not write to a file."))
+
+          }
+          
+          
+          if(input$dq_export_date_options == 'Date Range'){
+            logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with Date Range = [",
+                                        paste0(input$dq_export_date_multiple, collapse=', '),']',
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          } else {
+            logMetadata(session, paste0("Downloaded System-Level Project Dashboard Report with End Date = ",
+                                        dq_export_date_range_end(),
+                                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          }
+        }
+       
+        
+      }
+      
+      if("PDDE Report" %in% input$dq_export_files){
+        
+        req(session$userData$valid_file() == 1)
+        
+        progress$set(value = 2 / 3,
+                     detail = 'PDDE Report')
+        
+        pdde_filename <- date_stamped_filename("System-level PDDE Report-")
+        
+        summary_df <- session$userData$pdde_main %>% 
+          fgroup_by(Issue, Type) %>%
+          fsummarise(Count = GRPN()) %>%
+          fungroup() %>% 
+          roworder(Type, Issue) 
+        
+        
+        if(nrow(summary_df) > 0){
+          write_xlsx(
+            list("Summary" = summary_df,
+                 "Data" = session$userData$pdde_main %>% 
+                   join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
+                   roworder(Type, Issue) %>% 
+                   nice_names()
+            ),
+            path = file.path(path_prefix,pdde_filename))
+          zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
+          logMetadata(session, paste0("Downloaded System-level PDDE Report",
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+        }
+        
+      }
+      if("Data Quality Report" %in% input$dq_export_files){
+        
+        req(session$userData$dq_pdde_mirai_complete() == 1)
+        req(
+          nrow(session$userData$dq_main) > 0 || 
+            nrow(session$userData$long_stayers) > 0 || 
+            nrow(session$userData$outstanding_referrals) > 0
+        )
+       
+        progress$set(value = 3/3,
+                     detail = 'Data Quality Report')
+        
+        dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
+        if(length(dqDownloadInfo()$systemDQData) > 1) {
+          write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
+          logMetadata(session, paste0("Downloaded System-level DQ Report",
+                                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+          zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))
+        }
+      
+      } 
+      
+    }
+    
+    logToConsole(session, paste0('valid DQ Export files: ', length(zip_files)))  
+    
+    if(length(zip_files) > 0){
+      return(
+        zip::zip(file, files = zip_files, root = tempdir())
+      )
+    } else {
+      showNotification('No valid download files available. Please try selecting additional options.', type='error')
+      warning('No valid download files available.')
+    }
+                                                     
+  }
+)
 
 # # System Data Quality Overview --------------------------------------------
 # empty_dq_overview_plot <- function(currPlot) {

@@ -80,33 +80,6 @@ collapse_details <- list(
   "Inflow" = inflow_chart_detail_levels
 )
 
-bar_colors <- c(
-  "Inflow" = "#BDB6D7", 
-  "Outflow" = '#6A559B',
-  "Homeless" = '#ECE7E3',
-  "Housed" = '#9E958F'
-)
-
-mbm_inflow_bar_colors <- c(
-  "Active at Start: Homeless" = '#ECE7E3',
-  "Inflow" = "#BDB6D7"
-)
-
-mbm_outflow_bar_colors <- c(
-  "Outflow" = '#6A559B',
-  # "Inactive" = "#E78AC3"
-  "Active at End: Housed" = '#9E958F'
-)
-
-mbm_bar_colors <- c(
-  mbm_inflow_bar_colors,
-  mbm_outflow_bar_colors
-)
-
-mbm_single_status_chart_colors <- c(
-  "First-Time \nHomeless" = bar_colors[["Inflow"]],
-  "Inactive" = colorspace::lighten(bar_colors[["Outflow"]], amount = 0.3)
-)
 
 # 0.2 seems to be the right value to space the bars correctly
 # higher than this and outflow bars start to overlap with next month's inflow
@@ -208,9 +181,9 @@ output$sys_inflow_outflow_monthly_filter_selections <- renderUI({
 #                             <fctr>                          <fctr>         <fctr>         <fctr> <int> <int>
 # 1:                          Housed                 Active at Start         Inflow         Housed    73     1
 # 2:                        Homeless                 Active at Start         Inflow       Homeless   153     2
-# 3:           First-Time \nHomeless           First-Time \nHomeless         Inflow         Inflow   747     3
-# 4:       Returned from \nPermanent       Returned from \nPermanent         Inflow         Inflow     0     4
-# 5: Re-engaged from \nNon-Permanent Re-engaged from \nNon-Permanent         Inflow         Inflow     0     5
+# 3:           First-Time Homeless           First-Time Homeless         Inflow         Inflow   747     3
+# 4:       Returned from Permanent       Returned from Permanent         Inflow         Inflow     0     4
+# 5: Re-engaged from Non-Permanent Re-engaged from Non-Permanent         Inflow         Inflow     0     5
 # 6:                         Unknown                         Unknown         Inflow         Inflow     0     6
 # 7:          Exited,\nNon-Permanent          Exited,\nNon-Permanent        Outflow        Outflow   281     7
 # 8:              Exited,\nPermanent              Exited,\nPermanent        Outflow        Outflow   355     8
@@ -412,22 +385,6 @@ sys_monthly_chart_data_wide <- reactive({
     roworder(PlotFillGroups)
 })
 
-### Inactive + FTH ------------------------
-sys_inflow_outflow_monthly_single_status_chart_data <- function(monthly_status_data) {
-  logToConsole(session, "In sys_inflow_outflow_monthly_single_status_chart_data")
-  
-  monthly_status_data %>%
-    fgroup_by(month) %>%
-    fsummarise(Count = GRPN()) %>%
-    roworder(month) %>%
-    join(
-      data.table(month = unique(monthly_status_data$month)),
-      on = "month",
-      how = "right"
-    ) %>%
-    replace_na(value = 0, cols = "Count")
-}
-
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
 # Function called in the renderPlot and exports
 get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
@@ -441,15 +398,20 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       fmutate(Summary = fct_collapse(Summary, !!!collapse_details)) %>%
       collap(cols="N", ~ InflowOutflow + Summary + PlotFillGroups, fsum, sort=FALSE)
     mid_plot <- 2.5
+    fill_var <- 'PlotFillGroups'
+    fill_breaks <- c("Housed","Homeless","Inflow","Outflow")
   } else {
     # re-label Inflow Unspecified if export is < 1094 days
     if(session$userData$days_of_data < 1094)
       df <- df %>%
         ftransform(
-          Summary = fct_relabel(Summary, "Inflow \nUnspecified" = "First-Time \nHomeless")
+          Summary = fct_recode(Summary, "Inflow Unspecified" = "First-Time Homeless")
         )
 
     mid_plot <- 4.5
+    fill_var <- 'Detail'
+    # Use Housed, Homeless, one Inflow, and one Outflow for legend in Detail chart
+    fill_breaks <- c("Housed","Homeless","First-Time Homeless","Inactive")
   }
   
   total_clients <- df[InflowOutflow == "Inflow", sum(N)]
@@ -479,16 +441,24 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # segment_size <- get_segment_size(s/num_segments)
   total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
 
+  uniq_vals <- unique(df[[fill_var]])
+  cat_order <- as.character(uniq_vals[order(uniq_vals)])
+  
+  bar_patterns <- unname(mbm_pattern_fills[cat_order])
+  bar_bg <- unname(bar_colors[cat_order])
+  
+  bar_fg <- bar_bg
+  bar_fg[!(cat_order %in% c('Housed','Homeless'))] <- 'black'
+  
   # https://stackoverflow.com/questions/48259930/how-to-create-a-stacked-waterfall-chart-in-r
-  ggplot(df, aes(x = group.id, fill = PlotFillGroups)) +
-    # the bars
+  ggplot(df, aes(x = group.id, fill = .data[[fill_var]])) +
     geom_rect(
       aes(
         # control bar gap width
         xmin = group.id - 0.25,
         xmax = group.id + 0.25,
         ymin = ystart,
-        ymax = yend
+        ymax = yend,
       ),
       colour = "black",
       linewidth = .5,
@@ -521,7 +491,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       # direction = "y",
       segment.colour = NA,
       nudge_x = ifelse(windowSize()[1] < 1300, -.4, -.3),
-      color = "#4e4d47",
+      color = get_brand_color('med_grey2'),
       size = sys_chart_text_font,
       inherit.aes = FALSE
     ) +
@@ -533,7 +503,8 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
         y = if_else(PlotFillGroups == "Inflow", yend, ystart), 
         vjust = -.6
       ),
-      size = sys_chart_text_font
+      size = sys_chart_text_font,
+      color = "black"
     ) +
     
     ggtitle(
@@ -546,8 +517,10 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       )
     ) +
     
-    # color palette
-    scale_fill_manual(values = bar_colors) +
+    # pattern fills
+    scale_fill_pattern_eva(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, min_size = unit(1, 'mm'), lwd = 2,
+                        breaks = fill_breaks, labels = c("Housed","Homeless","Inflow","Outflow")) +
+   
     # distance between bars and x axis line
     scale_y_continuous(expand = expansion()) +
     # x axis labels
@@ -560,14 +533,14 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
     theme_void() +
     # add back in what theme elements we want
     theme(
-      text = element_text(size = sys_chart_text_font, colour = "#4e4d47"),
+      text = element_text(size = sys_chart_text_font, colour = get_brand_color('med_grey2')),
       axis.text.x = element_text(
         size = get_adj_font_size(
           sys_axis_text_font * ifelse(windowSize()[1] < 1300, 0.9,1), 
           isExport),
         vjust = -.2), 
       axis.ticks.x = element_line(),
-      axis.line.x = element_line(color = "#4e4d47", linewidth = 0.5),
+      axis.line.x = element_line(color = get_brand_color('med_grey2'), linewidth = 0.5),
       plot.margin = unit(c(3, 1, 1, 1), "lines"),
       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       legend.title = element_blank(),
@@ -657,6 +630,15 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     # 0.4 is probably the highest we can go to maintain the distinction between months
     bar_width <- if_else(isExport, mbm_export_bar_width, mbm_bar_width)
     
+    cat_order <- c(rev(mbm_inflow_levels), mbm_outflow_levels)
+  
+    bar_patterns <- unname(mbm_pattern_fills[cat_order])
+    bar_bg <- unname(mbm_bar_colors[cat_order])
+    
+    bar_fg <- unname(c('Inflow' = 'black', 'Outflow' = 'black',  
+                       mbm_bar_colors['Active at Start: Homeless'], 
+                       mbm_bar_colors['Active at End: Housed'])[cat_order])
+    
     # just = 0.5 means bar is centered around tick
     # just = 1 means bar's right side is aligned with tick
     # just = -1 means bar's left side is aligned with tick
@@ -670,7 +652,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             PlotFillGroups,
             rev(mbm_inflow_levels)
           )),
-        aes(x = month, y = Count, fill = PlotFillGroups),
+        aes(x = month, y = Count,  fill = PlotFillGroups), 
         stat = "identity",
         position = "stack",
         width = bar_width,
@@ -678,7 +660,11 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
         just = bar_adjust
       ) +
       geom_bar(
-        data = plot_data[InflowOutflow == "Outflow"],
+        data = plot_data[InflowOutflow == "Outflow"] %>%
+          fmutate(PlotFillGroups = fct_relevel(
+            PlotFillGroups,
+            mbm_outflow_levels
+          )),
         aes(x = month, y = Count, fill = PlotFillGroups),
         stat = "identity",
         position = "stack",
@@ -689,14 +675,14 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
       theme_minimal() +
       labs(
         x = "Month",
-        y = paste0("Count of ", level_of_detail_text())
+        y = paste0("Count of ", level_of_detail_text()),
+        fill = ''
       ) +
       scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
-      scale_fill_manual(
-        values = mbm_bar_colors, 
-        name = NULL,
-        breaks = c(mbm_inflow_levels, mbm_outflow_levels)
-      ) + # Update legend title
+      # pattern fills
+      scale_fill_pattern_eva(bg = bar_bg, fg = bar_fg, patterns = bar_patterns, lwd = 1,
+                          breaks = c('Active at Start: Homeless','Inflow','Outflow','Active at End: Housed')) +
+      # Update legend title
       ggtitle(
         paste0(
           "Average Monthly Inflow: +", scales::comma(averages["Inflow"], accuracy = 0.1), "\n",
@@ -725,27 +711,41 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     
     # For PPT export, add data labels, centered horizontally and vertically within a bar
     if(isExport) {
-      g <- g + geom_text(
-        data = plot_data[InflowOutflow == "Inflow"] %>%
-          fmutate(PlotFillGroups = fct_relevel(
-            PlotFillGroups,
-            "Inflow",  "Active at Start: Homeless"
-          )),
-        aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
-        stat = "identity",
-        position = position_stack(vjust = 0.5),
-        size = 10,
-        size.unit = "pt"
-      ) +
-      geom_text(
-        data = plot_data[InflowOutflow == "Outflow"],
-        aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
-        stat = "identity",
-        position = position_stack(vjust = 0.5),
-        color = 'white',
-        size = 10,
-        size.unit = "pt"
-      )
+      
+      g <- g + 
+        geom_label(
+          data = plot_data[InflowOutflow == "Inflow"] %>%
+            #data = plot_data[InflowOutflow == "Inflow"] %>%
+            fmutate(PlotFillGroups = fct_relevel(
+              PlotFillGroups,
+              rev(mbm_inflow_levels)
+            )) %>% 
+            # hide labels if value is 0
+            fmutate(Count = na_if(Count, 0)),
+          aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+          stat = "identity",
+          color = "black",
+          fill = "white",
+          position = position_stack(vjust = 0.5),
+          size = 10,
+          size.unit = "pt"
+        ) +
+        geom_label(
+          data = plot_data[InflowOutflow == "Outflow"] %>% 
+            fmutate(PlotFillGroups = fct_relevel(
+              PlotFillGroups,
+              mbm_outflow_levels
+            )) %>% 
+            # hide labels if value is 0
+            fmutate(Count = na_if(Count, 0)),
+          aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+          stat = "identity",
+          color = "black",
+          fill = "white",
+          position = position_stack(vjust = 0.5),
+          size = 10,
+          size.unit = "pt"
+        ) 
     }
     g
   })
@@ -911,22 +911,27 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 
 
 ### Table --------------------------------------
+monthly_chart_data_wide_for_tables <- function() {
+  sys_monthly_chart_data_wide() %>%
+    fsubset(
+      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
+        !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
+    ) %>% 
+    fmutate(PlotFillGroups = fct_relevel(PlotFillGroups, mbm_inflow_levels, mbm_outflow_levels)) %>% 
+    roworder(PlotFillGroups)
+}
 # The table is positioned directly under the chart
 # Making the month labels looks like both the chart's x-axis and the table's column headers
 get_sys_inflow_outflow_monthly_table <- reactive({
   logToConsole(session, "In sys_inflow_outflow_monthly_table")
 
-  summary_data_wide <- sys_monthly_chart_data_wide() %>%
-    fsubset(
-      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
-      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    )
+  summary_data_wide <- monthly_chart_data_wide_for_tables()
   
   req(nrow(summary_data_wide) > 0)
   
   if(input$mbm_status_filter == "First-Time Homeless")
     summary_data_with_change <- summary_data_wide %>%
-      fsubset(PlotFillGroups == "Inflow" & Detail == "First-Time \nHomeless") %>%
+      fsubset(PlotFillGroups == "Inflow" & Detail == "First-Time Homeless") %>%
       ftransform(PlotFillGroups = input$mbm_status_filter) %>%
       fselect(-Detail, -Summary)
   else if(input$mbm_status_filter == "Inactive")
@@ -947,7 +952,15 @@ get_sys_inflow_outflow_monthly_table <- reactive({
   req(nrow(summary_data_with_change) > 0)
   
   monthly_dt <- datatable(
-    summary_data_with_change %>% frename("PlotFillGroups" = " "),
+    summary_data_with_change %>% 
+      ## add div around outflow and inflow text to target with CSS
+      fmutate(
+        PlotFillGroups = as.character(PlotFillGroups),
+        PlotFillGroups = fcase(PlotFillGroups == 'Inflow','<div>Inflow</div>',
+                               PlotFillGroups == 'Outflow','<div>Outflow</div>',
+                               default = PlotFillGroups)
+      ) %>% 
+      frename("PlotFillGroups" = " ") ,
     options = list(
       dom = 't',
       ordering = FALSE,
@@ -957,6 +970,7 @@ get_sys_inflow_outflow_monthly_table <- reactive({
         list(className = 'dt-center', targets = '_all') # Center text
       )
     ),
+    escape = FALSE,
     style = "default",
     rownames = FALSE,
     selection = "none"
@@ -979,48 +993,48 @@ get_sys_inflow_outflow_monthly_table <- reactive({
       columns = 1,
       target = "cell",
       color = styleEqual(
-        mbm_outflow_levels, 
-        rep("white", length(mbm_outflow_levels))
+        c("Active at Start: Homeless", "Active at End: Housed"), 
+        rep("white", 2)
       )
     )
   
-  if(input$mbm_status_filter == "All") {
-    # Highlight max inflow
-    month_cols <- names(summary_data_with_change)[-1]
-    change_row <- as.integer(summary_data_with_change[PlotFillGroups == "Monthly Change", ..month_cols])
-
-    if(any(change_row > 0, na.rm=TRUE)) {
-      monthly_dt <- monthly_dt %>%
-        formatStyle(
-          columns = month_cols[which.max(change_row)],
-          target = "cell",
-          backgroundColor = styleRow(
-            nrow(summary_data_with_change), 
-            mbm_bar_colors["Inflow"]
-          )
-        )
-    }
-    
-    if(any(change_row < 0, na.rm=TRUE)) {
-      monthly_dt <- monthly_dt %>%
-        formatStyle(
-          columns = month_cols[which.min(change_row)],
-          target = "cell",
-          color = styleRow(nrow(summary_data_with_change), 'white'),
-          backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
-        )
-    }
-  }
+  ## Commenting out this section which highlights max and min inflow/outfow values
+  ## since we are now using the same background color with a pattern fill instead
+  ## and users cannot distinguish between them in table form
+  
+  # if(input$mbm_status_filter == "All") {
+  #   # Highlight max inflow
+  #   month_cols <- names(summary_data_with_change)[-1]
+  #   change_row <- as.integer(summary_data_with_change[PlotFillGroups == "Monthly Change", ..month_cols])
+  # 
+  #   if(any(change_row > 0, na.rm=TRUE)) {
+  #     monthly_dt <- monthly_dt %>%
+  #       formatStyle(
+  #         columns = month_cols[which.max(change_row)],
+  #         target = "cell",
+  #         backgroundColor = styleRow(
+  #           nrow(summary_data_with_change), 
+  #           mbm_bar_colors["Inflow"]
+  #         )
+  #       )
+  #   }
+  #   
+  #   if(any(change_row < 0, na.rm=TRUE)) {
+  #     monthly_dt <- monthly_dt %>%
+  #       formatStyle(
+  #         columns = month_cols[which.min(change_row)],
+  #         target = "cell",
+  #         color = styleRow(nrow(summary_data_with_change), 'white'),
+  #         backgroundColor = styleRow(nrow(summary_data_with_change), mbm_bar_colors["Outflow"])
+  #       )
+  #   }
+  # }
   monthly_dt
 })
 
 get_sys_inflow_outflow_monthly_flextable <- function() {
   logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
-  d <- sys_monthly_chart_data_wide() %>% 
-    fsubset(
-      PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") & 
-      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    ) %>%
+  d <- monthly_chart_data_wide_for_tables() %>% 
     fselect(-Detail, -Summary)
     
   d <- collap(
@@ -1040,25 +1054,26 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
     
   row_labels <- d[[1]]
   
-  # Formatting the inflow/outflow row labels
-  inflow_outflow_row_indices <- which(row_labels %in% c(mbm_inflow_levels, mbm_outflow_levels))
-  outflow_row_indices <- which(row_labels %in% c("Active at End: Housed", "Outflow"))
-
+  # Formatting the inflow/outflow row labels - now using black text for Housed + Homeless, white for others
+  inflow_outflow_row_indices <- which(row_labels %in% c("Inflow","Outflow")) 
+  active_row_indices <- which(row_labels %in% c("Active at Start: Homeless", "Active at End: Housed")) 
+  
   ft <- ft %>%
     # Background colors from datatable's formatStyle
-    bg(i = inflow_outflow_row_indices, j = 1, bg = mbm_bar_colors) %>%
+    bg(i = inflow_outflow_row_indices, j = 1, bg = mbm_bar_colors[c('Inflow','Outflow')]) %>%
+    bg(i = active_row_indices, j = 1, bg = mbm_bar_colors[c("Active at Start: Homeless", "Active at End: Housed")]) %>%
     # thick borders for the first column
-    border(i = inflow_outflow_row_indices, j = 1, border = fp_border(color = "black", width = 2)) %>%
+    border(i = c(inflow_outflow_row_indices, active_row_indices), j = 1, border = fp_border(color = "black", width = 2)) %>%
     # Make outflow cells have contrasting white font color
-    color(i = outflow_row_indices, j = 1, color = "white")
+    color(i = active_row_indices, j = 1, color = "white")
 
   # Highlight the monthly change inflow and outflow vals
   monthly_change_row <- which(row_labels == "Monthly Change")
   monthly_change_vals <- d[monthly_change_row, names(d)[-1]]
 
   ft %>%
-    bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_inflow_bar_colors["Inflow"]) %>%
-    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_outflow_bar_colors["Outflow"]) %>%
+    bg(i = monthly_change_row, j = which.max(monthly_change_vals) + 1, mbm_bar_colors["Inflow"]) %>%
+    bg(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, mbm_bar_colors["Outflow"]) %>%
     color(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, color = "white")
 }
 
@@ -1071,33 +1086,30 @@ output$sys_inflow_outflow_monthly_table <- renderDT({
 sys_monthly_single_status_ui_chart <- function(varname, status) {
   logToConsole(session, "In sys_monthly_single_status_ui_chart")
 
-  monthly_status_data <- get_inflow_outflow_monthly() %>%
-    fsubset(.[[varname]] == status)
+  plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+    fsubset(Detail == status)
   
-  if(nrow(monthly_status_data) == 0) 
+  if(fsum(plot_data$Count) == 0) 
     return(
       ggplot() + 
         labs(title = no_data_msg) + 
         theme_minimal()
     )
   
-  if(fndistinct(monthly_status_data$PersonalID) <= 10) 
-    return(
-      ggplot() + 
-        labs(title = suppression_msg) + 
-        theme_minimal()
-    )
+  plot_data$PlotFillGroups <- status
+ 
+  cat_order <- as.character(unique(plot_data$PlotFillGroups))
   
-  plot_data <- sys_inflow_outflow_monthly_single_status_chart_data(monthly_status_data)
-
   ggplot(plot_data, aes(x = month, y = Count)) +
-    geom_col(fill = mbm_single_status_chart_colors[[status]], width = 0.3, color = "black") +
+    geom_col(aes(fill = PlotFillGroups), width = 0.3, color = "black") +
     geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",
       y = paste0("Count of ", level_of_detail_text())
     ) +
+    ## pattern fills
+    fillpattern::scale_fill_pattern(bg = mbm_single_status_chart_colors[status], fg='black', patterns = mbm_pattern_fills[[status]], lwd = 1) +
     scale_x_discrete(expand = expansion(mult = c(0.045, 0.045))) + # make plto take up more space horizontally
     theme(
       axis.text.x = element_text(size = sys_axis_text_font, face = "bold"),
@@ -1120,7 +1132,7 @@ output$sys_inactive_monthly_ui_chart <- renderPlot({
 
 output$sys_fth_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
-  sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless")
+  sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
 })
 
 monthly_chart_validation <- function() {
@@ -1176,7 +1188,6 @@ sys_export_monthly_info <- function() {
   month_cols <- names(monthly_counts_wide)[-1:-3]
 
   monthly_counts_detail = monthly_counts_wide %>%
-    ftransform(Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))) %>%
     fselect(-PlotFillGroups)
     
   monthly_totals <- monthly_counts_wide %>%
@@ -1220,8 +1231,7 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
 
     df <- sys_inflow_outflow_annual_chart_data() %>% 
       ftransform(
-        Summary = fct_collapse(Summary, !!!collapse_details),
-        Detail = fct_relabel(Detail, function(d) gsub(" \n"," ",d))
+        Summary = fct_collapse(Summary, !!!collapse_details)
       )
     
     if(session$userData$days_of_data < 1094) {
@@ -1298,7 +1308,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
         ),
         "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
         "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
-        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time \nHomeless"),
+        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
         "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
       ),
       summary_font_size = 19

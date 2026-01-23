@@ -246,7 +246,7 @@ logMetadata <- function(session, detail) {
     Details = detail
   )
   
-  filename <- here("metadata-analysis/metadata/metadata.csv")
+  filename <- paste0(METADATA_PATH,"/metadata.csv")
   
   invisible(write_csv(
     x = d,
@@ -293,17 +293,14 @@ headerSubTab <- function(subtabTitle){
 logSessionData <- function(session) {
   d <- data.frame(
     SessionToken = session$token,
-    Datestamp = Sys.time()
-  )
-
-  export_fields_to_store <- c(
-    "CoC" = "SourceID",
-    "ExportID" = "ExportID",
-    "SourceContactFirst" = "SourceContactFirst",
-    "SourceContactLast" = "SourceContactLast",
-    "SourceContactEmail" = "SourceContactEmail",
-    "SoftwareName" = "SoftwareName",
-    "ImplementationID" = "ImplementationID"
+    Datestamp = Sys.time(),
+    CoC = if(is.null(session$userData$Export$SourceID)) NA else session$userData$Export$SourceID,
+    ExportID = if(is.null(session$userData$Export$ExportID)) NA else session$userData$Export$ExportID,
+    SourceContactFirst = if(is.null(session$userData$Export$SourceContactFirst)) NA else session$userData$Export$SourceContactFirst,
+    SourceContactLast = if(is.null(session$userData$Export$SourceContactLast)) NA else session$userData$Export$SourceContactLast,
+    SourceContactEmail = if(is.null(session$userData$Export$SourceContactEmail)) NA else session$userData$Export$SourceContactEmail,
+    SoftwareName = if(is.null(session$userData$Export$SoftwareName)) NA else session$userData$Export$SoftwareName,
+    ImplementationID = if(is.null(session$userData$Export$ImplementationID)) NA else session$userData$Export$ImplementationID
   )
   
   for(v in names(export_fields_to_store)) {
@@ -314,7 +311,7 @@ logSessionData <- function(session) {
   capture.output(d, file = stderr())
   
     
-  filename <- here("metadata-analysis/metadata/sessiondata.csv")
+  filename <- paste0(METADATA_PATH, "/sessiondata.csv")
   write_csv(
     x = d,
     filename,
@@ -342,11 +339,16 @@ logToConsoleFull <- function(session, msg) {
   capture.output(d, file = stderr())
 }
   
-date_stamped_filename <- function(filename) {
-  paste(filename, Sys.Date(), ".xlsx", sep = "")
+date_stamped_filename <- function(filename, ext = '.xlsx') {
+  
+  paste(filename, Sys.Date(), ext, sep = "")
 }
 
 nice_names <- function(df){
+  
+  if(is.null(df)){
+    return(data.table())
+  }
   
   names_from_janitor <- c("Ho h", "Co c", "Adjust")
   hmis_abbreviations <- c("HoH", "CoC", "")
@@ -378,6 +380,31 @@ nice_names <- function(df){
   df
 }
 
+nice_names_timeliness <- function(df, record_type){
+ 
+  if(is.null(df)){
+    return(NULL)
+  }
+  mdn_string <- switch(record_type, 
+                       'start' = 'Median Days to Project Start Record Entry',
+                       'exit' = 'Median Days to Project Exit Record Entry',
+                       'nbn' = 'Median Days to Night-by-Night Record Entry',
+                       'cls' = 'Median Days to Current Living Situation Record Entry')
+  
+  colnames(df) <- str_replace_all(names(df), 
+                               c('OrganizationName' = 'Organization Name', 
+                                 'ProjectID' = 'Project ID',
+                                 'ProjectName' = 'Project Name',
+                                 'ProjectType' = 'Project Type',
+                                 'nlt0' = '< 0 Days',
+                                 'n0' = '0 Days',
+                                 'n1_3' = '1-3 Days',
+                                 'n4_6' = '4-6 Days',
+                                 'n7_10' = '7-10 Days',
+                                 'n11p' = '11 + Days',
+                                 'mdn' = mdn_string))
+  df
+}
 
 # Sandbox -----------------------------------------------------------------
 
@@ -455,10 +482,8 @@ reset_postvalid_components <- function(session) {
   session$sendInputMessage('orgList', list(choices = NULL))
   session$sendInputMessage('currentProviderList', list(choices = NULL))
   session$sendCustomMessage('dateRangeCount', list(
-    min = NULL,
-    start = ymd(today()),
-    max = NULL,
-    end = ymd(today())
+    start = NA,
+    end = NA
   ))
   session$userData$pdde_main <- NULL
   
@@ -586,4 +611,31 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     ) %>%
     setorder(PersonalID, period, EntryDate) %>%
     fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
+}
+
+# removes special characters from org names when using them for DQ Export file names
+standardize_org_name <- function(orgname){
+  orgname <- gsub('\\\\','/',orgname)
+  stringr::str_replace_all(orgname, "[@\\$%~\\^,/\\[+<>()|\\:&;#?*'\\]]", "_")
+  
+}
+
+# show popup if upload scripts encounter errors
+show_trycatch_popup <- function(script_name){
+  script_num <- as.numeric(substr(script_name, 1, 2))
+  title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
+  showModal(
+    modalDialog(
+      HTML(
+        "<p>Your upload encountered an issue in Eva's processing pipeline. Please report this issue on our <a target = '_blank' href = 'https://github.com/abtassociates/eva/issues'>GitHub</a> page, with the following information:</p><br>",
+        paste0("<b>Location: </b>", script_name,'<br>',
+               '<b>Date of Issue: </b>', Sys.Date(), '<br>',
+               '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+      ),
+      
+      easyClose = TRUE,
+      title = title,
+      footer = modalButton("OK")
+    )
+  )
 }

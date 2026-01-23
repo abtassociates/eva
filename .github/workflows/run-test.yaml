@@ -47,7 +47,7 @@ jobs:
           
       - name: Get R version
         id: r-version
-        run: echo "R_VERSION=$(Rscript -e 'cat(R.version$major, R.version$minor, sep=".")')" >> $GITHUB_ENV
+        run: echo "R_VERSION=$(Rscript --vanilla -e 'cat(R.version$major, R.version$minor, sep=".")')" >> $GITHUB_ENV
         shell: bash
   
       - name: Upload test results

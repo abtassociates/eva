@@ -70,7 +70,7 @@ session$userData$client_categories <- qDT(Client) %>%
                 White +
                 MidEastNAfrican +
                 HispanicLatinao == 0, 1, 0),
-    AmIndAKNativeLatineMethod1Detailed = 
+    AmIndAKNativeLatinoMethod1Detailed = 
       fifelse(AmIndAKNative == 1 & HispanicLatinao == 1 &
                 Asian +
                 BlackAfAmerican +
@@ -85,7 +85,7 @@ session$userData$client_categories <- qDT(Client) %>%
                 White +
                 MidEastNAfrican +
                 HispanicLatinao == 0, 1, 0),
-    AsianLatineMethod1Detailed =
+    AsianLatinoMethod1Detailed =
       fifelse(Asian == 1 & HispanicLatinao == 1 &
                 AmIndAKNative +
                 BlackAfAmerican +
@@ -100,14 +100,14 @@ session$userData$client_categories <- qDT(Client) %>%
                 White +
                 MidEastNAfrican +
                 HispanicLatinao == 0, 1, 0),
-    BlackAfAmericanLatineMethod1Detailed =
+    BlackAfAmericanLatinoMethod1Detailed =
       fifelse(BlackAfAmerican == 1 & HispanicLatinao == 1 &
                 AmIndAKNative +
                 Asian +
                 NativeHIPacific +
                 White +
                 MidEastNAfrican == 0, 1, 0),
-    LatineAloneMethod1Detailed =
+    LatinoAloneMethod1Detailed =
       fifelse(HispanicLatinao == 1 &
                 AmIndAKNative +
                 Asian +
@@ -123,7 +123,7 @@ session$userData$client_categories <- qDT(Client) %>%
                 White +
                 HispanicLatinao +
                 BlackAfAmerican == 0, 1, 0),
-    MidEastNAfricanLatineMethod1Detailed =
+    MidEastNAfricanLatinoMethod1Detailed =
       fifelse(MidEastNAfrican == 1 & HispanicLatinao == 1 &
                 AmIndAKNative +
                 Asian +
@@ -138,7 +138,7 @@ session$userData$client_categories <- qDT(Client) %>%
                 White +
                 HispanicLatinao +
                 BlackAfAmerican == 0, 1, 0),
-    NativeHIPacificLatineMethod1Detailed =
+    NativeHIPacificLatinoMethod1Detailed =
       fifelse(NativeHIPacific == 1 & HispanicLatinao == 1 &
                 AmIndAKNative +
                 Asian +
@@ -153,14 +153,14 @@ session$userData$client_categories <- qDT(Client) %>%
                 NativeHIPacific +
                 HispanicLatinao +
                 BlackAfAmerican == 0, 1, 0),
-    WhiteLatineMethod1Detailed =
+    WhiteLatinoMethod1Detailed =
       fifelse(White == 1 & HispanicLatinao == 1 &
                 AmIndAKNative +
                 Asian +
                 MidEastNAfrican +
                 NativeHIPacific +
                 BlackAfAmerican == 0, 1, 0),
-    MultipleNotLatineMethod1Detailed =
+    MultipleNotLatinoMethod1Detailed =
       fifelse(HispanicLatinao == 0 &
                 AmIndAKNative +
                 Asian +
@@ -168,7 +168,7 @@ session$userData$client_categories <- qDT(Client) %>%
                 NativeHIPacific +
                 White +
                 BlackAfAmerican > 1, 1, 0),
-    MultipleLatineMethod1Detailed =
+    MultipleLatinoMethod1Detailed =
       fifelse(HispanicLatinao == 1 &
                 AmIndAKNative +
                 Asian +
@@ -191,20 +191,20 @@ session$userData$client_categories <- qDT(Client) %>%
     # Data quality column to check for mutual exclusivity
     DQMethod1DetailedRaceEth =
       AmIndAKNativeAloneMethod1Detailed +
-      AmIndAKNativeLatineMethod1Detailed +
+      AmIndAKNativeLatinoMethod1Detailed +
       AsianAloneMethod1Detailed +
-      AsianLatineMethod1Detailed +
+      AsianLatinoMethod1Detailed +
       BlackAfAmericanAloneMethod1Detailed +
-      BlackAfAmericanLatineMethod1Detailed +
-      LatineAloneMethod1Detailed +
+      BlackAfAmericanLatinoMethod1Detailed +
+      LatinoAloneMethod1Detailed +
       MidEastNAfricanAloneMethod1Detailed +
-      MidEastNAfricanLatineMethod1Detailed +
+      MidEastNAfricanLatinoMethod1Detailed +
       NativeHIPacificAloneMethod1Detailed +
-      NativeHIPacificLatineMethod1Detailed +
+      NativeHIPacificLatinoMethod1Detailed +
       WhiteAloneMethod1Detailed +
-      WhiteLatineMethod1Detailed +
-      MultipleNotLatineMethod1Detailed +
-      MultipleLatineMethod1Detailed +
+      WhiteLatinoMethod1Detailed +
+      MultipleNotLatinoMethod1Detailed +
+      MultipleLatinoMethod1Detailed +
       RaceEthnicityUnknown, # all should equal 1
     # exclusive logic group 2
     BILPOCMethod1Summarized = fifelse(
@@ -233,7 +233,7 @@ session$userData$client_categories <- qDT(Client) %>%
     AmIndAKNativeMethod2Detailed = fifelse(AmIndAKNative == 1, 1, 0),
     AsianMethod2Detailed = fifelse(Asian == 1, 1, 0),
     BlackAfAmericanMethod2Detailed = fifelse(BlackAfAmerican == 1, 1, 0),
-    LatineMethod2Detailed = fifelse(HispanicLatinao == 1, 1, 0),
+    LatinoMethod2Detailed = fifelse(HispanicLatinao == 1, 1, 0),
     MidEastNAfricanMethod2Detailed = fifelse(MidEastNAfrican == 1, 1, 0),
     NativeHIPacificMethod2Detailed = fifelse(NativeHIPacific == 1, 1, 0),
     WhiteMethod2Detailed = fifelse(White == 1, 1, 0),
@@ -247,10 +247,10 @@ session$userData$client_categories <- qDT(Client) %>%
     #     MidEastNAfrican +
     #     HispanicLatinao == 0, 1, 0),
     # Method2 logic group 2
-    BlackAfAmericanLatineMethod2Summarized =
+    BlackAfAmericanLatinoMethod2Summarized =
       fifelse(BlackAfAmerican == 1 & HispanicLatinao == 1, 1, 0),
-    LatineMethod2Summarized = fifelse(HispanicLatinao == 1, 1, 0),
-    LatineAloneMethod2Summarized = fifelse(
+    LatinoMethod2Summarized = fifelse(HispanicLatinao == 1, 1, 0),
+    LatinoAloneMethod2Summarized = fifelse(
       HispanicLatinao == 1 &
         AmIndAKNative +
         Asian +
@@ -549,8 +549,7 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       last_lh_date + days_lh_valid,
       ExitAdjust
     ),
-    adjusted_dates = !ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type) | 
-      ProjectType %in% nbn_non_res & ExitAdjust == no_end_date
+    adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 

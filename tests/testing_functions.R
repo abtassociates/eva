@@ -27,7 +27,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = '<h4>Client Counts Detail</h4>')
+    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
@@ -152,7 +152,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     "client_count_download_detail", 
     "dq_main",
     "pdde_main",
-    "universe_ppl_flags",
+    "period_data",
     "sys_comp_df",
     "dq_overlaps"
   )
@@ -198,8 +198,14 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     app$set_inputs(pageid = "tabClientCount")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = '<h4>Client Counts Detail</h4>')
+    #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
+    #app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(client_count_subtabs = "<h4>Timeliness</h4>")
+    app$wait_for_idle(timeout = 1e+06)
+    # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
+    # app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
       input = c(
@@ -212,9 +218,11 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "headerClientCounts_supp",
         "clientCountData",
         "clientCountSummary",
+        "timelinessTable",
         "downloadClientCountsReportButton"
       )
     )
+    
     
     #app$set_inputs(sidebarItemExpanded = "AssessDataQuality")
     app$set_inputs(pageid = "tabPDDE")
@@ -399,6 +407,19 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       input = sys_inflow_outflow_inputs,
       output = sys_inflow_outflow_detail_outputs
     )
+    
+    # change client filter to Hispanic/Latino. This should lead to < 11 people to check validation/redacting
+    # AS TODO: Add Demographic output?
+    app$set_inputs(syso_race_ethnicity = "LatinoAloneMethod1Detailed")
+    app$wait_for_idle(timeout = 2e+06)
+    app$expect_values(
+      name = "sys-flow-detail-w-AO-Residential-PH-hisp",
+      input = sys_inflow_outflow_inputs,
+      output = sys_inflow_outflow_detail_outputs
+    )
+    
+    app$set_inputs(syso_race_ethnicity = "All")
+    app$wait_for_idle(timeout = 2e+06)
     
     # go back to summary tab
     app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
