@@ -1,5 +1,5 @@
 # FY26 vlaidation specs
-validation_specs_bk <- "/media/sdrive/projects/CE_Data_Toolkit/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx"
+validation_specs_bk <- here("public-resources/HMIS-CSV-Machine-Readable-Specifications.xlsx")
 
 # Read in Variable-List xwalk
 # We will handle the nuanced ones later

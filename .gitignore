@@ -36,3 +36,4 @@ tests/testthat/_snaps/**/*.png
 www/client-level-export-data-dictionary.csv
 .Renviron
 sandbox/update-FY24-ICF-good-to-FY26.R
+public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx
