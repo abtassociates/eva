@@ -1483,7 +1483,8 @@ all_filtered_syse <- reactive({
   period_data <- tmp %>% 
     expand_by_periods(chart_type = 'exits_types') %>% 
     get_active_info(tmp) %>%
-    get_inflows_and_outflows(chart_type = 'exits')
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fsubset(exited_system)
   
   period_data
   
@@ -1503,7 +1504,8 @@ all_filtered_syse_time <- reactive({
   period_data <- tmp %>% 
     expand_by_periods(chart_type = 'exits_time') %>% 
     get_active_info(tmp) %>%
-    get_inflows_and_outflows(chart_type = 'exits')
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fsubset(exited_system)
   
   period_data
  
@@ -1518,7 +1520,8 @@ all_filtered_syse_demog <- reactive({
   period_data <- tmp %>% 
     expand_by_periods(chart_type = 'exits_demog') %>% 
     get_active_info(tmp) %>%
-    get_inflows_and_outflows(chart_type = 'exits')
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fsubset(exited_system)
   
   join( 
     period_data,

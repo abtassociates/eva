@@ -671,7 +671,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
         InflowTypeDetail, OutflowTypeDetail, 
         InflowTypeSummary, OutflowTypeSummary, 
         Destination,
-        EnrollmentID, EnrollmentID_lecr, 
+        EnrollmentID, EnrollmentID_lecr, exited_system,
         first_active_date_in_period, prev_active
       )
   }
