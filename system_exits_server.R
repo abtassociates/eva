@@ -1484,8 +1484,8 @@ all_filtered_syse <- reactive({
     expand_by_periods(chart_type = 'exits_types') %>% 
     get_active_info(tmp) %>%
     get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fsubset(exited_system)
-  
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
   period_data
   
 })
@@ -1505,7 +1505,8 @@ all_filtered_syse_time <- reactive({
     expand_by_periods(chart_type = 'exits_time') %>% 
     get_active_info(tmp) %>%
     get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fsubset(exited_system)
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
   
   period_data
  
@@ -1521,7 +1522,8 @@ all_filtered_syse_demog <- reactive({
     expand_by_periods(chart_type = 'exits_demog') %>% 
     get_active_info(tmp) %>%
     get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fsubset(exited_system)
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
   
   join( 
     period_data,

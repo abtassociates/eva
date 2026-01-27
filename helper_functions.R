@@ -9,7 +9,18 @@ age_years <- function(earlier, later)
 
 # Display Helpers ---------------------------------------------------------
 
+fix_missing_destination <- function(ReferenceNo, Detail = NULL){
+  if(!missing(Detail)){
+    ReferenceNo <- fifelse(is.na(ReferenceNo), 
+                           fifelse(Detail == 'Exited, Non-Permanent', 99, -888), 
+                           ReferenceNo) 
+  } 
+  
+  ReferenceNo
+}
+
 living_situation <- function(ReferenceNo) {
+  
   fcase(
     ReferenceNo == 8,"Client doesn't know",
     ReferenceNo == 9,"Client prefers not to answer",
@@ -44,7 +55,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 410,"Rental by client, no ongoing housing subsidy",
     ReferenceNo == 426,"Moved from one HOPWA funded project to HOPWA PH",
     ReferenceNo == 421,"Owned by client, with ongoing housing subsidy",
-    ReferenceNo == 411,"Owned by client, no ongoing housing subsidy"
+    ReferenceNo == 411,"Owned by client, no ongoing housing subsidy",
+    ReferenceNo == -888, "Inactive"
   )
 }
 
