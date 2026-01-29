@@ -735,7 +735,7 @@ page_navbar(
 # System Performance menu  ------------------------------------------------
 nav_menu(
   title = 'System Performance',
-
+  value = 'menuSysPerf',
 # System Performance Overview tab -------------------
   nav_panel(
     title = "System Overview",

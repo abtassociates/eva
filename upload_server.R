@@ -72,7 +72,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
       logToConsole(session, "Only HP enrollments found - skipping System Performance")
-      nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
+      nav_hide(id = 'pageid', target = 'menuSysPerf', session = session)
     } else {
      
       src_07_att <- tryCatch(source("07_system_overview.R", local = TRUE), #catch.aborts=TRUE),
@@ -80,9 +80,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       if(inherits(src_07_att, 'simpleError')){
         logToConsole(session, src_07_att)
         logToConsole(session, "Error occured in 07_system_overview.R - hiding System Performance")
-        nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
+        nav_hide(id = 'pageid', target = "menuSysPerf", session = session)
       } else {
-        nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
+        nav_show(id = 'pageid', target = "menuSysPerf", session = session)
         setProgress(detail = "Preparing System Overview Data", value = .85)
       }
     }
