@@ -433,9 +433,9 @@ enrollment_categories <- enrollment_prep_hohs %>%
 lh_cls <- CurrentLivingSituation %>%
   fsubset(
     CurrentLivingSituation %in% homeless_livingsituation_incl_TH, 
-    EnrollmentID, InformationDate
+    EnrollmentID, InformationDate, CurrentLivingSituation
   ) %>%
-  funique()
+  funique(cols = c('EnrollmentID','InformationDate'))
 
 # Remove "problematic" enrollments ----------------------------------
 # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
@@ -517,6 +517,7 @@ session$userData$lh_info <- enrollment_categories %>%
     ProjectType, 
     MoveInDateAdjust,
     lh_prior_livingsituation, 
+    CurrentLivingSituation,
     days_lh_valid,
     lh_date,
     first_lh_date,
@@ -528,7 +529,8 @@ session$userData$report_dates <- get_report_dates()
 
 session$userData$enrollment_categories <- enrollment_categories %>%
   join(
-    session$userData$lh_info %>% fselect(EnrollmentID, first_lh_date, last_lh_date) %>% funique(),
+    session$userData$lh_info %>% fselect(EnrollmentID, first_lh_date, last_lh_date, CurrentLivingSituation) %>% 
+      funique(cols=c('EnrollmentID', 'first_lh_date', 'last_lh_date')),
     on = "EnrollmentID"
   ) %>%
   fmutate(
@@ -550,6 +552,15 @@ session$userData$enrollment_categories <- enrollment_categories %>%
       ExitAdjust
     ),
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
+   ) %>%
+  fmutate(unsheltered = ProjectType == out_project_type | (ProjectType %in% non_res_project_types &
+                                                             (!is.na(CurrentLivingSituation) & CurrentLivingSituation == 116) |
+                                                             (!is.na(LivingSituation) & LivingSituation == 116)),
+          sheltered = ProjectType %in% lh_residential_project_types,
+          permanent_housing = ProjectType %in% ph_project_types,
+          other_non_res = ProjectType %in% non_res_nonlh_project_types &
+            ((!is.na(CurrentLivingSituation) & CurrentLivingSituation %in% setdiff(homeless_livingsituation_incl_TH, 116)) |
+               (!is.na(LivingSituation) & LivingSituation %in% setdiff(homeless_livingsituation_incl_TH, 116)))
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 
