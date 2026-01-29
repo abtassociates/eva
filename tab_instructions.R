@@ -937,6 +937,19 @@ tabDQSystem_instructions <-  HTML("
                your CoC leadership, a broader view of the state of your HMIS
                data quality.</p>")
 
+tabUnsheltered_instructions <- HTML("<h4>Placeholder Instructions</h4>")
+
+tab_unsh_dist_subtabs_information <- HTML("<h4>Placeholder Instructions</h4>")
+
+tab_unsh_demog_subtabs_information <- HTML("<h4>Placeholder Instructions</h4>")
+
+tab_unsh_pit_subtabs_information <- HTML("<h4>Placeholder Instructions</h4>")
+
+tab_unsh_flow_subtabs_information <- HTML("<h4>Placeholder Instructions</h4>")
+
+tab_unsh_clsdq_subtabs_information <- HTML("<h4>Placeholder Instructions</h4>")
+
+
 tabSystemExits_instructions <- HTML("<h4>System Exits</h4>
                 <p>The System Exits page in Eva features four system performance panels, 
 each with their own set of charts: the System Exits by Types Panel, the System Exits by Year Panel, the System Exits by Subpopulation, 

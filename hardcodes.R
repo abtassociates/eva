@@ -258,6 +258,14 @@ sys_race_ethnicity_method1 <- list(
                    "White alone" = "WhiteMethod1Summarized")
 )
 
+
+# Unsheltered Homelessness - Filters --------------------------------------
+
+unsh_project_types <- list(
+  "All Non-Residential" = "AllNonRes",
+  "- Non-Residential: Street Outreach" = "SO"
+)
+
 # Special Populations -----------------------------------------------------
 
 sys_veteran_pops <- list(
