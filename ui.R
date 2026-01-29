@@ -1108,9 +1108,53 @@ nav_menu(
             downloadButton("syse_phd_download_btn_ppt", "Image Download")
           )
     )
+  ),
+
+
+# Unsheltered Homelessness ------------------------------------------------
+  nav_panel(
+    title = "Unsheltered Homelessness",
+    value = "tabUnsheltered",
+    icon = icon('flag'),
+    
+    card(
+      htmlOutput("headerUnsheltered")
+    ),
+    accordion(
+      id = 'accordion_unsheltered',
+      open = FALSE,
+      accordion_panel(
+        title = 'Instructions',
+        tabUnsheltered_instructions
+      )
+    ),
+    br(),
+    ## Filters --------------
+    evaFilterPanel(
+      fprefix = 'unsh',
+      flabels = set_filter_labels('project_type'= "Unsheltered Project Type"), 
+      fchoices = set_filter_choices("project_type" = unsh_project_types)
+    ),
+    
+    evaTabBox(prefix = 'unsh', 
+              headers = c('Unsheltered Distribution',
+                          'Unsheltered PIT',
+                          'Unsheltered Inflow-Outflow',
+                          'Unsheltered CLS/DQ',
+                          'Unsheltered Demographics'),
+              subtabids = c('dist', 'pit','flow','clsdq','demog'),
+              contentList = list(
+                'dist'  = c('header', 'plot'),
+                'pit'   = c('header', 'plot'),
+                'flow'  = c('header', 'plot'),
+                'clsdq' = c('header', 'plot'),
+                'demog' = c('header', 'plot')
+              )
+    )
+    
+  
   )
 ),
-
 # Resources menu -----------
 nav_menu(
   title = 'Resources',
