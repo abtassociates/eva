@@ -1,221 +1,25 @@
 sys_comp_plot_df <- reactiveVal()
 
-get_race_ethnicity_vars <- function(v) {
-  if (v == "All") {
-    syso_race_ethnicities_all <- unlist(c(syso_race_ethnicity_cats(input$methodology_type)["Detailed"],"Unknown" = "RaceEthnicityUnknown"))
-    names(syso_race_ethnicities_all) <- gsub("Detailed.", "", names(syso_race_ethnicities_all))
-    return(syso_race_ethnicities_all)
-  } else if (v %in% c("Grouped")) {
-    syso_race_ethnicities_grouped <- unlist(c(syso_race_ethnicity_cats(input$methodology_type)["Summarized"], "Unknown" = "RaceEthnicityUnknown"))
-    names(syso_race_ethnicities_grouped) <- gsub("Summarized.", "", names(syso_race_ethnicities_grouped))
-    return(syso_race_ethnicities_grouped)
-  }
-}
-
-syscomp_detailBox <- function() {
-  return(
-    list(
-      strong("Date Range: "),
-      
-      format(session$userData$ReportStart, "%m-%d-%Y"),
-      " to ",
-      format(session$userData$ReportEnd, "%m-%d-%Y"),
-      br(),
-      
-      if (input$syso_project_type != "All")
-        chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
-      
-      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
-      HTML(glue(
-        "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 8)} <br>"
-      )),
-      
-      HTML(
-        glue(
-          "<strong>Selections</strong>: {paste(input$system_composition_selections, collapse=' and ')} <br>"
-        )
-      )
-    )
-  )
-}
-
-get_var_cols <- function() {
-  return(
-    list(
-      "Age" = "AgeCategory",
-      "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
-      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-      #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
-      # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
-      "Veteran Status (Adult Only)" =  "VeteranStatus"
-    )
-  )
-}
-remove_non_applicables <- function(.data) {
-  # remove children when vets is selected - since Vets can't be children
-  if("Veteran Status (Adult Only)" %in% input$system_composition_selections) {
-    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
-  } 
-  # filter to just HoHs and Adults for DV
-  else if ("Domestic Violence status" %in% input$system_composition_selections) {
-    .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")) | CorrectedHoH == 1)
-  } else {
-    .data
-  }
-}
-
-get_sys_comp_plot_df_1var <- function(comp_df, var_col) {
-  # if number of variables associated with selection > 1, then they're dummies
-  selection <- input$system_composition_selections
-  
-  if (length(var_col) > 1) {
-    plot_df <- comp_df %>%
-      pivot_longer(
-        cols = -PersonalID,
-        names_to = selection,
-        values_to = "value"
-      ) %>%
-      group_by(!!sym(selection)) %>%
-      summarize(n = sum(value, na.rm = TRUE), .groups = 'drop')
-  } else {
-    plot_df <- as.data.frame(table(comp_df[[var_col]]))
-    names(plot_df) <- c(selection, "n")
+sys_comp_selections_info <- reactive({
+    sys_demographics_selection_info(type ='overview',selection = input$system_composition_selections)
     
-    if(selection == "Domestic Violence Status") {
-      plot_df <- plot_df %>% bind_rows(tibble(
-        `Domestic Violence Status` = "DVTotal",
-        n = sum(plot_df %>% 
-                  filter(`Domestic Violence Status` != "NotDV") %>%
-                  pull(n), na.rm = TRUE)))
-    }
-  }
-  return(plot_df)
-}
+})
 
-get_sys_comp_plot_df_2vars <- function(comp_df) {
-  # named list of all selected options and
-  # the corresponding variables in the underlying data
-  var_cols <- get_var_cols()
-  selections <- input$system_composition_selections
-  
-  # Function to process each combination of the variables underlying the all-served
-  # selections E.g. if Age and Race (and Method 1),
-  # then we'd combine 0 to 12 with White, 0 to 12 with Black,
-  # 13 to 24 with White, etc.
-  process_combination <- function(v1, v2, comp_df) {
-    logToConsole(session, glue("processing combination of {v1} and {v2}"))
-    
-    freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]), return="data.frame")
-    names(freq_df) <- c(
-      selections[1],
-      selections[2],
-      "n"
-    )
-    
-    # for selections comprised of multiple (binary/dummy) vars (e.g. Race), 
-    # filter to the 1s and change the 1 to the variable name
-    for (i in seq_along(selections)) {
-      v <- get(paste0("v", i))
-      vname <- sym(selections[i])
-      var_cats <- var_cols[[vname]]
-      if (length(var_cats) > 1) {
-        freq_df <- freq_df %>%
-          filter(!!vname == 1) %>%
-          mutate(!!vname := v)
-      }
-    }
-    return(freq_df)
-  }
-  
-  # Get a dataframe of the freqs of all combinations
-  # along with percents
-  freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
-    pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
-  # mutate(pct = (n / sum(n, na.rm = TRUE)))
-  
-  # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
-  if ("Domestic Violence Status" %in% selections) {
-    dv_totals <- freqs %>%
-      filter(`Domestic Violence Status` %in% c("DVFleeing", "DVNotFleeing")) %>%
-      group_by(!!sym(
-        ifelse(
-          selections[1] == "Domestic Violence Status",
-          selections[2],
-          selections[1]
-        )
-      )) %>%
-      summarize(`Domestic Violence Status` = "DVTotal",
-                n = sum(n, na.rm = TRUE)) #,
-                # pct = sum(pct, na.rm = TRUE))
-    freqs <- bind_rows(freqs, dv_totals)
-  }
-  
-  return(freqs)
-}
-
-# this gets all the categories of the selected variable
-# this is used to make sure even empty categories are included in the chart
-get_selection_cats <- function(selection) {
-  return(switch(
-    selection,
-    "Age" = syso_age_cats,
-    "All Races/Ethnicities" = get_race_ethnicity_vars("All"),
-    "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped"),
-    #"Domestic Violence" = syso_dv_pops, VL 9/20/24: Not including for launch
-    # Update Veteran status codes to 1/0, because that's how the underlying data are
-    # we don't do that in the original hardcodes.R list 
-    # because the character versions are needed for the waterfall chart
-    "Veteran Status (Adult Only)" = {
-      syso_veteran_pops$Veteran <- 1
-      syso_veteran_pops$`Non-Veteran/Unknown` <- 0
-      syso_veteran_pops
-    }
-    # "Homelessness Type" = c("Homelessness Type1", "Homelessness Type2") # Victoria, 8/15/24: Not including this for Launch
-  ))
-}
-
-# Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed,
-# then suppress the next lowest value in that group
-suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
-  if(length(input$system_composition_selections) > 1) {
-    .data <- .data %>% fgroup_by(group_v)
-  }
-
+sys_comp_selections_summary <- function() {
   return(
-    .data %>%
-      fmutate(
-        count_redacted = fsum(wasRedacted),
-        next_lowest = fmin(get(n_v)),
-        wasRedacted = fifelse(count_redacted == 1 & (
-          (wasRedacted & is.na(n_v)) |
-          (!wasRedacted & n_v == next_lowest)
-        ), TRUE, wasRedacted)
-      ) %>%
-      fungroup() %>%
-      fselect(-c(count_redacted, next_lowest))
+    sys_export_summary_initial_df(type = 'overview') %>%
+      bind_rows(sys_comp_selections_info()) %>%
+      rename("System Demographics" = Value)
   )
 }
 
-toggle_download_buttons <- function(plot_df) {
-  shinyjs::toggle("sys_comp_download_btn", condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
-  shinyjs::toggle("sys_comp_download_btn_ppt", condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
-}
 
-sys_comp_plot_1var <- function(isExport = FALSE) {
-  var_cols <- get_var_cols()
-  selection <- input$system_composition_selections
-
-  universe <- get_people_universe_filtered()
+sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
+  var_cols <- get_var_cols(methodology_type)
   
-  validate(
-    need(
-      nrow(universe) > 0,
-      message = no_data_msg
-    )
-  )
   
-  comp_df <- universe %>%
-    remove_non_applicables() %>%
+  comp_df <- get_people_universe_filtered() %>%
+    remove_non_applicables(selection = selection) %>%
     select(PersonalID, unname(var_cols[[selection]]))
   
   validate(
@@ -230,26 +34,37 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
       message = suppression_msg
     )
   )
- 
-  plot_df <- get_sys_comp_plot_df_1var(comp_df, var_cols[[selection]])
+  
+  plot_df <- get_sys_plot_df_1var(comp_df, var_cols[[selection]], selection = selection)
   
   # hide download buttons if not enough data
-  toggle_download_buttons(plot_df)
+  toggle_download_buttons(subtab,plot_df)
   
-  selection_cats1 <- get_selection_cats(selection)
-  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
-    selection_cats1
-  } else {
-    names(selection_cats1)
+  if(subtab == 'comp'){
+    type <- 'overview'
+  } else if (subtab == 'phd'){
+    type <- 'exits'
   }
   
-  plot_df[selection] <- factor(
+  selection_cats1 <- get_selection_cats(selection, type = type)
+  if(is.null(names(selection_cats1))){
+    selection_cats1_labels <- selection_cats1
+  } else {
+    selection_cats1_labels <- names(selection_cats1)
+  }
+  
+  plot_df[[selection]] <- factor(
     plot_df[[selection]], 
     levels = selection_cats1, 
     labels = selection_cats1_labels,
     ordered = TRUE)
   
-  sys_comp_plot_df(plot_df)
+  if(subtab == 'comp'){
+    sys_comp_plot_df(plot_df)
+  } else if(subtab == 'phd'){
+    sys_phd_plot_df(plot_df)
+  }
+  
   
   plot_df <- plot_df %>%
     suppress_values("n") %>%
@@ -306,33 +121,17 @@ sys_comp_plot_1var <- function(isExport = FALSE) {
   )
 }
 
-suppress_values <- function(.data, count_var) {
-  return(mutate(
-    .data,
-    wasRedacted = between(!!sym(count_var), 1, 10),!!count_var := ifelse(!!sym(count_var) <= 10, NA_integer_, !!sym(count_var))
-  ))
-}
-
-sys_comp_plot_2vars <- function(isExport = FALSE) {
+sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
-  var_cols <- get_var_cols()
-  selections <- input$system_composition_selections
+  var_cols <- get_var_cols(methodology_type)
   
   if (selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
     selections <- c(selections[2], selections[1])
   }
-
-  # get dataset underlying the freqs we will produce below
-  universe <- get_people_universe_filtered()
-  validate(
-    need(
-      nrow(universe) > 0,
-      message = no_data_msg
-    )
-  )
   
-  comp_df <- universe %>%
-    remove_non_applicables() %>%
+  # get dataset underlying the freqs we will produce below
+  comp_df <- get_people_universe_filtered() %>%
+    remove_non_applicables(selection = selections) %>%
     select(
       PersonalID, 
       unname(var_cols[[selections[1]]]), 
@@ -353,22 +152,28 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     )
   )
   
-  plot_df <- get_sys_comp_plot_df_2vars(comp_df)
-
-  toggle_download_buttons(plot_df)
+  plot_df <- get_sys_plot_df_2vars(comp_df, var_cols, selections = selections)
   
-  selection_cats1 <- get_selection_cats(selections[1])
-  selection_cats1_labels <- if (is.null(names(selection_cats1))) {
-    selection_cats1
+  toggle_download_buttons(subtab, plot_df)
+  
+  if(subtab == 'comp'){
+    type <- 'overview'
+  } else if (subtab == 'phd'){
+    type <- 'exits'
+  }
+  selection_cats1 <- get_selection_cats(selections[1], type = type)
+  
+  if (is.null(names(selection_cats1))) {
+    selection_cats1_labels <- selection_cats1
   } else {
-    names(selection_cats1)
+    selection_cats1_labels <- names(selection_cats1)
   }
   
-  selection_cats2 <- get_selection_cats(selections[2])
-  selection_cats2_labels <- if (is.null(names(selection_cats2))) {
-    selection_cats2
+  selection_cats2 <- get_selection_cats(selections[2], type = type)
+  if (is.null(names(selection_cats2))) {
+    selection_cats2_labels <- selection_cats2
   } else {
-    names(selection_cats2)
+    selection_cats2_labels <- names(selection_cats2)
   }
   
   plot_df[selections[1]] <- factor(
@@ -388,7 +193,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     ) %>%
     replace(is.na(.), 0)
   
-  if(input$methodology_type == 1) {
+  if(methodology_type == 1) {
     h_total <- plot_df %>%
       group_by(!!!syms(selections[[2]])) %>%
       summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
@@ -406,7 +211,11 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
   
   # save before supressing the values
   # this will be used for the download/export
-  sys_comp_plot_df(plot_df)
+  if(subtab == 'comp'){
+    sys_comp_plot_df(plot_df)
+  } else {
+    sys_phd_plot_df(plot_df)
+  }
   
   # Suppress values <= 10
   plot_df <- plot_df %>%
@@ -414,7 +223,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
     suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
- 
+  
   g <- ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
     geom_tile(
@@ -443,14 +252,14 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         'black'
       )
     )
-      
+  
   
   x_labels <- selection_cats1_labels
   x_limits <- levels(plot_df[[selections[1]]])
   y_labels <- rev(selection_cats2_labels)
   y_limits <- rev(levels(plot_df[[selections[2]]]))
   
-  if(input$methodology_type == 1) {
+  if(methodology_type == 1) {
     x_labels <- c(x_labels, "Total")
     x_limits <- c(x_limits, "Total")
     y_labels <- c("Total", y_labels)
@@ -483,7 +292,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
         ),
         data = h_total
       ) +
-        
+      
       # column totals
       ggnewscale::new_scale("fill") +
       geom_tile(
@@ -522,7 +331,7 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
       labels = str_wrap(y_labels, width = 30),
       limits = y_limits
     ) +
-  
+    
     # other stuff
     theme_bw() +
     
@@ -543,144 +352,16 @@ sys_comp_plot_2vars <- function(isExport = FALSE) {
     )
 }
 
-sys_comp_selections_info <- reactive({
-  data.frame(
-    Chart = c(
-      "Demographic Selection 1",
-      "Demographic Selection 2",
-      "Total Served People"
-    ),
-    Value = c(
-      input$system_composition_selections[1],
-      input$system_composition_selections[2],
-      nrow(get_people_universe_filtered() %>% remove_non_applicables())
-    )
-  )
-})
-sys_comp_selections_summary <- function() {
-  return(
-    sys_export_summary_initial_df() %>%
-      bind_rows(sys_comp_selections_info()) %>%
-      rename("System Demographics" = Value)
-  )
-}
 
 output$sys_comp_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Demographics Report - "),
   content = function(file) {
-    selections <- input$system_composition_selections
-    v1 <- gsub("Races/Ethnicities", "Race", selections[1])
-    v1 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v1)
-   
-    # multiple selections
-    # reshape so the values of v1 are the column headers and v2 are the "row headers"
-    # though technically just a column
-    if(length(selections) > 1) {
-      v2 <- gsub("Races/Ethnicities", "Race", selections[2])
-      v2 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v2)
-      
-      # make sure R/E is the rows, not the columns
-      if (v1 %in% c("All Race", "Grouped Race")) {
-        selections <- c(selections[2], selections[1])
-      }
-      
-      num_df <- sys_comp_plot_df() %>%
-        pivot_wider(
-          names_from = selections[1],
-          values_from = n,
-          values_fill = list(n = 0)
-        )
-
-      # Create x.y% version
-      pct_df <- num_df %>%
-        ftransformv(vars = num_vars(., return="names"),  FUN = function(x) {
-          (x / fsum(x) * 100) %>% 
-            replace_na(0) %>%
-            round(1) %>%
-            paste0("%")
-        })
-      
-      # create totals, but only for Method1
-      if(input$methodology_type == 1) { 
-        # create total row
-        total_num_row <- num_df %>%
-          summarise(!!selections[1] := "Total",
-                    across(where(is.numeric), ~ sum(., na.rm = TRUE))) %>%
-          rename(!!selections[2] := !!selections[1])
-        
-        total_n <- sum(sys_comp_plot_df()$n, na.rm = TRUE)
-        
-        total_pct_row <- total_num_row %>% 
-          mutate(
-            across(where(is.numeric), ~ (. / total_n * 100) %>%
-                     replace_na(0) %>%
-                     round(1) %>%
-                     paste0("%")))
-        
-        # Add Total Row and create a total column
-        num_df <- num_df %>%
-          bind_rows(total_num_row) %>%
-          mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
-        
-        pct_df <- pct_df %>% 
-          bind_rows(total_pct_row) %>%
-          mutate(
-            Total =  paste0(
-              round(
-                replace_na(num_df$Total / total_n * 100, 0),
-                1
-              ),
-              "%"
-            )
-          )
-      }
-    } 
-    # single selection
-    else {
-      num_df <- sys_comp_plot_df()
-      
-      pct_df <- num_df %>%
-        fmutate(across(where(is.numeric), function(x) (x / sum(x, na.rm = TRUE) * 100) %>%
-                        round(1) %>%
-                        paste0("%")))  %>% 
-        rename("pct" = n)
-      
-      if(input$methodology_type == 1) { 
-        pct_df <- pct_df %>%
-          bind_rows(
-            setNames(
-              data.frame("Total", "100%"), 
-              c(selections, "pct")
-            )
-          )
-        num_df <- num_df %>%
-          bind_rows(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
-      }
-    }
-    
-    if (length(selections) > 1) {
-      num_tab_name <- glue("{v1} By {v2} #")
-      pct_tab_name <- glue("{v1} By {v2} %")
-    } else {
-      num_tab_name <- glue("{v1} #")
-      pct_tab_name <- glue("{v1} %")
-    }
-    
-    write_xlsx(
-      setNames(
-        list(sys_comp_selections_summary(), num_df, pct_df),
-        c("System Demographics Metadata", num_tab_name, pct_tab_name)
-      ),
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
-    
-    exportTestValues(sys_comp_df = get_people_universe_filtered())
-    exportTestValues(sys_comp_report_num_df = num_df)
-    exportTestValues(sys_comp_report_pct_df = pct_df)
-    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+   sys_heatmap_xl_export(file, 
+                         type = 'overview',
+                         methodology_type = input$syso_methodology_type,
+                         selections = input$system_composition_selections,
+                         plot_df = sys_comp_plot_df,
+                         in_demo_mode = input$in_demo_mode)
   }
 )
 
@@ -706,7 +387,12 @@ observeEvent(input$system_composition_selections, {
 
 output$sys_comp_summary_selections <- renderUI({
   req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
-  syscomp_detailBox()
+  sys_detailBox( selection = input$system_composition_selections,
+                 detail_type = 'comp',
+                 methodology_type = input$syso_methodology_type,
+                 cur_project_types = input$syso_project_type,
+                 startDate = session$userData$ReportStart,
+                 endDate = session$userData$ReportEnd)
 })
 
 output$sys_comp_summary_ui_chart <- renderPlot({
@@ -717,15 +403,23 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   )
 
   if(length(input$system_composition_selections) == 1) {
-    sys_comp_plot_1var()
+    sys_comp_plot_1var(subtab = 'comp', 
+                          methodology_type = input$syso_methodology_type, 
+                          selection = input$system_composition_selections, 
+                          isExport = FALSE)
   } else {
-    sys_comp_plot_2vars()
+    sys_comp_plot_2vars(subtab = 'comp', 
+                           methodology_type = input$syso_methodology_type, 
+                           selections = input$system_composition_selections, 
+                           isExport = FALSE)
+    
   }
 }, height = function() {
   ifelse(!is.null(input$system_composition_selections), 700, 100)
 }, width = function() {
   input$sys_comp_subtabs
   input$syso_tabbox
+  input$pageid
   if (length(input$system_composition_selections) == 1 |
       isTRUE(getOption("shiny.testmode"))) {
     500
@@ -740,18 +434,25 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
     paste("System Demographics_", Sys.Date(), ".pptx", sep = "")
   },
   content = function(file) {
-    sys_overview_ppt_export(
+    sys_perf_ppt_export(
       file = file,
+      type = 'overview',
       title_slide_title = "System Demographics",
-      summary_items = sys_export_summary_initial_df() %>%
+      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
         filter(Chart != "Start Date" & Chart != "End Date") %>% 
         bind_rows(sys_comp_selections_info()),
       plots = setNames(
         list(
           if (length(input$system_composition_selections) == 1) {
-            sys_comp_plot_1var(isExport = TRUE)
+            sys_comp_plot_1var(subtab = 'comp', 
+                                  methodology_type = input$syso_methodology_type, 
+                                  selection = input$system_composition_selections, 
+                                  isExport = TRUE)
           } else {
-            sys_comp_plot_2vars(isExport = TRUE)
+            sys_comp_plot_2vars(subtab = 'comp', 
+                                  methodology_type = input$syso_methodology_type, 
+                                  selection = input$system_composition_selections, 
+                                  isExport = TRUE)
           }
         ),
         paste0(
@@ -761,7 +462,11 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
           input$system_composition_selections[2]
         )
       ),
-      summary_font_size = 28
+      summary_font_size = 28,
+      startDate = session$userData$ReportStart, 
+      endDate = session$userData$ReportEnd, 
+      sourceID = session$userData$Export$SourceID,
+      in_demo_mode = input$in_demo_mode
     )
   }
 )

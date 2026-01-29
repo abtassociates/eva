@@ -19,15 +19,19 @@ color:
     # secondary
     dark_grey: '#73655E'
     med_grey: '#CCC7C4'
-    med_grey2: '#4E4D47'
+    dark_grey2: '#4E4D47'
+    med_grey2: '#9E958F'
     light_blue: '#B4C7CB'
     light_grey: '#EDE7E3'
     yellow: '#FCB248'
+    light_green: '#D2E3D9'
+    dark_green: '#084954'
     
     # data viz 
     sea_green: '#52BFA5'
     orange: '#E8812A'
     dark_purple: '#483075'
+    med_purple: '#D5BFE6'
     light_purple: '#D6D1E6'
     very_light_purple: '#EBE9F1'
     light_coral: '#D1AB98'

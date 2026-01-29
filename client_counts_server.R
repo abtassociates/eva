@@ -396,7 +396,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
 #     theme_minimal(base_size = 18) +
 #     theme(
 #       plot.title.position = "plot",
-#       title = element_text(colour = "#73655E"),
+#       title = element_text(colour = get_brand_color('dark_grey')),
 #       legend.position = "top"
 #     )
 #   
