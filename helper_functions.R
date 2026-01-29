@@ -11,9 +11,12 @@ age_years <- function(earlier, later)
 
 fix_missing_destination <- function(ReferenceNo, Detail = NULL){
   if(!missing(Detail)){
-    ReferenceNo <- fifelse(is.na(ReferenceNo), 
-                           fifelse(Detail == 'Exited, Non-Permanent', 99, -888), 
-                           ReferenceNo) 
+    ReferenceNo <- fcase(
+      is.na(ReferenceNo) & Detail == 'Exited, Non-Permanent', 99,
+      is.na(ReferenceNo) & Detail == 'Inactive', -888,
+      !is.na(ReferenceNo) & (ReferenceNo %in% perm_livingsituation) & Detail == 'Inactive', -888,
+      default = ReferenceNo
+    )
   } 
   
   ReferenceNo
