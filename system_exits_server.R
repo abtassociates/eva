@@ -768,18 +768,34 @@ syse_subpop_export <- reactive({
 })
 
 everyone_else <- reactive({
-  all_unfiltered_syse() %>% 
-    roworder(PersonalID, EntryDate, ExitAdjust) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
-      # then it was clearly not a system exit
-      days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
-    ) %>%
-    fungroup() %>% 
-    fsubset(days_to_lookahead > 14 ) %>% 
-    ## drop rows that are in the filtered version - (everyone minus subpop)
-    fsubset(!(EnrollmentID %in% all_filtered_syse()$EnrollmentID)) %>% 
+  
+  ## first apply enrollment filters, if any
+  enrolled_filt <- join(
+    enrollments_filtered_syse(),
+    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
+    on = "PersonalID", 
+    how = "inner"
+  )
+  
+   ## get system exits - expand_by_period + get_active...
+   enrolled_w_exits <- enrolled_filt %>% 
+     expand_by_periods(chart_type = 'exits_types') %>% 
+     get_active_info(enrolled_filt) %>%
+     get_inflows_and_outflows(chart_type = 'exits') %>% 
+     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))  %>% 
+     ## drop rows that are in the filtered version - (everyone minus subpop)
+     fsubset(!(EnrollmentID %in% all_filtered_syse()$EnrollmentID))
+ 
+   ## special case for VeteranStatus: exclude children from Everyone Else group in both Veteran and Non-Veteran cases
+   if(input$syse_spec_pops != "All"){
+     enrolled_w_exits <- enrolled_w_exits %>% 
+       join(session$userData$client_categories %>% fselect(PersonalID, AgeCategory), how='left') %>% 
+       fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+   }
+   
+  ## add destination type detail
+  enrolled_w_exits %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -1410,8 +1426,6 @@ syse_client_categories_filtered <- reactive({
   ]
 })
 
-all_unfiltered_syse <- reactiveVal(NULL)
-
 # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
 enrollments_filtered_syse <- reactive({
   logToConsole(session, "in enrollments_filtered")
@@ -1423,8 +1437,7 @@ enrollments_filtered_syse <- reactive({
     on = "PersonalID", 
     how = "inner"
   )
-  all_unfiltered_syse(en_unfilt)
-  
+
   en_filt <- en_unfilt %>%
     fmutate(
       passes_enrollment_filters =
