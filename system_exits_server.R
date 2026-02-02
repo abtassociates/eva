@@ -1481,6 +1481,49 @@ enrollments_filtered_syse <- reactive({
   
 })
 
+enrollments_filtered_syse_prev <- reactive({
+  logToConsole(session, "in enrollments_filtered")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  
+  en_unfilt <-  join(
+    session$userData$enrollment_categories_prev,
+    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
+    on = "PersonalID", 
+    how = "inner"
+  )
+  
+  en_filt <- en_unfilt %>%
+    fmutate(
+      passes_enrollment_filters =
+        # Household type filter
+        (input$syse_hh_type == "All" |
+           (input$syse_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+           (input$syse_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+           (input$syse_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+           (input$syse_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+           input$syse_hh_type == HouseholdType
+        ) &
+        # Level of detail filter
+        (input$syse_level_of_detail == "All" |
+           (input$syse_level_of_detail == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (input$syse_level_of_detail == "HoHsOnly" &
+              CorrectedHoH == 1)) &
+        # Project type filter
+        (input$syse_project_type == "All" |
+           (input$syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
+           (input$syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
+           (input$syse_project_type == "SO" & ProjectType == out_project_type) |
+           (input$syse_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
+        )
+    ) %>%
+    fselect(-VeteranStatus)
+  
+  en_filt %>% 
+    fsubset(passes_enrollment_filters)
+  
+})
+
 
 all_filtered_syse <- reactive({
   logToConsole(session, "in all_filtered_syse")
@@ -1514,9 +1557,16 @@ all_filtered_syse_time <- reactive({
     how = "inner"
   ) 
   
-  period_data <- tmp %>% 
+  tmp_prev <- join( 
+    enrollments_filtered_syse_prev(),
+    syse_client_categories_filtered(),
+    on = "PersonalID",
+    how = "inner"
+  ) 
+  
+  period_data <- rowbind(tmp, tmp_prev) %>% 
     expand_by_periods(chart_type = 'exits_time') %>% 
-    get_active_info(tmp) %>%
+    get_active_info(rowbind(tmp, tmp_prev)) %>%
     get_inflows_and_outflows(chart_type = 'exits') %>% 
     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
