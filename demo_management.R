@@ -69,13 +69,20 @@ observeEvent(input$pageid, {
              issues overall in the selected organization, or by the projects
              with the most issues overall.",
            
-           "tabSystemOverview" = "Welcome to the System Performance Overview
-             page. This page helps users evaluate how effective their homeless 
-           system is in moving clients through the system and helping them reach 
-           permanent housing. Users can also see the detailed composition 
-           of all clients served their homeless system. In Demo Mode, you can see 
-           examples of the System Performance charts, including data and image
-           downloads."
+           "tabSystemOverview" = "Welcome to the System Overview page. This page 
+           helps users evaluate how effective their homeless system is in moving 
+           clients through the system and helping them reach permanent housing. 
+           Users can also see the detailed composition of all clients served their 
+           homeless system. In Demo Mode, you can see examples of these system 
+           performance charts, including data and image downloads.",
+           
+           "tabSystemExits" = "Welcome to the System Exits page. This page helps
+           users evaluate how effective their homeless system is in moving 
+           clients through the system and helping them reach permanent housing. 
+           Users can also see the detailed demographic composition of all clients
+           who exited the homeless system by the end of the report period. 
+           In Demo Mode, you can see examples of these system performance charts,
+           including data and image downloads."
     )
   req(msg)
   req(!isTruthy(seen_message[[selectedTabId]]))
