@@ -451,15 +451,20 @@ Once an Eva user has uploaded their HMIS CSV Export successfully, they can use E
 
 Eva did not begin tracking downloads until December 29, 2022.
 
-```{r fig.width=10, fig.height=5}
-
-counts_by_week %>%
+```{r, echo=F, eval=F}
+potential_downloads <- staging %>%
+  # fsubset(WeekEnding >= ceiling_date(fmax(as_datetime(as.POSIXct(staging$Date))),
+  #                                  unit = "week")- weeks(8)) %>%
+  fsubset(between(WeekEnding, as.Date('2025-11-15'), as.Date('2025-12-22'))) %>% 
   fsubset(str_detect(Event, "Download")) %>%
   fsubset(!str_detect(Event, "Client Level Export")) %>% 
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   fmutate(Event2 = fcase(
+        str_detect(Event, "Attempting to Download Org-Level Data Quality Reports"), "Attempted Org-Level DQ Download",
+        str_detect(Event, "Attempting to Download Org-Level PDDE Reports"), "Attempted Org-Level PDDE Download",
+        str_detect(Event, "Attempting to Download Org-Level Project Dashboard Reports"), "Attempted Org-Level Project Dashboard Download",
         Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
         Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
         Event == "Downloaded File Structure Analysis Report","Downloaded File Structure Analysis Report",           
@@ -474,6 +479,55 @@ counts_by_week %>%
         str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
         default = "Other"
   )) %>% 
+  fsubset(str_detect(Event2, 'Downloaded'))
+
+
+potential_overcounts <- potential_downloads %>% 
+  fcount(Event2) 
+
+fsum(potential_overcounts$N)
+
+overcount_sessions <- potential_downloads %>% 
+  fselect(SessionID, Date, WeekEnding) %>% 
+  funique('SessionID')
+
+errorlog <- readLines(list.files('metadata/eva_logs_2025-Nov-Dec/')[1])
+errorlogs <- lapply(1:15, function(x) readLines(list.files('metadata/eva_logs_2025-Nov-Dec/', full.names=T)[x]))
+
+locate_logs <- sapply(1:nrow(overcount_sessions), function(y) sapply(1:15, function(x) fsum(str_detect(string = errorlogs[[x]], pattern = overcount_sessions$SessionID[y]))))
+rownames(locate_logs) <- list.files('metadata-analysis/metadata/eva_logs_2025-Nov-Dec/')
+locate_logs[,colSums(locate_logs)>0]
+
+session_log_match <- apply(locate_logs, 2, function(x) {a <- which(x > 0); if(length(a) ==0 ){return(0)} else {return(a)}},simplify = T)
+```
+
+```{r fig.width=10, fig.height=5}
+
+counts_by_week %>%
+  fsubset(str_detect(Event, "Download")) %>%
+  fsubset(!str_detect(Event, "Client Level Export")) %>% 
+  fsubset(!str_detect(Event, "DEMO MODE")) %>%
+  fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
+  fmutate(Event2 = fcase(
+        str_detect(Event, "Attempting to Download Org-Level Data Quality Reports"), "Attempted Org-Level DQ Download",
+        str_detect(Event, "Attempting to Download Org-Level PDDE Reports"), "Attempted Org-Level PDDE Download",
+        str_detect(Event, "Attempting to Download Org-Level Project Dashboard Reports"), "Attempted Org-Level Project Dashboard Download",
+        Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
+        Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
+        Event == "Downloaded File Structure Analysis Report","Downloaded File Structure Analysis Report",           
+        Event == "Downloaded Client Counts Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded Project Dashboard Report", "Downloaded System-level Project Dashboard Report",
+        Event == "Downloaded PDDE Report", "Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Data Quality Reports"), "Downloaded Org-Level DQ Report",
+        str_detect(Event, "Downloaded Org-Level PDDE Reports"), "Downloaded Org-Level PDDE Report",
+        str_detect(Event, "Downloaded Org-Level Project Dashboard Reports"), "Downloaded Org-Level Project Dashboard Report",
+        Event == "Downloaded System-level PDDE Report","Downloaded System-level PDDE Report",
+        str_detect(Event, "Downloaded System-Level Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        str_detect(Event, "Downloaded Project Dashboard Report"), "Downloaded System-level Project Dashboard Report",
+        default = "Other"
+  )) %>% 
+  fsubset(!str_detect(Event2, "Attempted")) %>% 
   fmutate(
     n_old = 1, 
     n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
