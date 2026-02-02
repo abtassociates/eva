@@ -1023,17 +1023,19 @@ section that can help you interpret their output.</p>
                                     ")
 
 tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
-                                <p>The System Exits by Destination Type visualization is a treemap 
-chart that shows the number of clients who exited the homeless system by destination type. The chart 
-summarizes the total exits from the system into five destination categories: Permanent, Temporary, Homeless, 
-Institutional, and Other/Unknown. The chart is read by looking at the relative size of each box, which corresponds 
-to the number of exits in that category. Percentages represent each category’s share of the total exits during the 
-reporting period. Larger boxes mean more exits to that type of destination.</p>
+                                <p>The Exits by Type chart is a treemap that shows the number of clients who
+                                exited the homeless system by destination type. The chart summarizes the total exits 
+                                from the system into five destination categories: Permanent, Temporary, Homeless,
+                                Institutional, and Other/Unknown. The relative size of each box corresponds to 
+                                the number of exits in that category. Larger boxes mean more exits to that type
+                                of destination. Percentages represent each category’s share of the total exits during the reporting period.</p>
                                 <br>
                                 <p>The client universe for this chart is the number of clients who exited the homeless 
-system and who were not active in the system on the last day of the report. A system exit is defined as an exit from any 
-project where there is no subsequent enrollment in any project for the client in the 14 days following the exit. While a 
-client may have multiple system exits during the report period, only the latest exit is used when determining the destination type.</p>
+                                system and who were not active in the system on the last day of the report. A system 
+                                exit is defined as an exit from any project where there is no subsequent enrollment 
+                                in any project for the client in the 14 days following the exit. While a client may 
+                                have multiple system exits during the report period, only the latest exit is used when
+                                determining the destination type.</p>
                                 <br>
 
                                 <h4>Interpretation Tips</h4>
@@ -1060,39 +1062,39 @@ client may have multiple system exits during the report period, only the latest 
                                     <td>A majority of system exits are to Homeless destinations</td>
                                     <td>The largest block in the chart is labeled \"First-Time Homeless\"</td>
                                     <td>A majority of people leaving the homeless system are going back to a homeless situation at exit. 
-This may indicate gaps in housing stability supports or challenges with retention after placement. Reviewing these patterns across time 
-or by different household and demographic groups can help identify trends and opportunities for system improvement.</td>
+                                    This may indicate gaps in housing stability supports or challenges with retention after placement. Reviewing these patterns across time 
+                                    or by different household and demographic groups can help identify trends and opportunities for system improvement.</td>
                                   </tr>
                                   <tr>
                                     <td>A majority of system exits are to Other/Unknown destinations</td>
                                     <td>The largest block in the chart is labeled \"Other/Unknown\"</td>
                                     <td>A majority of people leaving the homeless system have missing or incomplete exit data. 
-This can signal gaps in data quality and should be interpreted cautiously. Reviewing these patterns across time or by different 
-household and demographic groups can help identify trends and opportunities for system improvement. You can also review the System 
-Performance Client-level Download to identify Outflow clients with missing or other/unknown destination types and to determine 
-if certain project types have more Other/Unknown destinations over other project types.</td>
+                                    This can signal gaps in data quality and should be interpreted cautiously. Reviewing these patterns across time or by different 
+                                    household and demographic groups can help identify trends and opportunities for system improvement. You can also review the System 
+                                    Performance Client-level Download to identify Outflow clients with missing or other/unknown destination types and to determine 
+                                    if certain project types have more Other/Unknown destinations over other project types.</td>
                                   </tr>
                                  </table>")
 
 tab_syse_time_chart_information <- HTML("<h4>Chart Overview</h4>
-                                        <p>The System Exits by Time chart compares the current year's system exits against the previous year's system exits. This chart can help with system modeling as it highlights potential trends in system exits by destination type across time.<p>
+                                        <p>The Exits by Year chart compares the current year's system exits against the previous year's system exits. This chart can help with system modeling as it highlights potential trends in system exits by destination type across time.<p>
                                         <br>
                                         <p>Each destination type has two bars that represent the percentage of exits for the current year and previous year. These bars show whether the percentage increased, decreased, or stayed the same from one year to the next. Below the chart is a table with the percentages, as well as the percentage change between the two years.<p>
                                         <br>
                                         <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
 
 tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
-                                          <p>The System Exits by Subpopulation chart compares system exits for a specific, user-selected subpopulation against the system exits of everyone else not part of that subpopulation. This chart can help with system modeling as it highlights potential trends in system exits across various subpopulations.</p>
+                                          <p>The Exits by Subpopulation chart compares system exits for the selected subpopulation against the system exits of everyone else not part of that subpopulation. This chart can help with system modeling as it highlights potential trends in system exits across various subpopulations.</p>
                                           <br>
-                                          <p>To view this chart, you must make at least one change to the demographic filters (Age, Veteran Status, and Race/Ethnicity). Each destination type has two bars that represent the percentage of exits for the subpopulation group and everyone else. Below the chart is a table with the percentages, as well as the percentage difference between the two groups.</p>
+                                          <p>To view this chart, you must select one or more demographic filters (Age, Veteran Status, and Race/Ethnicity). Each destination type has two bars that represent the percentage of exits for the subpopulation group and everyone else. Below the chart is a table with the percentages, as well as the percentage difference between the two groups.</p>
                                           <br>
                                           <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
 
 tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
-                                         <p>The Permanent Housing Demographics chart shows the demographic make-up of the 
-                                         people who exited the homeless system into permanent housing and highlights 
-                                         important trends among various demographic groups. The client universe for this 
-                                         chart is the number of clients that exited your system to a permanent 
+                                         <p>The Permanent Housing Demographics chart shows the demographic make-up of 
+                                         the people who exited the homeless system into permanent housing and highlights
+                                         important trends among various demographic groups. The client universe for 
+                                         this chart is the number of clients that exited your system to a permanent 
                                          destination by the end of the report period.</p>
                                          <br>
                                           <p>Under the chart tab are five demographic categories you can choose from: 
