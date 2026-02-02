@@ -788,7 +788,7 @@ everyone_else <- reactive({
      fsubset(!(EnrollmentID %in% all_filtered_syse()$EnrollmentID))
  
    ## special case for VeteranStatus: exclude children from Everyone Else group in both Veteran and Non-Veteran cases
-   if(input$syse_spec_pops != "All"){
+   if(input$syse_spec_pops != sys_spec_pops_people[1]){
      enrolled_w_exits <- enrolled_w_exits %>% 
        join(session$userData$client_categories %>% fselect(PersonalID, AgeCategory), how='left') %>% 
        fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
