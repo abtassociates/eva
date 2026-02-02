@@ -140,13 +140,14 @@ observe({
 source("client_level_export_server.R", local=TRUE)
 
 # Get period report_dates --------------------------------------------
-get_months_in_report_period <- function() {
-  seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
+get_months_in_report_period <- function(reportStart = session$userData$ReportStart,
+                                        reportEnd = session$userData$ReportEnd) {
+  seq.Date(from = reportStart, to = reportEnd, by = "months")
 } 
-get_report_dates <- function() {
-  months_in_report_period <- get_months_in_report_period()
+get_report_dates <- function(reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
+  months_in_report_period <- get_months_in_report_period(reportStart, reportEnd)
   c(
-    list("Full" = c(session$userData$ReportStart, session$userData$ReportEnd)),
+    list("Full" = c(reportStart, reportEnd)),
     setNames(
       lapply(months_in_report_period, function(d) {
         c(d, ceiling_date(d, "month") - days(1))
