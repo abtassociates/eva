@@ -1121,7 +1121,7 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
 
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
-                                the System Demographics Chart.</p>
+                                the Permanent Housing Demographics Chart.</p>
                                 <br>
                                 <ul>
                                   <li>Any value less than 11 is suppressed, including totals.</li>
