@@ -658,8 +658,8 @@ sys_demographics_selection_info <- function(type = 'overview', selection = input
         ),
         Value = c(
           selection[1],
-          nrow(tree_exits_data()),
-          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          fnrow(all_filtered_syse_demog()),
+          fnrow(all_filtered_syse_demog() %>% fsubset(Destination %in% perm_livingsituation))
           
         )
       )
@@ -675,8 +675,8 @@ sys_demographics_selection_info <- function(type = 'overview', selection = input
         Value = c(
           selection[1],
           selection[2],
-          nrow(tree_exits_data()),
-          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          fnrow(all_filtered_syse_demog()),
+          fnrow(all_filtered_syse_demog() %>% fsubset(Destination %in% perm_livingsituation))
           
         )
       )
