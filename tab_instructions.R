@@ -468,49 +468,50 @@ tabDQOrg_instructions <-  HTML("
                This will give HMIS admins a way of communicating to an Organization
                what kinds of HMIS data quality issues they have.</p>")
 
-tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
-                <p>The System Performance Overview page in Eva features three system 
-                performance panels, each with their own set of charts: the System Flow Panel, the Client System Status 
-                Panel, and the System Demographics Panel. The charts on these panels display system 
-                performance data, pulled from your uploaded HMIS CSV export, from 
-                all HMIS Continuum projects, excluding homeless prevention projects. 
-                Eva uses the last 12 full months of data in the upload, which constitutes 
-                the report period. <b>Note that some charts on this page may not display 
-                if the uploaded HMIS CSV export has less than 12 full months of data.</b></p>
+tabSystemOverview_instructions <-  HTML("<h4>System Overview</h4>
+                <p>The System Overview page in Eva features three system performance panels: 
+                the System Flow Panel, the Client System Status Panel, and the System 
+                Demographics Panel. Each panel includes charts that display system performance
+                data from your uploaded HMIS CSV export, covering all HMIS Continuum projects
+                except homeless prevention projects. The report period is the last 12 full 
+                months of data in the upload. <b>Note that some charts on this page may not
+                display if the uploaded HMIS CSV export has less than 12 full months of data.</b></p>
                 
-                <p>The purpose of the system performance charts is to use your HMIS 
+                <p>The purpose of the system overview panels is to use your HMIS 
                 data to (1) evaluate how effective your homeless system is in moving 
                 clients through the system and helping them reach permanent housing, 
                 and (2) help you understand the demographic composition of all clients 
                 served in your homeless system.</p>
                 
+                <h4>Filters</h4>
+                
                 <p>Use the Filters Menu to explore system performance trends of 
                 clients in your homeless system with specific characteristics. 
                 This has two components: </p>
                 
-                <ul style='list-style-type:none'>
-                  <li>1) <b>The universal filters</b>, the top row of the Filters Menu, 
-                  impact the data shown on all three visualizations on this page. 
-                  Universal filters include Household Type, Level of Detail, Project 
+                <ul>
+                  <li> The top row of the Filters Menu contains filters which impact the
+                  data shown on all five visualizations on this page (universal filters).
+                  <b>Universal filters</b> include Household Type, Level of Detail, Project 
                   Type Group, and Race/Ethnicity Methodology Type.</li>
-                  <li>2) <b>The demographic filters</b>, the bottom row of the Filters Menu, 
+                  <li> The bottom row of the Filters Menu contains demographic filters, which
                   only impact the data shown in the System Flow and Client System 
-                  Status charts. Demographic filters include Age, Veteran Status, 
+                  Status panels. <b>Demographic filters</b> include Age, Veteran Status, 
                   and Race/Ethnicity.</li>
                 </ul>
                 
-                <p>Use the drop-down menus to select the characteristics of the 
+                <p>Use the drop-down menus to select the 
                 system subpopulation you want to analyze. The default selection 
-                is all clients in your homeless system throughout the report period. 
+                is all clients in your homeless system. 
                 To see system performance by households, select the \"Head of Households 
-                only” level of detail. All filters (except one) are single-select, 
+                only” level of detail. All filters (except Age) are single-select, 
                 meaning you can only select one category at a time. For the Age 
                 filter, you can select multiple age ranges to explore.</p>
                 
                 <p>Please note that household type and age group filters use different 
                 methods for calculating a client's age. Household type is based on all 
-                household members’ ages as of the entry date of their earliest enrollment 
-                included in the report period. Age group is determined based on the client’s 
+                household members' ages as of the entry date of their earliest enrollment 
+                included in the report period. Age group is determined based on the client's 
                 age as of the entry date of their last enrollment included in the report period. 
                 Because of this reporting difference, it is possible for a client that ages from 
                 24 to 25 during the report period to be categorized in the Adult Only 18-24 
@@ -520,20 +521,21 @@ tabSystemOverview_instructions <-  HTML("<h4>System Performance Overview</h4>
                 Race/Ethnicity filters. To learn more about methodology and demographic 
                 categories, please visit the Glossary accessible on Eva's Navigation Menu.</p>
                 
-                <p>The system performance panels are beneath the Filters Menu. Under each Panel tab are Chart subtabs and an Information subtab. 
+                <h4>Panels</h4>
+                
+                <p>Under each System Overview Panel tab are Chart subtabs and an Information subtab. 
                 The Information subtab includes a “Chart Overview” section that provides guidance on how to read the charts. Additionally, some 
                 panels have an “Interpretation Tips” section that can help you interpret their output. </p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes three System Performance Overview export options. The data in these exports reflect the clients that meet the 
+                Eva includes three System Overview export options. The data in these exports reflect the clients that meet the 
                 characteristics of the system subpopulation you selected with the Filters Menu.<p>
                 <ul style='list-style-type:none'>
                 <li>(1) To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.  </li>
                 <li>(2) To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel. </li>
+                <li>(3) To generate an Excel workbook with all client data used for all of the System Overview Charts, click the \"Client Level Download\" button. </li>
                 </ul>
-                
-                <p>To generate an Excel workbook with all client data used for all of the System Performance Overview Charts, click the \"Client Level Download\" button. </p>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -938,38 +940,39 @@ tabDQSystem_instructions <-  HTML("
                data quality.</p>")
 
 tabSystemExits_instructions <- HTML("<h4>System Exits</h4>
-                <p>The System Exits page in Eva features four system performance panels, 
-each with their own set of charts: the System Exits by Types Panel, the System Exits by Year Panel, the System Exits by Subpopulation, 
-and the Permanent Housing Demographics Panel. The charts display system performance data, pulled 
-from your uploaded HMIS CSV export, from all HMIS Continuum projects, excluding homeless prevention 
-projects. Eva uses the last 12 full months of data in the upload, which constitutes the report period. 
-Note that some charts on this page may not display if the uploaded HMIS CSV export has less than 12 full months of data.</b></p>
+                <p>The System Exits page in Eva features four system performance panels: the Exits by Type Panel,
+                the Exits by Year Panel, the Exits by Subpopulation, and the Permanent Housing Demographics Panel. 
+                Each panel includes a chart displaying system performance data from your uploaded HMIS CSV export, 
+                covering all HMIS Continuum projects except homeless prevention 
+projects. The report period is the last 12 full months of data in the upload. 
+<b>Note that some charts on this page may not display if the uploaded HMIS CSV export has less than 12 full months of data.</b></p>
                 
                 <p>The purpose of the system exits panels is to use your HMIS data to 
 (1) evaluate how effective your homeless system is in moving clients through the system and 
 helping them reach permanent housing, and (2) help you understand the demographic composition 
-of all clients who exited your homeless system by the end of the report period.</p>
+of clients who exited your homeless system by the end of the report period.</p>
                 
+                <h4>Filters</h4>
                 <p>Use the Filters Menu to explore system performance trends of 
                 clients in your homeless system with specific characteristics. 
-                This has two components: </p>
+                There are two sets of filters: </p>
                 
-                <ul style='list-style-type:none'>
-                  <li>1) <b>The universal filters</b>, the top row of the Filters Menu, 
-                  impact the data shown on all three visualizations on this page. 
-                  Universal filters include Household Type, Level of Detail, Project 
+                <ul>
+                  <li> The top row of the Filters Menu contains filters which impact the
+                  data shown on all four visualizations on this page (universal filters).
+                  <b>Universal filters</b> include Household Type, Level of Detail, Project 
                   Type Group, and Race/Ethnicity Methodology Type.</li>
-                  <li>2) <b>The demographic filters</b>, the bottom row of the Filters Menu, 
-                  only impact the data shown in the System Flow and Client System 
-                  Status charts. Demographic filters include Age, Veteran Status, 
+                  <li> The bottom row of the Filters Menu contains demographic filters, which
+                  only impact the data shown in the Exits by Type, Exits by Year, and Exits by Subpopulation panels.
+                  <b>Demographic filters</b> include Age, Veteran Status, 
                   and Race/Ethnicity.</li>
                 </ul>
                 
-                <p>Use the drop-down menus to select the characteristics of the 
+                <p>Use the drop-down filters to select the 
                 system subpopulation you want to analyze. The default selection 
-                is all clients in your homeless system throughout the report period. 
+                is all clients in your homeless system. 
                 To see system performance by households, select the \"Head of Households 
-                only” level of detail. All filters (except one) are single-select, 
+                only” level of detail. All filters (except Age) are single-select, 
                 meaning you can only select one category at a time. For the Age 
                 filter, you can select multiple age ranges to explore.</p>
                 
@@ -986,8 +989,8 @@ of all clients who exited your homeless system by the end of the report period.<
                 Race/Ethnicity filters. To learn more about methodology and demographic 
                 categories, please visit the Glossary accessible on Eva's Navigation Menu.</p>
                 
-                <p>The System Exits panels are beneath the Filters Menu. Under each Panel tab are 
-Chart subtabs and an Information subtab. The Information subtab includes a “Chart Overview” section 
+                <h4>Panels</h4>
+                <p>Under each System Exits Panel tab is a Chart subtab and an Information subtab. The Information subtab includes a “Chart Overview” section 
 that provides guidance on how to read the charts. Additionally, some panels have an “Interpretation Tips” 
 section that can help you interpret their output.</p>
                 
@@ -998,6 +1001,7 @@ section that can help you interpret their output.</p>
                 <ul style='list-style-type:none'>
                 <li>(1) To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.  </li>
                 <li>(2) To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel. </li>
+                <li>(3) To generate an Excel workbook with all client data used for all of the System Exits Charts, click the \"Client Level Download\" button on the System Overview page. </li>
                 </ul>
                 
                 <h4>Data Suppression and Data Security</h4>
@@ -1008,8 +1012,15 @@ section that can help you interpret their output.</p>
                 your filter selections or upload a larger dataset to ensure there 
                 is enough data to view the chart. Image and Data Downloads are unavailable for charts that are fully suppressed.</p>
 
+                <p>The Client Level Download from the System Overview page is always available with unsuppressed data, 
+                even when the total number of clients across all charts is less than 11. </p>
+
                 <p>Use caution when saving and sharing the Excel workbooks. With small numbers, it can be possible to identify clients, even if the data is in aggregate. 
-                Before sharing, you may modify, add, or remove anything as you see fit to preserve client anonymity. </p>")
+                Before sharing, you may modify, add, or remove anything as you see fit to preserve client anonymity. </p>
+                
+                <p>The client data in the Client Level Download is easily identifiable as it contains Personal IDs, demographic information, and enrollment dates. 
+                We recommend not sharing this Excel workbook with anyone who does not have permission to view client PII. </p>
+                                    ")
 
 tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                 <p>The System Exits by Destination Type visualization is a treemap 
