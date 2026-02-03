@@ -25,7 +25,7 @@ hashed_cols <- c("FirstName","MiddleName","LastName","NameSuffix","SSN")
 # This tab includes all variables and the corresponding List element that determines valid values
 # It also includes nuanced notes about validation, including conditional validations
 validation_info <- read_excel(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026") %>%
-  fsubset(!CSV %in% files_to_ignore) %>%
+  fsubset(!CSV %in% c("AssessmentResults","AssessmentQuestions")) %>%
   fmutate(
     Type = gsub("\u00A0", "", Type),
     List = str_trim(ifelse(List == "1.1000000000000001", "1.1", List)),

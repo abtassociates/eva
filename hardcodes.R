@@ -118,12 +118,16 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
+files_to_ignore <- c(
+  "Affiliation",
+  "AssessmentResults",
+  "AssessmentQuestions",
+  "Disabilities"
+)
+
 cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
-  fsubset(!(File %in% c("Affiliation",
-                       "AssessmentResults",
-                       "AssessmentQuestions",
-                       "Disabilities")))
+  fsubset(!File %in% files_to_ignore)
 
 data_type_mapping <- list(
   character = "character",
