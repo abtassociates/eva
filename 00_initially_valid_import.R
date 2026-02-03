@@ -87,7 +87,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   missing_files <- expected_files[!(expected_files %in% zipFiles)]
 
   # empty files
-  empty_files <- zip_list(upload_filepath) %>% 
+  empty_files <- zip::zip_list(upload_filepath) %>% 
     fsubset(gsub(".csv", "", filename) %in% expected_files & uncompressed_size <= 1)
 
   ### Now check whether the file is hashed, has the expected structure, and contains
