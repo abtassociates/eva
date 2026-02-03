@@ -303,6 +303,16 @@ logSessionData <- function(session) {
     ImplementationID = if(is.null(session$userData$Export$ImplementationID)) NA else session$userData$Export$ImplementationID
   )
   
+  export_fields_to_store <- c(
+    "CoC" = "SourceID",
+    "ExportID" = "ExportID",
+    "SourceContactFirst" = "SourceContactFirst",
+    "SourceContactLast" = "SourceContactLast",
+    "SourceContactEmail" = "SourceContactEmail",
+    "SoftwareName" = "SoftwareName",
+    "ImplementationID" = "ImplementationID"
+  )
+    
   for(v in names(export_fields_to_store)) {
     d[v] <- if(v %in% names(session$userData$Export)) session$userData$Export[[v]] else NA
   }
