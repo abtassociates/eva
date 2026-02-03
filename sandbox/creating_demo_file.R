@@ -28,7 +28,7 @@ ifelse(!dir.exists(temp_demo_data_path), dir.create(temp_demo_data_path), FALSE)
 utils::unzip(upload_filepath, exdir = temp_demo_data_path)
 
 
-for (file in unique(cols_and_data_types$File)) {
+for (file in unique(cols_and_data_types$CSV)) {
   assign(file, importFile(upload_filepath=upload_filepath, csvFile=file))
 }
 
@@ -51,7 +51,7 @@ enrollment_ids <- unique(filtered_enrollments$EnrollmentID)
 personal_ids <- unique(filtered_enrollments$PersonalID)
 
 # for each file in the csv, loop through the file names in the csv
-for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
+for (file in unique(cols_and_data_types$CSV)) {
   print(paste0("Updating ", file, " for demo.zip"))
   
   # Handling Disabilities separately because it's not part of 01_get_export

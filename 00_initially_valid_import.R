@@ -81,7 +81,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
     
   # expected files
-  expected_files <- unique(cols_and_data_types$File)
+  expected_files <- unique(cols_and_data_types$CSV)
   
   # get missing files by comparing what we expect with what we got
   missing_files <- expected_files[!(expected_files %in% zipFiles)]

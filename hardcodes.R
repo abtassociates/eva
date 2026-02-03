@@ -125,15 +125,20 @@ files_to_ignore <- c(
   "Disabilities"
 )
 
-cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
+validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
+cols_and_data_types <- read_excel(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026")
+
+column_priorities <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
   fsubset(!File %in% files_to_ignore)
 
 data_type_mapping <- list(
-  character = "character",
-  numeric = "numeric",
-  date = "Date",
-  datetime = "POSIXct"
+  "S" = list("RClass" = "character", "readable" = "string"),
+  "T" = list("RClass" = "POSIXct", "readable" = "datetime"),
+  "D" = list("RClass" = "Date", "readable" = "date"),
+  "I" = list("RClass" = "numeric", "readable" = "integer"),
+  "M+" = list("RClass" = "numeric", "readable" = "decimal"),
+  "M" = list("RClass" = "numeric", "readable" = "decimal")
 )
 
 # Allowed Subsidy Types ---------------------------------------------------

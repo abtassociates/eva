@@ -219,8 +219,8 @@ get_col_types <- function(upload_filepath, file) {
   # based on the order of the columns in the imported file, rather than the expected order
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
-    fsubset(File == file) %>%
-    fmutate(DataType = data_type_mapping[as.character(DataType)])
+    fsubset(CSV == file) %>%
+    fmutate(DataType = data_type_mapping[[as.character(DataType)]][["RClass"]])
   
   cols_in_file <- colnames(read.table(
     paste0(tempdir(), "/", file, ".csv"),
@@ -231,8 +231,8 @@ get_col_types <- function(upload_filepath, file) {
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
-    ifelse(col_name %in% col_types$Column,
-           col_types$DataType[col_types$Column == col_name],
+    ifelse(col_name %in% col_types$Name,
+           col_types$DataType[col_types$Name == col_name],
            "character")
   })
 

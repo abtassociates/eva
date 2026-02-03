@@ -102,10 +102,10 @@ source(here("tests/update_test_good_fsa.R"), local = TRUE)
 
 dir.create(here("tests/temp/reduced_fsa"), showWarnings = FALSE)
 lapply(names(reduced_data_fsa), function(fname) {
-    write.csv(reduced_data_fsa[[fname]],
-              paste0(here("tests/temp/reduced_fsa//"),
-                     fname, ".csv"),
-              row.names = FALSE, na="")
+  write.csv(reduced_data_fsa[[fname]],
+            paste0(here("tests/temp/reduced_fsa//"),
+                   fname, ".csv"),
+            row.names = FALSE, na="")
   Sys.sleep(1)
 })
 Sys.sleep(1)
@@ -114,23 +114,23 @@ save_new_zip("FY26-test-fsa-test.zip", "reduced_fsa")
 # DQ AND PDDE ---------------------------------------------------
 # convert to data.frame and fix column types
 original_data_fixed_cols <- mapply(function(df, df_name) {
-  existing_cols <- intersect(cols_and_data_types$Column, names(df))
+  existing_cols <- intersect(cols_and_data_types$Name, names(df))
   
   as.data.frame(df) %>%
     mutate(across(all_of(existing_cols), 
                   .fns = ~ {
-                    dtype <- cols_and_data_types$DataType[
-                      cols_and_data_types$Column == cur_column() &
-                        cols_and_data_types$File == df_name
+                    dtype <- cols_and_data_types$Type[
+                      cols_and_data_types$Name == cur_column() &
+                        cols_and_data_types$CSV == df_name
                     ]
-                    switch(dtype,
-                           "character" = as.character(.),
-                           "numeric" = as.numeric(.),
-                           "integer" = as.integer(.),
-                           "factor" = as.factor(.),
-                           "logical" = as.logical(.),
-                           "date" = as.Date(.),
-                           .)
+                    case_when(
+                      grepl("S", dtype), as.character(.),
+                      dtype == "I", as.integer(.),
+                      dtype == "D", as.Date(.),
+                      dtype == "T", as.POSIXct(.),
+                      grepl("M", dtype), as.numeric(.),
+                      default = .
+                    )
                   }))
 }, original_data, names(original_data), SIMPLIFY = FALSE)
 
