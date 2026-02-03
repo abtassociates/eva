@@ -295,8 +295,8 @@ enrollments_filtered <- reactive({
     fselect(-VeteranStatus)
 })
 
-get_active_info <- function(all_filtered_by_period, all_filtered) {
-  lh_info_filtered <- session$userData$lh_info %>%
+get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info) {
+  lh_info_filtered <- lh_info_df %>%
     fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
     join(
       all_filtered %>% fselect(EnrollmentID, EntryDate, ExitAdjust),

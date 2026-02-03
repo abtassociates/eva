@@ -1564,12 +1564,25 @@ all_filtered_syse_time <- reactive({
     how = "inner"
   ) 
   
-  period_data <- rowbind(tmp, tmp_prev) %>% 
-    expand_by_periods(chart_type = 'exits_time') %>% 
-    get_active_info(rowbind(tmp, tmp_prev)) %>%
+  period_data_cur <- tmp %>% 
+    expand_by_periods(chart_type = 'exits_types') %>% 
+    get_active_info(tmp) %>%
     get_inflows_and_outflows(chart_type = 'exits') %>% 
     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
+    fmutate(period = "Current Year")
+  
+   period_data_prev <- tmp_prev %>% 
+    expand_by_periods(chart_type = 'exits_types',
+                      reportStart = session$userData$ReportStart %m-% years(1), 
+                      reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
+    get_active_info(tmp_prev, lh_info_df = session$userData$lh_info_prev) %>% 
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
+    fmutate(period = "Previous Year")
+  
+   period_data <- rowbind(period_data_cur, period_data_prev)
   
   period_data
  

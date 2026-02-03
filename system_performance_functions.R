@@ -802,7 +802,7 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
 # Period-Specific Enrollment Categories ----------------------------------------
 # "expand" the dataset to get repeated rows per period (full + each month)
 # then filter based on the period start and end
-expand_by_periods <- function(dt, chart_type = 'mbm') {
+expand_by_periods <- function(dt, chart_type = 'mbm', reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
   if(chart_type == 'mbm'){
     all_periods <- data.table(
       period = factor(names(session$userData$report_dates)),
@@ -829,8 +829,8 @@ expand_by_periods <- function(dt, chart_type = 'mbm') {
   } else {
     all_periods <- data.table(
       period = c('Full'),
-      startDate = session$userData$ReportStart,
-      endDate = session$userData$ReportEnd
+      startDate = reportStart,
+      endDate = reportEnd
     ) %>% 
       ftransform(
         exit_cutoff = startDate %m-% years(2),
