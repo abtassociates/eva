@@ -806,7 +806,7 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 the start of the report period plus the number of 
                                 clients that inflowed into your system.</p>
                                 <br>
-                                <p>Under the chart tab are five demographic categories 
+                                <p>Under the chart tab are four demographic categories 
                                 you can choose from: Age, 
                                 All Races/Ethnicities, a second race/ethnicity 
                                 option, and Veteran Status. Please note, the second 
@@ -1097,7 +1097,7 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                          this chart is the number of clients that exited your system to a permanent 
                                          destination by the end of the report period.</p>
                                          <br>
-                                          <p>Under the chart tab are five demographic categories you can choose from: 
+                                          <p>Under the chart tab are four demographic categories you can choose from: 
                                          Age, All Races/Ethnicities, a second race/ethnicity option, and Veteran Status. 
                                          Please note, the second race/ethnicity option differs for each Race/Ethnicity 
                                          Methodology Type selection you made earlier on the Filter Menu.</p>
