@@ -98,11 +98,12 @@ null_unless <- function(col, cond) {
 #   It's invalid if it's null and conditional variable is as specified E.g., Inventory$Availability is invalid if it's null and Project Type is 0 or 1.
 
 # Loop through all files that actually have validation conditions
-for(csv_name in intersect(unique(cols_and_data_types$File), validation_info$CSV)) {
+csv_issues <- list()
+for(csv_name in unique(cols_and_data_types$CSV)) {
   print(glue("Checking FSA for {csv_name}"))
   logToConsole(session, glue("Checking FSA for {csv_name}"))
   dt <- get(csv_name)
-  csv_validation_info <- validation_info[CSV == csv_name]
+  csv_validation_info <- validation_info[CSV == csv_name & Name %in% names(dt)]
   
   # CHECK 1: Strings exceed limits-------------------
   cols_to_select <- intersect(csv_validation_info[is_str == T]$Name, names(dt))
@@ -214,8 +215,110 @@ for(csv_name in intersect(unique(cols_and_data_types$File), validation_info$CSV)
       fmutate(issueid = 50)
   } else data.table()
   
+  # CHECK 7: Incorrect Columns ------------------------------
+  # Checks existence AND order. Reports on missing, extra, and otherwise misordered
+  ImportedColumns <- colnames(dt)
+  CorrectColumns <- csv_validation_info$Name
   
-  # CHECK 6: Nuanced validation Notes ------------------
+  same_columns <- setequal(ImportedColumns, CorrectColumns)
+  
+  incorrect_columns <- if(same_columns) {
+    data.table(
+      Detail = "Misordered", 
+      Column = ImportedColumns[ImportedColumns == CorrectColumns]
+    )
+  } else {
+    data.table(
+      Detail = c("Extra", "Missing"), 
+      Column = c(
+        setdiff(ImportedColumns, CorrectColumns), 
+        setdiff(CorrectColumns, ImportedColumns)
+      )
+    )
+  } %>%
+    join(
+      column_priorities %>% fselect(Column, DataTypeHighPriority),
+      on = "Column", 
+      how = 'left'
+    ) %>%
+      merge_check_info_dt(checkIDs = 12) %>%
+      fmutate(
+        Type = fifelse(DataTypeHighPriority == 1, "High Priority", "Error"),
+        Detail = str_squish(glue(
+          "In the {file} file, the {
+          fifelse(
+            Detail == 'Extra',
+            paste(Column, 'is an extra column'),
+            paste('the', Column, 'column is missing')
+          )}"
+        ))
+      )
+  
+  # CHECK 8: Unexpected Data Types
+  # Unexpected data types -----------------------------------------------------
+  # includes date and non-date
+  
+  # This maps the data types from the Specs with R's `class`:
+  browser()
+  
+  unexpected_data_types <- csv_validation_info %>%
+    fmutate(RClass = sapply(Name, function(col) class(dt[[col]])[1])) %>%
+    fsubset(
+      data_type_mapping[[DataType]][["RClass"]] != RClass
+    ) %>%
+    fmutate(
+      example_row = {
+        # Only relevant if we expect numeric/integer but got character
+        if (isTruthy(DataType == "I") && isTruthy(RClass == "character")) {
+          # Find rows that are NOT NA (i.e., not empty strings) but become NA upon numeric conversion
+          # suppressWarnings() to prevent `NAs introduced by coercion` messages
+          problematic_indices <- which(!is.na(dt$Column) & is.na(suppressWarnings(as.numeric(dt$Column))))
+          problematic_indices[1]
+        } else NA_integer_
+      },
+      
+      Detail = fifelse(
+        !(DataType %in% c("D", "T")),
+        glue("In the {file} file, the {Column} column should have a data type of {case_when(
+          DataType == 'I' ~ 'integer',
+          grepl('S', DataType) ~ 'string',
+          grepl('M', DataType) ~ 'decimal',
+          TRUE ~ DataType
+        )} but in this file, it is {case_when(
+          RClass == 'numeric' ~ 'integer',
+          TRUE ~ RClass
+        )}. See, for example, row {example_row}"),
+        glue("Please check that the {Column} column in the {file} file has the correct {DataType} format.")
+      ),
+      checkID = fifelse(
+        DataTypeHighPriority == 1, 
+        fifelse(DataType %in% c("D", "T"), 11, 13),
+        fifelse(DataType %in% c("D", "T"), 47, 48)
+      )
+    ) %>%
+    merge_check_info_dt(checkIDs = funique(.$checkID)) %>%
+    fselect(issue_display_cols)
+  
+  
+  # CHECK 9: Brackets / impermissible characters
+  char_cols <- which(sapply(dt, is.character))
+  if (length(char_cols) == 0) next
+  
+  m_mat <- as.matrix(m[, ..char_cols, drop = FALSE])  # Convert relevant columns to matrix
+  
+  files_with_brackets <- if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
+    data.table(
+      File = file,
+      Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
+                See Impermissible Character Detail export for the precise location 
+                of these characters.")
+    ) %>%
+      merge_check_info_dt(checkIDs = 134) %>%
+      fselect(issue_display_cols)
+  } else data.table()
+  
+  
+  # CHECK 10: Nuanced validation Notes ------------------
   if(csv_name == "Services") {
     # TypeProvided
     record_type_list_lookup <- c(
@@ -524,25 +627,25 @@ for(csv_name in intersect(unique(cols_and_data_types$File), validation_info$CSV)
     invalid_client <- invalid_RaceNone
   }
   
-  
+  csv_issues <- c(csv_issues, list(
+    exceeds_dt,
+    unallowed_nulls_dt,
+    invalid_vals_dt,
+    duplicate_ids,
+    foreign_key_issues,
+    null_unless_issues,
+    # special checks
+    invalid_services,
+    invalid_export,
+    invalid_user,
+    invalid_currentlivingsituation,
+    invalid_exit,
+    invalid_projectcoc,
+    invalid_enrollment,
+    invalid_project,
+    invalid_ceparticipation,
+    invalid_client
+  ))
 }
 
-final_summary <- rbindlist(list(
-  exceeds_dt,
-  unallowed_nulls_dt,
-  invalid_vals_dt,
-  duplicate_ids,
-  foreign_key_issues,
-  null_unless_issues,
-  # special checks
-  invalid_services,
-  invalid_export,
-  invalid_user,
-  invalid_currentlivingsituation,
-  invalid_exit,
-  invalid_projectcoc,
-  invalid_enrollment,
-  invalid_project,
-  invalid_ceparticipation,
-  invalid_client
-))
+final_summary <- rbindlist(csv_issues)
