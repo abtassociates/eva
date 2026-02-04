@@ -531,10 +531,10 @@ tabSystemOverview_instructions <-  HTML("<h4>System Overview</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 
                 Eva includes three System Overview export options. The data in these exports reflect the clients that meet the 
                 characteristics of the system subpopulation you selected with the Filters Menu.<p>
-                <ul style='list-style-type:none'>
-                <li>(1) To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.  </li>
-                <li>(2) To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel. </li>
-                <li>(3) To generate an Excel workbook with all client data used for all of the System Overview Charts, click the \"Client Level Download\" button. </li>
+                <ul style='list-style-type: none; padding-left: 10px;'>
+                <li>(1)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.</span></li>
+                <li>(2)  <span style='padding-left: 0.25rem;'>To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel.</span></li>
+                <li>(3)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with all client data used for all of the System Overview Charts, click the \"Client Level Download\" button.</span></li>
                 </ul>
                 
                 <h4>Data Suppression and Data Security</h4>
@@ -998,10 +998,10 @@ section that can help you interpret their output.</p>
                 <p>To support further systems analysis, local reporting, and presentations, 
                 Eva includes three System Performance Overview export options. The data in these exports reflect the clients that meet the 
                 characteristics of the system subpopulation you selected with the Filters Menu.<p>
-                <ul style='list-style-type:none'>
-                <li>(1) To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.  </li>
-                <li>(2) To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel. </li>
-                <li>(3) To generate an Excel workbook with all client data used for all of the System Exits Charts, click the \"Client Level Download\" button on the System Overview page. </li>
+                <ul style='list-style-type: none; padding-left: 10px;'>
+                <li>(1)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.</span>  </li>
+                <li>(2)  <span style='padding-left: 0.25rem;'>To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel.</span> </li>
+                <li>(3)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with all client data used for all of the System Exits Charts, click the \"Client Level Download\" button on the System Overview page.</span> </li>
                 </ul>
                 
                 <h4>Data Suppression and Data Security</h4>
