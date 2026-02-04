@@ -241,18 +241,18 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       on = "Column", 
       how = 'left'
     ) %>%
-      merge_check_info_dt(checkIDs = 12) %>%
-      fmutate(
-        Type = fifelse(DataTypeHighPriority == 1, "High Priority", "Error"),
-        Detail = str_squish(glue(
-          "In the {file} file, the {
-          fifelse(
-            Detail == 'Extra',
-            paste(Column, 'is an extra column'),
-            paste('the', Column, 'column is missing')
-          )}"
-        ))
-      )
+    fmutate(
+      issueid = 12,
+      Type = fifelse(DataTypeHighPriority == 1, "High Priority", "Error"),
+      Detail = str_squish(glue(
+        "In the {file} file, the {
+        fifelse(
+          Detail == 'Extra',
+          paste(Column, 'is an extra column'),
+          paste('the', Column, 'column is missing')
+        )}"
+      ))
+    )
   
   # CHECK 8: Unexpected Data Types
   # Unexpected data types -----------------------------------------------------
@@ -290,14 +290,12 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
         )}. See, for example, row {example_row}"),
         glue("Please check that the {Column} column in the {file} file has the correct {DataType} format.")
       ),
-      checkID = fifelse(
+      issueid = fifelse(
         DataTypeHighPriority == 1, 
         fifelse(DataType %in% c("D", "T"), 11, 13),
         fifelse(DataType %in% c("D", "T"), 47, 48)
       )
-    ) %>%
-    merge_check_info_dt(checkIDs = funique(.$checkID)) %>%
-    fselect(issue_display_cols)
+    )
   
   
   # CHECK 9: Brackets / impermissible characters
@@ -311,10 +309,9 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       File = file,
       Detail = str_squish("Found one or more brackets in your HMIS CSV Export. 
                 See Impermissible Character Detail export for the precise location 
-                of these characters.")
-    ) %>%
-      merge_check_info_dt(checkIDs = 134) %>%
-      fselect(issue_display_cols)
+                of these characters."),
+      issueid = 134
+    ) 
   } else data.table()
   
   
@@ -648,4 +645,6 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   ))
 }
 
-final_summary <- rbindlist(csv_issues)
+final_summary <- rbindlist(csv_issues) %>%
+  merge_check_info_dt(checkIDs = issueid) %>%
+  fselect(issue_display_cols)
