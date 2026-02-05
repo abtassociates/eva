@@ -426,8 +426,6 @@ enrollment_categories <- enrollment_prep_hohs %>%
   ) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
-exportTestValues(enrollment_categories_all = session$userData$enrollment_categories)
-
 # Get dataset of literally homeless CLS records. This will be used to:
 # 1. remove problematic enrollments
 # 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
