@@ -1,7 +1,11 @@
 
 output$client_level_download_btn <- downloadHandler(
-  filename = date_stamped_filename("Client Level Export - "),
+  filename = date_stamped_filename("Client Level Export - ", ext = ".zip"),
   content = function(file) {
+    withProgress(message = "Preparing Client Level Export...", value = 0, {
+    
+    incProgress(0.05, detail = "Initializing...")
+    
     detail_client_fields <- c(
       "PersonalID",
       "AgeCategory",
@@ -55,6 +59,8 @@ output$client_level_download_btn <- downloadHandler(
       "Latest-ReportStatusDetail" = "OutflowTypeDetail"
     )
     
+    incProgress(0.1, detail = "Processing enrollment info...")
+    
     eecr_lecr_enrollment_info <- session$userData$enrollment_categories %>% 
       fselect(
         EnrollmentID,
@@ -90,6 +96,8 @@ output$client_level_download_btn <- downloadHandler(
              old = setdiff(names(latest_report_info), "PersonalID"), 
              new = paste0("Latest-", setdiff(names(latest_report_info), "PersonalID")))
     
+    incProgress(0.15, detail = "Building client details...")
+    
     # details tab
     client_level_details <- get_client_level_export() %>%
       fselect(c(detail_client_fields, unname(report_status_fields))) %>%
@@ -101,8 +109,9 @@ output$client_level_download_btn <- downloadHandler(
              old = report_status_fields, 
              new = names(report_status_fields))
     
+    incProgress(0.2, detail = "Calculating monthly statuses...")
+    
     #Monthly Statuses
-
     monthly_statuses <- period_specific_data()[["Months"]] %>%
       join(
         session$userData$enrollment_categories %>% 
@@ -154,6 +163,8 @@ output$client_level_download_btn <- downloadHandler(
       )
     
     
+    incProgress(0.2, detail = "Preparing metadata...")
+    
     # User's filter selections - metadata tab
     export_date_info <- tibble(
       Chart = c(
@@ -199,32 +210,46 @@ output$client_level_download_btn <- downloadHandler(
     
     # probably want to read in the glossary tab as a csv or Excel and append to it.
     
-    # everything together
+    # everything together - write as CSVs in a zip file for better performance with large datasets
+    data_dictionary <- setNames(
+      read.csv(here("www/client-level-export-data-dictionary.csv")),
+      c("Column Name", "Variable Type", "Definition")
+    )
+    
     client_level_export_list <- list(
-      client_level_metadata = filter_selections,
-      data_dictionary = setNames(
-        read.csv(here("www/client-level-export-data-dictionary.csv")),
-        c("Column Name", "Variable Type", "Definition")
-      ),
-      client_level_details = client_level_details,
-      monthly_statuses,
-      adjusted_non_res_enrl
+      "Metadata" = filter_selections,
+      "Data Dictionary" = data_dictionary,
+      "Client Details" = client_level_details,
+      "Monthly Statuses" = monthly_statuses,
+      "Adjusted Non-Res" = adjusted_non_res_enrl
     )
     
-    names(client_level_export_list) = c(
-      "Metadata",
-      "Data Dictionary",
-      "Client Details",
-      "Monthly Statuses",
-      "Adjusted Non-Res"
-    )
+    incProgress(0.15, detail = "Writing CSV files...")
     
-    write_xlsx(
-      client_level_export_list,
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
+    # Create temp directory for CSV files
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE), add = TRUE)
+    
+    # Write each data frame as a CSV
+    csv_files <- character(length(client_level_export_list))
+    for (i in seq_along(client_level_export_list)) {
+      sheet_name <- names(client_level_export_list)[i]
+      csv_filename <- paste0(gsub(" ", "_", sheet_name), ".csv")
+      csv_path <- file.path(temp_dir, csv_filename)
+      fwrite(client_level_export_list[[i]], csv_path)
+      csv_files[i] <- csv_filename
+    }
+    
+    incProgress(0.1, detail = "Creating zip file...")
+    
+    # Create zip file (use -j flag to store files without directory paths)
+    csv_full_paths <- file.path(temp_dir, csv_files)
+    zip(file, files = csv_full_paths, flags = "-jq")
+    
+    incProgress(0.05, detail = "Finalizing...")
+    
+    }) # end withProgress
     
     logToConsole(session, "Downloaded Client Level Export")
     logMetadata(session, paste0(

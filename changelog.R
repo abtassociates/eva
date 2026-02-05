@@ -3,6 +3,14 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "02-05-2026",
+    "<b>Bug Fixes</b> <br>
+      - Fixed Client Level Export download failing for large datasets (Issue <a href='https://github.com/abtassociates/eva/issues/929' target='_blank'>#929</a>). The export was timing out or running out of memory when processing large HMIS files due to the previous implementation building the entire Excel workbook in memory before writing.<br>
+    <b>Improvements</b> <br>
+      - Changed Client Level Export output format from Excel (.xlsx) to CSV files bundled in a ZIP archive (.zip). This significantly reduces memory usage and processing time for large datasets by writing each data table progressively to disk rather than holding all data in memory.<br>
+      - Added progress indicator to Client Level Export download showing real-time status updates through each processing stage (initializing, processing enrollment info, building client details, calculating monthly statuses, preparing metadata, writing CSV files, creating zip file).<br>
+    <b>Breaking Changes</b> <br>
+      - Client Level Export now downloads as a .zip file containing 5 CSV files (Metadata.csv, Data_Dictionary.csv, Client_Details.csv, Monthly_Statuses.csv, Adjusted_Non-Res.csv) instead of a single .xlsx Excel file. The data content remains identical; only the file format has changed.",
     "01-12-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed logic for DQ report downloads when Referrals sheet was empty, which was causing downloads to fail.",
