@@ -239,14 +239,52 @@ output$client_level_download_btn <- downloadHandler(
     logToConsole(session, paste0(
       'max characters: ', paste0(names(client_level_export_list), ': ', unlist(lapply(lapply(client_level_export_list, nchar), max)), collapse=', ')))
     logToConsole(session, paste0("dimensions: ", paste0(names(client_level_export_list),': ',sapply(client_level_export_list, nrow, simplify=T), 'x',sapply(client_level_export_list, ncol, simplify=T), collapse=', ')))
-    
+
+    success <- rep(TRUE, 5)
+    nchar_track <- vector('list', 5)
+    names(nchar_track) <- names(client_level_export_list)
+
     for(i in 1:5){
-      write_csv(
-        client_level_export_list[[i]],file = file.path(tempdir(), paste0(names(client_level_export_list)[i], '.csv'))
+      outcome <- tryCatch({
+        nchar_track[[i]] <- data.frame(
+          column = colnames(client_level_export_list[[i]]),
+          maxrowid = apply(client_level_export_list[[i]], 2, function(x) which.max(nchar(x))),
+          maxchars = apply(client_level_export_list[[i]], 2, function(x) max(nchar(x), na.rm=T))
+        )
+        
+        write_xlsx(
+          client_level_export_list[[i]],path = file.path(tempdir(), paste0(names(client_level_export_list)[i], '.xlsx'))
+        )}, error = function(e) {e}
       )
+     
+      if(inherits(outcome, 'simpleError')){
+        logToConsole(session, paste0('Failed to write Excel file ',paste0(names(client_level_export_list)[i], '.xlsx')))
+        success[i] <- FALSE
+        
+        write_csv(
+          client_level_export_list[[i]],file = file.path(tempdir(), paste0(names(client_level_export_list)[i], '.csv'))
+        )
+      } else {
+        logToConsole(session, paste0('Successfully wrote Excel file ',paste0(names(client_level_export_list)[i], '.xlsx')))
+        
+      }
+
     }
     
-    zip::zip(file, files = paste0(names(client_level_export_list), '.csv'), root = tempdir())
+    write_xlsx(
+      nchar_track, path = file.path(tempdir(), 'num_characters_info.xlsx')
+    )
+    
+    if(any(!success)){
+      zip::zip(file, files = c(paste0(names(client_level_export_list)[success], '.xlsx'),
+                               paste0(names(client_level_export_list)[!success], '.csv'),
+                               'num_characters_info.xlsx'), root = tempdir())
+      
+    } else {
+      zip::zip(file, files = c(paste0(names(client_level_export_list), '.xlsx'),
+                               'num_characters_info.xlsx'), root = tempdir())
+      
+    }
     # write_xlsx(
     #   client_level_export_list,
     #   path = file,
