@@ -162,8 +162,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   duplicate_ids <- if(fnrow(dups) >0) {
     data.table(
       Column = id_col,
-      row_ids = dups,
-      Detail = glue("There are {fnrow(dups)} duplicates found for {id_col}."),
+      row_ids = list(which(dt[[id_col]] %in% dups[[id_col]])),
       issueid = 24
     ) 
   } else data.table()
@@ -183,11 +182,20 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     data.table(
       Column = foreign_key_checks$Name,
       row_ids = dt %>%
-        fmutate(row_id = seq_row()) %>%
-        fsubset(foreign_key_checks$Name %in% foreign_tbl_data$id_col),
-      Detail = glue("There is no matching {foreign_key_checks$Name} in {foreign_key_checks$tbl_name}"),
+        fmutate(row_id = seq_row(dt)) %>%
+        join(foreign_tbl_data, on = foreign_key_checks$Name, how = "anti"),
       issueid = 9
-    )
+    ) %>%
+      fmutate(
+        rows_to_show = fcase(
+          length(row_ids) == fnrow(.data), "All rows affected",
+          length(row_ids) > 3, glue::glue("See, e.g., row {row_ids[1]}"),
+          default = glue::glue("See rows ", toString(row_ids))
+        ),
+        Detail = glue::glue(
+          "In the {csv_name}.csv file, there is one or more {foreign_key_checks$Name}s with no 
+        matching value in {foreign_key_checks$tbl_name}. {rows_to_show}")
+      )
   } else data.table()
     
   # CHECK 6: Null unless - standard
@@ -259,8 +267,6 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   # includes date and non-date
   
   # This maps the data types from the Specs with R's `class`:
-  browser()
-  
   unexpected_data_types <- csv_validation_info %>%
     fmutate(RClass = sapply(Name, function(col) class(dt[[col]])[1])) %>%
     fsubset(
@@ -277,9 +283,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
         } else NA_integer_
       },
       
-      Detail = fifelse(
-        !(DataType %in% c("D", "T")),
-        glue("In the {file} file, the {Column} column should have a data type of {case_when(
+      Detail = glue::glue("
+        In the {file}.csv file, the {Column} column should have a data type of {fcase(
           DataType == 'I' ~ 'integer',
           grepl('S', DataType) ~ 'string',
           grepl('M', DataType) ~ 'decimal',
@@ -287,8 +292,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
         )} but in this file, it is {case_when(
           RClass == 'numeric' ~ 'integer',
           TRUE ~ RClass
-        )}. See, for example, row {example_row}"),
-        glue("Please check that the {Column} column in the {file} file has the correct {DataType} format.")
+        )}. See, e.g., row {example_row}."
       ),
       issueid = fifelse(
         DataTypeHighPriority == 1, 
@@ -647,4 +651,16 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
 
 final_summary <- rbindlist(csv_issues) %>%
   merge_check_info_dt(checkIDs = issueid) %>%
+  fmutate(
+    rows_to_show = fcase(
+      length(row_ids) == fnrow(.data), "All rows affected",
+      length(row_ids) > 3, glue::glue("See, e.g., row {row_ids[1]}"),
+      default = glue::glue("See rows ", toString(row_ids))
+    ),
+    Detail = fifelse(
+      nchar(Detail) > 0, 
+      paste0(Detail, rows_to_show), 
+      paste0("In the {CSV}.csv file, {Column} column: ", rows_to_show)
+    )
+  ) %>%
   fselect(issue_display_cols)
