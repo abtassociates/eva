@@ -817,10 +817,10 @@ expand_by_periods <- function(dt, chart_type = 'mbm', reportStart = session$user
   } else if(chart_type == 'exits_time'){
     all_periods <- data.table(
       period = c('Current Year','Previous Year'),
-      startDate = c(session$userData$ReportStart,
-                    session$userData$ReportStart %m-% years(1)),
-      endDate = c(session$userData$ReportEnd,
-                  session$userData$ReportEnd %m-% years(1))
+      startDate = c(reportStart,
+                    reportStart %m-% years(1)),
+      endDate = c(reportEnd,
+                  reportEnd %m-% years(1))
     ) %>% 
       ftransform(
         exit_cutoff = startDate %m-% years(2),

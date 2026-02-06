@@ -1576,8 +1576,12 @@ all_filtered_syse_time <- reactive({
     expand_by_periods(chart_type = 'exits_types',
                       reportStart = session$userData$ReportStart %m-% years(1), 
                       reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
-    get_active_info(tmp_prev, lh_info_df = session$userData$lh_info_prev) %>% 
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    get_active_info(tmp_prev, lh_info_df = session$userData$lh_info_prev,
+                    reportStart = session$userData$ReportStart %m-% years(1), 
+                    reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
+    get_inflows_and_outflows(chart_type = 'exits',
+                             reportStart = session$userData$ReportStart %m-% years(1), 
+                             reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
     fmutate(period = "Previous Year")

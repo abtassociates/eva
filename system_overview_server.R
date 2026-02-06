@@ -295,7 +295,8 @@ enrollments_filtered <- reactive({
     fselect(-VeteranStatus)
 })
 
-get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info) {
+get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info,
+                            reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
   lh_info_filtered <- lh_info_df %>%
     fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
     join(
@@ -348,7 +349,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   )) %>%
     fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
     fmutate(
-      active_in_full_period = active_start <= session$userData$ReportEnd & active_end >= session$userData$ReportStart
+      active_in_full_period = active_start <= reportEnd & active_end >= reportStart
     )
   
   all_filtered_w_first_last_active <- all_filtered_by_period %>%
@@ -370,7 +371,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
     fmutate(
       active_in_period = startDate <= active_end & endDate >= active_start,
       exited_in_period = ExitAdjust %between% list(startDate, endDate),
-      period_of_activity = fifelse(active_in_period & (endDate != session$userData$ReportEnd | startDate != session$userData$ReportStart), startDate, NA)
+      period_of_activity = fifelse(active_in_period & (endDate != reportEnd | startDate != reportStart), startDate, NA)
     ) %>%
     fgroup_by(PersonalID, active_start) %>%
     fmutate(
@@ -457,7 +458,8 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   return(all_filtered_w_active_info)
 }
 
-get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm') {
+get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm', reportStart = session$userData$ReportStart,
+                                     reportEnd = session$userData$ReportEnd) {
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
@@ -475,10 +477,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       active_at_start = (
         startDate == first_active_date_in_period & (
-          startDate == session$userData$ReportStart |
+          startDate == reportStart |
             (first_active_date_in_period - prev_active) %between% c(0, 14)
         ) | (
-          startDate == session$userData$ReportStart &
+          startDate == reportStart &
             startDate <= (first_active_date_in_period + 14) &
             (first_active_date_in_period - prev_active) %between% c(0, 14)
         )
@@ -504,10 +506,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       active_at_end = (
         endDate == last_active_date_in_period & (
-          endDate == session$userData$ReportEnd |
+          endDate == reportEnd |
             (next_active - last_active_date_in_period) %between% c(0, 14)
         ) | (
-          endDate == session$userData$ReportEnd &
+          endDate == reportEnd &
             endDate > last_active_date_in_period &
             (next_active - last_active_date_in_period) %between% c(0, 14)
         )
@@ -532,7 +534,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       ### Continuous at Start  ----------
       continuous_at_start = !active_at_start &
-        startDate > session$userData$ReportStart & 
+        startDate > reportStart & 
         startDate <= first_active_date_in_period + 14 &
         (first_active_date_in_period - prev_active) %between% c(0, 14),
       
@@ -548,7 +550,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       
       ### First-of-month Exit  ----------
-      first_of_month_exit = startDate > session$userData$ReportStart &
+      first_of_month_exit = startDate > reportStart &
         ExitAdjust == startDate,
       
       ### Unknown  ----------
@@ -597,12 +599,12 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       exited_perm = exited_system & Destination %in% perm_livingsituation,
       
       ### Continuous at End ----------
-      continuous_at_end = endDate < session$userData$ReportEnd &
+      continuous_at_end = endDate < reportEnd &
         !active_at_end & (next_active - last_active_date_in_period) %between% c(0, 14),
       
       ### Last-of-month Entry ----------
       last_of_the_month_entry = 
-        endDate < session$userData$ReportEnd &
+        endDate < reportEnd &
         EntryDate == endDate,
       
       ### Inactive ----------
