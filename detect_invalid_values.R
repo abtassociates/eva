@@ -624,7 +624,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     invalid_client <- invalid_RaceNone
   }
   
-  csv_issues <- c(csv_issues, list(
+  csv_issues <- c(csv_issues, rbindlist(list(
     exceeds_dt,
     unallowed_nulls_dt,
     invalid_vals_dt,
@@ -642,7 +642,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     invalid_project,
     invalid_ceparticipation,
     invalid_client
-  ))
+  )) %>% fmutate(file = csv_name))
 }
 
 final_summary <- rbindlist(csv_issues) %>%
