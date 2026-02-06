@@ -220,7 +220,12 @@ get_col_types <- function(upload_filepath, file) {
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
     fsubset(CSV == file) %>%
-    fmutate(DataType = data_type_mapping[[as.character(DataType)]][["RClass"]])
+    fmutate(
+      type_for_lookup = fifelse(grepl("S", Type), "S", Type),
+      DataType = sapply(type_for_lookup, function(t) {
+        data_type_mapping[[t]][["RClass"]]
+      })
+    )
   
   cols_in_file <- colnames(read.table(
     paste0(tempdir(), "/", file, ".csv"),
