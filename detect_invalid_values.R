@@ -172,7 +172,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     fsubset(grepl("Must match", Notes))
   
   foreign_key_issues <- if(fnrow(foreign_key_checks)) {
-    foreign_key_checks[0, `:=`(
+    foreign_key_checks[1, `:=`(
       id_col = sub("Must match a (.+) in (.+)\\.csv", "\\1", foreign_key_checks$Notes),
       tbl_name = sub("Must match a (.+) in (.+)\\.csv", "\\2", foreign_key_checks$Notes)
     )]
