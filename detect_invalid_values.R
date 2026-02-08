@@ -1,7 +1,4 @@
-# FY26 vlaidation specs
-validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
-
-# Read in CSV Lists
+# Read in CSV Lists from Specs
 # This tab contains all the valid values for each list element
 valid_values <- read_excel(validation_specs_bk, sheet = "CSV Lists FY2026") %>%
   fmutate(
@@ -169,24 +166,41 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   
   # CHECK 5: Foreign key checks ----------------------
   foreign_key_checks <- csv_validation_info %>%
-    fsubset(grepl("Must match", Notes))
+    fsubset(grepl("Must match", Notes)) %>%
+    fmutate(
+      id_col   = sub("Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", Notes),
+      tbl_name = sub("Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", Notes)
+    )
   
-  foreign_key_issues <- if(fnrow(foreign_key_checks)) {
-    foreign_key_checks[1, `:=`(
-      id_col = sub("Must match a (.+) in (.+)\\.csv", "\\1", foreign_key_checks$Notes),
-      tbl_name = sub("Must match a (.+) in (.+)\\.csv", "\\2", foreign_key_checks$Notes)
-    )]
+  check_fk <- function(spec_row, dt) {
+    foreign_tbl <- get(spec_row$tbl_name)
     
-    foreign_tbl_data <- get(foreign_key_checks$tbl_name)
+    missing <- dt %>%
+      join(
+        foreign_tbl,
+        on   = setNames(spec_row$id_col, spec_row$Name),
+        how  = "anti"
+      )
+    
+    if (nrow(missing) == 0) return(NULL)
     
     data.table(
-      Column = foreign_key_checks$Name,
-      row_ids = dt %>%
-        fmutate(row_id = seq_row(dt)) %>%
-        join(foreign_tbl_data, on = foreign_key_checks$Name, how = "anti"),
-      issueid = 9
-    ) %>%
+      Column  = spec_row$Name,
+      row_ids  = seq_row(missing)
+    )
+  }
+  
+  foreign_key_issues <- rbindlist(
+    lapply(seq_row(foreign_key_checks), function(i) {
+      check_fk(foreign_key_checks[i], dt)
+    }),
+    fill = TRUE
+  )
+  
+  foreign_key_issues <- if(fnrow(foreign_key_issues) > 0) {
+     foreign_key_issues %>%
       fmutate(
+        issueid = 9,
         rows_to_show = fcase(
           length(row_ids) == fnrow(.data), "All rows affected",
           length(row_ids) > 3, glue::glue("See, e.g., row {row_ids[1]}"),
