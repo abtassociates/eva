@@ -8,7 +8,7 @@ logToConsoleFull(session, "Running get export")
 list_of_problems <- list()
 
 # for each file in the csv, loop through the file names in the csv
-for (file in setdiff(unique(cols_and_data_types$CSV), files_to_ignore)) {
+for (file in unique(cols_and_data_types$CSV)) {
   #import the csv and save it as a data frame
   logToConsole(session, paste0("importing ", file))
   assign(file, importFile(upload_filepath=NULL, csvFile=file))
