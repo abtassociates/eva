@@ -678,3 +678,5 @@ final_summary <- rbindlist(csv_issues) %>%
     )
   ) %>%
   fselect(issue_display_cols)
+
+lapply(files_to_ignore, rm)
