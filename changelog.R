@@ -3,6 +3,13 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "02-05-2026",
+    "<b>Bug Fixes</b> <br>
+      - Corrected exit date adjustments. For non-residential project enrollments 
+      with no exit date we adjust the Exit dates to our best approximation of the
+      last date the person was experiencing literal homelessness. However,
+      we were overextending those adjusted Exit dates by 1-3 months, depending 
+      on the project type. That issue is now fixed.",
     "01-12-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed logic for DQ report downloads when Referrals sheet was empty, which was causing downloads to fail.",
