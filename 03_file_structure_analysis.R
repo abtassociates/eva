@@ -8,10 +8,6 @@ logToConsole(session, "Running file structure analysis")
 
 # Invalid values -----------------------------
 source("detect_invalid_values.R", local=TRUE)
-valid_values <- final_summary %>%
-  merge_check_info(checkIDs = 50) %>%
-  mutate(Detail = paste(name, "has", n, "rows with invalid values")) %>% 
-  select(all_of(issue_display_cols))
 
 # Integrity Enrollment ----------------------------------------------------
 if (nrow(Enrollment) == 0) {
@@ -41,28 +37,15 @@ duplicate_household_id <- Enrollment %>%
   funique()
 
 session$userData$file_structure_analysis_main(rbind(
-  df_incorrect_columns,
-  df_unexpected_data_types,
-  df_nulls,
-  disabling_condition_invalid,
-  duplicate_client_id,
-  duplicate_enrollment_id,
-  duplicate_household_id,
-  export_id_client,
-  foreign_key_no_primary_personalid_enrollment,
-  foreign_key_no_primary_projectid_enrollment,
-  living_situation_invalid,
   no_enrollment_records,
-  nonstandard_CLS,
-  nonstandard_destination,
-  rel_to_hoh_invalid,
-  valid_values_client,
-  files_with_brackets,
+  duplicate_household_id,
+  invalid_values,
   ignore.attr=TRUE
   ) %>%
   fmutate(Type = factor(Type, levels = issue_levels)) %>%
   roworder(Type)
 )
+
 
 if(session$userData$file_structure_analysis_main() %>% 
    fsubset(Type == "High Priority") %>%

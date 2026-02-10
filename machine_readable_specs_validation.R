@@ -86,6 +86,16 @@ null_unless <- function(col, cond) {
   (is.na(col) & cond) | (!is.na(col) & !cond)
 }
 
+rows_to_show <- function(row_ids) {
+  mapply(function(r) {
+    n_problems <- length(r)
+    if (n_problems == 0) "No problems"
+    else if (n_problems == fnrow(dt)) "All rows affected"
+    else if (n_problems > 3) paste("See, e.g., row", r[1])
+    else paste("See rows", toString(r))
+  }, row_ids, SIMPLIFY = TRUE)
+}
+
 # Validate by csv ------------------------------
 # For "type" column in specs, if string, make sure length doesn't exceed limit
 # For "list", check if value is not in list's valid values
@@ -96,7 +106,7 @@ null_unless <- function(col, cond) {
 
 # Loop through all files that actually have validation conditions
 csv_issues <- list()
-for(csv_name in unique(cols_and_data_types$CSV)) {
+for(csv_name in unique(validation_info$CSV)) {
   print(glue("Checking FSA for {csv_name}"))
   logToConsole(session, glue("Checking FSA for {csv_name}"))
   dt <- get(csv_name)
@@ -114,11 +124,13 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     csv_validation_info[is_str == T, str_len_limit]
   )
   
-  exceeds_dt <- data.table(
-    Column = names(exceeds_limit),
-    row_ids = exceeds_limit,
-    issueid = 10
-  )
+  exceeds_dt <- if(any(lengths(exceeds_limit))) {
+    data.table(
+      Column = names(exceeds_limit),
+      row_ids = exceeds_limit,
+      issueid = 10
+    )
+  } else data.table()
   
   # CHECK 2: Nulls where Nulls not allowed ----------------------
   unallowed_nulls <- dt %>%
@@ -127,18 +139,17 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
 
   unallowed_nulls_dt <- data.table(
     Column = names(unallowed_nulls),
-    row_ids = unlist(unallowed_nulls, recursive = FALSE),
+    row_ids = if(fnrow(unallowed_nulls)) unlist(unallowed_nulls, recursive = FALSE) else NA,
     issueid = 6
   )
 
   # CHECK 3: Values not in valid list --------------
-  list_cols <- csv_validation_info[!is.na(List)]$Name
+  list_cols <- csv_validation_info[!is.na(List) ]$Name
   invalid_vals <- lapply(list_cols, function(col_name) {
     col_validation_info <- csv_validation_info[Name == col_name]
     valid_vals <- col_validation_info$valid_values[[1]]
-    data_vals <- dt[[col_name]] %>% na_omit()
-    
-    invalid <- !data_vals %in% valid_vals
+
+    invalid <- !dt[[col_name]] %in% valid_vals & !is.na(dt[[col_name]])
     
     which(invalid)
   }) %>% setNames(list_cols)
@@ -147,11 +158,13 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     Column = list_cols,
     row_ids = invalid_vals,
     issueid = 50
-  ) # [lengths(row_ids) > 0]
+  ) %>% 
+    fsubset(lengths(row_ids) > 0)
   
   
   # CHECK 4: Duplicate Unique Identifiers -------------------
   id_col <-  csv_validation_info[toupper(Notes) == toupper("Unique identifier")]$Name
+  
   dups <- dt %>%
     fcountv(cols = id_col) %>%
     fsubset(N > 1)
@@ -186,7 +199,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     
     data.table(
       Column  = spec_row$Name,
-      row_ids  = seq_row(missing)
+      row_ids  = list(seq_row(missing)),
+      foreign_tbl = spec_row$tbl_name
     )
   }
   
@@ -196,20 +210,17 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     }),
     fill = TRUE
   )
-  
+
   foreign_key_issues <- if(fnrow(foreign_key_issues) > 0) {
      foreign_key_issues %>%
       fmutate(
         issueid = 9,
-        rows_to_show = fcase(
-          length(row_ids) == fnrow(.data), "All rows affected",
-          length(row_ids) > 3, glue::glue("See, e.g., row {row_ids[1]}"),
-          default = glue::glue("See rows ", toString(row_ids))
-        ),
-        Detail = glue::glue(
-          "In the {csv_name}.csv file, there is one or more {foreign_key_checks$Name}s with no 
-        matching value in {foreign_key_checks$tbl_name}. {rows_to_show}")
-      )
+        rows_to_show = rows_to_show(row_ids),
+        Detail = str_squish(glue(
+          "In the {csv_name}.csv file, there is one or more {Column}s with no 
+        matching value in {foreign_tbl}. {rows_to_show}"))
+      ) %>%
+      fselect(Column, row_ids, issueid, Detail)
   } else data.table()
     
   # CHECK 6: Null unless - standard
@@ -217,7 +228,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   csv_null_unless_rules <- null_unless_rules %>%
     fsubset(
       CSV == csv_name & 
-      !Name %in% exceptions[[csv_name]]
+      !Name %in% exceptions[[csv_name]] &
+      Name %in% names(dt)
     )
   
   null_unless_issues <- if(fnrow(csv_null_unless_rules) > 0) {
@@ -246,18 +258,20 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   
   incorrect_columns <- if(same_columns) {
     data.table(
-      Detail = "Misordered", 
-      Column = ImportedColumns[ImportedColumns == CorrectColumns]
+      Column = ImportedColumns[ImportedColumns != CorrectColumns],
+      Detail = "Misordered"
     )
   } else {
     data.table(
-      Detail = c("Extra", "Missing"), 
       Column = c(
         setdiff(ImportedColumns, CorrectColumns), 
         setdiff(CorrectColumns, ImportedColumns)
-      )
+      ),
+      Detail = c("Extra", "Missing")
     )
-  } %>%
+  }
+  
+  incorrect_columns <- incorrect_columns %>%
     join(
       column_priorities %>% fselect(Column, DataTypeHighPriority),
       on = "Column", 
@@ -265,62 +279,74 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     ) %>%
     fmutate(
       issueid = 12,
-      Type = fifelse(DataTypeHighPriority == 1, "High Priority", "Error"),
+      row_ids = NA,
+      Type = fifelse(fcoalesce(DataTypeHighPriority, 0) == 0, "Error", "High Priority"),
       Detail = str_squish(glue(
-        "In the {file} file, the {
-        fifelse(
-          Detail == 'Extra',
-          paste(Column, 'is an extra column'),
-          paste('the', Column, 'column is missing')
+        "In the {csv_name}.csv file {
+        case_when(
+          Detail == 'Extra' ~ paste(Column, 'is an extra column'),
+          Detail == 'Missing' ~ paste('the ', Column, 'column is missing'),
+          Detail == 'Misordered' ~ paste(Column, 'is misordered')
         )}"
       ))
-    )
+    ) %>%
+    fselect(Column, row_ids, issueid, Detail, Type)
   
   # CHECK 8: Unexpected Data Types
   # Unexpected data types -----------------------------------------------------
   # includes date and non-date
   
   # This maps the data types from the Specs with R's `class`:
+  safe_as <- function(x, rclass) {
+    tryCatch(
+      get(paste0("as.", rclass))(x),
+      error = function(e) rep(NA, length(x))
+    )
+  }
+  
   unexpected_data_types <- csv_validation_info %>%
-    fmutate(RClass = sapply(Name, function(col) class(dt[[col]])[1])) %>%
-    fsubset(
-      data_type_mapping[[DataType]][["RClass"]] != RClass
-    ) %>%
     fmutate(
-      example_row = {
-        # Only relevant if we expect numeric/integer but got character
-        if (isTruthy(DataType == "I") && isTruthy(RClass == "character")) {
-          # Find rows that are NOT NA (i.e., not empty strings) but become NA upon numeric conversion
-          # suppressWarnings() to prevent `NAs introduced by coercion` messages
-          problematic_indices <- which(!is.na(dt$Column) & is.na(suppressWarnings(as.numeric(dt$Column))))
-          problematic_indices[1]
-        } else NA_integer_
-      },
+      RClass = sapply(Name, function(col) class(dt[[col]])[1]),
+      Type = fifelse(substr(Type, 1, 1) == "S", "S", Type),
+      Expected_RClass = vapply(
+        Type,
+        function(t) data_type_mapping[[t]][["RClass"]],
+        character(1)
+      )
+    ) %>%
+    fsubset(Expected_RClass != RClass & Expected_RClass != "character") %>%
+    fmutate(
+      # get any examples that are non-null but cannot be converted to the column type
+      row_ids = sapply(seq_row(.), function(i) {
+        dt_col <- dt[[Name[i]]]
+        converted <- safe_as(dt_col, Expected_RClass[i])
+        
+        return(which(!is.na(dt_col) & is.na(converted)))
+      }),
       
-      Detail = glue::glue("
-        In the {file}.csv file, the {Column} column should have a data type of {fcase(
-          DataType == 'I' ~ 'integer',
-          grepl('S', DataType) ~ 'string',
-          grepl('M', DataType) ~ 'decimal',
-          TRUE ~ DataType
+      rows_to_show = rows_to_show(row_ids),
+      
+      Detail = str_squish(glue("
+        In the {file}.csv file, the {Name} column should have a data type of {case_when(
+          Type == 'I' ~ 'integer',
+          Type == 'S' ~ 'string',
+          grepl('M', Type) ~ 'decimal',
+          TRUE ~ Type
         )} but in this file, it is {case_when(
           RClass == 'numeric' ~ 'integer',
           TRUE ~ RClass
-        )}. See, e.g., row {example_row}."
-      ),
-      issueid = fifelse(
-        DataTypeHighPriority == 1, 
-        fifelse(DataType %in% c("D", "T"), 11, 13),
-        fifelse(DataType %in% c("D", "T"), 47, 48)
-      )
-    )
+        )}. {rows_to_show}"
+      )),
+      issueid = fifelse(Type %in% c("D", "T"), 11, 13)
+    ) %>%
+    fselect("Column" = Name, row_ids, issueid, Detail)
   
   
   # CHECK 9: Brackets / impermissible characters
   char_cols <- which(sapply(dt, is.character))
   if (length(char_cols) == 0) next
   
-  m_mat <- as.matrix(m[, ..char_cols, drop = FALSE])  # Convert relevant columns to matrix
+  m_mat <- as.matrix(dt[, ..char_cols, drop = FALSE])  # Convert relevant columns to matrix
   
   files_with_brackets <- if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
     data.table(
@@ -332,8 +358,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     ) 
   } else data.table()
   
-  
-  # CHECK 10: Nuanced validation Notes ------------------
+  # CHECK 10: Special validation Notes ------------------
   if(csv_name == "Services") {
     # TypeProvided
     record_type_list_lookup <- c(
@@ -353,21 +378,11 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       fmutate(valid_vals = valid_values[record_type_list_lookup[as.character(RecordType)]]) %>%
       fsummarize(
         Column = "TypeProvided", 
-        row_ids = toString(which(!TypeProvided %in% unlist(valid_vals))),
+        row_ids = list(which(!TypeProvided %in% unlist(valid_vals))),
         issueid = 50
       )
     
-    # OtherTypeProvided
-    # Null unless RecordType = 144 and TypeProvided = 6 Or RecordType = 210 and TypeProvided = 12
-    # othertypeprovided <- dt %>%
-    #   fmutate(invalid = null_unless(OtherTypeProvided, ((RecordType == 144 & TypeProvided == 6) | (RecordType == 210 & TypeProvided == 12)))) %>%
-    #   fsummarize(
-    #     Column = "OtherTypeProvided",
-    #     row_ids = toString(which(invalid)),
-    #     issueid = 1005
-    #   )
-    
-    invalid_services <- invalid_typeprovided
+    csv_issues[[csv_name]] <- invalid_typeprovided
   } else if(csv_name == "Export") {
     validation_rules <- list(
       SourceID = quote(SourceType == 1 & !grepl("^[A-Za-z]{2}-[0-9]{3}$", SourceID)),
@@ -392,6 +407,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       rbindlist() %>%
       fsubset(lengths(row_ids) > 0) %>%
       fmutate(issueid = 50)
+    
+    csv_issues[[csv_name]] <- invalid_export
   } else if(csv_name == "User") {
     validation_rules <- list(
       UserPhone = quote(!grepl("^[2-9][0-9]{2}[2-9][0-9]{2}[0-9]{4}$", UserPhone)),
@@ -414,6 +431,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       rbindlist() %>%
       fsubset(lengths(row_ids) > 0) %>%
       fmutate(issueid = 50)
+    
+    csv_issues[[csv_name]] <- invalid_user
   } else if(csv_name == "CurrentLivingSituation") {
     invalid_verifiedby <- dt %>%
       join(Enrollment %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID") %>%
@@ -426,6 +445,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       )
     
     invalid_currentlivingsituation <- invalid_verifiedby
+    
+    csv_issues[[csv_name]] <- invalid_currentlivingsituation
   } else if(csv_name == "Exit") {
     # SubsidyInformation
     invalid_SubsidyInformation <- dt %>%
@@ -444,7 +465,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       fmutate(invalid = SessionsInPlan < 0) %>%
       fsummarize(
         Column = "SessionsInPlan", 
-        row_ids = toString(which(invalid)),
+        row_ids = list(which(invalid)),
         issueid = 50
       )
    
@@ -454,54 +475,18 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
         invalid = null_unless(SessionCountAtExit, CounselingReceived == 1) | SessionCountAtExit > 0
       ) %>%
       fsummarize(
-        Column = col,
+        Column = "SessionCountAtExit",
         row_ids = list(which(invalid))
       ) %>%
       fsubset(lengths(row_ids) > 0) %>%
       fmutate(issueid = 50)
     
-    invalid_exit <- rbindlist(list(
+    csv_issues[[csv_name]] <- rbindlist(list(
       invalid_SubsidyInformation,
       invalid_SessionsInPlan,
       invalid_SessionCountAtExit
     ))
-# 
-#     # null unless
-#     null_unless_rules <- list(
-#       AftercareProvided = quote(AftercareDate %between% list(ExitDate, ExitDate + 180)),
-#       AftercareDate = quote(AftercareDate %between% list(ExitDate, ExitDate + 180) & !is.na(AftercareProvided)),
-#       OtherDestination = quote(Destination == 17),
-#       DestinationSubsidyType = quote(Destination == 435),
-#       ExchangeForSexPastThreeMonths = quote(ExchangeForSex == 1),
-#       CountOfExchangeForSex = quote(ExchangeForSex == 1),
-#       AskedOrForcedToExchangeForSex = quote(ExchangeForSex == 1),
-#       AskedOrForcedToExchangeForSexPastThreeMonths = quote(AskedOrForcedToExchangeForSex == 1),
-#       CoercedToContinueWork = quote(WorkplaceViolenceThreats == 1 | WorkplacePromiseDifference == 1),
-#       LaborExploitPastThreeMonths = quote(WorkplaceViolenceThreats == 1 | WorkplacePromiseDifference == 1),
-#       EarlyExitReason = quote(ProjectCompletionStatus == 3),
-#       IndividualCounseling = quote(CounselingReceived == 1),
-#       FamilyCounseling = quote(CounselingReceived == 1),
-#       GroupCounseling = quote(CounselingReceived == 1),
-#       SessionCountAtExit = quote(CounselingReceived == 1),
-#       EmailSocialMedia = quote(AftercareProvided == 1),
-#       Telephone = quote(AftercareProvided == 1 == 1),
-#       InPersonIndividual = quote(AftercareProvided == 1 == 1),
-#       InPersonGroup = quote(AftercareProvided == 1 == 1)
-#     )
-#     
-#     lapply(names(null_unless_rules), function(col) {
-#       dt %>%
-#         fmutate(
-#           invalid = null_unless(col, eval(null_unless_rules[[col]]))
-#         ) %>%
-#         fsummarize(
-#           Column = col,
-#           row_ids = list(which(invalid))
-#         )
-#     }) %>%
-#       rbindlist() %>%
-#       fsubset(lengths(row_ids) > 0) %>%
-#       fmutate(issueid = 1005)
+    
   } else if(csv_name == "ProjectCoC") {
     validation_rules <- list(
       ZIP = quote(!grepl("^[0-9]{5}$", ZIP)),
@@ -522,7 +507,9 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     }) %>%
       rbindlist() %>%
       fsubset(lengths(row_ids) > 0) %>%
-      fmutate(issueid = 1005)
+      fmutate(issueid = 50)
+    
+    csv_issues[[csv_name]] <- invalid_projectcoc
   } else if(csv_name == "Enrollment") {
     # VAMCStation
     vamcstation <- dt %>%
@@ -553,26 +540,8 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       enrollmentcoc
     ))
     
-    # null_unless_cols <- list(
-    #   RentalSubsidyType = quote(LivingSituation == 435),
-    #   ReasonNoServices = quote(EligibleForRHY == 0),
-    #   RunawayYouth = quote(EligibleForRHY == 1),
-    #   ReasonNotEnrolled = quote(ClientEnrolledInPATH == 0)
-    # )
-    # 
-    # null_unless_enrollment <- lapply(null_unless_cols, function(col) {
-    #   dt %>%
-    #     fmutate(
-    #       invalid = eval(validation_rules[[col]])
-    #     ) %>%
-    #     fsummarize(
-    #       Column = col,
-    #       row_ids = list(which(invalid))
-    #     )
-    # }) %>%
-    #   rbindlist() %>%
-    #   fmutate(issueid = 1005)
-      
+    csv_issues[[csv_name]] <- invalid_enrollment
+    
   } else if(csv_name == "Project"){
     #ProjectType
     invalid_ProjectType <- dt %>%
@@ -599,11 +568,12 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
         issueid = 50
       )
     
-    invalid_project <- rbindlist(list(
+    csv_issues[[csv_name]] <- rbindlist(list(
       invalid_ProjectType,
       invalid_RRHSubType,
       invalid_ResidentialAffiliation
     ))
+    
   } else if(csv_name == "CEParticipation") {
     # PreventionAssessment	I	1.10	Y	Non-null if 2.09.1 = 1. If option not selected, should be set to 0
     # CrisisAssessment	I	1.10	Y	Non-null if 2.09.1 = 1. If option not selected, should be set to 0
@@ -625,13 +595,15 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
       issueid = 50
     )
     
+    csv_issues[[csv_name]] <- invalid_ceparticipation
+    
   } else if(csv_name == "Client") {
     invalid_RaceNone <- dt %>%
       fselect(race_cols) %>%
       fmutate(
         invalid =
-          (!is.na(RaceNone) & White == 1 | AmIndAKNative == 1 | Asian  == 1 | MidEastNAfrican == 1 | NativeHIPacific == 1 | HispanicLatinao == 1 | BlackAfAmerican == 1) |
-          (is.na(RaceNone) & White %in% c(0,99) | AmIndAKNative %in% c(0,99) | Asian  %in% c(0,99) | MidEastNAfrican %in% c(0,99) | NativeHIPacific %in% c(0,99) | HispanicLatinao %in% c(0,99) | BlackAfAmerican %in% c(0,99))
+          (!is.na(RaceNone) & (White == 1 | AmIndAKNative == 1 | Asian  == 1 | MidEastNAfrican == 1 | NativeHIPacific == 1 | HispanicLatinao == 1 | BlackAfAmerican == 1)) |
+          (is.na(RaceNone) & White %in% c(0,99) & AmIndAKNative %in% c(0,99) & Asian %in% c(0,99) & MidEastNAfrican %in% c(0,99) & NativeHIPacific %in% c(0,99) & HispanicLatinao %in% c(0,99) & BlackAfAmerican %in% c(0,99))
       ) %>%
       fsummarize(
         Column = "RaceNone",
@@ -639,44 +611,51 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
         issueid = 50
       )
     
-    invalid_client <- invalid_RaceNone
+    csv_issues[[csv_name]] <- invalid_RaceNone
+
   }
+
+  # Compile the standard validation files
+  csv_issues[[csv_name]] <- rbindlist(list(
+    "string limit" = exceeds_dt,
+    "unallowed nulls" = unallowed_nulls_dt,
+    "invalid values" = invalid_vals_dt,
+    "duplicate IDs" = duplicate_ids,
+    "foreign keys" = foreign_key_issues,
+    "null unless" = null_unless_issues,
+    "missing, extra, misordered" = incorrect_columns,
+    "data types" = unexpected_data_types,
+    "brackets" = files_with_brackets,
+    "special" = csv_issues[[csv_name]]
+  ), fill=TRUE, idcol='issue_type') %>%
+    fmutate(issue_type = factor(issue_type))
   
-  csv_issues <- c(csv_issues, rbindlist(list(
-    exceeds_dt,
-    unallowed_nulls_dt,
-    invalid_vals_dt,
-    duplicate_ids,
-    foreign_key_issues,
-    null_unless_issues,
-    # special checks
-    invalid_services,
-    invalid_export,
-    invalid_user,
-    invalid_currentlivingsituation,
-    invalid_exit,
-    invalid_projectcoc,
-    invalid_enrollment,
-    invalid_project,
-    invalid_ceparticipation,
-    invalid_client
-  )) %>% fmutate(file = csv_name))
+  to_dedup <- csv_issues[[csv_name]] %>% fsubset(issue_type %in% c("special","invalid values"))
+  to_keep <- csv_issues[[csv_name]] %>% fsubset(!issue_type %in% c("special","invalid values"))
+  
+  csv_issues[[csv_name]] <- rbind(
+    to_dedup %>% fslice(Column, how="max", order.by = issue_type),
+    to_keep
+  )
 }
 
-final_summary <- rbindlist(csv_issues) %>%
-  merge_check_info_dt(checkIDs = issueid) %>%
+invalid_values <- rbindlist(
+    Filter(fnrow, csv_issues),
+    fill=TRUE,
+    idcol="file"
+  ) %>%
+  fsubset(lengths(row_ids) >  0 & !is.na(row_ids)) %>%
+  join(evachecks, on=c("issueid" = "ID")) %>%
+  join(column_priorities, on="Column") %>%
   fmutate(
-    rows_to_show = fcase(
-      length(row_ids) == fnrow(.data), "All rows affected",
-      length(row_ids) > 3, glue::glue("See, e.g., row {row_ids[1]}"),
-      default = glue::glue("See rows ", toString(row_ids))
-    ),
+    Type = fcoalesce(Type, fcoalesce(Type_evachecks,  fifelse(DataTypeHighPriority == 1, "High Priority", "Error"))),
+    rows_to_show = fifelse(is.na(Detail), rows_to_show(row_ids), NA),
     Detail = fifelse(
-      nchar(Detail) > 0, 
+      !is.na(Detail),
       paste0(Detail, rows_to_show), 
-      paste0("In the {CSV}.csv file, {Column} column: ", rows_to_show)
+      str_squish(glue("In the {file}.csv file, {Column} column: {rows_to_show}"))
     )
   ) %>%
   fselect(issue_display_cols)
 
-lapply(files_to_ignore, rm)
+rm(list = files_to_ignore)
