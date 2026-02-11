@@ -5,6 +5,7 @@ library(tidyverse)
 library(zip)
 library(here)
 library(collapse)
+library(data.table)
 source(here("hardcodes.R"), local = TRUE)
 source(here("helper_functions.R"), local = TRUE)
 
