@@ -165,14 +165,10 @@ for(csv_name in unique(validation_info$CSV)) {
   # CHECK 4: Duplicate Unique Identifiers -------------------
   id_col <-  csv_validation_info[toupper(Notes) == toupper("Unique identifier")]$Name
   
-  dups <- dt %>%
-    fcountv(cols = id_col) %>%
-    fsubset(N > 1)
-  
   duplicate_ids <- if(fnrow(dups) >0) {
     data.table(
       Column = id_col,
-      row_ids = list(which(dt[[id_col]] %in% dups[[id_col]])),
+      row_ids = list(which(fduplicated(dt[[id_col]]))),
       issueid = 24
     ) 
   } else data.table()
