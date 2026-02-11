@@ -126,7 +126,7 @@ files_to_ignore <- c(
 )
 
 validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
-cols_and_data_types <- read_excel(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026")
+cols_and_data_types <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026")
 
 column_priorities <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%

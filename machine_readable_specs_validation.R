@@ -1,6 +1,6 @@
 # Read in CSV Lists from Specs
 # This tab contains all the valid values for each list element
-valid_values <- read_excel(validation_specs_bk, sheet = "CSV Lists FY2026") %>%
+valid_values <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY2026") %>%
   fmutate(
     Value = as.numeric(gsub("\u00A0", "", Value)),
     List = ifelse(
@@ -21,7 +21,7 @@ hashed_cols <- c("FirstName","MiddleName","LastName","NameSuffix","SSN")
 # Read in Variable-List xwalk
 # This tab includes all variables and the corresponding List element that determines valid values
 # It also includes nuanced notes about validation, including conditional validations
-validation_info <- read_excel(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026") %>%
+validation_info <- cols_and_data_types %>%
   fsubset(!CSV %in% c("AssessmentResults","AssessmentQuestions")) %>%
   fmutate(
     Type = gsub("\u00A0", "", Type),
