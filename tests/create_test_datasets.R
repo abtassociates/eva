@@ -32,11 +32,12 @@ names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(names(csv_files), importFile, upload_filepath = here("tests/FY26-test-good.zip"))
 names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
+# AS 2/10/26: Commenting this out because with the new machine-readable specs, we're checking these files, too
 # remove unused files
-original_data <- original_data[!names(original_data) %in% c("Affiliation",
-                                                            "AssessmentResults",
-                                                            "AssessmentQuestions",
-                                                            "Disabilities")]
+# original_data <- original_data[!names(original_data) %in% c("Affiliation",
+#                                                             "AssessmentResults",
+#                                                             "AssessmentQuestions",
+#                                                             "Disabilities")]
 # store a reduced-size dataset (1 row per csv file)
 # we don't need so much data for initially valid import checks
 reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
@@ -109,7 +110,7 @@ lapply(names(reduced_data_fsa), function(fname) {
   Sys.sleep(1)
 })
 Sys.sleep(1)
-save_new_zip("FY26-test-fsa-test.zip", "reduced_fsa")
+save_new_zip("FY26-test-fsa.zip", "reduced_fsa")
 
 # DQ AND PDDE ---------------------------------------------------
 # convert to data.frame and fix column types
@@ -124,11 +125,11 @@ original_data_fixed_cols <- mapply(function(df, df_name) {
                         cols_and_data_types$CSV == df_name
                     ]
                     case_when(
-                      grepl("S", dtype), as.character(.),
-                      dtype == "I", as.integer(.),
-                      dtype == "D", as.Date(.),
-                      dtype == "T", as.POSIXct(.),
-                      grepl("M", dtype), as.numeric(.),
+                      grepl("S", dtype) ~ as.character(.),
+                      dtype == "I" ~ as.integer(.),
+                      dtype == "D" ~ as.Date(.),
+                      dtype == "T" ~ as.POSIXct(.),
+                      grepl("M", dtype) ~ as.numeric(.),
                       default = .
                     )
                   }))
