@@ -165,13 +165,11 @@ for(csv_name in unique(validation_info$CSV)) {
   # CHECK 4: Duplicate Unique Identifiers -------------------
   id_col <-  csv_validation_info[toupper(Notes) == toupper("Unique identifier")]$Name
   
-  duplicate_ids <- if(fnrow(dups) >0) {
-    data.table(
-      Column = id_col,
-      row_ids = list(which(fduplicated(dt[[id_col]]))),
-      issueid = 24
-    ) 
-  } else data.table()
+  duplicate_ids <- data.table(
+    Column = id_col,
+    row_ids = list(which(fduplicated(dt[[id_col]]))),
+    issueid = 24
+  )
   
   # CHECK 5: Foreign key checks ----------------------
   foreign_key_checks <- csv_validation_info %>%
@@ -594,12 +592,14 @@ for(csv_name in unique(validation_info$CSV)) {
     csv_issues[[csv_name]] <- invalid_ceparticipation
     
   } else if(csv_name == "Client") {
+    race_cols_in_dt <- intersect(race_cols, names(dt))
     invalid_RaceNone <- dt %>%
-      fselect(race_cols) %>%
+      fselect(race_cols_in_dt) %>%
+      fmutate(sum_race_cols = rowSums(get_vars(., setdiff(race_cols_in_dt, "RaceNone")), na.rm = TRUE)) %>%
       fmutate(
         invalid =
-          (!is.na(RaceNone) & (White == 1 | AmIndAKNative == 1 | Asian  == 1 | MidEastNAfrican == 1 | NativeHIPacific == 1 | HispanicLatinao == 1 | BlackAfAmerican == 1)) |
-          (is.na(RaceNone) & White %in% c(0,99) & AmIndAKNative %in% c(0,99) & Asian %in% c(0,99) & MidEastNAfrican %in% c(0,99) & NativeHIPacific %in% c(0,99) & HispanicLatinao %in% c(0,99) & BlackAfAmerican %in% c(0,99))
+          (!is.na(RaceNone) & sum_race_cols %between% c(1, 98)) | # (White == 1 | AmIndAKNative == 1 | Asian  == 1 | MidEastNAfrican == 1 | NativeHIPacific == 1 | HispanicLatinao == 1 | BlackAfAmerican == 1)
+          (is.na(RaceNone) & (sum_race_cols == 0 | sum_race_cols >= 99)) # White %in% c(0,99) & AmIndAKNative %in% c(0,99) & Asian %in% c(0,99) & MidEastNAfrican %in% c(0,99) & NativeHIPacific %in% c(0,99) & HispanicLatinao %in% c(0,99) & BlackAfAmerican %in% c(0,99))
       ) %>%
       fsummarize(
         Column = "RaceNone",
