@@ -41,7 +41,7 @@ names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 #                                                             "Disabilities")]
 # store a reduced-size dataset (1 row per csv file)
 # we don't need so much data for initially valid import checks
-reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
+reduced_data <- lapply(original_data, function(x) x[1, ])
 
 dir.create(here("tests/temp/reduced"), showWarnings = FALSE)
 
@@ -99,7 +99,7 @@ Sys.sleep(1)
 close(gz1)
 ############### VALID FILES #################
 # FSA ---------------------------------------------------
-reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[ifelse(nrow(x) >= 6, 6, 1)])
+reduced_data_fsa <- lapply(original_data, function(x) x[ifelse(nrow(x) >= 6, 6, 1)])
 source(here("tests/update_test_good_fsa.R"), local = TRUE)
 
 dir.create(here("tests/temp/reduced_fsa"), showWarnings = FALSE)
