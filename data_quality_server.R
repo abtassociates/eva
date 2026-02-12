@@ -128,8 +128,7 @@ output$pdde_guidance_summary <- renderDT({
 # DQ Org Summary -------------------------------------------------------
 
 output$dq_organization_summary_table <- renderDT({
-  req(session$userData$valid_file() == 1)
-
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   validate(
     need(
       nrow(session$userData$dq_main) > 0,
@@ -170,7 +169,7 @@ output$dq_organization_summary_table <- renderDT({
 # DQ Org Guidance -------------------------------------------------------
 
 output$dq_org_guidance_summary <- renderDT({
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
 
   validate(
     need(
