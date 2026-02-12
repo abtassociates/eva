@@ -171,9 +171,8 @@ toggle_demo <- function(in_demo_mode) {
     process_upload("demo.zip", here("demo.zip"))
     removeModal()
     accordion_panel_open(id = 'accordion_home', values = 'home_demo_instructions')
-  } else {
-    reset_app(session)
-  }
+  } 
+  
   mode <- ifelse(in_demo_mode, 'demo', 'live')
   print(glue("Switched to {mode} mode!"))
   capture.output(glue("Switched into {mode} mode"))
