@@ -37,6 +37,8 @@ output$downloadPDDEReport <- downloadHandler(
   filename = date_stamped_filename("PDDE Report-"),
   content = function(file) {
     req(session$userData$valid_file() == 1)
+    req(session$userData$dq_pdde_mirai_complete() == 1)
+    
     summary_df <- session$userData$pdde_main %>% 
       fgroup_by(Issue, Type) %>%
       fsummarise(Count = GRPN()) %>%
@@ -917,7 +919,7 @@ output$dq_export_download_btn <- downloadHandler(
       
       if("PDDE Report" %in% input$dq_export_files){
         
-        req(session$userData$valid_file() == 1)
+        req(session$userData$dq_pdde_mirai_complete() == 1)
         
         progress$set(
           value = 0, 
@@ -1093,7 +1095,7 @@ output$dq_export_download_btn <- downloadHandler(
       
       if("PDDE Report" %in% input$dq_export_files){
         
-        req(session$userData$valid_file() == 1)
+        req(session$userData$dq_pdde_mirai_complete() == 1)
         
         progress$set(value = 2 / 3,
                      detail = 'PDDE Report')
