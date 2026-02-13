@@ -162,17 +162,14 @@ get_inflow_outflow_monthly <- reactive({
 # (Reported above the chart)
 output$sys_inflow_outflow_detail_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
-  req(session$userData$dq_pdde_mirai_complete() == 1)
   syso_detailBox() 
 })
 output$sys_inflow_outflow_summary_filter_selections <- renderUI({
   req(session$userData$valid_file() == 1)
-  req(session$userData$dq_pdde_mirai_complete() == 1)
   syso_detailBox() 
 })
 output$sys_inflow_outflow_monthly_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
-  req(session$userData$dq_pdde_mirai_complete() == 1)
   syso_detailBox() 
 })
 
@@ -578,7 +575,6 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
           message = no_data_msg
         )
       )
-      req(session$userData$dq_pdde_mirai_complete() == 1)
       get_sys_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,

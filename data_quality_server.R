@@ -36,7 +36,7 @@ output$downloadPDDEReport <- downloadHandler(
   
   filename = date_stamped_filename("PDDE Report-"),
   content = function(file) {
-    req(session$userData$valid_file() == 1)
+
     req(session$userData$dq_pdde_mirai_complete() == 1)
     
     summary_df <- session$userData$pdde_main %>% 
@@ -67,8 +67,7 @@ output$downloadPDDEReport <- downloadHandler(
 
 # summary table
 output$pdde_summary_table <- renderDT({
-  req(session$userData$valid_file() == 1)
-  
+  req(session$userData$dq_pdde_mirai_complete() == 1)
 
   validate(
     need(
@@ -76,8 +75,6 @@ output$pdde_summary_table <- renderDT({
       message = no_data_msg
     )
   )
-  req(session$userData$dq_pdde_mirai_complete() == 1)
-  req(nrow(session$userData$pdde_main) > 0)
   
   a <- session$userData$pdde_main %>%
     fgroup_by(Issue, Type) %>%
@@ -99,7 +96,7 @@ output$pdde_summary_table <- renderDT({
 # PDDE Guidance -----------------------------------------------------------
 
 output$pdde_guidance_summary <- renderDT({
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
   
   validate(
     need(
@@ -107,8 +104,7 @@ output$pdde_guidance_summary <- renderDT({
       message = no_data_msg
     )
   )
-  req(session$userData$dq_pdde_mirai_complete() == 1)
-  req(nrow(session$userData$pdde_main) > 0)
+  
   guidance <- session$userData$pdde_main %>%
     fselect(Type, Issue, Guidance) %>%
     roworder(Type, Issue) %>%
@@ -137,8 +133,6 @@ output$dq_organization_summary_table <- renderDT({
       message = no_data_msg
     )
   )
-  req(session$userData$dq_pdde_mirai_complete() == 1)
-  req(nrow(session$userData$dq_main) > 0)
   
     
   a <- session$userData$dq_main %>%
@@ -171,7 +165,7 @@ output$dq_organization_summary_table <- renderDT({
 # DQ Org Guidance -------------------------------------------------------
 
 output$dq_org_guidance_summary <- renderDT({
-  req(session$userData$valid_file() == 1)
+  req(session$userData$dq_pdde_mirai_complete() == 1)
 
   validate(
     need(
@@ -179,8 +173,7 @@ output$dq_org_guidance_summary <- renderDT({
       message = no_data_msg
     )
   )
-  req(session$userData$dq_pdde_mirai_complete() == 1)
-  
+
   guidance <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(Type, Issue, Guidance) %>%
