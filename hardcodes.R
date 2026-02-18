@@ -138,7 +138,7 @@ data_type_mapping <- list(
   "S" = list("RClass" = "character", "readable" = "string"),
   "T" = list("RClass" = "POSIXct", "readable" = "datetime"),
   "D" = list("RClass" = "Date", "readable" = "date"),
-  "I" = list("RClass" = "numeric", "readable" = "integer"),
+  "I" = list("RClass" = "integer", "readable" = "integer"),
   "M+" = list("RClass" = "numeric", "readable" = "decimal"),
   "M" = list("RClass" = "numeric", "readable" = "decimal")
 )
