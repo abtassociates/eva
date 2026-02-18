@@ -1895,6 +1895,7 @@ dq_main <- rowbind(
   # missing_veteran_status,
   no_months_can_be_determined,
   no_months_v_living_situation_data,
+  null_unless_issues %>% fsubset(source == "DQ"),
   ssvf_hp_screen,
   ssvf_missing_percent_ami,
   ssvf_missing_vamc,

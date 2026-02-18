@@ -650,7 +650,9 @@ pdde_main <- rowbind(
   vsp_clients,
   project_no_coc,
   res_no_house_type,
-  lt_seas_inv
+  lt_seas_inv,
+  null_unless_issues %>% fsubset(source == "PDDE", -source),
+  foreign_key_issues %>% fsubset(source == "fsa", -source)
 ) %>%
   funique() %>%
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))

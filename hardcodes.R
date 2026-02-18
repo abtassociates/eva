@@ -446,7 +446,8 @@ dq_mirai_dependencies <- c(
   "Funder",
   "IncomeBenefits",
   "Services",
-  "Event"
+  "Event",
+  "null_unless_issues"
 )
 
 pdde_mirai_dependencies <- c(
@@ -455,7 +456,9 @@ pdde_mirai_dependencies <- c(
   "ProjectCoC",
   "activeInventory",
   "HMISParticipation",
-  "CEParticipation"
+  "CEParticipation",
+  "null_unless_issues",
+  "foreign_key_issues"
 )
 
 enrollment_cols <- c(
