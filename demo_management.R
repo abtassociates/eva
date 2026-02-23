@@ -174,6 +174,7 @@ toggle_demo <- function(in_demo_mode) {
   } else {
     reset_app(session)
   }
+  
   mode <- ifelse(in_demo_mode, 'demo', 'live')
   print(glue("Switched to {mode} mode!"))
   capture.output(glue("Switched into {mode} mode"))

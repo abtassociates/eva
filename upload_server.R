@@ -2,6 +2,8 @@ process_upload <- function(upload_filename, upload_filepath) {
   hide('imported_progress')
   withProgress({
     
+    reset_app(session)
+    
     # run script inside tryCatch block, create modal if script fails
     source_trycatch <- function(script_name){
       src_att <- tryCatch(source(script_name, local = parent.env(environment())), 
