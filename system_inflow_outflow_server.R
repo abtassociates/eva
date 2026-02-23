@@ -575,7 +575,6 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
           message = no_data_msg
         )
       )
-      
       get_sys_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
