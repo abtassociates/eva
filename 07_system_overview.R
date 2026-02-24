@@ -546,7 +546,7 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     ),
     ExitAdjust = fifelse(
       ProjectType %in% nbn_non_res & ExitAdjust == no_end_date,
-      last_lh_date + days_lh_valid,
+      last_lh_date,
       ExitAdjust
     ),
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig

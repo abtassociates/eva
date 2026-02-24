@@ -3,6 +3,15 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "02-24-2026",
+    "<b>Bug Fixes</b> <br>
+      - Corrected logic for refreshing DQ and PDDE tables and downloads when multiple datasets are uploaded within a session. (Issue <a href='https://github.com/abtassociates/eva/issues/963' target='_blank'>#963</a>)<br>
+      - Added more error-catching logic for upload file processing, which includes popups for easier issue creation.",
+    "02-05-2026",
+    "<b>Bug Fixes</b> <br>
+      - Corrected exit date adjustments for night-by-night and non-residential project enrollments in System Performance calculations, 
+    resulting in some clients to be counted as Exited instead of Inactive in the System Flow charts. For enrollments without exit dates, 
+    the adjusted exit dates were based on buffer periods that were double the length they should have been.",
     "01-12-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed logic for DQ report downloads when Referrals sheet was empty, which was causing downloads to fail.",
