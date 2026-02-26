@@ -144,7 +144,89 @@ inputs_no_bindings <- function(DTs=NULL, plotlys=NULL, htmlWidgets=NULL) {
   )
 }
 
-main_test_script <- function(test_script_name = "main-valid", test_dataset = "tests/temp/FY26-test-main-valid.zip") {
+system_exits_test_script <- function(app, test_script_name = "main-valid", test_dataset = "tests/temp/FY26-test-main-valid.zip"){
+  # System Exits by Type
+  syse_universe_filters <- c(
+    "syse_age",
+    "syse_spec_pops",
+    "syse_race_ethnicity"
+  )
+  
+  syse_project_filters <- c(
+    "syse_hh_type",
+    "syse_level_of_detail",
+    "syse_methodology_type",
+    "syse_project_type"
+  )
+  
+  syse_other_inputs <- c(
+    "syse_tabbox"
+  )
+  
+  syse_types_inputs <- c(
+    "pageid",
+    "syse_types_subtabs",
+    syse_universe_filters,
+    syse_project_filters,
+    syse_other_inputs
+  )
+  syse_types_outputs <- c(
+    "headerSystemExit",
+    "syse_types_filter_selections",
+    "syse_types_ui_chart"
+  )
+  app$set_inputs(pageid = "tabSystemExits")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values(
+    name = "syse-types",
+    input = syse_types_inputs,
+    output = syse_types_outputs
+  )
+  
+  # change universe filters
+  app$set_inputs(syse_hh_type = "AO", syse_project_type = "LHRes")
+  app$wait_for_idle(timeout = 2e+06)
+  app$expect_values(
+    name = "syse-types-w-AO-Residential",
+    input = syse_types_inputs,
+    output = syse_types_outputs
+  )
+  
+  # change universe filters
+  app$set_inputs(syse_project_type = "PHRes")
+  app$wait_for_idle(timeout = 2e+06)
+  app$expect_values(
+    name = "syse-types-w-AO-Residential-PH",
+    input = syse_types_inputs,
+    output = syse_types_outputs
+  )
+  
+  # change client filter to Hispanic/Latino. This should lead to < 11 people to check validation/redacting
+  # AS TODO: Add Demographic output?
+  app$set_inputs(syse_race_ethnicity = "LatinoAloneMethod1Detailed")
+  app$wait_for_idle(timeout = 2e+06)
+  app$expect_values(
+    name = "syse-types-w-AO-Residential-PH-hisp",
+    input = syse_types_inputs,
+    output = syse_types_outputs
+  )
+  
+  ## reset enrollment filters
+  app$set_inputs(syse_hh_type = "All", syse_project_type = "LHRes", syse_race_ethnicity = "All")
+  app$wait_for_idle(timeout = 2e+06)
+  
+  ## System Exit PH Demographics
+  app$set_inputs(syse_tabbox = '<h4>Permanent Housing Demographics</h4>')
+  app$wait_for_idle(timeout = 1e+06)
+  app$set_inputs(syse_phd_selections = "Age")
+  app$wait_for_idle(timeout = 1e+06)
+  
+  return(app)
+  
+}
+
+main_test_script <- function(test_script_name = "main-valid", test_dataset = "tests/temp/FY26-test-main-valid.zip",
+                             run_system_exits = FALSE) {
   non_download_exports <- c()
   
   helper_datasets <- c(
@@ -560,30 +642,13 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       input = sys_comp_inputs,
       output = sys_comp_outputs
     )
+
+    ## optionally run system exits tests
+    if(run_system_exits){
+      app <- system_exits_test_script(app, test_script_name = test_script_name,
+                                      test_dataset = test_dataset)  
+    }
     
-    app$set_inputs(pageid = "tabSystemExits")
-    app$wait_for_idle(timeout = 1e+06)
-    
-    #app$set_inputs(syse_tabbox = "<h4>System Exit Types</h4>")
-    #app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(syse_types_subtabs = "<h5>Information</h5>")
-    app$wait_for_idle(timeout = 1e+06)
-    
-    app$set_inputs(syse_tabbox = "<h4>System Exit Comparisons</h4>")
-    app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(syse_compare_subtabs = "<h5>Subpopulation Chart</h5>")
-    app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(syse_spec_pops = "Veteran")
-    app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(syse_compare_subtabs = "<h5>Information</h5>")
-    app$wait_for_idle(timeout = 1e+06)
-    
-    app$set_inputs(syse_tabbox = "<h4>Permanent Housing Demographics</h4>")
-    app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(syse_phd_selections = "Age")
-    app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(syse_phd_subtabs = "<h5>Information</h5>")
-    app$wait_for_idle(timeout = 1e+06)
     
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
     customDownload(app, "downloadClientCountsReport", "Client-Counts-Download.xlsx")

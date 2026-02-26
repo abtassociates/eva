@@ -1,0 +1,87 @@
+{
+  "input": {
+    "pageid": "tabSystemExits",
+    "syse_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_hh_type": "AO",
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_project_type": "PHRes",
+    "syse_race_ethnicity": "All",
+    "syse_spec_pops": "None",
+    "syse_tabbox": "<h4>Exits by Type<\/h4>",
+    "syse_types_subtabs": "<h5>Chart<\/h5>"
+  },
+  "output": {
+    "headerSystemExit": {
+      "html": "<h2>System Exits<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "syse_types_filter_selections": {
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>",
+      "deps": [
+
+      ]
+    },
+    "syse_types_ui_chart": {
+      "src": "[image data hash: cdb6db61b8229197440f6aa07a2a457d]",
+      "width": 1847,
+      "height": 700,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "panel": 1,
+            "row": 1,
+            "col": 1,
+            "panel_vars": {
+
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "domain": {
+              "left": -0.05,
+              "right": 1.05,
+              "bottom": -0.05,
+              "top": 1.05
+            },
+            "mapping": {
+              "x": null,
+              "y": null,
+              "area": "Count",
+              "fill": "Destination Type",
+              "label": "label",
+              "subgroup": "border_color",
+              "subgroup2": "subgroup2"
+            },
+            "range": {
+              "left": 515.1489726027398,
+              "right": 1331.85102739726,
+              "bottom": 694.5205479452055,
+              "top": 41.15890410958907
+            }
+          }
+        ],
+        "dims": {
+          "width": 1847,
+          "height": 700
+        }
+      }
+    }
+  }
+}
