@@ -175,10 +175,11 @@ system_exits_test_script <- function(app, test_script_name = "main-valid", test_
     "syse_types_filter_selections",
     "syse_types_ui_chart"
   )
+  
   app$set_inputs(pageid = "tabSystemExits")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(
-    name = "syse-types",
+    name = "syse-types-chart-default",
     input = syse_types_inputs,
     output = syse_types_outputs
   )
@@ -215,12 +216,84 @@ system_exits_test_script <- function(app, test_script_name = "main-valid", test_
   app$set_inputs(syse_hh_type = "All", syse_project_type = "LHRes", syse_race_ethnicity = "All")
   app$wait_for_idle(timeout = 2e+06)
   
+  ## System Exits by Year
+  syse_time_inputs <- c(
+    "pageid",
+    "syse_time_subtabs",
+    syse_universe_filters,
+    syse_project_filters,
+    syse_other_inputs
+  )
+  syse_time_outputs <- c(
+    "headerSystemExit",
+    "syse_compare_time_filter_selections",
+    "syse_compare_time_ui_chart"
+  )
+  app$set_inputs(syse_tabbox = '<h4>Exits by Year</h4>')
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values(
+    name = "syse-time-chart-default",
+    input = syse_time_inputs,
+    output = syse_time_outputs
+  )
+  
+  ## System Exits by Subpopulation
+  syse_subpop_inputs <- c(
+    "pageid",
+    "syse_subpop_subtabs",
+    syse_universe_filters,
+    syse_project_filters,
+    syse_other_inputs
+  )
+  syse_subpop_outputs <- c(
+    "headerSystemExit",
+    "syse_compare_subpop_filter_selections",
+    "syse_compare_subpop_ui_chart"
+  )
+  
+  app$set_inputs(syse_tabbox = '<h4>Exits by Subpopulation</h4>')
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values(
+    name = "syse-subpop-chart-default",
+    input = syse_subpop_inputs,
+    output = syse_subpop_outputs
+  )
+  app$set_inputs(syse_spec_pops = "Veteran")
+  app$wait_for_idle(timeout = 1e+06)
+  app$expect_values(
+    name = "syse-subpop-veteran",
+    input = syse_subpop_inputs,
+    output = syse_subpop_outputs
+  )
   ## System Exit PH Demographics
+  syse_phd_inputs <- c(
+    "pageid",
+    "syse_phd_subtabs",
+    # even though syse_universe_filters are hidden for System Demographics, 
+    # include to make sure they aren't changing
+    syse_universe_filters,
+    syse_project_filters,
+    syse_other_inputs
+  )
+  syse_phd_outputs <- c(
+    "headerSystemExit",
+    "syse_phd_filter_selections",
+    "syse_phd_ui_chart"
+  )
   app$set_inputs(syse_tabbox = '<h4>Permanent Housing Demographics</h4>')
   app$wait_for_idle(timeout = 1e+06)
+  app$expect_values(
+    name = "syse-phd-chart-default",
+    input = syse_phd_inputs,
+    output = syse_phd_outputs
+  )
   app$set_inputs(syse_phd_selections = "Age")
   app$wait_for_idle(timeout = 1e+06)
-  
+  app$expect_values(
+    name = "syse-phd-age",
+    input = syse_phd_inputs,
+    output = syse_phd_outputs
+  )
   return(app)
   
 }
