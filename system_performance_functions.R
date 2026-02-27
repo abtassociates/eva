@@ -78,7 +78,11 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                    'overview' = c(
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, input$syso_methodology_type),
+                     getNameByValue(sys_methodology_types, 
+                                    ifelse(input$syso_tabbox == '<h4>System Demographics',
+                                           ifelse('All Races/Ethnicities' %in% input$system_composition_selections, '1',
+                                                  ifelse('Grouped Races/Ethnicities' %in% input$system_composition_selections, '2', NA)),
+                                           input$syso_methodology_type)),
                      getNameByValue(sys_hh_types, input$syso_hh_type),
                      getNameByValue(sys_level_of_detail, input$syso_level_of_detail),
                      getNameByValue(sys_project_types, input$syso_project_type)
@@ -86,7 +90,11 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                    'exits' = c(
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, input$syse_methodology_type),
+                     getNameByValue(sys_methodology_types, 
+                                    ifelse(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>',
+                                           ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
+                                                  ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
+                                           input$syse_methodology_type)),
                      getNameByValue(sys_hh_types, input$syse_hh_type),
                      getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
                      getNameByValue(sys_project_types, input$syse_project_type)
@@ -100,9 +108,13 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                      getNameByValue(sys_hh_types, input$syse_hh_type),
                      getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
                      getNameByValue(sys_project_types, input$syse_project_type)
-                   ))
-    
+                   )
+  )
+ 
+
   df$Value <- values
+  # remove Methodology Type line if value was NA
+  df <- df[df$Value != 'NA, NA',]
   return(df)
 }
 
@@ -557,7 +569,7 @@ sys_detailBox <- function(
     subpop_mini_header <- list(HTML("<b>Selected Subpopulation</b> <br>") )
   }
   
-  if(race_eth != "All"){
+  if(race_eth != "All" | (!is.null(selection) & !is.na(methodology_type))){
     
     race_eth_methodology_type <- list(
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in

@@ -56,9 +56,11 @@ sys_phd_selections_info <- reactive({
 
 output$syse_phd_summary_selections <- renderUI({
   req(!is.null(input$syse_phd_selections) & session$userData$valid_file() == 1)
+  
   sys_detailBox(selection = input$syse_phd_selections,
                 detail_type = 'phd',
-                methodology_type = input$syse_methodology_type,
+                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
+                                    ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
                 cur_project_types = input$syse_project_type,
                 startDate = session$userData$ReportStart,
                 endDate = session$userData$ReportEnd)
