@@ -982,12 +982,27 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
     bar_width <- compare_bar_width
     
   }
+  
+  title_start <- paste0("Total System Exits for ",
+                        syse_level_of_detail_text(), " in ",
+                        str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                        if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+  
+  title <- paste0(title_start, 
+                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(tree_exits_data()))),
+                    paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else())))),
+                  collapse='\n'
+                  )
+                                                                                  
+                  
   g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
     geom_bar(aes(fill = subpop_summ), color = 'black', width = bar_width, stat='identity', position='dodge') +
     scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
-    labs(x = '', y = 'Percentage of System Exits') +
+    labs(x = '', y = 'Percentage of System Exits',
+         title = title) +
+    
     theme_minimal() +
     theme(
           panel.grid.major = element_blank(),
@@ -998,7 +1013,8 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
           legend.position = 'top',
           legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
           axis.text.y = element_text(size = sys_axis_text_font),
-          axis.title.y = element_text(size = sys_axis_text_font)
+          axis.title.y = element_text(size = sys_axis_text_font),
+          plot.title = element_text(size = sys_chart_title_font, hjust =0.5)
         )
   if(isExport){
     g + theme(
@@ -1231,12 +1247,24 @@ syse_compare_time_chart <- function( isExport = FALSE){
     dest_type_labels <- rep(NA,5)    
     bar_width <- compare_bar_width
   }
+  
+  title_start <- paste0(c("Total Current Year System Exits for ", "Total Previous Year System Exits for "),
+                        syse_level_of_detail_text(), " in ",
+                        str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                        if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
+  
+  title <- paste0(title_start, 
+                  c(paste0(': ', scales::label_comma()(nrow(everyone() %>% fsubset(period == 'Current Year')))),
+                    paste0(': ', scales::label_comma()(nrow(everyone() %>% fsubset(period == 'Previous Year'))))),
+                  collapse='\n'
+  )
+  
   g <- ggplot(time_chart_df, aes(x = dest_type_adj, y = time_pct )) +
     geom_bar(aes(fill = factor(time_summ, levels=c('Previous Year', 'Current Year'))), color = 'black', width = bar_width, stat = "identity", position = 'dodge') +
     scale_fill_manual(values=rev(time_colors),guide =  guide_legend(ncol = 2)) +
     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
-    labs(x = '', y = 'Percentage of System Exits') +
+    labs(x = '', y = 'Percentage of System Exits', title = title) +
     theme_minimal() +
     theme(
       panel.grid.major = element_blank(),
@@ -1247,7 +1275,8 @@ syse_compare_time_chart <- function( isExport = FALSE){
       legend.position = 'top',
       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
       axis.text.y = element_text(size = sys_axis_text_font),
-      axis.title.y = element_text(size = sys_axis_text_font)
+      axis.title.y = element_text(size = sys_axis_text_font),
+      plot.title = element_text(size = sys_chart_title_font, hjust =0.5)
     )
   if(isExport){
     g + theme(
@@ -1724,33 +1753,37 @@ sys_phd_plot_df <- reactiveVal()
 # },
 # alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
-full_unit_of_analysis_display_syse <- reactive({
+display_syse_counts <- function(){
   c(
-  paste0(
-    "Total ", 
-    syse_level_of_detail_text(),
-    " with System Exits",
-    if_else(
-      input$syse_hh_type == "All",
-      "",
-      paste0(" in ",
-             str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-             " Households")
-    )
-  ),
-  paste0(
-    "Total ", 
-    syse_level_of_detail_text(),
-    " with PH System Exits",
-    if_else(
-      input$syse_hh_type == "All",
-      "",
-      paste0(" in ",
-             str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-             " Households")
+    paste0(
+      "Total ", 
+      syse_level_of_detail_text(),
+      " with System Exits",
+      if_else(
+        input$syse_hh_type == "All",
+        "",
+        paste0(" in ",
+               str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+               " Households")
+      )
+    ),
+    paste0(
+      "Total ", 
+      syse_level_of_detail_text(),
+      " with PH System Exits",
+      if_else(
+        input$syse_hh_type == "All",
+        "",
+        paste0(" in ",
+               str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+               " Households")
+      )
     )
   )
-  )
+}
+
+full_unit_of_analysis_display_syse <- reactive({
+  display_syse_counts()
 })
 
 syse_total_count_display <- function(total_count, total_ph_count) {
@@ -1758,7 +1791,7 @@ syse_total_count_display <- function(total_count, total_ph_count) {
   return(paste0(
     str_wrap(
       paste0(
-        full_unit_of_analysis_display_syse(),
+        display_syse_counts(),
         ": ",
         scales::comma(c(total_count, total_ph_count))
       ),

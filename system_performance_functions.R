@@ -566,7 +566,7 @@ sys_detailBox <- function(
       )
     )
   } else if (detail_type == 'subpop') {
-    subpop_mini_header <- list(HTML("<b>Selected Subpopulation</b> <br>") )
+    subpop_mini_header <- list(HTML("<br> <b>Selected Subpopulation</b> <br>") )
   }
   
   if(race_eth != "All" | (!is.null(selection) & !is.na(methodology_type))){
