@@ -1040,6 +1040,7 @@ nav_menu(
         #          title = "Instructions",
         tabGlossary_instructions,
         
+        downloadButton('glossary_download_btn', label = 'Download Glossary'),
         DTOutput("glossary")
       )
     )
