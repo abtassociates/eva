@@ -31,6 +31,13 @@ function(input, output, session) {
   # while these seem like they could be "globalized" they have output UI elements
   # and are therefore session based
   source(here("glossary.R"), local = TRUE)
+  shinyjs::runjs(
+    glue("
+            document.getElementById('glossary_subtabs')
+              .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"glossary_download_tab\"></li>');
+            $('#glossary_download_btn').appendTo('#glossary_download_tab');
+          ")
+  )
   source(here("changelog.R"), local = TRUE)
   source(here("demo_management.R"), local = TRUE)
 
