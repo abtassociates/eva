@@ -118,18 +118,29 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
-cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
+files_to_ignore <- c(
+  "Affiliation",
+  "AssessmentResults",
+  "AssessmentQuestions",
+  "Disabilities"
+)
+
+validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
+cols_and_data_types <- readxl::read_xlsx(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026") %>% 
+  qDT() %>%
+  funique(cols = c("CSV","Name"))
+
+column_priorities <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
-  fsubset(!(File %in% c("Affiliation",
-                       "AssessmentResults",
-                       "AssessmentQuestions",
-                       "Disabilities")))
+  fsubset(!File %in% files_to_ignore)
 
 data_type_mapping <- list(
-  character = "character",
-  numeric = "numeric",
-  date = "Date",
-  datetime = "POSIXct"
+  "S" = list("RClass" = "character", "readable" = "string"),
+  "T" = list("RClass" = "POSIXct", "readable" = "datetime"),
+  "D" = list("RClass" = "Date", "readable" = "date"),
+  "I" = list("RClass" = "numeric", "readable" = "integer"),
+  "M+" = list("RClass" = "numeric", "readable" = "decimal"),
+  "M" = list("RClass" = "numeric", "readable" = "decimal")
 )
 
 # Allowed Subsidy Types ---------------------------------------------------

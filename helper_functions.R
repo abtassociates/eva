@@ -219,8 +219,13 @@ get_col_types <- function(upload_filepath, file) {
   # based on the order of the columns in the imported file, rather than the expected order
   # get the column data types expected for the given file
   col_types <- cols_and_data_types %>%
-    fsubset(File == file) %>%
-    fmutate(DataType = data_type_mapping[as.character(DataType)])
+    fsubset(CSV == file) %>%
+    fmutate(
+      type_for_lookup = fifelse(grepl("S", Type), "S", Type),
+      DataType = sapply(type_for_lookup, function(t) {
+        data_type_mapping[[t]][["RClass"]]
+      })
+    )
   
   cols_in_file <- colnames(read.table(
     paste0(tempdir(), "/", file, ".csv"),
@@ -231,8 +236,8 @@ get_col_types <- function(upload_filepath, file) {
   
   # get the data types for those columns
   data_types <- sapply(cols_in_file, function(col_name) {
-    ifelse(col_name %in% col_types$Column,
-           col_types$DataType[col_types$Column == col_name],
+    ifelse(col_name %in% col_types$Name,
+           col_types$DataType[col_types$Name == col_name],
            "character")
   })
 
@@ -303,6 +308,20 @@ logSessionData <- function(session) {
     ImplementationID = if(is.null(session$userData$Export$ImplementationID)) NA else session$userData$Export$ImplementationID
   )
   
+  export_fields_to_store <- c(
+    "CoC" = "SourceID",
+    "ExportID" = "ExportID",
+    "SourceContactFirst" = "SourceContactFirst",
+    "SourceContactLast" = "SourceContactLast",
+    "SourceContactEmail" = "SourceContactEmail",
+    "SoftwareName" = "SoftwareName",
+    "ImplementationID" = "ImplementationID"
+  )
+    
+  for(v in names(export_fields_to_store)) {
+    d[v] <- if(v %in% names(session$userData$Export)) session$userData$Export[[v]] else NA
+  }
+  
   # put the export info in the log
   capture.output(d, file = stderr())
   
@@ -328,8 +347,8 @@ logToConsoleFull <- function(session, msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = session$userData$Export$SourceID,
-    ExportID = session$userData$Export$ExportID,
+    CoC = if(!is.null(session$userData$Export$SourceID)) session$userData$Export$SourceID else NA,
+    ExportID = if(!is.null(session$userData$Export$ExportID)) session$userData$Export$ExportID else NA,
     Msg = msg
   )
   capture.output(d, file = stderr())

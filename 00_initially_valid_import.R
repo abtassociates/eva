@@ -81,10 +81,14 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
     
   # expected files
-  expected_files <- unique(cols_and_data_types$File)
+  expected_files <- unique(cols_and_data_types$CSV)
   
   # get missing files by comparing what we expect with what we got
   missing_files <- expected_files[!(expected_files %in% zipFiles)]
+
+  # empty files
+  empty_files <- zip::zip_list(upload_filepath) %>% 
+    fsubset(gsub(".csv", "", filename) %in% expected_files & uncompressed_size <= 1)
 
   ### Now check whether the file is hashed, has the expected structure, and contains
   # the expected csv files
@@ -143,6 +147,14 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
       title = "Unsuccessful Upload: Your data set is either unhashed or hashed in the wrong format",
       popupText = "Eva expects a hashed HMIS CSV Export that conforms to the SHA-256 format as specified in the HMIS CSV Format Specifications. 
       If you are not sure how to run a SHA-256 hashed HMIS CSV Export in your HMIS, please contact your HMIS vendor."
+    )
+    logMetadata(session, "Unsuccessful upload - not hashed")
+  } else if(nrow(empty_files) > 0) {
+    show_invalid_popup(
+      issueID = 150,
+      title = "Unsuccessful Upload - Empty file(s)",
+      popupText = glue::glue("In your HMIS CSV Export, the following files are empty: 
+                             {paste(empty_files$filename, collapse=', ')}. All files should at least contain headers.")
     )
     logMetadata(session, "Unsuccessful upload - not hashed")
   } else {

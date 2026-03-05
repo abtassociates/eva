@@ -22,7 +22,7 @@ detect_bracket_characters <- function(dt, file) {
 }
 
 bracket_files_detail <- function() {
-  file_list <- unique(cols_and_data_types$File)
+  file_list <- unique(cols_and_data_types$CSV)
   withProgress(
     message = "Downloading Impermissible Character Export...", {
     results <- lapply(file_list, function(file) {

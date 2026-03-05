@@ -5,6 +5,7 @@ library(tidyverse)
 library(zip)
 library(here)
 library(collapse)
+library(data.table)
 source(here("hardcodes.R"), local = TRUE)
 source(here("helper_functions.R"), local = TRUE)
 
@@ -32,14 +33,15 @@ names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(names(csv_files), importFile, upload_filepath = here("tests/FY26-test-good.zip"))
 names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
+# AS 2/10/26: Commenting this out because with the new machine-readable specs, we're checking these files, too
 # remove unused files
-original_data <- original_data[!names(original_data) %in% c("Affiliation",
-                                                            "AssessmentResults",
-                                                            "AssessmentQuestions",
-                                                            "Disabilities")]
+# original_data <- original_data[!names(original_data) %in% c("Affiliation",
+#                                                             "AssessmentResults",
+#                                                             "AssessmentQuestions",
+#                                                             "Disabilities")]
 # store a reduced-size dataset (1 row per csv file)
 # we don't need so much data for initially valid import checks
-reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
+reduced_data <- lapply(original_data, function(x) x[1, ])
 
 dir.create(here("tests/temp/reduced"), showWarnings = FALSE)
 
@@ -97,40 +99,40 @@ Sys.sleep(1)
 close(gz1)
 ############### VALID FILES #################
 # FSA ---------------------------------------------------
-reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[ifelse(nrow(x) >= 6, 6, 1)])
+reduced_data_fsa <- lapply(original_data, function(x) x[ifelse(nrow(x) >= 6, 6, 1)])
 source(here("tests/update_test_good_fsa.R"), local = TRUE)
 
 dir.create(here("tests/temp/reduced_fsa"), showWarnings = FALSE)
 lapply(names(reduced_data_fsa), function(fname) {
-    write.csv(reduced_data_fsa[[fname]],
-              paste0(here("tests/temp/reduced_fsa//"),
-                     fname, ".csv"),
-              row.names = FALSE, na="")
+  write.csv(reduced_data_fsa[[fname]],
+            paste0(here("tests/temp/reduced_fsa//"),
+                   fname, ".csv"),
+            row.names = FALSE, na="")
   Sys.sleep(1)
 })
 Sys.sleep(1)
-save_new_zip("FY26-test-fsa-test.zip", "reduced_fsa")
+save_new_zip("FY26-test-fsa.zip", "reduced_fsa")
 
 # DQ AND PDDE ---------------------------------------------------
 # convert to data.frame and fix column types
 original_data_fixed_cols <- mapply(function(df, df_name) {
-  existing_cols <- intersect(cols_and_data_types$Column, names(df))
+  existing_cols <- intersect(cols_and_data_types$Name, names(df))
   
   as.data.frame(df) %>%
     mutate(across(all_of(existing_cols), 
                   .fns = ~ {
-                    dtype <- cols_and_data_types$DataType[
-                      cols_and_data_types$Column == cur_column() &
-                        cols_and_data_types$File == df_name
+                    dtype <- cols_and_data_types$Type[
+                      cols_and_data_types$Name == cur_column() &
+                        cols_and_data_types$CSV == df_name
                     ]
-                    switch(dtype,
-                           "character" = as.character(.),
-                           "numeric" = as.numeric(.),
-                           "integer" = as.integer(.),
-                           "factor" = as.factor(.),
-                           "logical" = as.logical(.),
-                           "date" = as.Date(.),
-                           .)
+                    case_when(
+                      grepl("S", dtype) ~ as.character(.),
+                      dtype == "I" ~ as.integer(.),
+                      dtype == "D" ~ as.Date(.),
+                      dtype == "T" ~ as.POSIXct(.),
+                      grepl("M", dtype) ~ as.numeric(.),
+                      default = .
+                    )
                   }))
 }, original_data, names(original_data), SIMPLIFY = FALSE)
 
