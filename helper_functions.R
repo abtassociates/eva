@@ -654,3 +654,24 @@ show_trycatch_popup <- function(script_name){
     )
   )
 }
+
+
+# This function converts the English in the provided text into code
+# Used in, e.g., machine-readable-specs processing
+clean_text <- function(text) {
+  text %>%
+    # Replace "=" with "==" (but not "==", "!=", "<=", ">=")
+    stringi::stri_replace_all_regex("(?<![=!<>])=(?!=)", "==") %>%
+    # Replace "in" with "%in%"
+    stringi::stri_replace_all_regex("\\bin\\b", "%in%") %>%
+    # Replace AND/and/And with &
+    stringi::stri_replace_all_regex("\\b(?:AND|and|And)\\b", "&") %>%
+    # Replace OR/or/Or with |
+    stringi::stri_replace_all_regex("\\b(?:OR|or|Or)\\b", "|") %>%
+    # Replace "is not null" with !is.na(...)
+    stringi::stri_replace_all_regex("(\\w+)\\s+is not null", "!is.na($1)") %>%
+    # Replace "is null" with is.na(...)
+    stringi::stri_replace_all_regex("(\\w+)\\s+is null", "is.na($1)") %>%
+    # Replace "between" with %between%
+    stringi::stri_replace_all_regex("\\bbetween\\b", "%between%")
+}
