@@ -217,7 +217,7 @@ for(csv_name in unique(validation_info$CSV)) {
   ), fill=TRUE, idcol='check_type')
 }
 
-invalid_values <- rbindlist(
+specs_validation_issues <- rbindlist(
     Filter(fnrow, csv_issues),
     fill=TRUE,
     idcol="CSV"

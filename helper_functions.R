@@ -163,12 +163,12 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     )
   filename <- paste0(tempdir(), "/", basename(filename))
   
-  colTypes <- get_col_types(upload_filepath, csvFile)
+  expected_rclasses <- get_expected_rclasses(csvFile)
   
   # import data
   data <- data.table::fread(
     filename,
-    colClasses = unlist(unname(colTypes)),
+    colClasses = unlist(unname(expected_rclasses)),
     na.strings="NA"
   )
   
@@ -180,7 +180,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   }), .SDcols = names(data)]
 
   for(col in names(data)) {
-    if(is.character(data[[col]]) && colTypes[[col]] == "numeric") {
+    if(is.character(data[[col]]) && expected_rclasses[[col]] == "numeric") {
       current_col_values <- data[[col]]
       original_nas <- is.na(current_col_values)
       temp_numeric_values <- suppressWarnings(as.numeric(current_col_values))
@@ -214,11 +214,10 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   return(data)
 }
 
-get_col_types <- function(upload_filepath, file) {
-  # returns the datatypes as a named list, using data.table::fread column types,
-  # based on the order of the columns in the imported file, rather than the expected order
-  # get the column data types expected for the given file
-  col_types <- cols_and_data_types %>%
+get_expected_rclasses <- function(file) {
+  # returns the expected rclasses of the columns in the file as named list, 
+  # using data.table::fread column types,
+  expected_rclasses <- cols_and_data_types %>%
     fsubset(CSV == file) %>%
     fmutate(
       type_for_lookup = fifelse(grepl("S", Type), "S", Type),
@@ -234,14 +233,14 @@ get_col_types <- function(upload_filepath, file) {
     sep = ",", 
     comment.char = ""))
   
-  # get the data types for those columns
-  data_types <- sapply(cols_in_file, function(col_name) {
-    ifelse(col_name %in% col_types$Name,
-           col_types$DataType[col_types$Name == col_name],
+  # get the rclasses for those columns that are actually in the file
+  rclasses <- sapply(cols_in_file, function(col_name) {
+    ifelse(col_name %in% expected_rclasses$Name,
+           expected_rclasses$DataType[expected_rclasses$Name == col_name],
            "character")
   })
 
-  return(data_types)
+  return(rclasses)
 }
 
 logMetadata <- function(session, detail) {
@@ -426,7 +425,7 @@ nice_names_timeliness <- function(df, record_type){
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
   data <- read_csv(paste0(directory, "data/", filename)
-                   ,col_types = get_col_types(csvFile)
+                   ,col_types = get_expected_rclasses(csvFile)
                    ,na = ""
   )
   return(data)

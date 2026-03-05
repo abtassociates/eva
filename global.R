@@ -37,6 +37,7 @@ source(here("hardcodes.R")) # hard-coded variables and data frames
 source(here("helper_functions.R")) # functions used throughout the app
 source(here('tab_instructions.R')) # static HTML text elements
 source(here("eva_chart_colors.R"))
+source(here("load_machine_readable_specs.R"), local=TRUE)
 
 if(dir.exists(METADATA_PATH)) {
   capture.output("All good", file = stderr())
@@ -53,6 +54,7 @@ mirai::everywhere({
   library(tidyverse)
   library(collapse)
   library(here)
+  library(glue)
   
   options(shiny.maxRequestSize = 200000000) # <- about 200MB, aka 200*1024^2
   options(shiny.fullstacktrace = TRUE)

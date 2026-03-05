@@ -7,7 +7,7 @@
 logToConsole(session, "Running file structure analysis")
 
 # Invalid values -----------------------------
-source("machine_readable_specs_validation.R", local=TRUE)
+source(here("machine_readable_specs_validation.R"), local=TRUE)
 
 # Integrity Enrollment ----------------------------------------------------
 if (nrow(Enrollment) == 0) {
@@ -36,11 +36,13 @@ duplicate_household_id <- Enrollment %>%
   fselect(issue_display_cols) %>%
   funique()
 
-session$userData$file_structure_analysis_main(rbind(
-  no_enrollment_records,
-  duplicate_household_id,
-  invalid_values,
-  ignore.attr=TRUE
+session$userData$file_structure_analysis_main(
+  rbind(
+    no_enrollment_records,
+    duplicate_household_id,
+    specs_validation_issues,
+    fill = TRUE,
+    ignore.attr=TRUE
   ) %>%
   fmutate(Type = factor(Type, levels = issue_levels)) %>%
   roworder(Type)

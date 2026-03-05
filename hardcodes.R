@@ -119,16 +119,11 @@ dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
 files_to_ignore <- c(
-  "Affiliation",
+  # "Affiliation",
   "AssessmentResults",
-  "AssessmentQuestions",
-  "Disabilities"
+  "AssessmentQuestions" #,
+  # "Disabilities"
 )
-
-validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
-cols_and_data_types <- readxl::read_xlsx(validation_specs_bk, sheet = "CSV Lists Data Dict FY2026") %>% 
-  qDT() %>%
-  funique(cols = c("CSV","Name"))
 
 column_priorities <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
@@ -446,8 +441,7 @@ dq_mirai_dependencies <- c(
   "Funder",
   "IncomeBenefits",
   "Services",
-  "Event",
-  "null_unless_issues"
+  "Event"
 )
 
 pdde_mirai_dependencies <- c(
@@ -457,10 +451,22 @@ pdde_mirai_dependencies <- c(
   "activeInventory",
   "HMISParticipation",
   "CEParticipation",
-  "null_unless_issues",
-  "foreign_key_issues"
+  "Project"
 )
 
+specs_mirai_dependencies <- c(
+  "dq_null_unless_rules", 
+  "pdde_null_unless_rules",
+  "get_null_unless_issue_records", 
+  "add_reporting_info", 
+  "reporting_info",
+  "foreign_key_checks",
+  "get_foreign_key_issues",
+  "csv_join_prerequisites",
+  "join_prereqs",
+  "null_unless"
+)
+  
 enrollment_cols <- c(
   "PersonalID",
   "EnrollmentID",
