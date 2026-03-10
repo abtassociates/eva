@@ -315,8 +315,8 @@ page_navbar(
           dateRangeInput(
             inputId = 'dq_export_date_multiple',
             label = NULL,
-            start = NA,
-            end = NA,
+            # start = NA,
+            # end = NA,
             format = "mm/dd/yyyy"
           )
         ),
@@ -325,7 +325,7 @@ page_navbar(
           dateInput(
             inputId = 'dq_export_date_single',
             label = NULL,
-            value = NA,
+            # value = NA,
             format = "mm/dd/yyyy"
           )
         )
@@ -405,9 +405,9 @@ page_navbar(
           dateRangeInput(
             "dateRangeCount",
             label = 'Date Range',
-            format = "mm/dd/yyyy",
-            start = NA,
-            end = NA
+            format = "mm/dd/yyyy" #,
+            # start = NA,
+            # end = NA
             #width = 300
           ),
           pickerInput(
