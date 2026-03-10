@@ -1,37 +1,52 @@
+specs_prepped_path <- here("public-resources/specs_prepped.rds")
+
+if(file.exists(specs_prepped_path)) {
+  specs_prepped <- readRDS(specs_prepped_path)
+  
+  specs_rules <- specs_prepped$specs_rules
+  reporting_info <- specs_prepped$reporting_info
+  valid_values <- specs_prepped$valid_values
+  rm(specs_prepped)
+} else {
+
 validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
 
-# Read and reshape the multi-row header
-import_cols_and_data_types <- function() {
-  raw <- readxl::read_xlsx(validation_specs_bk, col_names = FALSE)
-  raw[1, ] <- t(tidyr::fill(data.frame(t(raw[1, ])), everything()))
-  
-  header <- paste(raw[1,], raw[2,], sep = "_") |>
-    gsub("NA_|_NA", "", x = _) # |>  # clean up where one row was empty
-    # make.names(unique = TRUE)
-  
-  specs <- raw[-(1:2),] |> setNames(header)
-  return(specs)
-}
+# Import Specs -----------------------
+## Import primary specs sheet (includes expected CSVs, columns, data types, and rule notes) ------
+## We need to reformat to handle the double header
+raw <- readxl::read_xlsx(validation_specs_bk, col_names = FALSE)
+raw[1, ] <- t(tidyr::fill(data.frame(t(raw[1, ])), everything()))
 
-cols_and_data_types <- import_cols_and_data_types() %>%
+header <- paste(raw[1,], raw[2,], sep = "_") |>
+  gsub("NA_|_NA", "", x = _)
+
+cols_and_data_types <- raw[-(1:2),] |> 
+  setNames(header) |>
   qDT()
 
-# Read the Keys tab
-csv_anchor_keys <- readxl::read_xlsx(validation_specs_bk, sheet = "Keys") |>
+## Import Keys tab -----------------
+# Includes the Anchor ID (EnrollmentID or ProjectID) used for each CSV, which is used to help the user look up data for that CSV
+# Also includes the Key Date fields from that CSV, also used for lookups in the hmis system.
+keys_and_anchors <- readxl::read_xlsx(validation_specs_bk, sheet = "Keys") |>
+  qDT() |>
   fsubset(!is.na(AnchorID) & AnchorID != "N/A")
 
-anchor_id_lookup <- csv_anchor_keys |> fselect(CSV, AnchorID)
-key_date_lookup <- csv_anchor_keys |> fselect(CSV, KeyDate)
-
-# Derive the unique ID column per CSV
+## Derive unique ID column per CSV ---------------
+# (e.g. AssessmentID for Assessment.csv) 
 unique_id_lookup <- cols_and_data_types |>
   fsubset(toupper(Notes) == "UNIQUE IDENTIFIER") |>
   fselect(CSV, Name) |>
   setNames(c("CSV", "UniqueID"))
 
-# Parse the check-type columns into a long format rule table
-# The multi-header gives you one group of three columns per check type (Source, Include AnchorID?, Key Fields). Pivot these long so each row is one column-×-check-type combination:
-# Convert to long format: CSV, Name, check_type, Source, Include, AnchorID, Key Fields
+# Prepare reporting_info dataset ------------------------
+# This includes, for each csv+column+check combination, info needed for reporting 
+# (report source - FSA, DQ, or PDDE - whether we need to include the Anchor ID 
+# in the report, and any other key fields that will help the user)
+
+## Pivot to long (CSV + Column + check) -----------------
+# The multi-header gives you one group of three columns per check type:
+#   Source, Include AnchorID?, Key Fields
+# Pivot gives us: CSV, Name, check_type, Source, Include, AnchorID, Key Fields
 reporting_info <- cols_and_data_types %>%
   fselect(-c(`DE#`, Type, List, Null, Notes, Order)) |>
   pivot_longer(
@@ -47,11 +62,10 @@ reporting_info <- cols_and_data_types %>%
     Source = gsub("N/A", NA, Source)
   )
 
-# Resolve key fields and AnchorID
+## Resolve key fields and AnchorID --------------
 reporting_info <- reporting_info |>
   join(unique_id_lookup, on = "CSV", how = "left") |>
-  join(key_date_lookup, on = "CSV", how = "left") |>
-  join(anchor_id_lookup, on = "CSV", how = "left") |>
+  join(keys_and_anchors, on = "CSV", how = "left") |>
   fmutate(
     `Key Fields` = `Key Fields` %>%
       str_replace("UniqueID", UniqueID) %>%
@@ -60,7 +74,7 @@ reporting_info <- reporting_info |>
   ) |>
   fselect(-c(UniqueID, `Include AnchorID?`))
 
-# pull in Evachecks info
+## pull in Evachecks info -------------
 specs_evachecks_issue_xwalk <- c(
   "Incorrect Data Type" = "Incorrect Data Type",
   "Non-Null Invalid" = "Invalid Non-Null Value",
@@ -83,17 +97,24 @@ reporting_info <- reporting_info |>
     Issue = specs_evachecks_issue_xwalk[check_type]
   ) |>
   join(evachecks, on = c("Source", "Issue")) |>
+  frename(
+    "check_priority" = Type,
+    "reporting_notes" = Notes
+  )
+
+
+## Import Detail Text templates ------------
+reporting_info <- reporting_info |>
   join(
     readxl::read_xlsx(validation_specs_bk, sheet = "Detail Texts"),
     on = c("check_type" = "Check Type")
   ) 
-
   
-# Read in CSV Lists from Specs
+# Read in CSV Lists from Specs ---------------------
 # This tab contains all the valid values for each list element
 valid_values <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY2026") %>%
   fmutate(
-    Value = as.numeric(gsub("\u00A0", "", Value)),
+    Value = gsub("\u00A0", "", Value),
     List = ifelse(
       List == "1.1000000000000001", "1.1", 
       ifelse(
@@ -106,12 +127,9 @@ valid_values <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY202
 # Convert to a named list, where the names are the unique values of `List` and the values are the vector of `Value`s.
 valid_values <- split(valid_values$Value, valid_values$List)
 
-# hashed cols are 32 chars long
-hashed_cols <- 
-
-# Read in Variable-List xwalk
-# This tab includes all variables and the corresponding List element that determines valid values
-# It also includes nuanced notes about validation, including conditional validations
+# Read in Validation Info ----------------
+# This tab includes all csvs, columns, data types, 
+# corresponding valid values list info, and additional validation rule notes
 validation_info <- cols_and_data_types %>%
   fselect(CSV, `DE#`, Name, Type, List, Null, Notes, Order, additional_notes) %>%
   fsubset(!CSV %in% c("AssessmentResults","AssessmentQuestions")) %>%
@@ -129,9 +147,11 @@ validation_info <- cols_and_data_types %>%
     is_str = substr(Type, 1, 1) == "S" & Type != "S",
     str_len_limit = fifelse(is_str, as.numeric(sub("S", "", "S32")), NA),
     nulls_allowed = Null == "Y" & !is.na(Null)
-  ) 
+  ) |>
+  frename("validation_notes" = Notes)
 
 # Special validation rules -----
+# These could not be easily coded into the specs file itself
 special_validation_rules <- list(
   CEParticipation = list(
     "Unallowed Null" = list(
@@ -159,17 +179,25 @@ special_validation_rules <- list(
       VerifiedBy = quote(is.na(VerifiedBy) & ProjectType == 14)
     )
   ),
+  Disabilities = list(
+    "Non-Null Invalid" = list(
+      DisabilityResponse = quote(
+        (DisabilityType == 10 & !DisabilityResponse %in% valid_values[["4.10.2"]]) |
+        (DisabilityType != 10 & !DisabilityResponse %in% valid_values[["1.8"]])
+      )
+    )
+  ),
   Enrollment = list(
     "Non-Null Invalid" = list(
-      VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
+      # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
       EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "x"))
     )
   ),
   Exit = list(
     "Non-Null Invalid" = list(
       SubsidyInformation = quote(
-        (HousingAssessment == 1 & SubsidyInformation %in% c(1,2,3,4)) |
-          (HousingAssessment == 2 & SubsidyInformation %in% c(11,12))
+        (HousingAssessment == 1 & !SubsidyInformation %in% c(1,2,3,4)) |
+          (HousingAssessment == 2 & !SubsidyInformation %in% c(11,12))
       ),
       SessionsInPlan     = quote(SessionsInPlan < 0),
       SessionCountAtExit = quote(SessionCountAtExit > 0)
@@ -220,7 +248,12 @@ special_validation_rules <- list(
         )
         valid_vals <- valid_values[record_type_list_lookup[as.character(dt$RecordType)]]
         !mapply(`%in%`, dt$TypeProvided, valid_vals)
-      }
+      },
+      SubTypeProvided = quote(
+        (TypeProvided == 3 & !SubTypeProvided %in% valid_values[["V2.A"]]) |
+          (TypeProvided == 4 & !SubTypeProvided %in% valid_values[["V2.B"]]) |
+          (TypeProvided == 5 & !SubTypeProvided %in% valid_values[["V2.C"]])
+      )
     )
   )
 )
@@ -244,6 +277,7 @@ special_validation_rules_dt <- rbindlist(
   })
 )
 
+# Supplemental files needed for specific CSVs -----------
 csv_join_prerequisites <- list(
   Inventory = list(
     list(tbl = "Project", on = "ProjectID", cols = "ProjectType")
@@ -255,215 +289,21 @@ csv_join_prerequisites <- list(
   Enrollment = list(
     list(tbl = "ProjectCoC", on = c("ProjectID" = "ProjectID", "EnrollmentCoC" = "CoCCode"), column = TRUE),
     list(tbl = "Project",    on = "ProjectID",    cols = "ContinuumProject")
+  ),
+  Disabilities = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
+  ),
+  IncomeBenefits = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Funder", on = "ProjectID", cols = "Funder")
+  ),
+  Organization = list(
+    list(tbl = "Project", on = "OrganizationID", cols = "ProjectID")
   )
 )
 
-# Get subsets of rules/info needed for various checks --------------------
-# Include the special validation rules
-add_special_validation_rules <- function(dt, issue_name) {
-  dt %>%
-    fmutate(Issue = issue_name) %>%
-    join(
-      special_validation_rules_dt %>% fsubset(Issue == issue_name), 
-      on = c("CSV", "Name", "Issue"), 
-      how = "anti"
-    ) %>%
-    rbind(
-      special_validation_rules_dt %>% fsubset(Issue == issue_name), 
-      fill = TRUE
-    )
-}
-
-
-## String Length Limit Exceeded ------------
-str_len_limit_rules <- validation_info %>%
-  fsubset(is_str == TRUE, CSV, Name, str_len_limit) %>%
-  add_special_validation_rules("String Length Limit Exceeded")
-
-## Unallowed Null rules ------------
-unallowed_null_info <- validation_info %>%
-  fsubset(nulls_allowed == F) %>%
-  add_special_validation_rules("Unallowed Null")
-
-## Non-Null Invalid info ------------
-non_null_invalid_info <- validation_info %>% 
-  fsubset(whichNA(List, invert=TRUE)) %>%
-  add_special_validation_rules("Non-Null Invalid")
-
-# Null unless ------------
-valid_list_lookup <- validation_info$Name
-names(valid_list_lookup) <- validation_info$`DE#`
-valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
-
-null_unless <- function(col, cond) {
-  (is.na(col) & cond) | (!is.na(col) & !cond)
-}
-
-clean_rule_for_null_unless <- function(Name, Notes) {
-  stringi::stri_replace_all_fixed(
-    gsub("^Null unless ", "", Notes),
-    pattern     = names(valid_list_lookup),
-    replacement = lookup,
-    vectorize_all = FALSE
-  ) %>%
-    clean_text() %>%
-    purrr::map2(Name, ., ~rlang::parse_expr(glue("null_unless({.x}, {.y})")))
-}
-
-null_unless_rules <- validation_info %>%
-  fsubset(grepl("^Null unless", Notes), CSV, Name, Notes) %>%
-  # See additional notes for these fields, whose Null checks within the 
-  # Null Unless check only applies to Funders in c(13:19)
-  join(
-    funder_specific_null_unless_fields,
-    on = c("CSV","Name"),
-    column = "funder_specific"
-  ) %>%
-  fmutate(
-    Notes = str_split_i(Notes, "\r\n", 1),
-    Notes = fifelse(funder_specific == "y", paste0(Notes, " & Funder in c(13:19)"), Notes),
-    rule = clean_rule_for_null_unless(Name, Notes)
-  ) %>%
-  add_special_validation_rules("Null Unless")
-  
-
-dq_null_unless_rules <- null_unless_rules %>%
-  join(
-    reporting_info %>% 
-      fsubset(check_type == "Null Unless" & Source == "dq"), 
-    on = c("CSV","Name"),
-    how = "inner"
-  )
-
-pdde_null_unless_rules <- null_unless_rules %>%
-  join(
-    reporting_info %>% 
-      fsubset(check_type == "Null Unless" & Source == "pdde"), 
-    on = c("CSV","Name"),
-    how = "inner"
-  )
-# Null Unless Function... ---------
-# Will be used in DQ and PDDE
-
-get_null_unless_issue_records <- function(csv_name, null_unless_rules, envir) {
-  print(paste0("getting null unless issue records for csv ", csv_name))
-
-  dt <- get(csv_name, envir = envir) %>%
-    join_prereqs(csv_name, envir = envir)
-  
-  csv_null_unless_rules <- null_unless_rules %>%
-    fsubset(CSV == csv_name & Name %in% names(dt))
-  
-  if(fnrow(csv_null_unless_rules) > 0) {
-    rbindlist(lapply(seq_row(csv_null_unless_rules), function(i) {
-      col <- csv_null_unless_rules[i, Name]
-      rule <- csv_null_unless_rules[i, rule][[1]]
-      
-      invalid = eval(rule, dt)
-      
-      dt %>%
-        fsubset(invalid == TRUE) %>%
-        fmutate(Name = col)
-    }))
-  } else data.table()
-}
-
-foreign_key_checks <- validation_info %>%
-  fsubset(grepl("Must match", Notes)) %>%
-  fmutate(
-    id_col   = sub("Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", Notes),
-    tbl_name = sub("Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", Notes)
-  ) %>%
-  join(
-    reporting_info %>% fsubset(check_type == "Foreign Key Missing"), 
-    on=c("CSV", "Name"),
-    how = "inner"
-  )
-
-get_foreign_key_issues <- function(csv_name, reporting_source) {
-  csv_foreign_key_checks <- foreign_key_checks %>%
-    fsubset(
-      CSV == csv_name & 
-        Name %in% names(dt) & 
-        Source == reporting_source
-    )
-  
-  foreign_key_issues <- rbindlist(
-    lapply(seq_row(csv_foreign_key_checks), function(i) {
-      spec_row <- csv_foreign_key_checks[i]
-      foreign_tbl <- get(spec_row$tbl_name)
-      
-      missing <- dt %>%
-        join(
-          foreign_tbl %>% fselect(spec_row$id_col),
-          on   = setNames(spec_row$id_col, spec_row$Name),
-          column = TRUE
-        ) %>%
-        fsubset(.join == "x") %>%
-        fmutate(
-          Name = spec_row$Name, 
-          foreign_tbl = spec_row$tbl_name, 
-        )
-      
-      # See additional_note for Inventory > ProjectID
-      if(csv_name == "Inventory") {
-        missing <- missing %>%
-          funique(cols = "ProjectID")
-      }
-      return(missing)
-    }),
-    fill = TRUE
-  )
-}
-
-
-join_prereqs <- function(dt, csv_name, envir) {
-  prereqs <- csv_join_prerequisites[[csv_name]]
-  if (!is.null(prereqs)) {
-    for (prereq in prereqs) {
-      foreign_dt <- get(prereq$tbl, envir=envir) |> fselect(c(unname(prereq$on), prereq$cols))
-      dt <- dt |> 
-        join(
-          foreign_dt, 
-          on =  prereq$on,
-          how = prereq$how %||% "left",
-          column = prereq$cols
-        )
-    }
-  }
-  return(dt)
-}
-
-
-add_reporting_info <- function(dt, reporting_source) {
-  dt %>%
-    join(column_priorities, on=c("CSV" = "File", "Name" = "Column")) %>%
-    fmutate(check_type = factor(check_type)) %>%
-    join(
-      reporting_info %>% fsubset(Source == reporting_source),
-      on=c("CSV", "Name", "check_type"),
-      drop.dup.cols = "x"
-    ) %>%
-    fmutate(
-      key_template = gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", `Key Fields`),
-      detail_template = stringi::stri_replace_all_fixed(`Detail Text`, "{Key Field Info}", key_template) %>%
-        stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))
-    ) %>%
-    .[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template] %>%
-    .[, AnchorValue := if (is.na(AnchorID[1L]) || AnchorID[1L] == "") NA_character_
-      else as.character(get(AnchorID[1L])),
-      by = AnchorID] %>%
-    fselect(c(issue_display_cols, "CSV", "Column" = "Name", "AnchorID", "AnchorValue")) %>%
-    fmutate(
-      Issue = factor(Issue),
-      Type = factor(Type),
-      Guidance = factor(Guidance),
-      CSV = factor(CSV),
-      Column = factor(Column),
-      AnchorID = factor(AnchorID)
-    )
-}
-
+# Funder-specific Null Unless Fields -------------------
 # These are fields for whose Null checks (as part of the Null Unless checks)
 # should only apply when Funder in c(13:19)
 funder_specific_null_unless_fields <- list(
@@ -488,3 +328,116 @@ funder_specific_null_unless_fields <- list(
 ) %>% 
   purrr::imap(\(names, csv) data.table(CSV = csv, Name = names)) |>
   rbindlist()
+
+
+# Create Master Rules table ----------------
+# Includes all validation and reporting info
+# We express the rules in R code that will be evaluated at runtime.
+specs_rules <- validation_info %>%
+  join(reporting_info, on = c("CSV", "Name"), multiple=TRUE) %>%
+  # Initialize an empty list column to hold the parsed expressions
+  fmutate(rule_expr = list(NULL)) %>%
+  join(
+    funder_specific_null_unless_fields,
+    on = c("CSV", "Name"),
+    column = "funder_specific" # adds a column indicating 'x' or 'y' matches
+  ) %>%
+  fmutate(
+    # Clean up the Notes string just for Null Unless checks
+    validation_notes = fifelse(
+      check_type == "Null Unless", 
+      str_split_i(validation_notes, "\r\n", 1), 
+      validation_notes
+    ),
+    # Append the Funder logic to the text BEFORE parsing
+    validation_notes = fifelse(
+      check_type == "Null Unless" & funder_specific == "y", 
+      paste0(validation_notes, " & Funder %in% c(13:19)"), 
+      validation_notes
+    )
+  )
+
+## 1. Null Unless  ------------
+specs_rules[
+  check_type == "Null Unless", 
+  rule_expr := Map(clean_rule_for_null_unless, Name, validation_notes)
+]
+
+## 2. String Length Limit Exceeded -----------
+specs_rules[
+  check_type == "String Length Limit Exceeded", 
+  rule_expr := Map(function(col, limit) 
+    rlang::parse_expr(glue::glue("vlengths({col}) > {limit}")),
+    Name, 
+    str_len_limit
+  )
+]
+
+## 3. Unallowed Null -----------
+specs_rules[
+  check_type == "Unallowed Null", 
+  rule_expr := lapply(Name, function(col) 
+    rlang::parse_expr(glue::glue("is.na({col})"))
+  )
+]
+
+## 4. Non-Null Invalid -----------
+specs_rules[
+  check_type == "Non-Null Invalid" & !is.na(List), 
+  rule_expr := Map(function(col, lst)
+    # Creates: !is.na(Name) & !(Name %in% valid_values[['ListID']])
+    rlang::parse_expr(glue::glue("!is.na({col}) & !({col} %in% valid_values[['{lst}']])")),
+    Name, 
+    List
+  )
+]
+
+## 5. Foreign Key Missing -----------
+specs_rules[
+  check_type == "Foreign Key Missing",
+  `:=`(
+    fk_id_col   = sub(".*Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", validation_notes),
+    foreign_tbl = sub(".*Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", validation_notes)
+  )
+]
+
+specs_rules[
+  check_type == "Foreign Key Missing", 
+  rule_expr := Map(function(c, fc, ft)
+   rlang::parse_expr(glue::glue("!is.na({c}) & !({c} %in% get('{ft}')[['{fc}']])")), 
+   Name, 
+   fk_id_col, 
+   foreign_tbl
+  )
+]
+
+# ignore User ID
+specs_rules <- specs_rules[!(check_type == "Foreign Key Missing" & Name == "UserID")]
+
+## 6. Duplicate UniqueID ---------
+specs_rules[
+  check_type == "Duplicate UniqueID", 
+  rule_expr := lapply(Name, function(col)
+    # Using all = TRUE ensures BOTH the original and the duplicate are flagged
+    rlang::parse_expr(glue::glue("fduplicated({col}, all = TRUE)"))
+  )
+]
+
+
+## 7. Special rules --------------
+# overwrites the rule_expr column with the new special rule
+specs_rules[
+  special_validation_rules_dt,
+  on = c("CSV", "Name", "check_type" = "Issue"),
+  rule_expr := i.rule
+]
+
+saveRDS(
+  list(
+    specs_rules = specs_rules, 
+    reporting_info = reporting_info, 
+    valid_values = valid_values
+  ), 
+  specs_prepped_path
+)
+}

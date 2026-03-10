@@ -454,19 +454,6 @@ pdde_mirai_dependencies <- c(
   "Project"
 )
 
-specs_mirai_dependencies <- c(
-  "dq_null_unless_rules", 
-  "pdde_null_unless_rules",
-  "get_null_unless_issue_records", 
-  "add_reporting_info", 
-  "reporting_info",
-  "foreign_key_checks",
-  "get_foreign_key_issues",
-  "csv_join_prerequisites",
-  "join_prereqs",
-  "null_unless"
-)
-  
 enrollment_cols <- c(
   "PersonalID",
   "EnrollmentID",

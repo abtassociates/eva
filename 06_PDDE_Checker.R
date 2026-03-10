@@ -625,22 +625,7 @@ lt_seas_inv <- lt_seas_inv %>%
   fselect(PDDEcols) %>% 
   funique()
 
-
-# Null Unless...
-browser()
-null_unless_issues <- rbindlist(
-  lapply(
-    unique(pdde_null_unless_rules$CSV),
-    get_null_unless_issue_records, 
-    pdde_null_unless_rules,
-    environment()
-  ),
-  fill = TRUE, idcol = "CSV"
-) %>%
-  fmutate(check_type = "Null Unless") %>%
-  fsubset(0) %>%
-  add_reporting_info(reporting_source = "pdde") %>%
-  frename("ProjectID" = "AnchorValue") %>%
+specs_issues <- run_templatable_validations("pdde", data_env = environment()) %>%
   join(
     session$userData$Project0, 
     on = "ProjectID",
@@ -649,14 +634,7 @@ null_unless_issues <- rbindlist(
   fselect(PDDEcols) %>%
   unique()
 
-# Foreign key checks
-foreign_key_issues <- rbindlist(
-  sapply(
-    unique(foreign_key_checks$CSV),
-    get_foreign_key_issues,
-    "pdde"
-  )
-) 
+
 # Put it all together -----------------------------------------------------
 
 pdde_main <- rowbind(
@@ -683,8 +661,7 @@ pdde_main <- rowbind(
   project_no_coc,
   res_no_house_type,
   lt_seas_inv,
-  null_unless_issues,
-  foreign_key_issues
+  specs_issues
 ) %>%
   funique() %>%
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))

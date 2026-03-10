@@ -62,13 +62,12 @@ process_upload <- function(upload_filename, upload_filepath) {
 
     dq_and_pdde_dependencies <- mget(unique(c(
       dq_mirai_dependencies, 
-      pdde_mirai_dependencies, 
-      dq_null_unless_rules$CSV, # make sure to pull in any CSVs with null-unless checks 
-      pdde_null_unless_rules$CSV
+      pdde_mirai_dependencies,
+      specs_rules[Source %in% c("dq","pdde")]$CSV
     )))
-    for(i in specs_mirai_dependencies) {
-      dq_and_pdde_dependencies[[i]] <- get(i, envir = .GlobalEnv)
-    }
+    
+    dq_and_pdde_dependencies[["specs_rules"]] <- specs_rules
+    dq_and_pdde_dependencies[["reporting_info"]] <- reporting_info
     
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,
@@ -80,19 +79,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       )
     )
     dq_pdde_mirai <- mirai({
-      local_env <- environment()
-      # Setting enclosing environments for specs stuff -------
-      # These functions are originally stored in the global environment, 
-      # but when passed to the mirai are stored in the mirai's local environment 
-      # via load_machine_readable_specs.R
-      # When they run and call another function, e.g. get_null_unless_issue_records 
-      # calls join_prereqs, they look for that function in their enclosing environment. 
-      # But when we pass them to the mirai, nothing lives in the global environment anymore
-      # By resetting the enclosing environment we make sure those sub-functions are found. 
-      environment(get_null_unless_issue_records) <- local_env
-      environment(join_prereqs) <- local_env
-      environment(get_foreign_key_issues) <- local_env
-      environment(add_reporting_info) <- local_env
+      source("machine_readable_specs_helpers.R", local=TRUE)
       
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)

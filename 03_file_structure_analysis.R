@@ -45,7 +45,8 @@ session$userData$file_structure_analysis_main(
     ignore.attr=TRUE
   ) %>%
   fmutate(Type = factor(Type, levels = issue_levels)) %>%
-  roworder(Type)
+  roworder(Type) %>%
+  colorderv(neworder = c("CSV", "Name", issue_display_cols, "AnchorID"))
 )
 
 

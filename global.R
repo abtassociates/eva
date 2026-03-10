@@ -37,7 +37,8 @@ source(here("hardcodes.R")) # hard-coded variables and data frames
 source(here("helper_functions.R")) # functions used throughout the app
 source(here('tab_instructions.R')) # static HTML text elements
 source(here("eva_chart_colors.R"))
-source(here("load_machine_readable_specs.R"), local=TRUE)
+source(here("machine_readable_specs_helpers.R"))
+source(here("load_machine_readable_specs.R"))
 
 if(dir.exists(METADATA_PATH)) {
   capture.output("All good", file = stderr())
@@ -62,6 +63,7 @@ mirai::everywhere({
   
   source(here("hardcodes.R"))
   source(here("helper_functions.R"))
+  source(here("machine_readable_specs_helpers.R"))
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
 onStop(function() daemons(0))

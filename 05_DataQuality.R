@@ -1829,20 +1829,8 @@ calculate_outstanding_referrals <- function(dq_data){
 ## CE ------
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
-## Null unless...
-null_unless_issues <- rbindlist(
-  lapply(
-    unique(dq_null_unless_rules$CSV),
-    get_null_unless_issue_records, 
-    dq_null_unless_rules,
-    environment()
-  ),
-  fill = TRUE, idcol = "CSV"
-) %>%
-  fmutate(check_type = "Null Unless") %>%
-  fsubset(0) %>%
-  add_reporting_info(reporting_source = "dq") %>%
-  frename("EnrollmentID" = "AnchorValue") %>%
+## Specs Issues....
+specs_issues <- run_templatable_validations("dq", data_env = environment()) %>%
   join(
     base_dq_data %>% fselect(vars_prep), 
     on = "EnrollmentID"
@@ -1916,7 +1904,7 @@ dq_main <- rowbind(
   # missing_veteran_status,
   no_months_can_be_determined,
   no_months_v_living_situation_data,
-  null_unless_issues,
+  specs_issues,
   ssvf_hp_screen,
   ssvf_missing_percent_ami,
   ssvf_missing_vamc,
