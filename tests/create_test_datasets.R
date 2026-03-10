@@ -114,28 +114,6 @@ Sys.sleep(1)
 save_new_zip("FY26-test-fsa.zip", "reduced_fsa")
 
 # DQ AND PDDE ---------------------------------------------------
-# convert to data.frame and fix column types
-original_data_fixed_cols <- mapply(function(df, df_name) {
-  existing_cols <- intersect(cols_and_data_types$Name, names(df))
-  
-  as.data.frame(df) %>%
-    mutate(across(all_of(existing_cols), 
-                  .fns = ~ {
-                    dtype <- cols_and_data_types$Type[
-                      cols_and_data_types$Name == cur_column() &
-                        cols_and_data_types$CSV == df_name
-                    ]
-                    case_when(
-                      grepl("S", dtype) ~ as.character(.),
-                      dtype == "I" ~ as.integer(.),
-                      dtype == "D" ~ as.Date(.),
-                      dtype == "T" ~ as.POSIXct(.),
-                      grepl("M", dtype) ~ as.numeric(.),
-                      default = .
-                    )
-                  }))
-}, original_data, names(original_data), SIMPLIFY = FALSE)
-
 source(here("tests/update_test_good_dq.R"), local = TRUE)
 
 # overwrite the original csv files in temp
@@ -144,7 +122,7 @@ mapply(function(df, df_name) {
             file= file(csv_files[[df_name]], encoding = if(df_name == "Project") "Windows-1252" else "UTF-8"),
             row.names = FALSE,
             na = "")
-}, original_data_fixed_cols, names(original_data_fixed_cols), SIMPLIFY = FALSE)
+}, original_data, names(original_data), SIMPLIFY = FALSE)
 
 save_new_zip("FY26-test-main-valid.zip", "")
 
