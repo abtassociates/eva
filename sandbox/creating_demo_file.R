@@ -208,7 +208,7 @@ for (file in unique(cols_and_data_types$CSV)) {
               "2024-01-10", "2024-01-12", "2024-01-14", "2024-01-16"
             )),
           RecordType = rep(200, 18),
-          TypeProvided = rep(2, 18),
+          TypeProvided = rep(200, 18),
           DateCreated = as.POSIXct(rep("2022-04-25 12:53", 18)),
           DateUpdated = as.POSIXct(rep("2022-04-25 12:53", 18)),
           UserID = rep("18", 18),
