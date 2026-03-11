@@ -1043,7 +1043,7 @@ nav_menu(
         
         pickerInput(
           label = 'Select Project',
-          inputId = "currentProviderList1",
+          inputId = "HMISprojects",
           choices = NULL,
           multiple = TRUE,
           options = pickerOptions(liveSearch = TRUE,
