@@ -191,7 +191,7 @@
       ]
     },
     "sysDQWarningByIssue": {
-      "src": "[image data hash: ad0c19a9e1ad1721ae376f73a2e6eeb2]",
+      "src": "[image data hash: 08a9d7441b38edd41ead22ac9eaa19d5]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the system.",
@@ -218,8 +218,8 @@
 
                 ],
                 "y": [
+                  "Unknown Veteran Status",
                   "Unknown Months or Times Homeless",
-                  "Unknown Living Situation",
                   "Unknown Race/Ethnicity",
                   "Incomplete or Unknown Name",
                   "Homelessness Start Date conflicts with Living Situation data",
