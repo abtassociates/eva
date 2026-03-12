@@ -440,23 +440,9 @@ output$m_proj_inv_filtered <- renderDT({# <- reactive({
 
 # Quarterly System Level Utilization (suppressed) ---------------
 output$q_sys_inv_filtered <- renderDT({
+  req(!is.null(input$HMISprojects))
   
-  # filter HMIS projects frame by selected filters
-  selectedProjs <- session$userData$HMIS_projects_w_active_inv  %>% fungroup 
-  if(input$target_pop_sys != "All Target Populations"){
-    selectedProjs <- selectedProjs %>% fsubset(TargetPopulation %in% input$target_pop_sys)
-  }
-  if(input$housing_type_sys != "All Housing Types"){
-    selectedProjs <- selectedProjs %>% fsubset(HousingType %in% input$housing_type_sys)
-  }
-  if(input$victim_service_sys != "All Organizations"){
-    selectedProjs <- selectedProjs %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
-  }
-  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
-    selectedProjs <- selectedProjs %>% fsubset(Availability %in% input$es_bed_avail_sys)
-  }
-  
-  stopifnot(nrow(selectedProjs)>0) # check it has at least 1 project
+  selectedProjs <-session$userData$selectedProjects
   
   # join quarterly PIT dates 
   # can't do this because selectedProjects has grouping vars and  project level util q does not
