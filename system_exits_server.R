@@ -654,7 +654,10 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
        path = file,
        format_headers = FALSE,
        col_names = TRUE
-     )        
+     )  
+     
+     logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
      
 })
 
@@ -1392,7 +1395,10 @@ output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filenam
     path = file,
     format_headers = FALSE,
     col_names = TRUE
-  )        
+  )       
+  
+  logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 })
 
 output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
@@ -1416,7 +1422,10 @@ output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filen
         path = file,
         format_headers = FALSE,
         col_names = TRUE
-      )        
+      )   
+    
+    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 })
 
 ## hide demographic filters when on PHD subtab
@@ -1436,6 +1445,32 @@ observeEvent(input$syse_tabbox, {
   }
  
 })
+
+observeEvent(input$syse_types_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_types_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$syse_time_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_time_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$syse_subpop_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_subpop_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+observeEvent(input$syse_phd_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_phd_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 # Client-level flags, filtered ----------------------------------------------------
 syse_client_categories_filtered <- reactive({
