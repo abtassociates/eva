@@ -626,10 +626,10 @@ lt_seas_inv <- lt_seas_inv %>%
   funique()
 
 specs_issues <- run_templatable_validations("pdde", data_env = environment()) %>%
+  frename("ProjectID" = AnchorValue) %>%
   join(
     session$userData$Project0, 
-    on = "ProjectID",
-    how = 'left'
+    on = "ProjectID"
   ) %>%
   fselect(PDDEcols) %>%
   unique()
