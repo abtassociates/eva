@@ -1,0 +1,26 @@
+---
+title: "Eva Glossary"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(flextable)
+library(stringr)
+```
+
+```{r table, message=F, warning=F}
+# created with saveRDS(gloss, file = 'sandbox/glossary.rds')
+# but can use a CSV instead
+gloss <- readRDS(file = 'glossary.rds')
+
+gloss$Definition <- str_squish(gloss$Definition)
+gloss$Definition <- str_wrap(gloss$Definition, width = 80)
+gloss$Term <- str_wrap(gloss$Term, width = 40)
+
+flextable(gloss) |>
+  autofit() |>
+  border_inner() |>
+  border_outer() |>
+  fit_to_width(max_width = 7.5)
+```
