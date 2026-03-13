@@ -57,12 +57,11 @@ for(csv_name in unique(validation_info$CSV)) {
     incorrect_column_detail = "misordered"
   )
   
+  extra_cols <- setdiff(imported_cols, expected_cols)
+  missing_cols <- setdiff(expected_cols, imported_cols)
   missing_or_extra <- data.table(
-    Name = c(
-      setdiff(imported_cols, expected_cols), 
-      setdiff(imported_cols, imported_cols)
-    ),
-    incorrect_column_detail = c("extra", "missing")
+    Name = c(extra_cols, missing_cols),
+    incorrect_column_detail = c(rep("extra", length(extra_cols)), rep("missing", length(missing_cols)))
   )
   
   incorrect_columns <- rbind(misordered, missing_or_extra)
@@ -100,7 +99,7 @@ for(csv_name in unique(validation_info$CSV)) {
       expected_rclass <- incorrect_data_types$Expected_RClass[i]
       
       raw_vals <- dt[[colName]]
-      coerced  <- methods::as(raw_vals, expected_class) # or type-specific: as.numeric(), etc.
+      coerced  <- methods::as(raw_vals, expected_rclass) # or type-specific: as.numeric(), etc.
       invalid <- is.na(coerced) & !is.na(raw_vals)
       
       dt %>%
