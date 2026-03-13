@@ -14,6 +14,7 @@ library(stringr)
 # but can use a CSV instead
 gloss <- readRDS(file = 'glossary.rds')
 
+gloss$`Target Filters/Panels` <- str_wrap(gloss$`Target Filters/Panels`, width = 40)
 gloss$Definition <- str_squish(gloss$Definition)
 gloss$Definition <- str_wrap(gloss$Definition, width = 80)
 gloss$Term <- str_wrap(gloss$Term, width = 40)
