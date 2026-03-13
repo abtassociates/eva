@@ -865,8 +865,8 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 ")
 
 tabDQSystem_instructions <-  HTML("
-               <h4>System-wide HMIS Data Quality</h4>
-               <p>Use your System-wide Data Quality data to evaluate which
+               <h4>System-level HMIS Data Quality</h4>
+               <p>Use your System-level Data Quality data to evaluate which
                organizations may benefit from additional assistance and where
                extra training may be needed. You can download this data to use
                for reporting to interested entities about your overall HMIS
@@ -912,7 +912,7 @@ tabDQSystem_instructions <-  HTML("
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.
                
-               <h4>System-wide HMIS Data Quality Plots</h4>
+               <h4>System-level HMIS Data Quality Plots</h4>
                <p>For each type of issue (High Priority Errors, General Errors,
                and Warnings) you will find two plots: one plots the counts of
                issues and one plots the number of issues by organization.</p>
@@ -930,7 +930,7 @@ tabDQSystem_instructions <-  HTML("
                these plots to help determine which organizations may need extra
                assistance in getting their HMIS Errors/Warnings resolved.</p>
                
-               <h4>Download System-wide HMIS Data Quality Data</h4>
+               <h4>Download System-level HMIS Data Quality Data</h4>
                <p>To download all of the client and enrollment related issues
                found in your system, click the Download button. This will give
                HMIS admins a way of reporting to interested entities, such as
