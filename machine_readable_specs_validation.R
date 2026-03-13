@@ -124,7 +124,7 @@ for(csv_name in unique(validation_info$CSV)) {
     "Column Mispelled/Misordered/Missing/Extra" = incorrect_columns,
     "Incorrect Data Type" = incorrect_data_types,
     "Impermissible Characters" = impermissible_characters
-  ), fill=TRUE, idcol='check_type')
+  ), fill=TRUE, idcol='issue_type')
 }
 
 specs_validation_issues <- rbindlist(
