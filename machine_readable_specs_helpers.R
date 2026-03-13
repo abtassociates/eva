@@ -73,6 +73,8 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       # Skip if the column isn't in the dataset
       if(!rule_row$Name %in% names(dt)) return(NULL)
       
+      print(glue::glue("rule_row = {rule_row[, .(Name, rule_expr)]}"))
+      
       # EVALUATE THE RULE:
       # envir = as.list(dt) means it looks for column names first
       # enclos = data_env means if it needs foreign tables (get('Project')) or lists (valid_values), it looks in the data environment
@@ -108,7 +110,8 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             foreign_tbl = rule_row$foreign_tbl,
             AnchorID = rule_row$AnchorID,
             str_len_limit = rule_row$str_len_limit,
-            key_template = gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`),
+            validation_notes = rule_row$validation_notes,
+            key_template = fifelse(is.na(rule_row$`Key Fields`), "", gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)),
             detail_template = stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template) %>%
               stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))
           )

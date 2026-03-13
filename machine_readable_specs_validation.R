@@ -139,7 +139,7 @@ specs_validation_issues <- rbindlist(
     drop.dup.cols = "x"
   ) %>%
   fmutate(
-    key_template = gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", `Key Fields`),
+    key_template = fifelse(is.na(`Key Fields`), "", gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", `Key Fields`)),
     detail_template = stringi::stri_replace_all_fixed(`Detail Text`, "{Key Field Info}", key_template)
   )
 
