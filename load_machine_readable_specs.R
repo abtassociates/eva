@@ -46,12 +46,12 @@ unique_id_lookup <- cols_and_data_types |>
 ## Pivot to long (CSV + Column + check) -----------------
 # The multi-header gives you one group of three columns per check type:
 #   Source, Include AnchorID?, Key Fields
-# Pivot gives us: CSV, Name, check_type, Source, Include, AnchorID, Key Fields
+# Pivot gives us: CSV, Name, issue_type, Source, Include, AnchorID, Key Fields
 reporting_info <- cols_and_data_types %>%
   fselect(-c(`DE#`, Type, List, Null, Notes, Order)) |>
   pivot_longer(
     cols      = -c(CSV, Name),  # keep the identity columns
-    names_to  = c("check_type", ".value"),
+    names_to  = c("issue_type", ".value"),
     names_sep = "_"
   ) |>
   qDT() |>
@@ -94,20 +94,18 @@ reporting_info <- reporting_info |>
       Source == "DQ", "dq",
       Source == "PDDE", "pdde"
     ),
-    Issue = specs_evachecks_issue_xwalk[check_type]
+    Issue = specs_evachecks_issue_xwalk[issue_type]
   ) |>
   join(evachecks, on = c("Source", "Issue")) |>
   frename(
-    "check_priority" = Type,
     "reporting_notes" = Notes
   )
-
 
 ## Import Detail Text templates ------------
 reporting_info <- reporting_info |>
   join(
     readxl::read_xlsx(validation_specs_bk, sheet = "Detail Texts"),
-    on = c("check_type" = "Check Type")
+    on = c("issue_type" = "Issue Type")
   ) 
   
 # Read in CSV Lists from Specs ---------------------
@@ -345,27 +343,27 @@ specs_rules <- validation_info %>%
   fmutate(
     # Clean up the Notes string just for Null Unless checks
     validation_notes = fifelse(
-      check_type == "Null Unless", 
+      issue_type == "Null Unless", 
       str_split_i(validation_notes, "\r\n", 1), 
       validation_notes
     ),
     # Append the Funder logic to the text BEFORE parsing
     validation_notes = fifelse(
-      check_type == "Null Unless" & funder_specific == "y", 
-      paste0(validation_notes, " & Funder %in% c(13:19)"), 
+      issue_type == "Null Unless" & funder_specific == "matched", 
+      paste0(validation_notes, " & Funder in c(13:19)"), 
       validation_notes
     )
   )
 
 ## 1. Null Unless  ------------
 specs_rules[
-  check_type == "Null Unless", 
-  rule_expr := Map(clean_rule_for_null_unless, Name, validation_notes)
+  issue_type == "Null Unless", 
+  rule_expr := unlist(Map(clean_rule_for_null_unless, Name, validation_notes))
 ]
 
 ## 2. String Length Limit Exceeded -----------
 specs_rules[
-  check_type == "String Length Limit Exceeded", 
+  issue_type == "String Length Limit Exceeded", 
   rule_expr := Map(function(col, limit) 
     rlang::parse_expr(glue::glue("vlengths({col}) > {limit}")),
     Name, 
@@ -375,7 +373,7 @@ specs_rules[
 
 ## 3. Unallowed Null -----------
 specs_rules[
-  check_type == "Unallowed Null", 
+  issue_type == "Unallowed Null", 
   rule_expr := lapply(Name, function(col) 
     rlang::parse_expr(glue::glue("is.na({col})"))
   )
@@ -383,7 +381,7 @@ specs_rules[
 
 ## 4. Non-Null Invalid -----------
 specs_rules[
-  check_type == "Non-Null Invalid" & !is.na(List), 
+  issue_type == "Non-Null Invalid" & !is.na(List), 
   rule_expr := Map(function(col, lst)
     # Creates: !is.na(Name) & !(Name %in% valid_values[['ListID']])
     rlang::parse_expr(glue::glue("!is.na({col}) & !({col} %in% valid_values[['{lst}']])")),
@@ -394,7 +392,7 @@ specs_rules[
 
 ## 5. Foreign Key Missing -----------
 specs_rules[
-  check_type == "Foreign Key Missing",
+  issue_type == "Foreign Key Missing",
   `:=`(
     fk_id_col   = sub(".*Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", validation_notes),
     foreign_tbl = sub(".*Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", validation_notes)
@@ -402,7 +400,7 @@ specs_rules[
 ]
 
 specs_rules[
-  check_type == "Foreign Key Missing", 
+  issue_type == "Foreign Key Missing", 
   rule_expr := Map(function(c, fc, ft)
    rlang::parse_expr(glue::glue("!is.na({c}) & !({c} %in% get('{ft}')[['{fc}']])")), 
    Name, 
@@ -412,11 +410,11 @@ specs_rules[
 ]
 
 # ignore User ID
-specs_rules <- specs_rules[!(check_type == "Foreign Key Missing" & Name == "UserID")]
+specs_rules <- specs_rules[!(issue_type == "Foreign Key Missing" & Name == "UserID")]
 
 ## 6. Duplicate UniqueID ---------
 specs_rules[
-  check_type == "Duplicate UniqueID", 
+  issue_type == "Duplicate UniqueID", 
   rule_expr := lapply(Name, function(col)
     # Using all = TRUE ensures BOTH the original and the duplicate are flagged
     rlang::parse_expr(glue::glue("fduplicated({col}, all = TRUE)"))
@@ -428,7 +426,7 @@ specs_rules[
 # overwrites the rule_expr column with the new special rule
 specs_rules[
   special_validation_rules_dt,
-  on = c("CSV", "Name", "check_type" = "Issue"),
+  on = c("CSV", "Name", "issue_type" = "Issue"),
   rule_expr := i.rule
 ]
 

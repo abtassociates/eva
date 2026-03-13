@@ -143,9 +143,9 @@ data_type_mapping <- list(
 subsidy_types <- c(419, 420, 428, 431, 433, 434, 436, 437, 438, 439, 440)
 
 # Issue types and levels --------------------------------------------------
-issue_levels <- c("High Priority", "Error", "Warning")
+issue_priorities <- c("High Priority", "Error", "Warning")
 
-issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
+issue_display_cols <- c("Issue", "Priority", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 

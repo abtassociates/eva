@@ -33,7 +33,7 @@ vars_prep <- c(
 
 vars_we_want <- c(vars_prep,
                   "Issue",
-                  "Type",
+                  "Priority",
                   "Guidance")
 
 # Clients to Check --------------------------------------------------------
@@ -1233,7 +1233,7 @@ if(nrow(overlap_staging) > 0){
     "EnrollmentID",
     "PreviousEnrollmentID",
     "Issue",
-    "Type",
+    "Priority",
     "Guidance"
   )
   if(nrow(Services) > 0) {
@@ -1920,6 +1920,6 @@ dq_main <- rowbind(
 )
 
 dq_main <- dq_main %>% 
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
-  funique() #%>% 
+  funique() %>%
+  fmutate(Priority = factor(Priority, levels = issue_priorities))
   #qDF()

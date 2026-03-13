@@ -44,15 +44,18 @@ session$userData$file_structure_analysis_main(
     fill = TRUE,
     ignore.attr=TRUE
   ) %>%
-  fmutate(Type = factor(Type, levels = issue_levels)) %>%
-  roworder(Type) %>%
-  colorderv(neworder = c("CSV", "Name", issue_display_cols, "AnchorID"))
+  fmutate(Priority = factor(Priority, levels = issue_priorities)) %>%
+  roworder(Priority) %>%
+  colorderv(neworder = c("CSV", "Name", issue_display_cols, "AnchorID")) %>%
+  join(
+    column_priorities, 
+    on=c("CSV" = "File", "Name" = "Column")
+  )
 )
 
-
 if(session$userData$file_structure_analysis_main() %>% 
-   fsubset(Type == "High Priority") %>%
-   nrow() > 0) {
+   fsubset(Priority == "High Priority" & DataTypeHighPriority == 1) %>%
+   nrow() == 0) {
   session$userData$valid_file(0)
   
   # if structural issues were found, reset gracefully

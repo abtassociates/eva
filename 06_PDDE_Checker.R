@@ -8,7 +8,7 @@ PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
              "Issue",
-             "Type",
+             "Priority",
              "Guidance",
              "Detail")
 
@@ -664,4 +664,4 @@ pdde_main <- rowbind(
   specs_issues
 ) %>%
   funique() %>%
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
+  fmutate(Priority = factor(Priority, levels = issue_priorities))

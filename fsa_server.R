@@ -42,10 +42,10 @@ output$fileStructureAnalysis <- renderDT({
   req(!is.null(session$userData$file_structure_analysis_main()))
   
   a <- session$userData$file_structure_analysis_main() %>%
-    group_by(Type, Issue) %>%
+    group_by(Priority, Issue) %>%
     summarise(Count = n()) %>%
     ungroup() %>%
-    arrange(Type, desc(Count))
+    arrange(Priority, desc(Count))
   
   datatable(
     a,

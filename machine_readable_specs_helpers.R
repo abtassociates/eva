@@ -163,10 +163,10 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           fmutate(
             CSV = csv_name,
             Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
-            check_type = factor(rule_row$check_type),
+            issue_type = factor(rule_row$issue_type),
             Issue = rule_row$Issue,
             Guidance = rule_row$Guidance,
-            Type = rule_row$check_priority,
+            Priority = rule_row$Priority,
             foreign_tbl = rule_row$foreign_tbl,
             AnchorID = rule_row$AnchorID,
             str_len_limit = rule_row$str_len_limit,
@@ -187,7 +187,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           fselect(c(issue_display_cols, "CSV", "Name", "AnchorID", "AnchorValue")) |>
           fmutate(
             Issue = factor(Issue),
-            Type = factor(Type),
+            Priority = factor(Priority),
             Guidance = factor(Guidance),
             CSV = factor(CSV),
             Name = factor(Name),
