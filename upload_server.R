@@ -66,6 +66,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       specs_rules[Source %in% c("dq","pdde")]$CSV
     )))
     
+    
+    dq_and_pdde_dependencies[["valid_values"]] <- valid_values
+    dq_and_pdde_dependencies[["csv_join_prerequisites"]] <- csv_join_prerequisites
     dq_and_pdde_dependencies[["specs_rules"]] <- specs_rules
     dq_and_pdde_dependencies[["reporting_info"]] <- reporting_info
     
