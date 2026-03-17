@@ -55,7 +55,7 @@ session$userData$file_structure_analysis_main(
 
 if(session$userData$file_structure_analysis_main() %>% 
    fsubset(Priority == "High Priority" & DataTypeHighPriority == 1) %>%
-   nrow() == 0) {
+   nrow() > 0) {
   session$userData$valid_file(0)
   
   # if structural issues were found, reset gracefully
