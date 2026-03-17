@@ -636,14 +636,14 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
      
      write_xlsx(
        list(
-         "ExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
+         "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
            rowbind(
              sys_export_filter_selections(type = 'exits'),
               data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
            ) %>% 
            frename('System Exits by Type' = Value),
          
-         "SystemExitData" = tree_exits_data() %>% 
+         "SystemExitTypesData" = tree_exits_data() %>% 
            fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
            fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
            fsummarize(Count = GRPN()) %>% 
@@ -1374,7 +1374,7 @@ output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filenam
   logToConsole(session, "System Exits by Year data download")
   
     sheets <- list(
-      "SystemExitsTimeMetadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
+      "SystemExitsByYear Metadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
         rowbind(
           sys_export_filter_selections(type = 'exits')
         ) %>% 
@@ -1386,7 +1386,7 @@ output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filenam
           )
         ) %>% 
         frename("System Exits by Year" = Value),
-      "Time" = syse_time_export()
+      "YearComparisonData" = syse_time_export()
       
     )
   
@@ -1406,7 +1406,7 @@ output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filen
       logToConsole(session, "System Exits by Subpopulation data download")
   
       sheets <- list(
-        "System Exits by Subpopulation" = sys_export_summary_initial_df(type = 'exits') %>%
+        "SystemExitsBySubpop Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
           rowbind(
             sys_export_filter_selections(type = 'exits_subpop'),
             data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
@@ -1414,7 +1414,7 @@ output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filen
             )
           ) %>% 
           frename("System Exits by Subpopulation" = Value),
-        "Subpopulation" = syse_subpop_export()
+        "SubpopulationComparisonData" = syse_subpop_export()
       )
                                                     
     write_xlsx(

@@ -400,7 +400,7 @@ sys_heatmap_xl_export <- function(file,
     write_xlsx(
       setNames(
         list(sys_phd_selections_summary(), sys_phd_export()),
-        c("System Exits Metadata", tab_name)
+        c("SystemExitDemographics Metadata", tab_name)
       ),
       path = file,
       format_headers = FALSE,
