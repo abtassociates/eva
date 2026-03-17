@@ -78,10 +78,10 @@ output$pdde_summary_table <- renderDT({
   req(nrow(session$userData$pdde_main) > 0)
   
   a <- session$userData$pdde_main %>%
-    fgroup_by(Issue, Type) %>%
+    fgroup_by(Issue, Priority) %>%
     fsummarise(Count = GRPN()) %>%
     fungroup() %>%
-    roworder(Type)
+    roworder(Priority)
   
   exportTestValues(pdde_summary_table = summarize_df(a))
   
@@ -331,7 +331,7 @@ get_dq_plot_data <- function(level, issuePriority, groupVars) {
              OrganizationName,
              HouseholdID,
              Issue,
-             Type) %>%
+             Priority) %>%
       funique()
   } else {
     plot_df <- dq_data %>%
