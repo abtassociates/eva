@@ -252,7 +252,6 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
     }
   }
   
-  if(prefix == 'sys'){
     shinyjs::toggle(glue('{prefixnone}client_level_download_btn'), condition = cond)
     if(init) {
       shinyjs::runjs(glue("
@@ -262,7 +261,6 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
         .toggle('{cond}' == 'TRUE');
     "))
     }
-  }
  
   
 }
