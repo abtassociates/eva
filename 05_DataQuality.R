@@ -1838,6 +1838,7 @@ specs_issues <- run_templatable_validations("dq", data_env = environment()) %>%
   ) %>%
   fselect(vars_we_want)
 
+  fselect(c(vars_we_want, "Detail"))
 
 # All together now --------------------------------------------------------
 dq_main <- rowbind(
@@ -1917,7 +1918,8 @@ dq_main <- rowbind(
   veteran_missing_discharge_status,
   veteran_missing_wars,
   veteran_missing_year_entered,
-  veteran_missing_year_separated
+  veteran_missing_year_separated,
+  fill = TRUE
 )
 
 dq_main <- dq_main %>% 

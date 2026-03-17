@@ -515,17 +515,17 @@ getDQReportDataList <- function(
     high_priority <- dqData %>%
       fsubset(Priority == "High Priority") %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-      fselect(select_list)
+      fselect(c(select_list, "Detail"))
     
     errors <- dqData %>%
       fsubset(Priority == "Error") %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-      fselect(select_list)
+      fselect(c(select_list, "Detail"))
     
     warnings <- dqData %>%
       fsubset(Priority == "Warning") %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-      fselect(select_list)
+      fselect(c(select_list, "Detail"))
     
   } else {
     high_priority <- NULL
