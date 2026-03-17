@@ -73,7 +73,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       # Skip if the column isn't in the dataset
       if(!rule_row$Name %in% names(dt)) return(NULL)
       
-      print(glue::glue("rule_row = {rule_row[, .(Name, rule_expr)]}"))
+      # print(glue::glue("rule_row = {rule_row[, .(Name, rule_expr)]}"))
       
       # EVALUATE THE RULE:
       # envir = as.list(dt) means it looks for column names first
@@ -147,5 +147,9 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
   # 4. Bind all CSV results into one master issues table
   final_issues <- rbindlist(all_issues, fill = TRUE)
   
+  if(target_source == "file structure") {
+    final_issues <- final_issues |>
+      frename("Column" = Name, "EnrollmentID or ProjectID" = "AnchorID", "ID Value" = AnchorValue)
+  }
   return(final_issues)
 }
