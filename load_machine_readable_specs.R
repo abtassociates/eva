@@ -155,6 +155,11 @@ validation_info <- cols_and_data_types %>%
   ) |>
   frename("validation_notes" = Notes)
 
+# DE-Variable xwalk/lookup
+valid_list_lookup <- validation_info$Name
+names(valid_list_lookup) <- validation_info$`DE#`
+valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
+
 # Special validation rules -----
 # These could not be easily coded into the specs file itself
 special_validation_rules <- list(

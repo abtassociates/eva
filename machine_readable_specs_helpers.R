@@ -3,7 +3,7 @@ clean_rule_for_null_unless <- function(Name, validation_notes) {
   stringi::stri_replace_all_fixed(
     gsub("^Null unless ", "", validation_notes),
     pattern     = names(valid_list_lookup),
-    replacement = lookup,
+    replacement = valid_list_lookup,
     vectorize_all = FALSE
   ) %>%
     clean_text() %>%
