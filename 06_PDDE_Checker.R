@@ -661,7 +661,8 @@ pdde_main <- rowbind(
   project_no_coc,
   res_no_house_type,
   lt_seas_inv,
-  specs_issues
+  specs_issues,
+  fill = TRUE
 ) %>%
   funique() %>%
   fmutate(Priority = factor(Priority, levels = issue_priorities))
