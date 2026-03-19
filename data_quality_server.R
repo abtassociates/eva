@@ -278,9 +278,8 @@ dq_full <- reactive({
           )
         ) %>% 
         fsubset(DaysSinceLastKnown > too_many_days) %>%
-        fselect(vars_we_want) %>%
-        fmutate(Priority = factor(Priority, levels = issue_priorities)),
-     error = function(e){e}
+        fselect(vars_we_want), 
+      error = function(e){e}
     )
     
     if(inherits(long_stayers_tc, 'simpleError')){
@@ -298,8 +297,7 @@ dq_full <- reactive({
     outstanding_referrals <- session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
-      fselect(vars_we_want) %>%
-      fmutate(Priority = factor(Priority, levels = issue_priorities))
+      fselect(vars_we_want)
   } else {
     outstanding_referrals <- data.table()
   }
