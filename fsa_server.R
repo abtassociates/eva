@@ -42,10 +42,9 @@ output$fileStructureAnalysis <- renderDT({
   req(!is.null(session$userData$file_structure_analysis_main()))
   
   a <- session$userData$file_structure_analysis_main() %>%
-    group_by(Priority, Issue) %>%
-    summarise(Count = n()) %>%
-    ungroup() %>%
-    arrange(Priority, desc(Count))
+    fgroup_by(Priority, Issue) %>%
+    fsummarise(Count = fnrow(.)) %>%
+    roworder(Priority, -Count)
   
   datatable(
     a,
@@ -73,7 +72,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
   content = function(file) {
     write_xlsx(
       session$userData$file_structure_analysis_main() %>%
-        arrange(Type, Issue) %>%
+        roworder(Priority, Issue) %>%
         nice_names(),
       path = file
     )
