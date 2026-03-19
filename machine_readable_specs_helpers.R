@@ -91,15 +91,16 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       
       if (fnrow(invalid_dt) > 0) {
         # Attach the metadata so we know exactly what failed
-        cols_to_select <- c(
+        cols_to_select <- unique(c(
           unlist(strsplit(rule_row$`Key Fields`, ", ", fixed = TRUE)),
           rule_row$AnchorID,
           rule_row$Name
-        ) |>
+        )) |>
           na_omit()
         
         invalid_dt <- invalid_dt |> 
           fselect(cols_to_select) |>
+          funique() |>
           fmutate(
             CSV = csv_name,
             Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
