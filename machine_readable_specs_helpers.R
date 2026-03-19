@@ -128,7 +128,6 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           fselect(c(issue_display_cols, "CSV", "Name", "AnchorID", "AnchorValue")) |>
           fmutate(
             Issue = factor(Issue),
-            Priority = factor(Priority),
             Guidance = factor(Guidance),
             CSV = factor(CSV),
             Name = factor(Name),
@@ -145,7 +144,19 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
   })
   
   # 4. Bind all CSV results into one master issues table
-  final_issues <- rbindlist(all_issues, fill = TRUE)
+  final_issues <- rbindlist(all_issues, fill = TRUE) |>
+    join(
+      column_priorities, 
+      on=c("CSV" = "File", "Name" = "Column")
+    ) %>%
+    fmutate(
+      Priority = fcase(
+        DataTypeHighPriority == 1, "High Priority",
+        Priority == "Warning", "Warning", 
+        default = "Error"
+      )
+    ) |>
+    frename("Column" = Name)
   
   if(target_source == "file structure") {
     final_issues <- final_issues |>

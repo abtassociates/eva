@@ -46,11 +46,7 @@ session$userData$file_structure_analysis_main(
   ) %>%
   fmutate(Priority = factor(Priority, levels = issue_priorities)) %>%
   roworder(Priority) %>%
-  colorderv(neworder = c("CSV", "Name", issue_display_cols, "AnchorID")) %>%
-  join(
-    column_priorities, 
-    on=c("CSV" = "File", "Name" = "Column")
-  )
+  colorderv(neworder = c("CSV", "Column", issue_display_cols, "EnrollmentID or ProjectID"))
 )
 
 if(session$userData$file_structure_analysis_main() %>% 
