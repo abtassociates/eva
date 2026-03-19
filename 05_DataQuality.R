@@ -1836,8 +1836,6 @@ specs_issues <- run_templatable_validations("dq", data_env = environment()) %>%
     base_dq_data %>% fselect(vars_prep), 
     on = "EnrollmentID"
   ) %>%
-  fselect(vars_we_want)
-
   fselect(c(vars_we_want, "Detail"))
 
 # All together now --------------------------------------------------------
@@ -1920,9 +1918,7 @@ dq_main <- rowbind(
   veteran_missing_year_entered,
   veteran_missing_year_separated,
   fill = TRUE
-)
-
-dq_main <- dq_main %>% 
+) %>% 
   funique() %>%
   fmutate(Priority = factor(Priority, levels = issue_priorities))
   #qDF()

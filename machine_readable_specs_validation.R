@@ -143,15 +143,16 @@ specs_validation_issues <- rbindlist(
   )
 
 specs_validation_issues[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
-specs_validation_issues[, AnchorValue := if (is.na(AnchorID[1L]) || AnchorID[1L] == "") NA
-           else as.character(get(AnchorID[1L])),
-           by = AnchorID]
 
 specs_validation_issues <- specs_validation_issues %>%
-  fselect(c("CSV", "Name", issue_display_cols, "AnchorID", "AnchorValue")) |>
+  fselect(c("CSV", "Name", issue_display_cols, "AnchorID")) |>
   rbind(
     run_templatable_validations("file structure", data_env = environment()),
     fill = TRUE
+  ) |>
+  frename(
+    "EnrollmentID or ProjectID" = AnchorID, 
+    "ID Value" = AnchorValue
   )
 
 rm(list = files_to_ignore)

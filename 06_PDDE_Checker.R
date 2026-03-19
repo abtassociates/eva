@@ -632,7 +632,7 @@ specs_issues <- run_templatable_validations("pdde", data_env = environment()) %>
     on = "ProjectID"
   ) %>%
   fselect(PDDEcols) %>%
-  unique()
+  funique()
 
 
 # Put it all together -----------------------------------------------------

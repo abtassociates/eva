@@ -158,9 +158,5 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     ) |>
     frename("Column" = Name)
   
-  if(target_source == "file structure") {
-    final_issues <- final_issues |>
-      frename("Column" = Name, "EnrollmentID or ProjectID" = "AnchorID", "ID Value" = AnchorValue)
-  }
   return(final_issues)
 }
