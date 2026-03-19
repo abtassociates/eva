@@ -106,13 +106,6 @@ reporting_info <- reporting_info |>
   join(
     readxl::read_xlsx(validation_specs_bk, sheet = "Detail Texts"),
     on = c("issue_type" = "Issue Type")
-  ) |>
-  fmutate(
-    `Detail Text` = fifelse(
-      Issue == "Null Unless",
-      gsub("This field", "{Name}", `Detail Text`),
-      `Detail Text`
-    )
   )
   
 # Read in CSV Lists from Specs ---------------------
