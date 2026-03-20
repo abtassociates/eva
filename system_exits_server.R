@@ -764,7 +764,7 @@ syse_subpop_export <- reactive({
               rowbind(pct_comparison_totals), 
             by=c('Destination Type','Destination Type Detail')) %>%    
       list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      fmutate(pct_diff =  scales::percent(pct_subpop - pct_comparison,accuracy = 0.1, scale = 100),
+      fmutate(pct_diff = calc_pct_diff(count_subpop, count_comparison),
              total_count = count_subpop + count_comparison,
              pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
              pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
@@ -815,40 +815,114 @@ everyone_else <- reactive({
   
 })
 
-get_syse_compare_subpop_data <- reactive({
+## add counts in parens for table formatting
+format_compare_value <- function(count, total){
+  pct <- scales::percent(count/total, accuracy = 1, scale = 100)
+  sprintf('%s (%s)', pct, count)
+}
+
+## % difference: used for subpop charts
+calc_pct_diff <- function(val1, val2, format = 'char'){
+  if(val1 == 0 | val2 == 0){
+    ifelse(format == 'char', '-', NA)
+  } else {
+    pct_diff <- abs(val1 - val2)/((val1 + val2)/2)
+    ifelse(format == 'char', 
+           scales::percent(pct_diff, accuracy = 0.1, scale = 100),
+           pct_diff)
+  }
+}
+
+# % change: used for time charts
+calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='char'){
+  if(count_prev == 0){
+    ifelse(format=='char', '-', NA)
+  } else {
+    pct_change <- (count_current - count_prev) / count_prev
+    
+    ifelse(format == 'char', 
+           scales::percent(pct_change, accuracy = accuracy, scale = 100),
+           pct_change)
+  }
+}
+
+get_syse_compare_subpop_data <- function(output_type = 'table'){
   
   validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
   validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
   
+  .total_s <- fnrow(tree_exits_data())
   
-  pct_subpop <- tree_exits_data() %>% fsummarize(
-    'Permanent' = fmean(`Destination Type` == 'Permanent'),
-    'Homeless'= fmean(`Destination Type` == 'Homeless'),
-    'Institutional' = fmean(`Destination Type` == 'Institutional'),
-    'Temporary' = fmean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
+  count_subpop <- tree_exits_data() %>% fsummarize(
+    'Permanent' = fsum(`Destination Type` == 'Permanent'),
+    'Homeless'= fsum(`Destination Type` == 'Homeless'),
+    'Institutional' = fsum(`Destination Type` == 'Institutional'),
+    'Temporary' = fsum(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
   )
   
-  pct_everyone_else <- everyone_else() %>% fsummarize(
-    'Permanent' = fmean(`Destination Type` == 'Permanent'),
-    'Homeless' = fmean(`Destination Type` == 'Homeless'),
-    'Institutional' = fmean(`Destination Type` == 'Institutional'),
-    'Temporary' = fmean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
+  .total_e <- fnrow(everyone_else())
+  
+  count_everyone_else <- everyone_else() %>% fsummarize(
+    'Permanent' = fsum(`Destination Type` == 'Permanent'),
+    'Homeless'= fsum(`Destination Type` == 'Homeless'),
+    'Institutional' = fsum(`Destination Type` == 'Institutional'),
+    'Temporary' = fsum(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
   )
   
-  data.table(
-    subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
-  round(
-    rowbind(
-      pct_subpop,
-      pct_everyone_else,
-      pct_subpop - pct_everyone_else
-    ),
-  2)
-  )
+  if(output_type == 'chart'){
+    
+    pct_subpop <- count_subpop / .total_s
+    pct_everyone_else <- count_everyone_else / .total_e
+    
+    pct_diff <- purrr::map2_dfr(count_subpop, count_everyone_else, .f = calc_pct_diff, format='num')
+    
+    data.table(
+      subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
+      round(
+        rowbind(
+          pct_subpop,
+          pct_everyone_else,
+          pct_diff
+        ),
+        2)
+    )
+    
+  } else if (output_type == 'table'){
+    
+    pct_diff <- purrr::map2_dfr(count_subpop, count_everyone_else, .f = calc_pct_diff)
+    
+    pct_subpop <- count_subpop %>% 
+      fmutate(
+        'Permanent' = format_compare_value(Permanent, .total_s),
+        'Homeless'= format_compare_value(Homeless, .total_s),
+        'Institutional' = format_compare_value(Institutional, .total_s),
+        'Temporary' = format_compare_value(Temporary, .total_s),
+        'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_s)
+      )
+    
+    pct_everyone_else <- count_everyone_else %>% 
+      fmutate(
+        'Permanent' = format_compare_value(Permanent, .total_e),
+        'Homeless'= format_compare_value(Homeless, .total_e),
+        'Institutional' = format_compare_value(Institutional, .total_e),
+        'Temporary' = format_compare_value(Temporary, .total_e),
+        'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_e)
+      )
+    
+    data.table(
+      subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
+        rowbind(
+          pct_subpop,
+          pct_everyone_else,
+          pct_diff
+        )
+    )
+  }
+ 
 
-})
+}
 
 syse_time_export <- reactive({
   
@@ -893,7 +967,7 @@ syse_time_export <- reactive({
              rowbind(pct_current_year_totals), 
            by=c('Destination Type','Destination Type Detail')) %>%    
       list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      fmutate(pct_change = scales::percent(pct_cur_year - pct_prev_year, accuracy=0.1, scale=100),
+      fmutate(pct_change = calc_pct_change(count_prev_year, count_cur_year, accuracy = 0.1),
              pct_cur_year = scales::percent(pct_cur_year, accuracy=0.1, scale=100), 
              pct_prev_year = scales::percent(pct_prev_year, accuracy=0.1, scale=100)) %>% 
       fselect(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
@@ -916,7 +990,7 @@ everyone <- reactive({
     )
 })
 
-get_syse_compare_time_data <- reactive({
+get_syse_compare_time_data <- function(output_type = 'table'){
   
   validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
   validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
@@ -927,32 +1001,77 @@ get_syse_compare_time_data <- reactive({
   current_year <- everyone() %>% 
     fsubset(period == 'Current Year')
   
-  pct_prev_year <- prev_year %>% fsummarize(
-    'Permanent' = fmean(`Destination Type` == 'Permanent'),
-    'Homeless'= fmean(`Destination Type` == 'Homeless'),
-    'Institutional' = fmean(`Destination Type` == 'Institutional'),
-    'Temporary' = fmean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
+  count_prev_year <- prev_year %>% fsummarize(
+    'Permanent' = fsum(`Destination Type` == 'Permanent'),
+    'Homeless'= fsum(`Destination Type` == 'Homeless'),
+    'Institutional' = fsum(`Destination Type` == 'Institutional'),
+    'Temporary' = fsum(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
   )
   
-  pct_current_year <- current_year %>% fsummarize(
-    'Permanent' = fmean(`Destination Type` == 'Permanent'),
-    'Homeless' = fmean(`Destination Type` == 'Homeless'),
-    'Institutional' = fmean(`Destination Type` == 'Institutional'),
-    'Temporary' = fmean(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = fmean(`Destination Type` == 'Other/Unknown')
+  count_current_year <- current_year %>% fsummarize(
+    'Permanent' = fsum(`Destination Type` == 'Permanent'),
+    'Homeless'= fsum(`Destination Type` == 'Homeless'),
+    'Institutional' = fsum(`Destination Type` == 'Institutional'),
+    'Temporary' = fsum(`Destination Type` == 'Temporary'),
+    'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
   )
   
-  data.table(
-    time_summ = c("Current Year","Previous Year","Percent Change"),
-    round(rowbind(
-      pct_current_year,
-      pct_prev_year,
-      pct_current_year - pct_prev_year
-    ),2)
-  )
+  .total_p <- fnrow(prev_year)
   
-})
+  .total_c <- fnrow(current_year)
+  
+  if(output_type == 'chart'){
+    pct_prev_year <- count_prev_year / .total_p
+
+    pct_current_year <- count_current_year / .total_c
+    
+    pct_change <- map2_dfr(count_prev_year, count_current_year, .f = calc_pct_change, format='num')
+    
+    data.table(
+      time_summ = c("Current Year","Previous Year","Percent Change"),
+      round(rowbind(
+        pct_current_year,
+        pct_prev_year,
+        pct_change
+      ), 2)
+    )
+    
+  } else if(output_type == 'table'){
+    
+    .total_p <- fnrow(prev_year)
+    
+    pct_prev_year <- count_prev_year %>% fsummarize(
+      'Permanent' = format_compare_value(Permanent, .total_p),
+      'Homeless'= format_compare_value(Homeless, .total_p),
+      'Institutional' = format_compare_value(Institutional, .total_p),
+      'Temporary' = format_compare_value(Temporary, .total_p),
+      'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_p)
+    )
+    
+    .total_c <- fnrow(current_year)
+    
+    pct_current_year <- count_current_year %>% fsummarize(
+      'Permanent' = format_compare_value(Permanent, .total_c),
+      'Homeless'= format_compare_value(Homeless, .total_c),
+      'Institutional' = format_compare_value(Institutional, .total_c),
+      'Temporary' = format_compare_value(Temporary, .total_c),
+      'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_c)
+    )
+    
+    pct_change <- map2_dfr(count_prev_year, count_current_year, .f = calc_pct_change)
+    
+    data.table(
+      time_summ = c("Current Year","Previous Year","Percent Change"),
+      rowbind(
+        pct_current_year,
+        pct_prev_year,
+        pct_change
+      )
+    )
+  }
+  
+}
 
 ## function to make System Exits comparison subpopulation chart
 syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
@@ -965,7 +1084,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
   ## use adjusted locations for point placement 
   adj_x_vals <- c(0.85, 1.83, 2.87, 3.94, 5.15)
   ## long format needed for plotting points
-  subpop_chart_df <- get_syse_compare_subpop_data() %>% 
+  subpop_chart_df <- get_syse_compare_subpop_data(output_type = 'chart') %>% 
     fsubset(subpop_summ != "Percent Difference") %>% 
     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'subpop_pct') %>% 
     fmutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
@@ -1049,11 +1168,10 @@ get_syse_compare_subpop_table <- function(tab){
       list(className = 'dt-center', targets = '_all') # Center text
     )
   ),
+  selection = 'none',
   escape = FALSE,
   style = "default",
-  rownames = FALSE) %>% DT::formatPercentage(
-    columns = -1 
-  ) %>% 
+  rownames = FALSE) %>% 
     # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
     formatStyle(
       columns = 1,  # First column
@@ -1102,16 +1220,16 @@ get_syse_compare_subpop_flextable <- function(tab) {
     border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
   
   ## formatting function for percentages with 0 decimal places and % sign
-  fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
+  #fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
   
-  ft <- set_formatter(
-    x = ft,
-    Permanent = fmt_func_pct,
-    Homeless = fmt_func_pct,
-    Institutional = fmt_func_pct,
-    Temporary = fmt_func_pct,
-    `Other/Unknown` = fmt_func_pct
-  )
+  # ft <- set_formatter(
+  #   x = ft,
+  #   Permanent = fmt_func_pct,
+  #   Homeless = fmt_func_pct,
+  #   Institutional = fmt_func_pct,
+  #   Temporary = fmt_func_pct,
+  #   `Other/Unknown` = fmt_func_pct
+  # )
   
   row_labels <- tab[[1]]
   
@@ -1160,16 +1278,16 @@ get_syse_compare_time_flextable <- function(tab) {
     border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
   
   ## formatting function for percentages with 0 decimal places and % sign
-  fmt_func_pct <- function(x) sprintf("%.0f%%", x*100)
-  
-  ft <- set_formatter(
-    x = ft,
-    Permanent = fmt_func_pct,
-    Homeless = fmt_func_pct,
-    Institutional = fmt_func_pct,
-    Temporary = fmt_func_pct,
-    `Other/Unknown` = fmt_func_pct
-  )
+  # fmt_func_pct <- function(x) sprintf("%.0f%%", x*100)
+  # 
+  # ft <- set_formatter(
+  #   x = ft,
+  #   Permanent = fmt_func_pct,
+  #   Homeless = fmt_func_pct,
+  #   Institutional = fmt_func_pct,
+  #   Temporary = fmt_func_pct,
+  #   `Other/Unknown` = fmt_func_pct
+  # )
   
   row_labels <- tab[[1]]
   
@@ -1216,7 +1334,7 @@ output$syse_compare_subpop_table <- renderDT({
   ## check if filters have been changed from defaults before showing 
   subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
   get_syse_compare_subpop_table(
-    get_syse_compare_subpop_data()
+    get_syse_compare_subpop_data(output_type = 'table')
   )
 })
 
@@ -1232,7 +1350,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
   ## use adjusted locations for point placement 
   adj_x_vals <- c(0.85, 1.83, 2.87, 3.94, 5.15)
   ## long format needed for plotting points
-  time_chart_df <- get_syse_compare_time_data() %>% 
+  time_chart_df <- get_syse_compare_time_data(output_type = 'chart') %>% 
     fsubset(time_summ != "Percent Change") %>% 
     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'time_pct') %>% 
     fmutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
@@ -1311,11 +1429,10 @@ get_syse_compare_time_table <- function(tab){
                 list(className = 'dt-center', targets = '_all') # Center text
               )
             ),
+            selection = 'none',
             escape = FALSE,
             style = "default",
-            rownames = FALSE) %>% DT::formatPercentage(
-              columns = -1 
-            ) %>% 
+            rownames = FALSE) %>% 
     # Highlight only the first column of "Current Year" and "Previous Year" rows
     formatStyle(
       columns = 1,  # First column
@@ -1365,7 +1482,7 @@ output$syse_compare_time_table <- renderDT({
   #                       input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
   #                       show = FALSE)
   get_syse_compare_time_table(
-    get_syse_compare_time_data()
+    get_syse_compare_time_data(output_type = 'table')
   )
 })
 
@@ -1704,7 +1821,7 @@ content = function(file) {
                         plots = list(
                           "System Exits by Year - Chart" = syse_compare_time_chart(isExport = TRUE),
                           "System Exits by Year - Table" = get_syse_compare_time_flextable(
-                            get_syse_compare_time_data()
+                            get_syse_compare_time_data(output_type = 'table')
                           )
                         ),
                         summary_font_size = 19,
@@ -1737,7 +1854,7 @@ output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
                         plots = list(
                           "System Exits by Subpopulation - Chart" =  syse_compare_subpop_chart(isExport = TRUE),
                           "System Exits by Subpopulation - Table" = get_syse_compare_subpop_flextable(
-                            get_syse_compare_subpop_data()
+                            get_syse_compare_subpop_data(output_type = 'table')
                           )
                         ),
                         summary_font_size = 19,
