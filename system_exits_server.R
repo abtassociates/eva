@@ -764,7 +764,7 @@ syse_subpop_export <- reactive({
               rowbind(pct_comparison_totals), 
             by=c('Destination Type','Destination Type Detail')) %>%    
       list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      fmutate(pct_diff = calc_pct_diff(count_subpop, count_comparison),
+      fmutate(pct_diff = map2_chr(count_subpop, count_comparison, .f = calc_pct_diff),
              total_count = count_subpop + count_comparison,
              pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
              pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
@@ -967,7 +967,7 @@ syse_time_export <- reactive({
              rowbind(pct_current_year_totals), 
            by=c('Destination Type','Destination Type Detail')) %>%    
       list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      fmutate(pct_change = calc_pct_change(count_prev_year, count_cur_year, accuracy = 0.1),
+      fmutate(pct_change = map2_chr(count_prev_year, count_cur_year, .f = calc_pct_change, accuracy = 0.1),
              pct_cur_year = scales::percent(pct_cur_year, accuracy=0.1, scale=100), 
              pct_prev_year = scales::percent(pct_prev_year, accuracy=0.1, scale=100)) %>% 
       fselect(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
