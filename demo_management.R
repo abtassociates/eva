@@ -72,7 +72,7 @@ observeEvent(input$pageid, {
            "tabSystemOverview" = "Welcome to the System Overview page. This page 
            helps users evaluate how effective their homeless system is in moving 
            clients through the system and helping them reach permanent housing. 
-           Users can also see the detailed composition of all clients served their 
+           Users can also see the detailed composition of all clients served in their 
            homeless system. In Demo Mode, you can see examples of these system 
            performance charts, including data and image downloads.",
            
