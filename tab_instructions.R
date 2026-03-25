@@ -25,9 +25,9 @@ tabHome_welcome <- HTML("<h2>Welcome to Eva!</h2>
             ")
 
 tabHome_home_live_instructions <-  HTML(
-  "<p>Eva works by uploading a hashed 
-              <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
-              target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
+  "<p>Eva works by uploading a hashed HMIS CSV Export that meets HUD's
+              <a href='https://www.hudexchange.info/resource/3824/hmis-data-dictionary/'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>.
               </p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
@@ -162,7 +162,7 @@ tabUpload_instructions <-  HTML("
               
               <p>While any error identified during the File Structure Analysis represent 
               components in the uploaded HMIS CSV export file that do not meet the 
-              most recent <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
+              most recent <a href='https://www.hudexchange.info/resource/3824/hmis-data-dictionary/'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>, 
               there are some file structural errors that are more relevant to the 
               functionality of Eva.</p>
