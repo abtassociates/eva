@@ -44,7 +44,7 @@ observeEvent(input$pageid, {
            In Demo Mode, you can view sample downloads to understand what each 
            data quality report looks like.",
            
-           "tabPDDE" = "Welcome to the Project Descriptor Data Elemnts Checker page. This page
+           "tabPDDE" = "Welcome to the Project Descriptor Data Elements Checker page. This page
              helps users review the Project Descriptor Data Element (PDDE) data
              quality issues in their HMIS data. Users can use this information
              to identify where corrections should be made in their HMIS. In Demo
