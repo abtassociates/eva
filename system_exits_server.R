@@ -711,9 +711,8 @@ subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE, req = 
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
-  cond <- interval(startDate, endDate) > years(2)
-  #cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
-  
+  cond <- interval(startDate, endDate) >= days(729)
+
   ## whether to show validate message or not
   if(show){
     validate(
