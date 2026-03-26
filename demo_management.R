@@ -21,14 +21,14 @@ observeEvent(input$pageid, {
              see an example of the types of issues the File Structure Analysis
              identifies. ",
            
-           "tabLocalSettings" = "Welcome to the Local Settings page. This
+           "tabLocalSettings" = "Welcome to the Edit Local Settings page. This
              page is where users can adjust the local settings of their uploaded
              dataset so Eva can better analyze their data in a way that is
              meaningful to their CoC. In Demo Mode, changing these settings will
              cause Eva to recalculate the data quality metrics with the selected
              parameters.",
            
-           "tabClientCount" = "Welcome to the Project Dashboard page. This page 
+           "tabClientCount" = "Welcome to the Project Dashboard Report page. This page 
            helps users review the counts of households/clients served in each 
            project and verify that a project is up to date on their HMIS data 
            entry and following local timeliness guidelines. In Demo Mode, you 
@@ -44,14 +44,14 @@ observeEvent(input$pageid, {
            In Demo Mode, you can view sample downloads to understand what each 
            data quality report looks like.",
            
-           "tabPDDE" = "Welcome to the Project Data page. This page
+           "tabPDDE" = "Welcome to the Project Descriptor Data Elemnts Checker page. This page
              helps users review the Project Descriptor Data Element (PDDE) data
              quality issues in their HMIS data. Users can use this information
              to identify where corrections should be made in their HMIS. In Demo
              Mode, you can see an example of the types of issues the PDDE Check
              Summary identifies.",
            
-           "tabDQSystem" = "Welcome to the System-wide HMIS Data Quality page.
+           "tabDQSystem" = "Welcome to the System-level Data Quality page.
              This page helps users review the system-level data quality issues
              in their HMIS data. Users can use this information to identify which
              organizations may benefit from additional assistance and training on
@@ -60,7 +60,7 @@ observeEvent(input$pageid, {
              by the most common issues in the overall system, or by the
              organizations with the most issues overall.",
            
-           "tabDQOrg" = "Welcome to the Organization-wide HMIS Data Quality
+           "tabDQOrg" = "Welcome to the Organization-level Data Quality
              page. This page helps users review the organization-level data
              quality issues in their HMIS data. Users can use this information
              to identify where corrections should be made in their HMIS. In Demo
