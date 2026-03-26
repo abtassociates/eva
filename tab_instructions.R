@@ -391,7 +391,7 @@ tabPDDE_instructions <-   HTML("
                panel.</p>")
 
 tabDQOrg_instructions <-  HTML("
-               <h4>Organization-wide HMIS Data Quality</h4>
+               <h4>Organization-level HMIS Data Quality</h4>
                <p>Below, select the organization whose data quality you would
                like to check. The data shown will reflect the date range that
                you used to run your HMIS CSV Export. It will show data quality
@@ -871,8 +871,8 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 ")
 
 tabDQSystem_instructions <-  HTML("
-               <h4>System-wide HMIS Data Quality</h4>
-               <p>Use your System-wide Data Quality data to evaluate which
+               <h4>System-level HMIS Data Quality</h4>
+               <p>Use your System-level Data Quality data to evaluate which
                organizations may benefit from additional assistance and where
                extra training may be needed. You can download this data to use
                for reporting to interested entities about your overall HMIS
