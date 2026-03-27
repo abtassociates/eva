@@ -1193,6 +1193,14 @@ nav_menu(
                 title = headerSubTab('Chart'),
                 uiOutput("syse_compare_subpop_filter_selections") %>%
                   withSpinner(),
+                radioGroupButtons(
+                  inputId = "subpop_comparison_type_filter",
+                  label = "Comparison Type",
+                  choices = c("Client-Level", "Demographics", "Both"),
+                  selected = "Both",
+                  individual = TRUE,
+                  checkIcon = list(yes = icon("check"))
+                ), 
                 div(
                   style='margin-left:17px;',
                   plotOutput("syse_compare_subpop_chart",

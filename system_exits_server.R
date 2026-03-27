@@ -686,10 +686,20 @@ output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
 
 # System Exit Comparisons  ------------------------------------------------
 
-subpop_chart_validation <- function(raceeth, vetstatus, age, show = TRUE, req = FALSE) {
+subpop_chart_validation <- function(hh_type, level_of_detail, project_type, raceeth, vetstatus, age, show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
  
-  cond <- raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
+  cond1 <- hh_type != 'All' | level_of_detail != 'All' | project_type != 'All'
+  cond2 <-  raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
+  
+  filter_type <- input$subpop_comparison_type_filter
+  if(filter_type == 'Client-Level'){
+    cond <- cond1
+  } else if(filter_type == 'Demographic'){
+    cond <- cond2
+  } else if(filter_type == 'Both'){
+    cond <- cond1 | cond2
+  }
   
   ## whether to show validate message or not
   if(show){
@@ -730,7 +740,16 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 
 syse_subpop_export <- reactive({
   ## compute subcategories of destination types for data export - not shown in chart or table
-  pct_subpop_sub <- tree_exits_data() %>% 
+  pct_subpop_sub <- all_filtered_syse_subpop() %>% 
+    fselect( Destination, PersonalID, EnrollmentID) %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    ))  %>% 
     fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
     fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
     fsummarize(count_subpop = GRPN()) %>% 
@@ -773,10 +792,23 @@ syse_subpop_export <- reactive({
 
 everyone_else <- reactive({
   
+  filter_type <- input$subpop_comparison_type_filter
+  
+  if(filter_type == "Client-Level"){
+    enrl <- enrollments_filtered_syse()
+    client <- session$userData$client_categories
+  } else if(filter_type == "Demographic"){
+    enrl <- session$userData$enrollment_categories
+    client <- syse_client_categories_filtered()
+  } else if(filter_type == "Both"){
+    enrl <- session$userData$enrollment_categories
+    client <- session$userData$client_categories
+  }
+  
   ## first apply enrollment filters, if any
   enrolled_filt <- join(
-    enrollments_filtered_syse(),
-    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
+    enrl,
+    client %>% fselect(PersonalID, VeteranStatus),
     on = "PersonalID", 
     how = "inner"
   )
@@ -789,7 +821,7 @@ everyone_else <- reactive({
      fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
      fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))  %>% 
      ## drop rows that are in the filtered version - (everyone minus subpop)
-     fsubset(!(EnrollmentID %in% all_filtered_syse()$EnrollmentID))
+     fsubset(!(EnrollmentID %in% all_filtered_syse_subpop()$EnrollmentID))
  
    ## special case for VeteranStatus: exclude children from Everyone Else group in both Veteran and Non-Veteran cases
    if(input$syse_spec_pops != sys_spec_pops_people[1]){
@@ -847,12 +879,21 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
 
 get_syse_compare_subpop_data <- function(output_type = 'table'){
   
-  validate(need(nrow(all_filtered_syse()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse()) > 10, suppression_msg))
+  validate(need(nrow(all_filtered_syse_subpop()) > 0, no_data_msg))
+  validate(need(nrow(all_filtered_syse_subpop()) > 10, suppression_msg))
   
-  .total_s <- fnrow(tree_exits_data())
+  .total_s <- fnrow(all_filtered_syse_subpop())
   
-  count_subpop <- tree_exits_data() %>% fsummarize(
+  count_subpop <- all_filtered_syse_subpop() %>% 
+    fselect( Destination, PersonalID, EnrollmentID) %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    )) %>% fsummarize(
     'Permanent' = fsum(`Destination Type` == 'Permanent'),
     'Homeless'= fsum(`Destination Type` == 'Homeless'),
     'Institutional' = fsum(`Destination Type` == 'Institutional'),
@@ -1110,7 +1151,7 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
   
   title <- paste0(title_start, 
-                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(tree_exits_data()))),
+                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(all_filtered_syse_subpop()))),
                     paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else())))),
                   collapse='\n'
                   )
@@ -1325,13 +1366,15 @@ get_syse_compare_time_flextable <- function(tab) {
 
 output$syse_compare_subpop_chart <- renderPlot({
   ## check if filters have been changed from defaults before showing 
-  subpop_chart_validation(input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age, show=TRUE, req=FALSE)
+  subpop_chart_validation(input$syse_hh_type, input$syse_level_of_detail, input$syse_project_type,
+                          input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age, show=TRUE, req=FALSE)
   syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
 })
 
 output$syse_compare_subpop_table <- renderDT({
   ## check if filters have been changed from defaults before showing 
-  subpop_chart_validation(input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
+  subpop_chart_validation(input$syse_hh_type, input$syse_level_of_detail, input$syse_project_type,
+                          input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
   get_syse_compare_subpop_table(
     get_syse_compare_subpop_data(output_type = 'table')
   )
@@ -1526,7 +1569,7 @@ output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filen
           rowbind(
             sys_export_filter_selections(type = 'exits_subpop'),
             data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                       Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
+                       Value = scales::label_comma()(c(nrow(all_filtered_syse_subpop()),nrow(everyone_else())))
             )
           ) %>% 
           frename("System Exits by Subpopulation" = Value),
@@ -1795,6 +1838,40 @@ all_filtered_syse_demog <- reactive({
   ) 
 })
 
+all_filtered_syse_subpop <- reactive({
+  logToConsole(session, "in all_filtered_syse_subpop")
+  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+  
+  filter_type <- input$subpop_comparison_type_filter
+  
+  if(filter_type == "Client-Level"){
+    enrl <- session$userData$enrollment_categories
+    client <- syse_client_categories_filtered()
+  } else if(filter_type == "Demographic"){
+    enrl <- enrollments_filtered_syse()
+    client <- session$userData$client_categories
+  } else if(filter_type == "Both"){
+    enrl <- enrollments_filtered_syse()
+    client <- syse_client_categories_filtered()
+  }
+  
+  tmp <- join( 
+    enrl,
+    client,
+    on = "PersonalID",
+    how = "inner"
+  ) 
+  
+  period_data <- tmp %>% 
+    expand_by_periods(chart_type = 'exits_types') %>% 
+    get_active_info(tmp) %>%
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
+  
+  period_data
+})
+
 output$syse_time_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exits by Year_", Sys.Date(), ".pptx", sep = "")
 },
@@ -1846,7 +1923,7 @@ output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
                             rowbind(
                               sys_export_filter_selections(type = 'exits_subpop'),
                               data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                         Value = scales::label_comma()(c(nrow(tree_exits_data()),nrow(everyone_else())))
+                                         Value = scales::label_comma()(c(nrow(all_filtered_syse_subpop()),nrow(everyone_else())))
                               )
                             ) 
                         ),
