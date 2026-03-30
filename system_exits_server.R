@@ -695,7 +695,7 @@ subpop_chart_validation <- function(hh_type, level_of_detail, project_type, race
   filter_type <- input$subpop_comparison_type_filter
   if(filter_type == 'Client-Level'){
     cond <- cond1
-  } else if(filter_type == 'Demographic'){
+  } else if(filter_type == 'Demographics'){
     cond <- cond2
   } else if(filter_type == 'Both'){
     cond <- cond1 | cond2
@@ -797,7 +797,7 @@ everyone_else <- reactive({
   if(filter_type == "Client-Level"){
     enrl <- enrollments_filtered_syse()
     client <- session$userData$client_categories
-  } else if(filter_type == "Demographic"){
+  } else if(filter_type == "Demographics"){
     enrl <- session$userData$enrollment_categories
     client <- syse_client_categories_filtered()
   } else if(filter_type == "Both"){
@@ -1847,7 +1847,7 @@ all_filtered_syse_subpop <- reactive({
   if(filter_type == "Client-Level"){
     enrl <- session$userData$enrollment_categories
     client <- syse_client_categories_filtered()
-  } else if(filter_type == "Demographic"){
+  } else if(filter_type == "Demographics"){
     enrl <- enrollments_filtered_syse()
     client <- session$userData$client_categories
   } else if(filter_type == "Both"){
