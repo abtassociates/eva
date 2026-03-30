@@ -288,7 +288,7 @@ counts_by_month_hits <- fcount(all_month_deduped, MonthEnding, Event, sort=TRUE,
 projected_this_month <- counts_by_month_hits %>% 
   fslice(n=2, how='last')
   
-projected_this_month$Hits[2] <- projected_this_month$Hits[2] / (lubridate::mday(today()) / lubridate::days_in_month(today()))
+projected_this_month$Hits[2] <- round(projected_this_month$Hits[2] / (lubridate::mday(today()) / lubridate::days_in_month(today())), 0)
 
 counts_by_month_hits %>%
     ggplot(aes(x = MonthEnding, y = Hits, label = Hits)) +
