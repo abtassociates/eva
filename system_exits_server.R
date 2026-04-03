@@ -1593,7 +1593,7 @@ observeEvent(input$syse_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  if(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>'){
+  if(input$syse_tabbox %in% c('<h4>Permanent Housing Demographics</h4>','<h4>Exits by Subpopulation 2</h4>')){
     shinyjs::hide('syse_spec_pops')
     shinyjs::hide('syse_age')
     shinyjs::hide('syse_race_ethnicity')
@@ -2058,6 +2058,25 @@ output$syse_phd_chart_2d <- renderCachedPlot({
   )
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
+observeEvent(input$syse_subpop2_selections, {
+  # they can select up to 2
+  #disable all unchecked boxes if they've already selected 2
+  shinyjs::runjs(str_glue("
+    var numSelected = {length(input$syse_subpop2_selections)};
+    $('input[name=syse_subpop2_selections]:not(\":checked\")')
+      .attr('disabled', numSelected == 2);
+
+    var reSelected = \"{
+      \"All Races/Ethnicities\" %in% input$syse_subpop2_selections |
+      \"Grouped Races/Ethnicities\" %in% input$syse_subpop2_selections
+    }\";
+    
+    if(numSelected == 1)
+      $('input[name=syse_subpop2_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+        .attr('disabled', reSelected == 'TRUE');
+    
+  "))
+}, ignoreNULL = FALSE)
 
 observeEvent(input$syse_phd_selections, {
   # they can select up to 2
