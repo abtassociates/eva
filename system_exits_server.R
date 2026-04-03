@@ -17,6 +17,90 @@ output$syse_compare_subpop_filter_selections <-renderUI({
   )
 })
 
+output$syse_compare_subpop2_filter_selections <-renderUI({ 
+
+  req(!is.null(input$syse_compare_subpop2_selections) & session$userData$valid_file() == 1)
+  
+  sys_detailBox(selection = input$syse_compare_subpop2_selections,
+                detail_type = 'phd',
+                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_compare_subpop2_selections, '1',
+                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_compare_subpop2_selections, '2', NA)),
+                cur_project_types = input$syse_project_type,
+                startDate = session$userData$ReportStart,
+                endDate = session$userData$ReportEnd,
+                age = input$syse_age,
+                spec_pops = input$syse_spec_pops,
+                race_eth = input$syse_race_ethnicity)
+})
+
+output$syse_subpop2_post_selections <-renderUI({ 
+  req(session$userData$valid_file() == 1)
+  req(isTruthy(input$syse_subpop2_selections)) 
+  
+  out <- tagList()
+  
+  if('Age' %in% input$syse_subpop2_selections){
+    out <- tagList(out, 
+             pickerInput(
+               inputId = "syse_subpop2_age",
+               label = "Age",
+               selected = sys_age_cats,
+               choices = sys_age_cats,
+               multiple = TRUE,
+               options = pickerOptions(
+                 actionsBox = TRUE,
+                 selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                 countSelectedText = "All Ages",
+                 noneSelectedText = "All Ages",
+                 container = "body"
+               )
+             ))
+  }
+  
+  if('All Races/Ethnicities' %in% input$syse_subpop2_selections){
+    out <- tagList(out,
+             pickerInput(
+               label = "Race/Ethnicity",
+               inputId = "syse_subpop2_race_ethnicity1",
+               choices = sys_race_ethnicity_method1,
+               selected = sys_race_ethnicity_method1,
+               options = list(
+                 `dropdown-align-right` = TRUE,
+                 `dropup-auto` = FALSE,
+                 container = "body"
+               )
+             ))
+  }
+  if("Grouped Races/Ethnicities" %in% input$syse_subpop2_selections){
+    out <- tagList(out,
+             pickerInput(
+               label = "Race/Ethnicity",
+               inputId = "syse_subpop2_race_ethnicity2",
+               choices = sys_race_ethnicity_method2,
+               selected = sys_race_ethnicity_method2,
+               options = list(
+                 `dropdown-align-right` = TRUE,
+                 `dropup-auto` = FALSE,
+                 container = "body"
+               )
+             ))
+  }
+  
+  if("Veteran Status (Adult Only)" %in% input$syse_subpop2_selections){
+    out <- tagList(out,pickerInput(
+      label = "Veteran Status",
+      inputId = "syse_subpop2_spec_pops",
+      choices = sys_spec_pops_people,
+      selected = sys_spec_pops_people[1],
+      options = pickerOptions(container = "body")
+    )
+    )
+  }
+  
+  out
+ 
+})
+
 #### DISPLAY FILTER SELECTIONS ###
  
   output$syse_types_filter_selections <- renderUI({ 

@@ -1237,6 +1237,7 @@ nav_menu(
                   selected = c("All Races/Ethnicities", "Age"),
                   inline = TRUE
                 ),
+                uiOutput("syse_subpop2_post_selections"),
                 div(
                   style='margin-left:17px;',
                   plotOutput("syse_compare_subpop2_chart",
