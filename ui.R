@@ -1222,6 +1222,40 @@ nav_menu(
           ),
           
           nav_panel(
+            title = headerTab('Exits by Subpopulation 2'),
+            navset_underline(
+              id = "syse_subpop2_subtabs",
+              selected = headerSubTab('Chart'),
+              nav_panel(
+                title = headerSubTab('Chart'),
+                uiOutput("syse_compare_subpop2_filter_selections") %>%
+                  withSpinner(),
+                checkboxGroupInput(
+                  "syse_subpop2_selections",
+                  label = "",
+                  choices = sys_heatmap_selection_choices,
+                  selected = c("All Races/Ethnicities", "Age"),
+                  inline = TRUE
+                ),
+                div(
+                  style='margin-left:17px;',
+                  plotOutput("syse_compare_subpop2_chart",
+                             width = "92%",
+                             height = "500")
+                ),
+                
+              ),
+              nav_panel(
+                title = headerSubTab('Information'),
+                br(),
+                tab_syse_subpop_chart_information
+              )
+            ),
+            downloadButton("syse_subpop2_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_subpop2_download_btn_ppt", "Image Download")
+          ),
+          
+          nav_panel(
             title = headerTab('Permanent Housing Demographics'),
             navset_underline(
               id = "syse_phd_subtabs",
