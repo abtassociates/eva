@@ -112,10 +112,10 @@
         }
       ]
     },
-    "g_errors_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
-    "g_errors_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>",
-    "hp_errors_dqorg_subtabs": "<h5>Issues<\/h5>",
-    "hp_errors_dqsystem_subtabs": "<h5>Issues<\/h5>",
+    "g_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
+    "hp_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
     "imported": {
       "name": [
         "FY26-test-fsa-test.zip"
@@ -197,8 +197,8 @@
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
     "timeliness_metric": 3,
-    "warnings_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
-    "warnings_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>"
+    "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
   },
   "output": {
     "clientCountData": [
@@ -265,7 +265,7 @@
         "options": {
           "dom": "t",
           "language": {
-            "zeroRecords": "No file structure analysis issues! \n                      Visit the other tabs to view the rest of Eva's output"
+            "zeroRecords": "No file structure analysis issues! \n                      Visit Eva's other pages to explore data quality and system performance."
           },
           "columnDefs": [
             {

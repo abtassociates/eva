@@ -25,9 +25,9 @@ tabHome_welcome <- HTML("<h2>Welcome to Eva!</h2>
             ")
 
 tabHome_home_live_instructions <-  HTML(
-  "<p>Eva works by uploading a hashed 
-              <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
-              target= '_blank' rel='noopener noreferrer'>HMIS CSV Export</a>.
+  "<p>Eva works by uploading a hashed HMIS CSV Export that meets HUD's
+              <a href='https://www.hudexchange.info/resource/3824/hmis-data-dictionary/'
+              target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>.
               </p>
               <p>Generate a hashed HMIS CSV Export from your local HMIS and store
               it in a secure location that you can easily find again. It must be
@@ -162,7 +162,7 @@ tabUpload_instructions <-  HTML("
               
               <p>While any error identified during the File Structure Analysis represent 
               components in the uploaded HMIS CSV export file that do not meet the 
-              most recent <a href='https://files.hudexchange.info/resources/documents/HMIS-CSV-Format-Specifications-2024.pdf'
+              most recent <a href='https://www.hudexchange.info/resource/3824/hmis-data-dictionary/'
               target= '_blank' rel='noopener noreferrer'>HMIS CSV Format Specifications</a>, 
               there are some file structural errors that are more relevant to the 
               functionality of Eva.</p>
@@ -391,7 +391,7 @@ tabPDDE_instructions <-   HTML("
                panel.</p>")
 
 tabDQOrg_instructions <-  HTML("
-               <h4>Organization-wide HMIS Data Quality</h4>
+               <h4>Organization-level HMIS Data Quality</h4>
                <p>Below, select the organization whose data quality you would
                like to check. The data shown will reflect the date range that
                you used to run your HMIS CSV Export. It will show data quality
@@ -446,23 +446,27 @@ tabDQOrg_instructions <-  HTML("
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.
                
-               <h4>Organization-wide HMIS Data Quality Plots</h4>
-               <p>For each type of issue (High Priority Errors, General Errors,
-               and Warnings) you will find two plots: one graphing the number of
-               issues by type, and one graphing the number of issues by project.
+               <h4>Organization-level HMIS Data Quality Plots</h4>
+               <p>For each issue type (High Priority Errors, General Errors,
+               and Warnings) you will see two charts: one showing the most common issues
+               within the selected organization and one showing the projects with the most issues.</p>
 
-               <h4>Top 10 Issues</h4>
-               <p>Across all the projects within the selected Organization, this
-               plot shows the <b>top 10</b> issues identified. This can be
-               useful in planning targeted HMIS training efforts.</p>
+               <h4>Top Issues</h4>
+               <p>These charts display <b>up to the top ten</b> data quality issues identified 
+								across all projects within the selected organization. If fewer than ten 
+                issues are present, only those issues will appear. The issues are ordered 
+                from most to least common, with the bar at the top representing the most 
+                frequent issue in the data. This information can be useful in planning 
+                targeted HMIS training efforts.</p>
           
-               <h4>Top 10 Projects</h4>
-               <p>These plots show the <b>top 10</b> projects within the selected
-               organization with the highest number of issues identified. You can
-               use this to help determing which projects may need extra assistance
-               in addressing their data quality issues.</p>
+               <h4>Top Projects</h4>
+               <p>These charts display <b>up to the top ten</b> projects within the selected organization 
+                with the highest number of identified issues. If fewer than ten projects have issues, only those 
+                projects will appear. The projects are ordered from highest to lowest issue count, with the top 
+                bar representing the project with the most issues. You can use this to help determine which projects 
+                may need extra assistance in addressing their data quality issues.</p>
                
-               <h4>Download Organization-wide HMIS Data Quality Data</h4>
+               <h4>Download Organization-level HMIS Data Quality Data</h4>
                <p>To download all of the client and enrollment related issues
                found in the selected Organization, click the Download button.
                This will give HMIS admins a way of communicating to an Organization
@@ -867,8 +871,8 @@ tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 ")
 
 tabDQSystem_instructions <-  HTML("
-               <h4>System-wide HMIS Data Quality</h4>
-               <p>Use your System-wide Data Quality data to evaluate which
+               <h4>System-level HMIS Data Quality</h4>
+               <p>Use your System-level Data Quality data to evaluate which
                organizations may benefit from additional assistance and where
                extra training may be needed. You can download this data to use
                for reporting to interested entities about your overall HMIS
@@ -914,25 +918,25 @@ tabDQSystem_instructions <-  HTML("
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.
                
-               <h4>System-wide HMIS Data Quality Plots</h4>
-               <p>For each type of issue (High Priority Errors, General Errors,
-               and Warnings) you will find two plots: one plots the counts of
-               issues and one plots the number of issues by organization.</p>
+               <h4>System-level HMIS Data Quality Charts</h4>
+               <p>For each issue type (High Priority Errors, General Errors,
+               and Warnings) you will see two charts: one showing the most common issues 
+                and one showing the organizations with the most issues.</p>
                
-               <h5><b>Top 10 Issues</b></h5>
-               <p>Across all of the organizations in your upload, this plot shows
-               the <b>top 10</b> issues identified in the data quality scan. This
-               result can help to focus future end-user trainings and bring to
-               light any potential considerations in your federal or local
-               reporting and analysis.</p>
+               <h5><b>Top Issues</b></h5>
+               <p>These charts display <b>up to the top ten</b> data quality issues identified 
+                across all organizations in the uploaded file. If fewer than ten issues are present, 
+                only those issues will appear. The issues are ordered from most to least common, with 
+                the top bar representing the issue that occurs most frequently. This view can help 
+                highlight areas to focus future training and identify potential impacts on reporting and analysis.</p>
                
-               <h5><b>Top 10 Organizations</b></h5>
-               <p>These plots show the <b>top 10</b> organizations across your
-               system with the highest number of issues identified. You can use
-               these plots to help determine which organizations may need extra
-               assistance in getting their HMIS Errors/Warnings resolved.</p>
+               <h5><b>Top Organizations</b></h5>
+               <p>These charts display <b>up to the top ten</b> organizations with the highest number 
+                of identified issues. Organizations are ordered from highest to lowest issue count, with the 
+                top bar representing the organization with the most issues. These results can help identify 
+                organizations that may need additional support resolving HMIS errors or warnings.</p>
                
-               <h4>Download System-wide HMIS Data Quality Data</h4>
+               <h4>Download System-level HMIS Data Quality Data</h4>
                <p>To download all of the client and enrollment related issues
                found in your system, click the Download button. This will give
                HMIS admins a way of reporting to interested entities, such as
@@ -991,8 +995,8 @@ of clients who exited your homeless system by the end of the report period.</p>
                 
                 <h4>Panels</h4>
                 <p>Under each System Exits Panel tab is a Chart subtab and an Information subtab. The Information subtab includes a “Chart Overview” section 
-that provides guidance on how to read the charts. Additionally, some panels have an “Interpretation Tips” 
-section that can help you interpret their output.</p>
+                that provides guidance on how to read the charts. Additionally, some panels have an “Interpretation Tips” 
+                section that can help you interpret their output.</p>
                 
                 <h4>Downloads</h4>
                 <p>To support further systems analysis, local reporting, and presentations, 

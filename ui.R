@@ -562,13 +562,13 @@ page_navbar(
           
           navset_underline(
             id = 'hp_errors_dqsystem_subtabs',
-            selected = headerSubTab("Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("sysDQHighPriorityByIssue_ui")
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Organizations'),
+              title = headerSubTab('Top Organizations'),
               uiOutput("sysDQHighPriorityByOrg_ui")
             )
           )
@@ -580,13 +580,13 @@ page_navbar(
           
           navset_underline(
             id = 'g_errors_dqsystem_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Top 10 Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("sysDQErrorByIssue_ui")
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Organizations'),
+              title = headerSubTab('Top Organizations'),
               uiOutput("sysDQErrorByOrg_ui")
             )
           )
@@ -597,13 +597,13 @@ page_navbar(
           title = headerTab('Warnings'),
           navset_underline(
             id = 'warnings_dqsystem_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab("Top 10 Issues"), 
+              title = headerSubTab("Top Issues"), 
               uiOutput("sysDQWarningByIssue_ui")
             ),
             nav_panel(
-              title = headerSubTab("Top 10 Organizations"), 
+              title = headerSubTab("Top Organizations"), 
               uiOutput("sysDQWarningByOrg_ui")
             )
           )
@@ -651,13 +651,13 @@ page_navbar(
           
           navset_underline(
             id = 'hp_errors_dqorg_subtabs',
-            selected = headerSubTab("Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("orgDQHighPriorityByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Projects'),
+              title = headerSubTab('Top Projects'),
               uiOutput("orgDQHighPriorityByProject_ui")  %>% withSpinner()
             )
           )
@@ -669,13 +669,13 @@ page_navbar(
           
           navset_underline(
             id = 'g_errors_dqorg_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Top 10 Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Projects'),
+              title = headerSubTab('Top Projects'),
               uiOutput("orgDQErrorByProject_ui")  %>% withSpinner()
             )
           )
@@ -686,13 +686,13 @@ page_navbar(
           title = headerTab('Warnings'),
           navset_underline(
             id = 'warnings_dqorg_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab("Top 10 Issues"), 
+              title = headerSubTab("Top Issues"), 
               uiOutput("orgDQWarningByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = headerSubTab("Top 10 Projects"), 
+              title = headerSubTab("Top Projects"), 
               uiOutput("orgDQWarningByProject_ui") %>% withSpinner()
             )
           )
@@ -1286,10 +1286,10 @@ nav_menu(
   icon = icon("book"),
   # Glossary tab -------------
   nav_panel(
-    title = "Glossary",
+    title = "System Performance Glossary",
     value = "tabGlossary",
     card(
-      card_header(HTML("<h2>Glossary</h2>")),
+      card_header(HTML("<h2>System Performance Glossary</h2>")),
       card_body(
         #          title = "Instructions",
         tabGlossary_instructions,
