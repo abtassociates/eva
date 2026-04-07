@@ -1712,6 +1712,14 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
     ) %>%
     fselect(vars_prep)
   
+  # remove non-HoHs and children for check 103
+  if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)){
+    non_exits <- non_exits %>% 
+      join(Enrollment %>% fselect(EnrollmentID,  PersonalID, RelationshipToHoH, AgeAtEntry), how='left', on=c('EnrollmentID','PersonalID')) %>% 
+      fsubset(RelationshipToHoH == 1 | (!is.na(AgeAtEntry) & AgeAtEntry > 17)) %>% 
+      fselect(-RelationshipToHoH, -AgeAtEntry)
+  }
+  
   # only proceed if there are any non-exited enrollments
   if(nrow(non_exits) == 0) return(NULL)
   logToConsole(session, "Has non-exits")
