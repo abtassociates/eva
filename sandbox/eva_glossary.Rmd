@@ -1,5 +1,5 @@
 ---
-title: "Eva Glossary"
+title: "System Performance Glossary"
 output: pdf_document
 ---
 
@@ -10,14 +10,13 @@ library(stringr)
 ```
 
 ```{r table, message=F, warning=F}
-# created with saveRDS(gloss, file = 'sandbox/glossary.rds')
-# but can use a CSV instead
-gloss <- readRDS(file = 'glossary.rds')
+# Version Updated 4/7/2026
+gloss <- readxl::read_xlsx(path = gsub('sandbox', 'public-resources/system performance glossary.xlsx', getwd()))
 
-gloss$`Target Filters/Panels` <- str_wrap(gloss$`Target Filters/Panels`, width = 40)
+gloss$`Target Filters/Panels` <- str_wrap(gloss$`Target Filters/Panels`, width = 20)
 gloss$Definition <- str_squish(gloss$Definition)
 gloss$Definition <- str_wrap(gloss$Definition, width = 80)
-gloss$Term <- str_wrap(gloss$Term, width = 40)
+gloss$Term <- str_wrap(gloss$Term, width = 20)
 
 flextable(gloss) |>
   autofit() |>
