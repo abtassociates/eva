@@ -401,6 +401,21 @@ period_specific_data <- reactive({
   exportTestValues(period_data = period_data)
   if(IN_DEV_MODE && nrow(period_data) > 0) {
     inflow_outflow_qc_checks(period_data)
+
+    d <- enrollment_categories_all %>%
+      join(
+        period_data,
+        on = c("PersonalID"),
+        multiple = TRUE,
+        drop.dup.cols = 'y',
+        keep.col.order = FALSE
+      ) %>%
+      setorder(PersonalID, period, EntryDate) %>%
+      fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
+    
+    saveRDS(d, file = here("sandbox/enrollment_categories_all.rds"))
+    
+    # saveRDS(period_data, file = here("sandbox/period_data.rds"))
     # browser()
     export_for_qc(period_data)
   }

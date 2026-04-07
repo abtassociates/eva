@@ -42,12 +42,6 @@
       "Organization-level (multi-select)",
       "System-level"
     ],
-    "dq_export_files": [
-      "All Data Quality Reports",
-      "Project Dashboard Report",
-      "PDDE Report",
-      "Data Quality Report"
-    ],
     "dq_export_orgList": [
       "Organization A‰",
       "Organization B",

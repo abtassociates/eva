@@ -582,11 +582,15 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$expect_values(export = exports_to_keep, name = "exportTestValues")
     
     print("handling helper datasets")
+    # will handle period data AFTER undoing filters so we capture everyone
     # handle large/helper datasets
-    lapply(helper_datasets, function(df_name) {
+    lapply(setdiff(helper_datasets, "period_data"), function(df_name) {
       print(paste0("handling ", df_name))
       handle_helper_data(app, test_script_name, df_name)
     })
+    
+    app$set_inputs(syso_hh_type = "All", syso_project_type = "All")
+    handle_helper_data(app, test_script_name, "period_data")
     
     print("saving shiny log")
     view(app$get_logs())
