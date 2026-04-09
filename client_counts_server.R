@@ -286,6 +286,28 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
     validationNbN <- NULL
   }
   
+  if(!is.null(tl_df_ce_assess())){
+    validationCEAssess <- tl_df_ce_assess() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'ce_assess')
+  } else {
+    validationCEAssess <- NULL
+  }
+  
+  if(!is.null(tl_df_ce_event())){
+    validationCEEvent <- tl_df_ce_event() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'ce_event')
+  } else {
+    validationCEEvent <- NULL
+  }
+  
   exportDFList <- list(
     Metadata = client_counts_metadata,
     validationDateRange = validationDateRange %>% nice_names(),
@@ -335,6 +357,22 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
     names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness NbN"
     exportTestValues(
       client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
+    )
+  }
+  
+  if(!is.null(validationCEAssess)){
+    exportDFList[[length(exportDFList) + 1]] <- validationCEAssess
+    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CE Assess"
+    exportTestValues(
+      client_count_download_timeliness_ce_assess = summarize_df(validationCEAssess %>% nice_names_timeliness(record_type = 'ce_assess'))
+    )
+  }
+  
+  if(!is.null(validationCEEvent)){
+    exportDFList[[length(exportDFList) + 1]] <- validationCEEvent
+    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CE Event"
+    exportTestValues(
+      client_count_download_timeliness_ce_event = summarize_df(validationCEEvent %>% nice_names_timeliness(record_type = 'ce_event'))
     )
   }
   logToConsole(session, "returning from get_clientcount_download_info")
@@ -690,13 +728,31 @@ output$timeliness_vb3 <- renderUI({
     num_cls <- 0
     den_cls <- 0
   }
-    
+ 
+  if(!is.null(tl_df_ce_assess())){
+    num_ce_assess <- tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
+    den_ce_assess <- tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+  } else {
+    num_ce_assess <- 0
+    den_ce_assess <- 0
+  }
+  
+  if(!is.null(tl_df_ce_event())){
+    num_ce_event <- tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
+    den_ce_event <- tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+  } else {
+    num_ce_event <- 0
+    den_ce_event <- 0
+  }
+     
     num <- sum(
       c(
         ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
         ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
       num_nbn,
-      num_cls
+      num_cls,
+      num_ce_assess,
+      num_ce_event
       ), 
       na.rm = TRUE
     )
@@ -705,7 +761,9 @@ output$timeliness_vb3 <- renderUI({
       ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
       ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
       den_nbn,
-      den_cls
+      den_cls,
+      den_ce_assess,
+      den_ce_event
       ), 
       na.rm = TRUE
     )
@@ -762,9 +820,22 @@ output$timelinessTable <- renderDT({
     dat$cls <- NULL
   }
   
+  if(cc_project_type() == ce_project_type & input$currentProviderList %in% tl_df_ce_assess()$ProjectName){
+    dat$ce_assess = tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$ce_assess <- NULL
+  } 
+  
+ if(cc_project_type() == ce_project_type & input$currentProviderList %in% tl_df_ce_event()$ProjectName){
+    dat$ce_event = tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else {
+    dat$ce_event <- NULL
+  }
+  
   tbl_names <- c("Time for Record Entry" = "time_period", "Number of Project Start Records" = "proj_start", 
                  "Number of Project Exit Records" = "proj_exit", 
-                     "Number of Bed Night Records" = "nbn", "Number of Current Living Situation Records" = "cls")
+                     "Number of Bed Night Records" = "nbn", "Number of Current Living Situation Records" = "cls",
+                 "Number of CE Assessment Records" = "ce_assess", "Number of CE Event Records" = "ce_event")
   dat <- dat %>% rename(any_of(tbl_names))
  
   exportTestValues(timelinessTable = dat)
