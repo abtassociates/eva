@@ -590,6 +590,52 @@ tl_df_cls <- reactive({
     }
 })
 
+## Timeliness -Coordinated Entry (CE) Assessment Records
+tl_df_ce_assess <- reactive({
+  req(session$userData$valid_file() == 1)
+  
+  ## Time to Entry - CE assessment
+  ce_assess_df <- join(
+    client_count_data_df(), 
+    session$userData$Assessment %>% 
+      fselect(PersonalID, EnrollmentID, Assessment.DateCreated = DateCreated, Assessment.AssessmentDate = AssessmentDate),
+    how = "left"
+  ) %>% 
+    fsubset(!is.na(Assessment.DateCreated)) %>% 
+    fsubset(between(Assessment.AssessmentDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(Assessment.DateCreated) - as.Date(Assessment.AssessmentDate)),
+            HoursToEntry = as.numeric(difftime(Assessment.DateCreated, Assessment.AssessmentDate, units="hours"))) 
+  
+  if(nrow(ce_assess_df) > 0){
+    calc_time_to_entry(ce_assess_df) 
+  } else {
+    NULL
+  }
+})
+
+## Timeliness - Coordinated Entry (CE) Event Records
+tl_df_ce_event <- reactive({
+  req(session$userData$valid_file() == 1)
+  #browser()
+  ## Time to Entry - CE event
+  ce_event_df <- join(
+    client_count_data_df(), 
+    session$userData$Event %>% 
+      fselect(EventID, EnrollmentID, Event.DateCreated = DateCreated, Event.EventDate = EventDate),
+    how = "left"
+  ) %>% 
+    fsubset(!is.na(Event.DateCreated)) %>% 
+    fsubset(between(Event.EventDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(Event.DateCreated) - as.Date(Event.EventDate)),
+            HoursToEntry = as.numeric(difftime(Event.DateCreated, Event.EventDate, units="hours"))) 
+  
+  if(nrow(ce_event_df) > 0){
+    calc_time_to_entry(ce_event_df) 
+  } else {
+    NULL
+  }
+})
+
 # TIMELINESS - value boxes ------------------------------------------------
 cc_project_type <- reactive({
   req(session$userData$valid_file() == 1)
