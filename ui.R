@@ -1122,15 +1122,66 @@ nav_menu(
             selected = headerSubTab("Quarterly Utilization"),
             nav_panel( # Quarterly Utilization
               title = headerSubTab('Quarterly Utilization'),
-              #DTOutput("q_proj_inv_filtered") %>% withSpinner()
-              #plotOutput("sys_inflow_outflow_summary_ui_chart",
-              #           width = "70%",
-              #           height = "500") %>%
-              #  withSpinner()
+              uiOutput("quarterly_util_filter_selections") %>% #todo
+                  withSpinner(),
+                
+                radioGroupButtons(
+                  inputId = "pop_filter_q_avg",
+                  #label = "Flow Type Filters",
+                  choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
+                  #Inactive
+                  selected = "All",
+                  individual = TRUE,
+                  checkIcon = list(yes = icon("check"))
+                ), 
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg == 'Adult-Only'",
+                  plotOutput("ao_q_avg", width = "100%", height = "500") #todo
+                ), 
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg =='Adult-Child'",
+                  plotOutput("ac_q_avg", width = "100%", height = "500") #todo
+                ),
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg == 'Child-Only'",
+                  plotOutput("co_q_avg", width = "100%", height = "500") #todo
+                ),
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg == 'All'",
+                  DTOutput("all_q_avg", width = "100%", height = "500") %>% #todo
+                    withSpinner()
+                )
             ),
             nav_panel( # Monthly Utilization
               title = headerSubTab("Monthly Utilization"),
-              #DTOutput("m_proj_inv_filtered")
+              uiOutput("monthlyly_util_filter_selections") %>% #todo
+                withSpinner(),
+              radioGroupButtons(
+                inputId = "pop_filter_m_avg",
+                #label = "Flow Type Filters",
+                choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
+                #Inactive
+                selected = "All",
+                individual = TRUE,
+                checkIcon = list(yes = icon("check"))
+              ), 
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg == 'Adult-Only'",
+                plotOutput("ao_m_avg", width = "100%", height = "500") #todo
+              ), 
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg =='Adult-Child'",
+                plotOutput("ac_m_avg", width = "100%", height = "500") #todo
+              ),
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg == 'Child-Only'",
+                plotOutput("co_m_avg", width = "100%", height = "500") #todo
+              ),
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg == 'All'",
+                DTOutput("all_m_avg", width = "100%", height = "500") %>% #todo
+                  withSpinner()
+              )
             ),
             nav_panel( # Information
               title = headerSubTab("Information")
