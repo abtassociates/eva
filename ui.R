@@ -1136,19 +1136,21 @@ nav_menu(
                 ), 
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg == 'Adult-Only'",
-                  plotOutput("ao_q_avg", width = "100%", height = "500") #todo
+                  # plotOutput
+                  DTOutput("ao_q_avg", width = "100%", height = "500") %>% #todo
+                    withSpinner() 
                 ), 
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg =='Adult-Child'",
-                  plotOutput("ac_q_avg", width = "100%", height = "500") #todo
+                  DTOutput("ac_q_avg", width = "100%", height = "500") #todo
                 ),
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg == 'Child-Only'",
-                  plotOutput("co_q_avg", width = "100%", height = "500") #todo
+                  DTOutput("co_q_avg", width = "100%", height = "500") #todo
                 ),
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg == 'All'",
-                  DTOutput("all_q_avg", width = "100%", height = "500") %>% #todo
+                  DTOutput("all_q_avg", width = "100%", height = "500") %>% 
                     withSpinner()
                 )
             ),
@@ -1167,15 +1169,15 @@ nav_menu(
               ), 
               conditionalPanel(
                 condition = "input.pop_filter_m_avg == 'Adult-Only'",
-                plotOutput("ao_m_avg", width = "100%", height = "500") #todo
+                DTOutput("ao_m_avg", width = "100%", height = "500") #todo
               ), 
               conditionalPanel(
                 condition = "input.pop_filter_m_avg =='Adult-Child'",
-                plotOutput("ac_m_avg", width = "100%", height = "500") #todo
+                DTOutput("ac_m_avg", width = "100%", height = "500") #todo
               ),
               conditionalPanel(
                 condition = "input.pop_filter_m_avg == 'Child-Only'",
-                plotOutput("co_m_avg", width = "100%", height = "500") #todo
+                DTOutput("co_m_avg", width = "100%", height = "500") #todo
               ),
               conditionalPanel(
                 condition = "input.pop_filter_m_avg == 'All'",
