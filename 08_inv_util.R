@@ -1,6 +1,14 @@
 
 logToConsole(session, "building HMIS Participation Datasets")
 ## Create Data for HMIS Participation ------------------------------------------
+# Fix Household Type in Enrollment Adjust
+EnrollmentAdjust_BUI <- EnrollmentAdjust %>% 
+  fmutate("HouseholdType" = fcase(HouseholdType == "PY", 2,
+                                  HouseholdType == "ACminusPY",2,
+                                  HouseholdType == "UY", 1,
+                                  HouseholdType == "AOminusUY",2,
+                                  HouseholdType == "CO", 3,
+                                  default = as.numeric( HouseholdType)))
 # Inventory Level --------------------------------------------------------------
 HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
@@ -210,7 +218,7 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
   #Exclude any permanent housing enrollments where MoveInDateAdjust < [PIT Date]
   services_qPIT <- Services %>%
     fselect(EnrollmentID, DateProvided)  %>% 
-    join(EnrollmentAdjust %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
+    join(EnrollmentAdjust_BUI %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
     fmutate(temp = 1) %>%
     join( # expand rows for each PIT date
       pit_dates %>% fmutate(temp=1), 
@@ -223,7 +231,7 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
     fsummarise( # flag if Enrollment has any Service records where DateProvided == PIT
       has_bn_PIT = any(bn_PIT, na.rm=TRUE)
     )  %>% fungroup()
-  Bed_Unit_Util <- EnrollmentAdjust %>%
+  Bed_Unit_Util <- EnrollmentAdjust_BUI %>%
     join(services_qPIT, on = "EnrollmentID", how = "left", multiple = T) %>%
     fmutate(# Enrollment Active
       activeEnroll = EntryDate <= as.Date(PIT) & (is.na(ExitAdjust) | ExitAdjust > as.Date(PIT)),
@@ -261,12 +269,14 @@ project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars)
   join(count_Enrollments(mons), how = "left")
 
 
+
+
 # pass results to session for server_09_inv_util.R to finish 
 session$userData$project_level_util_q <- project_level_util_q 
 session$userData$project_level_util_m <- project_level_util_m 
 #print(colnames(HMIS_project_active_inventories))
 session$userData$HMIS_project_active_inventories <- HMIS_project_active_inventories 
-session$userData$EnrollmentAdjust <- EnrollmentAdjust
+session$userData$EnrollmentAdjust_BUI <- EnrollmentAdjust_BUI
 session$userData$HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv
 session$userData$selectedProjects <- NULL
 
