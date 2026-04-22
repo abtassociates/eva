@@ -77,7 +77,7 @@ for(csv_name in unique(validation_info$CSV)) {
   # to the specified RClass, it will convert the column to character
   # So we can check that discrepancy to first just focus on the columns that differ
   # Then we can identify the particular rows
-  incorrect_data_types <- csv_validation_info %>%
+  incorrect_data_type_cols <- csv_validation_info %>%
     fmutate(
       RClass = sapply(Name, function(col) class(dt[[col]])[1]),
       Type = fifelse(substr(Type, 1, 1) == "S", "S", Type),
@@ -93,19 +93,23 @@ for(csv_name in unique(validation_info$CSV)) {
       Name, RClass, Expected_RClass
     )
   
-  incorrect_data_types <- if(fnrow(incorrect_data_types) > 0) {
-    rbindlist(lapply(seq_row(incorrect_data_types), function(i) {
-      colName <- incorrect_data_types$Name[i]
-      expected_rclass <- incorrect_data_types$Expected_RClass[i]
-      
+  incorrect_data_types <- if(fnrow(incorrect_data_type_cols) > 0) {
+    rbindlist(lapply(seq_row(incorrect_data_type_cols), function(i) {
+      colName <- incorrect_data_type_cols$Name[i]
+
+      expected_rclass <- incorrect_data_type_cols$Expected_RClass[i]
       raw_vals <- dt[[colName]]
-      coerced  <- methods::as(raw_vals, expected_rclass) # or type-specific: as.numeric(), etc.
+      coerced <- NA
+      if(canCoerce(raw_vals, expected_rclass))
+        coerced  <- methods::as(raw_vals, expected_rclass) # or type-specific: as.numeric(), etc.
+      
       invalid <- is.na(coerced) & !is.na(raw_vals)
       
       dt %>%
         fsubset(invalid == TRUE) %>%
         fmutate(Name = colName)
-    }))
+    })) |>
+      join(incorrect_data_type_cols, on="Name")
   } else data.table()
   
   
