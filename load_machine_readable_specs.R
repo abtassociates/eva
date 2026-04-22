@@ -1,6 +1,7 @@
 specs_prepped_path <- here("public-resources/specs_prepped.rds")
 
 if(file.exists(specs_prepped_path)) {
+  print("loading specs_prepped.rds file")
   specs_prepped <- readRDS(specs_prepped_path)
   
   specs_rules <- specs_prepped$specs_rules
@@ -435,6 +436,7 @@ specs_rules[
   rule_expr := i.rule
 ]
 
+print("saving specs_prepped.rds file")
 saveRDS(
   list(
     specs_rules = specs_rules, 
