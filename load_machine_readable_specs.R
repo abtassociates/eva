@@ -439,7 +439,8 @@ saveRDS(
   list(
     specs_rules = specs_rules, 
     reporting_info = reporting_info, 
-    valid_values = valid_values
+    valid_values = valid_values,
+    cols_and_data_types = cols_and_data_types
   ), 
   specs_prepped_path
 )
