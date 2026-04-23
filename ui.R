@@ -1122,9 +1122,8 @@ nav_menu(
             selected = headerSubTab("Quarterly Utilization"),
             nav_panel( # Quarterly Utilization
               title = headerSubTab('Quarterly Utilization'),
-              uiOutput("quarterly_util_filter_selections") %>% #todo
+              uiOutput("quarterly_util_filter_selections") %>%
                   withSpinner(),
-                
                 radioGroupButtons(
                   inputId = "pop_filter_q_avg",
                   #label = "Flow Type Filters",
@@ -1134,29 +1133,33 @@ nav_menu(
                   individual = TRUE,
                   checkIcon = list(yes = icon("check"))
                 ), 
+              # todo - add another switch for Value: Average or Point in Time (PIT)
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg == 'Adult-Only'",
-                  # plotOutput
-                  DTOutput("ao_q_avg", width = "100%", height = "500") %>% #todo
+                  # todo - plotOutput
+                  DTOutput("ao_q_avg", width = "100%", height = "500") %>% 
                     withSpinner() 
                 ), 
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg =='Adult-Child'",
-                  DTOutput("ac_q_avg", width = "100%", height = "500") #todo
+                  # todo - plotOutput
+                  DTOutput("ac_q_avg", width = "100%", height = "500") 
                 ),
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg == 'Child-Only'",
-                  DTOutput("co_q_avg", width = "100%", height = "500") #todo
+                  # todo - plotOutput
+                  DTOutput("co_q_avg", width = "100%", height = "500") 
                 ),
                 conditionalPanel(
                   condition = "input.pop_filter_q_avg == 'All'",
+                  # todo - plotOutput
                   DTOutput("all_q_avg", width = "100%", height = "500") %>% 
                     withSpinner()
                 )
             ),
             nav_panel( # Monthly Utilization
               title = headerSubTab("Monthly Utilization"),
-              uiOutput("monthlyly_util_filter_selections") %>% #todo
+              uiOutput("monthly_util_filter_selections") %>% 
                 withSpinner(),
               radioGroupButtons(
                 inputId = "pop_filter_m_avg",
@@ -1167,21 +1170,26 @@ nav_menu(
                 individual = TRUE,
                 checkIcon = list(yes = icon("check"))
               ), 
+              # todo - add another switch for Value: Average or Point in Time (PIT)
               conditionalPanel(
                 condition = "input.pop_filter_m_avg == 'Adult-Only'",
-                DTOutput("ao_m_avg", width = "100%", height = "500") #todo
+                # todo - plotOutput
+                DTOutput("ao_m_avg", width = "100%", height = "500") 
               ), 
               conditionalPanel(
                 condition = "input.pop_filter_m_avg =='Adult-Child'",
-                DTOutput("ac_m_avg", width = "100%", height = "500") #todo
+                # todo - plotOutput
+                DTOutput("ac_m_avg", width = "100%", height = "500") 
               ),
               conditionalPanel(
                 condition = "input.pop_filter_m_avg == 'Child-Only'",
-                DTOutput("co_m_avg", width = "100%", height = "500") #todo
+                # todo - plotOutput
+                DTOutput("co_m_avg", width = "100%", height = "500") 
               ),
               conditionalPanel(
                 condition = "input.pop_filter_m_avg == 'All'",
-                DTOutput("all_m_avg", width = "100%", height = "500") %>% #todo
+                # todo - plotOutput
+                DTOutput("all_m_avg", width = "100%", height = "500") %>% 
                   withSpinner()
               )
             ),
