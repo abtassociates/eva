@@ -91,7 +91,7 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
                      getNameByValue(sys_methodology_types, 
-                                    ifelse(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>',
+                                    ifelse(input$syse_tabbox == '<h4>Exits to PH Demographics</h4>',
                                            ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
                                                   ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
                                            input$syse_methodology_type)),
@@ -222,8 +222,8 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                  'syse' = c(
                    "System Exit Types" = "types",
                    "Exits by Year" = "time",
-                   "Exits by Subpopulation" = "subpop",
-                   "Permanent Housing Demographics" = "phd"
+                   "Exits by Subpopulation 2" = "subpop2",
+                   "Exits to PH Demographics" = "phd"
                  )
   )
   
