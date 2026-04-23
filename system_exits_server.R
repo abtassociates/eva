@@ -1106,7 +1106,7 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
   
   count_subpop <- df_subpop %>%
     fcount(`Destination Type`) %>% 
-    fmutate(wasRedacted = total < 10, total = fsum(N), pct = ifelse(wasRedacted, NA, N / total))
+    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total))
   
   .total_e <- fnrow(everyone_else2())
   
@@ -1121,7 +1121,7 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
     fcount(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>%
     fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>% 
     #fmutate(pct = N / fsum(N)) %>% 
-    fmutate(wasRedacted = total < 10, total = fsum(N), pct = ifelse(wasRedacted, NA, N / total)) %>% 
+    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total)) %>% 
     fungroup()
   
   if(output_type == 'chart'){
