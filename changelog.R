@@ -3,6 +3,10 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "03-30-2026",
+    "<b>Bug Fixes</b> <br>
+      - Ignore non-HoH children in DQ check for Days Since Most Recent CLS for Street Outreach, Services Only, and Coordinated Entry projects. (Issue <a href='https://github.com/abtassociates/eva/issues/940' target='_blank'>#940</a>)
+    ",
     "02-24-2026",
     "<b>Bug Fixes</b> <br>
       - Corrected logic for refreshing DQ and PDDE tables and downloads when multiple datasets are uploaded within a session. (Issue <a href='https://github.com/abtassociates/eva/issues/963' target='_blank'>#963</a>)<br>

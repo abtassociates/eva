@@ -883,7 +883,7 @@
       ]
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 5113bfaadcfbb767779a5aad9f85d9e4]",
+      "src": "[image data hash: 4afa65ac49d6b40bec4b085421a8fcd6]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -960,7 +960,7 @@
       ]
     },
     "orgDQWarningByProject": {
-      "src": "[image data hash: 3c6eb2cb4095b6fe435e869a27e1a518]",
+      "src": "[image data hash: 07baba30a07569e4b97a2f84a49519bb]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most Warnings.",
@@ -992,8 +992,8 @@
                   "Organization A - RRH",
                   "Organization A - HP",
                   "Organization A - HP - 2",
-                  "Organization A - RRH - 2",
                   "Organization A - SO",
+                  "Organization A - RRH - 2",
                   "Organization A - ES - 2",
                   "Organization A - ES"
                 ]
