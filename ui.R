@@ -1184,42 +1184,42 @@ nav_menu(
             downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
             downloadButton("syse_time_download_btn_ppt", "Image Download")
           ),
-          nav_panel(
-            title = headerTab('Exits by Subpopulation'),
-            navset_underline(
-              id = "syse_subpop_subtabs",
-              selected = headerSubTab('Chart'),
-              nav_panel(
-                title = headerSubTab('Chart'),
-                uiOutput("syse_compare_subpop_filter_selections") %>%
-                  withSpinner(),
-                radioGroupButtons(
-                  inputId = "subpop_comparison_type_filter",
-                  label = "Comparison Type",
-                  choices = c("Client-Level", "Demographics", "Both"),
-                  selected = "Both",
-                  individual = TRUE,
-                  checkIcon = list(yes = icon("check"))
-                ), 
-                div(
-                  style='margin-left:17px;',
-                  plotOutput("syse_compare_subpop_chart",
-                             width = "92%",
-                             height = "500")
-                ),
-                
-                DTOutput("syse_compare_subpop_table") %>%
-                  withSpinner()
-              ),
-              nav_panel(
-                title = headerSubTab('Information'),
-                br(),
-                tab_syse_subpop_chart_information
-              )
-            ),
-            downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
-            downloadButton("syse_subpop_download_btn_ppt", "Image Download")
-          ),
+          # nav_panel(
+          #   title = headerTab('Exits by Subpopulation'),
+          #   navset_underline(
+          #     id = "syse_subpop_subtabs",
+          #     selected = headerSubTab('Chart'),
+          #     nav_panel(
+          #       title = headerSubTab('Chart'),
+          #       uiOutput("syse_compare_subpop_filter_selections") %>%
+          #         withSpinner(),
+          #       radioGroupButtons(
+          #         inputId = "subpop_comparison_type_filter",
+          #         label = "Comparison Type",
+          #         choices = c("Client-Level", "Demographics", "Both"),
+          #         selected = "Both",
+          #         individual = TRUE,
+          #         checkIcon = list(yes = icon("check"))
+          #       ), 
+          #       div(
+          #         style='margin-left:17px;',
+          #         plotOutput("syse_compare_subpop_chart",
+          #                    width = "92%",
+          #                    height = "500")
+          #       ),
+          #       
+          #       DTOutput("syse_compare_subpop_table") %>%
+          #         withSpinner()
+          #     ),
+          #     nav_panel(
+          #       title = headerSubTab('Information'),
+          #       br(),
+          #       tab_syse_subpop_chart_information
+          #     )
+          #   ),
+          #   downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
+          #   downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+          # ),
           
           nav_panel(
             title = headerTab('Exits by Subpopulation 2'),
@@ -1228,16 +1228,42 @@ nav_menu(
               selected = headerSubTab('Chart'),
               nav_panel(
                 title = headerSubTab('Chart'),
-                uiOutput("syse_compare_subpop2_filter_selections") %>%
-                  withSpinner(),
-                checkboxGroupInput(
-                  "syse_subpop2_selections",
-                  label = "",
-                  choices = sys_heatmap_selection_choices,
-                  selected = c("All Races/Ethnicities", "Age"),
-                  inline = TRUE
+                card(
+                  br(),
+                  strong("Select Demographic Crosstab Categories (up to 2)"),
+                  p(str_glue(
+                    "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+                  )),
+                  checkboxGroupInput(
+                    "syse_subpop2_selections",
+                    label = "",
+                    choices = sys_heatmap_selection_choices,
+                    selected = c("All Races/Ethnicities", "Age"),
+                    inline = TRUE
+                  ),
+                  br(),
+                  uiOutput("syse_subpop2_post_selections"),
+                  radioGroupButtons(
+                    inputId = "subpop2_dest_type",
+                    label = "Destination Type",
+                    choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
+                    #Inactive
+                    selected = "Permanent",
+                    individual = TRUE
+                  ), 
+                  width = 12
                 ),
-                uiOutput("syse_subpop2_post_selections"),
+                br(),
+                # uiOutput("syse_compare_subpop2_filter_selections") %>%
+                #   withSpinner(),
+               
                 div(
                   style='margin-left:17px;',
                   plotOutput("syse_compare_subpop2_chart",
