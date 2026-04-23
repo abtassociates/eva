@@ -270,9 +270,16 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
         linetype = 1,
         aes(fill = frac)
       ) +
-      scale_fill_discrete(
-        
-      ) +
+      scale_fill_gradient(
+        low = get_brand_color('light_green'),
+        high = get_brand_color('dark_green'),
+        breaks = seq(0,1,by=0.05),
+        na.value = ifelse(
+          is.na(plot_df_joined$wasRedacted) | !plot_df_joined$wasRedacted,
+          "white",
+          get_brand_color('light_green')
+        )
+      ) + # na.value makes 0s invisible
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),
