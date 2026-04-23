@@ -1446,7 +1446,7 @@ syse_compare_subpop2_chart <- function(subpop, isExport = FALSE){
     meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
     meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop2_age) < length(sys_age_cats), paste0(input$syse_subpop2_age, collapse=', '), NA_character_),
     meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop2_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop2_race_ethnicity1), collapse=','), 
-                                   ifelse(input$syse_subpop2_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop2_race_ethnicity2) , NA_character_))),
+                                   ifelse(input$syse_subpop2_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop2_race_ethnicity2)) , NA_character_)),
     meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop2_spec_pops != 'None', input$syse_subpop2_spec_pops, NA_character_)
   )
   labels_all_other <- c(
