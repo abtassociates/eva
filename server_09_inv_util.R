@@ -1,6 +1,6 @@
 # Server for Inventory & Utilization Tabs
 
-# functions ---------------------
+# project-level functions ---------------------
 get_quarters <- function(){
   # get the last date in activeInventory
   lastday <- as.Date(session$userData$ReportEnd)
@@ -60,12 +60,14 @@ count_Beds_Units_rng <- function(range_start,range_end, extra_groups = NULL, pro
   
   activeDays <- function(inv_start, inv_end){
     if(is.na(inv_start)){return(0)} # return 0 if we dont have a start 
+    # take max of inventory and range starts
     overlap_start <- max(as.Date(inv_start), range_start, na.rm=TRUE)
+    # take min of inventory and range ends
     overlap_end <- min(as.Date(inv_end), range_end, na.rm=TRUE)
     if(overlap_start>overlap_end){
       return(0)
     }else{
-      return(as.numeric(overlap_end-overlap_start+1))
+      return(as.numeric(overlap_end-overlap_start))
     }
   }
   
@@ -99,12 +101,14 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL, pro
   #browser()
   activeDays <- function(inv_start, inv_end){
     if(is.na(inv_start)){return(0)} # return 0 if we dont have a start 
+    # take max of inventory and range starts
     overlap_start <- max(as.Date(inv_start), range_start, na.rm=TRUE)
+    # take min of inventory and range ends
     overlap_end <- min(as.Date(inv_end), range_end, na.rm=TRUE)
     if(overlap_start>overlap_end){
       return(0)
     }else{
-      return(as.numeric(overlap_end-overlap_start+1))
+      return(as.numeric(overlap_end-overlap_start))
     }
   }
   #For each relevant project and using the EnrollmentAdjust data frame, count the number of people "served in a bed" on each of the 4 PIT Dates.
@@ -115,7 +119,7 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL, pro
     fselect(EnrollmentID, DateProvided)  %>% 
     fmutate(bn_rng = fifelse(as.Date(DateProvided) > range_start & as.Date(DateProvided) <= range_end, 1, 0)) # 1 or 0 day in range
   
-  Bed_Unit_Util <- session$userData$EnrollmentAdjust %>%
+  Bed_Unit_Util <- session$userData$EnrollmentAdjust_BUI %>%
     join(services_qPIT, on = "EnrollmentID", how = "left") %>%  fsubset(ProjectID %in% proj_list) %>%
     fsubset(!(ProjectType %in% c(3,9,10,13)) | !is.na(MoveInDateAdjust)) %>% # drop perm housing project enrollments if move in date missing
     fsubset(!(ProjectType %in% c(3,9,10,13)) | MoveInDateAdjust >= DateProvided) # drop perm housing project enrollments if move in date after DateProvided
@@ -151,20 +155,46 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL, pro
 } 
 # pass quarter start/end dates through ranged counting functions
 # use difference in dates to calculate the 'report length' and calculate nightly averages
-nightly_avg <- function(period, labels, projlist ){
+nightly_avg <- function(period, labels, projlist , extragroups = NULL){
   for (q in 1:length(period)){ # q stands for quarter, but this is generalized to work for months too
     
     if(q!=length(period)){ # IF NOT LAST
-      nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1], proj_list = projlist) %>%
-        join(count_Enrollments_rng(period[q], period[q+1], proj_list = projlist), how = "full") %>%
-        fmutate(PIT = period[q],
-                label = labels[q])
-      
-    }else{ # IF LAST, use a year from first quarter minus a day (so full range is 365)
-      nightly_avg_q <- count_Beds_Units_rng(period[q], period[1] + years(1) - days(1), proj_list = projlist) %>%
-        join(count_Enrollments_rng(period[q], period[1] + years(1) - days(1), proj_list = projlist), how = "full") %>%
-        fmutate(PIT = period[q],
-                label = labels[q])
+      #nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1], proj_list = projlist) %>%
+      #  join(count_Enrollments_rng(period[q], period[q+1], proj_list = projlist), how = "full") %>%
+      #  fmutate(PIT = period[q],
+      #          label = labels[q])
+      if(!is.null(extragroups)){
+        grouping_vars <-c("ProjectID", extragroups)
+        nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1] , proj_list = projlist) %>% # remove extra groups from bed/unit counts to get true totals
+          join(count_Enrollments_rng(period[q], period[q+1] , proj_list = projlist, 
+                                     extra_groups = extragroups), how = "right") %>% # full join was filling in left rows with NA
+          fmutate(PIT = period[q],
+                  label = labels[q])
+      }else{
+        
+        grouping_vars <-c("ProjectID")
+        nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1], proj_list = projlist) %>%
+          join(count_Enrollments_rng(period[q], period[q+1] , proj_list = projlist), how = "full") %>%
+          fmutate(PIT = period[q],
+                  label = labels[q])
+      }
+    }else{ # IF LAST, use a year from first quarter (so full range is 365)
+      if(!is.null(extragroups)){
+        
+        grouping_vars <-c("ProjectID", extragroups)
+        nightly_avg_q <- count_Beds_Units_rng(period[q], period[1] + years(1) , proj_list = projlist) %>% # remove extra groups from bed/unit counts to get true totals
+          join(count_Enrollments_rng(period[q], period[1] + years(1) , proj_list = projlist,
+                                     extra_groups = extragroups), how = "right") %>% # full join was filling in left rows with NA
+          fmutate(PIT = period[q],
+                  label = labels[q])
+      }else{
+        
+        grouping_vars <-c("ProjectID")
+        nightly_avg_q <- count_Beds_Units_rng(period[q], period[1] + years(1) , proj_list = projlist) %>%
+          join(count_Enrollments_rng(period[q], period[1] + years(1) , proj_list = projlist), how = "full") %>%
+          fmutate(PIT = period[q],
+          label = labels[q])
+      }
     }
     if(q==1){
       nightly_avg <- nightly_avg_q
@@ -173,50 +203,207 @@ nightly_avg <- function(period, labels, projlist ){
     }
     rm(nightly_avg_q) # delete quarter
   }
-  
-  nightly_avg_ann <- nightly_avg %>% fgroup_by(ProjectID) %>%
-    fsummarise(Total_Beds = fsum(Total_Beds),
-               Total_Units = fsum(Total_Units),
-               Total_Served = fsum(Total_Served),
-               Total_HHServed = fsum(Total_HHServed)) %>% 
-    fungroup %>%
-    fmutate(
-      PIT = as.Date(NA),
-      label = "Annual",
-      Avg_Nightly_Beds = round(Total_Beds / 365, digits = 1),
-      Avg_Nightly_Units = round(Total_Units / 365, digits = 1),
-      Avg_Nightly_Served = round(Total_Served / 365, digits = 1),
-      Avg_Nightly_HHServed = round(Total_HHServed / 365, digits = 1) 
-    )
-  
+  nightly_avg_ann <- nightly_avg %>% fgroup_by(grouping_vars) %>%
+  fsummarise(Total_Beds = fsum(Total_Beds),
+             Total_Units = fsum(Total_Units),
+             Total_Served = fsum(Total_Served),
+             Total_HHServed = fsum(Total_HHServed)) %>% 
+  fungroup %>%
+  fmutate(
+    PIT = as.Date(NA),
+    label = "Annual",
+    # this could be a format mask to download with more digits
+    Avg_Nightly_Beds = round(Total_Beds / 365, digits = 1),
+    Avg_Nightly_Units = round(Total_Units / 365, digits = 1),
+    Avg_Nightly_Served = round(Total_Served / 365, digits = 1),
+    Avg_Nightly_HHServed = round(Total_HHServed / 365, digits = 1) 
+  )
+  # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
   nightly_avg <- nightly_avg %>% rowbind(nightly_avg_ann) %>%
-    fmutate(Avg_Nightly_Bed_Util = paste(round(100*Avg_Nightly_Served / Avg_Nightly_Beds, digits = 1), "%"),
-            Avg_Nightly_Unit_Util = paste(round(100*Avg_Nightly_HHServed / Avg_Nightly_Units, digits = 1), "%"))
-
+  fmutate(Avg_Nightly_Bed_Util = paste(round(100*Avg_Nightly_Served / Avg_Nightly_Beds, digits = 1), "%"),
+          Avg_Nightly_Unit_Util = paste(round(100*Avg_Nightly_HHServed / Avg_Nightly_Units, digits = 1), "%"))
   return(nightly_avg)
 }
+# Update values of filters 
+# define selectedProjects
+# prioriize to run before the renderDT
+observe({
+  
+  # Update the list of Projects depending on the currently selected filters
+  project_choices <- session$userData$HMIS_projects_w_active_inv
+  
+  if(input$target_pop_sys != "All Target Populations"){
+    project_choices <- project_choices %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_choices <- project_choices %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_choices <- project_choices %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_choices <- project_choices %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  
+  if(is.null(input$HMISprojects)){
+    # If no projects are selected, choose drop-down option from currently selected filters
+    selected_projs <- project_choices # session$userData$HMIS_projects_w_active_inv
+    # except for the project picker which should choose from to the project choices based on current filters
+    updatePickerInput(session = session,
+                      inputId = "HMISprojects",
+                      choices =  sort(unique(project_choices$ProjectName)))
+  }else{
+    # If projects are selected, update the drop-down options to reflect the choices appearing in selected projects
+    selected_projs <- project_choices %>% # get selected projects
+      fsubset(ProjectName %in% input$HMISprojects)
+    # the project picker drops selections that don't appear based on current filters
+    updatePickerInput(session = session,
+                      inputId = "HMISprojects",
+                      choices =  sort(unique(project_choices$ProjectName)),
+                      selected = sort(unique(selected_projs$ProjectName)))
+    
+    
+  }
+  
+  session$userData$selectedProjects <- selected_projs
+  
+  print(input$HMISprojects)
+  print(sort(unique(selected_projs$ProjectID)))
+  # update filters with values in currently selected projects
+  
+  c_choices = c("All Target Populations")
+  if(length(unique(selected_projs$TargetPopulation))>1){
+    c_choices <- c(c_choices, sort(unique(selected_projs$TargetPopulation)))
+  }else{
+    if(!all(input$target_pop_sys %in% c_choices)){
+      c_choices <- unique(c(c_choices,input$target_pop_sys))
+    }
+  }; print(c_choices)
+  
+  updatePickerInput(session = session,
+                    inputId = "target_pop_sys",
+                    choices =  c_choices,
+                    selected = input$target_pop_sys)
+  c_choices = c("All Housing Types")
+  if(length(unique(selected_projs$HousingType))>1){
+    c_choices <- c(c_choices, sort(unique(selected_projs$HousingType)))
+  }else{
+      if(!all(input$housing_type_sys %in% c_choices)){
+        c_choices <- unique(c(c_choices,input$housing_type_sys))
+      }
+  }; print(c_choices)
+  updatePickerInput(session = session,
+                    inputId = "housing_type_sys",
+                    choices = c_choices,
+                    selected = input$housing_type_sys)
+  c_choices = c("All Organizations")
+  if(length(unique(selected_projs$VictimServiceProvider))>1){
+    c_choices <- c(c_choices, sort(unique(selected_projs$VictimServiceProvider)))
+  }else{
+    if(!all(input$victim_service_sys %in% c_choices)){
+      c_choices <- unique(c(c_choices,input$victim_service_sys))
+    }
+  }; print(c_choices)
+  updatePickerInput(session = session,
+                    inputId = "victim_service_sys",
+                    choices =  c_choices,
+                    selected = input$victim_service_sys)
+  c_choices = c( "All ES Bed Availability Types")
+  if(length(unique(selected_projs$Availability))>1){
+    c_choices <- c(c_choices, sort(unique(selected_projs$Availability)))
+  }else{
+    if(!all(input$es_bed_avail_sys %in% c_choices)){
+      c_choices <- unique(c(c_choices,input$es_bed_avail_sys))
+    }
+  }; print(c_choices)
+  updatePickerInput(session = session,
+                    inputId = "es_bed_avail_sys",
+                    choices = c_choices,
+                    selected = input$es_bed_avail_sys)
+}, priority = 1)
+
+#### DISPLAY FILTER SELECTIONS ###
+util_filters <- reactive({
+  list(
+    br(),
+    strong("Date Range: "),
+    
+    format(min(get_quarters()), "%m-%d-%Y"), " to ", format(min(get_quarters())+years(1), "%m-%d-%Y"), br(),
+    
+    # subset project_level_util_q by it's filters
+    if(input$target_pop_sys != "All Target Populations"){
+      chart_selection_detail_line("Target Population", input$target_pop_sys)
+    },
+    if(input$housing_type_sys != "All Housing Types"){
+      chart_selection_detail_line("Housing Type", input$housing_type_sys)
+    },
+    if(input$victim_service_sys != "All Organizations"){
+      chart_selection_detail_line("Victim Service Provider", input$victim_service_sys)
+    },
+    if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+      chart_selection_detail_line("ES Bed Availabiliy Types", input$es_bed_avail_sys)
+    },
+    
+    
+    if (!is.null(input$HMISprojects)){
+      HTML(glue(
+                "<b>Projects:</b> {paste(input$HMISprojects, collapse = ', ')} <br>"
+              ))
+    }
+
+  )
+})
+
+output$quarterly_util_filter_selections <- renderUI({
+  req(session$userData$valid_file() == 1 & !is.null(input$HMISprojects))
+  util_filters() 
+})
+output$monthly_util_filter_selections <- renderUI({
+  req(session$userData$valid_file() == 1 & !is.null(input$HMISprojects))
+  util_filters() 
+})
 
 ## Get Bed/Unit Inventory Data Reactives ------------------------------------------
-
-# Quarterly Filtered Project Level Table -------------
-output$q_proj_inv_filtered <- renderDT({# <- reactive({
+all_hh_avg_q <- reactive({
   req(!is.null(input$HMISprojects))
   
-  selectedProjs <- session$userData$Project0 %>% # get selected projects
-    fsubset(ProjectName %in% input$HMISprojects)
-  selectedProjs <- unique(selectedProjs$ProjectID)
-  
-  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% selectedProjs)
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
   
   stopifnot(nrow(project_level_util_q)>0)
-  
   quarters <- get_quarters() %>% sort
   # Avg selected projects over quarters
-  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), selectedProjs)
+  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  project_level_util_q <-  project_level_util_q %>% fgroup_by(ProjectID, PIT) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
   
   # join with selected project PIT date details
   project_level_util_q <-  project_level_util_q %>% 
-    join(nightly_avg, how = "full") %>% arrange(ProjectID, PIT)
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
   
   # select bed or unit columns
   if(input$inventory_level == "Beds"){
@@ -228,40 +415,46 @@ output$q_proj_inv_filtered <- renderDT({# <- reactive({
   inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
                     inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
   
-  proj_inv_filtered <- proj_inv_filtered %>% fselect(-ProjectType,-eligProjNBN)
   setcolorder(proj_inv_filtered, inv_colorder)
-  inv_cols <- colnames(proj_inv_filtered)
-  
   
   # remove underscores
-  colnames(proj_inv_filtered) <- inv_cols %>% gsub(pattern = "_", replacement = " ")
-  
-  datatable( # return table
-     proj_inv_filtered,
-     rownames = FALSE,
-     options = list(dom = 't', 
-                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
-                    pageLength = -1,
-                    autoWidth = TRUE),
-     style = "default"
-  )
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  proj_inv_filtered
 })
-
-# Monthly Filtered Project Level Table -------------
-output$m_proj_inv_filtered <- renderDT({# <- reactive({
+all_hh_avg_m <- reactive({
   req(!is.null(input$HMISprojects))
   
-  selectedProjs <- session$userData$Project0 %>% # get selected projects
-    fsubset(ProjectName %in% input$HMISprojects)
-  selectedProjs <- unique(selectedProjs$ProjectID)
-  
-  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% selectedProjs)
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
   
   stopifnot(nrow(project_level_util_m)>0)
-  
   mons <- get_months() %>% sort
-  # Avg selected projects over quarters
-  nightly_avg <- nightly_avg(period = mons, labels = names(mons), selectedProjs)
+  # Avg selected projects over months
+  nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selectedProjs$ProjectID))
+  
+  # subset project_level_util_m by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  project_level_util_m <-  project_level_util_m %>% fgroup_by(ProjectID, PIT) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
   
   # join with selected project PIT date details
   project_level_util_m <-  project_level_util_m %>% 
@@ -276,18 +469,35 @@ output$m_proj_inv_filtered <- renderDT({# <- reactive({
   inv_cols <- colnames(proj_inv_filtered)
   inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
                     inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
-  
-  proj_inv_filtered <- proj_inv_filtered %>% fselect(-ProjectType,-eligProjNBN)
   setcolorder(proj_inv_filtered, inv_colorder)
-  inv_cols <- colnames(proj_inv_filtered)
-  
   
   # remove underscores
-  colnames(proj_inv_filtered) <- inv_cols %>% gsub(pattern = "_", replacement = " ")
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  proj_inv_filtered
+})
+
+
+# Quarterly Filtered Project Level Table -------------
+output$q_proj_inv_filtered <- renderDT({
   
+  data <- all_hh_avg_q()
   datatable( # return table
-    proj_inv_filtered,
-    rownames = FALSE,
+    data %>% select(-label),
+     rownames = data$label,
+     options = list(dom = 't', 
+                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                    pageLength = -1,
+                    autoWidth = TRUE),
+     style = "default"
+  )
+})
+# Monthly Filtered Project Level Table -------------
+output$m_proj_inv_filtered <- renderDT({# <- reactive({
+  
+  data <- all_hh_avg_m() 
+  datatable( # return table
+    data %>% select(-label),
+    rownames = data$label,
     options = list(dom = 't', 
                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
                    pageLength = -1,
@@ -296,7 +506,553 @@ output$m_proj_inv_filtered <- renderDT({# <- reactive({
   )
 })
 
+# Utilization Subsets by HouseholdType
+output$all_q_avg <- renderDT({
+  data <- all_hh_avg_q() 
+  datatable( # return table
+    data %>% select(-label, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = data$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+output$all_m_avg <- renderDT({
+  
+  data <- all_hh_avg_m() 
+  
+  datatable( # return table
+    data %>% select(-label, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = data$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+
+output$ao_q_avg <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  
+  stopifnot(nrow(project_level_util_q)>0)
+  quarters <- get_quarters() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID),
+                             extragroups = c("HouseholdType"))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+
+  project_level_util_q <- project_level_util_q %>% fsubset(HouseholdType == 1)
+  
+  project_level_util_q <-  project_level_util_q %>% fgroup_by(ProjectID, PIT, HouseholdType) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
+  
+  # join with selected project PIT date details
+  project_level_util_q <-  project_level_util_q %>% 
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  setcolorder(proj_inv_filtered, inv_colorder)
+  #session$userData$proj_inv_filtered_q <- proj_inv_filtered
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  #browser()
+  datatable( # return table
+    proj_inv_filtered %>% select(-label, - HouseholdType, -starts_with("PIT ")), # -starts_with("Total ")),
+    rownames = proj_inv_filtered$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+output$ao_m_avg <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  
+  stopifnot(nrow(project_level_util_m)>0)
+  months <- get_months() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = months, labels = names(months), projlist = unique(selectedProjs$ProjectID),
+                             extragroups = c("HouseholdType"))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  
+  project_level_util_m <- project_level_util_m %>% fsubset(HouseholdType == 1)
+  
+  project_level_util_m <-  project_level_util_m %>% fgroup_by(ProjectID, PIT, HouseholdType) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
+  
+  # join with selected project PIT date details
+  project_level_util_m <-  project_level_util_m %>% 
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  setcolorder(proj_inv_filtered, inv_colorder)
+  #session$userData$proj_inv_filtered_m <- proj_inv_filtered
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  datatable( # return table
+    proj_inv_filtered %>% select(-label, - HouseholdType, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = proj_inv_filtered$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+
+output$ac_q_avg <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  
+  stopifnot(nrow(project_level_util_q)>0)
+  quarters <- get_quarters() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID),
+                             extragroups = c("HouseholdType"))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  
+  project_level_util_q <- project_level_util_q %>% fsubset(HouseholdType == 3)
+  
+  project_level_util_q <-  project_level_util_q %>% fgroup_by(ProjectID, PIT, HouseholdType) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
+  
+  # join with selected project PIT date details
+  project_level_util_q <-  project_level_util_q %>% 
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  setcolorder(proj_inv_filtered, inv_colorder)
+  #session$userData$proj_inv_filtered_q <- proj_inv_filtered
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  #browser()
+  datatable( # return table
+    proj_inv_filtered %>% select(-label, - HouseholdType, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = proj_inv_filtered$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+output$ac_m_avg <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  
+  stopifnot(nrow(project_level_util_m)>0)
+  months <- get_months() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = months, labels = names(months), projlist = unique(selectedProjs$ProjectID),
+                             extragroups = c("HouseholdType"))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  
+  project_level_util_m <- project_level_util_m %>% fsubset(HouseholdType == 3)
+  
+  project_level_util_m <-  project_level_util_m %>% fgroup_by(ProjectID, PIT, HouseholdType) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
+  
+  # join with selected project PIT date details
+  project_level_util_m <-  project_level_util_m %>% 
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  setcolorder(proj_inv_filtered, inv_colorder)
+  #session$userData$proj_inv_filtered_m <- proj_inv_filtered
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  datatable( # return table
+    proj_inv_filtered %>% select(-label, - HouseholdType, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = proj_inv_filtered$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+
+output$co_q_avg <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  
+  stopifnot(nrow(project_level_util_q)>0)
+  quarters <- get_quarters() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID),
+                             extragroups = c("HouseholdType"))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_q <- project_level_util_q %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_q <- project_level_util_q %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  
+  project_level_util_q <- project_level_util_q %>% fsubset(HouseholdType == 4)
+  
+  project_level_util_q <-  project_level_util_q %>% fgroup_by(ProjectID, PIT, HouseholdType) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
+  
+  # join with selected project PIT date details
+  project_level_util_q <-  project_level_util_q %>% 
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_q %>% fselect(unlist(colnames(project_level_util_q)[!sapply(colnames(project_level_util_q), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  setcolorder(proj_inv_filtered, inv_colorder)
+  #session$userData$proj_inv_filtered_q <- proj_inv_filtered
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  #browser()
+  datatable( # return table
+    proj_inv_filtered %>% select(-label, - HouseholdType, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = proj_inv_filtered$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+output$co_m_avg <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  
+  stopifnot(nrow(project_level_util_m)>0)
+  months <- get_months() %>% sort
+  # Avg selected projects over quarters
+  nightly_avg <- nightly_avg(period = months, labels = names(months), projlist = unique(selectedProjs$ProjectID),
+                             extragroups = c("HouseholdType"))
+  
+  # subset project_level_util_q by it's filters
+  if(input$target_pop_sys != "All Target Populations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  }
+  if(input$housing_type_sys != "All Housing Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(HousingType %in% input$housing_type_sys)
+  }
+  if(input$victim_service_sys != "All Organizations"){
+    project_level_util_m <- project_level_util_m %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  }
+  if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
+    project_level_util_m <- project_level_util_m %>% fsubset(Availability %in% input$es_bed_avail_sys)
+  }
+  
+  
+  project_level_util_m <- project_level_util_m %>% fsubset(HouseholdType == 4)
+  
+  project_level_util_m <-  project_level_util_m %>% fgroup_by(ProjectID, PIT, HouseholdType) %>%
+    fsummarise(PIT_Beds = fsum(PIT_Beds),
+               PIT_Units = fsum(PIT_Units),
+               PIT_Served = fsum(PIT_Served),
+               PIT_HHServed = fsum(PIT_HHServed)) %>%
+    fungroup %>%
+    # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
+    fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds * 100, digits=1), "%"),
+            PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units * 100), "%"))
+  
+  
+  # join with selected project PIT date details
+  project_level_util_m <-  project_level_util_m %>% 
+    join(nightly_avg, how = "left") %>% arrange(ProjectID, PIT)
+  # select bed or unit columns
+  if(input$inventory_level == "Beds"){
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    proj_inv_filtered<-project_level_util_m %>% fselect(unlist(colnames(project_level_util_m)[!sapply(colnames(project_level_util_m), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  inv_cols <- colnames(proj_inv_filtered)
+  inv_colorder <- c("label", "PIT", "ProjectID", inv_cols[startsWith(inv_cols,"PIT_")], 
+                    inv_cols[startsWith(inv_cols,"Total_")], inv_cols[startsWith(inv_cols,"Avg_")])
+  
+  setcolorder(proj_inv_filtered, inv_colorder)
+  #session$userData$proj_inv_filtered_m <- proj_inv_filtered
+  
+  # remove underscores
+  colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  datatable( # return table
+    proj_inv_filtered %>% select(-label, - HouseholdType, -starts_with("PIT "), -starts_with("Total ")),
+    rownames = proj_inv_filtered$label,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+
+
+
 # Quarterly System Level Utilization (suppressed) ---------------
+output$q_sys_inv_filtered <- renderDT({
+  req(!is.null(input$HMISprojects))
+  
+  selectedProjs <-session$userData$selectedProjects
+  
+  # join quarterly PIT dates 
+  # can't do this because selectedProjects has grouping vars and  project level util q does not
+  print(colnames(selectedProjs))
+  selectedProjs <- selectedProjs %>% fmutate(TotBeds = BedInventory, 
+                                             TotUnits = UnitInventory)
+  selectedProjs <- selectedProjs %>% # group by all filter variables
+    fgroup_by(ProjectID, HMISParticipationType, ESBedType, HouseholdType,
+              TargetPopulation, HousingType, VictimServiceProvider, Availability)
+  
+  if(input$dedicated_beds_sys == "All Bed Types"){ # summarise columns based on dedicated bed input
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(BedInventory),
+                                                  UnitInventory = fsum(UnitInventory) )
+  }else if(input$dedicated_beds_sys == "Veteran Dedicated Beds"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(VetBedInventory),
+                                                  UnitInventory = fsum(VetUnitInventory) )
+  }else if(input$dedicated_beds_sys == "Veteran Youth Dedicated Beds"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(YouthVetBedInventory),
+                                                  UnitInventory = fsum(YouthVetUnitInventory) )
+  }else if(input$dedicated_beds_sys == "Veteran Child Dedicated Beds"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(CHVetBedInventory),
+                                                  UnitInventory = fsum(CHVetUnitInventory) )
+  }else if(input$dedicated_beds_sys == "Youth Dedicated Beds"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(YouthBedInventory),
+                                                  UnitInventory = fsum(YouthUnitInventory) )
+  }else if(input$dedicated_beds_sys == "Youth Child Dedicated Beds"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(CHYouthBedInventory),
+                                                  UnitInventory = fsum(CHYouthUnitInventory) )
+  }else if(input$dedicated_beds_sys == "Child Dedicated Beds"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(CHBedInventory),
+                                                  UnitInventory = fsum(CHUnitInventory) )
+  }else if(input$dedicated_beds_sys == "Beds Not Dedicated"){
+    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
+                                                  TotUnits = fsum(UnitInventory),
+                                                  BedInventory = fsum(OtherBedInventory),
+                                                  UnitInventory = fsum(OtherUnitInventory) )
+  }
+  
+  # project_level_util_q should be re-built if anything besides 'all bed types' is selected (since those calcs use BedInventory/UnitInventory)
+  # maybe we could just scale it based on inventory counts?
+  selectedProjs <-  selectedProjs %>% join(session$userData$project_level_util_q, how = "full", multiple = TRUE) %>%
+    fmutate(# All counts  need to be scaled for dedicated bed selections
+      PIT_Beds = PIT_Beds * BedInventory / TotBeds, # number of selected dedicated beds over all bed for each grouping 
+      PIT_Units = PIT_Units * UnitInventory / TotUnits,
+      PIT_Served = PIT_Served * BedInventory / TotBeds,
+      PIT_HHServed = PIT_HHServed * UnitInventory / TotUnits)
+  
+  selectedProjs <- selectedProjs %>% fungroup() %>% fgroup_by(ProjectID, PIT) %>%
+    fmutate(Project_Total_Beds = fsum(TotBeds), # get project totals (across all grouping vars)
+            Project_Total_Units = fsum(TotUnits))
+            
+  
+  selectedProjs <- selectedProjs %>% 
+    fmutate(# Enrollments only grouped by project and PIT, so those need to be scaled again by Project to Project + filters
+            PIT_Served = PIT_Served * BedInventory / Project_Total_Beds,
+            PIT_HHServed = PIT_HHServed * UnitInventory / Project_Total_Units)
+  
+  #project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% selectedProjs$ProjectID)
+
+  
+  # todo - group and summarise
+  sys_inv_filtered <- selectedProjs %>% fgroup_by(HMISParticipationType, ESBedType, HouseholdType,
+                                                     TargetPopulation, HousingType, VictimServiceProvider, Availability, PIT) %>%
+   fsummarise(PIT_Beds = fsum(PIT_Beds),
+              PIT_Units = fsum(PIT_Units),
+              PIT_Served = fsum(PIT_Served),
+              PIT_HHServed = fsum(PIT_HHServed))
+  
+  # select columns based on inventory level
+  if(input$inventory_level_sys == "Beds"){
+    sys_inv_filtered<-sys_inv_filtered %>% fselect(unlist(colnames(sys_inv_filtered)[!sapply(colnames(sys_inv_filtered), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    sys_inv_filtered<-sys_inv_filtered %>% fselect(unlist(colnames(sys_inv_filtered)[!sapply(colnames(sys_inv_filtered), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  
+  datatable( # return table
+    sys_inv_filtered,
+    rownames = FALSE,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
 #q_sys_bed_unit_inv <- reactive({
 
 # calculate system level totals

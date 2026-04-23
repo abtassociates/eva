@@ -1056,21 +1056,47 @@ nav_menu(
           choices = c("Beds","Units"),
           selected = "Beds",
           options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "Target Population",
+          inputId = "target_pop_sys",
+          choices = "All Target Populations",
+          selected = "All Target Populations",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "Household Type",
+          inputId = "housing_type_sys",
+          choices = "All Housing Types",
+          selected = "All Housing Types",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "Victim Services Provider",
+          inputId = "victim_service_sys",
+          choices = "All Organizations",
+          selected = "All Organizations",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "ES Bed Availability Type",
+          inputId = "es_bed_avail_sys",
+          choices = "All ES Bed Availability Types",
+          selected = "All ES Bed Availability Types",
+          options = pickerOptions(container = "body")
         )
       )
     ),
-      ### Project Level Inventory ----------------
-    navset_underline(
+    navset_underline( # Inventory or Utilization
       id = "project_level_box",
       selected = headerTab("Inventory"),
-    
+      ### Project Level Inventory ----------------
       nav_panel(
         title = headerTab('Inventory'),
-        
-        navset_underline(
+        navset_underline( # Quarterly Inventory, Monthly Inventory, or Information
           id = "project_level_box_inv",
           selected = headerSubTab("Quarterly Inventory"),
-          nav_panel(
+          nav_panel( # Quarterly Inventory
             title = headerSubTab('Quarterly Inventory'),
             DTOutput("q_proj_inv_filtered") %>% withSpinner()
             #plotOutput("sys_inflow_outflow_summary_ui_chart",
@@ -1078,34 +1104,96 @@ nav_menu(
             #           height = "500") %>%
             #  withSpinner()
           ),
-          nav_panel(
+          nav_panel( # Monthly Inventory
             title = headerSubTab("Monthly Inventory"),
             DTOutput("m_proj_inv_filtered")
           ),
-          nav_panel(
+          nav_panel( # Information
             title = headerSubTab("Information")
           )
         )
       ),
+      ### Project Level Utilization ----------------
       nav_panel(
           title = headerSubTab("Utilization"),
           
-          navset_underline(
+          navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
             id = "project_level_box_util",
             selected = headerSubTab("Quarterly Utilization"),
-            nav_panel(
+            nav_panel( # Quarterly Utilization
               title = headerSubTab('Quarterly Utilization'),
-              #DTOutput("q_proj_inv_filtered") %>% withSpinner()
-              #plotOutput("sys_inflow_outflow_summary_ui_chart",
-              #           width = "70%",
-              #           height = "500") %>%
-              #  withSpinner()
+              uiOutput("quarterly_util_filter_selections") %>%
+                  withSpinner(),
+                radioGroupButtons(
+                  inputId = "pop_filter_q_avg",
+                  #label = "Flow Type Filters",
+                  choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
+                  #Inactive
+                  selected = "All",
+                  individual = TRUE,
+                  checkIcon = list(yes = icon("check"))
+                ), 
+              # todo - add another switch for Value: Average or Point in Time (PIT)
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg == 'Adult-Only'",
+                  # todo - plotOutput
+                  DTOutput("ao_q_avg", width = "100%", height = "500") %>% 
+                    withSpinner() 
+                ), 
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg =='Adult-Child'",
+                  # todo - plotOutput
+                  DTOutput("ac_q_avg", width = "100%", height = "500") 
+                ),
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg == 'Child-Only'",
+                  # todo - plotOutput
+                  DTOutput("co_q_avg", width = "100%", height = "500") 
+                ),
+                conditionalPanel(
+                  condition = "input.pop_filter_q_avg == 'All'",
+                  # todo - plotOutput
+                  DTOutput("all_q_avg", width = "100%", height = "500") %>% 
+                    withSpinner()
+                )
             ),
-            nav_panel(
+            nav_panel( # Monthly Utilization
               title = headerSubTab("Monthly Utilization"),
-              #DTOutput("m_proj_inv_filtered")
+              uiOutput("monthly_util_filter_selections") %>% 
+                withSpinner(),
+              radioGroupButtons(
+                inputId = "pop_filter_m_avg",
+                #label = "Flow Type Filters",
+                choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
+                #Inactive
+                selected = "All",
+                individual = TRUE,
+                checkIcon = list(yes = icon("check"))
+              ), 
+              # todo - add another switch for Value: Average or Point in Time (PIT)
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg == 'Adult-Only'",
+                # todo - plotOutput
+                DTOutput("ao_m_avg", width = "100%", height = "500") 
+              ), 
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg =='Adult-Child'",
+                # todo - plotOutput
+                DTOutput("ac_m_avg", width = "100%", height = "500") 
+              ),
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg == 'Child-Only'",
+                # todo - plotOutput
+                DTOutput("co_m_avg", width = "100%", height = "500") 
+              ),
+              conditionalPanel(
+                condition = "input.pop_filter_m_avg == 'All'",
+                # todo - plotOutput
+                DTOutput("all_m_avg", width = "100%", height = "500") %>% 
+                  withSpinner()
+              )
             ),
-            nav_panel(
+            nav_panel( # Information
               title = headerSubTab("Information")
             )
           )
@@ -1116,13 +1204,111 @@ nav_menu(
   nav_panel(
     title = "System-level",
     value = "tabSystemLevelInvUtil",
+    ### Filters ----------------
     card(
-      card_header(HTML("<h2>Changelog</h2>"),class = 'cardhdr'),
-      card_body(
-        tabChangelog_instructions,
-        dataTableOutput("changelog")
-      ), min_height = 1000, fill = FALSE
-      
+      card_header(headerCard("Filters")),
+      layout_columns(
+        col_widths=c(4,4,4),
+        gap = '0px',
+        
+        pickerInput(
+          label = 'Project Target Population',
+          inputId = "target_pop_sys",
+          choices = "All Target Populations", # add other options in 08_inv_util.R
+          selected = "All Target Populations",
+          #multiple = TRUE,
+          options = pickerOptions(container = 'body',)
+        ),
+        pickerInput(
+          label = "Project Housing Type",
+          inputId = "housing_type_sys",
+          choices = "All Housing Types", # add other options in 08_inv_util.R
+          selected = "All Housing Types",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "Inventory Level",
+          inputId = "inventory_level_sys",
+          choices = c("Beds","Units"),
+          selected = "Beds",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "Organization Victim Service Provider Status",
+          inputId = "victim_service_sys",
+          choices = "All Organizations", # add other options in 08_inv_util.R
+          selected = "All Organizations",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "Inventory Dedicated Bed Type",
+          inputId = "dedicated_beds_sys",
+          choices = c("All Bed Types", "Beds Not Dedicated", 
+                      "Veteran Dedicated Beds", "Veteran Youth Dedicated Beds", "Veteran Child Dedicated Beds",
+                      "Youth Dedicated Beds", "Youth Child Dedicated Beds",
+                      "Child Dedicated Beds"),
+          selected = "All Bed Types",
+          options = pickerOptions(container = "body")
+        ),
+        pickerInput(
+          label = "ES Bed Availability Type",
+          inputId = "es_bed_avail_sys",
+          choices = "All ES Bed Availability Types", # add other options in 08_inv_util.R
+          selected = "All ES Bed Availability Types",
+          options = pickerOptions(container = "body")
+        )
+      )
+    ),
+    navset_underline( # Inventory or Utilization
+      id = "system_level_box",
+      selected = headerTab("Inventory"),
+      ### System Level Inventory ----------------
+      nav_panel(
+        title = headerTab('Inventory'),
+        navset_underline( # Quarterly Inventory, Monthly Inventory, or Information
+          id = "system_level_box_inv",
+          selected = headerSubTab("Quarterly Inventory"),
+          nav_panel( # Quarterly Inventory
+            title = headerSubTab('Quarterly Inventory'),
+            DTOutput("q_sys_inv_filtered") %>% withSpinner()
+            #plotOutput("sys_inflow_outflow_summary_ui_chart",
+            #           width = "70%",
+            #           height = "500") %>%
+            #  withSpinner()
+          ),
+          nav_panel( # Monthly Inventory
+            title = headerSubTab("Monthly Inventory"),
+            DTOutput("m_sys_inv_filtered")
+          ),
+          nav_panel( # Information
+            title = headerSubTab("Information")
+          )
+        )
+      ),
+      ### System Level Utilization ----------------
+      nav_panel(
+        title = headerSubTab("Utilization"),
+        
+        navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
+          id = "system_level_box_util",
+          selected = headerSubTab("Quarterly Utilization"),
+          nav_panel( # Quarterly Utilization
+            title = headerSubTab('Quarterly Utilization'),
+            #DTOutput("q_proj_inv_filtered") %>% withSpinner()
+            #plotOutput("sys_inflow_outflow_summary_ui_chart",
+            #           width = "70%",
+            #           height = "500") %>%
+            #  withSpinner()
+          ),
+          nav_panel( # Monthly Utilization
+            title = headerSubTab("Monthly Utilization"),
+            #DTOutput("m_proj_inv_filtered")
+          ),
+          nav_panel( # Information
+            title = headerSubTab("Information")
+          )
+        )
+      )
     )
   )
 ), 

@@ -1,6 +1,14 @@
 
 logToConsole(session, "building HMIS Participation Datasets")
 ## Create Data for HMIS Participation ------------------------------------------
+# Fix Household Type in Enrollment Adjust
+EnrollmentAdjust_BUI <- EnrollmentAdjust %>% 
+  fmutate("HouseholdType" = fcase(HouseholdType == "PY", 3,
+                                  HouseholdType == "ACminusPY",3,
+                                  HouseholdType == "UY", 1,
+                                  HouseholdType == "AOminusUY",1,
+                                  HouseholdType == "CO", 4,
+                                  default = as.numeric( HouseholdType)))
 # Inventory Level --------------------------------------------------------------
 HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
@@ -48,21 +56,60 @@ HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
              VetBedInventory = fsum(VetBedInventory),
              CHYouthBedInventory = fsum(CHYouthBedInventory),
              YouthBedInventory = fsum(YouthBedInventory),
-             CHBedInventory = fsum(CHBedInventory)) %>% 
+             CHBedInventory = fsum(CHBedInventory),
+             OtherBedInventory = fsum(OtherBedInventory)) %>% 
   fungroup()
 
 # Estimate Dedicated Vet, Youth, and CH (Child) units based on ratio of beds----
 HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
   fmutate(VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
           YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
-          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory
-  ) %>% join(Project, how="left") # join project to get full details (name for inputpicker)
+          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHVetUnitInventory = UnitInventory * CHVetBedInventory/BedInventory,
+          CHYouthUnitInventory = UnitInventory * CHYouthBedInventory/BedInventory,
+          YouthVetUnitInventory = UnitInventory * YouthVetBedInventory/BedInventory,
+          OtherUnitInventory = UnitInventory * OtherBedInventory/BedInventory) %>% 
+  join(Project %>% fselect(ProjectName, ProjectID), how="left") # join project to get full details (name for inputpicker)
 
 
-# update input project picker on Inventory & Utilization dropdown - Project LeveL tab ---- 
+## Update Input Pickers --------------------------------------------------------
+# on Inventory & Utilization dropdown - Project LeveL tab ---- 
 updatePickerInput(session = session,
                   inputId = "HMISprojects",
                   choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
+
+c_choices <- sort(unique(HMIS_projects_w_active_inv$TargetPopulation))
+if(length(c_choices) > 1) { 
+  c_choices = c("All Target Populations", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "target_pop_sys",
+                    choices =  c_choices)
+}
+
+c_choices <- sort(unique(HMIS_projects_w_active_inv$HousingType))
+if(length(c_choices) > 1) {
+  c_choices = c("All Housing Types", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "housing_type_sys",
+                    choices = c_choices)
+}
+
+c_choices <- sort(unique(HMIS_projects_w_active_inv$VictimServiceProvider))
+if(length(c_choices) > 1) {
+  c_choices = c("All Organizations", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "victim_service_sys",
+                    choices =  c_choices)
+}
+
+c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
+if(length(c_choices) > 1) {
+  c_choices = c( "All ES Bed Availability Types", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "es_bed_avail_sys",
+                    choices = c_choices )
+}
+# on Inventory & Utilization dropdown - System LeveL tab ---- 
 
 ## Functions -------------------------------------------------------------------
 # make function get_quarters() to get quarterly PIT dates ----------------------
@@ -129,7 +176,7 @@ get_months <- function(){
   return(months)
 }
 # counting functions count_Beds_Units() & count_Enrollments() ------------------
-# create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments)
+# create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments) on list of dates
 count_Beds_Units <- function(pit_dates, extra_groups = NULL){ # use NULL so length == 0
   if(length(extra_groups)==0){
     grouping_vars <- c("PIT", "ProjectID")
@@ -171,7 +218,7 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
   #Exclude any permanent housing enrollments where MoveInDateAdjust < [PIT Date]
   services_qPIT <- Services %>%
     fselect(EnrollmentID, DateProvided)  %>% 
-    join(EnrollmentAdjust %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
+    join(EnrollmentAdjust_BUI %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
     fmutate(temp = 1) %>%
     join( # expand rows for each PIT date
       pit_dates %>% fmutate(temp=1), 
@@ -184,7 +231,7 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
     fsummarise( # flag if Enrollment has any Service records where DateProvided == PIT
       has_bn_PIT = any(bn_PIT, na.rm=TRUE)
     )  %>% fungroup()
-  Bed_Unit_Util <- EnrollmentAdjust %>%
+  Bed_Unit_Util <- EnrollmentAdjust_BUI %>%
     join(services_qPIT, on = "EnrollmentID", how = "left", multiple = T) %>%
     fmutate(# Enrollment Active
       activeEnroll = EntryDate <= as.Date(PIT) & (is.na(ExitAdjust) | ExitAdjust > as.Date(PIT)),
@@ -210,21 +257,26 @@ logToConsole(session, "building project-level utilization")
 # sort PIT dates
 quarters <- get_quarters() %>% sort
 mons <- get_months() %>% sort
+sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType", 
+                       "TargetPopulation", "HousingType", 
+                       "VictimServiceProvider", "Availability") # all filters
+#print(colnames(EnrollmentAdjust))
 # full join the results of passing through counting functions
-project_level_util_q <- count_Beds_Units(quarters) %>%
-  join(count_Enrollments(quarters), how = "left") %>%
-  fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds *100, digits = 1), "%"),
-          PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units*100, digits = 1), "%"))
+project_level_util_q <- count_Beds_Units(quarters, extra_groups = sys_grouping_vars) %>%
+  join(count_Enrollments(quarters), how = "left") 
 
-project_level_util_m <- count_Beds_Units(mons) %>%
-  join(count_Enrollments(mons), how = "left") %>%
-  fmutate(PIT_Bed_Utilization = paste(round(PIT_Served / PIT_Beds *100, digits = 1), "%"),
-          PIT_Unit_Utilization = paste(round(PIT_HHServed / PIT_Units*100, digits = 1), "%"))
+project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars) %>%
+  join(count_Enrollments(mons), how = "left")
+
+
+
 
 # pass results to session for server_09_inv_util.R to finish 
 session$userData$project_level_util_q <- project_level_util_q 
 session$userData$project_level_util_m <- project_level_util_m 
+#print(colnames(HMIS_project_active_inventories))
 session$userData$HMIS_project_active_inventories <- HMIS_project_active_inventories 
-session$userData$EnrollmentAdjust <- EnrollmentAdjust
-
+session$userData$EnrollmentAdjust_BUI <- EnrollmentAdjust_BUI
+session$userData$HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv
+session$userData$selectedProjects <- NULL
 
