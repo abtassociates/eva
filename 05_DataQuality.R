@@ -133,7 +133,12 @@ dkr_dob <- base_dq_data %>%
   fselect(vars_we_want)
 
 incorrect_dob <- base_dq_data %>%
-  fsubset(AgeAtEntry < 0 | AgeAtEntry > 100) %>%
+  fsubset(AgeAtEntry < 0) %>%
+  merge_check_info_dt(checkIDs = 84) %>%
+  fselect(vars_we_want)
+
+over100_dob <- base_dq_data %>%
+  fsubset(AgeAtEntry > 100) %>%
   merge_check_info_dt(checkIDs = 84) %>%
   fselect(vars_we_want)
 
