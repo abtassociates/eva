@@ -1249,7 +1249,60 @@ nav_menu(
                     inline = TRUE
                   ),
                   br(),
-                  uiOutput("syse_subpop2_post_selections"),
+                  #uiOutput("syse_subpop2_post_selections"),
+                  fluidRow(style='padding: 5px;',
+                  tagList(
+                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("Age")',
+                                     pickerInput(
+                                       inputId = "syse_subpop2_age",
+                                       label = "Age",
+                                       selected = sys_age_cats,
+                                       choices = sys_age_cats,
+                                       multiple = TRUE,
+                                       options = pickerOptions(
+                                         actionsBox = TRUE,
+                                         selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                                         countSelectedText = "All Ages",
+                                         noneSelectedText = "All Ages",
+                                         container = "body"
+                                       )
+                                     )),
+                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("All Races/Ethnicities")',
+                                     pickerInput(
+                                       label = "Race/Ethnicity",
+                                       inputId = "syse_subpop2_race_ethnicity1",
+                                       choices = sys_race_ethnicity_method1,
+                                       selected = sys_race_ethnicity_method1,
+                                       options = list(
+                                         `dropdown-align-right` = TRUE,
+                                         `dropup-auto` = FALSE,
+                                         container = "body"
+                                       )
+                                     )
+                    ),
+                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("Grouped Races/Ethnicities")',
+                                     pickerInput(
+                                       label = "Race/Ethnicity",
+                                       inputId = "syse_subpop2_race_ethnicity2",
+                                       choices = sys_race_ethnicity_method2,
+                                       selected = sys_race_ethnicity_method2,
+                                       options = list(
+                                         `dropdown-align-right` = TRUE,
+                                         `dropup-auto` = FALSE,
+                                         container = "body"
+                                       )
+                                     )
+                    ),
+                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("Veteran Status (Adult Only)")',
+                                     pickerInput(
+                                       label = "Veteran Status",
+                                       inputId = "syse_subpop2_spec_pops",
+                                       choices = sys_spec_pops_people,
+                                       selected = sys_spec_pops_people[1],
+                                       options = pickerOptions(container = "body")
+                                     )
+                    )
+                  )),
                   radioGroupButtons(
                     inputId = "subpop2_dest_type",
                     label = "Destination Type",
