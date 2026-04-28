@@ -1482,13 +1482,13 @@ syse_compare_subpop2_chart <- function(subpop, isExport = FALSE){
       other_factor <- setdiff(which_factors_changed, 'meets_race_eth_filter')
       
       ## horizontal variable
-      levels(subpop2_chart_df[[other_factor]]) <- c(labels_all_other[other_factor],labels_factors_changed[other_factor])
+      levels(subpop2_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
       
       ## vertical variable
-      levels(subpop2_chart_df[['meets_race_eth_filter']]) <- c(labels_all_other['meets_race_eth_filter'],labels_factors_changed['meets_race_eth_filter'])
+      levels(subpop2_chart_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
       
-      g <- ggplot(subpop2_chart_df, aes(x=!!sym(other_factor), y=meets_race_eth_filter))
-        
+      g <- ggplot(subpop2_chart_df, aes(x=!!sym(other_factor), y=fct_rev(meets_race_eth_filter))
+      )        
     } else {
       
       ## horizontal variable
