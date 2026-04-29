@@ -1,0 +1,26 @@
+---
+title: "System Performance Glossary"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(flextable)
+library(stringr)
+```
+
+```{r table, message=F, warning=F}
+# Version Updated 4/7/2026
+gloss <- readxl::read_xlsx(path = gsub('sandbox', 'public-resources/system performance glossary.xlsx', getwd()))
+
+gloss$`Target Filters/Panels` <- str_wrap(gloss$`Target Filters/Panels`, width = 20)
+gloss$Definition <- str_squish(gloss$Definition)
+gloss$Definition <- str_wrap(gloss$Definition, width = 80)
+gloss$Term <- str_wrap(gloss$Term, width = 20)
+
+flextable(gloss) |>
+  autofit() |>
+  border_inner() |>
+  border_outer() |>
+  fit_to_width(max_width = 7.5)
+```

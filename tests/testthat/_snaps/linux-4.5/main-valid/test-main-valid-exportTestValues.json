@@ -532,7 +532,7 @@
         ],
         [
           null,
-          "Mean   : 23.89  ",
+          "Mean   : 23.47  ",
           null
         ],
         [
@@ -569,7 +569,7 @@
           null,
           null,
           null,
-          "Mean   :  9.034  "
+          "Mean   :  8.874  "
         ],
         [
           null,
@@ -739,14 +739,14 @@
       ],
       "Warnings": [
         [
-          "Length:822        ",
-          "Length:822        ",
-          "Length:822        ",
-          "Length:822        ",
-          "Length:822        ",
-          "Length:822        ",
-          "Length:822        ",
-          "Length:822        ",
+          "Length:803        ",
+          "Length:803        ",
+          "Length:803        ",
+          "Length:803        ",
+          "Length:803        ",
+          "Length:803        ",
+          "Length:803        ",
+          "Length:803        ",
           "Min.   :2019-08-17  "
         ],
         [
@@ -758,7 +758,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-11-03  "
+          "1st Qu.:2020-11-02  "
         ],
         [
           "Mode  :character  ",
@@ -769,7 +769,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-08-08  "
+          "Median :2021-07-27  "
         ],
         [
           null,
@@ -780,7 +780,7 @@
           null,
           null,
           null,
-          "Mean   :2021-07-09  "
+          "Mean   :2021-06-30  "
         ],
         [
           null,
@@ -791,7 +791,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-03-24  "
+          "3rd Qu.:2022-03-07  "
         ],
         [
           null,
@@ -1555,7 +1555,7 @@
         ],
         [
           null,
-          "Mean   :  830.0  ",
+          "Mean   :  799.9  ",
           null
         ],
         [
@@ -1574,7 +1574,7 @@
           "Length:996        ",
           "High Priority: 56  ",
           "Length:996        ",
-          "Min.   :   1  "
+          "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
@@ -1586,19 +1586,19 @@
           "Mode  :character  ",
           "Warning      :498  ",
           "Mode  :character  ",
-          "Median :   8  "
+          "Median :   8.00  "
         ],
         [
           null,
           null,
           null,
-          "Mean   :  60  "
+          "Mean   :  57.82  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  25  "
+          "3rd Qu.:  25.00  "
         ],
         [
           null,
@@ -1762,14 +1762,14 @@
       ],
       "Warnings": [
         [
-          "Length:46050      ",
-          "Length:46050      ",
-          "Length:46050      ",
-          "Length:46050      ",
-          "Length:46050      ",
-          "Length:46050      ",
-          "Length:46050      ",
-          "Length:46050      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
           "Min.   :2005-04-14  "
         ],
         [
@@ -1781,7 +1781,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-11  "
+          "1st Qu.:2020-06-12  "
         ],
         [
           "Mode  :character  ",
@@ -1792,7 +1792,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-03-02  "
+          "Median :2021-02-25  "
         ],
         [
           null,
@@ -1803,7 +1803,7 @@
           null,
           null,
           null,
-          "Mean   :2021-02-14  "
+          "Mean   :2021-02-15  "
         ],
         [
           null,
@@ -1814,7 +1814,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-01-07  "
+          "3rd Qu.:2021-12-27  "
         ],
         [
           null,
