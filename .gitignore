@@ -20,6 +20,7 @@ images/
 logs/
 *.txt
 sandbox/**/*.csv
+sandbox/**/*.rds
 metadata-analysis/
 sessiondata.csv
 metadata.csv

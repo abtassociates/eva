@@ -1284,16 +1284,18 @@ nav_menu(
 nav_menu(
   title = 'Resources',
   icon = icon("book"),
+  
   # Glossary tab -------------
   nav_panel(
     title = "System Performance Glossary",
     value = "tabGlossary",
-    card(
-      card_header(HTML("<h2>System Performance Glossary</h2>")),
-      card_body(
-        #          title = "Instructions",
-        tabGlossary_instructions,
-        
+    navset_card_underline(
+      id = "glossary_subtabs",
+    nav_panel(
+      id = 'glossary_card',
+      title = HTML('<h2>System Performance Glossary</h2>'),
+               tabGlossary_instructions,
+        downloadButton('glossary_download_btn', label = 'Download Glossary'),
         DTOutput("glossary")
       )
     )

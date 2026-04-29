@@ -45,10 +45,11 @@
     ],
     "dq_export_orgList": null,
     "dq_summary_subtabs": "<h4>Data Quality Guidance<\/h4>",
-    "g_errors_dqorg_subtabs": "<h5>Top Projects<\/h5>",
-    "g_errors_dqsystem_subtabs": "<h5>Top Organizations<\/h5>",
-    "hp_errors_dqorg_subtabs": "<h5>Top Projects<\/h5>",
-    "hp_errors_dqsystem_subtabs": "<h5>Top Organizations<\/h5>",
+    "g_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
+    "glossary_subtabs": "<h2>System Performance Glossary<\/h2>",
+    "hp_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
     "imported": {
       "name": [
         "FY26-test-wrong-file-type.gz"

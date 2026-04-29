@@ -918,11 +918,11 @@ tabDQSystem_instructions <-  HTML("
                <p>Regardless of an issue's categorization, <b>users should never
                edit data that accurately reflects reality</b>.
                
-               <h4>System-level HMIS Data Quality Charts</h4>
-               <p>For each issue type (High Priority Errors, General Errors,
-               and Warnings) you will see two charts: one showing the most common issues 
-                and one showing the organizations with the most issues.</p>
-               
+               <h4>System-level HMIS Data Quality Plots</h4>
+               <p>For each type of issue (High Priority Errors, General Errors,
+               and Warnings) you will find two plots: one plots the counts of
+               issues and one plots the number of issues by organization.</p>
+
                <h5><b>Top Issues</b></h5>
                <p>These charts display <b>up to the top ten</b> data quality issues identified 
                 across all organizations in the uploaded file. If fewer than ten issues are present, 
