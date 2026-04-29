@@ -1241,68 +1241,87 @@ nav_menu(
                                    new categories. Note that you can only select one Race/Ethnicity 
                                    category to display in the chart at a time."
                   )),
-                  checkboxGroupInput(
-                    "syse_subpop2_selections",
-                    label = "",
-                    choices = sys_heatmap_selection_choices,
-                    selected = c("All Races/Ethnicities", "Age"),
-                    inline = TRUE
-                  ),
-                  br(),
+                  # checkboxGroupInput(
+                  #   "syse_subpop2_selections",
+                  #   label = "",
+                  #   choices = sys_heatmap_selection_choices,
+                  #   selected = c("All Races/Ethnicities", "Age"),
+                  #   inline = TRUE
+                  # ),
+                   br(),
                   #uiOutput("syse_subpop2_post_selections"),
-                  fluidRow(style='padding: 5px;',
-                  tagList(
-                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("Age")',
+                  layout_columns(
+                    col_widths = c(1, 2,-1, 1,2,-1,1,2),
+                        checkboxInput('syse_subpop2_age_selection', 'Age'),
+                         div(id ='age_picker',style='margin-top:0px; padding-top:0px;',
                                      pickerInput(
                                        inputId = "syse_subpop2_age",
-                                       label = "Age",
+                                       label=NULL,#label = "Age",
                                        selected = sys_age_cats,
                                        choices = sys_age_cats,
                                        multiple = TRUE,
                                        options = pickerOptions(
                                          actionsBox = TRUE,
                                          selectedTextFormat = paste("count >", length(sys_age_cats)-1),
-                                         countSelectedText = "All Ages",
-                                         noneSelectedText = "All Ages",
-                                         container = "body"
-                                       )
-                                     )),
-                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("All Races/Ethnicities")',
-                                     pickerInput(
-                                       label = "Race/Ethnicity",
-                                       inputId = "syse_subpop2_race_ethnicity1",
-                                       choices = sys_race_ethnicity_method1,
-                                       selected = sys_race_ethnicity_method1,
-                                       options = list(
-                                         `dropdown-align-right` = TRUE,
-                                         `dropup-auto` = FALSE,
-                                         container = "body"
+                                         countSelectedText = "",
+                                         noneSelectedText = "None Selected",
+                                         container = "body",
                                        )
                                      )
+                                   #  )
+                         ),
+                         checkboxInput('syse_subpop2_race_eth_selection', 'Race/Ethnicity'),
+                         div(id='race_eth_picker',
+                             conditionalPanel(condition = 'input.syse_methodology_type == 1',
+                                                     pickerInput(
+                                                       label = NULL,#"Race/Ethnicity",
+                                                       inputId = "syse_subpop2_race_ethnicity1",
+                                                       choices = setNames(sys_race_ethnicity_method1,
+                                                                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
+                                                       ),
+                                                       selected = "None Selected",
+                                                       options = list(
+                                                         `dropdown-align-right` = TRUE,
+                                                         `dropup-auto` = FALSE,
+                                                         container = "body",
+                                                         noneSelectedText = "-"
+                                                       )
+                                                     )
+                                              ),
+                             conditionalPanel(condition = 'input.syse_methodology_type == 2',
+                                                     pickerInput(
+                                                       label = NULL,#"Race/Ethnicity",
+                                                       inputId = "syse_subpop2_race_ethnicity2",
+                                                       choices = setNames(sys_race_ethnicity_method2,
+                                                                          c("None Selected",names(sys_race_ethnicity_method2)[-1])),
+                                                       selected = "None Selected",
+                                                       options = list(
+                                                         `dropdown-align-right` = TRUE,
+                                                         `dropup-auto` = FALSE,
+                                                         container = "body",
+                                                         noneSelectedText = "-"
+                                                       )
+                                                     )
+                                              )
+                          #uiOutput('syse_subpop2_race_ethnicity')
+                         #)
                     ),
-                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("Grouped Races/Ethnicities")',
-                                     pickerInput(
-                                       label = "Race/Ethnicity",
-                                       inputId = "syse_subpop2_race_ethnicity2",
-                                       choices = sys_race_ethnicity_method2,
-                                       selected = sys_race_ethnicity_method2,
-                                       options = list(
-                                         `dropdown-align-right` = TRUE,
-                                         `dropup-auto` = FALSE,
-                                         container = "body"
-                                       )
-                                     )
-                    ),
-                    conditionalPanel(condition = 'input.syse_subpop2_selections.includes("Veteran Status (Adult Only)")',
-                                     pickerInput(
-                                       label = "Veteran Status",
+
+                            checkboxInput('syse_subpop2_vet_selection', 'Veteran Status (Adult Only)'),
+                            div(id = 'vet_picker',
+                                pickerInput(
+                                       label = NULL,#label = "Veteran Status",
                                        inputId = "syse_subpop2_spec_pops",
-                                       choices = sys_spec_pops_people,
-                                       selected = sys_spec_pops_people[1],
+                                       #choices = sys_spec_pops_people,
+                                       choices = setNames(sys_spec_pops_people,
+                                                          nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                                                          ),
+                                       selected = "None Selected",
                                        options = pickerOptions(container = "body")
                                      )
-                    )
-                  )),
+                            )
+                      #)
+                  ),
                   radioGroupButtons(
                     inputId = "subpop2_dest_type",
                     label = "Destination Type",

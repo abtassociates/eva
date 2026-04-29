@@ -1395,6 +1395,17 @@ get_syse_compare_time_data <- function(output_type = 'table'){
 #   }
 # }
 
+syse_subpop2_selections <- reactive({
+  possible <- c("Age","Race/Ethnicity","Veteran Status (Adult Only)")
+  selected <- which(c(input$syse_subpop2_age_selection, input$syse_subpop2_race_eth_selection, input$syse_subpop2_vet_selection))
+  
+  vals <- possible[selected]
+  if("Race/Ethnicity" %in% vals){
+    vals[vals == "Race/Ethnicity"] <- c("All Races/Ethnicities","Grouped Races/Ethnicities")[input$syse_methodology_type]
+  }
+  
+  vals
+})
 did_factors_change <- reactive({
   req(input$syse_subpop2_selections)
   c(
