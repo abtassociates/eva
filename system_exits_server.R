@@ -33,6 +33,29 @@ output$syse_compare_subpop2_filter_selections <-renderUI({
                 race_eth = input$syse_race_ethnicity)
 })
 
+# output$syse_subpop2_race_ethnicity <- renderUI({
+#   
+#   choices <- switch(input$syse_methodology_type, "1" = sys_race_ethnicity_method1, "2" = sys_race_ethnicity_method2)
+#   #names(choices[1]) <- 'None Selected'
+#   choices <- setNames(choices, nm=c("None Selected", names(choices[-1])))
+#   pickerInput(
+#   #selectInput(
+#     label = "",#label = "Race/Ethnicity",
+#     inputId = "syse_subpop2_race_ethnicity",
+#     choices = choices,
+#     #choiceValues = choices,
+#     #choiceNames = c("None Selected", names(choices[-1])),
+#     selected = "None Selected",
+#     options = list(
+#       `dropdown-align-right` = TRUE,
+#       `dropup-auto` = FALSE,
+#       container = "body"#,
+#       #noneSelectedText = "-"
+#     )
+#   )
+#   
+# })
+
 # output$syse_subpop2_post_selections <-renderUI({ 
 #   req(session$userData$valid_file() == 1)
 #   req(isTruthy(input$syse_subpop2_selections)) 
@@ -1401,19 +1424,63 @@ syse_subpop2_selections <- reactive({
   
   vals <- possible[selected]
   if("Race/Ethnicity" %in% vals){
-    vals[vals == "Race/Ethnicity"] <- c("All Races/Ethnicities","Grouped Races/Ethnicities")[input$syse_methodology_type]
+    vals[vals == "Race/Ethnicity"] <- c("All Races/Ethnicities","Grouped Races/Ethnicities")[as.numeric(input$syse_methodology_type)]
   }
   
   vals
 })
+
+observeEvent(input$syse_subpop2_age_selection,
+               {
+                if(isTruthy(input$syse_subpop2_age_selection)){
+                  shinyjs::enable(id = 'age_picker')
+                } else {
+                  shinyjs::disable(id = 'age_picker')
+                }                 
+               })
+
+observeEvent(input$syse_subpop2_race_eth_selection,
+             {
+               if(isTruthy(input$syse_subpop2_race_eth_selection)){
+                 shinyjs::enable(id = 'race_eth_picker')
+               } else {
+                 shinyjs::disable(id = 'race_eth_picker')
+               }                 
+             }, ignoreInit=F)
+
+observeEvent(input$syse_subpop2_vet_selection,
+             {
+               if(isTruthy(input$syse_subpop2_vet_selection)){
+                 shinyjs::enable(id = 'vet_picker')
+               } else {
+                 shinyjs::disable(id = 'vet_picker')
+               }                 
+             })
+
+
+observeEvent(syse_subpop2_selections(),{
+  
+  str_vec <- c('Age','Races/Ethnicities','Veteran Status')
+  excl_vec <- c('age','race_eth','vet')
+  if(length(syse_subpop2_selections()) == 2){
+    
+    excl <- which(!sapply(str_vec, \(x) any(str_detect(syse_subpop2_selections(), x)) ,USE.NAMES = F))
+    shinyjs::disable(id = paste0('syse_subpop2_',excl_vec[excl],'_selection'))
+  } else {
+    shinyjs::enable(id='syse_subpop2_age_selection')
+    shinyjs::enable(id='syse_subpop2_race_eth_selection')
+    shinyjs::enable(id='syse_subpop2_vet_selection')
+  }
+})
+
 did_factors_change <- reactive({
-  req(input$syse_subpop2_selections)
+  req(syse_subpop2_selections())
   c(
     meets_hh_type = (input$syse_hh_type != 'All'),
-    meets_age_filter = ('Age' %in% input$syse_subpop2_selections && length(input$syse_subpop2_age) < length(sys_age_cats)),
-    meets_race_eth_filter = ('All Races/Ethnicities' %in% input$syse_subpop2_selections && input$syse_subpop2_race_ethnicity1 != 'All') +
-      ('Grouped Races/Ethnicities' %in% input$syse_subpop2_selections && input$syse_subpop2_race_ethnicity2 != 'All'),
-    meets_vet_filter = ('Veteran Status (Adult Only)' %in% input$syse_subpop2_selections && input$syse_subpop2_spec_pops != 'None')
+    meets_age_filter = ('Age' %in% syse_subpop2_selections() && length(input$syse_subpop2_age) < length(sys_age_cats)),
+    meets_race_eth_filter = ('All Races/Ethnicities' %in% syse_subpop2_selections() && input$syse_subpop2_race_ethnicity1 != 'All') +
+      ('Grouped Races/Ethnicities' %in% syse_subpop2_selections() && input$syse_subpop2_race_ethnicity2 != 'All'),
+    meets_vet_filter = ('Veteran Status (Adult Only)' %in% syse_subpop2_selections() && input$syse_subpop2_spec_pops != 'None')
   )
 })
 
@@ -2290,8 +2357,8 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_hh_type = TRUE)
   }
   
-  req(input$syse_subpop2_selections)
-  if('Age' %in% input$syse_subpop2_selections){
+  req(syse_subpop2_selections())
+  if('Age' %in% syse_subpop2_selections()){
     req(input$syse_subpop2_age)
     
     subpop_w_client_filters <- subpop_w_client_filters %>% 
@@ -2302,13 +2369,13 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_age_filter = TRUE)
   }
   
-  if('All Races/Ethnicities' %in% input$syse_subpop2_selections){
+  if('All Races/Ethnicities' %in% syse_subpop2_selections()){
     req(input$syse_subpop2_race_ethnicity1)
     
     subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop2_race_ethnicity1 == "All") rep(TRUE, .N) else get(input$syse_subpop2_race_ethnicity1) == 1)]
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_race_eth_filter = PersonalID %in% subpop_race_eth$PersonalID)
-  } else if('Grouped Races/Ethnicities' %in% input$syse_subpop2_selections){
+  } else if('Grouped Races/Ethnicities' %in% syse_subpop2_selections()){
     req(input$syse_subpop2_race_ethnicity2)
     subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop2_race_ethnicity2 == "All") rep(TRUE, .N) else get(input$syse_subpop2_race_ethnicity2) == 1)]
     subpop_w_client_filters <- subpop_w_client_filters %>% 
@@ -2318,7 +2385,7 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_race_eth_filter = TRUE)
   }
   
-  if('Veteran Status (Adult Only)' %in% input$syse_subpop2_selections){
+  if('Veteran Status (Adult Only)' %in% syse_subpop2_selections()){
     req(input$syse_subpop2_spec_pops)
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_vet_filter =input$syse_subpop2_spec_pops == "None" |
@@ -2540,25 +2607,25 @@ output$syse_phd_chart_2d <- renderCachedPlot({
   )
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
-observeEvent(input$syse_subpop2_selections, {
-  # they can select up to 2
-  #disable all unchecked boxes if they've already selected 2
-  shinyjs::runjs(str_glue("
-    var numSelected = {length(input$syse_subpop2_selections)};
-    $('input[name=syse_subpop2_selections]:not(\":checked\")')
-      .attr('disabled', numSelected == 2);
-
-    var reSelected = \"{
-      \"All Races/Ethnicities\" %in% input$syse_subpop2_selections |
-      \"Grouped Races/Ethnicities\" %in% input$syse_subpop2_selections
-    }\";
-    
-    if(numSelected == 1)
-      $('input[name=syse_subpop2_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
-        .attr('disabled', reSelected == 'TRUE');
-    
-  "))
-}, ignoreNULL = FALSE)
+# observeEvent(syse_subpop2_selections(), {
+#   # they can select up to 2
+#   #disable all unchecked boxes if they've already selected 2
+#   shinyjs::runjs(str_glue("
+#     var numSelected = {length(syse_subpop2_selections())};
+#     $('input[name=syse_subpop2_selections]:not(\":checked\")')
+#       .attr('disabled', numSelected == 2);
+# 
+#     var reSelected = \"{
+#       \"All Races/Ethnicities\" %in% syse_subpop2_selections() |
+#       \"Grouped Races/Ethnicities\" %in% syse_subpop2_selections()
+#     }\";
+#     
+#     if(numSelected == 1)
+#       $('input[name=syse_subpop2_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+#         .attr('disabled', reSelected == 'TRUE');
+#     
+#   "))
+# }, ignoreNULL = FALSE)
 
 observeEvent(input$syse_phd_selections, {
   # they can select up to 2
