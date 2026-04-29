@@ -1,6 +1,6 @@
 specs_prepped_path <- here("public-resources/specs_prepped.rds")
 
-if(file.exists(specs_prepped_path)) {
+if(!file.exists(specs_prepped_path)) {
   print("loading specs_prepped.rds file")
   specs_prepped <- readRDS(specs_prepped_path)
   
@@ -111,9 +111,10 @@ reporting_info <- reporting_info |>
   
 # Read in CSV Lists from Specs ---------------------
 # This tab contains all the valid values for each list element
-valid_values <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY2026") %>%
+valid_values_df <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY2026") %>%
   fmutate(
     Value = gsub("\u00A0", "", Value),
+    Value = trimws(Value),
     List = ifelse(
       List == "1.1000000000000001", "1.1", 
       ifelse(
@@ -124,7 +125,7 @@ valid_values <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY202
   )
 
 # Convert to a named list, where the names are the unique values of `List` and the values are the vector of `Value`s.
-valid_values <- split(valid_values$Value, valid_values$List)
+valid_values <- split(valid_values_df$Value, valid_values_df$List)
 
 # Read in Validation Info ----------------
 # This tab includes all csvs, columns, data types, 
@@ -238,18 +239,6 @@ special_validation_rules <- list(
   Services = list(
     "Non-Null Invalid" = list(
       TypeProvided = function(dt) {
-        record_type_list_lookup = c(
-          "141" = "P1.2",
-          "142" = "R14.2",
-          "143" = "W1.2",
-          "144" = "V2.2",
-          "151" = "W2.2",
-          "152" = "V3.3",
-          "161" = "P2.2",
-          "200" = "4.14",
-          "210" = "V8.2",
-          "300" = "C2.2"
-        )
         valid_vals <- valid_values[record_type_list_lookup[as.character(dt$RecordType)]]
         !mapply(`%in%`, dt$TypeProvided, valid_vals)
       },
@@ -362,10 +351,18 @@ specs_rules <- validation_info %>%
   )
 
 ## 1. Null Unless  ------------
-specs_rules[
-  issue_type == "Null Unless", 
-  rule_expr := unlist(Map(clean_rule_for_null_unless, Name, validation_notes))
-]
+specs_rules <- specs_rules %>%
+  fsubset(issue_type == "Null Unless") %>%
+  fmutate(
+    codified_rule = Map(clean_rule_for_null_unless, Name, validation_notes),
+    rule_expr = unlist(
+      purrr::map2(Name, codified_rule, ~rlang::parse_expr(glue("null_unless({.x}, {.y})")))
+    ),
+    
+    readable_validation_notes = humanize_rule(codified_rule, specs_rules, valid_values_df)
+  )
+browser()
+
 
 ## 2. String Length Limit Exceeded -----------
 specs_rules[

@@ -1,3 +1,16 @@
+record_type_list_lookup = c(
+  "141" = "P1.2",
+  "142" = "R14.2",
+  "143" = "W1.2",
+  "144" = "V2.2",
+  "151" = "W2.2",
+  "152" = "V3.3",
+  "161" = "P2.2",
+  "200" = "4.14",
+  "210" = "V8.2",
+  "300" = "C2.2"
+)
+
 # Null Unless checks --------------
 clean_rule_for_null_unless <- function(Name, validation_notes) {
   stringi::stri_replace_all_fixed(
@@ -6,8 +19,7 @@ clean_rule_for_null_unless <- function(Name, validation_notes) {
     replacement = valid_list_lookup,
     vectorize_all = FALSE
   ) %>%
-    clean_text() %>%
-    purrr::map2(Name, ., ~rlang::parse_expr(glue("null_unless({.x}, {.y})")))
+    clean_text()
 }
 
 null_unless <- function(col, cond) {
@@ -160,4 +172,184 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     frename("Column" = Name)
   
   return(final_issues)
+}
+
+
+library(stringr)
+library(collapse)
+
+# 1. Atomic Humanizer
+humanize_atomic_clause <- function(clause, list_map, valid_values_df, override_list_id = NULL) {
+  clause <- str_trim(clause)
+  
+  # ---- Case 0a: RecordType & TypeProvided ----
+  if (str_detect(clause, "\\{COMBO_RT_TP\\}")) {
+    parts <- str_split(clause, "\\s*\\{COMBO_RT_TP\\}\\s*")[[1]]
+    p1_raw <- parts[1] 
+    p2_raw <- parts[2] 
+    
+    rhs_p1 <- str_replace(p1_raw, "^.*?\\bis\\b", "")
+    rt_vals <- str_extract_all(rhs_p1, "\\d+")[[1]]
+    
+    record_type_list_lookup <- c(
+      "141" = "P1.2", "142" = "R14.2", "143" = "W1.2", "144" = "V2.2",
+      "151" = "W2.2", "152" = "V3.3", "161" = "P2.2", "200" = "4.14",
+      "210" = "V8.2", "300" = "C2.2"
+    )
+    
+    tp_list_ids <- unique(record_type_list_lookup[rt_vals])
+    tp_list_ids <- tp_list_ids[!is.na(tp_list_ids)]
+    if (length(tp_list_ids) == 0) tp_list_ids <- NULL
+    
+    p1_human <- humanize_atomic_clause(p1_raw, list_map, valid_values_df)
+    p2_human <- humanize_atomic_clause(p2_raw, list_map, valid_values_df, override_list_id = tp_list_ids)
+    
+    return(paste0("([", p1_human, " AND ", p2_human, "])")) 
+  }
+  
+  # ---- Case 0b: DisabilityType & DisabilityResponse ----
+  if (str_detect(clause, "\\{COMBO_DT_DR\\}")) {
+    parts <- str_split(clause, "\\s*\\{COMBO_DT_DR\\}\\s*")[[1]]
+    p1_raw <- parts[1] 
+    p2_raw <- parts[2] 
+    
+    rhs_p1 <- str_replace(p1_raw, "^.*?\\bis\\b", "")
+    dt_vals <- str_extract_all(rhs_p1, "\\d+")[[1]]
+    
+    # Apply logic: If 10 -> 4.10.2. Any other -> 1.8
+    if (length(dt_vals) == 0) {
+      dr_list_ids <- "1.8"
+    } else {
+      dr_list_ids <- unique(ifelse(dt_vals == "10", "4.10.2", "1.8"))
+    }
+    
+    p1_human <- humanize_atomic_clause(p1_raw, list_map, valid_values_df)
+    p2_human <- humanize_atomic_clause(p2_raw, list_map, valid_values_df, override_list_id = dr_list_ids)
+    
+    return(paste0("([", p1_human, " AND ", p2_human, "])"))
+  }
+  
+  # Remove wrapping parens for standard processing
+  while(str_detect(clause, "^\\(")) {
+    clause <- str_remove(clause, "^\\(") |> str_remove("\\)$") |> str_trim()
+  }
+  
+  var <- str_extract(clause, "^[A-Za-z0-9_.]+")
+  if (is.na(var)) return(clause)
+  
+  # Accept overrides for BOTH dependent variables
+  if (!is.null(override_list_id) && var %in% c("TypeProvided", "DisabilityResponse")) {
+    list_ids <- override_list_id
+  } else {
+    list_ids <- list_map[[var]]
+  }
+  
+  if (is.null(list_ids)) list_ids <- character(0)
+  
+  # ---- Case A: "is one of c[...]" ----
+  if (str_detect(clause, "is one of")) {
+    
+    inner_c <- str_extract(clause, "(?<=c\\[).*?(?=\\])")
+    
+    if (!is.na(inner_c)) {
+      vals <- tryCatch({
+        as.character(eval(parse(text = paste0("c(", inner_c, ")"))))
+      }, error = function(e) {
+        str_split(inner_c, ",")[[1]] |> str_trim() |> str_remove_all("'|\"")
+      })
+      
+      translated <- sapply(vals, function(v) {
+        match_idx <- valid_values_df$List %in% list_ids & as.character(valid_values_df$Value) == v
+        if (any(match_idx)) {
+          paste0('"', valid_values_df$Text[match_idx][1], '"')
+        } else {
+          paste0('"', v, '"')
+        }
+      })
+      
+      return(paste0(var, " is one of: ", paste(unique(translated), collapse = " OR ")))
+    }
+  }
+  
+  # ---- Case B: Equality "is X" ----
+  if (str_detect(clause, "\\bis\\s+(?!one of\\b)")) {
+    val_raw <- str_split(clause, "\\bis\\s+")[[1]]
+    if (length(val_raw) > 1) {
+      val <- str_trim(val_raw[2]) |> str_remove_all("'|\"")
+      
+      match_idx <- valid_values_df$List %in% list_ids & as.character(valid_values_df$Value) == val
+      if (any(match_idx)) {
+        labels <- unique(valid_values_df$Text[match_idx])
+        return(paste0(var, " is ", paste(paste0('"', labels, '"'), collapse = " OR ")))
+      } else if(grepl("not missing", val)) {
+        return(paste0(var, " is ", val))
+      } else {
+        return(paste0(var, " is \"", val, "\""))
+      }
+    }
+  }
+  
+  # ---- Case C: "is not missing" ----
+  if (str_detect(clause, "is not missing")) {
+    return(clause)
+  }
+  
+  clause
+}
+
+# 2. Main Humanizer Function
+humanize_rule <- function(rules, specs_rules_full, valid_values_df) {
+  
+  list_map_df <- specs_rules_full |> 
+    fsubset(!is.na(List) & List != "" & !is.na(Name)) |>
+    fselect(Name, List) |>
+    funique()
+  
+  list_map <- split(list_map_df$List, list_map_df$Name)
+  
+  vapply(as.character(rules), function(rule) {
+    if (is.na(rule) || rule == "") return(NA_character_)
+    
+    rule_work <- rule |>
+      str_replace_all("==", " is ") |>
+      str_replace_all("%in%", " is one of ") |>
+      str_replace_all("!is.na\\(([^)]+)\\)", "\\1 is not missing") |>
+      str_replace_all("%between%\\s*list\\(([^,]+),\\s*([^)]+)\\)", " is between \\1 and \\2")
+    
+    # Protect c() 
+    rule_work <- str_replace_all(rule_work, "c\\s*\\(([^)]+)\\)", "c[\\1]")
+    
+    # ---- PROTECT COMBOS ----
+    # RecordType & TypeProvided
+    combo_rt_tp <- "(RecordType\\s+is(?:\\s+one of)?\\s+[^&|()]+)\\s*&\\s*(TypeProvided\\s+is(?:\\s+one of)?\\s+[^&|()]+)"
+    rule_work <- str_replace_all(rule_work, combo_rt_tp, "\\1 {COMBO_RT_TP} \\2")
+    
+    # DisabilityType & DisabilityResponse
+    combo_dt_dr <- "(DisabilityType\\s+is(?:\\s+one of)?\\s+[^&|()]+)\\s*&\\s*(DisabilityResponse\\s+is(?:\\s+one of)?\\s+[^&|()]+)"
+    rule_work <- str_replace_all(rule_work, combo_dt_dr, "\\1 {COMBO_DT_DR} \\2")
+    
+    # Tag logic ops
+    rule_work <- rule_work |>
+      str_replace_all("\\s*&\\s*", " {AND} ") |>
+      str_replace_all("\\s*\\|\\s*", " {OR} ")
+    
+    # Split
+    parts <- str_split(rule_work, "(?=\\{AND\\}|\\{OR\\}|[()])|(?<=\\{AND\\}|\\{OR\\}|[()])")[[1]]
+    
+    processed <- sapply(parts, function(p) {
+      p_trim <- trimws(p)
+      if (p_trim == "{AND}") return(" AND ")
+      if (p_trim == "{OR}")  return(" OR ")
+      if (p_trim %in% c("(", ")", "")) return(p_trim)
+      
+      humanize_atomic_clause(p_trim, list_map, valid_values_df)
+    })
+    
+    paste(processed, collapse = "") |> 
+      str_replace_all("\\s+", " ") |>
+      str_replace_all("\\( ", "(") |>
+      str_replace_all(" \\)", ")") |>
+      str_trim()
+    
+  }, character(1), USE.NAMES = FALSE)
 }
