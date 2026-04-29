@@ -1,6 +1,6 @@
 specs_prepped_path <- here("public-resources/specs_prepped.rds")
 
-if(!file.exists(specs_prepped_path)) {
+if(file.exists(specs_prepped_path)) {
   print("loading specs_prepped.rds file")
   specs_prepped <- readRDS(specs_prepped_path)
   
@@ -361,8 +361,6 @@ specs_rules <- specs_rules %>%
     
     readable_validation_notes = humanize_rule(codified_rule, specs_rules, valid_values_df)
   )
-browser()
-
 
 ## 2. String Length Limit Exceeded -----------
 specs_rules[
