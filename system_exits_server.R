@@ -1344,80 +1344,6 @@ get_syse_compare_time_data <- function(output_type = 'table'){
   
 }
 
-## function to make System Exits comparison subpopulation chart
-# syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
-#   
-#   subgroup_colors <- c(
-#     "Subpopulation" = get_brand_color('med_purple'),
-#     "Everyone Else" = get_brand_color('med_grey2')
-#   )
-#   
-#   ## use adjusted locations for point placement 
-#   adj_x_vals <- c(0.85, 1.83, 2.87, 3.94, 5.15)
-#   ## long format needed for plotting points
-#   subpop_chart_df <- get_syse_compare_subpop_data(output_type = 'chart') %>% 
-#     fsubset(subpop_summ != "Percent Difference") %>% 
-#     pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'subpop_pct') %>% 
-#     fmutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
-#     add_column(dest_type_adj = rep(adj_x_vals, times = 2))
-#   
-#   ## wide format needed for plotting arrows between points
-#   subpop_segment_df <- subpop_chart_df %>% 
-#     pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct') 
-#   
-#   ## add x-axis labels for PPT download only
-#   if(isExport){
-#     dest_type_labels <- subpop_segment_df$dest_type
-#     bar_width <- compare_export_bar_width
-#     
-#   } else {
-#     dest_type_labels <- rep(NA,5)    
-#     bar_width <- compare_bar_width
-#     
-#   }
-#   
-#   title_start <- paste0("Total System Exits for ",
-#                         syse_level_of_detail_text(), " in ",
-#                         str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-#                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
-#   
-#   title <- paste0(title_start, 
-#                   c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(all_filtered_syse_subpop()))),
-#                     paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else())))),
-#                   collapse='\n'
-#   )
-#   
-#   
-#   g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
-#     geom_bar(aes(fill = subpop_summ), color = 'black', width = bar_width, stat='identity', position='dodge') +
-#     scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
-#     scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
-#     scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
-#     labs(x = '', y = 'Percentage of System Exits',
-#          title = title) +
-#     
-#     theme_minimal() +
-#     theme(
-#       panel.grid.major = element_blank(),
-#       panel.grid.minor = element_blank(),
-#       panel.background = element_rect(fill=NA, colour = 'black'),
-#       legend.title = element_blank(),
-#       legend.justification = 'left',
-#       legend.position = 'top',
-#       legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
-#       axis.text.y = element_text(size = sys_axis_text_font),
-#       axis.title.y = element_text(size = sys_axis_text_font),
-#       plot.title = element_text(size = sys_chart_title_font, hjust =0.5)
-#     )
-#   if(isExport){
-#     g + theme(
-#       axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
-#     )
-#   } else {
-#     g + theme(axis.text.x = element_blank())
-#   }
-# }
-
 syse_subpop2_selections <- reactive({
   possible <- c("Age","Race/Ethnicity","Veteran Status (Adult Only)")
   selected <- which(c(input$syse_subpop2_age_selection, input$syse_subpop2_race_eth_selection, input$syse_subpop2_vet_selection))
@@ -2172,17 +2098,6 @@ enrollments_filtered_syse <- reactive({
   
   en_filt %>% 
     fsubset(passes_enrollment_filters)
-  #   roworder(PersonalID, EntryDate, ExitAdjust) %>%
-  #   fgroup_by(PersonalID) %>%
-  #   fmutate(
-  #     # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
-  #     # then it was clearly not a system exit
-  #     days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
-  #   ) %>%
-  #   flast() %>% 
-  #   fungroup() %>% 
-  #   fsubset(is.na(days_to_lookahead ) | days_to_lookahead > 14) %>% 
-  
   
 })
 
@@ -2495,41 +2410,6 @@ content = function(file) {
 # System Exits Exits to PH Demographics (PHD) -----------------------
 sys_phd_plot_df <- reactiveVal()
 
-# output$syse_phd_chart <- renderPlot({
-#   # req(
-#   #   !is.null(input$syse_phd_selections) &
-#   #     session$userData$valid_file() == 1 &
-#   #     between(length(input$syse_phd_selections), 1, 2)
-#   # )
-# 
-#    if( is.null(input$syse_phd_selections) |
-#         session$userData$valid_file() != 1 |
-#         !between(length(input$syse_phd_selections), 1, 2)){
-#      validate("Please select one or more options to display the demographic chart.")
-#    }
-# 
-#   if(length(input$syse_phd_selections) == 1) {
-#     sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-#   } else if(length(input$syse_phd_selections) == 2){
-#     sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-#   }
-# }, height = function() {
-#   ifelse(!is.null(input$syse_phd_selections), 700, 100)
-# }, width = function() {
-#   input$syse_phd_subtabs
-#   input$syse_tabbox
-#   input$pageid
-# 
-#   if (num_selections() %in% c(0,1) |
-#       isTRUE(getOption("shiny.testmode"))) {
-#     500
-#   } else {
-#     "auto"
-#   }
-# 
-# },
-# alt = "A crosstab data table of the demographic make-up of the homeless system.")
-
 display_syse_counts <- function(){
   c(
     paste0(
@@ -2606,26 +2486,6 @@ output$syse_phd_chart_2d <- renderCachedPlot({
     input$syse_methodology_type
   )
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
-
-# observeEvent(syse_subpop2_selections(), {
-#   # they can select up to 2
-#   #disable all unchecked boxes if they've already selected 2
-#   shinyjs::runjs(str_glue("
-#     var numSelected = {length(syse_subpop2_selections())};
-#     $('input[name=syse_subpop2_selections]:not(\":checked\")')
-#       .attr('disabled', numSelected == 2);
-# 
-#     var reSelected = \"{
-#       \"All Races/Ethnicities\" %in% syse_subpop2_selections() |
-#       \"Grouped Races/Ethnicities\" %in% syse_subpop2_selections()
-#     }\";
-#     
-#     if(numSelected == 1)
-#       $('input[name=syse_subpop2_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
-#         .attr('disabled', reSelected == 'TRUE');
-#     
-#   "))
-# }, ignoreNULL = FALSE)
 
 observeEvent(input$syse_phd_selections, {
   # they can select up to 2
