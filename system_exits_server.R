@@ -1804,7 +1804,7 @@ output$syse_compare_subpop2_chart <- renderPlot({
   ## check if filters have been changed from defaults before showing 
   subpop2_chart_validation(show=TRUE, req=FALSE)
   syse_compare_subpop2_chart(get_syse_compare_subpop2_data(output_type = 'chart'),
-                             dest_type = input$syse_subpop2_dest_type)
+                             dest_type = input$subpop2_dest_type)
 })
 
 # output$syse_compare_subpop_table <- renderDT({
