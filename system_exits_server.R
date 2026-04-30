@@ -1189,12 +1189,12 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
       Destination %in% institutional_livingsituation, 'Institutional',
       Destination %in% other_livingsituation, 'Other/Unknown',
       default = 'Other/Unknown'
-    )))
+    ), levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
   
   .total_s <- fnrow(df_subpop)
   
   count_subpop <- df_subpop %>%
-    fcount(`Destination Type`) %>% 
+    count(`Destination Type`, .drop=FALSE, name='N') %>% 
     fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total))
   
   .total_e <- fnrow(everyone_else2())
@@ -1207,11 +1207,13 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
   )
   
   count_everyone_else <- everyone_else2() %>%
-    fcount(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>%
+    count(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter,.drop=F,name='N') %>%
     fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>% 
     #fmutate(pct = N / fsum(N)) %>% 
     fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total)) %>% 
-    fungroup()
+    fungroup() %>% 
+    fsubset(total > 0) 
+  
   
   # which_factors_changed <- names(which(did_factors_change() == 1))
   # labels_factors_changed <- c(
