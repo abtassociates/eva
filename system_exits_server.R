@@ -1206,14 +1206,17 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
     meets_vet_filter = c(TRUE, FALSE)
   )
   
+  filt_vars <- c('meets_hh_type','meets_age_filter','meets_race_eth_filter','meets_vet_filter')
+  which_factors_changed <- names(which(did_factors_change() == 1))
+  
   count_everyone_else <- everyone_else2() %>%
     count(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter,.drop=F,name='N') %>%
     fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>% 
     #fmutate(pct = N / fsum(N)) %>% 
     fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total)) %>% 
-    fungroup() %>% 
-    fsubset(total > 0) 
-  
+    fungroup() %>%
+    dplyr::filter(if_all(setdiff(filt_vars, which_factors_changed), ~ .x == TRUE)) %>% 
+    fsubset(((meets_hh_type==T) + (meets_age_filter==T) + (meets_race_eth_filter==T) + (meets_vet_filter==T)) < 4)
   
   # which_factors_changed <- names(which(did_factors_change() == 1))
   # labels_factors_changed <- c(
@@ -1454,7 +1457,6 @@ observeEvent(syse_subpop2_selections(),{
 })
 
 did_factors_change <- reactive({
-  req(syse_subpop2_selections())
   c(
     meets_hh_type = (input$syse_hh_type != 'All'),
     meets_age_filter = ('Age' %in% syse_subpop2_selections() && length(input$syse_subpop2_age) < length(sys_age_cats)),
@@ -1464,7 +1466,8 @@ did_factors_change <- reactive({
   )
 })
 
-syse_compare_subpop2_chart <- function(subpop, dest_type = input$subpop2_dest_type, isExport = FALSE){
+syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_data(output_type = 'chart'),
+                                       dest_type = input$subpop2_dest_type, isExport = FALSE){
   req(all_filtered_syse_subpop())
   
   subgroup_colors <- c(
@@ -1472,7 +1475,7 @@ syse_compare_subpop2_chart <- function(subpop, dest_type = input$subpop2_dest_ty
     'everyone_else' = get_brand_color('med_grey2')
   )
   ## long format needed for plotting points
-  subpop2_chart_df <- get_syse_compare_subpop2_data(output_type = 'chart') %>% 
+  subpop2_chart_df <- subpop_data %>% 
     fsubset(`Destination Type` == dest_type)
   
   ## add x-axis labels for PPT download only
@@ -1614,122 +1617,122 @@ syse_compare_subpop2_chart <- function(subpop, dest_type = input$subpop2_dest_ty
 }
 
 ## function for System Exits Comparison subpopulation table (below chart)
-get_syse_compare_subpop_table <- function(tab){
-  
-  subgroup_colors <- c(
-    "Subpopulation" = get_brand_color('med_purple'),
-    "Everyone Else" = get_brand_color('med_grey2')
-  )
-  
-  datatable(tab, 
-            colnames = c(' ' = 'subpop_summ',
-                         "<b>Permanent</b>" = "Permanent","<b>Homeless</b>" = "Homeless",
-                         "<b>Institutional</b>" = "Institutional","<b>Temporary</b>" = "Temporary",
-                         "<b>Other/Unknown</b>" = "Other/Unknown"),
-            options = list(
-              dom = 't',
-              ordering = FALSE,
-              columnDefs = list(
-                list(width = "48px", targets = 0), # Set first column width
-                list(className = 'dt-center', targets = '_all') # Center text
-              )
-            ),
-            selection = 'none',
-            escape = FALSE,
-            style = "default",
-            rownames = FALSE) %>% 
-    # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
-    formatStyle(
-      columns = 1,  # First column
-      target = "cell",
-      backgroundColor = styleEqual(
-        names(subgroup_colors), unname(subgroup_colors)
-      ),
-      borderTop = styleEqual(
-        names(subgroup_colors),
-        c("2px solid black", "1px solid black")
-      ),
-      borderLeft = styleEqual(
-        names(subgroup_colors),
-        c(rep("2px solid black", 2))
-      ),
-      borderRight = styleEqual(
-        names(subgroup_colors),
-        c(rep("2px solid black", 2))
-      ),
-      borderBottom = styleEqual(
-        names(subgroup_colors),
-        c("1px solid black", "2px solid black")
-      )
-    ) %>% 
-    # Contrast font and background colors
-    formatStyle(
-      columns = 1,
-      target = "cell",
-      color = styleEqual(
-        names(subgroup_colors), 
-        rep("black", length(subgroup_colors))
-      )
-    )
-}
-
-get_syse_compare_subpop_flextable <- function(tab) {
-  logToConsole(session, "In get_syse_compare_subpop_flextable")
-  
-  
-  ft <- flextable(tab %>%
-                    frename("subpop_summ" = " ")) %>%
-    width(j = 1, width = 0.9) %>% # make first col narrower
-    bold(part = "header") %>%
-    align(align = "center", part = "all") %>%
-    border(border.top = fp_border(), part = "header") %>%
-    border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
-  
-  ## formatting function for percentages with 0 decimal places and % sign
-  #fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
-  
-  # ft <- set_formatter(
-  #   x = ft,
-  #   Permanent = fmt_func_pct,
-  #   Homeless = fmt_func_pct,
-  #   Institutional = fmt_func_pct,
-  #   Temporary = fmt_func_pct,
-  #   `Other/Unknown` = fmt_func_pct
-  # )
-  
-  row_labels <- tab[[1]]
-  
-  # Formatting the subpopulation row labels
-  subgroup_colors <- c(
-    "Subpopulation" = get_brand_color('med_purple'),
-    "Everyone Else" = get_brand_color('med_grey2')
-  )
-  
-  ft <- ft %>%
-    # Background colors from datatable's formatStyle
-    bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
-    # thick borders for the first column - adjust adjacent ones to match same total width
-    border(i = 1, j = 1, 
-           border.top = fp_border(color = "black", width = 2),
-           border.left = fp_border(color = "black", width = 2),
-           border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 1)) %>% 
-    border(i = 2, j = 1, 
-           border.top = fp_border(color = "black", width = 1),
-           border.left = fp_border(color = "black", width = 2),
-           border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 1)) %>% 
-    border(i = 3, j = 1, 
-           border.top = fp_border(color = "black", width = 1),
-           border.left = fp_border(color = "black", width = 2),
-           border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 2)) %>% 
-    # expand to better fit slide width
-    autofit()
-  
-  ft
-  
-}
+# get_syse_compare_subpop_table <- function(tab){
+#   
+#   subgroup_colors <- c(
+#     "Subpopulation" = get_brand_color('med_purple'),
+#     "Everyone Else" = get_brand_color('med_grey2')
+#   )
+#   
+#   datatable(tab, 
+#             colnames = c(' ' = 'subpop_summ',
+#                          "<b>Permanent</b>" = "Permanent","<b>Homeless</b>" = "Homeless",
+#                          "<b>Institutional</b>" = "Institutional","<b>Temporary</b>" = "Temporary",
+#                          "<b>Other/Unknown</b>" = "Other/Unknown"),
+#             options = list(
+#               dom = 't',
+#               ordering = FALSE,
+#               columnDefs = list(
+#                 list(width = "48px", targets = 0), # Set first column width
+#                 list(className = 'dt-center', targets = '_all') # Center text
+#               )
+#             ),
+#             selection = 'none',
+#             escape = FALSE,
+#             style = "default",
+#             rownames = FALSE) %>% 
+#     # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
+#     formatStyle(
+#       columns = 1,  # First column
+#       target = "cell",
+#       backgroundColor = styleEqual(
+#         names(subgroup_colors), unname(subgroup_colors)
+#       ),
+#       borderTop = styleEqual(
+#         names(subgroup_colors),
+#         c("2px solid black", "1px solid black")
+#       ),
+#       borderLeft = styleEqual(
+#         names(subgroup_colors),
+#         c(rep("2px solid black", 2))
+#       ),
+#       borderRight = styleEqual(
+#         names(subgroup_colors),
+#         c(rep("2px solid black", 2))
+#       ),
+#       borderBottom = styleEqual(
+#         names(subgroup_colors),
+#         c("1px solid black", "2px solid black")
+#       )
+#     ) %>% 
+#     # Contrast font and background colors
+#     formatStyle(
+#       columns = 1,
+#       target = "cell",
+#       color = styleEqual(
+#         names(subgroup_colors), 
+#         rep("black", length(subgroup_colors))
+#       )
+#     )
+# }
+# 
+# get_syse_compare_subpop_flextable <- function(tab) {
+#   logToConsole(session, "In get_syse_compare_subpop_flextable")
+#   
+#   
+#   ft <- flextable(tab %>%
+#                     frename("subpop_summ" = " ")) %>%
+#     width(j = 1, width = 0.9) %>% # make first col narrower
+#     bold(part = "header") %>%
+#     align(align = "center", part = "all") %>%
+#     border(border.top = fp_border(), part = "header") %>%
+#     border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
+#   
+#   ## formatting function for percentages with 0 decimal places and % sign
+#   #fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
+#   
+#   # ft <- set_formatter(
+#   #   x = ft,
+#   #   Permanent = fmt_func_pct,
+#   #   Homeless = fmt_func_pct,
+#   #   Institutional = fmt_func_pct,
+#   #   Temporary = fmt_func_pct,
+#   #   `Other/Unknown` = fmt_func_pct
+#   # )
+#   
+#   row_labels <- tab[[1]]
+#   
+#   # Formatting the subpopulation row labels
+#   subgroup_colors <- c(
+#     "Subpopulation" = get_brand_color('med_purple'),
+#     "Everyone Else" = get_brand_color('med_grey2')
+#   )
+#   
+#   ft <- ft %>%
+#     # Background colors from datatable's formatStyle
+#     bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
+#     # thick borders for the first column - adjust adjacent ones to match same total width
+#     border(i = 1, j = 1, 
+#            border.top = fp_border(color = "black", width = 2),
+#            border.left = fp_border(color = "black", width = 2),
+#            border.right = fp_border(color = "black", width = 2),
+#            border.bottom = fp_border(color = "black", width = 1)) %>% 
+#     border(i = 2, j = 1, 
+#            border.top = fp_border(color = "black", width = 1),
+#            border.left = fp_border(color = "black", width = 2),
+#            border.right = fp_border(color = "black", width = 2),
+#            border.bottom = fp_border(color = "black", width = 1)) %>% 
+#     border(i = 3, j = 1, 
+#            border.top = fp_border(color = "black", width = 1),
+#            border.left = fp_border(color = "black", width = 2),
+#            border.right = fp_border(color = "black", width = 2),
+#            border.bottom = fp_border(color = "black", width = 2)) %>% 
+#     # expand to better fit slide width
+#     autofit()
+#   
+#   ft
+#   
+# }
 
 get_syse_compare_time_flextable <- function(tab) {
   logToConsole(session, "In get_syse_compare_time_flextable")
@@ -1800,17 +1803,18 @@ output$syse_compare_subpop_chart <- renderPlot({
 output$syse_compare_subpop2_chart <- renderPlot({
   ## check if filters have been changed from defaults before showing 
   subpop2_chart_validation(show=TRUE, req=FALSE)
-  syse_compare_subpop2_chart(subpop = input$syse_race_ethnicity)
+  syse_compare_subpop2_chart(get_syse_compare_subpop2_data(output_type = 'chart'),
+                             dest_type = input$syse_subpop2_dest_type)
 })
 
-output$syse_compare_subpop_table <- renderDT({
-  ## check if filters have been changed from defaults before showing 
-  subpop_chart_validation(input$syse_hh_type, input$syse_level_of_detail, input$syse_project_type,
-                          input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
-  get_syse_compare_subpop_table(
-    get_syse_compare_subpop_data(output_type = 'table')
-  )
-})
+# output$syse_compare_subpop_table <- renderDT({
+#   ## check if filters have been changed from defaults before showing 
+#   subpop_chart_validation(input$syse_hh_type, input$syse_level_of_detail, input$syse_project_type,
+#                           input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
+#   get_syse_compare_subpop_table(
+#     get_syse_compare_subpop_data(output_type = 'table')
+#   )
+# })
 
 
 ## function to make System Exits comparison subpopulation chart
@@ -2326,7 +2330,6 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_hh_type = TRUE)
   }
   
-  req(syse_subpop2_selections())
   if('Age' %in% syse_subpop2_selections()){
     req(input$syse_subpop2_age)
     
