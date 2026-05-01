@@ -100,6 +100,10 @@ function(input, output, session) {
   output$headerSystemOverview <- headerGeneric(session, "System Overview")
 
   output$headerSystemExit <- headerGeneric(session, "System Exit")
+  
+  output$headerProjBUI <- headerGeneric(session, "Project-Level Inventory and Utilization")
+  
+  output$headerSysBUI <- headerGeneric(session, "System-Level Inventory and Utilization")
 
   # output$headerUtilization <- renderUI({
   #   list(h2("Bed and Unit Utilization"),
