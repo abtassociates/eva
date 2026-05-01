@@ -248,28 +248,28 @@ observe({
   
   if(is.null(input$HMISprojects)){
     # If no projects are selected, choose drop-down option from currently selected filters
-    selected_projs <- project_choices # session$userData$HMIS_projects_w_active_inv
+    #selected_projs <- project_choices # session$userData$HMIS_projects_w_active_inv
     # except for the project picker which should choose from to the project choices based on current filters
     updatePickerInput(session = session,
                       inputId = "HMISprojects",
-                      choices =  sort(unique(project_choices$ProjectName)))
+                      choices =  sort(unique(project_choices$ProjectName)),
+                      selected = sort(unique(project_choices$ProjectName))[1])
   }else{
     # If projects are selected, update the drop-down options to reflect the choices appearing in selected projects
-    selected_projs <- project_choices %>% # get selected projects
-      fsubset(ProjectName %in% input$HMISprojects)
+    
     # the project picker drops selections that don't appear based on current filters
     updatePickerInput(session = session,
                       inputId = "HMISprojects",
                       choices =  sort(unique(project_choices$ProjectName)),
-                      selected = sort(unique(selected_projs$ProjectName)))
+                      selected = input$HMISprojects) #sort(unique(selected_projs$ProjectName)))
     
     
   }
   
-  session$userData$selectedProjects <- selected_projs
+  #session$userData$selectedProjects <- selected_projs
   
-  print(input$HMISprojects)
-  print(sort(unique(selected_projs$ProjectID)))
+  #print(input$HMISprojects)
+  #print(sort(unique(selected_projs$ProjectID)))
   # update filters with values in currently selected projects
   
   #c_choices = c("All Target Populations")
@@ -309,21 +309,22 @@ observe({
   #                  inputId = "victim_service_sys",
   #                  choices =  c_choices,
   #                  selected = input$victim_service_sys)
-  c_choices = c( "All ES Bed Availability Types")
-  if(length(unique(selected_projs$Availability))>1){
-    c_choices <- c(c_choices, sort(unique(selected_projs$Availability)))
-  }else{
-    if(!all(input$es_bed_avail_sys %in% c_choices)){
-      c_choices <- unique(c(c_choices,input$es_bed_avail_sys))
-    }
-  }; print(c_choices)
-  updatePickerInput(session = session,
-                    inputId = "es_bed_avail_sys",
-                    choices = c_choices,
-                    selected = input$es_bed_avail_sys)
+  #c_choices = c( "All ES Bed Availability Types")
+  #if(length(unique(selected_projs$Availability))>1){
+  #  c_choices <- c(c_choices, sort(unique(selected_projs$Availability)))
+  #}else{
+  #  if(!all(input$es_bed_avail_sys %in% c_choices)){
+  #    c_choices <- unique(c(c_choices,input$es_bed_avail_sys))
+  #  }
+  #}; print(c_choices)
+  #updatePickerInput(session = session,
+  #                  inputId = "es_bed_avail_sys",
+  #                  choices = c_choices,
+  #                  selected = input$es_bed_avail_sys)
 }, priority = 1)
 
 #### DISPLAY FILTER SELECTIONS ###
+
 util_filters <- reactive({
   list(
     br(),
@@ -332,17 +333,19 @@ util_filters <- reactive({
     format(min(get_quarters()), "%m-%d-%Y"), " to ", format(min(get_quarters())+years(1), "%m-%d-%Y"), br(),
     
     # subset project_level_util_q by it's filters
-    if(input$target_pop_sys != "All Target Populations"){
-      chart_selection_detail_line("Target Population", input$target_pop_sys)
-    },
-    if(input$housing_type_sys != "All Housing Types"){
-      chart_selection_detail_line("Housing Type", input$housing_type_sys)
-    },
-    if(input$victim_service_sys != "All Organizations"){
-      chart_selection_detail_line("Victim Service Provider", input$victim_service_sys)
-    },
+    #if(input$target_pop_sys != "All Target Populations"){
+    #  chart_selection_detail_line("Target Population", input$target_pop_sys)
+    #},
+    #if(input$housing_type_sys != "All Housing Types"){
+    #  chart_selection_detail_line("Housing Type", input$housing_type_sys)
+    #},
+    #if(input$victim_service_sys != "All Organizations"){
+    #  chart_selection_detail_line("Victim Service Provider", input$victim_service_sys)
+    #},
     if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
-      chart_selection_detail_line("ES Bed Availabiliy Types", input$es_bed_avail_sys)
+      HTML(glue(
+        "<strong>ES Bed Availabiliy Types:</strong> {input$es_bed_avail_sys} <br>"
+      ))
     },
     
     
@@ -350,31 +353,37 @@ util_filters <- reactive({
       HTML(glue(
                 "<b>Projects:</b> {paste(input$HMISprojects, collapse = ', ')} <br>"
               ))
-    }
+    },
+    
+    br()
 
   )
 })
 
 output$quarterly_util_filter_selections <- renderUI({
-  req(session$userData$valid_file() == 1 & !is.null(input$HMISprojects))
+  req(session$userData$valid_file() == 1 & !is.null(input$HMISprojects) & !is.null(input$es_bed_avail_sys))
   util_filters() 
 })
 output$monthly_util_filter_selections <- renderUI({
-  req(session$userData$valid_file() == 1 & !is.null(input$HMISprojects))
+  req(session$userData$valid_file() == 1 & !is.null(input$HMISprojects) & !is.null(input$es_bed_avail_sys))
   util_filters() 
 })
 
 ## Get Bed/Unit Inventory Data Reactives ------------------------------------------
 all_hh_avg_q <- reactive({
   req(!is.null(input$HMISprojects))
+  # Update the list of Projects depending on the currently selected filters
+  project_choices <- session$userData$HMIS_projects_w_active_inv
   
-  selectedProjs <-session$userData$selectedProjects
-  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  selected_projs <- project_choices %>% # get selected projects
+    fsubset(ProjectName %in% input$HMISprojects)
+  
+  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selected_projs$ProjectID))
   
   stopifnot(nrow(project_level_util_q)>0)
   quarters <- get_quarters() %>% sort
   # Avg selected projects over quarters
-  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID))
+  nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selected_projs$ProjectID))
   
   # subset project_level_util_q by it's filters
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
@@ -416,13 +425,18 @@ all_hh_avg_q <- reactive({
 all_hh_avg_m <- reactive({
   req(!is.null(input$HMISprojects))
   
-  selectedProjs <-session$userData$selectedProjects
-  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  # Update the list of Projects depending on the currently selected filters
+  project_choices <- session$userData$HMIS_projects_w_active_inv
+  
+  selected_projs <- project_choices %>% # get selected projects
+    fsubset(ProjectName %in% input$HMISprojects)
+  
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selected_projs$ProjectID))
   
   stopifnot(nrow(project_level_util_m)>0)
   mons <- get_months() %>% sort
   # Avg selected projects over months
-  nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selectedProjs$ProjectID))
+  nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selected_projs$ProjectID))
   
   # subset project_level_util_m by it's filters
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
@@ -463,8 +477,13 @@ hh_avg_q <- reactive({
   req(!is.null(input$HMISprojects))
   req(input$pop_filter_q_avg)
   
-  selectedProjs <-session$userData$selectedProjects
-  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  # Update the list of Projects depending on the currently selected filters
+  project_choices <- session$userData$HMIS_projects_w_active_inv
+  
+  selected_projs <- project_choices %>% # get selected projects
+    fsubset(ProjectName %in% input$HMISprojects)
+  
+  project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selected_projs$ProjectID))
   
   stopifnot(nrow(project_level_util_q)>0)
   quarters <- get_quarters() %>% sort
@@ -484,10 +503,10 @@ hh_avg_q <- reactive({
   
   # Avg selected projects over quarters
   if(input$pop_filter_q_avg == "All"){
-    nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID))
+    nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selected_projs$ProjectID))
     grouping_vars = c("ProjectID", "PIT")
   }else{
-    nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID),
+    nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selected_projs$ProjectID),
                                extragroups = c("HouseholdType"))
     grouping_vars = c("ProjectID", "PIT", "HouseholdType")
   }
@@ -532,8 +551,13 @@ hh_avg_m <- reactive({
   req(!is.null(input$HMISprojects))
   req(input$pop_filter_m_avg)
   
-  selectedProjs <-session$userData$selectedProjects
-  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selectedProjs$ProjectID))
+  # Update the list of Projects depending on the currently selected filters
+  project_choices <- session$userData$HMIS_projects_w_active_inv
+  
+  selected_projs <- project_choices %>% # get selected projects
+    fsubset(ProjectName %in% input$HMISprojects)
+  
+  project_level_util_m <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selected_projs$ProjectID))
   
   stopifnot(nrow(project_level_util_m)>0)
   mons <- get_months() %>% sort
@@ -552,10 +576,10 @@ hh_avg_m <- reactive({
   
   # Avg selected projects over months
   if(input$pop_filter_m_avg == "All"){
-    nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selectedProjs$ProjectID))
+    nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selected_projs$ProjectID))
     grouping_vars = c("ProjectID", "PIT")
   }else{
-    nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selectedProjs$ProjectID),
+    nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selected_projs$ProjectID),
                                extragroups = c("HouseholdType"))
     grouping_vars = c("ProjectID", "PIT", "HouseholdType")
   }
@@ -769,7 +793,11 @@ output$co_m_avg <- renderDT({
 output$q_sys_inv_filtered <- renderDT({
   req(!is.null(input$HMISprojects))
   
-  selectedProjs <-session$userData$selectedProjects
+  # Update the list of Projects depending on the currently selected filters
+  project_choices <- session$userData$HMIS_projects_w_active_inv
+  
+  selectedProjs <- project_choices %>% # get selected projects
+    fsubset(ProjectName %in% input$HMISprojects)
   
   # join quarterly PIT dates 
   # can't do this because selectedProjects has grouping vars and  project level util q does not
