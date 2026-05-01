@@ -1038,7 +1038,7 @@ nav_menu(
     card(
       card_header(headerCard("Filters")),
       layout_columns(
-        col_widths=c(6,6),
+        col_widths=c(4,4,4),
         gap = '0px',
         
         pickerInput(
@@ -1056,27 +1056,27 @@ nav_menu(
           selected = "Beds",
           options = pickerOptions(container = "body")
         ),
-        pickerInput(
-          label = "Target Population",
-          inputId = "target_pop_sys",
-          choices = "All Target Populations",
-          selected = "All Target Populations",
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          label = "Household Type",
-          inputId = "housing_type_sys",
-          choices = "All Housing Types",
-          selected = "All Housing Types",
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          label = "Victim Services Provider",
-          inputId = "victim_service_sys",
-          choices = "All Organizations",
-          selected = "All Organizations",
-          options = pickerOptions(container = "body")
-        ),
+        #pickerInput(
+        #  label = "Target Population",
+        #  inputId = "target_pop_sys",
+        #  choices = "All Target Populations",
+        #  selected = "All Target Populations",
+        #  options = pickerOptions(container = "body")
+        #),
+        #pickerInput(
+        #  label = "Household Type",
+        #  inputId = "housing_type_sys",
+        #  choices = "All Housing Types",
+        #  selected = "All Housing Types",
+        #  options = pickerOptions(container = "body")
+        #),
+        #pickerInput(
+        #  label = "Victim Services Provider",
+        #  inputId = "victim_service_sys",
+        #  choices = "All Organizations",
+        #  selected = "All Organizations",
+        #  options = pickerOptions(container = "body")
+        #),
         pickerInput(
           label = "ES Bed Availability Type",
           inputId = "es_bed_avail_sys",
