@@ -232,15 +232,15 @@ observe({
   # Update the list of Projects depending on the currently selected filters
   project_choices <- session$userData$HMIS_projects_w_active_inv
   
-  if(input$target_pop_sys != "All Target Populations"){
-    project_choices <- project_choices %>% fsubset(TargetPopulation %in% input$target_pop_sys)
-  }
-  if(input$housing_type_sys != "All Housing Types"){
-    project_choices <- project_choices %>% fsubset(HousingType %in% input$housing_type_sys)
-  }
-  if(input$victim_service_sys != "All Organizations"){
-    project_choices <- project_choices %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
-  }
+  #if(input$target_pop_sys != "All Target Populations"){
+  #  project_choices <- project_choices %>% fsubset(TargetPopulation %in% input$target_pop_sys)
+  #}
+  #if(input$housing_type_sys != "All Housing Types"){
+  #  project_choices <- project_choices %>% fsubset(HousingType %in% input$housing_type_sys)
+  #}
+  #if(input$victim_service_sys != "All Organizations"){
+  #  project_choices <- project_choices %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
+  #}
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
     project_choices <- project_choices %>% fsubset(Availability %in% input$es_bed_avail_sys)
   }
@@ -272,43 +272,43 @@ observe({
   print(sort(unique(selected_projs$ProjectID)))
   # update filters with values in currently selected projects
   
-  c_choices = c("All Target Populations")
-  if(length(unique(selected_projs$TargetPopulation))>1){
-    c_choices <- c(c_choices, sort(unique(selected_projs$TargetPopulation)))
-  }else{
-    if(!all(input$target_pop_sys %in% c_choices)){
-      c_choices <- unique(c(c_choices,input$target_pop_sys))
-    }
-  }; print(c_choices)
+  #c_choices = c("All Target Populations")
+  #if(length(unique(selected_projs$TargetPopulation))>1){
+  #  c_choices <- c(c_choices, sort(unique(selected_projs$TargetPopulation)))
+  #}else{
+  #  if(!all(input$target_pop_sys %in% c_choices)){
+  #    c_choices <- unique(c(c_choices,input$target_pop_sys))
+  #  }
+  #}; print(c_choices)
   
-  updatePickerInput(session = session,
-                    inputId = "target_pop_sys",
-                    choices =  c_choices,
-                    selected = input$target_pop_sys)
-  c_choices = c("All Housing Types")
-  if(length(unique(selected_projs$HousingType))>1){
-    c_choices <- c(c_choices, sort(unique(selected_projs$HousingType)))
-  }else{
-      if(!all(input$housing_type_sys %in% c_choices)){
-        c_choices <- unique(c(c_choices,input$housing_type_sys))
-      }
-  }; print(c_choices)
-  updatePickerInput(session = session,
-                    inputId = "housing_type_sys",
-                    choices = c_choices,
-                    selected = input$housing_type_sys)
-  c_choices = c("All Organizations")
-  if(length(unique(selected_projs$VictimServiceProvider))>1){
-    c_choices <- c(c_choices, sort(unique(selected_projs$VictimServiceProvider)))
-  }else{
-    if(!all(input$victim_service_sys %in% c_choices)){
-      c_choices <- unique(c(c_choices,input$victim_service_sys))
-    }
-  }; print(c_choices)
-  updatePickerInput(session = session,
-                    inputId = "victim_service_sys",
-                    choices =  c_choices,
-                    selected = input$victim_service_sys)
+  #updatePickerInput(session = session,
+  #                  inputId = "target_pop_sys",
+  #                  choices =  c_choices,
+  #                  selected = input$target_pop_sys)
+  #c_choices = c("All Housing Types")
+  #if(length(unique(selected_projs$HousingType))>1){
+  #  c_choices <- c(c_choices, sort(unique(selected_projs$HousingType)))
+  #}else{
+  #    if(!all(input$housing_type_sys %in% c_choices)){
+  #      c_choices <- unique(c(c_choices,input$housing_type_sys))
+  #    }
+  #}; print(c_choices)
+  #updatePickerInput(session = session,
+  #                  inputId = "housing_type_sys",
+  #                  choices = c_choices,
+  #                  selected = input$housing_type_sys)
+  #c_choices = c("All Organizations")
+  #if(length(unique(selected_projs$VictimServiceProvider))>1){
+  #  c_choices <- c(c_choices, sort(unique(selected_projs$VictimServiceProvider)))
+  #}else{
+  #  if(!all(input$victim_service_sys %in% c_choices)){
+  #    c_choices <- unique(c(c_choices,input$victim_service_sys))
+  #  }
+  #}; print(c_choices)
+  #updatePickerInput(session = session,
+  #                  inputId = "victim_service_sys",
+  #                  choices =  c_choices,
+  #                  selected = input$victim_service_sys)
   c_choices = c( "All ES Bed Availability Types")
   if(length(unique(selected_projs$Availability))>1){
     c_choices <- c(c_choices, sort(unique(selected_projs$Availability)))
@@ -377,15 +377,6 @@ all_hh_avg_q <- reactive({
   nightly_avg <- nightly_avg(period = quarters, labels = names(quarters), projlist = unique(selectedProjs$ProjectID))
   
   # subset project_level_util_q by it's filters
-  if(input$target_pop_sys != "All Target Populations"){
-    project_level_util_q <- project_level_util_q %>% fsubset(TargetPopulation %in% input$target_pop_sys)
-  }
-  if(input$housing_type_sys != "All Housing Types"){
-    project_level_util_q <- project_level_util_q %>% fsubset(HousingType %in% input$housing_type_sys)
-  }
-  if(input$victim_service_sys != "All Organizations"){
-    project_level_util_q <- project_level_util_q %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
-  }
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
     project_level_util_q <- project_level_util_q %>% fsubset(Availability %in% input$es_bed_avail_sys)
   }
@@ -434,15 +425,6 @@ all_hh_avg_m <- reactive({
   nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selectedProjs$ProjectID))
   
   # subset project_level_util_m by it's filters
-  if(input$target_pop_sys != "All Target Populations"){
-    project_level_util_m <- project_level_util_m %>% fsubset(TargetPopulation %in% input$target_pop_sys)
-  }
-  if(input$housing_type_sys != "All Housing Types"){
-    project_level_util_m <- project_level_util_m %>% fsubset(HousingType %in% input$housing_type_sys)
-  }
-  if(input$victim_service_sys != "All Organizations"){
-    project_level_util_m <- project_level_util_m %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
-  }
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
     project_level_util_m <- project_level_util_m %>% fsubset(Availability %in% input$es_bed_avail_sys)
   }
@@ -488,15 +470,6 @@ hh_avg_q <- reactive({
   quarters <- get_quarters() %>% sort
   
   # subset project_level_util_q by it's filters
-  if(input$target_pop_sys != "All Target Populations"){
-    project_level_util_q <- project_level_util_q %>% fsubset(TargetPopulation %in% input$target_pop_sys)
-  }
-  if(input$housing_type_sys != "All Housing Types"){
-    project_level_util_q <- project_level_util_q %>% fsubset(HousingType %in% input$housing_type_sys)
-  }
-  if(input$victim_service_sys != "All Organizations"){
-    project_level_util_q <- project_level_util_q %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
-  }
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
     project_level_util_q <- project_level_util_q %>% fsubset(Availability %in% input$es_bed_avail_sys)
   }
@@ -565,16 +538,6 @@ hh_avg_m <- reactive({
   stopifnot(nrow(project_level_util_m)>0)
   mons <- get_months() %>% sort
   
-  # subset project_level_util_m by it's filters
-  if(input$target_pop_sys != "All Target Populations"){
-    project_level_util_m <- project_level_util_m %>% fsubset(TargetPopulation %in% input$target_pop_sys)
-  }
-  if(input$housing_type_sys != "All Housing Types"){
-    project_level_util_m <- project_level_util_m %>% fsubset(HousingType %in% input$housing_type_sys)
-  }
-  if(input$victim_service_sys != "All Organizations"){
-    project_level_util_m <- project_level_util_m %>% fsubset(VictimServiceProvider %in% input$victim_service_sys)
-  }
   if(input$es_bed_avail_sys != "All ES Bed Availability Types"){
     project_level_util_m <- project_level_util_m %>% fsubset(Availability %in% input$es_bed_avail_sys)
   }
@@ -637,6 +600,8 @@ hh_avg_m <- reactive({
 output$q_proj_inv_filtered <- renderDT({
   
   data <- all_hh_avg_q() 
+  data <- data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'served|util', ignore.case = TRUE)])) # columns not containing 'served' or 'util'
+  
   labels <- data$label
   data <- data %>% select(-label) %>% t()
   colnames(data) <- labels
@@ -654,6 +619,8 @@ output$q_proj_inv_filtered <- renderDT({
 output$m_proj_inv_filtered <- renderDT({# <- reactive({
   
   data <- all_hh_avg_m() 
+  data <- data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'served|util', ignore.case = TRUE)])) # columns not containing 'served' or 'util'
+  
   labels <- data$label
   data <- data %>% select(-label) %>% t()
   colnames(data) <- labels
