@@ -1241,17 +1241,10 @@ nav_menu(
                                    new categories. Note that you can only select one Race/Ethnicity 
                                    category to display in the chart at a time."
                   )),
-                  # checkboxGroupInput(
-                  #   "syse_subpop2_selections",
-                  #   label = "",
-                  #   choices = sys_heatmap_selection_choices,
-                  #   selected = c("All Races/Ethnicities", "Age"),
-                  #   inline = TRUE
-                  # ),
                    br(),
-                  #uiOutput("syse_subpop2_post_selections"),
                   layout_columns(
-                    col_widths = c(1, 2,-1, 1,2,-1,1,2),
+                    col_widths = c(3,3,6),fill=T,
+                    tagList(
                         checkboxInput('syse_subpop2_age_selection', 'Age'),
                          div(id ='age_picker',style='margin-top:0px; padding-top:0px;',
                                      pickerInput(
@@ -1268,8 +1261,24 @@ nav_menu(
                                          container = "body",
                                        )
                                      )
-                                   #  )
+                                     )
                          ),
+                    tagList(
+                                   checkboxInput('syse_subpop2_vet_selection', 'Veteran Status (Adult Only)'),
+                                   div(id = 'vet_picker',
+                                       pickerInput(
+                                         label = NULL,#label = "Veteran Status",
+                                         inputId = "syse_subpop2_spec_pops",
+                                         #choices = sys_spec_pops_people,
+                                         choices = setNames(sys_spec_pops_people,
+                                                            nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                                         ),
+                                         selected = "None Selected",
+                                         options = pickerOptions(container = "body")
+                                       )
+                                   )
+                    ),
+                    tagList(
                          checkboxInput('syse_subpop2_race_eth_selection', 'Race/Ethnicity'),
                          div(id='race_eth_picker',
                              conditionalPanel(condition = 'input.syse_methodology_type == 1',
@@ -1303,24 +1312,8 @@ nav_menu(
                                                        )
                                                      )
                                               )
-                          #uiOutput('syse_subpop2_race_ethnicity')
-                         #)
-                    ),
-
-                            checkboxInput('syse_subpop2_vet_selection', 'Veteran Status (Adult Only)'),
-                            div(id = 'vet_picker',
-                                pickerInput(
-                                       label = NULL,#label = "Veteran Status",
-                                       inputId = "syse_subpop2_spec_pops",
-                                       #choices = sys_spec_pops_people,
-                                       choices = setNames(sys_spec_pops_people,
-                                                          nm = c("None Selected", names(sys_spec_pops_people[-1]))
-                                                          ),
-                                       selected = "None Selected",
-                                       options = pickerOptions(container = "body")
-                                     )
-                            )
-                      #)
+                         )
+                    )
                   ),
                   radioGroupButtons(
                     inputId = "subpop2_dest_type",
