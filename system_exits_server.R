@@ -924,7 +924,8 @@ syse_subpop2_export_summary <- reactive({
                    'Suppression Flag' = 'wasRedacted','Count' = 'N','Total System Exits' = 'total','Percent of Total System Exits' = 'pct')
   
   subpop2_table_df %>% 
-    fmutate( pct = scales::percent(pct, accuracy=0.1)) %>% 
+    fmutate(pct = ifelse(is.nan(pct), 0, pct),
+            pct = scales::percent(pct, accuracy=0.1)) %>% 
     get_vars( vars=c(which_factors_changed, 'Destination Type','N','total','pct','wasRedacted')) %>% 
     arrange(pick(which_factors_changed), 'Destination Type') %>% 
     rename(any_of(export_names))
@@ -1195,7 +1196,7 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
   
   count_subpop <- df_subpop %>%
     count(`Destination Type`, .drop=FALSE, name='N') %>% 
-    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total))
+    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total))
   
   .total_e <- fnrow(everyone_else2())
   
@@ -1213,7 +1214,7 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
     count(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter,.drop=F,name='N') %>%
     fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>% 
     #fmutate(pct = N / fsum(N)) %>% 
-    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted, NA, N / total)) %>% 
+    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total)) %>% 
     fungroup() %>%
     dplyr::filter(if_all(setdiff(filt_vars, which_factors_changed), ~ .x == TRUE)) %>% 
     fsubset(((meets_hh_type==T) + (meets_age_filter==T) + (meets_race_eth_filter==T) + (meets_vet_filter==T)) < 4)
