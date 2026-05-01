@@ -248,6 +248,11 @@ humanize_atomic_clause <- function(clause, list_map, valid_values_df, override_l
   
   # ---- Case A: "is one of c[...]" ----
   if (str_detect(clause, "is one of")) {
+    if(clause == "Funder  is one of  c[13:19]")
+      return("Funder is HUD: HOPWA")
+    
+    if(clause == "CurrentLivingSituation  is one of  c[215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 336, 335, 410, 435, 421, 411]")
+      return("CurrentLivingSituation is non-homeless")
     
     inner_c <- str_extract(clause, "(?<=c\\[).*?(?=\\])")
     
