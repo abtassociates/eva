@@ -1524,7 +1524,7 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
     
     levels(subpop2_chart_df[[which_factors_changed]]) <- c(labels_factors_changed[which_factors_changed],labels_all_other[which_factors_changed])
    
-    g <- ggplot(subpop2_chart_df, aes(x=1, y=fct_rev(!!sym(which_factors_changed))))
+    g <- ggplot(subpop2_chart_df, aes(x=!!sym(which_factors_changed), y=1))
     
   } else if(num_factors_changed == 2){
     
