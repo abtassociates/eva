@@ -1138,7 +1138,7 @@ nav_menu(
               uiOutput("quarterly_util_filter_selections"),
                 radioGroupButtons(
                   inputId = "pop_filter_q_avg",
-                  #label = "Flow Type Filters",
+                  label = "Household Type Filters",
                   choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
                   #Inactive
                   selected = "All",
@@ -1176,7 +1176,7 @@ nav_menu(
               uiOutput("monthly_util_filter_selections"),
               radioGroupButtons(
                 inputId = "pop_filter_m_avg",
-                #label = "Flow Type Filters",
+                label = "Household Type Filters",
                 choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
                 #Inactive
                 selected = "All",
