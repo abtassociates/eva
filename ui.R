@@ -1045,7 +1045,6 @@ nav_menu(
           label = 'Select Project',
           inputId = "HMISprojects",
           choices = NULL,
-          multiple = TRUE,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains', 
                                   container = 'body')
