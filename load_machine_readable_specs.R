@@ -1,4 +1,4 @@
-specs_prepped_path <- here("public-resources/specs_prepped.rds")
+specs_prepped_path <- here("public-resources/eva_specs_prepped.rds")
 
 if(file.exists(specs_prepped_path)) {
   print("loading specs_prepped.rds file")
