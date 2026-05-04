@@ -674,3 +674,11 @@ clean_text <- function(text) {
     # Replace "between" with %between%
     stringi::stri_replace_all_regex("\\bbetween\\b", "%between%")
 }
+# Get snapshot of System Overview stuff
+# key datasets (session$userData$enrollment_categories and period_data), when in dev mode
+# are saved along the way in an RDS file in user's sandbox folder
+get_snapshot <- function(personalID) {
+  # read rds
+  enrollment_categories <- readRDS(here("sandbox/enrollment_categories_all.rds"))
+  print(enrollment_categories %>% fsubset(PersonalID %in% personalID))
+}
