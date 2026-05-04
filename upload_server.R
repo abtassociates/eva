@@ -225,6 +225,7 @@ process_upload <- function(upload_filename, upload_filepath) {
 
 observeEvent(input$imported, {
   process_upload(input$imported$name, input$imported$datapath)
+  session$sendCustomMessage("uploaded_file", TRUE)
 }, ignoreInit = TRUE)
 
 # file upload status text ----------------------------------------------------
