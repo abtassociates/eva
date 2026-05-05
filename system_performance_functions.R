@@ -222,7 +222,7 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                  'syse' = c(
                    "System Exit Types" = "types",
                    "Exits by Year" = "time",
-                   "Exits by Subpopulation 2" = "subpop2",
+                   "Exits by Subpopulation" = "subpop2",
                    "Exits to PH Demographics" = "phd"
                  )
   )

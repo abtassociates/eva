@@ -1222,7 +1222,7 @@ nav_menu(
           # ),
           
           nav_panel(
-            title = headerTab('Exits by Subpopulation 2'),
+            title = headerTab('Exits by Subpopulation'),
             navset_underline(
               id = "syse_subpop2_subtabs",
               selected = headerSubTab('Chart'),

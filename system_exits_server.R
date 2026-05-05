@@ -2067,7 +2067,7 @@ observeEvent(input$syse_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  if(input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation 2</h4>')){
+  if(input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')){
     shinyjs::hide('syse_spec_pops')
     shinyjs::hide('syse_age')
     shinyjs::hide('syse_race_ethnicity')
