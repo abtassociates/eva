@@ -1,7 +1,7 @@
 
 
 gloss <- readxl::read_xlsx('public-resources/system performance glossary.xlsx') %>% as.tibble()
-
+gloss$Definition <- str_replace_all(gloss$Definition,pattern='<br>', replacement = '<br><br>')
 # uncomment when changes are made to the csv and we need to create a new pdf for the download
 #saveRDS(gloss, file = 'sandbox/glossary.rds')
 
@@ -13,7 +13,7 @@ output$glossary <- renderDT({
     options = list(
       searchHighlight = TRUE
     ),
-    style = "default"
+    style = "default", escape=F
   )
   
 })
