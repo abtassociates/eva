@@ -1567,24 +1567,33 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
     
     if('meets_race_eth_filter' %in% which_factors_changed){
       vert_var <- 'meets_race_eth_filter'
-      other_factors <- setdiff(which_factors_changed, vert_var)
+      if('meets_hh_type' %in% which_factors_changed){
+        horiz_var_outer <- 'meets_hh_type'
+        horiz_var_inner <- setdiff(which_factors_changed, c('meets_race_eth_filter','meets_hh_type'))
+      } else {
+        other_factors <- setdiff(which_factors_changed, vert_var)
+        horiz_var_inner <- other_factors[1]#setdiff(which_factors_changed, c('meets_race_eth_filter','meets_hh_type'))
+        horiz_var_outer <- other_factors[2]
+      }
     } else {
+      horiz_var_inner <- which_factors_changed[1]
+      horiz_var_outer <- which_factors_changed[2]
       vert_var <- which_factors_changed[3]
-      other_factors <- which_factors_changed[1:2]
+      #other_factors <- which_factors_changed[1:2]
     }
-   
+    
     ## horizontal variable
-    levels(subpop2_chart_df[[other_factors[1]]]) <- c(labels_factors_changed[other_factors[1]],labels_all_other[other_factors[1]])
+    levels(subpop2_chart_df[[horiz_var_inner]]) <- c(labels_factors_changed[horiz_var_inner],labels_all_other[horiz_var_inner])
 
     ## vertical variable
     levels(subpop2_chart_df[[vert_var]]) <- c(labels_factors_changed[vert_var],labels_all_other[vert_var])
    
     ## facet variable
-    levels(subpop2_chart_df[[other_factors[2]]]) <- c(labels_factors_changed[other_factors[2]],labels_all_other[other_factors[2]])
+    levels(subpop2_chart_df[[horiz_var_outer]]) <- c(labels_factors_changed[horiz_var_outer],labels_all_other[horiz_var_outer])
     
-    g <- ggplot(subpop2_chart_df, aes(x=!!sym(other_factors[1]), y=fct_rev(!!sym(vert_var))))
+    g <- ggplot(subpop2_chart_df, aes(x=!!sym(horiz_var_inner), y=fct_rev(!!sym(vert_var))))
     
-    g <- g + facet_wrap(as.formula(paste0('~ ', other_factors[2])), strip.position='top',scales='free_x', ncol=2,labeller = label_wrap_gen(18))
+    g <- g + facet_wrap(as.formula(paste0('~ ', horiz_var_outer)), strip.position='top',scales='free_x', ncol=2,labeller = label_wrap_gen(18))
   }
   
   g <- g + 
