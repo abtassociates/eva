@@ -1,6 +1,6 @@
 ---
-title: "System Performance Glossary"
-output: pdf_document
+title: "Eva System Performance Glossary"
+output: word_document
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
