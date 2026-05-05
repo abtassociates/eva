@@ -297,3 +297,7 @@ body.idle-timeout-occurred #ss-connect-dialog {
 #race_eth_picker > div:nth-child(1) > div {
   width:100%;
 }
+
+#race_eth_picker > div:nth-child(2) > div {
+  width:100%;
+}
