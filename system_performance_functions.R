@@ -91,7 +91,7 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
                      getNameByValue(sys_methodology_types, 
-                                    ifelse(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>',
+                                    ifelse(input$syse_tabbox == '<h4>Exits to PH Demographics</h4>',
                                            ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
                                                   ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
                                            input$syse_methodology_type)),
@@ -143,9 +143,9 @@ sys_export_filter_selections <- function(type = 'overview') {
           getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
       ),
       'exits_subpop' = c(
-        ifelse(identical(sys_age_cats, input$syse_age), "All Ages",paste(input$syse_age, collapse=", ")),
-        getNameByValue(sys_spec_pops_people, input$syse_spec_pops),
-        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
+        ifelse(identical(sys_age_cats, input$syse_subpop_age), "All Ages",paste(input$syse_subpop_age, collapse=", ")),
+        getNameByValue(sys_spec_pops_people, input$syse_subpop_spec_pops),
+        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input[[glue('syse_subpop_race_ethnicity{input$syse_methodology_type}')]])
       )
   )
   selections$Value <- values
@@ -223,7 +223,7 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                    "System Exit Types" = "types",
                    "Exits by Year" = "time",
                    "Exits by Subpopulation" = "subpop",
-                   "Permanent Housing Demographics" = "phd"
+                   "Exits to PH Demographics" = "phd"
                  )
   )
   

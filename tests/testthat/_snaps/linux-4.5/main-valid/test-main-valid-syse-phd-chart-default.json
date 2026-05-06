@@ -21,7 +21,7 @@
     "syse_project_type": "LHRes",
     "syse_race_ethnicity": "All",
     "syse_spec_pops": "Veteran",
-    "syse_tabbox": "<h4>Permanent Housing Demographics<\/h4>"
+    "syse_tabbox": "<h4>Exits to PH Demographics<\/h4>"
   },
   "output": {
     "headerSystemExit": {

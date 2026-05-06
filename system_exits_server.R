@@ -17,22 +17,38 @@ output$syse_compare_subpop_filter_selections <-renderUI({
   )
 })
 
+output$syse_compare_subpop_filter_selections <-renderUI({ 
+
+  req(!is.null(input$syse_compare_subpop_selections) & session$userData$valid_file() == 1)
+  
+  sys_detailBox(selection = input$syse_compare_subpop_selections,
+                detail_type = 'phd',
+                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_compare_subpop_selections, '1',
+                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_compare_subpop_selections, '2', NA)),
+                cur_project_types = input$syse_project_type,
+                startDate = session$userData$ReportStart,
+                endDate = session$userData$ReportEnd,
+                age = input$syse_age,
+                spec_pops = input$syse_spec_pops,
+                race_eth = input$syse_race_ethnicity)
+})
+
 #### DISPLAY FILTER SELECTIONS ###
- 
-  output$syse_types_filter_selections <- renderUI({ 
-    req(session$userData$valid_file() == 1)
-    
-    sys_detailBox(
-      detail_type = 'types',
-      methodology_type = input$syse_methodology_type,
-      cur_project_types = input$syse_project_type,
-      startDate = session$userData$ReportStart,
-      endDate = session$userData$ReportEnd,
-      age = input$syse_age,
-      spec_pops = input$syse_spec_pops,
-      race_eth = input$syse_race_ethnicity
-    )
-  })
+
+output$syse_types_filter_selections <- renderUI({ 
+  req(session$userData$valid_file() == 1)
+  
+  sys_detailBox(
+    detail_type = 'types',
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+  )
+})
 
 ## separate info for time chart tab since report period covers 2 years before ReportEnd
 output$syse_compare_time_filter_selections <- renderUI({
@@ -60,7 +76,7 @@ output$syse_phd_summary_selections <- renderUI({
   sys_detailBox(selection = input$syse_phd_selections,
                 detail_type = 'phd',
                 methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
-                                    ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
+                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
                 cur_project_types = input$syse_project_type,
                 startDate = session$userData$ReportStart,
                 endDate = session$userData$ReportEnd)
@@ -154,17 +170,17 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
     suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
   plot_df_joined <- join(plot_df_supp,
-                              plot_df_phd %>% 
-                                frename(num = n), how = 'left', on=c(selection)) %>% 
+                         plot_df_phd %>% 
+                           frename(num = n), how = 'left', on=c(selection)) %>% 
     fmutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
-           frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
+            frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
   
   export_label1 <- paste0(selection, ' (Demographic Section 1)')
   
   export_df <- plot_df_joined %>% 
     join(plot_df_supp %>% 
-                fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
-                fselect(-n, -wasRedacted),
+           fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
+           fselect(-n, -wasRedacted),
          how = 'left') %>% 
     fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
     fselect(get(selection), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
@@ -189,13 +205,13 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
       scale_fill_gradient(
         low = get_brand_color('light_green'),
         high = get_brand_color('dark_green'),
-        breaks = seq(0, 1, by = 0.05),
+        breaks = seq(0,1,by=0.05),
         na.value = ifelse(
           is.na(plot_df_joined$wasRedacted) | !plot_df_joined$wasRedacted,
           "white",
           get_brand_color('light_green')
         )
-      ) +
+      ) + # na.value makes 0s invisible
       # set text color to be 508 compliant contrasting
       geom_text(
         aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),
@@ -378,19 +394,19 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   #   suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
   plot_df_joined <- join(plot_df_supp,plot_df_phd %>% 
-                                frename(num = n), 
+                           frename(num = n), 
                          how = 'left',
                          on = c(selections[1],selections[2])) %>% 
     fmutate(frac = ifelse(n == 0 | is.na(n), NA, num / n),
-           frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
+            frac_export = ifelse(n_orig == 0 | is.na(n_orig), 0, num / n_orig))
   
   export_label1 <- paste0(selections[2], ' (Demographic Section 1)')
   export_label2 <- paste0(selections[1], ' (Demographic Section 2)')
   
   export_df <- plot_df_joined %>% 
     join(plot_df_supp %>% 
-                fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
-                fselect(-n, -wasRedacted, -n_orig),
+           fmutate(`Suppression Flag` = ifelse(!is.na(wasRedacted) & wasRedacted, "Yes","No")) %>% 
+           fselect(-n, -wasRedacted, -n_orig),
          how = 'left') %>% 
     fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
     fselect(get(selections[2]), get(selections[1]), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
@@ -572,13 +588,13 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 
     fsummarize(Count = GRPN(), 
-              Percent = GRPN() / nr) %>% 
+               Percent = GRPN() / nr) %>% 
     fungroup() %>% 
     fmutate(Percent = Count/fsum(Count),
-           text_color = fifelse(`Destination Type` %in% c('Temporary','Institutional','Other/Unknown'), 'black', 'white'),
-           label = str_c(`Destination Type`, ': ', scales::label_comma()(Count),
-                         ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
-           )) %>% 
+            text_color = fifelse(`Destination Type` %in% c('Temporary','Institutional','Other/Unknown'), 'black', 'white'),
+            label = str_c(`Destination Type`, ': ', scales::label_comma()(Count),
+                          ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
+            )) %>% 
     fmutate(border_color = "black") %>% 
     fmutate(subgroup2 = factor(
       fifelse(`Destination Type` %in% c('Permanent','Homeless'), 'group1', 'group2'),
@@ -586,37 +602,37 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
     ) %>%
     roworder('subgroup2', 'Destination Type') 
   
-    if(show_legend == FALSE){
-        ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
-                   label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
-          labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
-                              syse_level_of_detail_text(), " in ",
-                              str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-                              if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
-          ) +
-        geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE) +
-        geom_treemap_text(layout='squarified', start='bottomright',aes(color = text_color),  place = "center", grow = FALSE, reflow = TRUE) +
-        geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE) +
-        scale_color_identity() +
-        scale_fill_manual(values = tree_colors) +
-        theme_minimal() +
-        coord_fixed(ratio =0.8) +
-        theme(
-          plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
-        )
-  
-    } else if (show_legend == TRUE){
-      ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
-                                  label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
-        labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
-                            syse_level_of_detail_text(), " in ",
-                            str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-                            if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
-        ) +
-        geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE,) +
-        geom_treemap_text(layout='squarified', start='bottomright',aes(color = text_color),  place = "center", grow = FALSE, reflow = TRUE) +
-        geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE)
+  if(show_legend == FALSE){
+    ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
+                                label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
+      labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+                          syse_level_of_detail_text(), " in ",
+                          str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                          if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
+      ) +
+      geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE) +
+      geom_treemap_text(layout='squarified', start='bottomright',aes(color = text_color),  place = "center", grow = FALSE, reflow = TRUE) +
+      geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE) +
       scale_color_identity() +
+      scale_fill_manual(values = tree_colors) +
+      theme_minimal() +
+      coord_fixed(ratio =0.8) +
+      theme(
+        plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+      )
+    
+  } else if (show_legend == TRUE){
+    ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
+                                label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
+      labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+                          syse_level_of_detail_text(), " in ",
+                          str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+                          if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
+      ) +
+      geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE,) +
+      geom_treemap_text(layout='squarified', start='bottomright',aes(color = text_color),  place = "center", grow = FALSE, reflow = TRUE) +
+      geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE)
+    scale_color_identity() +
       scale_fill_manual("",breaks = tree_exits_summ$label, values = setNames(tree_colors, tree_exits_summ$label)) +
       theme_minimal() +
       theme(
@@ -631,56 +647,56 @@ syse_types_chart <- function(varname, status, show_legend = FALSE){
 
 output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits by Type Report - "),
                                                    content = function(file) 
-    {
-     logToConsole(session, "System Exits by Type data download")
-     
-     write_xlsx(
-       list(
-         "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-           rowbind(
-             sys_export_filter_selections(type = 'exits'),
-              data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
-           ) %>% 
-           frename('System Exits by Type' = Value),
-         
-         "SystemExitTypesData" = tree_exits_data() %>% 
-           fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
-           fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
-           fsummarize(Count = GRPN()) %>% 
-           fungroup() %>% 
-           list_all_destinations(fill_zero = TRUE) %>% 
-           fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
-       ),
-       path = file,
-       format_headers = FALSE,
-       col_names = TRUE
-     )  
-     
-     logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-     
-})
+                                                   {
+                                                     logToConsole(session, "System Exits by Type data download")
+                                                     
+                                                     write_xlsx(
+                                                       list(
+                                                         "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
+                                                           rowbind(
+                                                             sys_export_filter_selections(type = 'exits'),
+                                                             data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+                                                           ) %>% 
+                                                           frename('System Exits by Type' = Value),
+                                                         
+                                                         "SystemExitTypesData" = tree_exits_data() %>% 
+                                                           fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
+                                                           fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
+                                                           fsummarize(Count = GRPN()) %>% 
+                                                           fungroup() %>% 
+                                                           list_all_destinations(fill_zero = TRUE) %>% 
+                                                           fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
+                                                       ),
+                                                       path = file,
+                                                       format_headers = FALSE,
+                                                       col_names = TRUE
+                                                     )  
+                                                     
+                                                     logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                                                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+                                                     
+                                                   })
 
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
   paste("System Exits by Type_", Sys.Date(), ".pptx", sep = "")
-  },
-  content = function(file) {
-    logToConsole(session, "In syse_types_download_btn_ppt")
+},
+content = function(file) {
+  logToConsole(session, "In syse_types_download_btn_ppt")
   
-    sys_perf_ppt_export(file = file, 
-                         type = 'exits',
-                       title_slide_title = "System Exits by Type",
-                       summary_items = sys_export_summary_initial_df(type = 'exits') %>%
-                         fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
-                         rowbind(sys_export_filter_selections(type = 'exits'),
-                                   data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
-                       plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
-                       summary_font_size = 19,
-                       startDate = session$userData$ReportStart, 
-                       endDate = session$userData$ReportEnd, 
-                       sourceID = session$userData$Export$SourceID,
-                       in_demo_mode = input$in_demo_mode
-                       )
+  sys_perf_ppt_export(file = file, 
+                      type = 'exits',
+                      title_slide_title = "System Exits by Type",
+                      summary_items = sys_export_summary_initial_df(type = 'exits') %>%
+                        fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
+                        rowbind(sys_export_filter_selections(type = 'exits'),
+                                data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
+                      plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
+                      summary_font_size = 19,
+                      startDate = session$userData$ReportStart, 
+                      endDate = session$userData$ReportEnd, 
+                      sourceID = session$userData$Export$SourceID,
+                      in_demo_mode = input$in_demo_mode
+  )
 })
 
 
@@ -717,7 +733,30 @@ subpop_chart_validation <- function(hh_type, level_of_detail, project_type, race
     return(cond)
   }
 }
- 
+
+subpop_chart_validation <- function(show = TRUE, req = FALSE) {
+  logToConsole(session, "In subpop_chart_validation")
+  
+  
+  cond <- any(did_factors_change()) 
+  
+  ## whether to show validate message or not
+  if(show){
+    validate(
+      need(
+        cond,#"All Ages",
+        message = "Please select a household type or one or more demographic filters to generate the subpopulation chart."
+      )
+    )
+  } else if (req){
+    ##  just hide but do not show a duplicate validate message
+    req(cond)
+  } else {
+    ## otherwise, just return TRUE/VALSE of condition
+    return(cond)
+  }
+}
+
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
@@ -738,9 +777,75 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
   
 }
 
-syse_subpop_export <- reactive({
+syse_subpop_export_summary <- reactive({
+
+  subpop_table_df <- get_syse_compare_subpop_data(output_type = 'table') 
+  
+  which_factors_changed <- names(which(did_factors_change() == 1))
+  
+  labels_factors_changed <- c(
+    meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
+    meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
+    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+                                   ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
+  )
+  labels_all_other <- c(
+    meets_hh_type = 'All Other Household Types',
+    meets_age_filter = 'All Other Ages',
+    meets_race_eth_filter = 'All Other Races/Ethnicities',
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
+  )
+  
+  if('meets_hh_type' %in% which_factors_changed){
+    levels(subpop_table_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
+  } else {
+    subpop_table_df <- subpop_table_df %>% 
+      fmutate(meets_hh_type = getNameByValue(sys_hh_types, input$syse_hh_type))
+  }
+  
+  if('meets_age_filter' %in% which_factors_changed){
+    levels(subpop_table_df[['meets_age_filter']]) <- c(labels_factors_changed['meets_age_filter'],labels_all_other['meets_age_filter'])
+  } else {
+    subpop_table_df <- subpop_table_df %>% 
+      fmutate(meets_age_filter = "All Ages")
+  }
+  
+  if('meets_race_eth_filter' %in% which_factors_changed){
+    levels(subpop_table_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
+  } else {
+    subpop_table_df <- subpop_table_df %>% 
+      fmutate(meets_race_eth_filter = getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), 
+                                                     switch(input$syse_methodology_type, '1'=input$syse_subpop_race_ethnicity1,
+                                                            '2' = input$syse_subpop_race_ethnicity2))
+      )
+  }
+  
+  if('meets_vet_filter' %in% which_factors_changed){
+    levels(subpop_table_df[['meets_vet_filter']]) <- c(labels_factors_changed['meets_vet_filter'],labels_all_other['meets_vet_filter'])
+  } else {
+    subpop_table_df <- subpop_table_df %>% 
+      fmutate(meets_vet_filter = getNameByValue(sys_spec_pops_people, input$syse_subpop_spec_pops))
+  }
+  
+  export_names <- c('Household Type' = 'meets_hh_type', 'Race/Ethnicity' = 'meets_race_eth_filter',
+                   'Age' = 'meets_age_filter', 'Veteran Status' = 'meets_vet_filter',
+                   'Suppression Flag' = 'wasRedacted','Count' = 'N','Total System Exits' = 'total','Percent of Total System Exits' = 'pct')
+  
+  subpop_table_df %>% 
+    fmutate(pct = ifelse(is.nan(pct), 0, pct),
+            pct = scales::percent(pct, accuracy=0.1)) %>% 
+    get_vars( vars=c(which_factors_changed, 'Destination Type','N','total','pct','wasRedacted')) %>% 
+    arrange(pick(which_factors_changed), 'Destination Type') %>% 
+    rename(any_of(export_names))
+
+})
+
+syse_subpop_export_detail <- reactive({
+  
+  
   ## compute subcategories of destination types for data export - not shown in chart or table
-  pct_subpop_sub <- all_filtered_syse_subpop() %>% 
+  pct_subpop_sub <- subpop() %>% 
     fselect( Destination, PersonalID, EnrollmentID) %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
@@ -756,7 +861,7 @@ syse_subpop_export <- reactive({
     fungroup() %>% 
     fmutate(pct_subpop = count_subpop /sum(count_subpop, na.rm=T))
   
-  pct_comparison_sub <- everyone_else() %>% 
+  pct_comparison_sub <- everyone_else2() %>% 
     fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
     fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
     fsummarize(count_comparison = GRPN()) %>% 
@@ -766,28 +871,29 @@ syse_subpop_export <- reactive({
   pct_subpop_totals <- pct_subpop_sub %>% 
     fgroup_by(`Destination Type`) %>% 
     fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
-              count_subpop = sum(count_subpop), 
-              pct_subpop = sum(pct_subpop)) 
+               count_subpop = sum(count_subpop), 
+               pct_subpop = sum(pct_subpop)) 
   
   pct_comparison_totals <- pct_comparison_sub %>% 
     fgroup_by(`Destination Type`) %>% 
     fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
-              count_comparison = sum(count_comparison), 
-              pct_comparison = sum(pct_comparison)) 
-
+               count_comparison = sum(count_comparison), 
+               pct_comparison = sum(pct_comparison)) 
+  
   #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
   full_join(pct_subpop_sub %>% 
               rowbind(pct_subpop_totals), 
             pct_comparison_sub %>% 
               rowbind(pct_comparison_totals), 
             by=c('Destination Type','Destination Type Detail')) %>%    
-      list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      fmutate(pct_diff = map2_chr(count_subpop, count_comparison, .f = calc_pct_diff),
-             total_count = count_subpop + count_comparison,
-             pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
-             pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
-      fselect(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Everyone Else %' = pct_comparison, 
-             'Percent Difference' = pct_diff, 'Subpopulation Count' = count_subpop, 'Everyone Else Count' = count_comparison, 'Total Count' = total_count)
+    list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
+    fmutate(#pct_diff = map2_chr(count_subpop, count_comparison, .f = calc_pct_diff),
+            total_count = count_subpop + count_comparison,
+            pct_comparison = scales::percent(pct_comparison, accuracy = 0.1,scale=100),
+            pct_subpop = scales::percent(pct_subpop, accuracy = 0.1,scale=100)) %>% 
+    fselect(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Subpopulation Count' = count_subpop, 
+            #'Percent Difference' = pct_diff, 
+            'Everyone Else %' = pct_comparison, 'Everyone Else Count' = count_comparison)#, 'Total Count' = total_count)
 })
 
 everyone_else <- reactive({
@@ -813,23 +919,23 @@ everyone_else <- reactive({
     how = "inner"
   )
   
-   ## get system exits - expand_by_period + get_active...
-   enrolled_w_exits <- enrolled_filt %>% 
-     expand_by_periods(chart_type = 'exits_types') %>% 
-     get_active_info(enrolled_filt) %>%
-     get_inflows_and_outflows(chart_type = 'exits') %>% 
-     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))  %>% 
-     ## drop rows that are in the filtered version - (everyone minus subpop)
-     fsubset(!(EnrollmentID %in% all_filtered_syse_subpop()$EnrollmentID))
- 
-   ## special case for VeteranStatus: exclude children from Everyone Else group in both Veteran and Non-Veteran cases
-   if(input$syse_spec_pops != sys_spec_pops_people[1]){
-     enrolled_w_exits <- enrolled_w_exits %>% 
-       join(session$userData$client_categories %>% fselect(PersonalID, AgeCategory), how='left') %>% 
-       fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
-   }
-   
+  ## get system exits - expand_by_period + get_active...
+  enrolled_w_exits <- enrolled_filt %>% 
+    expand_by_periods(chart_type = 'exits_types') %>% 
+    get_active_info(enrolled_filt) %>%
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))  %>% 
+    ## drop rows that are in the filtered version - (everyone minus subpop)
+    fsubset(!(EnrollmentID %in% all_filtered_syse_subpop()$EnrollmentID))
+  
+  ## special case for VeteranStatus: exclude children from Everyone Else group in both Veteran and Non-Veteran cases
+  if(input$syse_spec_pops != sys_spec_pops_people[1]){
+    enrolled_w_exits <- enrolled_w_exits %>% 
+      join(session$userData$client_categories %>% fselect(PersonalID, AgeCategory), how='left') %>% 
+      fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
+  }
+  
   ## add destination type detail
   enrolled_w_exits %>% 
     fmutate(`Destination Type` = fcase(
@@ -844,6 +950,18 @@ everyone_else <- reactive({
       `Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown'))
     )
   
+})
+
+everyone_else2 <- reactive({
+  comps()$everyone_else %>% 
+    fmutate(`Destination Type` = fcase(
+      Destination %in% perm_livingsituation, 'Permanent',
+      Destination %in% 100:199, 'Homeless',
+      Destination %in% temp_livingsituation, 'Temporary',
+      Destination %in% institutional_livingsituation, 'Institutional',
+      Destination %in% other_livingsituation, 'Other/Unknown',
+      default = 'Other/Unknown'
+    ))
 })
 
 ## add counts in parens for table formatting
@@ -879,89 +997,82 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
 
 get_syse_compare_subpop_data <- function(output_type = 'table'){
   
-  validate(need(nrow(all_filtered_syse_subpop()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse_subpop()) > 10, suppression_msg))
+  validate(need(nrow(subpop()) > 0, no_data_msg))
+  validate(need(nrow(subpop()) > 10, suppression_msg))
   
-  .total_s <- fnrow(all_filtered_syse_subpop())
+  validate(need(nrow(everyone_else2()) > 0, no_data_msg))
+  validate(need(nrow(everyone_else2()) > 10, suppression_msg))
   
-  count_subpop <- all_filtered_syse_subpop() %>% 
-    fselect( Destination, PersonalID, EnrollmentID) %>% 
-    fmutate(`Destination Type` = fcase(
+  
+  df_subpop <- subpop() %>% 
+    fmutate(`Destination Type` = factor(fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
       Destination %in% temp_livingsituation, 'Temporary',
       Destination %in% institutional_livingsituation, 'Institutional',
       Destination %in% other_livingsituation, 'Other/Unknown',
       default = 'Other/Unknown'
-    )) %>% fsummarize(
-    'Permanent' = fsum(`Destination Type` == 'Permanent'),
-    'Homeless'= fsum(`Destination Type` == 'Homeless'),
-    'Institutional' = fsum(`Destination Type` == 'Institutional'),
-    'Temporary' = fsum(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
+    ), levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
+  
+  .total_s <- fnrow(df_subpop)
+  
+  count_subpop <- df_subpop %>%
+    count(`Destination Type`, .drop=FALSE, name='N') %>% 
+    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total))
+  
+  .total_e <- fnrow(everyone_else2())
+  
+  count_df <- expand.grid(
+    meets_hh_type = c(TRUE, FALSE),
+    meets_age_filter = c(TRUE, FALSE),
+    meets_race_eth_filter = c(TRUE, FALSE),
+    meets_vet_filter = c(TRUE, FALSE)
   )
   
-  .total_e <- fnrow(everyone_else())
+  filt_vars <- c('meets_hh_type','meets_age_filter','meets_race_eth_filter','meets_vet_filter')
+  which_factors_changed <- names(which(did_factors_change() == 1))
   
-  count_everyone_else <- everyone_else() %>% fsummarize(
-    'Permanent' = fsum(`Destination Type` == 'Permanent'),
-    'Homeless'= fsum(`Destination Type` == 'Homeless'),
-    'Institutional' = fsum(`Destination Type` == 'Institutional'),
-    'Temporary' = fsum(`Destination Type` == 'Temporary'),
-    'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
-  )
+  count_everyone_else <- everyone_else2() %>%
+    count(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter,.drop=F,name='N') %>%
+    fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>% 
+    #fmutate(pct = N / fsum(N)) %>% 
+    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total)) %>% 
+    fungroup() %>%
+    dplyr::filter(if_all(setdiff(filt_vars, which_factors_changed), ~ .x == TRUE)) %>% 
+    fsubset(((meets_hh_type==T) + (meets_age_filter==T) + (meets_race_eth_filter==T) + (meets_vet_filter==T)) < 4)
+  
+  # which_factors_changed <- names(which(did_factors_change() == 1))
+  # labels_factors_changed <- c(
+  #   meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
+  #   meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
+  #   meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+  #                                  ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+  #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
+  # )
+  # labels_all_other <- c(
+  #   meets_hh_type = 'All Other Household Types',
+  #   meets_age_filter = 'All Other Ages',
+  #   meets_race_eth_filter = 'All Other Races/Ethnicities',
+  #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
+  # )
   
   if(output_type == 'chart'){
     
-    pct_subpop <- count_subpop / .total_s
-    pct_everyone_else <- count_everyone_else / .total_e
-    
-    pct_diff <- purrr::map2_dfr(count_subpop, count_everyone_else, .f = calc_pct_diff, format='num')
-    
-    data.table(
-      subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
-      round(
-        rowbind(
-          pct_subpop,
-          pct_everyone_else,
-          pct_diff
-        ),
-        2)
+    rowbind(
+      count_subpop %>% fmutate(meets_hh_type = TRUE, meets_age_filter = TRUE, 
+                               meets_race_eth_filter = TRUE, meets_vet_filter = TRUE, group = 'subpop'),
+      count_everyone_else %>% fmutate(group = 'everyone_else')
     )
+    
     
   } else if (output_type == 'table'){
     
-    pct_diff <- purrr::map2_dfr(count_subpop, count_everyone_else, .f = calc_pct_diff)
-    
-    pct_subpop <- count_subpop %>% 
-      fmutate(
-        'Permanent' = format_compare_value(Permanent, .total_s),
-        'Homeless'= format_compare_value(Homeless, .total_s),
-        'Institutional' = format_compare_value(Institutional, .total_s),
-        'Temporary' = format_compare_value(Temporary, .total_s),
-        'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_s)
-      )
-    
-    pct_everyone_else <- count_everyone_else %>% 
-      fmutate(
-        'Permanent' = format_compare_value(Permanent, .total_e),
-        'Homeless'= format_compare_value(Homeless, .total_e),
-        'Institutional' = format_compare_value(Institutional, .total_e),
-        'Temporary' = format_compare_value(Temporary, .total_e),
-        'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_e)
-      )
-    
-    data.table(
-      subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
-        rowbind(
-          pct_subpop,
-          pct_everyone_else,
-          pct_diff
-        )
+    rowbind(
+      count_subpop %>% fmutate(meets_hh_type = TRUE, meets_age_filter = TRUE, 
+                               meets_race_eth_filter = TRUE, meets_vet_filter = TRUE, group = 'subpop'),
+      count_everyone_else %>% fmutate(group = 'everyone_else')
     )
   }
- 
-
 }
 
 syse_time_export <- reactive({
@@ -986,32 +1097,32 @@ syse_time_export <- reactive({
     fsummarize(count_cur_year = GRPN()) %>% 
     fungroup() %>% 
     fmutate(pct_cur_year = count_cur_year/fsum(count_cur_year, na.rm=T))
-
- 
- pct_prev_year_totals <- pct_prev_year_sub %>% 
-   fgroup_by(`Destination Type`) %>% 
-   fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
-             count_prev_year = fsum(count_prev_year), 
-             pct_prev_year = fsum(pct_prev_year)) 
- 
- pct_current_year_totals <- pct_current_year_sub %>% 
-   fgroup_by(`Destination Type`) %>% 
-   fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
-             count_cur_year = fsum(count_cur_year), 
-             pct_cur_year = fsum(pct_cur_year)) 
- 
-    #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
- full_join(pct_prev_year_sub %>% 
-             rowbind(pct_prev_year_totals), 
-           pct_current_year_sub %>% 
-             rowbind(pct_current_year_totals), 
-           by=c('Destination Type','Destination Type Detail')) %>%    
-      list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
-      fmutate(pct_change = map2_chr(count_prev_year, count_cur_year, .f = calc_pct_change, accuracy = 0.1),
-             pct_cur_year = scales::percent(pct_cur_year, accuracy=0.1, scale=100), 
-             pct_prev_year = scales::percent(pct_prev_year, accuracy=0.1, scale=100)) %>% 
-      fselect(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
-             'Percent Change' = pct_change, 'Previous Year Count' = count_prev_year, 'Current Year Count' = count_cur_year)
+  
+  
+  pct_prev_year_totals <- pct_prev_year_sub %>% 
+    fgroup_by(`Destination Type`) %>% 
+    fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+               count_prev_year = fsum(count_prev_year), 
+               pct_prev_year = fsum(pct_prev_year)) 
+  
+  pct_current_year_totals <- pct_current_year_sub %>% 
+    fgroup_by(`Destination Type`) %>% 
+    fsummarize(`Destination Type Detail` = paste0('Total ', ffirst(`Destination Type`)),
+               count_cur_year = fsum(count_cur_year), 
+               pct_cur_year = fsum(pct_cur_year)) 
+  
+  #full_join(pct_prev_year_sub, pct_current_year_sub) %>% 
+  full_join(pct_prev_year_sub %>% 
+              rowbind(pct_prev_year_totals), 
+            pct_current_year_sub %>% 
+              rowbind(pct_current_year_totals), 
+            by=c('Destination Type','Destination Type Detail')) %>%    
+    list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>% 
+    fmutate(pct_change = map2_chr(count_prev_year, count_cur_year, .f = calc_pct_change, accuracy = 0.1),
+            pct_cur_year = scales::percent(pct_cur_year, accuracy=0.1, scale=100), 
+            pct_prev_year = scales::percent(pct_prev_year, accuracy=0.1, scale=100)) %>% 
+    fselect(`Destination Type`, `Destination Type Detail`, 'Previous Year %' = pct_prev_year, 'Current Year %' = pct_cur_year, 
+            'Percent Change' = pct_change, 'Previous Year Count' = count_prev_year, 'Current Year Count' = count_cur_year)
   
 })
 
@@ -1113,37 +1224,82 @@ get_syse_compare_time_data <- function(output_type = 'table'){
   
 }
 
-## function to make System Exits comparison subpopulation chart
-syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
+syse_subpop_selections <- reactive({
+  possible <- c("Age","Race/Ethnicity","Veteran Status (Adult Only)")
+  selected <- which(c(input$syse_subpop_age_selection, input$syse_subpop_race_eth_selection, input$syse_subpop_vet_selection))
+  
+  vals <- possible[selected]
+  if("Race/Ethnicity" %in% vals){
+    vals[vals == "Race/Ethnicity"] <- c("All Races/Ethnicities","Grouped Races/Ethnicities")[as.numeric(input$syse_methodology_type)]
+  }
+  
+  vals
+})
+
+observeEvent(input$syse_subpop_age_selection,
+               {
+                if(isTruthy(input$syse_subpop_age_selection)){
+                  shinyjs::enable(id = 'age_picker')
+                } else {
+                  shinyjs::disable(id = 'age_picker')
+                }                 
+               })
+
+observeEvent(input$syse_subpop_race_eth_selection,
+             {
+               if(isTruthy(input$syse_subpop_race_eth_selection)){
+                 shinyjs::enable(id = 'race_eth_picker')
+               } else {
+                 shinyjs::disable(id = 'race_eth_picker')
+               }                 
+             }, ignoreInit=F)
+
+observeEvent(input$syse_subpop_vet_selection,
+             {
+               if(isTruthy(input$syse_subpop_vet_selection)){
+                 shinyjs::enable(id = 'vet_picker')
+               } else {
+                 shinyjs::disable(id = 'vet_picker')
+               }                 
+             })
+
+
+observeEvent(syse_subpop_selections(),{
+  
+  str_vec <- c('Age','Races/Ethnicities','Veteran Status')
+  excl_vec <- c('age','race_eth','vet')
+  if(length(syse_subpop_selections()) == 2){
+    
+    excl <- which(!sapply(str_vec, \(x) any(str_detect(syse_subpop_selections(), x)) ,USE.NAMES = F))
+    shinyjs::disable(id = paste0('syse_subpop_',excl_vec[excl],'_selection'))
+  } else {
+    shinyjs::enable(id='syse_subpop_age_selection')
+    shinyjs::enable(id='syse_subpop_race_eth_selection')
+    shinyjs::enable(id='syse_subpop_vet_selection')
+  }
+})
+
+did_factors_change <- reactive({
+  c(
+    meets_hh_type = (input$syse_hh_type != 'All'),
+    meets_age_filter = ('Age' %in% syse_subpop_selections() && length(input$syse_subpop_age) < length(sys_age_cats)),
+    meets_race_eth_filter = ('All Races/Ethnicities' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity1 != 'All') +
+      ('Grouped Races/Ethnicities' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity2 != 'All'),
+    meets_vet_filter = ('Veteran Status (Adult Only)' %in% syse_subpop_selections() && input$syse_subpop_spec_pops != 'None')
+  )
+})
+
+syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data(output_type = 'chart'),
+                                       dest_type = input$subpop_dest_type, isExport = FALSE){
+  req(all_filtered_syse_subpop())
   
   subgroup_colors <- c(
-   "Subpopulation" = get_brand_color('med_purple'),
-   "Everyone Else" = get_brand_color('med_grey2')
+    'subpop' = get_brand_color('med_purple'),
+    'everyone_else' = get_brand_color('med_grey2')
   )
-  
-  ## use adjusted locations for point placement 
-  adj_x_vals <- c(0.85, 1.83, 2.87, 3.94, 5.15)
   ## long format needed for plotting points
-  subpop_chart_df <- get_syse_compare_subpop_data(output_type = 'chart') %>% 
-    fsubset(subpop_summ != "Percent Difference") %>% 
-    pivot_longer(cols = -1, names_to = 'dest_type', values_to = 'subpop_pct') %>% 
-    fmutate(dest_type = factor(dest_type, levels = c("Permanent","Homeless","Institutional","Temporary","Other/Unknown")) ) %>% 
-    add_column(dest_type_adj = rep(adj_x_vals, times = 2))
-  
-  ## wide format needed for plotting arrows between points
-  subpop_segment_df <- subpop_chart_df %>% 
-    pivot_wider(names_from = 'subpop_summ', values_from = 'subpop_pct') 
-  
-  ## add x-axis labels for PPT download only
-  if(isExport){
-    dest_type_labels <- subpop_segment_df$dest_type
-    bar_width <- compare_export_bar_width
-    
-  } else {
-    dest_type_labels <- rep(NA,5)    
-    bar_width <- compare_bar_width
-    
-  }
+  subpop_chart_df <- subpop_data %>% 
+    fsubset(`Destination Type` == dest_type)
   
   title_start <- paste0("Total System Exits for ",
                         syse_level_of_detail_text(), " in ",
@@ -1151,157 +1307,133 @@ syse_compare_subpop_chart <- function(subpop, isExport = FALSE){
                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
   
   title <- paste0(title_start, 
-                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(all_filtered_syse_subpop()))),
-                    paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else())))),
+                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(subpop()))),
+                    paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else2())))),
                   collapse='\n'
-                  )
-                                                                                  
-                  
-  g <- ggplot(subpop_chart_df, aes(x = dest_type_adj, y = subpop_pct)) +
-    geom_bar(aes(fill = subpop_summ), color = 'black', width = bar_width, stat='identity', position='dodge') +
-    scale_fill_manual(values=rev(subgroup_colors), guide = guide_legend(ncol = 2)) +
-    scale_y_continuous(limits=c(0,NA), labels = scales::label_percent(), expand = expansion(add=0.001, mult=c(0, 0.1))) +
-    scale_x_continuous(labels=dest_type_labels, breaks=adj_x_vals, limits = c(min(adj_x_vals) - 0.2, max(adj_x_vals) + 0.2)) +
-    labs(x = '', y = 'Percentage of System Exits',
-         title = title) +
+  )
+  
+  num_factors_changed <- sum(did_factors_change())
+  which_factors_changed <- names(which(did_factors_change() == 1))
+  
+  labels_factors_changed <- c(
+    meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
+    meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
+    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+                                   ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
+  )
+  labels_all_other <- c(
+    meets_hh_type = 'All Other Household Types',
+    meets_age_filter = 'All Other Ages',
+    meets_race_eth_filter = 'All Other Races/Ethnicities',
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
+  )
+  
+  
+  
+  if(num_factors_changed == 1){
     
-    theme_minimal() +
-    theme(
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.background = element_rect(fill=NA, colour = 'black'),
-          legend.title = element_blank(),
-          legend.justification = 'left',
-          legend.position = 'top',
-          legend.text = element_text(size = get_adj_font_size(sys_legend_text_font, isExport)),
-          axis.text.y = element_text(size = sys_axis_text_font),
-          axis.title.y = element_text(size = sys_axis_text_font),
-          plot.title = element_text(size = sys_chart_title_font, hjust =0.5)
-        )
-  if(isExport){
-    g + theme(
-      axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
-    )
-  } else {
-    g + theme(axis.text.x = element_blank())
-  }
-}
-  
-## function for System Exits Comparison subpopulation table (below chart)
-get_syse_compare_subpop_table <- function(tab){
-  
-  subgroup_colors <- c(
-    "Subpopulation" = get_brand_color('med_purple'),
-    "Everyone Else" = get_brand_color('med_grey2')
-  )
-  
-  datatable(tab, 
-            colnames = c(' ' = 'subpop_summ',
-                         "<b>Permanent</b>" = "Permanent","<b>Homeless</b>" = "Homeless",
-                         "<b>Institutional</b>" = "Institutional","<b>Temporary</b>" = "Temporary",
-                        "<b>Other/Unknown</b>" = "Other/Unknown"),
-            options = list(
-    dom = 't',
-    ordering = FALSE,
-    columnDefs = list(
-      list(width = "48px", targets = 0), # Set first column width
-      list(className = 'dt-center', targets = '_all') # Center text
-    )
-  ),
-  selection = 'none',
-  escape = FALSE,
-  style = "default",
-  rownames = FALSE) %>% 
-    # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
-    formatStyle(
-      columns = 1,  # First column
-      target = "cell",
-      backgroundColor = styleEqual(
-        names(subgroup_colors), unname(subgroup_colors)
-      ),
-      borderTop = styleEqual(
-        names(subgroup_colors),
-        c("2px solid black", "1px solid black")
-      ),
-      borderLeft = styleEqual(
-        names(subgroup_colors),
-        c(rep("2px solid black", 2))
-      ),
-      borderRight = styleEqual(
-        names(subgroup_colors),
-        c(rep("2px solid black", 2))
-      ),
-      borderBottom = styleEqual(
-        names(subgroup_colors),
-        c("1px solid black", "2px solid black")
-      )
-    ) %>% 
-    # Contrast font and background colors
-    formatStyle(
-      columns = 1,
-      target = "cell",
-      color = styleEqual(
-        names(subgroup_colors), 
-        rep("black", length(subgroup_colors))
-      )
-    )
-}
+    levels(subpop_chart_df[[which_factors_changed]]) <- c(labels_factors_changed[which_factors_changed],labels_all_other[which_factors_changed])
+   
+    g <- ggplot(subpop_chart_df, aes(x=!!sym(which_factors_changed), y=1))
+    
+  } else if(num_factors_changed == 2){
+    
+    if('meets_hh_type' %in% which_factors_changed){
+      
+      other_factor <- setdiff(which_factors_changed, 'meets_hh_type')
+      
+      ## horizontal variable
+      levels(subpop_chart_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
 
-get_syse_compare_subpop_flextable <- function(tab) {
-  logToConsole(session, "In get_syse_compare_subpop_flextable")
- 
+      ## horizontal variable
+      levels(subpop_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
+      
+      g <- ggplot(subpop_chart_df, aes(x=meets_hh_type, y=fct_rev(!!sym(other_factor))))
+      
+    } else if ('meets_race_eth_filter' %in% which_factors_changed) {
+      other_factor <- setdiff(which_factors_changed, 'meets_race_eth_filter')
+      
+      ## horizontal variable
+      levels(subpop_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
+      
+      ## vertical variable
+      levels(subpop_chart_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
+      
+      g <- ggplot(subpop_chart_df, aes(x=!!sym(other_factor), y=fct_rev(meets_race_eth_filter))
+      )        
+    } else {
+      
+      ## horizontal variable
+      levels(subpop_chart_df[[which_factors_changed[1]]]) <- c(labels_factors_changed[which_factors_changed[1]],labels_all_other[which_factors_changed[1]])
+
+      ## vertical variable
+      levels(subpop_chart_df[[which_factors_changed[2]]]) <- c(labels_factors_changed[which_factors_changed[2]],labels_all_other[which_factors_changed[2]])
+      
+      g <- ggplot(subpop_chart_df, aes(x=!!sym(which_factors_changed[1]), y=fct_rev(!!sym(which_factors_changed[2])))) 
+    
+    }
+    
+  } else if(num_factors_changed == 3){
+    
+    if('meets_race_eth_filter' %in% which_factors_changed){
+      vert_var <- 'meets_race_eth_filter'
+      if('meets_hh_type' %in% which_factors_changed){
+        horiz_var_outer <- 'meets_hh_type'
+        horiz_var_inner <- setdiff(which_factors_changed, c('meets_race_eth_filter','meets_hh_type'))
+      } else {
+        other_factors <- setdiff(which_factors_changed, vert_var)
+        horiz_var_inner <- other_factors[1]#setdiff(which_factors_changed, c('meets_race_eth_filter','meets_hh_type'))
+        horiz_var_outer <- other_factors[2]
+      }
+    } else {
+      horiz_var_inner <- which_factors_changed[1]
+      horiz_var_outer <- which_factors_changed[2]
+      vert_var <- which_factors_changed[3]
+      #other_factors <- which_factors_changed[1:2]
+    }
+    
+    ## horizontal variable
+    levels(subpop_chart_df[[horiz_var_inner]]) <- c(labels_factors_changed[horiz_var_inner],labels_all_other[horiz_var_inner])
+
+    ## vertical variable
+    levels(subpop_chart_df[[vert_var]]) <- c(labels_factors_changed[vert_var],labels_all_other[vert_var])
+   
+    ## facet variable
+    levels(subpop_chart_df[[horiz_var_outer]]) <- c(labels_factors_changed[horiz_var_outer],labels_all_other[horiz_var_outer])
+    
+    g <- ggplot(subpop_chart_df, aes(x=!!sym(horiz_var_inner), y=fct_rev(!!sym(vert_var))))
+    
+    g <- g + facet_wrap(as.formula(paste0('~ ', horiz_var_outer)), strip.position='top',scales='free_x', ncol=2,labeller = label_wrap_gen(18))
+  }
   
-  ft <- flextable(tab %>%
-                    frename("subpop_summ" = " ")) %>%
-    width(j = 1, width = 0.9) %>% # make first col narrower
-    bold(part = "header") %>%
-    align(align = "center", part = "all") %>%
-    border(border.top = fp_border(), part = "header") %>%
-    border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
+  g <- g + 
+    geom_tile(color='#f0f0f0', lwd=0.5, linetype=1, aes(fill = group)) +
+    scale_fill_manual(
+      values = subgroup_colors
+    ) +
+    geom_text(
+      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(pct, accuracy = 1), '\n', '(',N,' of ',total,')'))),#scales::comma(n))),
+      size = sys_chart_text_font,
+      color = "black"
+    ) +
+    scale_x_discrete(position='top', labels = label_wrap(15), expand = c(0,0)) +
+    scale_y_discrete(labels = label_wrap(15), expand = c(0,0)) +
+    labs(x='', y='') +
+    theme(panel.spacing = unit(0, "lines"),
+          strip.background = element_blank(),
+          axis.line = element_blank(),
+          panel.grid.major.y =element_blank(),
+          strip.placement = "outside",
+          strip.text.x.top = element_text(size=sys_axis_text_font, angle=0),
+          axis.ticks = element_blank(),
+          legend.position = 'none',
+          axis.text.x = element_text(size=get_adj_font_size(sys_axis_text_font, isExport)),
+          axis.text.y = element_text(size=sys_axis_text_font, hjust=1),#, hjust = 1),
+          panel.background = element_rect(fill = 'white', colour = 'white')
+    )
   
-  ## formatting function for percentages with 0 decimal places and % sign
-  #fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
-  
-  # ft <- set_formatter(
-  #   x = ft,
-  #   Permanent = fmt_func_pct,
-  #   Homeless = fmt_func_pct,
-  #   Institutional = fmt_func_pct,
-  #   Temporary = fmt_func_pct,
-  #   `Other/Unknown` = fmt_func_pct
-  # )
-  
-  row_labels <- tab[[1]]
-  
-  # Formatting the subpopulation row labels
-  subgroup_colors <- c(
-    "Subpopulation" = get_brand_color('med_purple'),
-    "Everyone Else" = get_brand_color('med_grey2')
-  )
-  
-  ft <- ft %>%
-    # Background colors from datatable's formatStyle
-    bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
-    # thick borders for the first column - adjust adjacent ones to match same total width
-    border(i = 1, j = 1, 
-           border.top = fp_border(color = "black", width = 2),
-           border.left = fp_border(color = "black", width = 2),
-           border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 1)) %>% 
-    border(i = 2, j = 1, 
-           border.top = fp_border(color = "black", width = 1),
-           border.left = fp_border(color = "black", width = 2),
-           border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 1)) %>% 
-    border(i = 3, j = 1, 
-           border.top = fp_border(color = "black", width = 1),
-           border.left = fp_border(color = "black", width = 2),
-           border.right = fp_border(color = "black", width = 2),
-           border.bottom = fp_border(color = "black", width = 2)) %>% 
-    # expand to better fit slide width
-    autofit()
-  
-  ft
+  g
   
 }
 
@@ -1358,7 +1490,7 @@ get_syse_compare_time_flextable <- function(tab) {
            border.bottom = fp_border(color = "black", width = 2)) %>% 
     # expand to better fit slide width
     autofit()
-    
+  
   
   ft
   
@@ -1371,13 +1503,11 @@ output$syse_compare_subpop_chart <- renderPlot({
   syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
 })
 
-output$syse_compare_subpop_table <- renderDT({
+output$syse_compare_subpop_chart <- renderPlot({
   ## check if filters have been changed from defaults before showing 
-  subpop_chart_validation(input$syse_hh_type, input$syse_level_of_detail, input$syse_project_type,
-                          input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
-  get_syse_compare_subpop_table(
-    get_syse_compare_subpop_data(output_type = 'table')
-  )
+  subpop_chart_validation(show=TRUE, req=FALSE)
+  syse_compare_subpop_chart(get_syse_compare_subpop_data(output_type = 'chart'),
+                             dest_type = input$subpop_dest_type)
 })
 
 
@@ -1443,11 +1573,11 @@ syse_compare_time_chart <- function( isExport = FALSE){
     )
   if(isExport){
     g + theme(
-          axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
-        )
-    } else {
-      g + theme(axis.text.x = element_blank())
-    }
+      axis.text.x = element_text(size = get_adj_font_size(sys_axis_text_font, isExport))
+    )
+  } else {
+    g + theme(axis.text.x = element_blank())
+  }
 }
 
 ## function for System Exits Comparison subpopulation table (below chart)
@@ -1529,63 +1659,64 @@ output$syse_compare_time_table <- renderDT({
 })
 
 output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Year Report - "),
-                                                    content = function(file) {
-  logToConsole(session, "System Exits by Year data download")
-  
-    sheets <- list(
-      "SystemExitsByYear Metadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
-        rowbind(
-          sys_export_filter_selections(type = 'exits')
-        ) %>% 
-        rowbind(
-          data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
-                     Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
-                                                     nrow(everyone() %>% fsubset(period == 'Previous Year')))
-                     )
-          )
-        ) %>% 
-        frename("System Exits by Year" = Value),
-      "YearComparisonData" = syse_time_export()
-      
-    )
-  
-  write_xlsx(
-    sheets,     
-    path = file,
-    format_headers = FALSE,
-    col_names = TRUE
-  )       
-  
-  logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-})
+                                                 content = function(file) {
+                                                   logToConsole(session, "System Exits by Year data download")
+                                                   
+                                                   sheets <- list(
+                                                     "SystemExitsByYear Metadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
+                                                       rowbind(
+                                                         sys_export_filter_selections(type = 'exits')
+                                                       ) %>% 
+                                                       rowbind(
+                                                         data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                                                                    Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                                                                    nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                                                                    )
+                                                         )
+                                                       ) %>% 
+                                                       frename("System Exits by Year" = Value),
+                                                     "YearComparisonData" = syse_time_export()
+                                                     
+                                                   )
+                                                   
+                                                   write_xlsx(
+                                                     sheets,     
+                                                     path = file,
+                                                     format_headers = FALSE,
+                                                     col_names = TRUE
+                                                   )       
+                                                   
+                                                   logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                                                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+                                                 })
 
 output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
-                                                    content = function(file) {
-      logToConsole(session, "System Exits by Subpopulation data download")
-  
-      sheets <- list(
-        "SystemExitsBySubpop Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-          rowbind(
-            sys_export_filter_selections(type = 'exits_subpop'),
-            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                       Value = scales::label_comma()(c(nrow(all_filtered_syse_subpop()),nrow(everyone_else())))
-            )
-          ) %>% 
-          frename("System Exits by Subpopulation" = Value),
-        "SubpopulationComparisonData" = syse_subpop_export()
-      )
-                                                    
-    write_xlsx(
-        sheets,     
-        path = file,
-        format_headers = FALSE,
-        col_names = TRUE
-      )   
-    
-    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-})
+                                                   content = function(file) {
+                                                     logToConsole(session, "System Exits by Subpopulation data download")
+                                                     
+                                                     sheets <- list(
+                                                       "SystemExitsBySubpop Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
+                                                         rowbind(
+                                                           sys_export_filter_selections(type = 'exits_subpop'),
+                                                           data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
+                                                                      Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else2())))
+                                                           )
+                                                         ) %>% 
+                                                         frename("System Exits by Subpopulation" = Value),
+                                                       "SubpopulationComparisonSummary" = syse_subpop_export_summary(),
+                                                       "SubpopulationExitDetail" = syse_subpop_export_detail()
+                                                     )
+                                                     
+                                                     write_xlsx(
+                                                       sheets,     
+                                                       path = file,
+                                                       format_headers = FALSE,
+                                                       col_names = TRUE
+                                                     )   
+                                                     
+                                                     logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                                                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+                                                   })
 
 ## hide demographic filters when on PHD subtab
 observeEvent(input$syse_tabbox, {
@@ -1593,7 +1724,7 @@ observeEvent(input$syse_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  if(input$syse_tabbox == '<h4>Permanent Housing Demographics</h4>'){
+  if(input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')){
     shinyjs::hide('syse_spec_pops')
     shinyjs::hide('syse_age')
     shinyjs::hide('syse_race_ethnicity')
@@ -1602,7 +1733,7 @@ observeEvent(input$syse_tabbox, {
     shinyjs::show('syse_age')
     shinyjs::show('syse_race_ethnicity')
   }
- 
+  
 })
 
 observeEvent(input$syse_types_subtabs, {
@@ -1662,7 +1793,7 @@ enrollments_filtered_syse <- reactive({
     on = "PersonalID", 
     how = "inner"
   )
-
+  
   en_filt <- en_unfilt %>%
     fmutate(
       passes_enrollment_filters =
@@ -1692,17 +1823,6 @@ enrollments_filtered_syse <- reactive({
   
   en_filt %>% 
     fsubset(passes_enrollment_filters)
-  #   roworder(PersonalID, EntryDate, ExitAdjust) %>%
-  #   fgroup_by(PersonalID) %>%
-  #   fmutate(
-  #     # Days_to_lookahead is simpler because if they have ANY enrollment <= 14 days ahead
-  #     # then it was clearly not a system exit
-  #     days_to_lookahead = L(EntryDate, n=-1) - ExitAdjust
-  #   ) %>%
-  #   flast() %>% 
-  #   fungroup() %>% 
-  #   fsubset(is.na(days_to_lookahead ) | days_to_lookahead > 14) %>% 
-   
   
 })
 
@@ -1797,7 +1917,7 @@ all_filtered_syse_time <- reactive({
     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
     fmutate(period = "Current Year")
   
-   period_data_prev <- tmp_prev %>% 
+  period_data_prev <- tmp_prev %>% 
     expand_by_periods(chart_type = 'exits_types',
                       reportStart = session$userData$ReportStart %m-% years(1), 
                       reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
@@ -1811,10 +1931,10 @@ all_filtered_syse_time <- reactive({
     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
     fmutate(period = "Previous Year")
   
-   period_data <- rowbind(period_data_cur, period_data_prev)
+  period_data <- rowbind(period_data_cur, period_data_prev)
   
   period_data
- 
+  
 })
 
 all_filtered_syse_demog <- reactive({
@@ -1822,7 +1942,7 @@ all_filtered_syse_demog <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
   tmp <-  enrollments_filtered_syse()
-
+  
   period_data <- tmp %>% 
     expand_by_periods(chart_type = 'exits_demog') %>% 
     get_active_info(tmp) %>%
@@ -1842,25 +1962,11 @@ all_filtered_syse_subpop <- reactive({
   logToConsole(session, "in all_filtered_syse_subpop")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  filter_type <- input$subpop_comparison_type_filter
   
-  if(filter_type == "Client-Level"){
-    enrl <- session$userData$enrollment_categories
-    client <- syse_client_categories_filtered()
-  } else if(filter_type == "Demographics"){
-    enrl <- enrollments_filtered_syse()
-    client <- session$userData$client_categories
-  } else if(filter_type == "Both"){
-    enrl <- enrollments_filtered_syse()
-    client <- syse_client_categories_filtered()
-  }
+  client <- session$userData$client_categories
   
-  tmp <- join( 
-    enrl,
-    client,
-    on = "PersonalID",
-    how = "inner"
-  ) 
+  
+  tmp <- session$userData$enrollment_categories
   
   period_data <- tmp %>% 
     expand_by_periods(chart_type = 'exits_types') %>% 
@@ -1868,9 +1974,86 @@ all_filtered_syse_subpop <- reactive({
     get_inflows_and_outflows(chart_type = 'exits') %>% 
     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
+  join( 
+    period_data,
+    client,
+    on = "PersonalID",
+    how = "inner"
+  ) %>% 
+    join(tmp %>% fselect(PersonalID, EnrollmentID, HouseholdType)) %>% 
+    fmutate(HouseholdType = fct_collapse(HouseholdType, !!!hh_types_in_exports))
   
-  period_data
 })
+
+compute_subpop_and_everyone_else <- function(input_df){
+  
+  subpop_w_client_filters <- input_df
+  
+  if(input$syse_hh_type != 'All'){
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_hh_type = HouseholdType %in% input$syse_hh_type)
+  } else {
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_hh_type = TRUE)
+  }
+  
+  if('Age' %in% syse_subpop_selections()){
+    req(input$syse_subpop_age)
+    
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_age_filter = AgeCategory %in% input$syse_subpop_age)
+    
+  } else {
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_age_filter = TRUE)
+  }
+  
+  if('All Races/Ethnicities' %in% syse_subpop_selections()){
+    req(input$syse_subpop_race_ethnicity1)
+    
+    subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop_race_ethnicity1 == "All") rep(TRUE, .N) else get(input$syse_subpop_race_ethnicity1) == 1)]
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_race_eth_filter = PersonalID %in% subpop_race_eth$PersonalID)
+  } else if('Grouped Races/Ethnicities' %in% syse_subpop_selections()){
+    req(input$syse_subpop_race_ethnicity2)
+    subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop_race_ethnicity2 == "All") rep(TRUE, .N) else get(input$syse_subpop_race_ethnicity2) == 1)]
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_race_eth_filter = PersonalID %in% subpop_race_eth$PersonalID)
+  } else {
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_race_eth_filter = TRUE)
+  }
+  
+  if('Veteran Status (Adult Only)' %in% syse_subpop_selections()){
+    req(input$syse_subpop_spec_pops)
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_vet_filter =input$syse_subpop_spec_pops == "None" |
+                (input$syse_subpop_spec_pops == "Veteran" &
+                   VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
+                (input$syse_subpop_spec_pops == "NonVeteran" &
+                   VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17")))
+  } else {
+    subpop_w_client_filters <- subpop_w_client_filters %>% 
+      fmutate(meets_vet_filter = TRUE)
+  }
+  
+  
+  
+  subpop_out <- subpop_w_client_filters[meets_hh_type & meets_age_filter & meets_race_eth_filter & meets_vet_filter]
+  
+  rest_of_pop <- subpop_w_client_filters[!meets_hh_type | !meets_age_filter | !meets_race_eth_filter | !meets_vet_filter] %>% 
+    fmutate(meets_hh_type = factor(meets_hh_type, levels=c(T,F)),
+            meets_age_filter = factor(meets_age_filter, levels=c(T,F)),
+            meets_race_eth_filter = factor(meets_race_eth_filter, levels=c(T,F)),
+            meets_vet_filter = factor(meets_vet_filter, levels=c(T,F)))
+  return(list(subpop = subpop_out, everyone_else = rest_of_pop))
+  
+}
+
+comps <- reactive({
+  compute_subpop_and_everyone_else(all_filtered_syse_subpop())
+})
+subpop <- reactive({comps()$subpop})
 
 output$syse_time_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exits by Year_", Sys.Date(), ".pptx", sep = "")
@@ -1878,44 +2061,42 @@ output$syse_time_download_btn_ppt <- downloadHandler(filename = function(){
 content = function(file) {
   logToConsole(session, "In syse_time_download_btn_ppt")
   
-    sys_perf_ppt_export(file = file, 
-                        type = 'exits_comparison',
-                        title_slide_title = "System Exits by Year",
-                        summary_items = list(
-                          "Summary" = sys_export_summary_initial_df(type = 'exits_time') %>%
-                            rowbind(
-                              sys_export_filter_selections(type = 'exits')
-                            ) %>% 
-                            rowbind(
-                              data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
-                                         Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
-                                                                         nrow(everyone() %>% fsubset(period == 'Previous Year')))
-                                         )
-                              )
-                            ) 
-                          ),
-                        plots = list(
-                          "System Exits by Year - Chart" = syse_compare_time_chart(isExport = TRUE),
-                          "System Exits by Year - Table" = get_syse_compare_time_flextable(
-                            get_syse_compare_time_data(output_type = 'table')
-                          )
-                        ),
-                        summary_font_size = 19,
-                        startDate = session$userData$ReportStart, 
-                        endDate = session$userData$ReportEnd, 
-                        sourceID = session$userData$Export$SourceID,
-                        in_demo_mode = input$in_demo_mode
-    )
- 
+  sys_perf_ppt_export(file = file, 
+                      type = 'exits_comparison',
+                      title_slide_title = "System Exits by Year",
+                      summary_items = list(
+                        "Summary" = sys_export_summary_initial_df(type = 'exits_time') %>%
+                          rowbind(
+                            sys_export_filter_selections(type = 'exits')
+                          ) %>% 
+                          rowbind(
+                            data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                                       Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                                       nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                                       )
+                            )
+                          ) 
+                      ),
+                      plots = list(
+                        "System Exits by Year - Chart" = syse_compare_time_chart(isExport = TRUE),
+                        "System Exits by Year - Table" = get_syse_compare_time_flextable(
+                          get_syse_compare_time_data(output_type = 'table')
+                        )
+                      ),
+                      summary_font_size = 19,
+                      startDate = session$userData$ReportStart, 
+                      endDate = session$userData$ReportEnd, 
+                      sourceID = session$userData$Export$SourceID,
+                      in_demo_mode = input$in_demo_mode
+  )
+  
 })
 
 output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exits by Subpopulation_", Sys.Date(), ".pptx", sep = "")
 },
-  content = function(file) {
-  logToConsole(session, "In syse_subpop_download_btn_ppt")
-  
-    sys_perf_ppt_export(file = file, 
+content = function(file) {
+    sys_perf_ppt_export(file = file,
                         type = 'exits_comparison',
                         title_slide_title = "System Exits by Subpopulation",
                         summary_items = list(
@@ -1923,63 +2104,28 @@ output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
                             rowbind(
                               sys_export_filter_selections(type = 'exits_subpop'),
                               data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                         Value = scales::label_comma()(c(nrow(all_filtered_syse_subpop()),nrow(everyone_else())))
+                                         Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else2())))
                               )
-                            ) 
+                            )
                         ),
                         plots = list(
-                          "System Exits by Subpopulation - Chart" =  syse_compare_subpop_chart(isExport = TRUE),
-                          "System Exits by Subpopulation - Table" = get_syse_compare_subpop_flextable(
-                            get_syse_compare_subpop_data(output_type = 'table')
-                          )
+                          "System Exits by Subpopulation - Permanent" =  syse_compare_subpop_chart(dest_type = 'Permanent',isExport = TRUE),
+                          "System Exits by Subpopulation - Homeless" =  syse_compare_subpop_chart(dest_type = 'Homeless', isExport = TRUE),
+                          "System Exits by Subpopulation - Institutional" =  syse_compare_subpop_chart(dest_type = 'Institutional',isExport = TRUE),
+                          "System Exits by Subpopulation - Temporary" =  syse_compare_subpop_chart(dest_type = 'Temporary',isExport = TRUE),
+                          "System Exits by Subpopulation - Other/Unknown" =  syse_compare_subpop_chart(dest_type = 'Other/Unknown',isExport = TRUE)
                         ),
                         summary_font_size = 19,
-                        startDate = session$userData$ReportStart, 
-                        endDate = session$userData$ReportEnd, 
+                        startDate = session$userData$ReportStart,
+                        endDate = session$userData$ReportEnd,
                         sourceID = session$userData$Export$SourceID,
                         in_demo_mode = input$in_demo_mode
     )
   
 })
 
-
-# System Exits Permanent Housing Demographics (PHD) -----------------------
+# System Exits Exits to PH Demographics (PHD) -----------------------
 sys_phd_plot_df <- reactiveVal()
-
-# output$syse_phd_chart <- renderPlot({
-#   # req(
-#   #   !is.null(input$syse_phd_selections) &
-#   #     session$userData$valid_file() == 1 &
-#   #     between(length(input$syse_phd_selections), 1, 2)
-#   # )
-# 
-#    if( is.null(input$syse_phd_selections) |
-#         session$userData$valid_file() != 1 |
-#         !between(length(input$syse_phd_selections), 1, 2)){
-#      validate("Please select one or more options to display the demographic chart.")
-#    }
-# 
-#   if(length(input$syse_phd_selections) == 1) {
-#     sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-#   } else if(length(input$syse_phd_selections) == 2){
-#     sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-#   }
-# }, height = function() {
-#   ifelse(!is.null(input$syse_phd_selections), 700, 100)
-# }, width = function() {
-#   input$syse_phd_subtabs
-#   input$syse_tabbox
-#   input$pageid
-# 
-#   if (num_selections() %in% c(0,1) |
-#       isTRUE(getOption("shiny.testmode"))) {
-#     500
-#   } else {
-#     "auto"
-#   }
-# 
-# },
-# alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 display_syse_counts <- function(){
   c(
@@ -2015,7 +2161,7 @@ full_unit_of_analysis_display_syse <- reactive({
 })
 
 syse_total_count_display <- function(total_count, total_ph_count) {
- 
+  
   return(paste0(
     str_wrap(
       paste0(
@@ -2030,13 +2176,13 @@ syse_total_count_display <- function(total_count, total_ph_count) {
 }
 
 output$syse_phd_chart_1d <- renderPlot({
-
+  
   req(session$userData$valid_file() == 1 &
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 1)
   
-    sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
-
+  sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+  
 }, height = 700, width = 500,
 alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
@@ -2057,7 +2203,6 @@ output$syse_phd_chart_2d <- renderCachedPlot({
     input$syse_methodology_type
   )
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
-
 
 observeEvent(input$syse_phd_selections, {
   # they can select up to 2
@@ -2095,14 +2240,14 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
         list(
           if (length(input$syse_phd_selections) == 1) {
             sys_phd_plot_1var(subtab = 'phd', 
-                                  methodology_type = input$syse_methodology_type, 
-                                  selection = input$syse_phd_selections, 
-                                  isExport = TRUE)
+                              methodology_type = input$syse_methodology_type, 
+                              selection = input$syse_phd_selections, 
+                              isExport = TRUE)
           } else {
-              sys_phd_plot_2vars(subtab = 'phd', 
-                                   methodology_type = input$syse_methodology_type, 
-                                   selection = input$syse_phd_selections, 
-                                   isExport = TRUE)
+            sys_phd_plot_2vars(subtab = 'phd', 
+                               methodology_type = input$syse_methodology_type, 
+                               selection = input$syse_phd_selections, 
+                               isExport = TRUE)
           }
         ),
         ifelse(length(input$syse_phd_selections) == 1, 
@@ -2110,14 +2255,14 @@ output$syse_phd_download_btn_ppt <- downloadHandler(
                  "System Exits PH Demographics: ",
                  input$syse_phd_selections[1]
                ),
-              paste0(
-                "System Exits PH Demographics: ",
-                input$syse_phd_selections[1],
-                " by ",
-                input$syse_phd_selections[2]
-              )
-          )
-        ),
+               paste0(
+                 "System Exits PH Demographics: ",
+                 input$syse_phd_selections[1],
+                 " by ",
+                 input$syse_phd_selections[2]
+               )
+        )
+      ),
       summary_font_size = 28,
       startDate = session$userData$ReportStart, 
       endDate = session$userData$ReportEnd, 
@@ -2146,7 +2291,14 @@ observeEvent(input$syse_methodology_type, {
     "syse_race_ethnicity", 
     choices = sys_race_ethnicity_cats(input$syse_methodology_type)
   )
-
+  
+  # update System Exits Grouped Races/Ethnicities label
+  grouped_re_lbl_new <- ifelse(input$syse_methodology_type == 1, "Grouped", "Hispanic-Focused")
+  shinyjs::runjs(
+    glue("
+      $('#syse_phd_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+    ")
+  )
 },
 ignoreInit = TRUE)
 

@@ -1184,6 +1184,7 @@ nav_menu(
             downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
             downloadButton("syse_time_download_btn_ppt", "Image Download")
           ),
+          
           nav_panel(
             title = headerTab('Exits by Subpopulation'),
             navset_underline(
@@ -1191,16 +1192,104 @@ nav_menu(
               selected = headerSubTab('Chart'),
               nav_panel(
                 title = headerSubTab('Chart'),
-                uiOutput("syse_compare_subpop_filter_selections") %>%
-                  withSpinner(),
-                radioGroupButtons(
-                  inputId = "subpop_comparison_type_filter",
-                  label = "Comparison Type",
-                  choices = c("Client-Level", "Demographics", "Both"),
-                  selected = "Both",
-                  individual = TRUE,
-                  checkIcon = list(yes = icon("check"))
-                ), 
+                card(
+                  br(),
+                  strong("Select Demographic Crosstab Categories (up to 2)"),
+                  p(str_glue(
+                    "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+                  )),
+                   br(),
+                  layout_columns(
+                    col_widths = c(3,3,6),fill=T,
+                    tagList(
+                        checkboxInput('syse_subpop_age_selection', 'Age'),
+                         div(id ='age_picker',style='margin-top:0px; padding-top:0px;',
+                                     pickerInput(
+                                       inputId = "syse_subpop_age",
+                                       label=NULL,#label = "Age",
+                                       selected = sys_age_cats,
+                                       choices = sys_age_cats,
+                                       multiple = TRUE,
+                                       options = pickerOptions(
+                                         actionsBox = TRUE,
+                                         selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                                         countSelectedText = "",
+                                         noneSelectedText = "None Selected",
+                                         container = "body",
+                                       )
+                                     )
+                                     )
+                         ),
+                    tagList(
+                                   checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
+                                   div(id = 'vet_picker',
+                                       pickerInput(
+                                         label = NULL,#label = "Veteran Status",
+                                         inputId = "syse_subpop_spec_pops",
+                                         #choices = sys_spec_pops_people,
+                                         choices = setNames(sys_spec_pops_people,
+                                                            nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                                         ),
+                                         selected = "None Selected",
+                                         options = pickerOptions(container = "body")
+                                       )
+                                   )
+                    ),
+                    tagList(
+                         checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
+                         div(id='race_eth_picker',
+                             conditionalPanel(condition = 'input.syse_methodology_type == 1',
+                                                     pickerInput(
+                                                       label = NULL,#"Race/Ethnicity",
+                                                       inputId = "syse_subpop_race_ethnicity1",
+                                                       choices = setNames(sys_race_ethnicity_method1,
+                                                                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
+                                                       ),
+                                                       selected = "None Selected",
+                                                       options = list(
+                                                         `dropdown-align-right` = TRUE,
+                                                         `dropup-auto` = FALSE,
+                                                         container = "body",
+                                                         noneSelectedText = "-"
+                                                       )
+                                                     )
+                                              ),
+                             conditionalPanel(condition = 'input.syse_methodology_type == 2',
+                                                     pickerInput(
+                                                       label = NULL,#"Race/Ethnicity",
+                                                       inputId = "syse_subpop_race_ethnicity2",
+                                                       choices = setNames(sys_race_ethnicity_method2,
+                                                                          c("None Selected",names(sys_race_ethnicity_method2)[-1])),
+                                                       selected = "None Selected",
+                                                       options = list(
+                                                         `dropdown-align-right` = TRUE,
+                                                         `dropup-auto` = FALSE,
+                                                         container = "body",
+                                                         noneSelectedText = "-"
+                                                       )
+                                                     )
+                                              )
+                         )
+                    )
+                  ),
+                  radioGroupButtons(
+                    inputId = "subpop_dest_type",
+                    label = "Destination Type",
+                    choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
+                    #Inactive
+                    selected = "Permanent",
+                    individual = TRUE
+                  ), 
+                  width = 12
+                ),
+                br(),
                 div(
                   style='margin-left:17px;',
                   plotOutput("syse_compare_subpop_chart",
@@ -1208,8 +1297,6 @@ nav_menu(
                              height = "500")
                 ),
                 
-                DTOutput("syse_compare_subpop_table") %>%
-                  withSpinner()
               ),
               nav_panel(
                 title = headerSubTab('Information'),
@@ -1222,7 +1309,7 @@ nav_menu(
           ),
           
           nav_panel(
-            title = headerTab('Permanent Housing Demographics'),
+            title = headerTab('Exits to PH Demographics'),
             navset_underline(
               id = "syse_phd_subtabs",
               selected = headerSubTab("Chart"),

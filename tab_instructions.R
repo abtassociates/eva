@@ -945,7 +945,7 @@ tabDQSystem_instructions <-  HTML("
 
 tabSystemExits_instructions <- HTML("<h4>System Exits</h4>
                 <p>The System Exits page in Eva features four system performance panels: the Exits by Type Panel,
-                the Exits by Year Panel, the Exits by Subpopulation, and the Permanent Housing Demographics Panel. 
+                the Exits by Year Panel, the Exits by Subpopulation, and the Exits to PH Demographics Panel. 
                 Each panel includes a chart displaying system performance data from your uploaded HMIS CSV export, 
                 covering all HMIS Continuum projects except homeless prevention 
 projects. The report period is the last 12 full months of data in the upload. 
@@ -1095,7 +1095,7 @@ tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
                                           <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
 
 tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
-                                         <p>The Permanent Housing Demographics chart shows the demographic make-up of 
+                                         <p>The Exits to PH Demographics chart shows the demographic make-up of 
                                          the people who exited the homeless system into permanent housing and highlights
                                          important trends among various demographic groups. The client universe for 
                                          this chart is the number of clients that exited your system to a permanent 
@@ -1125,7 +1125,7 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
 
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
-                                the Permanent Housing Demographics Chart.</p>
+                                the Exits to PH Demographics Chart.</p>
                                 <br>
                                 <ul>
                                   <li>Any value less than 11 is suppressed, including totals.</li>
@@ -1138,7 +1138,7 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                 <p>All suppressed values are represented by *** in the chart.</p>
                                 <br>
                                 <p>Please note that while data can be suppressed 
-                                in the Permanent Housing Demographics chart in Eva and in its 
+                                in the Exits to PH Demographics chart in Eva and in its 
                                 image download, the data in the chart’s data download 
                                 will not be suppressed. Be careful how you save 
                                 and share the data download, which is an Excel export. With smaller numbers, 

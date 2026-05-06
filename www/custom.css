@@ -270,3 +270,34 @@ body.idle-timeout-occurred #ss-connect-dialog {
 #notice {
   border: 3px solid #FCB248;
 }
+
+#age_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
+    cursor: not-allowed;
+    background-color: var(--brand-med_grey2);
+}
+
+#age_picker > div {
+  width: 100%;
+}
+
+#vet_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
+    cursor: not-allowed;
+    background-color: var(--brand-med_grey2);
+}
+
+#vet_picker > div {
+ width: 100%; 
+}
+
+#race_eth_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
+    cursor: not-allowed;
+    background-color: var(--brand-med_grey2);
+}
+
+#race_eth_picker > div:nth-child(1) > div {
+  width:100%;
+}
+
+#race_eth_picker > div:nth-child(2) > div {
+  width:100%;
+}

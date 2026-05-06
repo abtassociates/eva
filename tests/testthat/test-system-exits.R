@@ -134,7 +134,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
     "syse_phd_filter_selections",
     "syse_phd_ui_chart"
   )
-  app$set_inputs(syse_tabbox = '<h4>Permanent Housing Demographics</h4>')
+  app$set_inputs(syse_tabbox = '<h4>Exits to PH Demographics</h4>')
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(
     name = "syse-phd-chart-default",
