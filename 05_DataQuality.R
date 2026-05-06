@@ -133,8 +133,13 @@ dkr_dob <- base_dq_data %>%
   fselect(vars_we_want)
 
 incorrect_dob <- base_dq_data %>%
-  fsubset(AgeAtEntry < 0 | AgeAtEntry > 100) %>%
+  fsubset(AgeAtEntry < 0) %>%
   merge_check_info_dt(checkIDs = 84) %>%
+  fselect(vars_we_want)
+
+over100_dob <- base_dq_data %>%
+  fsubset(AgeAtEntry > 100) %>%
+  merge_check_info_dt(checkIDs = 143) %>%
   fselect(vars_we_want)
 
 # missing_ssn <- base_dq_data %>%
@@ -1712,6 +1717,14 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
     ) %>%
     fselect(vars_prep)
   
+  # remove non-HoHs and children for check 103
+  if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)){
+    non_exits <- non_exits %>% 
+      join(Enrollment %>% fselect(EnrollmentID,  PersonalID, RelationshipToHoH, AgeAtEntry), how='left', on=c('EnrollmentID','PersonalID')) %>% 
+      fsubset(RelationshipToHoH == 1 | (!is.na(AgeAtEntry) & AgeAtEntry > 17)) %>% 
+      fselect(-RelationshipToHoH, -AgeAtEntry)
+  }
+  
   # only proceed if there are any non-exited enrollments
   if(nrow(non_exits) == 0) return(NULL)
   logToConsole(session, "Has non-exits")
@@ -1877,6 +1890,7 @@ dq_main <- rowbind(
   future_exits,
   hh_issues,
   incorrect_dob,
+  over100_dob,
   invalid_movein_date,
   missing_approx_date_homeless,
   missing_cls_subsidy,
