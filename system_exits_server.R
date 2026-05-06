@@ -168,7 +168,7 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
          how = 'left') %>% 
     fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
     fselect(get(selection), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
-    arrange(!!sym(selection))
+    roworderv(selection)
   names(export_df)[1] <- export_label1
   
   sys_phd_export(export_df)
@@ -394,7 +394,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
          how = 'left') %>% 
     fmutate(frac_export = scales::percent(frac_export, accuracy=0.1)) %>% 
     fselect(get(selections[2]), get(selections[1]), 'Total Count' = n_orig, 'Permanent Count' = num, 'Percent in Permanent' = frac_export, `Suppression Flag`) %>% 
-    arrange(!!sym(selections[2]))
+    roworderv(selections[2])
   names(export_df)[1:2] <- c(export_label1, export_label2)
   
   sys_phd_export(export_df)
