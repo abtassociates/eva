@@ -194,13 +194,14 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     replace(is.na(.), 0)
   
   if(methodology_type == 1) {
-    h_total <- plot_df %>%
-      group_by(!!!syms(selections[[2]])) %>%
-      summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-h_total2 <- plot_df %>%
-  fgroup_by(selections[2]) %>%
-  fsummarise(N = fsum(n))
-h_total2[[selections[1]]] <- "Total"
+   
+    h_total_tmp <- plot_df %>%
+      fgroup_by(selections[2]) %>%
+      fsummarise(N = fsum(n))
+   
+    h_total_tmp[[selections[1]]] <- "Total"
+    
+    h_total <- h_total_tmp %>% 
       suppress_values("N") %>%
       suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
     
