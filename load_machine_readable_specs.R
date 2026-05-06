@@ -299,28 +299,10 @@ csv_join_prerequisites <- list(
 # Funder-specific Null Unless Fields -------------------
 # These are fields for whose Null checks (as part of the Null Unless checks)
 # should only apply when Funder in c(13:19)
-funder_specific_null_unless_fields <- list(
-  Disabilities = c(
-    "TCellCountAvailable", 
-    "ViralLoadAvailable", 
-    "AntiRetroviral"
-  ),
-  IncomeBenefits = c(
-    "NoMedicaidReason",
-    "NoMedicareReason",
-    "NoSCHIPReason",
-    "NoVHAReason",
-    "NoEmployerProvidedReason",
-    "NoCOBRAReason",
-    "NoPrivatePayReason",
-    "NoStateHealthInsReason",
-    "NoIndianHealthServicesReason",
-    "NoADAPReason",
-    "NoRyanWhiteReason"
-  )
-) %>% 
-  purrr::imap(\(names, csv) data.table(CSV = csv, Name = names)) |>
-  rbindlist()
+null_unless_additional_reqs <-  readxl::read_xlsx(validation_specs_bk, sheet = "NullUnless - Additional Reqs") |>
+  qDT() |>
+  fselect(CSV, Name, FundingSource, ProjectType) |>
+  fmutate(additional_reqs = paste0("Funder in ", Funder, " & ProjectType in ", ProjectType))
 
 
 # Create Master Rules table ----------------
@@ -331,9 +313,9 @@ specs_rules <- validation_info %>%
   # Initialize an empty list column to hold the parsed expressions
   fmutate(rule_expr = list(NULL)) %>%
   join(
-    funder_specific_null_unless_fields,
+    null_unless_additional_reqs,
     on = c("CSV", "Name"),
-    column = "funder_specific" # adds a column indicating 'x' or 'y' matches
+    column = TRUE
   ) %>%
   fmutate(
     # Clean up the Notes string just for Null Unless checks
@@ -344,8 +326,8 @@ specs_rules <- validation_info %>%
     ),
     # Append the Funder logic to the text BEFORE parsing
     validation_notes = fifelse(
-      issue_type == "Null Unless" & funder_specific == "matched", 
-      paste0(validation_notes, " & Funder in c(13:19)"), 
+      issue_type == "Null Unless" & .join == "matched", 
+      paste0(validation_notes, " & ", additional_reqs), 
       validation_notes
     )
   )
