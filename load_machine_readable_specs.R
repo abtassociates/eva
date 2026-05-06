@@ -301,7 +301,7 @@ csv_join_prerequisites <- list(
 # should only apply when Funder in c(13:19)
 null_unless_additional_reqs <-  readxl::read_xlsx(validation_specs_bk, sheet = "NullUnless - Additional Reqs") |>
   qDT() |>
-  fselect(CSV, Name, FundingSource, ProjectType) |>
+  fselect(CSV, Name, Funder, ProjectType) |>
   fmutate(additional_reqs = paste0("Funder in ", Funder, " & ProjectType in ", ProjectType))
 
 
