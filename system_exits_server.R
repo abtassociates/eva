@@ -2668,6 +2668,13 @@ observeEvent(input$syse_methodology_type, {
     choices = sys_race_ethnicity_cats(input$syse_methodology_type)
   )
   
+  # update System Exits Grouped Races/Ethnicities label
+  grouped_re_lbl_new <- ifelse(input$syse_methodology_type == 1, "Grouped", "Hispanic-Focused")
+  shinyjs::runjs(
+    glue("
+      $('#syse_phd_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+    ")
+  )
 },
 ignoreInit = TRUE)
 
