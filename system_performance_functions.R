@@ -143,9 +143,9 @@ sys_export_filter_selections <- function(type = 'overview') {
           getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
       ),
       'exits_subpop' = c(
-        ifelse(identical(sys_age_cats, input$syse_subpop2_age), "All Ages",paste(input$syse_subpop2_age, collapse=", ")),
-        getNameByValue(sys_spec_pops_people, input$syse_subpop2_spec_pops),
-        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input[[glue('syse_subpop2_race_ethnicity{input$syse_methodology_type}')]])
+        ifelse(identical(sys_age_cats, input$syse_subpop_age), "All Ages",paste(input$syse_subpop_age, collapse=", ")),
+        getNameByValue(sys_spec_pops_people, input$syse_subpop_spec_pops),
+        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input[[glue('syse_subpop_race_ethnicity{input$syse_methodology_type}')]])
       )
   )
   selections$Value <- values
@@ -222,7 +222,7 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                  'syse' = c(
                    "System Exit Types" = "types",
                    "Exits by Year" = "time",
-                   "Exits by Subpopulation" = "subpop2",
+                   "Exits by Subpopulation" = "subpop",
                    "Exits to PH Demographics" = "phd"
                  )
   )

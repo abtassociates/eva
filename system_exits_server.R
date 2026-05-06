@@ -17,14 +17,14 @@ output$syse_compare_subpop_filter_selections <-renderUI({
   )
 })
 
-output$syse_compare_subpop2_filter_selections <-renderUI({ 
+output$syse_compare_subpop_filter_selections <-renderUI({ 
 
-  req(!is.null(input$syse_compare_subpop2_selections) & session$userData$valid_file() == 1)
+  req(!is.null(input$syse_compare_subpop_selections) & session$userData$valid_file() == 1)
   
-  sys_detailBox(selection = input$syse_compare_subpop2_selections,
+  sys_detailBox(selection = input$syse_compare_subpop_selections,
                 detail_type = 'phd',
-                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_compare_subpop2_selections, '1',
-                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_compare_subpop2_selections, '2', NA)),
+                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_compare_subpop_selections, '1',
+                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_compare_subpop_selections, '2', NA)),
                 cur_project_types = input$syse_project_type,
                 startDate = session$userData$ReportStart,
                 endDate = session$userData$ReportEnd,
@@ -734,8 +734,8 @@ subpop_chart_validation <- function(hh_type, level_of_detail, project_type, race
   }
 }
 
-subpop2_chart_validation <- function(show = TRUE, req = FALSE) {
-  logToConsole(session, "In subpop2_chart_validation")
+subpop_chart_validation <- function(show = TRUE, req = FALSE) {
+  logToConsole(session, "In subpop_chart_validation")
   
   
   cond <- any(did_factors_change()) 
@@ -777,62 +777,62 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
   
 }
 
-syse_subpop2_export_summary <- reactive({
+syse_subpop_export_summary <- reactive({
 
-  subpop2_table_df <- get_syse_compare_subpop2_data(output_type = 'table') 
+  subpop_table_df <- get_syse_compare_subpop_data(output_type = 'table') 
   
   which_factors_changed <- names(which(did_factors_change() == 1))
   
   labels_factors_changed <- c(
     meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
-    meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop2_age) < length(sys_age_cats), paste0(input$syse_subpop2_age, collapse=', '), NA_character_),
-    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop2_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop2_race_ethnicity1), collapse=','), 
-                                   ifelse(input$syse_subpop2_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop2_race_ethnicity2)) , NA_character_)),
-    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop2_spec_pops != 'None', input$syse_subpop2_spec_pops, NA_character_)
+    meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
+    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+                                   ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
   )
   labels_all_other <- c(
     meets_hh_type = 'All Other Household Types',
     meets_age_filter = 'All Other Ages',
     meets_race_eth_filter = 'All Other Races/Ethnicities',
-    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop2_spec_pops), 's'), NA_character_)
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
   )
   
   if('meets_hh_type' %in% which_factors_changed){
-    levels(subpop2_table_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
+    levels(subpop_table_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
   } else {
-    subpop2_table_df <- subpop2_table_df %>% 
+    subpop_table_df <- subpop_table_df %>% 
       fmutate(meets_hh_type = getNameByValue(sys_hh_types, input$syse_hh_type))
   }
   
   if('meets_age_filter' %in% which_factors_changed){
-    levels(subpop2_table_df[['meets_age_filter']]) <- c(labels_factors_changed['meets_age_filter'],labels_all_other['meets_age_filter'])
+    levels(subpop_table_df[['meets_age_filter']]) <- c(labels_factors_changed['meets_age_filter'],labels_all_other['meets_age_filter'])
   } else {
-    subpop2_table_df <- subpop2_table_df %>% 
+    subpop_table_df <- subpop_table_df %>% 
       fmutate(meets_age_filter = "All Ages")
   }
   
   if('meets_race_eth_filter' %in% which_factors_changed){
-    levels(subpop2_table_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
+    levels(subpop_table_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
   } else {
-    subpop2_table_df <- subpop2_table_df %>% 
+    subpop_table_df <- subpop_table_df %>% 
       fmutate(meets_race_eth_filter = getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), 
-                                                     switch(input$syse_methodology_type, '1'=input$syse_subpop2_race_ethnicity1,
-                                                            '2' = input$syse_subpop2_race_ethnicity2))
+                                                     switch(input$syse_methodology_type, '1'=input$syse_subpop_race_ethnicity1,
+                                                            '2' = input$syse_subpop_race_ethnicity2))
       )
   }
   
   if('meets_vet_filter' %in% which_factors_changed){
-    levels(subpop2_table_df[['meets_vet_filter']]) <- c(labels_factors_changed['meets_vet_filter'],labels_all_other['meets_vet_filter'])
+    levels(subpop_table_df[['meets_vet_filter']]) <- c(labels_factors_changed['meets_vet_filter'],labels_all_other['meets_vet_filter'])
   } else {
-    subpop2_table_df <- subpop2_table_df %>% 
-      fmutate(meets_vet_filter = getNameByValue(sys_spec_pops_people, input$syse_subpop2_spec_pops))
+    subpop_table_df <- subpop_table_df %>% 
+      fmutate(meets_vet_filter = getNameByValue(sys_spec_pops_people, input$syse_subpop_spec_pops))
   }
   
   export_names <- c('Household Type' = 'meets_hh_type', 'Race/Ethnicity' = 'meets_race_eth_filter',
                    'Age' = 'meets_age_filter', 'Veteran Status' = 'meets_vet_filter',
                    'Suppression Flag' = 'wasRedacted','Count' = 'N','Total System Exits' = 'total','Percent of Total System Exits' = 'pct')
   
-  subpop2_table_df %>% 
+  subpop_table_df %>% 
     fmutate(pct = ifelse(is.nan(pct), 0, pct),
             pct = scales::percent(pct, accuracy=0.1)) %>% 
     get_vars( vars=c(which_factors_changed, 'Destination Type','N','total','pct','wasRedacted')) %>% 
@@ -841,11 +841,11 @@ syse_subpop2_export_summary <- reactive({
 
 })
 
-syse_subpop2_export_detail <- reactive({
+syse_subpop_export_detail <- reactive({
   
   
   ## compute subcategories of destination types for data export - not shown in chart or table
-  pct_subpop_sub <- subpop2() %>% 
+  pct_subpop_sub <- subpop() %>% 
     fselect( Destination, PersonalID, EnrollmentID) %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
@@ -995,16 +995,16 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
   }
 }
 
-get_syse_compare_subpop2_data <- function(output_type = 'table'){
+get_syse_compare_subpop_data <- function(output_type = 'table'){
   
-  validate(need(nrow(subpop2()) > 0, no_data_msg))
-  validate(need(nrow(subpop2()) > 10, suppression_msg))
+  validate(need(nrow(subpop()) > 0, no_data_msg))
+  validate(need(nrow(subpop()) > 10, suppression_msg))
   
   validate(need(nrow(everyone_else2()) > 0, no_data_msg))
   validate(need(nrow(everyone_else2()) > 10, suppression_msg))
   
   
-  df_subpop <- subpop2() %>% 
+  df_subpop <- subpop() %>% 
     fmutate(`Destination Type` = factor(fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -1044,16 +1044,16 @@ get_syse_compare_subpop2_data <- function(output_type = 'table'){
   # which_factors_changed <- names(which(did_factors_change() == 1))
   # labels_factors_changed <- c(
   #   meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
-  #   meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop2_age) < length(sys_age_cats), paste0(input$syse_subpop2_age, collapse=', '), NA_character_),
-  #   meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop2_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop2_race_ethnicity1), collapse=','), 
-  #                                  ifelse(input$syse_subpop2_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop2_race_ethnicity2)) , NA_character_)),
-  #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop2_spec_pops != 'None', input$syse_subpop2_spec_pops, NA_character_)
+  #   meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
+  #   meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+  #                                  ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+  #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
   # )
   # labels_all_other <- c(
   #   meets_hh_type = 'All Other Household Types',
   #   meets_age_filter = 'All Other Ages',
   #   meets_race_eth_filter = 'All Other Races/Ethnicities',
-  #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop2_spec_pops), 's'), NA_character_)
+  #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
   # )
   
   if(output_type == 'chart'){
@@ -1224,9 +1224,9 @@ get_syse_compare_time_data <- function(output_type = 'table'){
   
 }
 
-syse_subpop2_selections <- reactive({
+syse_subpop_selections <- reactive({
   possible <- c("Age","Race/Ethnicity","Veteran Status (Adult Only)")
-  selected <- which(c(input$syse_subpop2_age_selection, input$syse_subpop2_race_eth_selection, input$syse_subpop2_vet_selection))
+  selected <- which(c(input$syse_subpop_age_selection, input$syse_subpop_race_eth_selection, input$syse_subpop_vet_selection))
   
   vals <- possible[selected]
   if("Race/Ethnicity" %in% vals){
@@ -1236,27 +1236,27 @@ syse_subpop2_selections <- reactive({
   vals
 })
 
-observeEvent(input$syse_subpop2_age_selection,
+observeEvent(input$syse_subpop_age_selection,
                {
-                if(isTruthy(input$syse_subpop2_age_selection)){
+                if(isTruthy(input$syse_subpop_age_selection)){
                   shinyjs::enable(id = 'age_picker')
                 } else {
                   shinyjs::disable(id = 'age_picker')
                 }                 
                })
 
-observeEvent(input$syse_subpop2_race_eth_selection,
+observeEvent(input$syse_subpop_race_eth_selection,
              {
-               if(isTruthy(input$syse_subpop2_race_eth_selection)){
+               if(isTruthy(input$syse_subpop_race_eth_selection)){
                  shinyjs::enable(id = 'race_eth_picker')
                } else {
                  shinyjs::disable(id = 'race_eth_picker')
                }                 
              }, ignoreInit=F)
 
-observeEvent(input$syse_subpop2_vet_selection,
+observeEvent(input$syse_subpop_vet_selection,
              {
-               if(isTruthy(input$syse_subpop2_vet_selection)){
+               if(isTruthy(input$syse_subpop_vet_selection)){
                  shinyjs::enable(id = 'vet_picker')
                } else {
                  shinyjs::disable(id = 'vet_picker')
@@ -1264,33 +1264,33 @@ observeEvent(input$syse_subpop2_vet_selection,
              })
 
 
-observeEvent(syse_subpop2_selections(),{
+observeEvent(syse_subpop_selections(),{
   
   str_vec <- c('Age','Races/Ethnicities','Veteran Status')
   excl_vec <- c('age','race_eth','vet')
-  if(length(syse_subpop2_selections()) == 2){
+  if(length(syse_subpop_selections()) == 2){
     
-    excl <- which(!sapply(str_vec, \(x) any(str_detect(syse_subpop2_selections(), x)) ,USE.NAMES = F))
-    shinyjs::disable(id = paste0('syse_subpop2_',excl_vec[excl],'_selection'))
+    excl <- which(!sapply(str_vec, \(x) any(str_detect(syse_subpop_selections(), x)) ,USE.NAMES = F))
+    shinyjs::disable(id = paste0('syse_subpop_',excl_vec[excl],'_selection'))
   } else {
-    shinyjs::enable(id='syse_subpop2_age_selection')
-    shinyjs::enable(id='syse_subpop2_race_eth_selection')
-    shinyjs::enable(id='syse_subpop2_vet_selection')
+    shinyjs::enable(id='syse_subpop_age_selection')
+    shinyjs::enable(id='syse_subpop_race_eth_selection')
+    shinyjs::enable(id='syse_subpop_vet_selection')
   }
 })
 
 did_factors_change <- reactive({
   c(
     meets_hh_type = (input$syse_hh_type != 'All'),
-    meets_age_filter = ('Age' %in% syse_subpop2_selections() && length(input$syse_subpop2_age) < length(sys_age_cats)),
-    meets_race_eth_filter = ('All Races/Ethnicities' %in% syse_subpop2_selections() && input$syse_subpop2_race_ethnicity1 != 'All') +
-      ('Grouped Races/Ethnicities' %in% syse_subpop2_selections() && input$syse_subpop2_race_ethnicity2 != 'All'),
-    meets_vet_filter = ('Veteran Status (Adult Only)' %in% syse_subpop2_selections() && input$syse_subpop2_spec_pops != 'None')
+    meets_age_filter = ('Age' %in% syse_subpop_selections() && length(input$syse_subpop_age) < length(sys_age_cats)),
+    meets_race_eth_filter = ('All Races/Ethnicities' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity1 != 'All') +
+      ('Grouped Races/Ethnicities' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity2 != 'All'),
+    meets_vet_filter = ('Veteran Status (Adult Only)' %in% syse_subpop_selections() && input$syse_subpop_spec_pops != 'None')
   )
 })
 
-syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_data(output_type = 'chart'),
-                                       dest_type = input$subpop2_dest_type, isExport = FALSE){
+syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data(output_type = 'chart'),
+                                       dest_type = input$subpop_dest_type, isExport = FALSE){
   req(all_filtered_syse_subpop())
   
   subgroup_colors <- c(
@@ -1298,7 +1298,7 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
     'everyone_else' = get_brand_color('med_grey2')
   )
   ## long format needed for plotting points
-  subpop2_chart_df <- subpop_data %>% 
+  subpop_chart_df <- subpop_data %>% 
     fsubset(`Destination Type` == dest_type)
   
   title_start <- paste0("Total System Exits for ",
@@ -1307,7 +1307,7 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
   
   title <- paste0(title_start, 
-                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(subpop2()))),
+                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(subpop()))),
                     paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else2())))),
                   collapse='\n'
   )
@@ -1317,25 +1317,25 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
   
   labels_factors_changed <- c(
     meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
-    meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop2_age) < length(sys_age_cats), paste0(input$syse_subpop2_age, collapse=', '), NA_character_),
-    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop2_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop2_race_ethnicity1), collapse=','), 
-                                   ifelse(input$syse_subpop2_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop2_race_ethnicity2)) , NA_character_)),
-    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop2_spec_pops != 'None', input$syse_subpop2_spec_pops, NA_character_)
+    meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
+    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+                                   ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
   )
   labels_all_other <- c(
     meets_hh_type = 'All Other Household Types',
     meets_age_filter = 'All Other Ages',
     meets_race_eth_filter = 'All Other Races/Ethnicities',
-    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop2_spec_pops), 's'), NA_character_)
+    meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
   )
   
   
   
   if(num_factors_changed == 1){
     
-    levels(subpop2_chart_df[[which_factors_changed]]) <- c(labels_factors_changed[which_factors_changed],labels_all_other[which_factors_changed])
+    levels(subpop_chart_df[[which_factors_changed]]) <- c(labels_factors_changed[which_factors_changed],labels_all_other[which_factors_changed])
    
-    g <- ggplot(subpop2_chart_df, aes(x=!!sym(which_factors_changed), y=1))
+    g <- ggplot(subpop_chart_df, aes(x=!!sym(which_factors_changed), y=1))
     
   } else if(num_factors_changed == 2){
     
@@ -1344,33 +1344,33 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
       other_factor <- setdiff(which_factors_changed, 'meets_hh_type')
       
       ## horizontal variable
-      levels(subpop2_chart_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
+      levels(subpop_chart_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
 
       ## horizontal variable
-      levels(subpop2_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
+      levels(subpop_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
       
-      g <- ggplot(subpop2_chart_df, aes(x=meets_hh_type, y=fct_rev(!!sym(other_factor))))
+      g <- ggplot(subpop_chart_df, aes(x=meets_hh_type, y=fct_rev(!!sym(other_factor))))
       
     } else if ('meets_race_eth_filter' %in% which_factors_changed) {
       other_factor <- setdiff(which_factors_changed, 'meets_race_eth_filter')
       
       ## horizontal variable
-      levels(subpop2_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
+      levels(subpop_chart_df[[other_factor]]) <- c(labels_factors_changed[other_factor],labels_all_other[other_factor])
       
       ## vertical variable
-      levels(subpop2_chart_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
+      levels(subpop_chart_df[['meets_race_eth_filter']]) <- c(labels_factors_changed['meets_race_eth_filter'],labels_all_other['meets_race_eth_filter'])
       
-      g <- ggplot(subpop2_chart_df, aes(x=!!sym(other_factor), y=fct_rev(meets_race_eth_filter))
+      g <- ggplot(subpop_chart_df, aes(x=!!sym(other_factor), y=fct_rev(meets_race_eth_filter))
       )        
     } else {
       
       ## horizontal variable
-      levels(subpop2_chart_df[[which_factors_changed[1]]]) <- c(labels_factors_changed[which_factors_changed[1]],labels_all_other[which_factors_changed[1]])
+      levels(subpop_chart_df[[which_factors_changed[1]]]) <- c(labels_factors_changed[which_factors_changed[1]],labels_all_other[which_factors_changed[1]])
 
       ## vertical variable
-      levels(subpop2_chart_df[[which_factors_changed[2]]]) <- c(labels_factors_changed[which_factors_changed[2]],labels_all_other[which_factors_changed[2]])
+      levels(subpop_chart_df[[which_factors_changed[2]]]) <- c(labels_factors_changed[which_factors_changed[2]],labels_all_other[which_factors_changed[2]])
       
-      g <- ggplot(subpop2_chart_df, aes(x=!!sym(which_factors_changed[1]), y=fct_rev(!!sym(which_factors_changed[2])))) 
+      g <- ggplot(subpop_chart_df, aes(x=!!sym(which_factors_changed[1]), y=fct_rev(!!sym(which_factors_changed[2])))) 
     
     }
     
@@ -1394,15 +1394,15 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
     }
     
     ## horizontal variable
-    levels(subpop2_chart_df[[horiz_var_inner]]) <- c(labels_factors_changed[horiz_var_inner],labels_all_other[horiz_var_inner])
+    levels(subpop_chart_df[[horiz_var_inner]]) <- c(labels_factors_changed[horiz_var_inner],labels_all_other[horiz_var_inner])
 
     ## vertical variable
-    levels(subpop2_chart_df[[vert_var]]) <- c(labels_factors_changed[vert_var],labels_all_other[vert_var])
+    levels(subpop_chart_df[[vert_var]]) <- c(labels_factors_changed[vert_var],labels_all_other[vert_var])
    
     ## facet variable
-    levels(subpop2_chart_df[[horiz_var_outer]]) <- c(labels_factors_changed[horiz_var_outer],labels_all_other[horiz_var_outer])
+    levels(subpop_chart_df[[horiz_var_outer]]) <- c(labels_factors_changed[horiz_var_outer],labels_all_other[horiz_var_outer])
     
-    g <- ggplot(subpop2_chart_df, aes(x=!!sym(horiz_var_inner), y=fct_rev(!!sym(vert_var))))
+    g <- ggplot(subpop_chart_df, aes(x=!!sym(horiz_var_inner), y=fct_rev(!!sym(vert_var))))
     
     g <- g + facet_wrap(as.formula(paste0('~ ', horiz_var_outer)), strip.position='top',scales='free_x', ncol=2,labeller = label_wrap_gen(18))
   }
@@ -1503,11 +1503,11 @@ output$syse_compare_subpop_chart <- renderPlot({
   syse_compare_subpop_chart(subpop = input$syse_race_ethnicity)
 })
 
-output$syse_compare_subpop2_chart <- renderPlot({
+output$syse_compare_subpop_chart <- renderPlot({
   ## check if filters have been changed from defaults before showing 
-  subpop2_chart_validation(show=TRUE, req=FALSE)
-  syse_compare_subpop2_chart(get_syse_compare_subpop2_data(output_type = 'chart'),
-                             dest_type = input$subpop2_dest_type)
+  subpop_chart_validation(show=TRUE, req=FALSE)
+  syse_compare_subpop_chart(get_syse_compare_subpop_data(output_type = 'chart'),
+                             dest_type = input$subpop_dest_type)
 })
 
 
@@ -1690,7 +1690,7 @@ output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filenam
                                                                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
                                                  })
 
-output$syse_subpop2_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
+output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
                                                    content = function(file) {
                                                      logToConsole(session, "System Exits by Subpopulation data download")
                                                      
@@ -1699,12 +1699,12 @@ output$syse_subpop2_download_btn <- downloadHandler(filename = date_stamped_file
                                                          rowbind(
                                                            sys_export_filter_selections(type = 'exits_subpop'),
                                                            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                                                      Value = scales::label_comma()(c(nrow(subpop2()),nrow(everyone_else2())))
+                                                                      Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else2())))
                                                            )
                                                          ) %>% 
                                                          frename("System Exits by Subpopulation" = Value),
-                                                       "SubpopulationComparisonSummary" = syse_subpop2_export_summary(),
-                                                       "SubpopulationExitDetail" = syse_subpop2_export_detail()
+                                                       "SubpopulationComparisonSummary" = syse_subpop_export_summary(),
+                                                       "SubpopulationExitDetail" = syse_subpop_export_detail()
                                                      )
                                                      
                                                      write_xlsx(
@@ -1997,26 +1997,26 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_hh_type = TRUE)
   }
   
-  if('Age' %in% syse_subpop2_selections()){
-    req(input$syse_subpop2_age)
+  if('Age' %in% syse_subpop_selections()){
+    req(input$syse_subpop_age)
     
     subpop_w_client_filters <- subpop_w_client_filters %>% 
-      fmutate(meets_age_filter = AgeCategory %in% input$syse_subpop2_age)
+      fmutate(meets_age_filter = AgeCategory %in% input$syse_subpop_age)
     
   } else {
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_age_filter = TRUE)
   }
   
-  if('All Races/Ethnicities' %in% syse_subpop2_selections()){
-    req(input$syse_subpop2_race_ethnicity1)
+  if('All Races/Ethnicities' %in% syse_subpop_selections()){
+    req(input$syse_subpop_race_ethnicity1)
     
-    subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop2_race_ethnicity1 == "All") rep(TRUE, .N) else get(input$syse_subpop2_race_ethnicity1) == 1)]
+    subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop_race_ethnicity1 == "All") rep(TRUE, .N) else get(input$syse_subpop_race_ethnicity1) == 1)]
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_race_eth_filter = PersonalID %in% subpop_race_eth$PersonalID)
-  } else if('Grouped Races/Ethnicities' %in% syse_subpop2_selections()){
-    req(input$syse_subpop2_race_ethnicity2)
-    subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop2_race_ethnicity2 == "All") rep(TRUE, .N) else get(input$syse_subpop2_race_ethnicity2) == 1)]
+  } else if('Grouped Races/Ethnicities' %in% syse_subpop_selections()){
+    req(input$syse_subpop_race_ethnicity2)
+    subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop_race_ethnicity2 == "All") rep(TRUE, .N) else get(input$syse_subpop_race_ethnicity2) == 1)]
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_race_eth_filter = PersonalID %in% subpop_race_eth$PersonalID)
   } else {
@@ -2024,13 +2024,13 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_race_eth_filter = TRUE)
   }
   
-  if('Veteran Status (Adult Only)' %in% syse_subpop2_selections()){
-    req(input$syse_subpop2_spec_pops)
+  if('Veteran Status (Adult Only)' %in% syse_subpop_selections()){
+    req(input$syse_subpop_spec_pops)
     subpop_w_client_filters <- subpop_w_client_filters %>% 
-      fmutate(meets_vet_filter =input$syse_subpop2_spec_pops == "None" |
-                (input$syse_subpop2_spec_pops == "Veteran" &
+      fmutate(meets_vet_filter =input$syse_subpop_spec_pops == "None" |
+                (input$syse_subpop_spec_pops == "Veteran" &
                    VeteranStatus == 1 & !AgeCategory %in% c("0 to 12", "13 to 17")) |
-                (input$syse_subpop2_spec_pops == "NonVeteran" &
+                (input$syse_subpop_spec_pops == "NonVeteran" &
                    VeteranStatus == 0 & !AgeCategory %in% c("0 to 12", "13 to 17")))
   } else {
     subpop_w_client_filters <- subpop_w_client_filters %>% 
@@ -2053,7 +2053,7 @@ compute_subpop_and_everyone_else <- function(input_df){
 comps <- reactive({
   compute_subpop_and_everyone_else(all_filtered_syse_subpop())
 })
-subpop2 <- reactive({comps()$subpop})
+subpop <- reactive({comps()$subpop})
 
 output$syse_time_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exits by Year_", Sys.Date(), ".pptx", sep = "")
@@ -2092,7 +2092,7 @@ content = function(file) {
   
 })
 
-output$syse_subpop2_download_btn_ppt <- downloadHandler(filename = function(){
+output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exits by Subpopulation_", Sys.Date(), ".pptx", sep = "")
 },
 content = function(file) {
@@ -2104,16 +2104,16 @@ content = function(file) {
                             rowbind(
                               sys_export_filter_selections(type = 'exits_subpop'),
                               data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                         Value = scales::label_comma()(c(nrow(subpop2()),nrow(everyone_else2())))
+                                         Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else2())))
                               )
                             )
                         ),
                         plots = list(
-                          "System Exits by Subpopulation - Permanent" =  syse_compare_subpop2_chart(dest_type = 'Permanent',isExport = TRUE),
-                          "System Exits by Subpopulation - Homeless" =  syse_compare_subpop2_chart(dest_type = 'Homeless', isExport = TRUE),
-                          "System Exits by Subpopulation - Institutional" =  syse_compare_subpop2_chart(dest_type = 'Institutional',isExport = TRUE),
-                          "System Exits by Subpopulation - Temporary" =  syse_compare_subpop2_chart(dest_type = 'Temporary',isExport = TRUE),
-                          "System Exits by Subpopulation - Other/Unknown" =  syse_compare_subpop2_chart(dest_type = 'Other/Unknown',isExport = TRUE)
+                          "System Exits by Subpopulation - Permanent" =  syse_compare_subpop_chart(dest_type = 'Permanent',isExport = TRUE),
+                          "System Exits by Subpopulation - Homeless" =  syse_compare_subpop_chart(dest_type = 'Homeless', isExport = TRUE),
+                          "System Exits by Subpopulation - Institutional" =  syse_compare_subpop_chart(dest_type = 'Institutional',isExport = TRUE),
+                          "System Exits by Subpopulation - Temporary" =  syse_compare_subpop_chart(dest_type = 'Temporary',isExport = TRUE),
+                          "System Exits by Subpopulation - Other/Unknown" =  syse_compare_subpop_chart(dest_type = 'Other/Unknown',isExport = TRUE)
                         ),
                         summary_font_size = 19,
                         startDate = session$userData$ReportStart,

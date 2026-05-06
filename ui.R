@@ -1224,7 +1224,7 @@ nav_menu(
           nav_panel(
             title = headerTab('Exits by Subpopulation'),
             navset_underline(
-              id = "syse_subpop2_subtabs",
+              id = "syse_subpop_subtabs",
               selected = headerSubTab('Chart'),
               nav_panel(
                 title = headerSubTab('Chart'),
@@ -1245,10 +1245,10 @@ nav_menu(
                   layout_columns(
                     col_widths = c(3,3,6),fill=T,
                     tagList(
-                        checkboxInput('syse_subpop2_age_selection', 'Age'),
+                        checkboxInput('syse_subpop_age_selection', 'Age'),
                          div(id ='age_picker',style='margin-top:0px; padding-top:0px;',
                                      pickerInput(
-                                       inputId = "syse_subpop2_age",
+                                       inputId = "syse_subpop_age",
                                        label=NULL,#label = "Age",
                                        selected = sys_age_cats,
                                        choices = sys_age_cats,
@@ -1264,11 +1264,11 @@ nav_menu(
                                      )
                          ),
                     tagList(
-                                   checkboxInput('syse_subpop2_vet_selection', 'Veteran Status (Adult Only)'),
+                                   checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
                                    div(id = 'vet_picker',
                                        pickerInput(
                                          label = NULL,#label = "Veteran Status",
-                                         inputId = "syse_subpop2_spec_pops",
+                                         inputId = "syse_subpop_spec_pops",
                                          #choices = sys_spec_pops_people,
                                          choices = setNames(sys_spec_pops_people,
                                                             nm = c("None Selected", names(sys_spec_pops_people[-1]))
@@ -1279,12 +1279,12 @@ nav_menu(
                                    )
                     ),
                     tagList(
-                         checkboxInput('syse_subpop2_race_eth_selection', 'Race/Ethnicity'),
+                         checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
                          div(id='race_eth_picker',
                              conditionalPanel(condition = 'input.syse_methodology_type == 1',
                                                      pickerInput(
                                                        label = NULL,#"Race/Ethnicity",
-                                                       inputId = "syse_subpop2_race_ethnicity1",
+                                                       inputId = "syse_subpop_race_ethnicity1",
                                                        choices = setNames(sys_race_ethnicity_method1,
                                                                           c("None Selected", names(sys_race_ethnicity_method1)[-1])
                                                        ),
@@ -1300,7 +1300,7 @@ nav_menu(
                              conditionalPanel(condition = 'input.syse_methodology_type == 2',
                                                      pickerInput(
                                                        label = NULL,#"Race/Ethnicity",
-                                                       inputId = "syse_subpop2_race_ethnicity2",
+                                                       inputId = "syse_subpop_race_ethnicity2",
                                                        choices = setNames(sys_race_ethnicity_method2,
                                                                           c("None Selected",names(sys_race_ethnicity_method2)[-1])),
                                                        selected = "None Selected",
@@ -1316,7 +1316,7 @@ nav_menu(
                     )
                   ),
                   radioGroupButtons(
-                    inputId = "subpop2_dest_type",
+                    inputId = "subpop_dest_type",
                     label = "Destination Type",
                     choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
                     #Inactive
@@ -1328,7 +1328,7 @@ nav_menu(
                 br(),
                 div(
                   style='margin-left:17px;',
-                  plotOutput("syse_compare_subpop2_chart",
+                  plotOutput("syse_compare_subpop_chart",
                              width = "92%",
                              height = "500")
                 ),
@@ -1340,8 +1340,8 @@ nav_menu(
                 tab_syse_subpop_chart_information
               )
             ),
-            downloadButton("syse_subpop2_download_btn", "Data Download", style='margin-right:2px'),
-            downloadButton("syse_subpop2_download_btn_ppt", "Image Download")
+            downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("syse_subpop_download_btn_ppt", "Image Download")
           ),
           
           nav_panel(
