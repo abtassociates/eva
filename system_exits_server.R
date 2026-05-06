@@ -400,7 +400,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   sys_phd_export(export_df)
   
   if(methodology_type == 1){
-    h_total_joined <- join(h_total,h_total_phd %>% frename(num = N), how = 'left', on=c(selections[1],selections[2])) %>% 
+    h_total_joined <- join(h_total,h_total_phd %>% frename(num = N), how = 'left', on=selections) %>% 
       fmutate(frac = ifelse(N == 0 | is.na(N), NA, num / N))
     
     v_total_joined <- join(v_total,v_total_phd %>% frename(num = N), how = 'left', on=c(selections[1],selections[2])) %>% 
