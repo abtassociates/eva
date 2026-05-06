@@ -1086,93 +1086,6 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
   }
 }
 
-# get_syse_compare_subpop_data <- function(output_type = 'table'){
-#   
-#   validate(need(nrow(all_filtered_syse_subpop()) > 0, no_data_msg))
-#   validate(need(nrow(all_filtered_syse_subpop()) > 10, suppression_msg))
-#   
-#   .total_s <- fnrow(all_filtered_syse_subpop())
-#   
-#   count_subpop <- all_filtered_syse_subpop() %>% 
-#     fselect( Destination, PersonalID, EnrollmentID) %>% 
-#     fmutate(`Destination Type` = fcase(
-#       Destination %in% perm_livingsituation, 'Permanent',
-#       Destination %in% 100:199, 'Homeless',
-#       Destination %in% temp_livingsituation, 'Temporary',
-#       Destination %in% institutional_livingsituation, 'Institutional',
-#       Destination %in% other_livingsituation, 'Other/Unknown',
-#       default = 'Other/Unknown'
-#     )) %>% fsummarize(
-#       'Permanent' = fsum(`Destination Type` == 'Permanent'),
-#       'Homeless'= fsum(`Destination Type` == 'Homeless'),
-#       'Institutional' = fsum(`Destination Type` == 'Institutional'),
-#       'Temporary' = fsum(`Destination Type` == 'Temporary'),
-#       'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
-#     )
-#   
-#   .total_e <- fnrow(everyone_else())
-#   
-#   count_everyone_else <- everyone_else() %>% fsummarize(
-#     'Permanent' = fsum(`Destination Type` == 'Permanent'),
-#     'Homeless'= fsum(`Destination Type` == 'Homeless'),
-#     'Institutional' = fsum(`Destination Type` == 'Institutional'),
-#     'Temporary' = fsum(`Destination Type` == 'Temporary'),
-#     'Other/Unknown' = fsum(`Destination Type` == 'Other/Unknown')
-#   )
-#   
-#   if(output_type == 'chart'){
-#     
-#     pct_subpop <- count_subpop / .total_s
-#     pct_everyone_else <- count_everyone_else / .total_e
-#     
-#     pct_diff <- purrr::map2_dfr(count_subpop, count_everyone_else, .f = calc_pct_diff, format='num')
-#     
-#     data.table(
-#       subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
-#       round(
-#         rowbind(
-#           pct_subpop,
-#           pct_everyone_else,
-#           pct_diff
-#         ),
-#         2)
-#     )
-#     
-#   } else if (output_type == 'table'){
-#     
-#     pct_diff <- purrr::map2_dfr(count_subpop, count_everyone_else, .f = calc_pct_diff)
-#     
-#     pct_subpop <- count_subpop %>% 
-#       fmutate(
-#         'Permanent' = format_compare_value(Permanent, .total_s),
-#         'Homeless'= format_compare_value(Homeless, .total_s),
-#         'Institutional' = format_compare_value(Institutional, .total_s),
-#         'Temporary' = format_compare_value(Temporary, .total_s),
-#         'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_s)
-#       )
-#     
-#     pct_everyone_else <- count_everyone_else %>% 
-#       fmutate(
-#         'Permanent' = format_compare_value(Permanent, .total_e),
-#         'Homeless'= format_compare_value(Homeless, .total_e),
-#         'Institutional' = format_compare_value(Institutional, .total_e),
-#         'Temporary' = format_compare_value(Temporary, .total_e),
-#         'Other/Unknown' = format_compare_value(`Other/Unknown`, .total_e)
-#       )
-#     
-#     data.table(
-#       subpop_summ = c("Subpopulation","Everyone Else","Percent Difference"),
-#       rowbind(
-#         pct_subpop,
-#         pct_everyone_else,
-#         pct_diff
-#       )
-#     )
-#   }
-#   
-#   
-# }
-
 get_syse_compare_subpop2_data <- function(output_type = 'table'){
   
   validate(need(nrow(subpop2()) > 0, no_data_msg))
@@ -1479,17 +1392,6 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
   subpop2_chart_df <- subpop_data %>% 
     fsubset(`Destination Type` == dest_type)
   
-  ## add x-axis labels for PPT download only
-  # if(isExport){
-  #   #dest_type_labels <- subpop_segment_df$dest_type
-  #   #bar_width <- compare_export_bar_width
-  #   
-  # } else {
-  #   #dest_type_labels <- rep(NA,5)    
-  #   #bar_width <- compare_bar_width
-  #   
-  # }
-  
   title_start <- paste0("Total System Exits for ",
                         syse_level_of_detail_text(), " in ",
                         str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
@@ -1626,124 +1528,6 @@ syse_compare_subpop2_chart <- function(subpop_data = get_syse_compare_subpop2_da
   
 }
 
-## function for System Exits Comparison subpopulation table (below chart)
-# get_syse_compare_subpop_table <- function(tab){
-#   
-#   subgroup_colors <- c(
-#     "Subpopulation" = get_brand_color('med_purple'),
-#     "Everyone Else" = get_brand_color('med_grey2')
-#   )
-#   
-#   datatable(tab, 
-#             colnames = c(' ' = 'subpop_summ',
-#                          "<b>Permanent</b>" = "Permanent","<b>Homeless</b>" = "Homeless",
-#                          "<b>Institutional</b>" = "Institutional","<b>Temporary</b>" = "Temporary",
-#                          "<b>Other/Unknown</b>" = "Other/Unknown"),
-#             options = list(
-#               dom = 't',
-#               ordering = FALSE,
-#               columnDefs = list(
-#                 list(width = "48px", targets = 0), # Set first column width
-#                 list(className = 'dt-center', targets = '_all') # Center text
-#               )
-#             ),
-#             selection = 'none',
-#             escape = FALSE,
-#             style = "default",
-#             rownames = FALSE) %>% 
-#     # Highlight only the first column of "Subpopulation" and "Everyone Else" rows
-#     formatStyle(
-#       columns = 1,  # First column
-#       target = "cell",
-#       backgroundColor = styleEqual(
-#         names(subgroup_colors), unname(subgroup_colors)
-#       ),
-#       borderTop = styleEqual(
-#         names(subgroup_colors),
-#         c("2px solid black", "1px solid black")
-#       ),
-#       borderLeft = styleEqual(
-#         names(subgroup_colors),
-#         c(rep("2px solid black", 2))
-#       ),
-#       borderRight = styleEqual(
-#         names(subgroup_colors),
-#         c(rep("2px solid black", 2))
-#       ),
-#       borderBottom = styleEqual(
-#         names(subgroup_colors),
-#         c("1px solid black", "2px solid black")
-#       )
-#     ) %>% 
-#     # Contrast font and background colors
-#     formatStyle(
-#       columns = 1,
-#       target = "cell",
-#       color = styleEqual(
-#         names(subgroup_colors), 
-#         rep("black", length(subgroup_colors))
-#       )
-#     )
-# }
-# 
-# get_syse_compare_subpop_flextable <- function(tab) {
-#   logToConsole(session, "In get_syse_compare_subpop_flextable")
-#   
-#   
-#   ft <- flextable(tab %>%
-#                     frename("subpop_summ" = " ")) %>%
-#     width(j = 1, width = 0.9) %>% # make first col narrower
-#     bold(part = "header") %>%
-#     align(align = "center", part = "all") %>%
-#     border(border.top = fp_border(), part = "header") %>%
-#     border_inner_h(border = fp_border(color = "grey", width = 0.5), part = "body")
-#   
-#   ## formatting function for percentages with 0 decimal places and % sign
-#   #fmt_func_pct <- function(x){sprintf("%.0f%%", x*100)}
-#   
-#   # ft <- set_formatter(
-#   #   x = ft,
-#   #   Permanent = fmt_func_pct,
-#   #   Homeless = fmt_func_pct,
-#   #   Institutional = fmt_func_pct,
-#   #   Temporary = fmt_func_pct,
-#   #   `Other/Unknown` = fmt_func_pct
-#   # )
-#   
-#   row_labels <- tab[[1]]
-#   
-#   # Formatting the subpopulation row labels
-#   subgroup_colors <- c(
-#     "Subpopulation" = get_brand_color('med_purple'),
-#     "Everyone Else" = get_brand_color('med_grey2')
-#   )
-#   
-#   ft <- ft %>%
-#     # Background colors from datatable's formatStyle
-#     bg(i = 1:2, j = 1, bg = subgroup_colors) %>%
-#     # thick borders for the first column - adjust adjacent ones to match same total width
-#     border(i = 1, j = 1, 
-#            border.top = fp_border(color = "black", width = 2),
-#            border.left = fp_border(color = "black", width = 2),
-#            border.right = fp_border(color = "black", width = 2),
-#            border.bottom = fp_border(color = "black", width = 1)) %>% 
-#     border(i = 2, j = 1, 
-#            border.top = fp_border(color = "black", width = 1),
-#            border.left = fp_border(color = "black", width = 2),
-#            border.right = fp_border(color = "black", width = 2),
-#            border.bottom = fp_border(color = "black", width = 1)) %>% 
-#     border(i = 3, j = 1, 
-#            border.top = fp_border(color = "black", width = 1),
-#            border.left = fp_border(color = "black", width = 2),
-#            border.right = fp_border(color = "black", width = 2),
-#            border.bottom = fp_border(color = "black", width = 2)) %>% 
-#     # expand to better fit slide width
-#     autofit()
-#   
-#   ft
-#   
-# }
-
 get_syse_compare_time_flextable <- function(tab) {
   logToConsole(session, "In get_syse_compare_time_flextable")
   
@@ -1816,15 +1600,6 @@ output$syse_compare_subpop2_chart <- renderPlot({
   syse_compare_subpop2_chart(get_syse_compare_subpop2_data(output_type = 'chart'),
                              dest_type = input$subpop2_dest_type)
 })
-
-# output$syse_compare_subpop_table <- renderDT({
-#   ## check if filters have been changed from defaults before showing 
-#   subpop_chart_validation(input$syse_hh_type, input$syse_level_of_detail, input$syse_project_type,
-#                           input$syse_race_ethnicity,input$syse_spec_pops,input$syse_age, show = FALSE, req=TRUE)
-#   get_syse_compare_subpop_table(
-#     get_syse_compare_subpop_data(output_type = 'table')
-#   )
-# })
 
 
 ## function to make System Exits comparison subpopulation chart
@@ -2005,33 +1780,6 @@ output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filenam
                                                    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
                                                                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
                                                  })
-
-# output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
-#                                                    content = function(file) {
-#                                                      logToConsole(session, "System Exits by Subpopulation data download")
-#                                                      
-#                                                      sheets <- list(
-#                                                        "SystemExitsBySubpop Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-#                                                          rowbind(
-#                                                            sys_export_filter_selections(type = 'exits_subpop'),
-#                                                            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-#                                                                       Value = scales::label_comma()(c(nrow(all_filtered_syse_subpop()),nrow(everyone_else())))
-#                                                            )
-#                                                          ) %>% 
-#                                                          frename("System Exits by Subpopulation" = Value),
-#                                                        "SubpopulationComparisonData" = syse_subpop_export()
-#                                                      )
-#                                                      
-#                                                      write_xlsx(
-#                                                        sheets,     
-#                                                        path = file,
-#                                                        format_headers = FALSE,
-#                                                        col_names = TRUE
-#                                                      )   
-#                                                      
-#                                                      logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-#                                                                                  if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-#                                                    })
 
 output$syse_subpop2_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
                                                    content = function(file) {
@@ -2434,39 +2182,6 @@ content = function(file) {
   )
   
 })
-
-# output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
-#   paste("System Exits by Subpopulation_", Sys.Date(), ".pptx", sep = "")
-# },
-# content = function(file) {
-#   logToConsole(session, "In syse_subpop_download_btn_ppt")
-#   
-#   sys_perf_ppt_export(file = file, 
-#                       type = 'exits_comparison',
-#                       title_slide_title = "System Exits by Subpopulation",
-#                       summary_items = list(
-#                         "Summary" = sys_export_summary_initial_df(type = 'exits') %>%
-#                           rowbind(
-#                             sys_export_filter_selections(type = 'exits_subpop'),
-#                             data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-#                                        Value = scales::label_comma()(c(nrow(all_filtered_syse_subpop()),nrow(everyone_else())))
-#                             )
-#                           ) 
-#                       ),
-#                       plots = list(
-#                         "System Exits by Subpopulation - Chart" =  syse_compare_subpop_chart(isExport = TRUE),
-#                         "System Exits by Subpopulation - Table" = get_syse_compare_subpop_flextable(
-#                           get_syse_compare_subpop_data(output_type = 'table')
-#                         )
-#                       ),
-#                       summary_font_size = 19,
-#                       startDate = session$userData$ReportStart, 
-#                       endDate = session$userData$ReportEnd, 
-#                       sourceID = session$userData$Export$SourceID,
-#                       in_demo_mode = input$in_demo_mode
-#   )
-#   
-# })
 
 output$syse_subpop2_download_btn_ppt <- downloadHandler(filename = function(){
   paste("System Exits by Subpopulation_", Sys.Date(), ".pptx", sep = "")
