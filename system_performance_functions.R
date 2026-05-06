@@ -43,7 +43,7 @@ sys_export_summary_initial_df <- function(type = 'overview') {
   
   logMetadata(session, glue("Downloaded System {ttype} Tabular Data: {tabbox}{demotext}", 
                             ttype=str_to_title(type),
-                            demotext = if_else(isTruthy(T), " - DEMO MODE", "")))
+                            demotext = if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
   if(type == 'exits_time'){
    
