@@ -1184,42 +1184,6 @@ nav_menu(
             downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
             downloadButton("syse_time_download_btn_ppt", "Image Download")
           ),
-          # nav_panel(
-          #   title = headerTab('Exits by Subpopulation'),
-          #   navset_underline(
-          #     id = "syse_subpop_subtabs",
-          #     selected = headerSubTab('Chart'),
-          #     nav_panel(
-          #       title = headerSubTab('Chart'),
-          #       uiOutput("syse_compare_subpop_filter_selections") %>%
-          #         withSpinner(),
-          #       radioGroupButtons(
-          #         inputId = "subpop_comparison_type_filter",
-          #         label = "Comparison Type",
-          #         choices = c("Client-Level", "Demographics", "Both"),
-          #         selected = "Both",
-          #         individual = TRUE,
-          #         checkIcon = list(yes = icon("check"))
-          #       ), 
-          #       div(
-          #         style='margin-left:17px;',
-          #         plotOutput("syse_compare_subpop_chart",
-          #                    width = "92%",
-          #                    height = "500")
-          #       ),
-          #       
-          #       DTOutput("syse_compare_subpop_table") %>%
-          #         withSpinner()
-          #     ),
-          #     nav_panel(
-          #       title = headerSubTab('Information'),
-          #       br(),
-          #       tab_syse_subpop_chart_information
-          #     )
-          #   ),
-          #   downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
-          #   downloadButton("syse_subpop_download_btn_ppt", "Image Download")
-          # ),
           
           nav_panel(
             title = headerTab('Exits by Subpopulation'),
