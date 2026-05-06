@@ -1326,9 +1326,6 @@ nav_menu(
                   width = 12
                 ),
                 br(),
-                # uiOutput("syse_compare_subpop2_filter_selections") %>%
-                #   withSpinner(),
-               
                 div(
                   style='margin-left:17px;',
                   plotOutput("syse_compare_subpop2_chart",
