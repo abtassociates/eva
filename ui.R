@@ -1008,7 +1008,7 @@ nav_menu(
       id = 'glossary_card',
       title = HTML('<h2>Glossary</h2>'),
                tabGlossary_instructions,
-        downloadButton('glossary_download_btn', label = 'Download Glossary'),
+        #downloadButton('glossary_download_btn', label = 'Download Glossary'),
         DTOutput("glossary")
     )
   )
