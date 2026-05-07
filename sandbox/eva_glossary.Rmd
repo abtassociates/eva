@@ -13,6 +13,9 @@ library(stringr)
 # Version Updated 4/7/2026
 gloss <- readxl::read_xlsx(path = gsub('sandbox', 'public-resources/system performance glossary.xlsx', getwd()))
 
+gloss <- gloss |> dplyr::mutate(Definition = str_replace_all(Definition,c('<br>'= '<br><br>','\\?' = '-', "“" = '"', '”' = '"')))
+gloss <- gloss |> dplyr::filter(Term != 'Percent Difference')
+
 gloss$Definition <- str_squish(gloss$Definition)
 gloss$Definition <- str_replace_all(gloss$Definition,pattern='<br>', replacement = '\n\n')
 
