@@ -1186,17 +1186,12 @@ tabDQExport_instructions <- HTML("<h4>Data Quality Export Interface</h4>
                                  Note that protected personal information (PPI), such as Personal ID in combination with other data elements, is contained in the Project Dashboard and Data Quality Reports. Users must follow all applicable HMIS privacy and security policies when storing, transmitting, and disclosing files with client records. </p>")
 
 tabGlossary_instructions <- HTML("
-               <p>This glossary provides definitions for the terms used throughout 
-              Eva's System Performance Overview page. You can review definitions 
-              of the terms by their focus, including:</p>
-              
-              <ul>
-                <li>System Performance Filters</li>
-                <li>System Flow Chart</li>
-                <li>Client System Status Chart</li>
-              </ul>
-              
-              <p>You can also search for a specific term using the search bar.</p>")
+               <p>This glossary provides definitions for the terms used throughout Eva’s System Performance pages. Terms are organized by Category and Target Filters/Panels, helping you understand how each term applies across different parts of the system.</p>
+                                 <br>
+                                 <p>Each entry includes the associated term and its definition to clarify how system performance data is categorized and displayed.</p>
+                                 <br>
+                                 <p>You can also use the search bar to quickly find a specific term. To download a full copy of the glossary, click the \"Download Glossary\" button at the top right of the page.</p><br>"
+)
 
 tabChangelog_instructions <-  HTML("
               <p>This tab will list the most recent technical updates and
