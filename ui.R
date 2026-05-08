@@ -1002,16 +1002,14 @@ nav_menu(
   nav_panel(
     title = "Glossary",
     value = "tabGlossary",
-    navset_card_underline(
-      id = "glossary_subtabs",
-    nav_panel(
-      id = 'glossary_card',
-      title = HTML('<h2>Glossary</h2>'),
-               tabGlossary_instructions,
-        downloadButton('glossary_download_btn', label = 'Download Glossary'),
+    card(
+      card_header(HTML('<h2>Glossary</h2>')),
+      card_body(
+        tabGlossary_instructions,
+        #downloadButton('glossary_download_btn', label = 'Download Glossary'),
         DTOutput("glossary")
+      )
     )
-  )
   ),
   # Changelog tab --------------
   nav_panel(
