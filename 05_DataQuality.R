@@ -133,8 +133,13 @@ dkr_dob <- base_dq_data %>%
   fselect(vars_we_want)
 
 incorrect_dob <- base_dq_data %>%
-  fsubset(AgeAtEntry < 0 | AgeAtEntry > 100) %>%
+  fsubset(AgeAtEntry < 0) %>%
   merge_check_info_dt(checkIDs = 84) %>%
+  fselect(vars_we_want)
+
+over100_dob <- base_dq_data %>%
+  fsubset(AgeAtEntry > 100) %>%
+  merge_check_info_dt(checkIDs = 143) %>%
   fselect(vars_we_want)
 
 # missing_ssn <- base_dq_data %>%
@@ -1876,6 +1881,7 @@ dq_main <- rowbind(
   future_exits,
   hh_issues,
   incorrect_dob,
+  over100_dob,
   invalid_movein_date,
   missing_approx_date_homeless,
   missing_cls_subsidy,
