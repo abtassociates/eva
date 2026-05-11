@@ -20,7 +20,7 @@ output$glossary <- renderDT({
   
 })
 
-output$glossary_download_btn <- downloadHandler(filename = date_stamped_filename('System Performance Glossary', ext = '.pdf'),
+output$glossary_download_btn <- downloadHandler(filename = date_stamped_filename('Eva System Performance Glossary', ext = '.pdf'),
                                          content = function(file){
      file.copy('www/eva_glossary.pdf', file)
 })
