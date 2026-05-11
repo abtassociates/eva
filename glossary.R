@@ -1,6 +1,8 @@
 
 
-gloss <- readxl::read_xlsx('public-resources/system performance glossary.xlsx') %>% as.tibble()
+gloss <- readxl::read_xlsx('public-resources/system performance glossary.xlsx') %>% as_tibble()
+gloss <- gloss |> mutate(Definition = str_replace_all(Definition,c('<br>'= '<br><br>','\\?' = '-', "“" = '"', '”' = '"')))
+gloss <- gloss |> dplyr::filter(Term != 'Percent Difference')
 
 # uncomment when changes are made to the csv and we need to create a new pdf for the download
 #saveRDS(gloss, file = 'sandbox/glossary.rds')
@@ -13,7 +15,7 @@ output$glossary <- renderDT({
     options = list(
       searchHighlight = TRUE
     ),
-    style = "default"
+    style = "default", escape=F
   )
   
 })
