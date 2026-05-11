@@ -50,7 +50,7 @@ session$userData$file_structure_analysis_main(
 )
 
 if(session$userData$file_structure_analysis_main() %>% 
-   fsubset(Priority == "High Priority" & DataTypeHighPriority == 1) %>%
+   fsubset(Priority == "High Priority") %>%
    nrow() > 0) {
   session$userData$valid_file(0)
   

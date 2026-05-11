@@ -169,6 +169,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         default = "Error"
       )
     ) |>
+    fselect(-DataTypeHighPriority) |>
     frename("Column" = Name)
   
   return(final_issues)
