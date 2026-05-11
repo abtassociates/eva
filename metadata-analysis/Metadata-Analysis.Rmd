@@ -724,6 +724,13 @@ counts_by_month %>%
 
 ```{r fig.width=10, fig.height=5}
 
+projected_dl_this_month <- counts_category_month %>% 
+  fsubset(str_detect(EventCategory, "Download")) %>% 
+  fslice(n=2, how='last')
+  
+projected_dl_this_month$n[2] <- round(projected_dl_this_month$n[2] / (lubridate::mday(today()) / lubridate::days_in_month(today())), 0)
+
+
 counts_category_month %>%
   fsubset(str_detect(EventCategory, "Download")) %>%
   #filter(MonthEnding >= as.Date("2023-06-01") & as.Date(MonthEnding) <=("2023-11-30")) %>%
@@ -731,6 +738,9 @@ counts_category_month %>%
   geom_line(linewidth=0.8) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
+   geom_line(data = projected_dl_this_month, aes(x = MonthEnding, y = n), color = eva_colors[1], linetype = 'dashed') +
+    geom_point(data = projected_dl_this_month[2,],  aes(x = MonthEnding, y = n), color = eva_colors[1]) + 
+    geom_text(data=projected_dl_this_month[2,], nudge_x = 9,  aes(x = MonthEnding, y = n), color = eva_colors[1], check_overlap = TRUE) +
   scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   labs(title = "Monthly Eva Downloads - Total Downloads",
