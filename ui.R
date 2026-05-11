@@ -1161,17 +1161,11 @@ nav_menu(
                 title = headerSubTab('Chart'),
                 card(
                   br(),
-                  strong("Select Demographic Crosstab Categories (up to 2)"),
-                  p(str_glue(
-                    "For a simple count of totals within a demographic 
-                                   category, select only one category. To see the 
-                                   intersection of two demographic categories, select 
-                                   both categories to create a crosstab chart. To 
-                                   change your crosstab selection, uncheck at least 
-                                   one of your previous selections before selecting 
-                                   new categories. Note that you can only select one Race/Ethnicity 
-                                   category to display in the chart at a time."
-                  )),
+                  strong("Select Demographic Crosstab Categories (up to 2) and a Destination Type"),
+                  HTML("<p>Select one demographic category to view totals within that group, or two categories to create a crosstab showing intersections between groups. To change your selection, uncheck a category before selecting a new one. You may also apply a Household Type filter, which functions as an additional grouping.</p>
+                        <br>
+                        <p>Select a destination type to determine which exit outcomes are displayed.</p>"
+                  ),
                    br(),
                   layout_columns(
                     col_widths = c(3,3,6),fill=T,
