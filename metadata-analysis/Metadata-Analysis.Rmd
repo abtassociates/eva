@@ -822,7 +822,7 @@ staging_last6months %>%
   scale_fill_manual(values = eva_colors) +
   labs(title = "Proportion of Downloads in Last 6 Months - Data Quality",
        x = "",
-       y = "") +
+       y = "", fill = 'Event Category') +
   theme_minimal()
 
 ```
