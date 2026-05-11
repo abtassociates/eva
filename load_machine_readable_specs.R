@@ -333,16 +333,19 @@ specs_rules <- validation_info %>%
   )
 
 ## 1. Null Unless  ------------
-specs_rules <- specs_rules %>%
-  fsubset(issue_type == "Null Unless") %>%
-  fmutate(
-    codified_rule = Map(clean_rule_for_null_unless, Name, validation_notes),
+specs_rules <- specs_rules[
+  issue_type == "Null Unless",
+  codified_rule := Map(clean_rule_for_null_unless, Name, validation_notes)
+][
+  issue_type == "Null Unless",
+  `:=`(
     rule_expr = unlist(
       purrr::map2(Name, codified_rule, ~rlang::parse_expr(glue("null_unless({.x}, {.y})")))
     ),
     
     readable_validation_notes = humanize_rule(codified_rule, specs_rules, valid_values_df)
   )
+]
 
 ## 2. String Length Limit Exceeded -----------
 specs_rules[
