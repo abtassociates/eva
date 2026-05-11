@@ -34,7 +34,7 @@ function(input, output, session) {
   shinyjs::runjs(
     glue("
             document.getElementById('glossary_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"glossary_download_tab\"></li>');
+              .insertAdjacentHTML('beforeEnd', '<li class=\"sys_download_tab\" id=\"glossary_download_tab\"></li>');
             $('#glossary_download_btn').appendTo('#glossary_download_tab');
           ")
   )
