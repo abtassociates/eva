@@ -271,10 +271,10 @@ sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType",
 #print(colnames(EnrollmentAdjust))
 # full join the results of passing through counting functions
 project_level_util_q <- count_Beds_Units(quarters, extra_groups = sys_grouping_vars) %>%
-  join(count_Enrollments(quarters), how = "left")
+  join(count_Enrollments(quarters, extra_groups = c("HouseholdType")), how = "left")
 
 project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars) %>%
-  join(count_Enrollments(mons), how = "left") 
+  join(count_Enrollments(mons, extra_groups = c("HouseholdType")), how = "left") 
 
 
 
