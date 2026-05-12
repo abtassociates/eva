@@ -495,6 +495,9 @@ hh_avg_m <- reactive({
     project_level_util_m <- project_level_util_m %>% fsubset(HouseholdType == 4)
   }
   
+  # only return a table if anything remains
+  req(nrow(project_level_util_m)>0)
+  
   # Avg selected projects over months
   if(input$bui_hh_type == "All"){
     nightly_avg <- nightly_avg(period = mons, labels = names(mons), projlist = unique(selected_projs$ProjectID))
