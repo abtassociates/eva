@@ -829,7 +829,7 @@ syse_subpop_export_detail <- reactive({
     fungroup() %>% 
     fmutate(pct_subpop = count_subpop /sum(count_subpop, na.rm=T))
   
-  pct_comparison_sub <- everyone_else2() %>% 
+  pct_comparison_sub <- everyone_else() %>% 
     fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
     fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
     fsummarize(count_comparison = GRPN()) %>% 
@@ -864,7 +864,7 @@ syse_subpop_export_detail <- reactive({
             'Everyone Else %' = pct_comparison, 'Everyone Else Count' = count_comparison)#, 'Total Count' = total_count)
 })
 
-everyone_else2 <- reactive({
+everyone_else <- reactive({
   comps()$everyone_else %>% 
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
@@ -912,8 +912,8 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
   validate(need(nrow(subpop()) > 0, no_data_msg))
   validate(need(nrow(subpop()) > 10, suppression_msg))
   
-  validate(need(nrow(everyone_else2()) > 0, no_data_msg))
-  validate(need(nrow(everyone_else2()) > 10, suppression_msg))
+  validate(need(nrow(everyone_else()) > 0, no_data_msg))
+  validate(need(nrow(everyone_else()) > 10, suppression_msg))
   
   
   df_subpop <- subpop() %>% 
@@ -932,7 +932,7 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
     count(`Destination Type`, .drop=FALSE, name='N') %>% 
     fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total))
   
-  .total_e <- fnrow(everyone_else2())
+  .total_e <- fnrow(everyone_else())
   
   count_df <- expand.grid(
     meets_hh_type = c(TRUE, FALSE),
@@ -944,7 +944,7 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
   filt_vars <- c('meets_hh_type','meets_age_filter','meets_race_eth_filter','meets_vet_filter')
   which_factors_changed <- names(which(did_factors_change() == 1))
   
-  count_everyone_else <- everyone_else2() %>%
+  count_everyone_else <- everyone_else() %>%
     count(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter,.drop=F,name='N') %>%
     fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>% 
     #fmutate(pct = N / fsum(N)) %>% 
@@ -1220,7 +1220,7 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
   
   title <- paste0(title_start, 
                   c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(subpop()))),
-                    paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else2())))),
+                    paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else())))),
                   collapse='\n'
   )
   
@@ -1611,7 +1611,7 @@ output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filen
                                                          rowbind(
                                                            sys_export_filter_selections(type = 'exits_subpop'),
                                                            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                                                      Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else2())))
+                                                                      Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else())))
                                                            )
                                                          ) %>% 
                                                          frename("System Exits by Subpopulation" = Value),
@@ -2016,7 +2016,7 @@ content = function(file) {
                             rowbind(
                               sys_export_filter_selections(type = 'exits_subpop'),
                               data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                         Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else2())))
+                                         Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else())))
                               )
                             )
                         ),
