@@ -702,38 +702,6 @@ content = function(file) {
 
 # System Exit Comparisons  ------------------------------------------------
 
-subpop_chart_validation <- function(hh_type, level_of_detail, project_type, raceeth, vetstatus, age, show = TRUE, req = FALSE) {
-  logToConsole(session, "In subpop_chart_validation")
- 
-  cond1 <- hh_type != 'All' | level_of_detail != 'All' | project_type != 'All'
-  cond2 <-  raceeth != "All" | vetstatus != "None" | length(age) != length(sys_age_cats)
-  
-  filter_type <- input$subpop_comparison_type_filter
-  if(filter_type == 'Client-Level'){
-    cond <- cond1
-  } else if(filter_type == 'Demographics'){
-    cond <- cond2
-  } else if(filter_type == 'Both'){
-    cond <- cond1 | cond2
-  }
-  
-  ## whether to show validate message or not
-  if(show){
-    validate(
-      need(
-        cond,#"All Ages",
-        message = "Please select one or more demographic filters to generate the subpopulation chart and table."
-      )
-    )
-  } else if (req){
-    ##  just hide but do not show a duplicate validate message
-    req(cond)
-  } else {
-    ## otherwise, just return TRUE/VALSE of condition
-    return(cond)
-  }
-}
-
 subpop_chart_validation <- function(show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
   
@@ -894,62 +862,6 @@ syse_subpop_export_detail <- reactive({
     fselect(`Destination Type`, `Destination Type Detail`, 'Subpopulation %' = pct_subpop, 'Subpopulation Count' = count_subpop, 
             #'Percent Difference' = pct_diff, 
             'Everyone Else %' = pct_comparison, 'Everyone Else Count' = count_comparison)#, 'Total Count' = total_count)
-})
-
-everyone_else <- reactive({
-  
-  filter_type <- input$subpop_comparison_type_filter
-  
-  if(filter_type == "Client-Level"){
-    enrl <- enrollments_filtered_syse()
-    client <- session$userData$client_categories
-  } else if(filter_type == "Demographics"){
-    enrl <- session$userData$enrollment_categories
-    client <- syse_client_categories_filtered()
-  } else if(filter_type == "Both"){
-    enrl <- session$userData$enrollment_categories
-    client <- session$userData$client_categories
-  }
-  
-  ## first apply enrollment filters, if any
-  enrolled_filt <- join(
-    enrl,
-    client %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID", 
-    how = "inner"
-  )
-  
-  ## get system exits - expand_by_period + get_active...
-  enrolled_w_exits <- enrolled_filt %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_active_info(enrolled_filt) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))  %>% 
-    ## drop rows that are in the filtered version - (everyone minus subpop)
-    fsubset(!(EnrollmentID %in% all_filtered_syse_subpop()$EnrollmentID))
-  
-  ## special case for VeteranStatus: exclude children from Everyone Else group in both Veteran and Non-Veteran cases
-  if(input$syse_spec_pops != sys_spec_pops_people[1]){
-    enrolled_w_exits <- enrolled_w_exits %>% 
-      join(session$userData$client_categories %>% fselect(PersonalID, AgeCategory), how='left') %>% 
-      fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
-  }
-  
-  ## add destination type detail
-  enrolled_w_exits %>% 
-    fmutate(`Destination Type` = fcase(
-      Destination %in% perm_livingsituation, 'Permanent',
-      Destination %in% 100:199, 'Homeless',
-      Destination %in% temp_livingsituation, 'Temporary',
-      Destination %in% institutional_livingsituation, 'Institutional',
-      Destination %in% other_livingsituation, 'Other/Unknown',
-      default = 'Other/Unknown'
-    )) %>% 
-    fmutate(
-      `Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown'))
-    )
-  
 })
 
 everyone_else2 <- reactive({
