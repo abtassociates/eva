@@ -22,7 +22,7 @@ for(csv_name in unique(validation_info$CSV)) {
   # ------- Setup ------------------
   dt <- get(csv_name)
   csv_validation_info <- validation_info %>%
-    fsubset(CSV == csv_name & Name %in% names(dt))
+    fsubset(CSV == csv_name)
   
   unique_id_colname <- unique_id_lookup[CSV == csv_name]$UniqueID
   
@@ -69,6 +69,9 @@ for(csv_name in unique(validation_info$CSV)) {
   # All other checks are dependent on the actual data, so if there is no data, skip
   if(fnrow(dt) == 0)
     next
+  
+  csv_validation_info <- csv_validation_info |>
+    fsubset(Name %in% names(dt))
   
   # Check 6: Incorrect Data Type ----------------
   # includes date and non-date
