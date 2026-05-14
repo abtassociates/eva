@@ -120,7 +120,11 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           fmutate(
             CSV = csv_name,
             Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
-            List = rule_row$List,
+            List = ifelse(
+              paste0(CSV, "_", Name) %in% names(invalid_non_null_dynamic_lists),
+              eval(invalid_non_null_dynamic_lists[paste0(CSV, "_", Name)]),
+              rule_row$List
+            ),
             issue_type = factor(rule_row$issue_type),
             Issue = rule_row$Issue,
             Guidance = rule_row$Guidance,

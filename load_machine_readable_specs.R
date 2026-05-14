@@ -156,6 +156,22 @@ names(valid_list_lookup) <- validation_info$`DE#`
 valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
 
 # Special validation rules -----
+invalid_non_null_dynamic_lists <- list(
+  Disabilities_DisabilityResponse = quote(
+    fifelse(DisabilityType == 10, "4.10.2", "1,8")
+  ),
+  Services_TypeProvided = quote(
+    unname(record_type_list_lookup[as.character(RecordType)])
+  ),
+  Services_SubTypeProvided = quote(
+    fcase(
+      TypeProvided == 3, "V2.A",
+      TypeProvided == 4, "V2.B",
+      TypeProvided == 5, "V2.C"
+    )
+  )
+)
+
 # These could not be easily coded into the specs file itself
 special_validation_rules <- list(
   CEParticipation = list(
