@@ -223,7 +223,7 @@ specs_validation_issues <- rbindlist(
     idcol="CSV"
   ) %>%
   join(
-    reporting_info %>% fselect(CSV, issue_type, Issue, Priority, Guidance, `Detail Text`, `Key Fields`, AnchorID),
+    reporting_info %>% fselect(CSV, List, issue_type, Issue, Priority, Guidance, `Detail Text`, `Key Fields`, AnchorID),
     on = c("CSV","issue_type"),
     drop.dup.cols = "x"
   ) %>%
