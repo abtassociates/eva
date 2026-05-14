@@ -95,7 +95,11 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         is_invalid <- rule(dt)
       } else {
         # If it's a quote/expression, we use eval
-        is_invalid <- eval(rule, envir = as.list(dt), enclos = data_env)
+        is_invalid <- try(eval(rule, envir = as.list(dt), enclos = data_env), silent=TRUE)
+        
+        # IF any component field is not in the dataset, return
+        if(class(is_invalid) == "try-error")
+          return(NULL)
       }
       
       # Subset the dataset to only rows that failed the check
