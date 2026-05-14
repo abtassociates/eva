@@ -49,9 +49,9 @@ unique_id_lookup <- cols_and_data_types |>
 #   Source, Include AnchorID?, Key Fields
 # Pivot gives us: CSV, Name, issue_type, Source, Include, AnchorID, Key Fields
 reporting_info <- cols_and_data_types %>%
-  fselect(-c(`DE#`, Type, List, Null, Notes, Order)) |>
+  fselect(-c(`DE#`, Type, Null, Notes, Order)) |>
   pivot_longer(
-    cols      = -c(CSV, Name),  # keep the identity columns
+    cols      = -c(CSV, List, Name),  # keep the identity columns
     names_to  = c("issue_type", ".value"),
     names_sep = "_"
   ) |>
@@ -333,7 +333,7 @@ specs_rules <- validation_info %>%
   )
 
 ## 1. Null Unless  ------------
-specs_rules <- specs_rules[
+specs_rules[
   issue_type == "Null Unless",
   codified_rule := Map(clean_rule_for_null_unless, Name, validation_notes)
 ][
