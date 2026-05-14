@@ -145,7 +145,7 @@ validation_info <- cols_and_data_types %>%
       Type
     ), 
     is_str = substr(Type, 1, 1) == "S" & Type != "S",
-    str_len_limit = fifelse(is_str, as.numeric(sub("S", "", "S32")), NA),
+    str_len_limit = fifelse(is_str, as.numeric(sub("S", "",Type)), NA),
     nulls_allowed = Null == "Y" & !is.na(Null)
   ) |>
   frename("validation_notes" = Notes)
