@@ -31,40 +31,123 @@ for(csv_name in unique(validation_info$CSV)) {
   # Reports on missing/extra (misspelled column names will count as both) and otherwise misordered
   imported_cols <- colnames(dt)
   expected_cols <- csv_validation_info$Name
-  
-  misordered <- data.table(
-    Name = {
-      ranks <- match(imported_cols, expected_cols)
-      ranks_filled <- fifelse(is.na(ranks), 0L, ranks)
-      
-      
-      # 1. Left-to-Right check: Flags items that jumped backwards
-      # (An item is bad if it's smaller than the maximum rank seen so far)
-      fwd_mismatch <- ranks_filled < cummax(ranks_filled) & !is.na(ranks)
-      
-      # 2. Right-to-Left check: Flags items that jumped forwards (like your '38')
-      # (An item is bad if it's larger than the minimum rank seen from the right)
-      rev_mismatch <- ranks_filled > rev(cummin(rev(ranks_filled))) & !is.na(ranks)
-      
-      # 3. The true "out of order" items are the minority that disrupt the sequence.
-      # We return whichever direction flagged the FEWEST items.
-      if (fsum(fwd_mismatch) < fsum(rev_mismatch)) {
-        imported_cols[fwd_mismatch]
-      } else {
-        imported_cols[rev_mismatch]
+  compare_columns <- function(imported_cols, expected_cols, max_spell_dist = 2) {
+    
+    n_imp <- length(imported_cols)
+    imp_to_exp <- rep(NA_integer_, n_imp)      # Stores the index of the mapped expected col
+    imp_status <- rep(NA_character_, n_imp)    # Stores the highest priority status
+    exp_matched <- rep(FALSE, length(expected_cols))
+    
+    # --- PHASE 1: GREEDY MAPPING ---
+    
+    # 0. Exact Match (Done first so they don't get stolen)
+    for(i in seq_along(imported_cols)) {
+      match_idx <- which(imported_cols[i] == expected_cols & !exp_matched)
+      if (length(match_idx) > 0) {
+        imp_to_exp[i] <- match_idx[1]
+        imp_status[i] <- "Correct"
+        exp_matched[match_idx[1]] <- TRUE
       }
-    },
-    incorrect_column_detail = "misordered"
-  )
+    }
+    
+    # 1. PRIORITY 1: Incorrectly Capitalized
+    for(i in seq_along(imported_cols)) {
+      if (is.na(imp_to_exp[i])) {
+        match_idx <- which(tolower(imported_cols[i]) == tolower(expected_cols) & !exp_matched)
+        if (length(match_idx) > 0) {
+          imp_to_exp[i] <- match_idx[1]
+          imp_status[i] <- "Incorrectly Capitalized"
+          exp_matched[match_idx[1]] <- TRUE
+        }
+      }
+    }
+    
+    # 2. PRIORITY 2: Misspelled
+    for(i in seq_along(imported_cols)) {
+      if (is.na(imp_to_exp[i])) {
+        unmatched_exp <- which(!exp_matched)
+        if (length(unmatched_exp) > 0) {
+          dists <- adist(tolower(imported_cols[i]), tolower(expected_cols[unmatched_exp]))[1, ]
+          min_dist <- min(dists)
+          if (min_dist <= max_spell_dist) {
+            match_idx <- unmatched_exp[which(dists == min_dist)[1]]
+            
+            imp_to_exp[i] <- match_idx
+            imp_status[i] <- "Misspelled"
+            exp_matched[match_idx] <- TRUE
+          }
+        }
+      }
+    }
+    
+    # 4. PRIORITY 4: Extra 
+    # (Anything still unmapped is an extra column)
+    for(i in seq_along(imported_cols)) {
+      if (is.na(imp_to_exp[i])) {
+        imp_status[i] <- "Extra"
+      }
+    }
+    
+    # --- PHASE 2: MINIMAL DISPLACEMENT ORDERING ---
+    
+    # 3. PRIORITY 3: Misordered
+    valid_idx <- which(!is.na(imp_to_exp)) # Only evaluate ordering on columns that actually mapped
+    
+    if (length(valid_idx) > 0) {
+      ranks <- imp_to_exp[valid_idx]
+      
+      # Your Left-to-Right & Right-to-Left Logic
+      fwd_mismatch <- ranks < cummax(ranks)
+      rev_mismatch <- ranks > rev(cummin(rev(ranks)))
+      
+      # Find the subset that disrupts the sequence the least
+      if (sum(fwd_mismatch) < sum(rev_mismatch)) {
+        bad_relative_idx <- which(fwd_mismatch)
+      } else {
+        bad_relative_idx <- which(rev_mismatch)
+      }
+      
+      # Apply "Misordered" ONLY if it wasn't already flagged for Cap/Spell
+      bad_absolute_idx <- valid_idx[bad_relative_idx]
+      for (idx in bad_absolute_idx) {
+        if (imp_status[idx] == "Correct") {
+          imp_status[idx] <- "Misordered"
+        }
+      }
+    }
+    
+    # --- PHASE 3: COMPILE RESULTS ---
+    
+    # Build mapping for expected names
+    expected_match <- rep(NA_character_, n_imp)
+    valid_match_mask <- !is.na(imp_to_exp)
+    expected_match[valid_match_mask] <- expected_cols[imp_to_exp[valid_match_mask]]
+    
+    results <- data.frame(
+      Name = imported_cols,
+      incorrect_column_detail  = imp_status,
+      stringsAsFactors = FALSE
+    )
+    
+    # 4. PRIORITY 4: Missing
+    missing_idx <- which(!exp_matched)
+    if (length(missing_idx) > 0) {
+      missing_df <- data.frame(
+        Name = expected_cols[missing_idx],
+        incorrect_column_detail  = "Missing",
+        stringsAsFactors = FALSE
+      )
+      results <- rbind(results, missing_df)
+    }
+    
+    # Filter out the fully correct ones
+    flagged_cases <- results[results$incorrect_column_detail != "Correct", ]
+    rownames(flagged_cases) <- NULL
+    
+    return(flagged_cases)
+  }
   
-  extra_cols <- setdiff(imported_cols, expected_cols)
-  missing_cols <- setdiff(expected_cols, imported_cols)
-  missing_or_extra <- data.table(
-    Name = c(extra_cols, missing_cols),
-    incorrect_column_detail = c(rep("extra", length(extra_cols)), rep("missing", length(missing_cols)))
-  )
-  
-  incorrect_columns <- rbind(misordered, missing_or_extra)
+  incorrect_columns <- compare_columns(imported_cols, expected_cols, max_spell_dist = 2)
   
   # All other checks are dependent on the actual data, so if there is no data, skip
   if(fnrow(dt) == 0)
