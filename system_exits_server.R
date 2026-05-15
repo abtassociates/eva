@@ -1419,9 +1419,10 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
     ) +
     scale_x_discrete(position='top', labels = label_wrap(15), expand = c(0,0)) +
     scale_y_discrete(labels = label_wrap(15), expand = c(0,0)) +
-    labs(x='', y='') +
+    labs(x='', y='', title = title) +
     theme(panel.spacing = unit(0, "lines"),
           strip.background = element_blank(),
+          plot.title = element_text(size=sys_chart_title_font, hjust = 0.5),
           axis.line = element_blank(),
           panel.grid.major.y =element_blank(),
           strip.placement = "outside",
