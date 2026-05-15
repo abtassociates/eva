@@ -85,7 +85,8 @@ specs_evachecks_issue_xwalk <- c(
   "Impermissible Characters" = "Impermissible Characters",
   "String Length Limit Exceeded" = "Value length exceeds character limit",
   "Foreign Key Missing" = "Identifier does not match across files",
-  "Unallowed Null" = "Nulls not allowed"
+  "Unallowed Null" = "Nulls not allowed",
+  "Conditonally Invalid Value" = "Invalid Value"
 )
 
 reporting_info <- reporting_info |>
@@ -167,7 +168,8 @@ valid_list_lookup <- validation_info$Name
 names(valid_list_lookup) <- validation_info$`DE#`
 valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
 
-# Special validation rules -----
+# Special Cases: Value-Not-in-List  -----
+# These are cases where the valid list of values is dynamic
 invalid_non_null_dynamic_lists <- list(
   Disabilities_DisabilityResponse = quote(
     fifelse(DisabilityType == 10, "4.10.2", "1,8")
@@ -184,27 +186,23 @@ invalid_non_null_dynamic_lists <- list(
   )
 )
 
-# These could not be easily coded into the specs file itself
+
+# Special cases: these are cases that could not be easily codified directly from the specs
 special_validation_rules <- list(
   CEParticipation = list(
-    "Unallowed Null" = list(
-      PreventionAssessment = quote(is.na(PreventionAssessment) & AccessPoint == 1),
-      CrisisAssessment     = quote(is.na(CrisisAssessment)     & AccessPoint == 1),
-      HousingAssessment    = quote(is.na(HousingAssessment)    & AccessPoint == 1),
-      DirectServices       = quote(is.na(DirectServices)       & AccessPoint == 1)
+    "Conditonally Invalid Value" = list(
+      PreventionAssessment = quote((is.na(PreventionAssessment) & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & PreventionAssessment != 0)),
+      CrisisAssessment     = quote((is.na(CrisisAssessment)     & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & CrisisAssessment != 0)),
+      HousingAssessment    = quote((is.na(HousingAssessment)    & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & HousingAssessment != 0)),
+      DirectServices       = quote((is.na(DirectServices)       & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & DirectServices != 0))
     )
   ),
   Client = list(
-    "Non-Null Invalid" = list(
-      RaceNone = function(dt) {
-        race_cols_in_dt <- intersect(race_cols, names(dt))
-        sum_race_cols <- rowSums(
-          get_vars(dt, setdiff(race_cols_in_dt, "RaceNone")),
-          na.rm = TRUE
-        )
-        (!is.na(dt$RaceNone) & sum_race_cols %between% c(1, 98)) |
-          (is.na(dt$RaceNone) & (sum_race_cols == 0 | sum_race_cols >= 99))
-      }
+    "Conditonally Invalid Value" = list(
+      RaceNone = quote(
+        !is.na(RaceNone) & 
+          Reduce(`|`, lapply(mget(intersect(race_cols, ls())), function(x) x %in% 1), init = FALSE)
+      )
     )
   ),
   CurrentLivingSituation = list(
