@@ -263,11 +263,7 @@ special_validation_rules <- list(
       }
     ),
     "Null Unless" = list(
-      SubTypeProvided = quote(
-        (RecordType == 144 & TypeProvided == 3 & !SubTypeProvided %in% valid_values[["V2.A"]]) |
-        (RecordType == 144 & TypeProvided == 4 & !SubTypeProvided %in% valid_values[["V2.B"]]) |
-        (RecordType == 144 & TypeProvided == 5 & !SubTypeProvided %in% valid_values[["V2.C"]])
-      )
+      SubTypeProvided = quote(RecordType == 144 & TypeProvided %in% c(3, 4, 5))
     )
   )
 )
