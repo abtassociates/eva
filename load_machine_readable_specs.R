@@ -165,9 +165,9 @@ invalid_non_null_dynamic_lists <- list(
   ),
   Services_SubTypeProvided = quote(
     fcase(
-      TypeProvided == 3, "V2.A",
-      TypeProvided == 4, "V2.B",
-      TypeProvided == 5, "V2.C"
+      RecordType == 144 & TypeProvided == 3, "V2.A",
+      RecordType == 144 & TypeProvided == 4, "V2.B",
+      RecordType == 144 & TypeProvided == 5, "V2.C"
     )
   )
 )
@@ -257,11 +257,13 @@ special_validation_rules <- list(
       TypeProvided = function(dt) {
         valid_vals <- valid_values[record_type_list_lookup[as.character(dt$RecordType)]]
         !mapply(`%in%`, dt$TypeProvided, valid_vals)
-      },
+      }
+    ),
+    "Null Unless" = list(
       SubTypeProvided = quote(
-        (TypeProvided == 3 & !SubTypeProvided %in% valid_values[["V2.A"]]) |
-          (TypeProvided == 4 & !SubTypeProvided %in% valid_values[["V2.B"]]) |
-          (TypeProvided == 5 & !SubTypeProvided %in% valid_values[["V2.C"]])
+        (RecordType == 144 & TypeProvided == 3 & !SubTypeProvided %in% valid_values[["V2.A"]]) |
+        (RecordType == 144 & TypeProvided == 4 & !SubTypeProvided %in% valid_values[["V2.B"]]) |
+        (RecordType == 144 & TypeProvided == 5 & !SubTypeProvided %in% valid_values[["V2.C"]])
       )
     )
   )

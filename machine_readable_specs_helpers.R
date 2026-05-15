@@ -114,6 +114,8 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         )) |>
           na_omit()
         
+        key <- paste0(csv_name, "_", rule_row$Name)
+        rule_text <- invalid_non_null_dynamic_lists[[key]]
         invalid_dt <- invalid_dt |> 
           fselect(cols_to_select) |>
           funique() |>
@@ -121,8 +123,8 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             CSV = csv_name,
             Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
             List = ifelse(
-              paste0(CSV, "_", Name) %in% names(invalid_non_null_dynamic_lists),
-              eval(invalid_non_null_dynamic_lists[paste0(CSV, "_", Name)]),
+              key %in% names(invalid_non_null_dynamic_lists),
+              eval(rule_text, envir = as.list(invalid_dt)),
               rule_row$List
             ),
             issue_type = factor(rule_row$issue_type),
@@ -200,12 +202,6 @@ humanize_atomic_clause <- function(clause, list_map, valid_values_df, override_l
     
     rhs_p1 <- str_replace(p1_raw, "^.*?\\bis\\b", "")
     rt_vals <- str_extract_all(rhs_p1, "\\d+")[[1]]
-    
-    record_type_list_lookup <- c(
-      "141" = "P1.2", "142" = "R14.2", "143" = "W1.2", "144" = "V2.2",
-      "151" = "W2.2", "152" = "V3.3", "161" = "P2.2", "200" = "4.14",
-      "210" = "V8.2", "300" = "C2.2"
-    )
     
     tp_list_ids <- unique(record_type_list_lookup[rt_vals])
     tp_list_ids <- tp_list_ids[!is.na(tp_list_ids)]
