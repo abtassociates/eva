@@ -150,6 +150,18 @@ validation_info <- cols_and_data_types %>%
   ) |>
   frename("validation_notes" = Notes)
 
+# Manual edits
+validation_info <- validation_info |>
+  fmutate(
+    validation_notes = fcase(
+      CSV == "Project" & Name == "RRHSubType", "Null unless ProjectType = 13",
+      CSV == "Project" & Name == "ResidentialAffilitation", "Null unless ProjectType = 6 or (ProjectType = 13 and RRHSubType = 1)",
+      default = validation_notes
+    ),
+    validation_notes = fifelse(Name == "ProjectType", NA, validation_notes),
+    Null = fifelse(Name == "ProjectType", NA, Null)
+  )
+
 # DE-Variable xwalk/lookup
 valid_list_lookup <- validation_info$Name
 names(valid_list_lookup) <- validation_info$`DE#`
@@ -236,13 +248,6 @@ special_validation_rules <- list(
     ),
     "Unallowed Null" = list(
       SourceName = quote(SourceType != 1 & is.na(SourceName))
-    )
-  ),
-  Project = list(
-    "Unallowed Null" = list(
-      ProjectType            = quote(is.na(ProjectType) & ContinuumProject == 1),
-      RRHSubType             = quote(is.na(RRHSubType) & ProjectType == 13),
-      ResidentialAffiliation = quote(is.na(ResidentialAffiliation) & (ProjectType == 6 | (ProjectType == 13 & RRHSubType == 1)))
     )
   ),
   ProjectCoC = list(
