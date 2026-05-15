@@ -273,7 +273,8 @@ vsps_in_hmis <- session$userData$Project0 %>%
 # should not have 0 enrollments
 zero_utilization <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
-  fsubset(HMISParticipationType == 1, 
+  fsubset(HMISParticipationType == 1 &
+          (is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start), 
           ProjectID, 
           ProjectTimeID, 
           ProjectType,
