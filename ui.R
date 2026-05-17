@@ -1254,6 +1254,8 @@ nav_panel(
             width = 12
           ),
           br(),
+          uiOutput("syse_compare_subpop_filter_selections") %>%
+            withSpinner(),
           div(
             style='margin-left:17px;',
             plotOutput("syse_compare_subpop_chart",

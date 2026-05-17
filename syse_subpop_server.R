@@ -358,36 +358,18 @@ observeEvent(syse_subpop_selections(),{
   }
 })
 
-
-output$syse_compare_subpop_filter_selections <-renderUI({ 
-  req(session$userData$valid_file() == 1)
-  
-  sys_detailBox(
-    detail_type = 'subpop',
-    methodology_type = input$syse_methodology_type,
-    cur_project_types = input$syse_project_type,
-    startDate = session$userData$ReportStart,
-    endDate = session$userData$ReportEnd,
-    age = input$syse_age,
-    spec_pops = input$syse_spec_pops,
-    race_eth = input$syse_race_ethnicity
-  )
-})
-
 output$syse_compare_subpop_filter_selections <-renderUI({ 
   
-  req(!is.null(input$syse_compare_subpop_selections) & session$userData$valid_file() == 1)
+  req(session$userData$valid_file() == 1 & did_factors_change())
   
-  sys_detailBox(selection = input$syse_compare_subpop_selections,
-                detail_type = 'phd',
-                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_compare_subpop_selections, '1',
-                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_compare_subpop_selections, '2', NA)),
-                cur_project_types = input$syse_project_type,
+  sys_detailBox(selection = syse_subpop_selections(),
+                detail_type = 'subpop',
+                methodology_type = input$syse_methodology_type,
                 startDate = session$userData$ReportStart,
                 endDate = session$userData$ReportEnd,
-                age = input$syse_age,
-                spec_pops = input$syse_spec_pops,
-                race_eth = input$syse_race_ethnicity)
+                age = input$syse_subpop_age,
+                spec_pops = input$syse_subpop_spec_pops,
+                race_eth = input[[glue('syse_subpop_race_ethnicity{input$syse_methodology_type}')]])
 })
 
 syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data(output_type = 'chart'),
@@ -518,8 +500,8 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
       size = sys_chart_text_font,
       color = "black"
     ) +
-    scale_x_discrete(position='top', labels = label_wrap(15), expand = c(0,0)) +
-    scale_y_discrete(labels = label_wrap(15), expand = c(0,0)) +
+    scale_x_discrete(position='top', labels = label_wrap(25), expand = c(0,0)) +
+    scale_y_discrete(labels = label_wrap(25), expand = c(0,0)) +
     labs(x='', y='') +
     theme(panel.spacing = unit(0, "lines"),
           strip.background = element_blank(),
