@@ -39,37 +39,6 @@ everyone_else <- reactive({
     ))
 })
 
-## add counts in parens for table formatting
-format_compare_value <- function(count, total){
-  pct <- scales::percent(count/total, accuracy = 1, scale = 100)
-  sprintf('%s (%s)', pct, count)
-}
-
-## % difference: used for subpop charts
-calc_pct_diff <- function(val1, val2, format = 'char'){
-  if(val1 == 0 | val2 == 0){
-    ifelse(format == 'char', '-', NA)
-  } else {
-    pct_diff <- abs(val1 - val2)/((val1 + val2)/2)
-    ifelse(format == 'char', 
-           scales::percent(pct_diff, accuracy = 0.1, scale = 100),
-           pct_diff)
-  }
-}
-
-# % change: used for time charts
-calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='char'){
-  if(count_prev == 0){
-    ifelse(format=='char', '-', NA)
-  } else {
-    pct_change <- (count_current - count_prev) / count_prev
-    
-    ifelse(format == 'char', 
-           scales::percent(pct_change, accuracy = accuracy, scale = 100),
-           pct_change)
-  }
-}
-
 everyone <- reactive({
   all_filtered_syse_time() %>% 
     fmutate(`Destination Type` = fcase(
