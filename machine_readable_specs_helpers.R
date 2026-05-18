@@ -135,19 +135,16 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         )) |>
           na_omit()
         
-        key <- paste0(csv_name, "_", rule_row$Name)
-        rule_text <- invalid_non_null_dynamic_lists[[key]]
-        invalid_dt <- invalid_dt |> 
+        invalid_dt <- invalid_dt |>
           fselect(cols_to_select) |>
           funique() |>
           fmutate(
             CSV = csv_name,
             Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
-            List = ifelse(
-              key %in% names(invalid_non_null_dynamic_lists),
-              eval(rule_text, envir = as.list(invalid_dt)),
-              rule_row$List
-            ),
+            List = if(is.na(rule_row$List))
+              eval(parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name]$rule_text), envir = invalid_dt)
+            else
+              rule_row$List,
             issue_type = factor(rule_row$issue_type),
             Issue = rule_row$Issue,
             Guidance = rule_row$Guidance,
@@ -156,6 +153,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             AnchorID = rule_row$AnchorID,
             str_len_limit = rule_row$str_len_limit,
             validation_notes = rule_row$validation_notes,
+            readable_validation_notes = rule_row$readable_validation_notes,
             key_template = fifelse(is.na(rule_row$`Key Fields`), "", gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)),
             detail_template = stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template) %>%
               stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))

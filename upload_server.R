@@ -73,6 +73,8 @@ process_upload <- function(upload_filename, upload_filepath) {
     dq_and_pdde_dependencies[["csv_join_prerequisites"]] <- csv_join_prerequisites
     dq_and_pdde_dependencies[["specs_rules"]] <- specs_rules
     dq_and_pdde_dependencies[["reporting_info"]] <- reporting_info
+    dq_and_pdde_dependencies[["invalid_non_null_dynamic_lists_dt"]] <- invalid_non_null_dynamic_lists_dt
+    dq_and_pdde_dependencies[["null_unless_additional_reqs"]] <- null_unless_additional_reqs
     
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,
