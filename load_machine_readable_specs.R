@@ -292,7 +292,7 @@ special_validation_rules_dt <- rbindlist(
               CSV   = csv,
               Issue = issue,
               Name  = name,
-              rule  = list(special_validation_rules[[csv]][[issue]][[name]])
+              rule_expr  = list(special_validation_rules[[csv]][[issue]][[name]])
             )
           })
         )
@@ -380,6 +380,9 @@ specs_rules <- validation_info %>%
 ## 1. Null Unless  ------------
 specs_rules[
   issue_type == "Null Unless",
+  validation_notes := str_split_i(validation_notes, "\r\n", 1)
+][
+  issue_type == "Null Unless",
   codified_rule := Map(clean_rule_for_null_unless, Name, validation_notes)
 ][
   issue_type == "Null Unless",
@@ -452,13 +455,12 @@ specs_rules[
   )
 ]
 
-
 ## 7. Special rules --------------
 # overwrites the rule_expr column with the new special rule
 specs_rules[
   special_validation_rules_dt,
   on = c("CSV", "Name", "issue_type" = "Issue"),
-  rule_expr := i.rule
+  rule_expr := i.rule_expr
 ]
 
 print("saving specs_prepped.rds file")

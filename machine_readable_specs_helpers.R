@@ -165,7 +165,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
                    else as.character(get(AnchorID[1L])),
                    by = AnchorID]
         
-        # 4. Final Cleanup: Select ONLY the columns you want in the final output
+        # 4. Final Cleanup
         # Note: Add the columns you need for your UI here
         invalid_dt <- invalid_dt |>
           fselect(c(issue_display_cols, "CSV", "Name", "AnchorID", "AnchorValue")) |>

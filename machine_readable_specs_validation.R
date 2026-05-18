@@ -80,7 +80,7 @@ for(csv_name in unique(validation_info$CSV)) {
       }
     }
     
-    # 4. PRIORITY 4: Extra 
+    # 3. PRIORITY 3: Extra 
     # (Anything still unmapped is an extra column)
     for(i in seq_along(imported_cols)) {
       if (is.na(imp_to_exp[i])) {
@@ -90,7 +90,7 @@ for(csv_name in unique(validation_info$CSV)) {
     
     # --- PHASE 2: MINIMAL DISPLACEMENT ORDERING ---
     
-    # 3. PRIORITY 3: Misordered
+    # 4. PRIORITY 4: Misordered
     valid_idx <- which(!is.na(imp_to_exp)) # Only evaluate ordering on columns that actually mapped
     
     if (length(valid_idx) > 0) {
@@ -129,7 +129,7 @@ for(csv_name in unique(validation_info$CSV)) {
       stringsAsFactors = FALSE
     )
     
-    # 4. PRIORITY 4: Missing
+    # 5. PRIORITY 5: Missing
     missing_idx <- which(!exp_matched)
     if (length(missing_idx) > 0) {
       missing_df <- data.frame(
