@@ -87,6 +87,27 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       
       # print(glue::glue("rule_row = {rule_row[, .(Name, rule_expr)]}"))
       
+      # For null-unless, add conditional funder+project type reqs
+      # that is, we only run the check if the Funder and ProjectType match the specs
+      if(rule_row$issue_type == "Null Unless") {
+        nu <- null_unless_additional_reqs |>
+          fsubset(CSV == csv_name & Name == rule_row$Name & (!is.na(Funder) | !is.na(ProjectType)))
+        
+        if(fnrow(nu) > 0)
+          dt <- dt |>
+            fsubset(
+              (!is.na(nu$Funder) & Funder %in% nu$Funder) |
+              (!is.na(nu$ProjectType) & ProjectType %in% nu$ProjectType)
+            )
+      }
+      
+      if(fnrow(dt) == 0) return(NULL)
+      
+      if(csv_name == "Exit" & rule_row$Name == "ProjectCompletionStatus" & target_source == "dq")
+        browser()
+      if(csv_name == "Event" & rule_row$Name == "ResultDate" & target_source == "dq")
+        browser()
+      
       # EVALUATE THE RULE:
       # envir = as.list(dt) means it looks for column names first
       # enclos = data_env means if it needs foreign tables (get('Project')) or lists (valid_values), it looks in the data environment

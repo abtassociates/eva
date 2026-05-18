@@ -375,26 +375,7 @@ null_unless_additional_reqs <-  readxl::read_xlsx(validation_specs_bk, sheet = "
 specs_rules <- validation_info %>%
   join(reporting_info, on = c("CSV", "Name"), multiple=TRUE) %>%
   # Initialize an empty list column to hold the parsed expressions
-  fmutate(rule_expr = list(NULL)) %>%
-  join(
-    null_unless_additional_reqs,
-    on = c("CSV", "Name"),
-    column = TRUE
-  ) %>%
-  fmutate(
-    # Clean up the Notes string just for Null Unless checks
-    validation_notes = fifelse(
-      issue_type == "Null Unless", 
-      str_split_i(validation_notes, "\r\n", 1), 
-      validation_notes
-    ),
-    # Append the Funder logic to the text BEFORE parsing
-    validation_notes = fifelse(
-      issue_type == "Null Unless" & .join == "matched", 
-      paste0(validation_notes, " & ", additional_reqs), 
-      validation_notes
-    )
-  )
+  fmutate(rule_expr = list(NULL))
 
 ## 1. Null Unless  ------------
 specs_rules[
