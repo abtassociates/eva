@@ -93,20 +93,14 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         nu <- null_unless_additional_reqs |>
           fsubset(CSV == csv_name & Name == rule_row$Name & (!is.na(Funder) | !is.na(ProjectType)))
         
-        if(fnrow(nu) > 0)
-          dt <- dt |>
-            fsubset(
-              (!is.na(nu$Funder) & Funder %in% nu$Funder) |
-              (!is.na(nu$ProjectType) & ProjectType %in% nu$ProjectType)
-            )
+        if(!is.na(nu$Funder))
+          dt <- dt |> fsubset(Funder %in% nu$Funder)
+        
+        if(!is.na(nu$ProjectType))
+          dt <- dt |> fsubset(ProjectType %in% nu$ProjectType)
       }
       
       if(fnrow(dt) == 0) return(NULL)
-      
-      if(csv_name == "Exit" & rule_row$Name == "ProjectCompletionStatus" & target_source == "dq")
-        browser()
-      if(csv_name == "Event" & rule_row$Name == "ResultDate" & target_source == "dq")
-        browser()
       
       # EVALUATE THE RULE:
       # envir = as.list(dt) means it looks for column names first
