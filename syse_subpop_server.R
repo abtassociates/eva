@@ -93,14 +93,7 @@ syse_subpop_export_detail <- reactive({
   ## compute subcategories of destination types for data export - not shown in chart or table
   pct_subpop_sub <- subpop() %>% 
     fselect( Destination, PersonalID, EnrollmentID) %>% 
-    fmutate(`Destination Type` = fcase(
-      Destination %in% perm_livingsituation, 'Permanent',
-      Destination %in% 100:199, 'Homeless',
-      Destination %in% temp_livingsituation, 'Temporary',
-      Destination %in% institutional_livingsituation, 'Institutional',
-      Destination %in% other_livingsituation, 'Other/Unknown',
-      default = 'Other/Unknown'
-    ))  %>% 
+    add_destination_type() %>% 
     fmutate(`Destination Type Detail` = living_situation(Destination)) %>%     
     fgroup_by(`Destination Type`, `Destination Type Detail`, sort = TRUE) %>% 
     fsummarize(count_subpop = GRPN()) %>% 
@@ -235,6 +228,11 @@ comps <- reactive({
 
 subpop <- reactive({comps()$subpop})
 
+everyone_else <- reactive({
+  comps()$everyone_else %>% 
+    add_destination_type()
+})
+
 get_syse_compare_subpop_data <- function(output_type = 'table'){
   
   validate(need(nrow(subpop()) > 0, no_data_msg))
@@ -245,14 +243,7 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
   
   
   df_subpop <- subpop() %>% 
-    fmutate(`Destination Type` = factor(fcase(
-      Destination %in% perm_livingsituation, 'Permanent',
-      Destination %in% 100:199, 'Homeless',
-      Destination %in% temp_livingsituation, 'Temporary',
-      Destination %in% institutional_livingsituation, 'Institutional',
-      Destination %in% other_livingsituation, 'Other/Unknown',
-      default = 'Other/Unknown'
-    ), levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
+    add_destination_type(as_factor = TRUE)
   
   .total_s <- fnrow(df_subpop)
   
