@@ -166,24 +166,6 @@ names(valid_list_lookup) <- validation_info$`DE#`
 valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
 
 # Special Cases: Value-Not-in-List  -----
-# These are cases where the valid list of values is dynamic
-invalid_non_null_dynamic_lists <- list(
-  Disabilities_DisabilityResponse = quote(
-    fifelse(DisabilityType == 10, "4.10.2", "1,8")
-  ),
-  Services_TypeProvided = quote(
-    unname(record_type_list_lookup[as.character(RecordType)])
-  ),
-  Services_SubTypeProvided = quote(
-    fcase(
-      RecordType == 144 & TypeProvided == 3, "V2.A",
-      RecordType == 144 & TypeProvided == 4, "V2.B",
-      RecordType == 144 & TypeProvided == 5, "V2.C"
-    )
-  )
-)
-
-
 # Special cases: these are cases that could not be easily codified directly from the specs
 special_validation_rules <- list(
   CEParticipation = list(
@@ -272,6 +254,33 @@ special_validation_rules <- list(
     )
   )
 )
+
+invalid_non_null_dynamic_lists <- list(
+  Disabilities_DisabilityResponse = quote(
+    fifelse(DisabilityType == 10, "4.10.2", "1,8")
+  ),
+  Services_TypeProvided = quote(
+    unname(record_type_list_lookup[as.character(RecordType)])
+  ),
+  Services_SubTypeProvided = quote(
+    fcase(
+      RecordType == 144 & TypeProvided == 3, "V2.A",
+      RecordType == 144 & TypeProvided == 4, "V2.B",
+      RecordType == 144 & TypeProvided == 5, "V2.C"
+    )
+  )
+)
+
+invalid_non_null_dynamic_lists_dt <- data.table(
+  k = names(invalid_non_null_dynamic_lists),
+  rule_text = unname(invalid_non_null_dynamic_lists)
+)[
+  , c("CSV", "Name") := tstrsplit(k, "_", fixed = TRUE)
+][
+  , k := NULL
+]
+
+
 
 special_validation_rules_dt <- rbindlist(
   lapply(names(special_validation_rules), function(csv) {
