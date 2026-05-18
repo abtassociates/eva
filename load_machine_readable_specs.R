@@ -257,7 +257,15 @@ special_validation_rules <- list(
       TypeProvided = function(dt) {
         valid_vals <- valid_values[record_type_list_lookup[as.character(dt$RecordType)]]
         !mapply(`%in%`, dt$TypeProvided, valid_vals)
-      }
+      },
+      SubTypeProvided = quote(
+        fcase(
+          RecordType == 144 & TypeProvided == 3, !SubTypeProvided %in% valid_values[["V2.A"]],
+          RecordType == 144 & TypeProvided == 4, !SubTypeProvided %in% valid_values[["V2.B"]],
+          RecordType == 144 & TypeProvided == 5, !SubTypeProvided %in% valid_values[["V2.C"]],
+          default = FALSE
+        )
+      )
     ),
     "Null Unless" = list(
       SubTypeProvided = quote(RecordType == 144 & TypeProvided %in% c(3, 4, 5))
