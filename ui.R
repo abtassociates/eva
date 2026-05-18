@@ -14,46 +14,9 @@ page_navbar(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
+      tags$script(src = "js/disconnect.js"),
       tags$script(HTML(
-        "function idleTimer() {
-          var timeoutTime = 900000; //15 mins
-          var t = setTimeout(showTimeoutDialog, timeoutTime);
-          window.onmousemove = resetTimer;
-          window.onmousedown = resetTimer;
-          window.onclick = resetTimer;
-          window.onscroll = resetTimer;
-          window.onkeypress = resetTimer;
-      
-          function showTimeoutDialog() {
-            document.querySelector('a[data-value=\"tabHome\"]').click();
-            
-            // If user clicks Cancel, disable all interactivity
-            document.body.style.opacity = '0.5';
-            document.body.style.pointerEvents = 'none';
-            
-            // Add a banner at the top of the page
-            var banner = document.createElement('div');
-            banner.style.position = 'fixed';
-            banner.style.top = '40%';
-            banner.style.left = '0';
-            banner.style.width = '100%';
-            banner.style.padding = '10px';
-            banner.style.backgroundColor = 'lightgray';
-            banner.style.color = 'black';
-            banner.style.fontSize = '2em';
-            banner.style.textAlign = 'center';
-            banner.style.zIndex = '9999';
-            banner.innerHTML = 'Session ended due to inactivity. Please refresh the page to continue.';
-            document.body.appendChild(banner);
-          }
-      
-          function resetTimer() {
-              clearTimeout(t);
-              t = setTimeout(showTimeoutDialog, timeoutTime);
-          }
-        }
-        idleTimer();
-                       
+        "
         var dimension = [0, 0];
         $(document).on('shiny:connected', function(e) {
           dimension[0] = window.innerWidth;
@@ -66,7 +29,11 @@ page_navbar(
           Shiny.setInputValue('dimension', dimension);
         });
         "
-      ))
+      )),
+      tags$div(
+        id = "timeout-overlay",
+        "Session ended due to inactivity. Please refresh the page to continue..."
+      )
     ),
     ## Enable shinyjs -----
     useShinyjs(),
@@ -1035,16 +1002,14 @@ nav_menu(
   nav_panel(
     title = "Glossary",
     value = "tabGlossary",
-    navset_card_underline(
-      id = "glossary_subtabs",
-    nav_panel(
-      id = 'glossary_card',
-      title = HTML('<h2>Glossary</h2>'),
-               tabGlossary_instructions,
-        downloadButton('glossary_download_btn', label = 'Download Glossary'),
+    card(
+      card_header(HTML('<h2>Glossary</h2>')),
+      card_body(
+        tabGlossary_instructions,
+        #downloadButton('glossary_download_btn', label = 'Download Glossary'),
         DTOutput("glossary")
+      )
     )
-  )
   ),
   # Changelog tab --------------
   nav_panel(
