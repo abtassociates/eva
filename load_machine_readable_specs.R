@@ -355,14 +355,19 @@ csv_join_prerequisites <- list(
   )
 )
 
-# Funder-specific Null Unless Fields -------------------
+# Funder- and Project-Type specific Null Unless Fields -------------------
 # These are fields for whose Null checks (as part of the Null Unless checks)
 # should only apply when Funder in c(13:19)
 null_unless_additional_reqs <-  readxl::read_xlsx(validation_specs_bk, sheet = "NullUnless - Additional Reqs") |>
   qDT() |>
   fselect(CSV, Name, Funder, ProjectType) |>
-  fmutate(additional_reqs = paste0("Funder in ", Funder, " & ProjectType in ", ProjectType))
-
+  fmutate(
+    additional_reqs = fcase(
+      !is.na(Funder) & !is.na(ProjectType), paste0("Funder in ", Funder, " & ProjectType in ", ProjectType),
+      !is.na(Funder), paste0("Funder in ", Funder),
+      !is.na(ProjectType), paste0("ProjectType in ", ProjectType)
+    )
+  )
 
 # Create Master Rules table ----------------
 # Includes all validation and reporting info
