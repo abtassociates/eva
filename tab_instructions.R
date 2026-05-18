@@ -1027,21 +1027,12 @@ of clients who exited your homeless system by the end of the report period.</p>
                                     ")
 
 tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
-                                <p>The Exits by Type chart is a treemap that shows the number of clients who
-                                exited the homeless system by destination type. The chart summarizes the total exits 
-                                from the system into five destination categories: Permanent, Temporary, Homeless,
-                                Institutional, and Other/Unknown. The relative size of each box corresponds to 
-                                the number of exits in that category. Larger boxes mean more exits to that type
-                                of destination. Percentages represent each category’s share of the total exits during the reporting period.</p>
+                                <p>The Exits by Type chart is a treemap that shows the number of clients who exited the homeless system by destination type. This chart helps you identify the most common types of system exits. The client universe for this chart is the number of clients who exited the homeless system and who were not active in the system on the last day of the report. While a client may have multiple system exits during the report period, only the latest exit is used when determining the destination type. </p>
                                 <br>
-                                <p>The client universe for this chart is the number of clients who exited the homeless 
-                                system and who were not active in the system on the last day of the report. A system 
-                                exit is defined as an exit from any project where there is no subsequent enrollment 
-                                in any project for the client in the 14 days following the exit. While a client may 
-                                have multiple system exits during the report period, only the latest exit is used when
-                                determining the destination type.</p>
+                                <p>The chart summarizes the total exits from the system into five destination categories: Permanent, Temporary, Homeless, Institutional, and Other/Unknown. The relative size of each box corresponds to the number of exits in that category. Larger boxes mean more exits to that type of destination. Percentages represent each category’s share of the total exits during the reporting period.</p>
                                 <br>
-
+                                <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>
+                                <br>
                                 <h4>Interpretation Tips</h4>
                                 <p>This section provides general tips on how to 
                                 interpret the chart. Depending on the data you uploaded, 
@@ -1081,18 +1072,53 @@ tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                  </table>")
 
 tab_syse_time_chart_information <- HTML("<h4>Chart Overview</h4>
-                                        <p>The Exits by Year chart compares the current year's system exits against the previous year's system exits. This chart can help with system modeling as it highlights potential trends in system exits by destination type across time.<p>
+                                        <p>The Exits by Year chart compares the Current Year's system exits against the Previous Year's system exits. This chart highlights potential trends in system exits by destination type across time. The client universe for the Current Year is the number of clients who exited the homeless system by the end of the current year's report period. The client universe for the Previous Year is the number of clients who exited the homeless system within the 12 months prior to the start of the Current Year.<p>
                                         <br>
                                         <p>Each destination type has two bars that represent the percentage of exits for the current year and previous year. These bars show whether the percentage increased, decreased, or stayed the same from one year to the next. Below the chart is a table with the percentages, as well as the percentage change between the two years.<p>
+                                        <br>
+                                        <p>The <b>Percentage Change</b> value is represented by:</p><br>
+                                        <pre><code>Percentage Change = (Current Year - Previous Year)/ Current Year x 100%</code></pre>
+                                  
                                         <br>
                                         <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
 
 tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
-                                          <p>The Exits by Subpopulation chart compares system exits for the selected subpopulation against the system exits of everyone else not part of that subpopulation. This chart can help with system modeling as it highlights potential trends in system exits across various subpopulations.</p>
+                                          <p>The Exits by Subpopulation chart shows system exits by destination type for a selected subpopulation. The chart helps highlight outcomes for the subpopulation group as well as outcomes for everyone not included in the subpopulation. The client universe for this chart is everyone who exited the homeless system by the end of the report period.</p>
+                                          <h5>Creating a Subpopulation</h5>
                                           <br>
-                                          <p>To view this chart, you must select one or more demographic filters (Age, Veteran Status, and Race/Ethnicity). Each destination type has two bars that represent the percentage of exits for the subpopulation group and everyone else. Below the chart is a table with the percentages, as well as the percentage difference between the two groups.</p>
+                                          <p>You can create a subpopulation by selecting one to three population characteristics that can include household type and different demographics. Note that the chart will not display until you select at least one population characteristic. </p>
                                           <br>
-                                          <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
+                                          <p>Use the Household Type filter in the Filters Menu above the chart to select a Household Type. Only one household type can be selected at a time. If the Household Type filter is left at the default, “All Household Types,” the subpopulation will include system exits for all households regardless of household type.</p>
+                                          <br>
+                                          <p>Under the chart tab are three demographic categories: Age, Race/Ethnicity, and Veteran Status. Up to two demographic categories can be selected at a time.</p>
+                                          <br>
+                                          <h5>Understanding the Chart Display</h5>
+                                          <br>
+                                          <p>Selecting a single population characteristic shows a simple count of totals within that characteristic. Selecting two to three population characteristics creates a crosstab chart that shows the intersections between those characteristics.</p>
+                                          <br>
+                                          <p>Each cell in the chart represents a unique population group. The purple cell represents your selected subpopulation. Gray cells represent clients who are not part of the subpopulation.</p>
+                                          <br>
+                                          <p>Each cell in the chart displays:</p>
+                                          <ul>
+                                          <li>The percentage of people in that group who exited to the selected destination type</li>
+                                          <li>The number of people who exited to the selected destination type</li>
+                                          <li>The total number of people in that group who exited to any destination</li>
+                                          </ul>
+                                          <br>
+                                          <p>There are also five Destination Type Filters used to select the exit destination shown in the chart: Permanent, Homeless, Institutional, Temporary, and Other/Unknown. The selected destination type determines which exits are counted and displayed.</p>
+                                          <br>
+                                          <h5>Data Suppression</h5>
+                                          <br>
+                                          <p>Additional levels of data suppression apply to the Exits by Subpopulation Chart. </p>
+                                          <ul>
+                                          <li>Any value less than 11 is suppressed, including totals.</li>
+                                          <li>If there is only one suppressed value within a row or column, the next highest value is also suppressed.</li>
+                                          <li>If all individual cells in the chart have values of less than eleven (11), the chart will not display.</li>
+                                          </ul>
+                                          <p> All suppressed values are represented by *** in the chart.</p>
+                                          <br>
+                                          <p>Please note that while data can be suppressed in the Exits by Subpopulation chart in Eva and in its image download, the data in the chart’s data download will not be suppressed. Be careful how you save and share the data download, which is an Excel export. With smaller numbers, clients can become more identifiable in the data. Before you share the Excel export, feel free to modify, add, or remove anything as you see fit to preserve client anonymity.</p>
+                                          ")
 
 tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                          <p>The Exits to PH Demographics chart shows the demographic make-up of 
