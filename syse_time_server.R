@@ -1,8 +1,4 @@
 
-
-compare_export_bar_width <- 0.4
-compare_bar_width <- 0.4
-
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
@@ -106,7 +102,6 @@ get_syse_compare_time_data <- function(output_type = 'table'){
   
 }
 
-
 syse_time_export <- reactive({
   
   prev_year <- everyone() %>% 
@@ -158,9 +153,8 @@ syse_time_export <- reactive({
   
 })
 
-
-## function to make System Exits comparison subpopulation chart
-syse_compare_time_chart <- function( isExport = FALSE){
+## function to make System Exits time chart
+get_syse_compare_time_chart <- function( isExport = FALSE){
   
   time_colors <- c(
     "Current Year" = get_brand_color('med_purple'),
@@ -179,6 +173,9 @@ syse_compare_time_chart <- function( isExport = FALSE){
   ## wide format needed for plotting arrows between points
   time_segment_df <- time_chart_df %>% 
     pivot_wider(names_from = 'time_summ', values_from = 'time_pct')
+  
+  compare_export_bar_width <- 0.4
+  compare_bar_width <- 0.4
   
   ## add x-axis labels for PPT download only
   if(isExport){
@@ -228,7 +225,7 @@ syse_compare_time_chart <- function( isExport = FALSE){
   }
 }
 
-## function for System Exits Comparison subpopulation table (below chart)
+## function for System Exits time table (below chart)
 get_syse_compare_time_table <- function(tab){
   
   time_colors <- c(
@@ -289,6 +286,7 @@ get_syse_compare_time_table <- function(tab){
   
 }
 
+## function for System Exits time flextable (in PPT download)
 get_syse_compare_time_flextable <- function(tab) {
   logToConsole(session, "In get_syse_compare_time_flextable")
   
@@ -363,12 +361,11 @@ output$syse_compare_time_filter_selections <- renderUI({
   )
 })
 
-
 output$syse_compare_time_chart <- renderPlot({
   time_chart_validation(startDate = session$userData$meta_HUDCSV_Export_Start, endDate = session$userData$meta_HUDCSV_Export_End,
                         input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
                         show = TRUE)
-  syse_compare_time_chart()
+  get_syse_compare_time_chart()
 })
 
 output$syse_compare_time_table <- renderDT({
@@ -436,7 +433,7 @@ content = function(file) {
                           ) 
                       ),
                       plots = list(
-                        "System Exits by Year - Chart" = syse_compare_time_chart(isExport = TRUE),
+                        "System Exits by Year - Chart" = get_syse_compare_time_chart(isExport = TRUE),
                         "System Exits by Year - Table" = get_syse_compare_time_flextable(
                           get_syse_compare_time_data(output_type = 'table')
                         )

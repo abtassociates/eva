@@ -1,5 +1,5 @@
 
-syse_types_chart <- function(varname, status, show_legend = FALSE){
+get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   
   tree_colors <- c(
     "Permanent" = get_brand_color('dark_blue'),
@@ -90,7 +90,7 @@ output$syse_types_filter_selections <- renderUI({
 
 output$syse_types_ui_chart <- renderPlot({
   
-  syse_types_chart("Destination Type", input$syse_dest_type_filter)
+  get_syse_types_chart("Destination Type", input$syse_dest_type_filter)
 })
 
 output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits by Type Report - "), content = function(file) {
@@ -136,7 +136,7 @@ content = function(file) {
                         fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
                         rowbind(sys_export_filter_selections(type = 'exits'),
                                 data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
-                      plots = list("System Exits by Type" = syse_types_chart("Destination Type", input$syse_dest_type_filter)),
+                      plots = list("System Exits by Type" = get_syse_types_chart("Destination Type", input$syse_dest_type_filter)),
                       summary_font_size = 19,
                       startDate = session$userData$ReportStart, 
                       endDate = session$userData$ReportEnd, 
