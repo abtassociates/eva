@@ -131,6 +131,7 @@ valid_values <- split(valid_values_df$Value, valid_values_df$List)
 # Read in Validation Info ----------------
 # This tab includes all csvs, columns, data types, 
 # corresponding valid values list info, and additional validation rule notes
+## Manual edits ----
 validation_info <- cols_and_data_types %>%
   fselect(CSV, `DE#`, Name, Type, List, Null, Notes, Order, additional_notes) %>%
   fsubset(!CSV %in% c("AssessmentResults","AssessmentQuestions")) %>%
@@ -147,21 +148,17 @@ validation_info <- cols_and_data_types %>%
     ), 
     is_str = substr(Type, 1, 1) == "S" & Type != "S",
     str_len_limit = fifelse(is_str, as.numeric(sub("S", "",Type)), NA),
-    nulls_allowed = Null == "Y" & !is.na(Null)
-  ) |>
-  frename("validation_notes" = Notes)
-
-# Manual edits
-validation_info <- validation_info |>
-  fmutate(
-    validation_notes = fcase(
+    nulls_allowed = Null == "Y" & !is.na(Null),
+    Notes = fcase(
       CSV == "Project" & Name == "RRHSubType", "Null unless ProjectType = 13",
       CSV == "Project" & Name == "ResidentialAffilitation", "Null unless ProjectType = 6 or (ProjectType = 13 and RRHSubType = 1)",
-      default = validation_notes
+      Name == "ProjectType", NA,
+      default = Notes
     ),
-    validation_notes = fifelse(Name == "ProjectType", NA, validation_notes),
-    Null = fifelse(Name == "ProjectType", NA, Null)
-  )
+    Null = fifelse(Name == "ProjectType", NA, Null),
+    List = fifelse(List == "(see note)", NA, List)
+  ) |>
+  frename("validation_notes" = Notes)
 
 # DE-Variable xwalk/lookup
 valid_list_lookup <- validation_info$Name
