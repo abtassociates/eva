@@ -303,27 +303,55 @@ special_validation_rules_dt <- rbindlist(
 
 # Supplemental files needed for specific CSVs -----------
 csv_join_prerequisites <- list(
-  Inventory = list(
-    list(tbl = "Project", on = "ProjectID", cols = "ProjectType")
-  ),
   CurrentLivingSituation = list(
     list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
     list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType")
   ),
+  EmploymentEducation = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
+    list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
+  ),
   Enrollment = list(
     list(tbl = "ProjectCoC", on = c("ProjectID" = "ProjectID", "EnrollmentCoC" = "CoCCode"), column = TRUE),
-    list(tbl = "Project",    on = "ProjectID",    cols = "ContinuumProject")
+    list(tbl = "Project",    on = "ProjectID",    cols = c("ContinuumProject", "ProjectType")),
+    list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
+  ),
+  Exit = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
+    list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
   ),
   Disabilities = list(
     list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
+    list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
+  ),
+  HealthAndDV = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
     list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
   ),
   IncomeBenefits = list(
     list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
-    list(tbl = "Funder", on = "ProjectID", cols = "Funder")
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
+    list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
+  ),
+  Inventory = list(
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType")
   ),
   Organization = list(
-    list(tbl = "Project", on = "OrganizationID", cols = "ProjectID")
+    list(tbl = "Project",    on = "OrganizationID", cols = "ProjectID")
+  ),
+  Services = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
+    list(tbl = "Funder", on = "ProjectID", cols = "Funder")
+  ),
+  YouthEducationStatus = list(
+    list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
+    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType"),
+    list(tbl = "Funder", on = "ProjectID", cols = "Funder")
   )
 )
 
