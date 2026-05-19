@@ -118,18 +118,24 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
-cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
+files_to_ignore <- c(
+  # "Affiliation",
+  "AssessmentResults",
+  "AssessmentQuestions" #,
+  # "Disabilities"
+)
+
+column_priorities <- read_csv(here("public-resources/columns.csv"), 
                                 col_types = cols()) %>%
-  fsubset(!(File %in% c("Affiliation",
-                       "AssessmentResults",
-                       "AssessmentQuestions",
-                       "Disabilities")))
+  fsubset(!File %in% files_to_ignore)
 
 data_type_mapping <- list(
-  character = "character",
-  numeric = "numeric",
-  date = "Date",
-  datetime = "POSIXct"
+  "S" = list("RClass" = "character", "readable" = "string"),
+  "T" = list("RClass" = "POSIXct", "readable" = "datetime"),
+  "D" = list("RClass" = "Date", "readable" = "date"),
+  "I" = list("RClass" = "integer", "readable" = "integer"),
+  "M+" = list("RClass" = "numeric", "readable" = "decimal"),
+  "M" = list("RClass" = "numeric", "readable" = "decimal")
 )
 
 # Allowed Subsidy Types ---------------------------------------------------
@@ -137,9 +143,9 @@ data_type_mapping <- list(
 subsidy_types <- c(419, 420, 428, 431, 433, 434, 436, 437, 438, 439, 440)
 
 # Issue types and levels --------------------------------------------------
-issue_levels <- c("High Priority", "Error", "Warning")
+issue_priorities <- c("High Priority", "Error", "Warning")
 
-issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
+issue_display_cols <- c("Issue", "Priority", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 
@@ -444,7 +450,8 @@ pdde_mirai_dependencies <- c(
   "ProjectCoC",
   "activeInventory",
   "HMISParticipation",
-  "CEParticipation"
+  "CEParticipation",
+  "Project"
 )
 
 enrollment_cols <- c(

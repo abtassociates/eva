@@ -22,7 +22,7 @@ detect_bracket_characters <- function(dt, file) {
 }
 
 bracket_files_detail <- function() {
-  file_list <- unique(cols_and_data_types$File)
+  file_list <- unique(cols_and_data_types$CSV)
   withProgress(
     message = "Downloading Impermissible Character Export...", {
     results <- lapply(file_list, function(file) {
@@ -39,13 +39,15 @@ bracket_files_detail <- function() {
 # update_fsa <- function() {
 output$fileStructureAnalysis <- renderDT({
   req(session$userData$initially_valid_import() == 1)
-  req(!is.null(session$userData$file_structure_analysis_main()))
   
-  a <- session$userData$file_structure_analysis_main() %>%
-    group_by(Type, Issue) %>%
-    summarise(Count = n()) %>%
-    ungroup() %>%
-    arrange(Type, desc(Count))
+  a <- session$userData$file_structure_analysis_main()
+  req(!is.null(a))
+  
+  if(fnrow(a) > 0)
+    a <- a %>%
+      fgroup_by(Priority, Issue) %>%
+      fsummarise(Count = fnrow(.)) %>%
+      roworder(Priority, -Count)
   
   datatable(
     a,
@@ -73,7 +75,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
   content = function(file) {
     write_xlsx(
       session$userData$file_structure_analysis_main() %>%
-        arrange(Type, Issue) %>%
+        roworder(Priority, Issue) %>%
         nice_names(),
       path = file
     )

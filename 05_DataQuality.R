@@ -33,7 +33,7 @@ vars_prep <- c(
 
 vars_we_want <- c(vars_prep,
                   "Issue",
-                  "Type",
+                  "Priority",
                   "Guidance")
 
 # Clients to Check --------------------------------------------------------
@@ -1238,7 +1238,7 @@ if(nrow(overlap_staging) > 0){
     "EnrollmentID",
     "PreviousEnrollmentID",
     "Issue",
-    "Type",
+    "Priority",
     "Guidance"
   )
   if(nrow(Services) > 0) {
@@ -1842,6 +1842,15 @@ calculate_outstanding_referrals <- function(dq_data){
 ## CE ------
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
+## Specs Issues....
+specs_issues <- run_templatable_validations("dq", data_env = environment()) %>%
+  frename("EnrollmentID" = AnchorValue) %>%
+  join(
+    base_dq_data %>% fselect(vars_prep), 
+    on = "EnrollmentID"
+  ) %>%
+  fselect(c(vars_we_want, "Detail"))
+
 # All together now --------------------------------------------------------
 dq_main <- rowbind(
   approx_start_after_entry,
@@ -1909,6 +1918,7 @@ dq_main <- rowbind(
   # missing_veteran_status,
   no_months_can_be_determined,
   no_months_v_living_situation_data,
+  specs_issues,
   ssvf_hp_screen,
   ssvf_missing_percent_ami,
   ssvf_missing_vamc,
@@ -1920,10 +1930,9 @@ dq_main <- rowbind(
   veteran_missing_discharge_status,
   veteran_missing_wars,
   veteran_missing_year_entered,
-  veteran_missing_year_separated
-)
-
-dq_main <- dq_main %>% 
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
-  funique() #%>% 
+  veteran_missing_year_separated,
+  fill = TRUE
+) %>% 
+  funique() %>%
+  fmutate(Priority = factor(Priority, levels = issue_priorities))
   #qDF()

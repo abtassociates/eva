@@ -28,7 +28,7 @@ ifelse(!dir.exists(temp_demo_data_path), dir.create(temp_demo_data_path), FALSE)
 utils::unzip(upload_filepath, exdir = temp_demo_data_path)
 
 
-for (file in unique(cols_and_data_types$File)) {
+for (file in unique(cols_and_data_types$CSV)) {
   assign(file, importFile(upload_filepath=upload_filepath, csvFile=file))
 }
 
@@ -51,7 +51,7 @@ enrollment_ids <- unique(filtered_enrollments$EnrollmentID)
 personal_ids <- unique(filtered_enrollments$PersonalID)
 
 # for each file in the csv, loop through the file names in the csv
-for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
+for (file in unique(cols_and_data_types$CSV)) {
   print(paste0("Updating ", file, " for demo.zip"))
   
   # Handling Disabilities separately because it's not part of 01_get_export
@@ -91,7 +91,6 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
           MidEastNAfrican = 0,
           NativeHIPacific = 1,
           White = 0,
-          RaceNone = 0,
           VeteranStatus = 1,
           DateCreated = as.POSIXct("2022-09-22 15:48"),
           DateUpdated = as.POSIXct("2022-09-22 17:48"),
@@ -102,12 +101,6 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
       # Add FSA issue - invalid date format
       mutate(DateUpdated = format(DateUpdated, "%d-%m-%y"))
       
-  } else if(file == "CurrentLivingSituation") {
-    df <- df %>% 
-      # Add FSA issues - invalid living situation
-      mutate(
-        CurrentLivingSituation = ifelse(EnrollmentID == "813537", 999, CurrentLivingSituation)
-      )
   } else if(file == "Disabilities") {
     # Get rid of all the many disabilities records. Right now, a person can have  
     # multiple Disabilities records per InformationDate per EnrollmentID
@@ -116,6 +109,11 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
       group_by(PersonalID, DisabilityType) %>%
       slice(1) %>%
       ungroup()
+  } else if(file == "EmploymentEducation") {
+    df <- df %>%
+      fmutate(
+        EmploymentType = fifelse(EmploymentEducationID == "772516_1", 4, EmploymentType) # causes EmploymentType to fail valid value check
+      )
   } else if(file == "Enrollment") {
     df <- df %>% 
       # Add NbN overlap data
@@ -183,6 +181,18 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
       )
   } else if(file == "Services") {
     df <- df %>% 
+      fmutate(
+        SubTypeProvided = fcase(
+          ServicesID == "4619566", 1L,
+          ServicesID == "4594911", 1L,
+          ServicesID == "4630274", 1L,
+          ServicesID == "4271320", 1L,
+          ServicesID == "4668968", 1L,
+          ServicesID == "4629927", 1L,
+          ServicesID == "4656719", 1L,
+          default = SubTypeProvided
+        )
+      ) %>%
       # Add NbN overlap data - 1 enrollment has 2 overlapping/identical DateProvideds
       # and another has an overlapping DateProvided with the first enrollment
       # Two other enrollments capture a scenario that we thought was getting flagged but shouldn't be
@@ -208,7 +218,7 @@ for (file in c(unique(cols_and_data_types$File), "Disabilities")) {
               "2024-01-10", "2024-01-12", "2024-01-14", "2024-01-16"
             )),
           RecordType = rep(200, 18),
-          TypeProvided = rep(2, 18),
+          TypeProvided = rep(200, 18),
           DateCreated = as.POSIXct(rep("2022-04-25 12:53", 18)),
           DateUpdated = as.POSIXct(rep("2022-04-25 12:53", 18)),
           UserID = rep("18", 18),

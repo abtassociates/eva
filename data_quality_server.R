@@ -16,7 +16,7 @@ vars_prep <- c(
 
 vars_we_want <- c(vars_prep,
                   "Issue",
-                  "Type",
+                  "Priority",
                   "Guidance")
 
 # PDDE Checker ------------------------------------------------------------
@@ -40,16 +40,16 @@ output$downloadPDDEReport <- downloadHandler(
     req(session$userData$dq_pdde_mirai_complete() == 1)
     
     summary_df <- session$userData$pdde_main %>% 
-      fgroup_by(Issue, Type) %>%
+      fgroup_by(Issue, Priority) %>%
       fsummarise(Count = GRPN()) %>%
       fungroup() %>% 
-      roworder(Type, Issue) 
+      roworder(Priority, Issue) 
     
     data_df <-session$userData$pdde_main %>% 
       join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), on="ProjectID", how = "left") %>%
       colorder(ProjectName, ProjectType, pos="after") %>%
       fmutate(ProjectType = project_type(ProjectType)) %>% # get strings rather than codes
-      roworder(Type, Issue) %>% 
+      roworder(Priority, Issue) %>% 
       nice_names()
     
     write_xlsx(
@@ -77,10 +77,10 @@ output$pdde_summary_table <- renderDT({
   )
   
   a <- session$userData$pdde_main %>%
-    fgroup_by(Issue, Type) %>%
+    fgroup_by(Issue, Priority) %>%
     fsummarise(Count = GRPN()) %>%
     fungroup() %>%
-    roworder(Type)
+    roworder(Priority)
   
   exportTestValues(pdde_summary_table = summarize_df(a))
   
@@ -106,8 +106,8 @@ output$pdde_guidance_summary <- renderDT({
   )
   
   guidance <- session$userData$pdde_main %>%
-    fselect(Type, Issue, Guidance) %>%
-    roworder(Type, Issue) %>%
+    fselect(Priority, Issue, Guidance) %>%
+    roworder(Priority, Issue) %>%
     funique()
   
   exportTestValues(pdde_guidance_summary = summarize_df(guidance))
@@ -138,16 +138,16 @@ output$dq_organization_summary_table <- renderDT({
   a <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(ProjectName, 
-           Type, 
+           Priority, 
            Issue, 
            PersonalID) %>%
     fgroup_by(ProjectName, 
-             Type, 
+              Priority, 
              Issue) %>%
     fsummarise(Clients = GRPN()) %>%
-    roworder(Type, -Clients) %>%
+    roworder(Priority, -Clients) %>%
     fselect("Project Name" = ProjectName, 
-           Type, 
+            Priority, 
            Issue, 
            Clients)
   
@@ -176,8 +176,8 @@ output$dq_org_guidance_summary <- renderDT({
 
   guidance <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
-    fselect(Type, Issue, Guidance) %>%
-    roworder(Type, Issue) %>%
+    fselect(Priority, Issue, Guidance) %>%
+    roworder(Priority, Issue) %>%
     funique()
   
   exportTestValues(dq_org_guidance_summary = summarize_df(guidance))
@@ -273,9 +273,8 @@ dq_full <- reactive({
           )
         ) %>% 
         fsubset(DaysSinceLastKnown > too_many_days) %>%
-        fselect(vars_we_want) %>%
-        fmutate(Type = factor(Type, levels = issue_levels)),
-     error = function(e){e}
+        fselect(vars_we_want), 
+      error = function(e){e}
     )
     
     if(inherits(long_stayers_tc, 'simpleError')){
@@ -293,8 +292,7 @@ dq_full <- reactive({
     outstanding_referrals <- session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
-      fselect(vars_we_want) %>%
-      fmutate(Type = factor(Type, levels = issue_levels))
+      fselect(vars_we_want)
   } else {
     outstanding_referrals <- data.table()
   }
@@ -306,11 +304,11 @@ dq_full <- reactive({
   )
 })
 
-get_dq_plot_data <- function(level, issueType, groupVars) {
+get_dq_plot_data <- function(level, issuePriority, groupVars) {
   # First, need to get long_stayers, if any
   # Unlike other DQ checks, this happens here because it needs to be reactive tp
   # local setting changes
-  logToConsole(session, glue::glue("in get_Dq_plot_data, level = {level}, issueType = {issueType}, groupVars = {groupVars}"))
+  logToConsole(session, glue::glue("in get_Dq_plot_data, level = {level}, Priority = {issuePriority}, groupVars = {groupVars}"))
   dq_data <- dq_full()
   
   if(level == "sys") {
@@ -326,7 +324,7 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
              OrganizationName,
              HouseholdID,
              Issue,
-             Type) %>%
+             Priority) %>%
       funique()
   } else {
     plot_df <- dq_data %>%
@@ -336,7 +334,7 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
              OrganizationName,
              HouseholdID,
              Issue,
-             Type) %>%
+             Priority) %>%
       funique()
   }
   
@@ -348,7 +346,7 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
   }
   
   plot_data <- plot_df %>%
-    fsubset(Type == issueType) %>% 
+    fsubset(Priority == issuePriority) %>% 
     fgroup_by(groupVars) %>%
     fsummarize(countVar = GRPN()) %>%
     fungroup() %>%
@@ -364,7 +362,7 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
 
 # --- 1. DEFINE YOUR PLOT CONFIGURATIONS IN A TIBBLE ---
 # Your original mappings remain useful
-dq_issue_type_map <- c(
+dq_priority_map <- c(
   "HighPriority" = "High Priority",
   "Warning" = "Warning",
   "Error" = "Error"
@@ -373,7 +371,7 @@ dq_issue_type_map <- c(
 # Use tidyr::expand_grid to create all possible combinations
 plot_configs <- tidyr::expand_grid(
   level = c("sys", "org"),
-  issueType = names(dq_issue_type_map),
+  Priority = names(dq_priority_map),
   byType = c("Org", "Project", "Issue"),
   color = get_brand_color('blue')
 ) %>%
@@ -386,8 +384,8 @@ plot_configs <- tidyr::expand_grid(
 
 # --- 2. CREATE A SINGLE FUNCTION TO GENERATE A PLOT AND ITS UI ---
 # This function takes a single row of the config tibble as arguments
-renderDQPlot <- function(level, issueType, byType, color) {
-  plot_output_id = paste0(level, "DQ", issueType, "By", byType)
+renderDQPlot <- function(level, Priority, byType, color) {
+  plot_output_id = paste0(level, "DQ", Priority, "By", byType)
   ui_output_id = paste0(plot_output_id, "_ui")
   
   groupVars = fcase(
@@ -419,7 +417,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
   
   # RENDER THE PLOT (The Plot's Content)
   output[[plot_output_id]] <- renderPlot({
-    issueTypeDisplay <- if_else(issueType == "Warning", "warnings", "errors")
+    issuePriorityDisplay <- if_else(Priority == "Warning", "warnings", "errors")
     
     validate(
       need(
@@ -431,16 +429,16 @@ renderDQPlot <- function(level, issueType, byType, color) {
     validate(
       need(
         fnrow(dq_full()) > 0,
-        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+        message = paste0("Great job! No ", issuePriorityDisplay, " to show.")
       )
     )
     
-    plot_data <- get_dq_plot_data(level, dq_issue_type_map[[issueType]], unlist(groupVars))
+    plot_data <- get_dq_plot_data(level, dq_priority_map[[Priority]], unlist(groupVars))
     
     validate(
       need(
         fnrow(plot_data) > 0,
-        message = paste0("Great job! No ", issueTypeDisplay, " to show.")
+        message = paste0("Great job! No ", issuePriorityDisplay, " to show.")
       )
     )
     
@@ -508,19 +506,19 @@ getDQReportDataList <- function(
   
   if(!is.null(dqData) && fnrow(dqData) > 0){
     high_priority <- dqData %>%
-      fsubset(Type == "High Priority") %>%
+      fsubset(Priority == "High Priority") %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-      fselect(select_list)
+      fselect(c(select_list, "Detail"))
     
     errors <- dqData %>%
-      fsubset(Type == "Error") %>%
+      fsubset(Priority == "Error") %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-      fselect(select_list)
+      fselect(c(select_list, "Detail"))
     
     warnings <- dqData %>%
-      fsubset(Type == "Warning") %>%
+      fsubset(Priority == "Warning") %>%
       fmutate(ProjectType = project_type_abb(ProjectType)) %>%
-      fselect(select_list)
+      fselect(c(select_list, "Detail"))
     
   } else {
     high_priority <- NULL
@@ -550,25 +548,24 @@ getDQReportDataList <- function(
   
   if(!is.null(dqData) && fnrow(dqData) > 0){
     mainsummary <- dqData %>% 
-      fselect(Type, Issue, PersonalID) %>%
-      # group_by(ProjectName, Type, Issue) %>%
-      fgroup_by(Type, Issue) %>%
+      fselect(Priority, Issue, PersonalID) %>%
+      fgroup_by(Priority, Issue) %>%
       fsummarize(Enrollments = GRPN()) %>%
       fungroup() %>%
-      fselect(Type, Enrollments, Issue) %>%
-      roworder(Type, -Enrollments)
+      fselect(Priority, Enrollments, Issue) %>%
+      roworder(Priority, -Enrollments)
     
     byunitsummary <- dqData %>% 
-      fselect(c(bySummaryLevel, "Type", "Issue", "PersonalID")) %>%
-      fgroup_by(c(bySummaryLevel, "Type", "Issue")) %>%
+      fselect(c(bySummaryLevel, "Priority", "Issue", "PersonalID")) %>%
+      fgroup_by(c(bySummaryLevel, "Priority", "Issue")) %>%
       fsummarize(Enrollments = GRPN()) %>%
       fungroup() %>%
-      roworderv(cols = c("Type", "Enrollments", bySummaryLevel), decreasing = c(FALSE, TRUE, FALSE))
+      roworderv(cols = c("Priority", "Enrollments", bySummaryLevel), decreasing = c(FALSE, TRUE, FALSE))
     
     guidance <- dqData %>%
-      fselect(Type, Issue, Guidance) %>%
+      fselect(Priority, Issue, Guidance) %>%
       funique() %>%
-      roworder(Type)
+      roworder(Priority)
   } else {
     mainsummary <- NULL
     byunitsummary <- NULL
@@ -932,10 +929,10 @@ output$dq_export_download_btn <- downloadHandler(
           
           summary_df <- session$userData$pdde_main %>% 
             fsubset(OrganizationName == i) %>% 
-            fgroup_by(Issue, Type) %>%
+            fgroup_by(Issue, Priority) %>%
             fsummarise(Count = GRPN()) %>%
             fungroup() %>% 
-            roworder(Type, Issue)
+            roworder(Priority, Issue)
           
           if(nrow(summary_df) == 0){
             next
@@ -957,7 +954,7 @@ output$dq_export_download_btn <- downloadHandler(
                    fsubset(OrganizationName == i) %>% 
                    join(session$userData$Project0 %>% fsubset(OrganizationName == i) %>% fselect(ProjectID, ProjectType), 
                         how = "left", on="ProjectID") %>%
-                   roworder(Type, Issue) %>% 
+                   roworder(Priority, Issue) %>% 
                    nice_names()
             ),
             path = file.path(tempdir(), str_glue(zip_prefix, pdde_filename))
@@ -1096,10 +1093,10 @@ output$dq_export_download_btn <- downloadHandler(
         pdde_filename <- date_stamped_filename("System-level PDDE Report-")
         
         summary_df <- session$userData$pdde_main %>% 
-          fgroup_by(Issue, Type) %>%
+          fgroup_by(Issue, Priority) %>%
           fsummarise(Count = GRPN()) %>%
           fungroup() %>% 
-          roworder(Type, Issue) 
+          roworder(Priority, Issue) 
         
         
         if(nrow(summary_df) > 0){
@@ -1107,7 +1104,7 @@ output$dq_export_download_btn <- downloadHandler(
             list("Summary" = summary_df,
                  "Data" = session$userData$pdde_main %>% 
                    join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
-                   roworder(Type, Issue) %>% 
+                   roworder(Priority, Issue) %>% 
                    nice_names()
             ),
             path = file.path(path_prefix,pdde_filename))

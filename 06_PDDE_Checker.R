@@ -8,7 +8,7 @@ PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
              "Issue",
-             "Type",
+             "Priority",
              "Guidance",
              "Detail")
 
@@ -625,6 +625,16 @@ lt_seas_inv <- lt_seas_inv %>%
   fselect(PDDEcols) %>% 
   funique()
 
+specs_issues <- run_templatable_validations("pdde", data_env = environment()) %>%
+  frename("ProjectID" = AnchorValue) %>%
+  join(
+    session$userData$Project0, 
+    on = "ProjectID"
+  ) %>%
+  fselect(PDDEcols) %>%
+  funique()
+
+
 # Put it all together -----------------------------------------------------
 
 pdde_main <- rowbind(
@@ -650,7 +660,9 @@ pdde_main <- rowbind(
   vsp_clients,
   project_no_coc,
   res_no_house_type,
-  lt_seas_inv
+  lt_seas_inv,
+  specs_issues,
+  fill = TRUE
 ) %>%
   funique() %>%
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
+  fmutate(Priority = factor(Priority, levels = issue_priorities))

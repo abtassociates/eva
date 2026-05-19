@@ -6,9 +6,13 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     # run script inside tryCatch block, create modal if script fails
     source_trycatch <- function(script_name){
-      src_att <- tryCatch(source(script_name, local = parent.env(environment())), 
+      src_att <- if(!IN_DEV_MODE) {
+        tryCatch(source(script_name, local = parent.env(environment())), 
                           error = function(e) {e})
-
+      } else {
+        source(script_name, local = parent.env(environment()))
+      }
+      
       if(inherits(src_att, 'simpleError')){
         logToConsole(session, src_att)
         logToConsole(session, paste0("Error occured in ", script_name))
@@ -31,7 +35,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     setProgress(detail = "Unzipping...", value = .10)
     list_of_files <- unzip(
       zipfile = upload_filepath, 
-      files = paste0(unique(cols_and_data_types$File), ".csv"),
+      files = paste0(unique(cols_and_data_types$CSV), ".csv"),
       exdir = tempdir()
     )
     
@@ -57,7 +61,21 @@ process_upload <- function(upload_filename, upload_filepath) {
     if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Assessing your data quality..", value = .7)
-    dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
+
+    dq_and_pdde_dependencies <- mget(unique(c(
+      dq_mirai_dependencies, 
+      pdde_mirai_dependencies,
+      specs_rules[Source %in% c("dq","pdde")]$CSV
+    )))
+    
+    
+    dq_and_pdde_dependencies[["valid_values"]] <- valid_values
+    dq_and_pdde_dependencies[["csv_join_prerequisites"]] <- csv_join_prerequisites
+    dq_and_pdde_dependencies[["specs_rules"]] <- specs_rules
+    dq_and_pdde_dependencies[["reporting_info"]] <- reporting_info
+    dq_and_pdde_dependencies[["invalid_non_null_dynamic_lists_dt"]] <- invalid_non_null_dynamic_lists_dt
+    dq_and_pdde_dependencies[["null_unless_additional_reqs"]] <- null_unless_additional_reqs
+    
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,
       userData = list(
@@ -68,6 +86,8 @@ process_upload <- function(upload_filename, upload_filepath) {
       )
     )
     dq_pdde_mirai <- mirai({
+      source("machine_readable_specs_helpers.R", local=TRUE)
+      
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)
       
