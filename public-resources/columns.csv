@@ -123,8 +123,8 @@ Disabilities,DisabilityType,1
 Disabilities,DisabilityResponse,0
 Disabilities,IndefiniteAndImpairs,0
 Disabilities,TCellCountAvailable,0
-Disabilities,TcellCount,0
-Disabilities,TcellSource,0
+Disabilities,TCellCount,0
+Disabilities,TCellSource,0
 Disabilities,ViralLoadAvailable,0
 Disabilities,ViralLoad,0
 Disabilities,ViralLoadSource,0
