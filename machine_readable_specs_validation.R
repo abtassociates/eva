@@ -239,16 +239,20 @@ if(fnrow(specs_validation_issues) > 0) {
   specs_validation_issues[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
 
   specs_validation_issues <- specs_validation_issues %>%
-    fselect(c("CSV", "Column" = "Name", issue_display_cols, "AnchorID")) |>
-    rbind(
-      run_templatable_validations("file structure", data_env = environment()),
-      fill = TRUE
-    ) |>
-    frename(
-      "EnrollmentID or ProjectID" = AnchorID, 
-      "ID Value" = AnchorValue
-    )
+    fselect(c("CSV", "Column" = "Name", issue_display_cols, "AnchorID"))
+} else {
+  specs_validation_issues <- data.table()
 }
+
+specs_validation_issues <- specs_validation_issues %>%
+  rowbind(
+    run_templatable_validations("file structure", data_env = environment()),
+    fill = TRUE
+  ) |>
+  frename(
+    "EnrollmentID or ProjectID" = AnchorID, 
+    "ID Value" = AnchorValue
+  )
 
 rm(list = files_to_ignore)
 
