@@ -187,6 +187,9 @@ special_validation_rules <- list(
   CurrentLivingSituation = list(
     "Unallowed Null" = list(
       VerifiedBy = quote(is.na(VerifiedBy) & ProjectType == 14)
+    ),
+    "Non-Null Invalid" = list(
+      CurrentLivingSituation = quote(!CurrentLivingSituation %in% c(312,313,327,422,423,426,30,24))
     )
   ),
   Disabilities = list(
@@ -200,7 +203,8 @@ special_validation_rules <- list(
   Enrollment = list(
     "Non-Null Invalid" = list(
       # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
-      EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "x"))
+      EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "x")),
+      LivingSituation = quote(!LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37))
     )
   ),
   Exit = list(
@@ -210,7 +214,8 @@ special_validation_rules <- list(
           (HousingAssessment == 2 & !SubsidyInformation %in% c(11,12))
       ),
       SessionsInPlan     = quote(SessionsInPlan < 0),
-      SessionCountAtExit = quote(SessionCountAtExit > 0)
+      SessionCountAtExit = quote(SessionCountAtExit > 0),
+      Destination = quote(!Destination %in% c(336,335,37))
     ),
     "Null Unless" = list(
       SessionCountAtExit = quote(CounselingReceived == 1)
