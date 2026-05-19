@@ -1077,7 +1077,7 @@ tab_syse_time_chart_information <- HTML("<h4>Chart Overview</h4>
                                         <p>Each destination type has two bars that represent the percentage of exits for the current year and previous year. These bars show whether the percentage increased, decreased, or stayed the same from one year to the next. Below the chart is a table with the percentages, as well as the percentage change between the two years.<p>
                                         <br>
                                         <p>The <b>Percentage Change</b> value is represented by:</p><br>
-                                        <pre><code>Percentage Change = (Current Year - Previous Year)/ Current Year x 100%</code></pre>
+                                        <pre><code>Percentage Change = (Current Year Exits - Previous Year Exits)/ (Previous Year Exits) x 100</code></pre>
                                   
                                         <br>
                                         <p>The chart’s data download provides a detailed breakdown of counts and percentages by individual exit destinations within the five destination types.</p>")
