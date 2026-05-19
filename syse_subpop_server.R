@@ -377,7 +377,7 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
   
   title <- paste0("Total System Exits for ", 
                   c(paste0('Subpopulation: ', scales::label_comma()(nrow(subpop()))),
-                    paste0('Everyone Else: ', scales::label_comma()(nrow(everyone_else2())))),
+                    paste0('Everyone Else: ', scales::label_comma()(nrow(everyone_else())))),
                   collapse='\n'
   )
   
