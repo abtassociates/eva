@@ -102,12 +102,6 @@ for (file in unique(cols_and_data_types$CSV)) {
       # Add FSA issue - invalid date format
       mutate(DateUpdated = format(DateUpdated, "%d-%m-%y"))
       
-  } else if(file == "CurrentLivingSituation") {
-    df <- df %>% 
-      # Add FSA issues - invalid living situation
-      fmutate(
-        CurrentLivingSituation = fifelse(EnrollmentID == "813537", 101, CurrentLivingSituation)
-      )
   } else if(file == "Disabilities") {
     # Get rid of all the many disabilities records. Right now, a person can have  
     # multiple Disabilities records per InformationDate per EnrollmentID
@@ -116,6 +110,11 @@ for (file in unique(cols_and_data_types$CSV)) {
       group_by(PersonalID, DisabilityType) %>%
       slice(1) %>%
       ungroup()
+  } else if(file == "EmploymentEducation") {
+    df <- df %>%
+      fmutate(
+        EmploymentType = fifelse(EmploymentEducationID == "772516_1", 4, EmploymentType) # causes EmploymentType to fail valid value check
+      )
   } else if(file == "Enrollment") {
     df <- df %>% 
       # Add NbN overlap data
