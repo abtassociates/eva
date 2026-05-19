@@ -351,7 +351,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   
   plot_df_joined <- plot_df_joined %>% fselect(-n_orig, -frac_export)
   plot_df <- plot_df_supp %>% fselect(-n_orig)
-  browser()
+  
   g <- ggplot(plot_df_joined %>% fmutate(frac= ifelse(is.na(frac) & wasRedacted, 0, frac)), 
               aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
@@ -458,8 +458,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
         data = v_total_joined
       )
   }
-  #browser()
-  
+
   g + 
     # axis labels
     scale_x_discrete(
@@ -505,7 +504,7 @@ output$syse_phd_chart_1d <- renderPlot({
 alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 output$syse_phd_chart_2d <- renderCachedPlot({
-  #browser()
+  
   req(session$userData$valid_file() == 1 &
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 2)
