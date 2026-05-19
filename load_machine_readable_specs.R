@@ -7,7 +7,7 @@ if(file.exists(specs_prepped_path)) {
   specs_rules <- specs_prepped$specs_rules
   reporting_info <- specs_prepped$reporting_info
   valid_values <- specs_prepped$valid_values
-  cols_and_data_types < specs_prepped$cols_and_data_types
+  cols_and_data_types <- specs_prepped$cols_and_data_types
   
   rm(specs_prepped)
 } else {
