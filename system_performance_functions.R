@@ -564,10 +564,10 @@ sys_detailBox <- function(
       )
     )
   } else if (detail_type == 'subpop') {
-    subpop_mini_header <- list(HTML("<br> <b>Selected Subpopulation</b> <br>") )
+    subpop_mini_header <- list(HTML("<b>Subpopulation Selections:</b> <br>") )
   }
   
-  if(race_eth != "All" | (!is.null(selection) & !is.na(methodology_type))){
+  if(!is.null(race_eth) && (race_eth != "All" | (!is.null(selection) & !is.na(methodology_type)))){
     
     race_eth_methodology_type <- list(
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
@@ -591,7 +591,7 @@ sys_detailBox <- function(
   
   # For System Comp/Demographics and System Exits, the demographic items to display 
   # are which checkboxes user selected for the chart. Otherwise, they're the selected filter values
-  demographics <- if(!is.null(selection)) {
+  demographics <- if(!is.null(selection) & detail_type != 'subpop') {
     list(
       HTML(glue("<strong>Selections</strong>: {paste(selection, collapse=' and ')} <br>"))
     )
@@ -602,7 +602,7 @@ sys_detailBox <- function(
           "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
         )),
       
-      if (race_eth != "All")
+      if (!is.null(race_eth) && race_eth != "All")
         chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
       
       if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
@@ -613,11 +613,7 @@ sys_detailBox <- function(
   }
   
   if(detail_type == 'subpop'){
-    return(c(date_range, race_eth_methodology_type, subpop_mini_header, project_type, demographics))
-    
-  } else {
-    return(c(date_range, race_eth_methodology_type, project_type, demographics))
-    
+    return(c(date_range, subpop_mini_header, race_eth_methodology_type, demographics))
   }
 }
 

@@ -636,11 +636,13 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
 }
 
-
-## list all destination types and subtypes based on allowed_destinations vector
-## used for systems exit data downloads
-list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
-  destinations_df <- data.table(Destination = allowed_destinations) %>% 
+## create Destination Type df column from Destination 
+add_destination_type <- function(df, as_factor = FALSE){
+  if(!('Destination' %in% names(df))){
+    warning('No destination column found. Returning df as-is.')
+    return(df)
+  }
+  df <- df |>
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -648,7 +650,21 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
       Destination %in% institutional_livingsituation, 'Institutional',
       Destination %in% other_livingsituation, 'Other/Unknown',
       default = 'Other/Unknown'
-    )) %>% 
+    )
+    )
+  
+  if(as_factor){
+    df <- df |>
+      fmutate(`Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
+  }
+  df
+}
+
+## list all destination types and subtypes based on allowed_destinations vector
+## used for systems exit data downloads
+list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
+  destinations_df <- data.table(Destination = allowed_destinations) %>% 
+    add_destination_type() %>% 
     fmutate(`Destination Type Detail`= living_situation(Destination)) %>% 
     fselect(-Destination)
   
@@ -714,4 +730,36 @@ get_snapshot <- function(personalID) {
   # read rds
   enrollment_categories <- readRDS(here("sandbox/enrollment_categories_all.rds"))
   print(enrollment_categories %>% fsubset(PersonalID %in% personalID))
+}
+
+
+## add counts in parens for table formatting
+format_compare_value <- function(count, total){
+  pct <- scales::percent(count/total, accuracy = 1, scale = 100)
+  sprintf('%s (%s)', pct, count)
+}
+
+## % difference: not currently used
+calc_pct_diff <- function(val1, val2, format = 'char'){
+  if(val1 == 0 | val2 == 0){
+    ifelse(format == 'char', '-', NA)
+  } else {
+    pct_diff <- abs(val1 - val2)/((val1 + val2)/2)
+    ifelse(format == 'char', 
+           scales::percent(pct_diff, accuracy = 0.1, scale = 100),
+           pct_diff)
+  }
+}
+
+# % change: used for time charts
+calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='char'){
+  if(count_prev == 0){
+    ifelse(format=='char', '-', NA)
+  } else {
+    pct_change <- (count_current - count_prev) / count_prev
+    
+    ifelse(format == 'char', 
+           scales::percent(pct_change, accuracy = accuracy, scale = 100),
+           pct_change)
+  }
 }
