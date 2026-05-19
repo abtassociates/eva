@@ -1,6 +1,6 @@
 specs_prepped_path <- here("public-resources/eva_specs_prepped.rds")
 
-if(file.exists(specs_prepped_path)) {
+if(!file.exists(specs_prepped_path)) {
   print("loading specs_prepped.rds file")
   specs_prepped <- readRDS(specs_prepped_path)
   
@@ -134,7 +134,7 @@ valid_values <- split(valid_values_df$Value, valid_values_df$List)
 # This tab includes all csvs, columns, data types, 
 # corresponding valid values list info, and additional validation rule notes
 ## Manual edits ----
-validation_info <- cols_and_data_types %>%
+cols_and_data_types <- cols_and_data_types %>%
   fselect(CSV, `DE#`, Name, Type, List, Null, Notes, Order, additional_notes) %>%
   fsubset(!CSV %in% c("AssessmentResults","AssessmentQuestions")) %>%
   fmutate(
@@ -163,8 +163,8 @@ validation_info <- cols_and_data_types %>%
   frename("validation_notes" = Notes)
 
 # DE-Variable xwalk/lookup
-valid_list_lookup <- validation_info$Name
-names(valid_list_lookup) <- validation_info$`DE#`
+valid_list_lookup <- cols_and_data_types$Name
+names(valid_list_lookup) <- cols_and_data_types$`DE#`
 valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
 
 # Special Cases: Value-Not-in-List  -----
@@ -379,7 +379,7 @@ null_unless_additional_reqs <-  readxl::read_xlsx(validation_specs_bk, sheet = "
 # Create Master Rules table ----------------
 # Includes all validation and reporting info
 # We express the rules in R code that will be evaluated at runtime.
-specs_rules <- validation_info %>%
+specs_rules <- cols_and_data_types %>%
   join(reporting_info, on = c("CSV", "Name"), multiple=TRUE) %>%
   # Initialize an empty list column to hold the parsed expressions
   fmutate(rule_expr = list(NULL))

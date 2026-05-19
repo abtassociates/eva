@@ -15,13 +15,13 @@
 
 # Loop through all files that actually have validation conditions
 csv_issues <- list()
-for(csv_name in unique(validation_info$CSV)) {
+for(csv_name in unique(cols_and_data_types$CSV)) {
   print(glue("Checking FSA for {csv_name}"))
   logToConsole(parent.env(environment()), glue("Checking FSA for {csv_name}"))
   
   # ------- Setup ------------------
   dt <- get(csv_name)
-  csv_validation_info <- validation_info %>%
+  csv_validation_info <- cols_and_data_types %>%
     fsubset(CSV == csv_name)
   
   unique_id_colname <- unique_id_lookup[CSV == csv_name]$UniqueID
