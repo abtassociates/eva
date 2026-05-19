@@ -25,16 +25,6 @@ everyone <- reactive({
     add_destination_type(as_factor = TRUE)
 })
 
-# lapply(c(
-#   c('syse_types_subtabs','syse_time_subtabs', 'syse_subpop_subtabs','syse_phd_subtabs')
-# ), FUN = function(id){
-#   observeEvent(input[[id]], {
-#     req(session$userData$valid_file() == 1)
-#     logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input[[id]],
-#                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-#   }, ignoreNULL = TRUE, ignoreInit = TRUE)
-# })
-
 observeEvent(input$syse_types_subtabs, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_types_subtabs,

@@ -375,14 +375,9 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
   subpop_chart_df <- subpop_data %>% 
     fsubset(`Destination Type` == dest_type)
   
-  title_start <- paste0("Total System Exits for ",
-                        syse_level_of_detail_text(), " in ",
-                        str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-                        if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
-  
-  title <- paste0(title_start, 
-                  c(paste0(' (Subpopulation): ', scales::label_comma()(nrow(subpop()))),
-                    paste0(' (Everyone Else): ', scales::label_comma()(nrow(everyone_else())))),
+  title <- paste0("Total System Exits for ", 
+                  c(paste0('Subpopulation: ', scales::label_comma()(nrow(subpop()))),
+                    paste0('Everyone Else: ', scales::label_comma()(nrow(everyone_else2())))),
                   collapse='\n'
   )
   
@@ -493,9 +488,10 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
     ) +
     scale_x_discrete(position='top', labels = label_wrap(25), expand = c(0,0)) +
     scale_y_discrete(labels = label_wrap(25), expand = c(0,0)) +
-    labs(x='', y='') +
+    labs(x='', y='', title = title) +
     theme(panel.spacing = unit(0, "lines"),
           strip.background = element_blank(),
+          plot.title = element_text(size=sys_chart_title_font, hjust = 0.5),
           axis.line = element_blank(),
           panel.grid.major.y =element_blank(),
           strip.placement = "outside",
