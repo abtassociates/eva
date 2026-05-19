@@ -91,7 +91,7 @@ for (file in unique(cols_and_data_types$CSV)) {
           MidEastNAfrican = 0,
           NativeHIPacific = 1,
           White = 0,
-          RaceNone = 0,
+          RaceNone = 1,
           VeteranStatus = 1,
           DateCreated = as.POSIXct("2022-09-22 15:48"),
           DateUpdated = as.POSIXct("2022-09-22 17:48"),
@@ -105,8 +105,8 @@ for (file in unique(cols_and_data_types$CSV)) {
   } else if(file == "CurrentLivingSituation") {
     df <- df %>% 
       # Add FSA issues - invalid living situation
-      mutate(
-        CurrentLivingSituation = ifelse(EnrollmentID == "813537", 999, CurrentLivingSituation)
+      fmutate(
+        CurrentLivingSituation = fifelse(EnrollmentID == "813537", 101, CurrentLivingSituation)
       )
   } else if(file == "Disabilities") {
     # Get rid of all the many disabilities records. Right now, a person can have  
@@ -183,6 +183,18 @@ for (file in unique(cols_and_data_types$CSV)) {
       )
   } else if(file == "Services") {
     df <- df %>% 
+      fmutate(
+        SubTypeProvided = fcase(
+          ServicesID == "4619566", 1L,
+          ServicesID == "4594911", 1L,
+          ServicesID == "4630274", 1L,
+          ServicesID == "4271320", 1L,
+          ServicesID == "4668968", 1L,
+          ServicesID == "4629927", 1L,
+          ServicesID == "4656719", 1L,
+          default = SubTypeProvided
+        )
+      ) %>%
       # Add NbN overlap data - 1 enrollment has 2 overlapping/identical DateProvideds
       # and another has an overlapping DateProvided with the first enrollment
       # Two other enrollments capture a scenario that we thought was getting flagged but shouldn't be
