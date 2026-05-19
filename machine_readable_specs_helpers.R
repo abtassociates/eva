@@ -93,11 +93,10 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         nu <- null_unless_additional_reqs |>
           fsubset(CSV == csv_name & Name == rule_row$Name & (!is.na(Funder) | !is.na(ProjectType)))
         
-        if(!is.na(nu$Funder))
-          dt <- dt |> fsubset(Funder %in% nu$Funder)
-        
-        if(!is.na(nu$ProjectType))
-          dt <- dt |> fsubset(ProjectType %in% nu$ProjectType)
+        if(fnrow(nu) > 0) {
+          if(!is.na(nu$Funder)) dt <- dt |> fsubset(Funder %in% nu$Funder)
+          if(!is.na(nu$ProjectType)) dt <- dt |> fsubset(ProjectType %in% nu$ProjectType)
+        }
       }
       
       if(fnrow(dt) == 0) return(NULL)
