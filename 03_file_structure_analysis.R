@@ -45,9 +45,12 @@ session$userData$file_structure_analysis_main(
     ignore.attr=TRUE
   ) %>%
   fmutate(Priority = factor(Priority, levels = issue_priorities)) %>%
-  roworder(Priority) %>%
-  colorderv(neworder = c("CSV", "Column", issue_display_cols, "EnrollmentID or ProjectID"))
+  roworder(Priority)
 )
+
+if(fnrow(specs_validation_issues) > 0)
+  session$userData$file_structure_analysis_main() |>
+    colorderv(neworder = c("CSV", "Column", issue_display_cols, "EnrollmentID or ProjectID"))
 
 if(session$userData$file_structure_analysis_main() %>% 
    fsubset(Priority == "High Priority") %>%

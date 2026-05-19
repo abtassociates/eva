@@ -39,12 +39,15 @@ bracket_files_detail <- function() {
 # update_fsa <- function() {
 output$fileStructureAnalysis <- renderDT({
   req(session$userData$initially_valid_import() == 1)
-  req(!is.null(session$userData$file_structure_analysis_main()))
   
-  a <- session$userData$file_structure_analysis_main() %>%
-    fgroup_by(Priority, Issue) %>%
-    fsummarise(Count = fnrow(.)) %>%
-    roworder(Priority, -Count)
+  a <- session$userData$file_structure_analysis_main()
+  req(!is.null(a))
+  
+  if(fnrow(a) > 0)
+    a <- a %>%
+      fgroup_by(Priority, Issue) %>%
+      fsummarise(Count = fnrow(.)) %>%
+      roworder(Priority, -Count)
   
   datatable(
     a,
