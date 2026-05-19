@@ -91,7 +91,6 @@ for (file in unique(cols_and_data_types$CSV)) {
           MidEastNAfrican = 0,
           NativeHIPacific = 1,
           White = 0,
-          RaceNone = 1,
           VeteranStatus = 1,
           DateCreated = as.POSIXct("2022-09-22 15:48"),
           DateUpdated = as.POSIXct("2022-09-22 17:48"),
