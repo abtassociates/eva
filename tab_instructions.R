@@ -1084,8 +1084,9 @@ tab_syse_time_chart_information <- HTML("<h4>Chart Overview</h4>
 
 tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
                                           <p>The Exits by Subpopulation chart shows system exits by destination type for a selected subpopulation. The chart helps highlight outcomes for the subpopulation group as well as outcomes for everyone not included in the subpopulation. The client universe for this chart is everyone who exited the homeless system by the end of the report period.</p>
-                                          <h5>Creating a Subpopulation</h5>
                                           <br>
+                                          <h5>Creating a Subpopulation</h5>
+                                         
                                           <p>You can create a subpopulation by selecting one to three population characteristics that can include household type and different demographics. Note that the chart will not display until you select at least one population characteristic. </p>
                                           <br>
                                           <p>Use the Household Type filter in the Filters Menu above the chart to select a Household Type. Only one household type can be selected at a time. If the Household Type filter is left at the default, “All Household Types,” the subpopulation will include system exits for all households regardless of household type.</p>
@@ -1093,7 +1094,7 @@ tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
                                           <p>Under the chart tab are three demographic categories: Age, Race/Ethnicity, and Veteran Status. Up to two demographic categories can be selected at a time.</p>
                                           <br>
                                           <h5>Understanding the Chart Display</h5>
-                                          <br>
+                                         
                                           <p>Selecting a single population characteristic shows a simple count of totals within that characteristic. Selecting two to three population characteristics creates a crosstab chart that shows the intersections between those characteristics.</p>
                                           <br>
                                           <p>Each cell in the chart represents a unique population group. The purple cell represents your selected subpopulation. Gray cells represent clients who are not part of the subpopulation.</p>
@@ -1104,7 +1105,7 @@ tab_syse_subpop_chart_information <- HTML("<h4>Chart Overview</h4>
                                           <li>The number of people who exited to the selected destination type</li>
                                           <li>The total number of people in that group who exited to any destination</li>
                                           </ul>
-                                          <br>
+                                          
                                           <p>There are also five Destination Type Filters used to select the exit destination shown in the chart: Permanent, Homeless, Institutional, Temporary, and Other/Unknown. The selected destination type determines which exits are counted and displayed.</p>
                                           <br>
                                           <h5>Data Suppression</h5>
@@ -1141,7 +1142,7 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                          <p>Each cell in the chart is a unique combination of demographic characteristics. For example, 
                                          if you selected Age and Race/Ethnicity, a unique demographic combination would be \"25 to 34” and 
                                          \"Black alone.” The darker the color in a cell, the greater the value of that cell. Each cell shows the following:</p>
-                                <br>
+                                
                                 <ul>
                                   <li>Percentage of people of that unique demographic combination that exited the system to permanent destinations (with the universe being people of that unique demographic combination that exited the system to any destination)</li>
                                   <li>The number of people of that unique demographic combination that exited the system to permanent destinations</li>
@@ -1152,7 +1153,7 @@ tab_syse_phd_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                 <h4>Data Suppression</h4>
                                 <p>Additional levels of data suppression apply to 
                                 the Exits to PH Demographics Chart.</p>
-                                <br>
+                                
                                 <ul>
                                   <li>Any value less than 11 is suppressed, including totals.</li>
                                   <li>If there is only one suppressed value within 
