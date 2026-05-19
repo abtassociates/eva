@@ -3,7 +3,10 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "03-30-2026",
+    "05-08-2026",
+    "<b>Bug Fixes</b> <br>
+      - Ignore persons over age 100 in <i>Incorrect DOB or Entry Date</i> DQ check. Added a separate DQ Warning for persons over age 100 to encourage double-checking of the data. (Issue <a href='https://github.com/abtassociates/eva/issues/983' target='_blank'>#983</a>)<br>",
+    "05-08-2026",
     "<b>Bug Fixes</b> <br>
       - Ignore non-HoH children in DQ check for Days Since Most Recent CLS for Street Outreach, Services Only, and Coordinated Entry projects. (Issue <a href='https://github.com/abtassociates/eva/issues/940' target='_blank'>#940</a>)
     ",
