@@ -392,6 +392,7 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
                                    ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
     meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
   )
+  labels_factors_changed['meets_hh_type'] <- gsub('- ','',labels_factors_changed['meets_hh_type'])
   labels_all_other <- c(
     meets_hh_type = 'All Other Household Types',
     meets_age_filter = 'All Other Ages',
