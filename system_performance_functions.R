@@ -614,6 +614,8 @@ sys_detailBox <- function(
   
   if(detail_type == 'subpop'){
     return(c(date_range, subpop_mini_header, race_eth_methodology_type, demographics))
+  }  else {
+    return(c(date_range, race_eth_methodology_type, project_type, demographics))
   }
 }
 
