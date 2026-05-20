@@ -1,9 +1,5 @@
 
-
-#### DISPLAY FILTER SELECTIONS ###
-
-## separate info for time chart tab since report period covers 2 years before ReportEnd
-
+# reactives ---------------------------------------------------------------
 
 syse_level_of_detail_text <- reactive({
   case_when(
@@ -25,31 +21,51 @@ everyone <- reactive({
     add_destination_type(as_factor = TRUE)
 })
 
-observeEvent(input$syse_types_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_types_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
 
+# functions ---------------------------------------------------------------
 
-observeEvent(input$syse_time_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_time_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
+display_syse_counts <- function(){
+  c(
+    paste0(
+      "Total ", 
+      syse_level_of_detail_text(),
+      " with System Exits",
+      if_else(
+        input$syse_hh_type == "All",
+        "",
+        paste0(" in ",
+               str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+               " Households")
+      )
+    ),
+    paste0(
+      "Total ", 
+      syse_level_of_detail_text(),
+      " with PH System Exits",
+      if_else(
+        input$syse_hh_type == "All",
+        "",
+        paste0(" in ",
+               str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
+               " Households")
+      )
+    )
+  )
+}
 
-
-observeEvent(input$syse_subpop_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_subpop_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-observeEvent(input$syse_phd_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_phd_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
+syse_total_count_display <- function(total_count, total_ph_count) {
+  return(paste0(
+    str_wrap(
+      paste0(
+        display_syse_counts(),
+        ": ",
+        scales::comma(c(total_count, total_ph_count))
+      ),
+      width = 40
+    ),collapse='',
+    "\n")
+  )
+}
 
 # Client-level flags, filtered ----------------------------------------------------
 syse_client_categories_filtered <- reactive({
@@ -275,34 +291,6 @@ all_filtered_syse_subpop <- reactive({
 })
 
 
-# System Exits to PH Demographics (PHD) -----------------------
-
-display_syse_counts <- function(){
-  c(
-    paste0(
-      "Total ", 
-      syse_level_of_detail_text(),
-      " with System Exits",
-      if_else(
-        input$syse_hh_type == "All",
-        "",
-        paste0(" in ",
-               str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-               " Households")
-      )
-    ),
-    paste0(
-      "Total ", 
-      syse_level_of_detail_text(),
-      " with PH System Exits",
-      if_else(
-        input$syse_hh_type == "All",
-        "",
-        paste0(" in ",
-               str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
-               " Households")
-      )
-    )
   )
 }
 
@@ -310,20 +298,54 @@ full_unit_of_analysis_display_syse <- reactive({
   display_syse_counts()
 })
 
-syse_total_count_display <- function(total_count, total_ph_count) {
+
+# observeEvent ------------------------------------------------------------
+
+
+## hide demographic filters when on PHD subtab
+observeEvent(input$syse_tabbox, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  return(paste0(
-    str_wrap(
-      paste0(
-        display_syse_counts(),
-        ": ",
-        scales::comma(c(total_count, total_ph_count))
-      ),
-      width = 40
-    ),collapse='',
-    "\n")
-  )
-}
+  if(input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')){
+    shinyjs::hide('syse_spec_pops')
+    shinyjs::hide('syse_age')
+    shinyjs::hide('syse_race_ethnicity')
+  } else {
+    shinyjs::show('syse_spec_pops')
+    shinyjs::show('syse_age')
+    shinyjs::show('syse_race_ethnicity')
+  }
+  
+})
+
+observeEvent(input$syse_types_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_types_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$syse_time_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_time_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+
+observeEvent(input$syse_subpop_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_subpop_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+observeEvent(input$syse_phd_subtabs, {
+  req(session$userData$valid_file() == 1)
+  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_phd_subtabs,
+                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}, ignoreNULL = TRUE, ignoreInit = TRUE)
+
 
 observeEvent(input$syse_methodology_type, {
   
