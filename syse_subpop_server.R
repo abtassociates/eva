@@ -163,7 +163,8 @@ compute_subpop_and_everyone_else <- function(input_df){
   
   if(input$syse_hh_type != 'All'){
     subpop_w_client_filters <- subpop_w_client_filters %>% 
-      fmutate(meets_hh_type = HouseholdType %in% input$syse_hh_type)
+      fmutate(meets_hh_type = !meets_ev_else)
+             
   } else {
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_hh_type = TRUE)
