@@ -302,6 +302,32 @@ all_filtered_syse_subpop <- reactive({
     ) %>% 
     fsubset(passes_enrollment_filters)
   
+  tmp_subpop <- join(
+    enrl_subpop,
+    client %>% fselect(PersonalID, VeteranStatus),
+    on = "PersonalID",
+    how = "inner"
+  )
+  
+  period_data_subpop <- tmp_subpop %>% 
+    expand_by_periods(chart_type = 'exits_types') %>% 
+    get_active_info(tmp_subpop) %>%
+    get_inflows_and_outflows(chart_type = 'exits') %>% 
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
+  
+  out_subpop <- join( 
+    period_data_subpop,
+    client,
+    on = "PersonalID",
+    how = "inner"
+  ) %>% 
+    join(tmp_subpop %>% fselect(PersonalID, EnrollmentID, HouseholdType)) %>% 
+    fmutate(meets_ev_else = FALSE)
+  
+  if(input$syse_hh_type != "All"){
+    
+  
   enrl_ev_else <- join(
     session$userData$enrollment_categories,
     client %>% fselect(PersonalID, VeteranStatus),
@@ -325,29 +351,6 @@ all_filtered_syse_subpop <- reactive({
         )
     ) %>% 
     fsubset(passes_enrollment_filters)
-  
-  tmp_subpop <- join(
-    enrl_subpop,
-    client %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID",
-    how = "inner"
-  )
-  
-  period_data_subpop <- tmp_subpop %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_active_info(tmp_subpop) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
-  
-  out_subpop <- join( 
-    period_data_subpop,
-    client,
-    on = "PersonalID",
-    how = "inner"
-  ) %>% 
-    join(tmp_subpop %>% fselect(PersonalID, EnrollmentID, HouseholdType)) %>% 
-    fmutate(meets_ev_else = FALSE)
   
   tmp_ev_else <- join(
     enrl_ev_else,
@@ -381,6 +384,10 @@ all_filtered_syse_subpop <- reactive({
     fsubset(meets_ev_else)
   
   rowbind(out_subpop, out_ev_else)
+  
+  } else {
+    out_subpop
+  }
 })
 
 full_unit_of_analysis_display_syse <- reactive({
