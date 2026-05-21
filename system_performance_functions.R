@@ -564,7 +564,7 @@ sys_detailBox <- function(
       )
     )
   } else if (detail_type == 'subpop') {
-    subpop_mini_header <- list(HTML("<b>Subpopulation Selections:</b> <br>") )
+    subpop_mini_header <- list(HTML("<b>Subpopulation Selections</b> <br>") )
   }
   
   if(!is.null(race_eth) && (race_eth != "All" | (!is.null(selection) & !is.na(methodology_type)))){
@@ -599,21 +599,27 @@ sys_detailBox <- function(
     list(
       if (length(age) != length(sys_age_cats))
         HTML(glue(
-          "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
+          "<div style='text-indent: 20px;'><b>Age:</b> {paste(age, collapse = ', ')}</div>"
         )),
       
       if (!is.null(race_eth) && race_eth != "All")
-        chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
+        div(style='text-indent: 20px;',
+            chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth)),
       
       if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
         HTML(glue(
-          "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')} <br>"
+          "<div style='text-indent: 20px;'><b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')}</div>"
         ))
     )
   }
   
   if(detail_type == 'subpop'){
-    return(c(date_range, subpop_mini_header, race_eth_methodology_type, demographics))
+    if (!is.null(race_eth) && race_eth != "All"){
+      return(c(date_range, race_eth_methodology_type, subpop_mini_header, demographics))
+    } else {
+      return(c(date_range, subpop_mini_header, demographics))
+    }
+    
   }  else {
     return(c(date_range, race_eth_methodology_type, project_type, demographics))
   }
