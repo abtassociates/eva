@@ -4,6 +4,8 @@ logToConsole(session, "Running system overview")
 EnrollmentAdjustAge <- qDT(EnrollmentAdjust) %>% 
   fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1, AgeAtEntry))
 
+logToConsole(session, "defined EnrollmentAdjustAge")
+
 system_person_ages <- EnrollmentAdjustAge %>%
   fgroup_by(PersonalID) %>%
   fmutate(AgeAtEntry = fmax(AgeAtEntry, na.rm = TRUE)) %>%
@@ -38,6 +40,7 @@ system_person_ages <- EnrollmentAdjustAge %>%
   ) %>%
   fselect(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)
 
+logToConsole(session, "defined system_person_ages")
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
@@ -262,6 +265,8 @@ session$userData$client_categories <- qDT(Client) %>%
   )
 session$userData$client_categories[, (race_cols) := NULL]
 
+logToConsole(session, "defined session$userData$client_categories")
+
 # Data prep ---------------------------------------------------------------
 
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
@@ -310,6 +315,8 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
+logToConsole(session, "defined enrollment_prep")
+
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
 # enrollment_prep %>%
@@ -329,6 +336,8 @@ hh_adjustments <- enrollment_prep[, `:=`(
   , .(EnrollmentID, CorrectedHoH)
 ]
 
+logToConsole(session, "defined hh_adjustments")
+
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
 # veteran in the hh. if there are none or multiple veterans, it will take the
@@ -345,6 +354,8 @@ hh_adjustments <- enrollment_prep[, `:=`(
 enrollment_prep_hohs <- enrollment_prep %>%
   join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
   colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
+
+logToConsole(session, "defined enrollment_prep_hohs")
 
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
@@ -426,6 +437,8 @@ enrollment_categories <- enrollment_prep_hohs %>%
   ) %>% 
   setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
 
+logToConsole(session, "defined enrollment_categories")
+
 # Get dataset of literally homeless CLS records. This will be used to:
 # 1. remove problematic enrollments
 # 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
@@ -437,6 +450,8 @@ lh_cls <- CurrentLivingSituation %>%
   ) %>%
   funique()
 
+logToConsole(session, "defined lh_cls")
+
 # Remove "problematic" enrollments ----------------------------------
 # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
 # So any enrollment that is not lh_prior_livingsituation and has no LH CLS
@@ -447,11 +462,15 @@ problematic_nonres_enrollmentIDs <- base::setdiff(
   unique(lh_cls$EnrollmentID)
 )
 
+logToConsole(session, "defined problematic_nonres_enrollments")
+
 enrollment_categories <- enrollment_categories %>%
   fsubset(
     !EnrollmentID %in% problematic_nonres_enrollmentIDs &
     EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
   )
+
+logToConsole(session, "subsetted enrollment_categories")
 
 # Set MoveInDateAdjust to no_end_date if NA. 
 # This will allow us to just use MoveInDateAdjust without also checking for NA
@@ -524,6 +543,8 @@ session$userData$lh_info <- enrollment_categories %>%
     EntryDate, ExitAdjust
   )
 
+logToConsole(session, "defined session$userData$lh_info")
+
 session$userData$report_dates <- get_report_dates()
 
 session$userData$enrollment_categories <- enrollment_categories %>%
@@ -552,6 +573,8 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
+
+logToConsole(session, "updated session$userData$enrollment_categories")
 
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading

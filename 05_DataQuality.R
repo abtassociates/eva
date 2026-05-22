@@ -1344,6 +1344,8 @@ if(nrow(overlap_staging) > 0){
   overlap_details <- NULL
 }
 
+logToConsole(session, "Completed overlap checks")
+
 # Invalid Move-in Date ----------------------------------------------------
 
 invalid_movein_date <- base_dq_data %>%
@@ -1353,6 +1355,8 @@ invalid_movein_date <- base_dq_data %>%
   ) %>%
   merge_check_info_dt(checkIDs = 40) %>%
   fselect(vars_we_want)
+
+logToConsole(session, "Completed invalid movein check")
 
 # Missing Health Ins ------------------------------------------------------
 
@@ -1375,6 +1379,9 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   fsubset(DataCollectionStage == 3) %>%
   merge_check_info_dt(checkIDs = 93) %>%
   fselect(vars_we_want)
+
+logToConsole(session, "got through missing_health_insurance_exit")
+
 
 health_insurance_subs <- base_dq_data_inc %>%
   fselect(
@@ -1413,6 +1420,8 @@ conflicting_health_insurance_exit <- health_insurance_subs %>%
            ProjectID %in% c(projects_require_hi)) %>%
   merge_check_info_dt(checkIDs = 95) %>%
   fselect(vars_we_want)
+
+logToConsole(session, "completed health insurance check")
 
 rm(health_insurance_subs)
 
@@ -1506,6 +1515,8 @@ conflicting_ncbs_entry <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
     
+logToConsole(session, "completed ncb check")
+
 # Missing bed night for NBN Enrollment Entry ---------------------------------------
 nbn_w_hmis_participation <- base_dq_data %>% 
   fsubset(ProjectType == es_nbn_project_type) %>%
@@ -1541,6 +1552,8 @@ missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
   fselect(all_of(vars_we_want)) %>%
   funique()
 
+logToConsole(session, "completed missing bed night NBN checks")
+
 # Bed night available for NBN Enrollment Exit ---------------------------------------
 bn_on_exit <- services_chk1  %>% 
   fsubset(has_bn_eq_exit) %>%  # but it does appear on ExitDate
@@ -1559,6 +1572,7 @@ rm(missing_bn1, missing_bn2, services_chk1)
   missing_bn_entry <- data.table()
 }
 
+logToConsole(session, "completed bn_on_exit check")
 
 # SSVF --------------------------------------------------------------------
 ssvf_base_dq_data <- base_dq_data %>%
@@ -1603,6 +1617,8 @@ ssvf_base_dq_data <- base_dq_data %>%
     on = "PersonalID",
     how = "left"
   )
+
+logToConsole(session, "got through ssvf definition")
 
 veteran_missing_year_entered <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1 & is.na(YearEnteredService)) %>%
@@ -1701,6 +1717,9 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   fsubset(MilitaryBranch %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 58) %>%
   fselect(vars_we_want)
+
+logToConsole(session, "completed veteran check")
+
 # Long Stayers -------------------------------------------------------------
 # The goal is here to flag "stays" that go beyond the local setting 
 # (that defines a "long" stay), and is set by the user
