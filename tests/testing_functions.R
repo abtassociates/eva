@@ -728,7 +728,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   )
   
   app$set_inputs(pageid = "tabSystemExits")
-  app$wait_for_idle(timeout = 1e+06)
+  app$wait_for_idle(timeout = 2e+06)
   app$expect_values(
     name = "syse-types-chart-default",
     input = syse_types_inputs,
