@@ -92,10 +92,14 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   )
   
   ## System Exits by Subpopulation
+  syse_subpop_universe_filters <- c('syse_subpop_age','syse_subpop_spec_pops',
+                                    'syse_subpop_race_ethnicity1','syse_subpop_race_ethnicity2',
+                                    'syse_subpop_age_selection','syse_subpop_vet_selection','syse_subpop_race_eth_selection')
+  
   syse_subpop_inputs <- c(
     "pageid",
     "syse_subpop_subtabs",
-    syse_universe_filters,
+    syse_subpop_universe_filters,
     syse_project_filters,
     syse_other_inputs
   )
@@ -107,18 +111,26 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   
   app$set_inputs(syse_tabbox = '<h4>Exits by Subpopulation</h4>')
   app$wait_for_idle(timeout = 1e+06)
+  app$set_inputs(syse_hh_type = "AO")
   app$expect_values(
-    name = "syse-subpop-chart-default",
+    name = "syse-subpop-chart-AO",
     input = syse_subpop_inputs,
     output = syse_subpop_outputs
   )
-  app$set_inputs(syse_spec_pops = "Veteran")
+  
+  app$set_inputs(vet_picker = TRUE)
+  app$set_inputs(syse_subpop_spec_pops = "Veteran")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(
-    name = "syse-subpop-veteran",
+    name = "syse-subpop-AO-veteran",
     input = syse_subpop_inputs,
     output = syse_subpop_outputs
   )
+  
+  ## reset enrollment filters
+  app$set_inputs(syse_hh_type = "All", syse_spec_pops = "None")
+  app$wait_for_idle(timeout = 2e+06)
+  
   ## System Exit PH Demographics
   syse_phd_inputs <- c(
     "pageid",
