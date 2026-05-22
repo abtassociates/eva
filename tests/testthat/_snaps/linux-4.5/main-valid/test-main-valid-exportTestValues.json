@@ -1580,7 +1580,7 @@
           "Class :character  ",
           "Error        :442  ",
           "Class :character  ",
-          "1st Qu.:   3  "
+          "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
@@ -1604,7 +1604,7 @@
           null,
           null,
           null,
-          "Max.   :5367  "
+          "Max.   :5367.00  "
         ]
       ],
       "Guidance": [
