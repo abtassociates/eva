@@ -12,8 +12,7 @@ output$syse_phd_summary_selections <- renderUI({
   
   sys_detailBox(selection = input$syse_phd_selections,
                 detail_type = 'phd',
-                methodology_type = ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
-                                          ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
+                methodology_type = input$syse_methodology_type,
                 cur_project_types = input$syse_project_type,
                 startDate = session$userData$ReportStart,
                 endDate = session$userData$ReportEnd)

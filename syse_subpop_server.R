@@ -140,10 +140,6 @@ syse_subpop_selections <- reactive({
   selected <- which(c(input$syse_subpop_age_selection, input$syse_subpop_race_eth_selection, input$syse_subpop_vet_selection))
   
   vals <- possible[selected]
-  if("Race/Ethnicity" %in% vals){
-    vals[vals == "Race/Ethnicity"] <- c("All Races/Ethnicities","Grouped Races/Ethnicities")[as.numeric(input$syse_methodology_type)]
-  }
-  
   vals
 })
 
@@ -151,8 +147,8 @@ did_factors_change <- reactive({
   c(
     meets_hh_type = (input$syse_hh_type != 'All'),
     meets_age_filter = ('Age' %in% syse_subpop_selections() && length(input$syse_subpop_age) < length(sys_age_cats)),
-    meets_race_eth_filter = ('All Races/Ethnicities' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity1 != 'All') +
-      ('Grouped Races/Ethnicities' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity2 != 'All'),
+    meets_race_eth_filter = (input$syse_methodology_type == '1' && input$syse_subpop_race_ethnicity1 != 'All') + 
+      (input$syse_methodology_type == '2' && input$syse_subpop_race_ethnicity2 != 'All'),
     meets_vet_filter = ('Veteran Status (Adult Only)' %in% syse_subpop_selections() && input$syse_subpop_spec_pops != 'None')
   )
 })
@@ -181,13 +177,13 @@ compute_subpop_and_everyone_else <- function(input_df){
       fmutate(meets_age_filter = TRUE)
   }
   
-  if('All Races/Ethnicities' %in% syse_subpop_selections()){
+  if('Race/Ethnicity' %in% syse_subpop_selections() && input$syse_methodology_type == '1'){
     req(input$syse_subpop_race_ethnicity1)
     
     subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop_race_ethnicity1 == "All") rep(TRUE, .N) else get(input$syse_subpop_race_ethnicity1) == 1)]
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_race_eth_filter = PersonalID %in% subpop_race_eth$PersonalID)
-  } else if('Grouped Races/Ethnicities' %in% syse_subpop_selections()){
+  } else if('Race/Ethnicity' %in% syse_subpop_selections() && input$syse_methodology_type == '2'){
     req(input$syse_subpop_race_ethnicity2)
     subpop_race_eth <- subpop_w_client_filters[ (if(input$syse_subpop_race_ethnicity2 == "All") rep(TRUE, .N) else get(input$syse_subpop_race_ethnicity2) == 1)]
     subpop_w_client_filters <- subpop_w_client_filters %>% 
@@ -337,7 +333,7 @@ observeEvent(input$syse_subpop_vet_selection,
 
 observeEvent(syse_subpop_selections(),{
   
-  str_vec <- c('Age','Races/Ethnicities','Veteran Status')
+  str_vec <- c('Age','Race/Ethnicity','Veteran Status')
   excl_vec <- c('age','race_eth','vet')
   if(length(syse_subpop_selections()) == 2){
     
@@ -388,8 +384,8 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
   labels_factors_changed <- c(
     meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
     meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
-    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
-                                   ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
+    meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_methodology_type == '1' && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
+                                   ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_methodology_type == '2' && input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
     meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed && input$syse_subpop_spec_pops != 'None', input$syse_subpop_spec_pops, NA_character_)
   )
   labels_factors_changed['meets_hh_type'] <- gsub('- ','',labels_factors_changed['meets_hh_type'])

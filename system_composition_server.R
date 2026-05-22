@@ -408,8 +408,7 @@ output$sys_comp_summary_selections <- renderUI({
   req(!is.null(input$system_composition_selections) & session$userData$valid_file() == 1)
   sys_detailBox( selection = input$system_composition_selections,
                  detail_type = 'comp',
-                 methodology_type = ifelse('All Races/Ethnicities' %in% input$system_composition_selections, '1',
-                                           ifelse('Grouped Races/Ethnicities' %in% input$system_composition_selections, '2', NA)),
+                 methodology_type = input$syso_methodology_type,
                  cur_project_types = input$syso_project_type,
                  startDate = session$userData$ReportStart,
                  endDate = session$userData$ReportEnd)
