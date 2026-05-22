@@ -815,7 +815,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
     output = syse_subpop_outputs
   )
   
-  app$set_inputs(vet_picker = TRUE)
+  app$set_inputs(syse_subpop_vet_selection = TRUE)
   app$set_inputs(syse_subpop_spec_pops = "Veteran")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(

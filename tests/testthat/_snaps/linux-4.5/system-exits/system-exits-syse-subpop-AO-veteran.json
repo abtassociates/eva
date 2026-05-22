@@ -24,7 +24,7 @@
     "syse_subpop_race_ethnicity2": "All",
     "syse_subpop_spec_pops": "Veteran",
     "syse_subpop_subtabs": "<h5>Chart<\/h5>",
-    "syse_subpop_vet_selection": false,
+    "syse_subpop_vet_selection": true,
     "syse_tabbox": "<h4>Exits by Subpopulation<\/h4>"
   },
   "output": {
