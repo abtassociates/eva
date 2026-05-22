@@ -595,7 +595,7 @@ sys_detailBox <- function(
     list(
       HTML(glue("<strong>Selections</strong>: {paste(selection, collapse=' and ')} <br>"))
     )
-  } else {
+  } else if (detail_type == 'subpop'){
     list(
       if (length(age) != length(sys_age_cats))
         HTML(glue(
@@ -609,6 +609,21 @@ sys_detailBox <- function(
       if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
         HTML(glue(
           "<div style='text-indent: 20px;'><b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')}</div>"
+        ))
+    )
+  } else {
+    list(
+      if (length(age) != length(sys_age_cats))
+        HTML(glue(
+          "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
+        )),
+      
+      if (!is.null(race_eth) && race_eth != "All")
+        chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
+      
+      if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
+        HTML(glue(
+          "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')} <br>"
         ))
     )
   }
