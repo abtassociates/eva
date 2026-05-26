@@ -625,7 +625,8 @@ output$proj_bui_all_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
+  colnames(data) <- gsub("Served", "People Served", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -684,7 +685,8 @@ output$proj_bui_ao_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
+  colnames(data) <- gsub("Served", "People Served", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -743,7 +745,8 @@ output$proj_bui_ac_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
+  colnames(data) <- gsub("Served", "People Served", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -802,7 +805,8 @@ output$proj_bui_co_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
+  colnames(data) <- gsub("Served", "People Served", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
