@@ -166,7 +166,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
       if(!is.null(extragroups)){
         grouping_vars <-unique(c("ProjectID","PIT", "label", extragroups))
         nightly_avg_q <- count_Beds_Units_rng(period[q], period[q+1] , proj_list = projlist,
-                                              extra_groups = unique(c("Availability"))) %>% # , extragroups remove extra groups from bed/unit counts to get fixed totals? 
+                                              extra_groups = unique(c("Availability", extragroups))) %>% 
           join(count_Enrollments_rng(period[q], period[q+1] , proj_list = projlist, 
                                      extra_groups = extragroups), how = "full") %>% 
           fmutate(PIT = period[q],
@@ -185,7 +185,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
         
         grouping_vars <-unique(c("ProjectID", "PIT", "label", extragroups))
         nightly_avg_q <- count_Beds_Units_rng(period[q], period[1] + years(1) , proj_list = projlist,
-                                              extra_groups = unique(c("Availability"))) %>% # ,extragroups remove extra groups from bed/unit counts to get fixed totals? 
+                                              extra_groups = unique(c("Availability", extragroups))) %>%
           join(count_Enrollments_rng(period[q], period[1] + years(1) , proj_list = projlist,
                                      extra_groups = extragroups), how = "full") %>%
           fmutate(PIT = period[q],
@@ -220,7 +220,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
   fmutate(
     #PIT = as.Date(NA),
     #label = "Annual",
-    Availability = "All"
+    Availability = "Total"
     # this could be a format mask to download with more digits
     #Avg_Nightly_Beds = round(Total_Beds / 365, digits = 1),
     #Avg_Nightly_Units = round(Total_Units / 365, digits = 1),
@@ -330,19 +330,18 @@ observe({
   #    c_choices <- unique(c(c_choices,input$bui_bed_avail))
   #  }
   #}; print(c_choices)
-  c_choices <-  sort(unique(selected_projs$Availability)) #recode_num(sort(unique(selected_projs$Availability)), `1` = "Yearly", `2`="Seasonal", `3` = "Overflow", .default = "Other")
   
-  updateCheckboxGroupButtons(session = session,
-                             inputId = "bui_bed_avail",
-                             choices = c_choices, 
-                             selected = c_choices)
-  
-  # 1 - year round
-  # 2 - seasonal
-  # 3 - overflow
-  
-}, priority = 1)
-
+  if (all(unique(selected_projs$ProjectType) %in% c(es_ee_project_type,es_nbn_project_type))){ # if the selected projects are ES
+    updatePickerInput(session = session,
+                      inputId = "bui_bed_avail",
+                      selected = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"))
+    
+  }else{
+    updatePickerInput(session = session,
+                      inputId = "bui_bed_avail",
+                      selected = c("Year-round"))
+  }
+})
 #### DISPLAY FILTER SELECTIONS ###
 
 util_filters <- reactive({
@@ -440,7 +439,7 @@ hh_avg_q <- reactive({
                PIT_HHServed = unique(PIT_HHServed)) %>% 
     fungroup %>%
     fmutate(
-      Availability = "All"
+      Availability = "Total"
      )
   # join with selected project PIT date details
   project_level_util_q <-  project_level_util_q %>% rowbind(project_level_util_tot) %>%
@@ -522,7 +521,7 @@ hh_avg_m <- reactive({
                PIT_HHServed = unique(PIT_HHServed)) %>% 
     fungroup %>%
     fmutate(
-      Availability = "All"
+      Availability = "Total"
     )
   # join with selected project PIT date details
   project_level_util_m <-  project_level_util_m %>% rowbind(project_level_util_tot) %>%
@@ -566,11 +565,11 @@ re_calc <- reactive({
       data[,paste0("PIT ", bed_types[i], " Beds") ] <-  ifelse(data$Availability == bed_types[i], data$`PIT Beds`, NA)
       data[,paste0("Total ", bed_types[i], " Beds") ] <- ifelse(data$Availability == bed_types[i], data$`Total Beds`, NA)
       
-      if(bed_types[i]=="All"){
+      if(bed_types[i]=="Total"){
         
         data <- data %>% group_by( PIT) %>% 
-          fmutate(`Avg Nightly All Beds` = fsum(ifelse(Availability != "All", `Avg Nightly Beds`,NA)) ,
-                  `PIT All Beds` = fsum(ifelse(Availability != "All", `PIT Beds`,NA))
+          fmutate(`Avg Nightly Total Beds` = fsum(ifelse(Availability != "Total", `Avg Nightly Beds`,NA)) ,
+                  `PIT Total Beds` = fsum(ifelse(Availability != "Total", `PIT Beds`,NA))
           )
       }else{
         data[,paste0("Avg Nightly ",bed_types[i], " Beds") ] <- ifelse(data$Availability == bed_types[i], data$`Avg Nightly Beds`, NA)
@@ -585,9 +584,9 @@ re_calc <- reactive({
       fill(paste0("Avg Nightly ",bed_types, " Beds"), .direction = "updown")
     data <- data %>%
       fmutate(
-        `PIT Bed Utilization` = paste(round(100*unique(`PIT Served`) /  `PIT All Beds`, digits = 1), "%"),
-        `Avg Nightly Bed Util` = paste(round(100*unique(`Avg Nightly Served`) / `Avg Nightly All Beds`, digits = 1), "%")) %>%
-      ungroup  %>% unique()
+        `PIT Bed Utilization` = paste(round(100*unique(`PIT Served`) /  `PIT Total Beds`, digits = 1), "%"),
+        `Avg Nightly Bed Util` = paste(round(100*unique(`Avg Nightly Served`) / `Avg Nightly Total Beds`, digits = 1), "%")) %>%
+      ungroup  %>% unique() %>% select(-`Total Beds`)
     
     
   }else{
@@ -595,11 +594,11 @@ re_calc <- reactive({
       
       data[,paste0("PIT ", bed_types[i], " Units") ] <- ifelse(data$Availability == bed_types[i], data$`PIT Units`, NA)
       data[,paste0("Total ", bed_types[i], " Units") ] <- ifelse(data$Availability == bed_types[i], data$`Total Units`, NA)
-      if(bed_types[i]=="All"){
+      if(bed_types[i]=="Total"){
         
         data <- data %>% group_by(PIT) %>% 
-          fmutate(`Avg Nightly All Units` = fsum(ifelse(Availability != "All", `Avg Nightly Units`,NA))  ,
-                  `PIT All Units` = fsum(ifelse(Availability != "All", `PIT Units`,NA))
+          fmutate(`Avg Nightly Total Units` = fsum(ifelse(Availability != "Total", `Avg Nightly Units`,NA))  ,
+                  `PIT Total Units` = fsum(ifelse(Availability != "Total", `PIT Units`,NA))
           ) 
       }else{
         data[,paste0("Avg Nightly ", bed_types[i], " Units") ] <- ifelse(data$Availability == bed_types[i], data$`Avg Nightly Units`, NA)
@@ -614,9 +613,9 @@ re_calc <- reactive({
       fill(paste0("Total ", bed_types, " Units"), .direction = "updown")%>% 
       fill(paste0("Avg Nightly ", bed_types, " Units"), .direction = "updown")
     data <- data %>%
-      fmutate(`PIT Unit Utilization` = paste(round(100* unique(`PIT HHServed`) /  `PIT All Units`, digits = 1), "%"),
-        `Avg Nightly Unit Util` = paste(round(100*unique(`Avg Nightly HHServed`)/ `Avg Nightly All Units`, digits = 1), "%")) %>%
-      ungroup %>% unique() 
+      fmutate(`PIT Unit Utilization` = paste(round(100* unique(`PIT HHServed`) /  `PIT Total Units`, digits = 1), "%"),
+        `Avg Nightly Unit Util` = paste(round(100*unique(`Avg Nightly HHServed`)/ `Avg Nightly Total Units`, digits = 1), "%")) %>%
+      ungroup %>% unique() %>% select(-`Total Units`)
     
   }
 })
@@ -624,32 +623,55 @@ re_calc <- reactive({
 # Utilization Subsets by HouseholdType
 output$proj_bui_all_hh <- renderDT({
   
-  data <- re_calc()
+  data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
+                               -paste("Avg Nightly", input$bui_inventory_level))
+  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`PIT Beds`) %>%  rename("PIT Beds" = "PIT All Beds") 
-    }else{
-      data <- data %>% select(-`PIT Units`) %>%  rename("PIT Units" = "PIT All Units") 
-    }
+    colnames(data) <- gsub("PIT Total", "PIT", colnames(data))
     data <- data %>% select(-Availability, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
-    
   }else{
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`Avg Nightly Beds`) %>%  rename("Avg Nightly Beds" = "Avg Nightly All Beds")
-    }else{
-      data <- data %>% select(-`Avg Nightly Units`) %>%  rename("Avg Nightly Units" = "Avg Nightly All Units") 
-    }
+    colnames(data) <- gsub("Avg Nightly Total", "Avg Nightly", colnames(data))
     data <- data %>% select(-Availability, -contains("PIT "), -contains("Total ")) %>% unique()
-    
   }
+  data <- data %>% rename(`Time Period` = PIT) 
   
   labels <- data$label
   data <- data %>% select(-label) %>% t()  # transpose 
   colnames(data) <- labels
   
+  for (f in input$bui_bed_avail){
+    print(rownames(data))
+    print(grepl(f,rownames(data)))
+    if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
+      row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
+      colnames(row2add) <- colnames(data)
+      
+      if(input$bui_period_filter == "Point in Time"){
+        rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
+        total_col <- paste("PIT", input$bui_inventory_level)
+      }else{
+        rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
+        total_col <- paste("Avg Nightly", input$bui_inventory_level)
+      }
+      
+      data <- data %>% rbind(row2add)
+      rm(row2add)
+    }
+    
+  }
+row_names <- rownames(data)  
+  
+row_order <- c("Time Period", row_names[grepl("Served", row_names)], 
+               row_names[grepl("Year-round", row_names)],
+               row_names[grepl("Overflow", row_names)], 
+               row_names[grepl("Seasonal", row_names)], 
+               total_col,
+               row_names[grepl("Util", row_names)])
+  
   datatable( # return table
-    data ,
+    data[row_order,] ,
     #rownames = data$label,
     options = list(dom = 't', 
                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
@@ -660,30 +682,55 @@ output$proj_bui_all_hh <- renderDT({
 })
 output$proj_bui_ao_hh <- renderDT({
   
-  data <- re_calc()
+  data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
+                               -paste("Avg Nightly", input$bui_inventory_level))
+  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("Util", "Utilization", colnames(data))
+  
   if(input$bui_period_filter == "Points in Time"){
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`PIT Beds`) %>%  rename("PIT Beds" = "PIT All Beds") 
-    }else{
-      data <- data %>% select(-`PIT Units`) %>%  rename("PIT Units" = "PIT All Units") 
-    }
-    data <- data %>% select(-Availability, -HouseholdType, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
-    
+    colnames(data) <- gsub("PIT Total", "PIT", colnames(data))
+    data <- data %>% select(-Availability, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
   }else{
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`Avg Nightly Beds`) %>%  rename("Avg Nightly Beds" = "Avg Nightly All Beds")
-    }else{
-      data <- data %>% select(-`Avg Nightly Units`) %>%  rename("Avg Nightly Units" = "Avg Nightly All Units") 
-    }
-    data <- data %>% select(-Availability,-HouseholdType, -contains("PIT "), -contains("Total ")) %>% unique()
-    
+    colnames(data) <- gsub("Avg Nightly Total", "Avg Nightly", colnames(data))
+    data <- data %>% select(-Availability, -contains("PIT "), -contains("Total ")) %>% unique()
   }
-
+  data <- data %>% rename(`Time Period` = PIT) 
+  
   labels <- data$label
   data <- data %>% select(-label) %>% t()  # transpose 
   colnames(data) <- labels
+  
+  for (f in input$bui_bed_avail){
+    print(rownames(data))
+    print(grepl(f,rownames(data)))
+    if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
+      row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
+      colnames(row2add) <- colnames(data)
+      
+      if(input$bui_period_filter == "Point in Time"){
+        rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
+        total_col <- paste("PIT", input$bui_inventory_level)
+      }else{
+        rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
+        total_col <- paste("Avg Nightly", input$bui_inventory_level)
+      }
+      
+      data <- data %>% rbind(row2add)
+      rm(row2add)
+    }
+    
+  }
+  row_names <- rownames(data)  
+  
+  row_order <- c("Time Period", row_names[grepl("Served", row_names)], 
+                 row_names[grepl("Year-round", row_names)],
+                 row_names[grepl("Overflow", row_names)], 
+                 row_names[grepl("Seasonal", row_names)], 
+                 total_col,
+                 row_names[grepl("Util", row_names)])
+  
   datatable( # return table
-    data ,
+    data[row_order,] ,
     #rownames = data$label,
     options = list(dom = 't', 
                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
@@ -694,30 +741,55 @@ output$proj_bui_ao_hh <- renderDT({
 })
 output$proj_bui_ac_hh <- renderDT({
   
-  data <- re_calc()
+  data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
+                               -paste("Avg Nightly", input$bui_inventory_level))
+  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("Util", "Utilization", colnames(data))
+  
   if(input$bui_period_filter == "Points in Time"){
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`PIT Beds`) %>%  rename("PIT Beds" = "PIT All Beds") 
-    }else{
-      data <- data %>% select(-`PIT Units`) %>%  rename("PIT Units" = "PIT All Units") 
-    }
-    data <- data %>% select(-Availability, -HouseholdType, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
-    
+    colnames(data) <- gsub("PIT Total", "PIT", colnames(data))
+    data <- data %>% select(-Availability, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
   }else{
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`Avg Nightly Beds`) %>%  rename("Avg Nightly Beds" = "Avg Nightly All Beds")
-    }else{
-      data <- data %>% select(-`Avg Nightly Units`) %>%  rename("Avg Nightly Units" = "Avg Nightly All Units") 
-    }
-    data <- data %>% select(-Availability,-HouseholdType, -contains("PIT "), -contains("Total ")) %>% unique()
-    
+    colnames(data) <- gsub("Avg Nightly Total", "Avg Nightly", colnames(data))
+    data <- data %>% select(-Availability, -contains("PIT "), -contains("Total ")) %>% unique()
   }
+  data <- data %>% rename(`Time Period` = PIT) 
   
   labels <- data$label
   data <- data %>% select(-label) %>% t()  # transpose 
   colnames(data) <- labels
+  
+  for (f in input$bui_bed_avail){
+    print(rownames(data))
+    print(grepl(f,rownames(data)))
+    if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
+      row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
+      colnames(row2add) <- colnames(data)
+      
+      if(input$bui_period_filter == "Point in Time"){
+        rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
+        total_col <- paste("PIT", input$bui_inventory_level)
+      }else{
+        rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
+        total_col <- paste("Avg Nightly", input$bui_inventory_level)
+      }
+      
+      data <- data %>% rbind(row2add)
+      rm(row2add)
+    }
+    
+  }
+  row_names <- rownames(data)  
+  
+  row_order <- c("Time Period", row_names[grepl("Served", row_names)], 
+                 row_names[grepl("Year-round", row_names)],
+                 row_names[grepl("Overflow", row_names)], 
+                 row_names[grepl("Seasonal", row_names)], 
+                 total_col,
+                 row_names[grepl("Util", row_names)])
+  
   datatable( # return table
-    data ,
+    data[row_order,] ,
     #rownames = data$label,
     options = list(dom = 't', 
                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
@@ -728,30 +800,55 @@ output$proj_bui_ac_hh <- renderDT({
 })
 output$proj_bui_co_hh <- renderDT({
   
-  data <- re_calc()
+  data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
+                               -paste("Avg Nightly", input$bui_inventory_level))
+  colnames(data) <- gsub("HHServed", "Households", colnames(data))
+  colnames(data) <- gsub("Util", "Utilization", colnames(data))
+  
   if(input$bui_period_filter == "Points in Time"){
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`PIT Beds`) %>%  rename("PIT Beds" = "PIT All Beds") 
-    }else{
-      data <- data %>% select(-`PIT Units`) %>%  rename("PIT Units" = "PIT All Units") 
-    }
-    data <- data %>% select(-Availability, -HouseholdType, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
-    
+    colnames(data) <- gsub("PIT Total", "PIT", colnames(data))
+    data <- data %>% select(-Availability, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
   }else{
-    if(input$bui_inventory_level == "Beds"){
-      data <- data %>% select(-`Avg Nightly Beds`) %>%  rename("Avg Nightly Beds" = "Avg Nightly All Beds")
-    }else{
-      data <- data %>% select(-`Avg Nightly Units`) %>%  rename("Avg Nightly Units" = "Avg Nightly All Units") 
-    }
-    data <- data %>% select(-Availability,-HouseholdType, -contains("PIT "), -contains("Total ")) %>% unique()
-    
+    colnames(data) <- gsub("Avg Nightly Total", "Avg Nightly", colnames(data))
+    data <- data %>% select(-Availability, -contains("PIT "), -contains("Total ")) %>% unique()
   }
+  data <- data %>% rename(`Time Period` = PIT) 
   
   labels <- data$label
   data <- data %>% select(-label) %>% t()  # transpose 
   colnames(data) <- labels
+  
+  for (f in input$bui_bed_avail){
+    print(rownames(data))
+    print(grepl(f,rownames(data)))
+    if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
+      row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
+      colnames(row2add) <- colnames(data)
+      
+      if(input$bui_period_filter == "Point in Time"){
+        rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
+        total_col <- paste("PIT", input$bui_inventory_level)
+      }else{
+        rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
+        total_col <- paste("Avg Nightly", input$bui_inventory_level)
+      }
+      
+      data <- data %>% rbind(row2add)
+      rm(row2add)
+    }
+    
+  }
+  row_names <- rownames(data)  
+  
+  row_order <- c("Time Period", row_names[grepl("Served", row_names)], 
+                 row_names[grepl("Year-round", row_names)],
+                 row_names[grepl("Overflow", row_names)], 
+                 row_names[grepl("Seasonal", row_names)], 
+                 total_col,
+                 row_names[grepl("Util", row_names)])
+  
   datatable( # return table
-    data ,
+    data[row_order,] ,
     #rownames = data$label,
     options = list(dom = 't', 
                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
