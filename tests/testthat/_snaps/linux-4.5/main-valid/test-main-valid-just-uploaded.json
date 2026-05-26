@@ -15,8 +15,21 @@
     "accordion_home": null,
     "accordion_local_settings": null,
     "accordion_pdde": null,
+    "accordion_projBUI": null,
+    "accordion_sysBUI": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
+    "bui_HMISprojects": "Organization A - ES",
+    "bui_bed_avail": [
+      "Overflow",
+      "Yearly"
+    ],
+    "bui_bed_avail1": true,
+    "bui_bed_avail2": true,
+    "bui_bed_avail3": true,
+    "bui_hh_type": "All",
+    "bui_inventory_level": "Beds",
+    "bui_period_filter": "Quarterly",
     "card_filters1_full_screen": false,
     "card_filters2_full_screen": false,
     "client_count_cc_subtabs": "<h5>Summary<\/h5>",
@@ -27,6 +40,7 @@
       "2019-10-01",
       "2022-09-30"
     ],
+    "dedicated_beds_sys": "All Bed Types",
     "demo_mode_tooltip": false,
     "dimension": [
       1920,
@@ -71,6 +85,7 @@
       "Organization Z"
     ],
     "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
+    "es_bed_avail_sys": "All ES Bed Availability Types",
     "fileStructureAnalysis_cell_clicked": {
 
     },
@@ -133,6 +148,7 @@
     "g_errors_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
     "g_errors_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>",
     "glossary_subtabs": "<h2>Glossary<\/h2>",
+    "housing_type_sys": "All Housing Types",
     "hp_errors_dqorg_subtabs": "<h5>Issues<\/h5>",
     "hp_errors_dqsystem_subtabs": "<h5>Issues<\/h5>",
     "imported": {
@@ -150,11 +166,13 @@
       ]
     },
     "in_demo_mode": false,
+    "inventory_level_sys": "Beds",
     "mbm_status_filter": "All",
     "methodology_type": "1",
     "orgList": "Organization A‰",
     "pageid": "tabUpload",
     "pdde_subtabs": "<h4>PDDE Check Summary<\/h4>",
+    "project_level_box": "<h4>Inventory and Utilization<\/h4>",
     "showDownloadImpermissibleButton": 0,
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
@@ -182,9 +200,14 @@
       "Age",
       "All Races/Ethnicities"
     ],
+    "system_level_box": "<h4>Inventory<\/h4>",
+    "system_level_box_inv": "<h5>Quarterly Inventory<\/h5>",
+    "system_level_box_util": "<h5>Quarterly Utilization<\/h5>",
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
+    "target_pop_sys": "All Target Populations",
     "timeliness_metric": 3,
+    "victim_service_sys": "All Organizations",
     "warnings_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>"
   },

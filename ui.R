@@ -1052,12 +1052,12 @@ nav_menu(
     card(
       card_header(headerCard("Filters")),
       layout_columns(
-        col_widths=c(4,4,4),
+        col_widths=c(6,6),
         gap = '0px',
         
         pickerInput(
           label = 'Select Project',
-          inputId = "HMISprojects",
+          inputId = "bui_HMISprojects",
           choices = NULL,
           options = pickerOptions(liveSearch = TRUE,
                                   liveSearchStyle = 'contains', 
@@ -1065,7 +1065,7 @@ nav_menu(
         ),
         pickerInput(
           label = "Inventory Level",
-          inputId = "inventory_level",
+          inputId = "bui_inventory_level",
           choices = c("Beds","Units"),
           selected = "Beds",
           options = pickerOptions(container = "body")
@@ -1092,91 +1092,32 @@ nav_menu(
         #  options = pickerOptions(container = "body")
         #),
         pickerInput(
-          label = "ES Bed Availability Type",
-          inputId = "es_bed_avail_sys",
-          choices = "All ES Bed Availability Types",
-          selected = "All ES Bed Availability Types",
+          label = "Period",
+          inputId = "bui_period_filter",
+          choices = c("Quarterly", "Monthly", "Points in Time"),
+          selected = "Quarterly",
           options = pickerOptions(container = "body")
-        )
+        ),
+        pickerInput(
+          inputId = "bui_bed_avail",
+          label = "ES Bed Availability Type",
+          choices = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
+          selected = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
+          multiple = TRUE,
+          options = pickerOptions(container = "body")
+        ),
       )
     ),
+      ### Project Level Utilization ----------------
     navset_underline( # Inventory or Utilization
       id = "project_level_box",
-      selected = headerTab("Inventory"),
-      ### Project Level Inventory ----------------
+      selected = headerTab("Inventory and Utilization"),
       nav_panel(
-        title = headerTab('Inventory'),
-        navset_underline( # Quarterly Inventory, Monthly Inventory, or Information
-          id = "project_level_box_inv",
-          selected = headerSubTab("Quarterly Inventory"),
-          nav_panel( # Quarterly Inventory
-            title = headerSubTab('Quarterly Inventory'),
-            DTOutput("q_proj_inv_filtered") %>% withSpinner()
-            #plotOutput("sys_inflow_outflow_summary_ui_chart",
-            #           width = "70%",
-            #           height = "500") %>%
-            #  withSpinner()
-          ),
-          nav_panel( # Monthly Inventory
-            title = headerSubTab("Monthly Inventory"),
-            DTOutput("m_proj_inv_filtered") %>% withSpinner()
-          ),
-          nav_panel( # Information
-            title = headerSubTab("Information")
-          )
-        )
-      ),
-      ### Project Level Utilization ----------------
-      nav_panel(
-          title = headerSubTab("Utilization"),
-          
-          navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
-            id = "project_level_box_util",
-            selected = headerSubTab("Quarterly Utilization"),
-            nav_panel( # Quarterly Utilization
-              title = headerSubTab('Quarterly Utilization'),
-              uiOutput("quarterly_util_filter_selections"),
-                radioGroupButtons(
-                  inputId = "pop_filter_q_avg",
-                  #label = "Flow Type Filters",
-                  choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
-                  #Inactive
-                  selected = "All",
-                  individual = TRUE,
-                  checkIcon = list(yes = icon("check"))
-                ), 
-              # todo - add another switch for Value: Average or Point in Time (PIT)
-                conditionalPanel(
-                  condition = "input.pop_filter_q_avg == 'Adult-Only'",
-                  # todo - plotOutput
-                  DTOutput("ao_q_avg", width = "100%", height = "500") %>% 
-                    withSpinner() 
-                ), 
-                conditionalPanel(
-                  condition = "input.pop_filter_q_avg =='Adult-Child'",
-                  # todo - plotOutput
-                  DTOutput("ac_q_avg", width = "100%", height = "500") %>% 
-                    withSpinner()
-                ),
-                conditionalPanel(
-                  condition = "input.pop_filter_q_avg == 'Child-Only'",
-                  # todo - plotOutput
-                  DTOutput("co_q_avg", width = "100%", height = "500") %>% 
-                    withSpinner()
-                ),
-                conditionalPanel(
-                  condition = "input.pop_filter_q_avg == 'All'",
-                  # todo - plotOutput
-                  DTOutput("all_q_avg", width = "100%", height = "500") %>% 
-                    withSpinner()
-                )
-            ),
-            nav_panel( # Monthly Utilization
-              title = headerSubTab("Monthly Utilization"),
-              uiOutput("monthly_util_filter_selections"),
+          title = headerTab("Inventory and Utilization"),
+          uiOutput("bui_filter_selections"),
               radioGroupButtons(
-                inputId = "pop_filter_m_avg",
-                #label = "Flow Type Filters",
+                inputId = "bui_hh_type",
+                label = "Household Type Filters",
                 choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
                 #Inactive
                 selected = "All",
@@ -1184,37 +1125,35 @@ nav_menu(
                 checkIcon = list(yes = icon("check"))
               ), 
               # todo - add another switch for Value: Average or Point in Time (PIT)
-              conditionalPanel(
-                condition = "input.pop_filter_m_avg == 'Adult-Only'",
-                # todo - plotOutput
-                DTOutput("ao_m_avg", width = "100%", height = "500") %>% 
-                  withSpinner()
-              ), 
-              conditionalPanel(
-                condition = "input.pop_filter_m_avg =='Adult-Child'",
-                # todo - plotOutput
-                DTOutput("ac_m_avg", width = "100%", height = "500") %>% 
-                  withSpinner()
-              ),
-              conditionalPanel(
-                condition = "input.pop_filter_m_avg == 'Child-Only'",
-                # todo - plotOutput
-                DTOutput("co_m_avg", width = "100%", height = "500") %>% 
-                  withSpinner()
-              ),
-              conditionalPanel(
-                condition = "input.pop_filter_m_avg == 'All'",
-                # todo - plotOutput
-                DTOutput("all_m_avg", width = "100%", height = "500") %>% 
-                  withSpinner()
-              )
-            ),
-            nav_panel( # Information
-              title = headerSubTab("Information")
-            )
+                conditionalPanel(
+                  condition = "input.bui_hh_type == 'Adult-Only'",
+                  # todo - plotOutput
+                  DTOutput("proj_bui_ao_hh", width = "100%", height = "500") %>% 
+                    withSpinner() 
+                ), 
+                conditionalPanel(
+                  condition = "input.bui_hh_type =='Adult-Child'",
+                  # todo - plotOutput
+                  DTOutput("proj_bui_ac_hh", width = "100%", height = "500") %>% 
+                    withSpinner()
+                ),
+                conditionalPanel(
+                  condition = "input.bui_hh_type == 'Child-Only'",
+                  # todo - plotOutput
+                  DTOutput("proj_bui_co_hh", width = "100%", height = "500") %>% 
+                    withSpinner()
+                ),
+                conditionalPanel(
+                  condition = "input.bui_hh_type == 'All'",
+                  # todo - plotOutput
+                  DTOutput("proj_bui_all_hh", width = "100%", height = "500") %>% 
+                    withSpinner()
+                )
+          ),
+          nav_panel( # Information
+            title = headerTab("Information")
           )
         )
-      )
     ),
     ## System Level tab --------------
   nav_panel(
