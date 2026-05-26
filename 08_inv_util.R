@@ -44,14 +44,14 @@ HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   ) %>% select(-InvHMISParticipationStart, - InvHMISParticipationEnd) # drop the interim step vars 
 
 HMIS_project_active_inventories <- HMIS_project_active_inventories %>% 
-  fmutate("Availability" = fcase(Availability == 1, "Yearly", 
-                                 Availability == 2, "Seasonal",
-                                 Availability == 3, "Overflow",
-                                 default = "Unknown"))
+  fmutate("Availability" = fcase(Availability == 1, "Year-round", 
+                                 Availability == 2, "Seasonal (ES Only)",
+                                 Availability == 3, "Overflow (ES Only)",
+                                 default = "Year-round"))
 
 # Project-Level ----------------------------------------------------------------
 HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
-  fgroup_by(ProjectID, HMISParticipationType, VictimServiceProvider, HousingType, TargetPopulation, HouseholdType, ESBedType, Availability) %>%
+  fgroup_by(ProjectID, ProjectType, HMISParticipationType, VictimServiceProvider, HousingType, TargetPopulation, HouseholdType, ESBedType, Availability) %>%
   fsummarise(ProjectHMISActiveParticipationStart = fmin(InvHMISActiveParticipationStart), # first active inv start with HMISPartiicpationType 
              ProjectHMISActiveParticipationEnd = fmax(InvHMISActiveParticipationEnd), # last active inv end with HMISPartiicpationType
              #TargetPopulation = list(sort(unique(TargetPopulation))), # sum?
@@ -108,14 +108,17 @@ updatePickerInput(session = session,
 #                    choices =  c_choices)
 #}
 
-c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
+
+# Since this is set in the ui, this was just changing the order of the choices
+# default selection will be based on selected project type (server_09_inv_util.R)
+
+#c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
 #if(length(c_choices) > 1) {
   #c_choices = c( "All ES Bed Availability Types", c_choices)
 #c_choices = recode_num(c_choices, `1` = "Yearly", `2`="Seasonal", `3` = "Overflow", .default = "Other")
-updateCheckboxGroupButtons(session = session,
-                  inputId = "bui_bed_avail",
-                  choices = c_choices, 
-                  selected = c_choices)
+#updatePickerInput(session = session,
+#                  inputId = "bui_bed_avail",
+#                  selected = c_choices)
 #}
 # on Inventory & Utilization dropdown - System LeveL tab ---- 
 
