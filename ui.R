@@ -1052,7 +1052,7 @@ nav_menu(
     card(
       card_header(headerCard("Filters")),
       layout_columns(
-        col_widths=c(4,4,4),
+        col_widths=c(6,6),
         gap = '0px',
         
         pickerInput(
@@ -1097,7 +1097,15 @@ nav_menu(
           choices = c("Quarterly", "Monthly", "Points in Time"),
           selected = "Quarterly",
           options = pickerOptions(container = "body")
-        )
+        ),
+        pickerInput(
+          inputId = "bui_bed_avail",
+          label = "ES Bed Availability Type",
+          choices = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
+          selected = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
+          multiple = TRUE,
+          options = pickerOptions(container = "body")
+        ),
       )
     ),
       ### Project Level Utilization ----------------
@@ -1107,15 +1115,6 @@ nav_menu(
       nav_panel(
           title = headerTab("Inventory and Utilization"),
           uiOutput("bui_filter_selections"),
-            checkboxGroupButtons(
-                inputId = "bui_bed_avail",
-                label = "ES Bed Availability Type",
-                choices = c("Yearly", "Seasonal","Overflow"),
-                #Inactive
-                selected = c("Yearly", "Seasonal","Overflow"),
-                #individual = TRUE,
-                checkIcon = list(yes = icon("check"))
-              ), 
               radioGroupButtons(
                 inputId = "bui_hh_type",
                 label = "Household Type Filters",
