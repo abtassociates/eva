@@ -47,7 +47,14 @@ HMIS_project_active_inventories <- HMIS_project_active_inventories %>%
   fmutate("Availability" = fcase(Availability == 1, "Year-round", 
                                  Availability == 2, "Seasonal (ES Only)",
                                  Availability == 3, "Overflow (ES Only)",
-                                 default = "Year-round"))
+                                 default = "Year-round")) %>%
+  fmutate(VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
+          YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHVetUnitInventory = UnitInventory * CHVetBedInventory/BedInventory,
+          CHYouthUnitInventory = UnitInventory * CHYouthBedInventory/BedInventory,
+          YouthVetUnitInventory = UnitInventory * YouthVetBedInventory/BedInventory,
+          OtherUnitInventory = UnitInventory * OtherBedInventory/BedInventory)
 
 # Project-Level ----------------------------------------------------------------
 HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
@@ -58,23 +65,23 @@ HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
              UnitInventory = fsum(UnitInventory),
              BedInventory = fsum(BedInventory),
              CHVetBedInventory = fsum(CHVetBedInventory),
+             CHVetUnitInventory = fsum(CHVetUnitInventory),
              YouthVetBedInventory = fsum(YouthVetBedInventory),
+             YouthVetUnitInventory = fsum(YouthVetUnitInventory),
              VetBedInventory = fsum(VetBedInventory),
+             VetUnitInventory = fsum(VetUnitInventory),
              CHYouthBedInventory = fsum(CHYouthBedInventory),
+             CHYouthUnitInventory = fsum(CHYouthUnitInventory),
              YouthBedInventory = fsum(YouthBedInventory),
+             YouthUnitInventory = fsum(YouthUnitInventory),
              CHBedInventory = fsum(CHBedInventory),
-             OtherBedInventory = fsum(OtherBedInventory)) %>% 
+             CHUnitInventory = fsum(CHUnitInventory),
+             OtherBedInventory = fsum(OtherBedInventory),
+             OtherUnitInventory = fsum(OtherUnitInventory)) %>% 
   fungroup()
 
 # Estimate Dedicated Vet, Youth, and CH (Child) units based on ratio of beds----
 HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
-  fmutate(VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
-          YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
-          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory,
-          CHVetUnitInventory = UnitInventory * CHVetBedInventory/BedInventory,
-          CHYouthUnitInventory = UnitInventory * CHYouthBedInventory/BedInventory,
-          YouthVetUnitInventory = UnitInventory * YouthVetBedInventory/BedInventory,
-          OtherUnitInventory = UnitInventory * OtherBedInventory/BedInventory) %>%
   join(Project %>% fselect(ProjectName, ProjectID), how="left") # join project to get full details (name for inputpicker)
 
 
@@ -84,43 +91,43 @@ updatePickerInput(session = session,
                   inputId = "bui_HMISprojects",
                   choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
 
-#c_choices <- sort(unique(HMIS_projects_w_active_inv$TargetPopulation))
-#if(length(c_choices) > 1) { 
-#  c_choices = c("All Target Populations", c_choices)
-#  updatePickerInput(session = session,
-#                    inputId = "target_pop_sys",
-#                    choices =  c_choices)
-#}
+# on Inventory & Utilization dropdown - System LeveL tab ----
+c_choices <- sort(unique(HMIS_projects_w_active_inv$TargetPopulation))
+c_choices[is.na(c_choices)] <- "NA"
+if(length(c_choices) > 1) { 
+  c_choices = c("All Target Populations", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "bui_target_pop",
+                    choices =  c_choices)
+}
 
-#c_choices <- sort(unique(HMIS_projects_w_active_inv$HousingType))
-#if(length(c_choices) > 1) {
-#  c_choices = c("All Housing Types", c_choices)
-#  updatePickerInput(session = session,
-#                    inputId = "housing_type_sys",
-#                    choices = c_choices)
-#}
+c_choices <- sort(unique(HMIS_projects_w_active_inv$HousingType))
+c_choices[is.na(c_choices)] <- "NA"
+if(length(c_choices) > 1) {
+  c_choices = c("All Housing Types", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "bui_housing_type",
+                    choices = c_choices)
+}
 
-#c_choices <- sort(unique(HMIS_projects_w_active_inv$VictimServiceProvider))
-#if(length(c_choices) > 1) {
-#  c_choices = c("All Organizations", c_choices)
-#  updatePickerInput(session = session,
-#                    inputId = "victim_service_sys",
-#                    choices =  c_choices)
-#}
+c_choices <- sort(unique(HMIS_projects_w_active_inv$VictimServiceProvider))
+c_choices[is.na(c_choices)] <- "NA"
+if(length(c_choices) > 1) {
+  c_choices = c("All Organizations", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "bui_victim_service",
+                    choices =  c_choices)
+}
 
-
-# Since this is set in the ui, this was just changing the order of the choices
-# default selection will be based on selected project type (server_09_inv_util.R)
-
-#c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
-#if(length(c_choices) > 1) {
-  #c_choices = c( "All ES Bed Availability Types", c_choices)
-#c_choices = recode_num(c_choices, `1` = "Yearly", `2`="Seasonal", `3` = "Overflow", .default = "Other")
-#updatePickerInput(session = session,
-#                  inputId = "bui_bed_avail",
-#                  selected = c_choices)
-#}
-# on Inventory & Utilization dropdown - System LeveL tab ---- 
+c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
+c_choices[is.na(c_choices)] <- "NA"
+if(length(c_choices) > 1) {
+  c_choices = c( "All ES Bed/Unit Availability Types", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "bui_bed_avail_sys",
+                    choices = c_choices)
+}
+ 
 
 ## Functions -------------------------------------------------------------------
 # make function get_quarters() to get quarterly PIT dates ----------------------
@@ -210,19 +217,33 @@ count_Beds_Units <- function(pit_dates, extra_groups = NULL){ # use NULL so leng
     fgroup_by(grouping_vars) %>%
     fsummarize(
       PIT_Beds = fsum(fifelse(activeInv,BedInventory,0)),
-      PIT_Units = fsum(fifelse(activeInv,UnitInventory,0))
+      PIT_Units = fsum(fifelse(activeInv,UnitInventory,0)),
+      PIT_CHVet_Beds = fsum(fifelse(activeInv,CHVetBedInventory,0)),
+      PIT_CHVet_Units = fsum(fifelse(activeInv,CHVetUnitInventory,0)),
+      PIT_YouthVet_Beds = fsum(fifelse(activeInv,YouthVetBedInventory,0)),
+      PIT_YouthVet_Units = fsum(fifelse(activeInv,YouthVetUnitInventory,0)),
+      PIT_Vet_Beds = fsum(fifelse(activeInv,VetBedInventory,0)),
+      PIT_Vet_Units = fsum(fifelse(activeInv,VetUnitInventory,0)),
+      PIT_CHYouth_Beds = fsum(fifelse(activeInv,CHYouthBedInventory,0)),
+      PIT_CHYouth_Units = fsum(fifelse(activeInv,CHYouthUnitInventory,0)),
+      PIT_Youth_Beds = fsum(fifelse(activeInv,YouthBedInventory,0)),
+      PIT_Youth_Units = fsum(fifelse(activeInv,YouthUnitInventory,0)),
+      PIT_CH_Beds = fsum(fifelse(activeInv,CHBedInventory,0)),
+      PIT_CH_Units = fsum(fifelse(activeInv,CHUnitInventory,0)),
+      PIT_Other_Beds = fsum(fifelse(activeInv,OtherBedInventory,0)),
+      PIT_Other_Units = fsum(fifelse(activeInv,OtherUnitInventory,0))
     ) %>% fungroup()
   #For each relevant project, count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
   #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
   return(Bed_Unit_Count)
 }
-count_Enrollments <-function(pit_dates, extra_groups = NULL){
+count_Enrollments <-function(pit_dates, pit_labels, extra_groups = NULL){
   if(length(extra_groups)==0){
-    grouping_vars <- c("PIT", "ProjectID", "ProjectType")
+    grouping_vars <- c("PIT", "label", "ProjectID", "ProjectType")
   }else{
-    grouping_vars <- c("PIT", "ProjectID", "ProjectType", extra_groups) %>% unique
+    grouping_vars <- c("PIT", "label", "ProjectID", "ProjectType", extra_groups) %>% unique
   }
-  pit_dates <- data.frame("PIT" = pit_dates) %>% fmutate(temp=1)
+  pit_dates <- data.frame("PIT" = pit_dates, "label" = pit_labels) %>% fmutate(temp=1)
   #For each relevant project and using the EnrollmentAdjust data frame, count the number of people "served in a bed" on each of the 4 PIT Dates.
   #For an enrollment to be considered "active" on a PIT Date it must meet the following logic: EntryDate <= [PIT Date] and ExitAdjust > [PIT Date] or is NULL
   #Exclude any ES - NbN enrollments where there is no Bed Night record on [PIT Date]
@@ -238,7 +259,7 @@ count_Enrollments <-function(pit_dates, extra_groups = NULL){
     ) %>%
     fmutate(bn_PIT = as.Date(DateProvided) == as.Date(PIT)) %>%  
     fmutate(bn_PIT = fifelse(is.na(bn_PIT),FALSE,bn_PIT)) %>%  
-    fgroup_by(EnrollmentID, PIT) %>% # For each enrollment & PIT Date,
+    fgroup_by(EnrollmentID, PIT, label) %>% # For each enrollment & PIT Date,
     fsummarise( # flag if Enrollment has any Service records where DateProvided == PIT
       has_bn_PIT = any(bn_PIT, na.rm=TRUE)
     )  %>% fungroup()
@@ -274,10 +295,12 @@ sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType",
 #print(colnames(EnrollmentAdjust))
 # full join the results of passing through counting functions
 project_level_util_q <- count_Beds_Units(quarters, extra_groups = sys_grouping_vars) %>%
-  join(count_Enrollments(quarters, extra_groups = c("HouseholdType")), how = "left")
+  join(count_Enrollments(quarters, names(quarters), extra_groups = c("HouseholdType")), how = "left") %>% 
+  group_by( PIT) %>% fill("label", .direction = "updown") %>% fungroup
 
 project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars) %>%
-  join(count_Enrollments(mons, extra_groups = c("HouseholdType")), how = "left") 
+  join(count_Enrollments(mons, names(mons), extra_groups = c("HouseholdType")), how = "left") %>% 
+  group_by( PIT) %>% fill("label", .direction = "updown") %>% fungroup
 
 
 
