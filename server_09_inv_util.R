@@ -863,107 +863,184 @@ output$proj_bui_co_hh <- renderDT({
   )
 })
 
-# Quarterly System Level Utilization (suppressed) ---------------
-output$q_sys_inv_filtered <- renderDT({
-  req(!is.null(input$bui_HMISprojects))
+#  System Level Utilization  ---------------
+
+summary_sys_q <- reactive({
   
-  # Update the list of Projects depending on the currently selected filters
-  project_choices <- session$userData$HMIS_projects_w_active_inv
+  selected_projs <- session$userData$project_level_util_q %>% fungroup
   
-  selectedProjs <- project_choices %>% # get selected projects
-    fsubset(ProjectName %in% input$bui_HMISprojects)
+
   
-  # join quarterly PIT dates 
-  # can't do this because selectedProjects has grouping vars and  project level util q does not
-  print(colnames(selectedProjs))
-  selectedProjs <- selectedProjs %>% fmutate(TotBeds = BedInventory, 
-                                             TotUnits = UnitInventory)
-  selectedProjs <- selectedProjs %>% # group by all filter variables
-    fgroup_by(ProjectID, HMISParticipationType, ESBedType, HouseholdType,
-              TargetPopulation, HousingType, VictimServiceProvider, Availability)
-  
-  if(input$dedicated_beds_sys == "All Bed Types"){ # summarise columns based on dedicated bed input
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(BedInventory),
-                                                  UnitInventory = fsum(UnitInventory) )
-  }else if(input$dedicated_beds_sys == "Veteran Dedicated Beds"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(VetBedInventory),
-                                                  UnitInventory = fsum(VetUnitInventory) )
-  }else if(input$dedicated_beds_sys == "Veteran Youth Dedicated Beds"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(YouthVetBedInventory),
-                                                  UnitInventory = fsum(YouthVetUnitInventory) )
-  }else if(input$dedicated_beds_sys == "Veteran Child Dedicated Beds"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(CHVetBedInventory),
-                                                  UnitInventory = fsum(CHVetUnitInventory) )
-  }else if(input$dedicated_beds_sys == "Youth Dedicated Beds"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(YouthBedInventory),
-                                                  UnitInventory = fsum(YouthUnitInventory) )
-  }else if(input$dedicated_beds_sys == "Youth Child Dedicated Beds"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(CHYouthBedInventory),
-                                                  UnitInventory = fsum(CHYouthUnitInventory) )
-  }else if(input$dedicated_beds_sys == "Child Dedicated Beds"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(CHBedInventory),
-                                                  UnitInventory = fsum(CHUnitInventory) )
-  }else if(input$dedicated_beds_sys == "Beds Not Dedicated"){
-    selectedProjs <- selectedProjs %>% fsummarise(TotBeds = fsum(BedInventory),
-                                                  TotUnits = fsum(UnitInventory),
-                                                  BedInventory = fsum(OtherBedInventory),
-                                                  UnitInventory = fsum(OtherUnitInventory) )
+  if(input$bui_bed_avail_sys != "All ES Bed Availability Types"){ # what is ESBedType?
+    selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
   }
+  if(input$bui_victim_service != "All Organizations"){ 
+    selected_projs <- selected_projs %>% fsubset(VictimServiceProvider %in% input$bui_victim_service) 
+  }
+  if(input$bui_housing_type != "All Housing Types"){ 
+    selected_projs <- selected_projs %>% fsubset(HousingType %in% input$bui_housing_type) 
+  }
+  if(input$bui_target_pop != "All Target Populations"){ 
+    selected_projs <- selected_projs %>% fsubset(TargetPopulation %in% input$bui_target_pop) 
+  }
+
+  #print(selected_projs )
+  if(input$bui_dedicated == "All Types"){ # summarise columns based on dedicated bed input
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_Beds),
+                                                  UnitInventory = fsum(PIT_Units) )
+  }else if(input$bui_dedicated == "Veteran Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_Vet_Beds),
+                                                  UnitInventory = fsum(PIT_Vet_Units) )
+  }else if(input$bui_dedicated == "Veteran Youth Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_YouthVet_Beds),
+                                                  UnitInventory = fsum(PIT_YouthVet_Units) )
+  }else if(input$bui_dedicated == "Veteran Child Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_CHVet_Beds),
+                                                  UnitInventory = fsum(PIT_CHVet_Units) )
+  }else if(input$bui_dedicated == "Youth Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_Youth_Beds),
+                                                  UnitInventory = fsum(PIT_Youth_Units) )
+  }else if(input$bui_dedicated == "Youth Child Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_CHYouth_Beds),
+                                                  UnitInventory = fsum(PIT_CHYouth_Units) )
+  }else if(input$bui_dedicated == "Child Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_CH_Beds),
+                                                  UnitInventory = fsum(PIT_CH_Units) )
+  }else if(input$bui_dedicated == "Not Dedicated"){
+    selected_projs <- selected_projs%>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                  TotUnits = fsum(PIT_Units),
+                                                  BedInventory = fsum(PIT_Other_Beds),
+                                                  UnitInventory = fsum(PIT_Other_Units) )
+  }
+  return(selected_projs)
+})
+summary_sys_m <- reactive({
+  
+  selected_projs <- session$userData$project_level_util_m %>% fungroup
+
+  
+  if(input$bui_bed_avail_sys != "All ES Bed Availability Types"){ # what is ESBedType?
+    selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
+  }
+  if(input$bui_victim_service != "All Organizations"){ 
+    selected_projs <- selected_projs %>% fsubset(VictimServiceProvider %in% input$bui_victim_service) 
+  }
+  if(input$bui_housing_type != "All Housing Types"){ 
+    selected_projs <- selected_projs %>% fsubset(HousingType %in% input$bui_housing_type) 
+  }
+  if(input$bui_target_pop != "All Target Populations"){ 
+    selected_projs <- selected_projs %>% fsubset(TargetPopulation %in% input$bui_target_pop) 
+  }
+  
+  #print(selected_projs )
+  if(input$bui_dedicated == "All Types"){ # summarise columns based on dedicated bed input
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_Beds),
+                                                                             UnitInventory = fsum(PIT_Units) )
+  }else if(input$bui_dedicated == "Veteran Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_Vet_Beds),
+                                                                             UnitInventory = fsum(PIT_Vet_Units) )
+  }else if(input$bui_dedicated == "Veteran Youth Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_YouthVet_Beds),
+                                                                             UnitInventory = fsum(PIT_YouthVet_Units) )
+  }else if(input$bui_dedicated == "Veteran Child Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_CHVet_Beds),
+                                                                             UnitInventory = fsum(PIT_CHVet_Units) )
+  }else if(input$bui_dedicated == "Youth Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_Youth_Beds),
+                                                                             UnitInventory = fsum(PIT_Youth_Units) )
+  }else if(input$bui_dedicated == "Youth Child Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_CHYouth_Beds),
+                                                                             UnitInventory = fsum(PIT_CHYouth_Units) )
+  }else if(input$bui_dedicated == "Child Dedicated"){
+    selected_projs <- selected_projs %>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                             TotUnits = fsum(PIT_Units),
+                                                                             BedInventory = fsum(PIT_CH_Beds),
+                                                                             UnitInventory = fsum(PIT_CH_Units) )
+  }else if(input$bui_dedicated == "Not Dedicated"){
+    selected_projs <- selected_projs%>% group_by(PIT, label) %>% fsummarise(TotBeds = fsum(PIT_Beds),
+                                                                            TotUnits = fsum(PIT_Units),
+                                                                            BedInventory = fsum(PIT_Other_Beds),
+                                                                            UnitInventory = fsum(PIT_Other_Units) )
+  }
+  return(selected_projs)
+})
+output$q_sys_inv_filtered <- renderDT({
+  
+
+  data <- summary_sys_q()
+  
+  print(data)
   
   # project_level_util_q should be re-built if anything besides 'all bed types' is selected (since those calcs use BedInventory/UnitInventory)
   # maybe we could just scale it based on inventory counts?
-  selectedProjs <-  selectedProjs %>% join(session$userData$project_level_util_q, how = "full", multiple = TRUE) %>%
-    fmutate(# All counts  need to be scaled for dedicated bed selections
-      PIT_Beds = PIT_Beds * BedInventory / TotBeds, # number of selected dedicated beds over all bed for each grouping 
-      PIT_Units = PIT_Units * UnitInventory / TotUnits,
-      PIT_Served = PIT_Served * BedInventory / TotBeds,
-      PIT_HHServed = PIT_HHServed * UnitInventory / TotUnits)
+  #selectedProjs <-  selectedProjs %>% join(session$userData$project_level_util_q, how = "full", multiple = TRUE) %>%
+  #  fmutate(# All counts  need to be scaled for dedicated bed selections
+  #    PIT_Beds = PIT_Beds * BedInventory / TotBeds, # number of selected dedicated beds over all bed for each grouping 
+  #    PIT_Units = PIT_Units * UnitInventory / TotUnits,
+  #    PIT_Served = PIT_Served * BedInventory / TotBeds,
+  #    PIT_HHServed = PIT_HHServed * UnitInventory / TotUnits)
   
-  selectedProjs <- selectedProjs %>% fungroup() %>% fgroup_by(ProjectID, PIT) %>%
-    fmutate(Project_Total_Beds = fsum(TotBeds), # get project totals (across all grouping vars)
-            Project_Total_Units = fsum(TotUnits))
+  #selectedProjs <- selectedProjs %>% fungroup() %>% fgroup_by(ProjectID, PIT) %>%
+  #  fmutate(Project_Total_Beds = fsum(TotBeds), # get project totals (across all grouping vars)
+  #          Project_Total_Units = fsum(TotUnits))
             
   
-  selectedProjs <- selectedProjs %>% 
-    fmutate(# Enrollments only grouped by project and PIT, so those need to be scaled again by Project to Project + filters
-            PIT_Served = PIT_Served * BedInventory / Project_Total_Beds,
-            PIT_HHServed = PIT_HHServed * UnitInventory / Project_Total_Units)
+  #selectedProjs <- selectedProjs %>% 
+  #  fmutate(# Enrollments only grouped by project and PIT, so those need to be scaled again by Project to Project + filters
+  #          PIT_Served = PIT_Served * BedInventory / Project_Total_Beds,
+  #          PIT_HHServed = PIT_HHServed * UnitInventory / Project_Total_Units)
   
   #project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% selectedProjs$ProjectID)
 
   
   # todo - group and summarise
-  sys_inv_filtered <- selectedProjs %>% fgroup_by(HMISParticipationType, ESBedType, HouseholdType,
-                                                     TargetPopulation, HousingType, VictimServiceProvider, Availability, PIT) %>%
-   fsummarise(PIT_Beds = fsum(PIT_Beds),
-              PIT_Units = fsum(PIT_Units),
-              PIT_Served = fsum(PIT_Served),
-              PIT_HHServed = fsum(PIT_HHServed))
+  #sys_inv_filtered <- selectedProjs %>% fgroup_by(HMISParticipationType, ESBedType, HouseholdType,
+  #                                                   TargetPopulation, HousingType, VictimServiceProvider, Availability, PIT) %>%
+  # fsummarise(PIT_Beds = fsum(PIT_Beds),
+  #            PIT_Units = fsum(PIT_Units),
+  #            PIT_Served = fsum(PIT_Served),
+  #            PIT_HHServed = fsum(PIT_HHServed))
   
   # select columns based on inventory level
   if(input$bui_inventory_level_sys == "Beds"){
-    sys_inv_filtered<-sys_inv_filtered %>% fselect(unlist(colnames(sys_inv_filtered)[!sapply(colnames(sys_inv_filtered), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
   }else{
-    sys_inv_filtered<-sys_inv_filtered %>% fselect(unlist(colnames(sys_inv_filtered)[!sapply(colnames(sys_inv_filtered), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
   }
   
+  labels <- sys_inv_filtered$label
+  sys_inv <- sys_inv_filtered %>% select(-label) %>% t()  # transpose 
+  colnames(sys_inv) <- labels
+  
   datatable( # return table
-    sys_inv_filtered,
-    rownames = FALSE,
+    sys_inv,
+    rownames = TRUE,
     options = list(dom = 't', 
                    #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
                    pageLength = -1,
@@ -971,6 +1048,65 @@ output$q_sys_inv_filtered <- renderDT({
     style = "default"
   )
 })
+output$m_sys_inv_filtered <- renderDT({
+  
+  
+  data <- summary_sys_m()
+  
+  print(data)
+  
+  # project_level_util_q should be re-built if anything besides 'all bed types' is selected (since those calcs use BedInventory/UnitInventory)
+  # maybe we could just scale it based on inventory counts?
+  #selectedProjs <-  selectedProjs %>% join(session$userData$project_level_util_q, how = "full", multiple = TRUE) %>%
+  #  fmutate(# All counts  need to be scaled for dedicated bed selections
+  #    PIT_Beds = PIT_Beds * BedInventory / TotBeds, # number of selected dedicated beds over all bed for each grouping 
+  #    PIT_Units = PIT_Units * UnitInventory / TotUnits,
+  #    PIT_Served = PIT_Served * BedInventory / TotBeds,
+  #    PIT_HHServed = PIT_HHServed * UnitInventory / TotUnits)
+  
+  #selectedProjs <- selectedProjs %>% fungroup() %>% fgroup_by(ProjectID, PIT) %>%
+  #  fmutate(Project_Total_Beds = fsum(TotBeds), # get project totals (across all grouping vars)
+  #          Project_Total_Units = fsum(TotUnits))
+  
+  
+  #selectedProjs <- selectedProjs %>% 
+  #  fmutate(# Enrollments only grouped by project and PIT, so those need to be scaled again by Project to Project + filters
+  #          PIT_Served = PIT_Served * BedInventory / Project_Total_Beds,
+  #          PIT_HHServed = PIT_HHServed * UnitInventory / Project_Total_Units)
+  
+  #project_level_util_q <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% selectedProjs$ProjectID)
+  
+  
+  # todo - group and summarise
+  #sys_inv_filtered <- selectedProjs %>% fgroup_by(HMISParticipationType, ESBedType, HouseholdType,
+  #                                                   TargetPopulation, HousingType, VictimServiceProvider, Availability, PIT) %>%
+  # fsummarise(PIT_Beds = fsum(PIT_Beds),
+  #            PIT_Units = fsum(PIT_Units),
+  #            PIT_Served = fsum(PIT_Served),
+  #            PIT_HHServed = fsum(PIT_HHServed))
+  
+  # select columns based on inventory level
+  if(input$bui_inventory_level_sys == "Beds"){
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  
+  labels <- sys_inv_filtered$label
+  sys_inv <- sys_inv_filtered %>% select(-label) %>% t()  # transpose 
+  colnames(sys_inv) <- labels
+  
+  datatable( # return table
+    sys_inv,
+    rownames = TRUE,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+
 #q_sys_bed_unit_inv <- reactive({
 
 # calculate system level totals
