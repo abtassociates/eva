@@ -264,7 +264,7 @@ observe({
     #selected_projs <- project_choices # session$userData$HMIS_projects_w_active_inv
     # except for the project picker which should choose from to the project choices based on current filters
     updatePickerInput(session = session,
-                      inputId = "HMISprojects",
+                      inputId = "bui_HMISprojects",
                       choices =  sort(unique(project_choices$ProjectName)),
                       selected = sort(unique(project_choices$ProjectName))[1])
   }else{
@@ -272,7 +272,7 @@ observe({
     
     # the project picker drops selections that don't appear based on current filters
     updatePickerInput(session = session,
-                      inputId = "HMISprojects",
+                      inputId = "bui_HMISprojects",
                       choices =  sort(unique(project_choices$ProjectName)),
                       selected = input$bui_HMISprojects) #sort(unique(selected_projs$ProjectName)))
     
@@ -341,6 +341,7 @@ observe({
                       inputId = "bui_bed_avail",
                       selected = c("Year-round"))
   }
+  
 })
 #### DISPLAY FILTER SELECTIONS ###
 
@@ -557,7 +558,7 @@ re_calc <- reactive({
   }else{ # Quarterly or Points in Time
     data <- hh_avg_q() %>% fungroup
   }
-  print(data)
+  #print(data)
   bed_types <- unique(data$Availability)
   if(input$bui_inventory_level == "Beds"){
     for (i in 1:length(bed_types)){
@@ -625,8 +626,8 @@ output$proj_bui_all_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
   colnames(data) <- gsub("Served", "People Served", colnames(data))
+  colnames(data) <- gsub("HHPeople", "Households", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -643,8 +644,8 @@ output$proj_bui_all_hh <- renderDT({
   colnames(data) <- labels
   
   for (f in input$bui_bed_avail){
-    print(rownames(data))
-    print(grepl(f,rownames(data)))
+    #print(rownames(data))
+    #print(grepl(f,rownames(data)))
     if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
       row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
       colnames(row2add) <- colnames(data)
@@ -685,8 +686,8 @@ output$proj_bui_ao_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
   colnames(data) <- gsub("Served", "People Served", colnames(data))
+  colnames(data) <- gsub("HHPeople", "Households", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -703,8 +704,8 @@ output$proj_bui_ao_hh <- renderDT({
   colnames(data) <- labels
   
   for (f in input$bui_bed_avail){
-    print(rownames(data))
-    print(grepl(f,rownames(data)))
+    #print(rownames(data))
+    #print(grepl(f,rownames(data)))
     if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
       row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
       colnames(row2add) <- colnames(data)
@@ -745,8 +746,8 @@ output$proj_bui_ac_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
   colnames(data) <- gsub("Served", "People Served", colnames(data))
+  colnames(data) <- gsub("HHPeople", "Households", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -763,8 +764,8 @@ output$proj_bui_ac_hh <- renderDT({
   colnames(data) <- labels
   
   for (f in input$bui_bed_avail){
-    print(rownames(data))
-    print(grepl(f,rownames(data)))
+    #print(rownames(data))
+    #print(grepl(f,rownames(data)))
     if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
       row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
       colnames(row2add) <- colnames(data)
@@ -805,8 +806,8 @@ output$proj_bui_co_hh <- renderDT({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level))
-  colnames(data) <- gsub("HHServed", "Households Served", colnames(data))
   colnames(data) <- gsub("Served", "People Served", colnames(data))
+  colnames(data) <- gsub("HHPeople", "Households", colnames(data))
   colnames(data) <- gsub("Util", "Utilization", colnames(data))
   
   if(input$bui_period_filter == "Points in Time"){
@@ -823,8 +824,8 @@ output$proj_bui_co_hh <- renderDT({
   colnames(data) <- labels
   
   for (f in input$bui_bed_avail){
-    print(rownames(data))
-    print(grepl(f,rownames(data)))
+    #print(rownames(data))
+    #print(grepl(f,rownames(data)))
     if(!any(grepl(gsub("\\(ES Only\\)", "", f),rownames(data)))){ # if bed type doesn't appear in any row names
       row2add <- rep(0, ncol(data)) %>% as.data.frame() %>% t()
       colnames(row2add) <- colnames(data)
