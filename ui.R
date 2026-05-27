@@ -1100,7 +1100,7 @@ nav_menu(
         ),
         pickerInput(
           inputId = "bui_bed_avail",
-          label = "ES Bed Availability Type",
+          label = "ES Bed/Unit Availability Type",
           choices = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
           selected = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
           multiple = TRUE,
@@ -1181,7 +1181,7 @@ nav_menu(
         
         pickerInput(
           label = 'Project Target Population',
-          inputId = "target_pop_sys",
+          inputId = "bui_target_pop",
           choices = "All Target Populations", # add other options in 08_inv_util.R
           selected = "All Target Populations",
           #multiple = TRUE,
@@ -1189,40 +1189,40 @@ nav_menu(
         ),
         pickerInput(
           label = "Project Housing Type",
-          inputId = "housing_type_sys",
+          inputId = "bui_housing_type",
           choices = "All Housing Types", # add other options in 08_inv_util.R
           selected = "All Housing Types",
           options = pickerOptions(container = "body")
         ),
         pickerInput(
           label = "Inventory Level",
-          inputId = "inventory_level_sys",
+          inputId = "bui_inventory_level_sys",
           choices = c("Beds","Units"),
           selected = "Beds",
           options = pickerOptions(container = "body")
         ),
         pickerInput(
           label = "Organization Victim Service Provider Status",
-          inputId = "victim_service_sys",
+          inputId = "bui_victim_service",
           choices = "All Organizations", # add other options in 08_inv_util.R
           selected = "All Organizations",
           options = pickerOptions(container = "body")
         ),
         pickerInput(
-          label = "Inventory Dedicated Bed Type",
-          inputId = "dedicated_beds_sys",
-          choices = c("All Bed Types", "Beds Not Dedicated", 
-                      "Veteran Dedicated Beds", "Veteran Youth Dedicated Beds", "Veteran Child Dedicated Beds",
-                      "Youth Dedicated Beds", "Youth Child Dedicated Beds",
-                      "Child Dedicated Beds"),
+          label = "Inventory Dedicated Bed/Unit Type",
+          inputId = "bui_dedicated",
+          choices = c("All Types", "Not Dedicated", 
+                      "Veteran Dedicated", "Veteran Youth Dedicated", "Veteran Child Dedicated",
+                      "Youth Dedicated", "Youth Child Dedicated",
+                      "Child Dedicated"),
           selected = "All Bed Types",
           options = pickerOptions(container = "body")
         ),
         pickerInput(
-          label = "ES Bed Availability Type",
-          inputId = "es_bed_avail_sys",
-          choices = "All ES Bed Availability Types", # add other options in 08_inv_util.R
-          selected = "All ES Bed Availability Types",
+          label = "ES Bed/Unit Availability Type",
+          inputId = "bui_bed_avail_sys",
+          choices = "All ES Bed/Unit Availability Types", # add other options in 08_inv_util.R
+          selected = "All ES Bed/Unit Availability Types",
           options = pickerOptions(container = "body")
         )
       )
