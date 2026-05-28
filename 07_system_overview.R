@@ -365,7 +365,8 @@ rm(hh_adjustments)
 # which are then used to select the EECR/LECR
 # throws out HP and enrollments outside Report window and 2 years prior
 # limits to only necessary columns
-logToConsole(session, glue("non-HP project_types rows: {sum(enrollments_prep_hoh$ProjectType != 12)}"))
+
+logToConsole(session, glue("non-HP project_types rows: {sum(enrollment_prep_hohs$ProjectType != 12)}"))
 
 check <-enrollment_prep_hohs %>% 
   fsubset(
@@ -376,7 +377,7 @@ logToConsole(session, glue("rows in check: {fnrow(check)}"))
 logToConsole(session, glue("ReportStart: {session$userData$ReportStart}"))
 logToConsole(session, glue("ReportEnd: {session$userData$ReportEnd}"))
 
-enrollment_categories <- enrollment_prep_hohs %>% 
+enrollment_categories <- check %>% 
   fsubset(
     ProjectType != hp_project_type & 
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
