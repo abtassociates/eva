@@ -1238,15 +1238,101 @@ nav_menu(
           selected = headerSubTab("Quarterly Inventory"),
           nav_panel( # Quarterly Inventory
             title = headerSubTab('Quarterly Inventory'),
-            DTOutput("q_sys_inv_filtered") %>% withSpinner()
-            #plotOutput("sys_inflow_outflow_summary_ui_chart",
-            #           width = "70%",
-            #           height = "500") %>%
-            #  withSpinner()
+          navset_underline( # by Project Type or By Household Type
+            id = "system_level_box_filter_q",
+            selected = headerSubTab("By Project Type"),
+            nav_panel( # By Project Type
+              title = headerSubTab("By Project Type"),
+              uiOutput("bui_filter_q_selections_sys_proj"),
+              radioGroupButtons(
+                inputId = "bui_sys_q_line_proj",
+                choices = c("Summary", "Trend"),
+                selected = "Summary",
+                individual = TRUE,
+                checkIcon = list(yes = icon("check"))
+              ), 
+              conditionalPanel(
+                condition = "input.bui_sys_q_line_proj == 'Summary'",
+                # todo with data as stacked bar graph  - plotOutput
+                DTOutput("sys_bui_q_sum_proj", width = "100%", height = "500") %>% 
+                  withSpinner() 
+              ), 
+              conditionalPanel(
+                condition = "input.bui_sys_q_line_proj == 'Trend'",
+                # todo with data as stacked line graph - plotOutput
+              )
+            ),
+          nav_panel( # By Household Type
+            title = headerSubTab('By Household Type'),
+            uiOutput("bui_filter_q_selections_sys_hh"),
+            radioGroupButtons(
+              inputId = "bui_sys_q_line_hh",
+              choices = c("Summary", "Trend"),
+              selected = "Summary",
+              individual = TRUE,
+              checkIcon = list(yes = icon("check"))
+            ), 
+            conditionalPanel(
+              condition = "input.bui_sys_q_line_hh == 'Summary'",
+              # todo with data as stacked bar graph  - plotOutput
+              DTOutput("sys_bui_q_sum_hh", width = "100%", height = "500") %>% 
+                withSpinner() 
+            ), 
+            conditionalPanel(
+              condition = "input.bui_sys_q_line_hh == 'Trend'",
+              # todo with data as stacked line graph - plotOutput
+            )
+          )
+          )
           ),
           nav_panel( # Monthly Inventory
             title = headerSubTab("Monthly Inventory"),
-            DTOutput("m_sys_inv_filtered")
+            navset_underline( # by Project Type or By Household Type
+                id = "system_level_box_filter_m",
+                selected = headerSubTab("By Project Type"),
+                nav_panel( # By Project Type
+                  title = headerSubTab("By Project Type"),
+                  uiOutput("bui_filter_m_selections_sys_proj"),
+                  radioGroupButtons(
+                    inputId = "bui_sys_m_line_proj",
+                    choices = c("Summary", "Trend"),
+                    selected = "Summary",
+                    individual = TRUE,
+                    checkIcon = list(yes = icon("check"))
+                  ), 
+                  conditionalPanel(
+                    condition = "input.bui_sys_m_line_proj == 'Summary'",
+                    # todo with data as stacked bar graph  - plotOutput
+                    DTOutput("sys_bui_m_sum_proj", width = "100%", height = "500") %>% 
+                      withSpinner() 
+                  ), 
+                  conditionalPanel(
+                    condition = "input.bui_sys_m_line_proj == 'Trend'",
+                    # todo with data as stacked line graph - plotOutput
+                  )
+                ),
+                nav_panel( # By Household Type
+                  title = headerSubTab('By Household Type'),
+                  uiOutput("bui_filter_m_selections_sys_hh"),
+                  radioGroupButtons(
+                    inputId = "bui_sys_m_line_hh",
+                    choices = c("Summary", "Trend"),
+                    selected = "Summary",
+                    individual = TRUE,
+                    checkIcon = list(yes = icon("check"))
+                  ), 
+                  conditionalPanel(
+                    condition = "input.bui_sys_m_line_hh == 'Summary'",
+                    # todo with data as stacked bar graph  - plotOutput
+                    DTOutput("sys_bui_m_sum_hh", width = "100%", height = "500") %>% 
+                      withSpinner() 
+                  ), 
+                  conditionalPanel(
+                    condition = "input.bui_sys_m_line_hh == 'Trend'",
+                    # todo with data as stacked line graph - plotOutput
+                  )
+                )
+              )
           ),
           nav_panel( # Information
             title = headerSubTab("Information")
@@ -1255,21 +1341,16 @@ nav_menu(
       ),
       ### System Level Utilization ----------------
       nav_panel(
-        title = headerSubTab("Utilization"),
+        title = headerTab("Utilization"),
         
         navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
           id = "system_level_box_util",
           selected = headerSubTab("Quarterly Utilization"),
           nav_panel( # Quarterly Utilization
-            title = headerSubTab('Quarterly Utilization'),
-            #DTOutput("q_proj_inv_filtered") %>% withSpinner()
-            #plotOutput("sys_inflow_outflow_summary_ui_chart",
-            #           width = "70%",
-            #           height = "500") %>%
-            #  withSpinner()
+            title = headerSubTab('Quarterly Utilization')
           ),
           nav_panel( # Monthly Utilization
-            title = headerSubTab("Monthly Utilization"),
+            title = headerSubTab("Monthly Utilization")
             #DTOutput("m_proj_inv_filtered")
           ),
           nav_panel( # Information
