@@ -1,5 +1,7 @@
 logToConsole(session, "Running system overview")
 
+logToConsole(session, glue("dim(EnrollmentAdjust): {fnrow(EnrollmentAdjust)}x{fncol(EnrollmentAdjust)}"))
+
 # Age ---------------------------------------------------------------------
 EnrollmentAdjustAge <- qDT(EnrollmentAdjust) %>% 
   fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1, AgeAtEntry))
@@ -268,6 +270,7 @@ session$userData$client_categories[, (race_cols) := NULL]
 logToConsole(session, "defined session$userData$client_categories")
 
 # Data prep ---------------------------------------------------------------
+logToConsole(session, glue("dim(EnrollmentAdjustAge): {fnrow(EnrollmentAdjustAge)}x{fncol(EnrollmentAdjustAge)}"))
 
 # using EnrollmentAdjust because that df doesn't contain enrollments that fall
 # outside periods of operation/participation
@@ -315,7 +318,7 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
-logToConsole(session, "defined enrollment_prep")
+logToConsole(session, glue("defined enrollment_prep: {fnrow(enrollment_prep)}x{fncol(enrollment_prep)}"))
 
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
@@ -354,7 +357,7 @@ enrollment_prep_hohs <- enrollment_prep %>%
   join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
   colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
 
-logToConsole(session, glue("defined enrollment_prep_hohs: {fnrow(enrollment_prep_hohs)}x{fncol(enrollment_prep_hohs)}"))
+logToConsole(session, glue("defined enrollment_prep_hohs: {fnrow(enrollments_prep_hohs)}x{fncol(enrollment_prep_hohs)}"))
 
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
