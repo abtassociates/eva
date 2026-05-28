@@ -335,8 +335,7 @@ hh_adjustments <- enrollment_prep[, `:=`(
 ][
   , .(EnrollmentID, CorrectedHoH)
 ]
-
-logToConsole(session, "defined hh_adjustments")
+logToConsole(session, glue("defined hh_adjustments: {fnrow(hh_adjustments)}x{fncol(hh_adjustments)}"))
 
 # keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
 # if they are younger than 18, or if there are mult hohs, it will take the
@@ -355,7 +354,7 @@ enrollment_prep_hohs <- enrollment_prep %>%
   join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
   colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
 
-logToConsole(session, "defined enrollment_prep_hohs")
+logToConsole(session, glue("defined enrollment_prep_hohs: {fnrow(enrollment_prep_hohs)}x{fncol(enrollment_prep_hohs)}"))
 
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
@@ -366,6 +365,16 @@ rm(hh_adjustments)
 # which are then used to select the EECR/LECR
 # throws out HP and enrollments outside Report window and 2 years prior
 # limits to only necessary columns
+logToConsole(session, glue("non-HP project_types rows: {sum(enrollments_prep_hoh$ProjectType != 12)}"))
+
+check <-enrollment_prep_hohs %>% 
+  fsubset(
+    ProjectType != hp_project_type & 
+      EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
+  )
+logToConsole(session, glue("rows in check: {fnrow(check)}"))
+logToConsole(session, glue("ReportStart: {session$userData$ReportStart}"))
+logToConsole(session, glue("ReportEnd: {session$userData$ReportEnd}"))
 
 enrollment_categories <- enrollment_prep_hohs %>% 
   fsubset(
