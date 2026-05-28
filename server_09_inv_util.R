@@ -374,7 +374,9 @@ util_filters <- reactive({
                 "<b>Projects:</b> {paste(input$bui_HMISprojects, collapse = ', ')} <br>"
               ))
     },
-    
+    HTML(glue(
+      "<strong>Inventory Level:</strong> {input$bui_inventory_level} <br>"
+    )),
     br()
 
   )
@@ -552,6 +554,7 @@ hh_avg_m <- reactive({
 })
 
 re_calc <- reactive({
+  req(session$userData$valid_file() == 1 )
   
   if(input$bui_period_filter == "Monthly"){
     data <- hh_avg_m() %>% fungroup
@@ -652,10 +655,8 @@ output$proj_bui_all_hh <- renderDT({
       
       if(input$bui_period_filter == "Point in Time"){
         rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
-        total_col <- paste("PIT", input$bui_inventory_level)
       }else{
         rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
-        total_col <- paste("Avg Nightly", input$bui_inventory_level)
       }
       
       data <- data %>% rbind(row2add)
@@ -669,7 +670,7 @@ row_order <- c("Time Period", row_names[grepl("Served", row_names)],
                row_names[grepl("Year-round", row_names)],
                row_names[grepl("Overflow", row_names)], 
                row_names[grepl("Seasonal", row_names)], 
-               total_col,
+               ifelse(input$bui_period_filter == "Point in Time", paste("PIT", input$bui_inventory_level), paste("Avg Nightly", input$bui_inventory_level)),
                row_names[grepl("Util", row_names)])
   
   datatable( # return table
@@ -712,10 +713,8 @@ output$proj_bui_ao_hh <- renderDT({
       
       if(input$bui_period_filter == "Point in Time"){
         rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
-        total_col <- paste("PIT", input$bui_inventory_level)
       }else{
         rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
-        total_col <- paste("Avg Nightly", input$bui_inventory_level)
       }
       
       data <- data %>% rbind(row2add)
@@ -729,7 +728,7 @@ output$proj_bui_ao_hh <- renderDT({
                  row_names[grepl("Year-round", row_names)],
                  row_names[grepl("Overflow", row_names)], 
                  row_names[grepl("Seasonal", row_names)], 
-                 total_col,
+                 ifelse(input$bui_period_filter == "Point in Time", paste("PIT", input$bui_inventory_level), paste("Avg Nightly", input$bui_inventory_level)),
                  row_names[grepl("Util", row_names)])
   
   datatable( # return table
@@ -772,10 +771,8 @@ output$proj_bui_ac_hh <- renderDT({
       
       if(input$bui_period_filter == "Point in Time"){
         rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
-        total_col <- paste("PIT", input$bui_inventory_level)
       }else{
         rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
-        total_col <- paste("Avg Nightly", input$bui_inventory_level)
       }
       
       data <- data %>% rbind(row2add)
@@ -789,7 +786,7 @@ output$proj_bui_ac_hh <- renderDT({
                  row_names[grepl("Year-round", row_names)],
                  row_names[grepl("Overflow", row_names)], 
                  row_names[grepl("Seasonal", row_names)], 
-                 total_col,
+                 ifelse(input$bui_period_filter == "Point in Time", paste("PIT", input$bui_inventory_level), paste("Avg Nightly", input$bui_inventory_level)),
                  row_names[grepl("Util", row_names)])
   
   datatable( # return table
@@ -832,10 +829,8 @@ output$proj_bui_co_hh <- renderDT({
       
       if(input$bui_period_filter == "Point in Time"){
         rownames(row2add) <- paste("PIT" ,f, input$bui_inventory_level)
-        total_col <- paste("PIT", input$bui_inventory_level)
       }else{
         rownames(row2add) <- paste("Avg Nightly" ,f, input$bui_inventory_level) 
-        total_col <- paste("Avg Nightly", input$bui_inventory_level)
       }
       
       data <- data %>% rbind(row2add)
@@ -849,7 +844,7 @@ output$proj_bui_co_hh <- renderDT({
                  row_names[grepl("Year-round", row_names)],
                  row_names[grepl("Overflow", row_names)], 
                  row_names[grepl("Seasonal", row_names)], 
-                 total_col,
+                 ifelse(input$bui_period_filter == "Point in Time", paste("PIT", input$bui_inventory_level), paste("Avg Nightly", input$bui_inventory_level)),
                  row_names[grepl("Util", row_names)])
   
   datatable( # return table
