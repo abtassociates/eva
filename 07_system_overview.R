@@ -357,7 +357,7 @@ enrollment_prep_hohs <- enrollment_prep %>%
   join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
   colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
 
-logToConsole(session, glue("defined enrollment_prep_hohs: {fnrow(enrollments_prep_hohs)}x{fncol(enrollment_prep_hohs)}"))
+logToConsole(session, glue("defined enrollment_prep_hohs: {fnrow(enrollment_prep_hohs)}x{fncol(enrollment_prep_hohs)}"))
 
 # (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
