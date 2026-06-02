@@ -96,23 +96,24 @@ output$syse_types_ui_chart <- renderPlot({
 output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits by Type Report - "), content = function(file) {
    logToConsole(session, "System Exits by Type data download")
    
+  types_dl <- list(
+    "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
+      rowbind(
+        sys_export_filter_selections(type = 'exits'),
+        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+      ) %>% 
+      frename('System Exits by Type' = Value),
+    
+    "SystemExitTypesData" = tree_exits_data() %>% 
+      fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
+      fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
+      fsummarize(Count = GRPN()) %>% 
+      fungroup() %>% 
+      list_all_destinations(fill_zero = TRUE) %>% 
+      fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
+  ) 
    write_xlsx(
-     list(
-       "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-         rowbind(
-           sys_export_filter_selections(type = 'exits'),
-           data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
-         ) %>% 
-         frename('System Exits by Type' = Value),
-       
-       "SystemExitTypesData" = tree_exits_data() %>% 
-         fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
-         fgroup_by(`Destination Type`,`Destination Type Detail`, sort = TRUE) %>% 
-         fsummarize(Count = GRPN()) %>% 
-         fungroup() %>% 
-         list_all_destinations(fill_zero = TRUE) %>% 
-         fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
-     ),
+     types_dl,
      path = file,
      format_headers = FALSE,
      col_names = TRUE
@@ -120,7 +121,7 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
    
    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-   
+   exportTestValues(syse_types_df = types_dl)
 })
 
 output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
