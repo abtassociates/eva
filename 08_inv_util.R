@@ -21,27 +21,19 @@ HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(ProjectType!=rrh_project_type | RRHSubType ==2) %>% # filter RRH projects to subtype 2
   # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
   fmutate(
-    InvHMISParticipationStart = pmax( # start of Operating & Participating 
-      HMISParticipationStatusStartDate, 
-      OperatingStartDate,
-      na.rm = TRUE
-    ),
-    InvHMISParticipationEnd = pmin( # end of Operating & Participating
-      HMISParticipationStatusEndDate,
-      OperatingEndDate,
-      na.rm = TRUE
-    ),
-    InvHMISActiveParticipationStart = pmax( # start of (Operating & Participating) & Active Inventory
-      InvHMISParticipationStart,
-      InventoryStartDate,
-      na.rm = TRUE
-    ),
-    InvHMISActiveParticipationEnd = pmin( # end of (Operating & Participating) & Active Inventory
-      InvHMISParticipationEnd,
+    InvActiveStart = pmax( # start of Active & Operating 
+      InventoryStartDate, 
+      OperatingStartDate, na.rm = TRUE),
+    InvActiveEnd =  pmin( # end of Active & Operating
       InventoryEndDate,
-      na.rm = TRUE
-    )
-  ) %>% select(-InvHMISParticipationStart, - InvHMISParticipationEnd) # drop the interim step vars 
+      OperatingEndDate, na.rm = TRUE),
+    InvHMISActiveStart = pmax( # start of (Active & Operating)  & Participating
+      HMISParticipationStatusStartDate,
+      InvActiveStart, na.rm = TRUE),
+    InvHMISActiveEnd = pmin( # end of (Active & Operating)  & Participating
+      HMISParticipationStatusEndDate, 
+      InvActiveEnd, na.rm = TRUE)
+  ) 
 
 HMIS_project_active_inventories <- HMIS_project_active_inventories %>% 
   fmutate("Availability" = fcase(Availability == 1, "Year-round", 
@@ -59,8 +51,8 @@ HMIS_project_active_inventories <- HMIS_project_active_inventories %>%
 # Project-Level ----------------------------------------------------------------
 HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
   fgroup_by(ProjectID, ProjectType, HMISParticipationType, VictimServiceProvider, HousingType, TargetPopulation, HouseholdType, ESBedType, Availability) %>%
-  fsummarise(ProjectHMISActiveParticipationStart = fmin(InvHMISActiveParticipationStart), # first active inv start with HMISPartiicpationType 
-             ProjectHMISActiveParticipationEnd = fmax(InvHMISActiveParticipationEnd), # last active inv end with HMISPartiicpationType
+  fsummarise(ProjectHMISActiveStart = fmin(InvHMISActiveStart), # first active inv start with HMISPartiicpationType 
+             ProjectHMISActiveEnd = fmax(InvHMISActiveEnd), # last active inv end with HMISPartiicpationType
              #TargetPopulation = list(sort(unique(TargetPopulation))), # sum?
              UnitInventory = fsum(UnitInventory),
              BedInventory = fsum(BedInventory),
@@ -212,27 +204,51 @@ count_Beds_Units <- function(pit_dates, extra_groups = NULL){ # use NULL so leng
       multiple=T
     ) %>%
     fmutate(
-      activeInv = InventoryStartDate <= as.Date(PIT) & (is.na(InventoryEndDate) | InventoryEndDate > as.Date(PIT))
-    ) %>%
+      activeInv = InvActiveStart <= as.Date(PIT) & (is.na(InvActiveEnd) | InvActiveEnd > as.Date(PIT)),
+      activeHMISInv =  InvHMISActiveStart <= as.Date(PIT) & (is.na(InvHMISActiveEnd) | InvHMISActiveEnd > as.Date(PIT))
+    ) 
+  
+  chk1 <- Bed_Unit_Count %>% fgroup_by(PIT,ProjectID, HMISParticipationType) %>% 
+    fsummarise("PIT_Beds" = fsum(BedInventory),
+               "activeInv" =fsum(fifelse(activeInv,BedInventory,0)),
+               "activeHMISInv" = fsum(fifelse(activeHMISInv,BedInventory,0)))
+  ##print(chk1, n=100)
+  
+  Bed_Unit_Count <- Bed_Unit_Count %>%
     fgroup_by(grouping_vars) %>%
     fsummarize(
       PIT_Beds = fsum(fifelse(activeInv,BedInventory,0)),
+      PIT_HMIS_Beds = fsum(fifelse(activeHMISInv,BedInventory,0)),
       PIT_Units = fsum(fifelse(activeInv,UnitInventory,0)),
+      PIT_HMIS_Units = fsum(fifelse(activeHMISInv,UnitInventory,0)),
       PIT_CHVet_Beds = fsum(fifelse(activeInv,CHVetBedInventory,0)),
+      PIT_HMIS_CHVet_Beds = fsum(fifelse(activeHMISInv,CHVetBedInventory,0)),
       PIT_CHVet_Units = fsum(fifelse(activeInv,CHVetUnitInventory,0)),
+      PIT_HMIS_CHVet_Units = fsum(fifelse(activeHMISInv,CHVetUnitInventory,0)),
       PIT_YouthVet_Beds = fsum(fifelse(activeInv,YouthVetBedInventory,0)),
+      PIT_HMIS_YouthVet_Beds = fsum(fifelse(activeHMISInv,YouthVetBedInventory,0)),
       PIT_YouthVet_Units = fsum(fifelse(activeInv,YouthVetUnitInventory,0)),
+      PIT_HMIS_YouthVet_Units = fsum(fifelse(activeHMISInv,YouthVetUnitInventory,0)),
       PIT_Vet_Beds = fsum(fifelse(activeInv,VetBedInventory,0)),
+      PIT_HMIS_Vet_Beds = fsum(fifelse(activeHMISInv,VetBedInventory,0)),
       PIT_Vet_Units = fsum(fifelse(activeInv,VetUnitInventory,0)),
+      PIT_HMIS_Vet_Units = fsum(fifelse(activeHMISInv,VetUnitInventory,0)),
       PIT_CHYouth_Beds = fsum(fifelse(activeInv,CHYouthBedInventory,0)),
+      PIT_HMIS_CHYouth_Beds = fsum(fifelse(activeHMISInv,CHYouthBedInventory,0)),
       PIT_CHYouth_Units = fsum(fifelse(activeInv,CHYouthUnitInventory,0)),
+      PIT_HMIS_CHYouth_Units = fsum(fifelse(activeHMISInv,CHYouthUnitInventory,0)),
       PIT_Youth_Beds = fsum(fifelse(activeInv,YouthBedInventory,0)),
+      PIT_HMIS_Youth_Beds = fsum(fifelse(activeHMISInv,YouthBedInventory,0)),
       PIT_Youth_Units = fsum(fifelse(activeInv,YouthUnitInventory,0)),
+      PIT_HMIS_Youth_Units = fsum(fifelse(activeHMISInv,YouthUnitInventory,0)),
       PIT_CH_Beds = fsum(fifelse(activeInv,CHBedInventory,0)),
+      PIT_HMIS_CH_Beds = fsum(fifelse(activeHMISInv,CHBedInventory,0)),
       PIT_CH_Units = fsum(fifelse(activeInv,CHUnitInventory,0)),
+      PIT_HMIS_CH_Units = fsum(fifelse(activeHMISInv,CHUnitInventory,0)),
       PIT_Other_Beds = fsum(fifelse(activeInv,OtherBedInventory,0)),
-      PIT_Other_Units = fsum(fifelse(activeInv,OtherUnitInventory,0))
-    ) %>% fungroup()
+      PIT_HMIS_Other_Beds = fsum(fifelse(activeHMISInv,OtherBedInventory,0)),
+      PIT_Other_Units = fsum(fifelse(activeInv,OtherUnitInventory,0)),
+      PIT_HMIS_Other_Units = fsum(fifelse(activeHMISInv,OtherUnitInventory,0))) %>% fungroup()
   #For each relevant project, count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
   #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
   return(Bed_Unit_Count)
