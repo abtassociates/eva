@@ -1345,7 +1345,8 @@ nav_menu(
       id = 'glossary_card',
           card_header(class = "d-flex justify-content-between align-items-end",
                       HTML('<h2>System Performance Glossary</h2>'),
-                      downloadButton('glossary_download_btn', label = 'Download Glossary')),
+                      #downloadButton('glossary_download_btn', label = 'Download Glossary')
+                      ),
                tabGlossary_instructions,
         DTOutput("glossary")
       )
