@@ -277,16 +277,20 @@ logToConsole(session, paste0('num 0 HMISPart.: ',sum(ProjectSegments$HMISPartici
 
 zero_utilization <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
-  fsubset(!is.na(HMISParticipationType) & HMISParticipationType == 1 &
-          (is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start), 
-          ProjectID, 
-          ProjectTimeID, 
-          ProjectType,
-          HMISParticipationStatusStartDate, 
-          HMISParticipationStatusEndDate,
-          OperatingStartDate,
-          OperatingEndDate
-  ) %>%
+  fsubset(!is.na(HMISParticipationType)) %>% 
+  fsubset(HMISParticipationType == 1) %>% 
+  fsubset(is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start) %>%
+  # fsubset(!is.na(HMISParticipationType) & HMISParticipationType == 1 &
+  #           (is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start)) %>% 
+  fselect(
+    ProjectID, 
+    ProjectTimeID, 
+    ProjectType,
+    HMISParticipationStatusStartDate, 
+    HMISParticipationStatusEndDate,
+    OperatingStartDate,
+    OperatingEndDate
+  ) %>% 
   join(
     activeInventory %>% 
       fselect(ProjectID, InventoryStartDate, InventoryEndDate, Availability, BedInventory) %>%
