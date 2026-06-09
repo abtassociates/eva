@@ -296,7 +296,6 @@ count_Enrollments <-function(pit_dates, pit_labels, extra_groups = NULL){
       PIT_Served = fsum(Served),
       PIT_HHServed = fsum(HHServed))%>%
     fungroup()  %>% fsubset(!is.na(PIT_Served) & (ProjectType != es_nbn_project_type |eligProjNBN))
-  
   return(Bed_Unit_Util)
 } 
 
@@ -305,7 +304,7 @@ logToConsole(session, "building project-level utilization")
 # sort PIT dates
 quarters <- get_quarters() %>% sort
 mons <- get_months() %>% sort
-sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType", 
+sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType", "ProjectType",
                        "TargetPopulation", "HousingType", 
                        "VictimServiceProvider", "Availability") # all filters
 #print(colnames(EnrollmentAdjust))
@@ -317,9 +316,6 @@ project_level_util_q <- count_Beds_Units(quarters, extra_groups = sys_grouping_v
 project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars) %>%
   join(count_Enrollments(mons, names(mons), extra_groups = c("HouseholdType")), how = "left") %>% 
   group_by( PIT) %>% fill("label", .direction = "updown") %>% fungroup
-
-
-
 
 # pass results to session for server_09_inv_util.R to finish 
 session$userData$project_level_util_q <- project_level_util_q 
