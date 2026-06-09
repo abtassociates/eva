@@ -187,6 +187,15 @@ check_for_bad_nulls <- function(file) {
 df_nulls <- rbindlist(lapply(unique(cols_and_data_types$File), check_for_bad_nulls))
 
 # Integrity Client --------------------------------------------------------
+if (nrow(Client) == 0) {
+  no_client_records <- data.table(
+    Detail = "There are 0 client records in the Client.csv file"
+  ) %>%
+    merge_check_info_dt(checkIDs = 109)
+} else {
+  no_client_records <- data.table()
+}
+
 # CHECK: export ID differs
 export_id_client <- Client %>%
   fsubset(as.character(ExportID) != export_id_from_export) %>%
@@ -244,6 +253,7 @@ duplicate_client_id <- Client %>%
   ) %>%
   fselect(issue_display_cols) %>%
   funique()
+
 
 # Integrity Enrollment ----------------------------------------------------
 if (nrow(Enrollment) == 0) {
@@ -390,6 +400,7 @@ nonstandard_CLS <- CurrentLivingSituation %>%
                      "which is not a valid response."))) %>%
   fselect(issue_display_cols)
 
+# join together and return ------------------------
 session$userData$file_structure_analysis_main(rbind(
   df_column_diffs,
   df_unexpected_data_types,
@@ -403,6 +414,7 @@ session$userData$file_structure_analysis_main(rbind(
   foreign_key_no_primary_projectid_enrollment,
   living_situation_invalid,
   no_enrollment_records,
+  no_client_records,
   nonstandard_CLS,
   nonstandard_destination,
   rel_to_hoh_invalid,
