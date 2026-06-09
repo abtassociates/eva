@@ -84,37 +84,10 @@ updatePickerInput(session = session,
                   choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
 
 # on Inventory & Utilization dropdown - System LeveL tab ----
-c_choices <- sort(unique(HMIS_projects_w_active_inv$TargetPopulation))
-c_choices[is.na(c_choices)] <- "NA"
-if(length(c_choices) > 1) { 
-  c_choices = c("All Target Populations", c_choices)
-  updatePickerInput(session = session,
-                    inputId = "bui_target_pop",
-                    choices =  c_choices)
-}
-
-c_choices <- sort(unique(HMIS_projects_w_active_inv$HousingType))
-c_choices[is.na(c_choices)] <- "NA"
-if(length(c_choices) > 1) {
-  c_choices = c("All Housing Types", c_choices)
-  updatePickerInput(session = session,
-                    inputId = "bui_housing_type",
-                    choices = c_choices)
-}
-
-c_choices <- sort(unique(HMIS_projects_w_active_inv$VictimServiceProvider))
-c_choices[is.na(c_choices)] <- "NA"
-if(length(c_choices) > 1) {
-  c_choices = c("All Organizations", c_choices)
-  updatePickerInput(session = session,
-                    inputId = "bui_victim_service",
-                    choices =  c_choices)
-}
-
 c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
 c_choices[is.na(c_choices)] <- "NA"
 if(length(c_choices) > 1) {
-  c_choices = c( "All ES Bed/Unit Availability Types", c_choices)
+  c_choices = c( "All Availability Types", c_choices)
   updatePickerInput(session = session,
                     inputId = "bui_bed_avail_sys",
                     choices = c_choices)
