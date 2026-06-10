@@ -108,8 +108,8 @@ EnrollmentStaging <- Enrollment %>%
     # ),
     HouseholdType = factor(
       
-      fcase(any(between(AgeAtEntry, 0, 17)) & between(max_AgeAtEntry, 18, 24), "PY",
-            any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18, "ACminusPY",
+      fcase(min_AgeAtEntry < 18 & between(max_AgeAtEntry, 18, 24), "PY",
+            min_AgeAtEntry < 18 & max_AgeAtEntry >= 18, "ACminusPY",
             min_AgeAtEntry >= 18 & between(max_AgeAtEntry, 0, 24), "UY", 
             min_AgeAtEntry >= 18, "AOminusUY",
             min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17, "CO", 
@@ -117,10 +117,10 @@ EnrollmentStaging <- Enrollment %>%
       ),
       levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     ),
-    HHTypeAtRecordStart = factor(
+    HHTypeAtReportStart = factor(
       
-      fcase(any(between(AgeAtReportStart, 0, 17)) & between(max_AgeAtReportStart, 18, 24), "PY",
-            any(between(AgeAtReportStart, 0, 17)) & max_AgeAtReportStart >= 18, "ACminusPY",
+      fcase(min_AgeAtReportStart < 18 & between(max_AgeAtReportStart, 18, 24), "PY",
+            min_AgeAtReportStart < 18 & max_AgeAtReportStart >= 18, "ACminusPY",
             min_AgeAtReportStart >= 18 & between(max_AgeAtReportStart, 0, 24), "UY", 
             min_AgeAtReportStart >= 18, "AOminusUY",
             min_AgeAtReportStart >= 0 & max_AgeAtReportStart <= 17, "CO", 
