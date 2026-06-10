@@ -3,12 +3,12 @@ logToConsole(session, "building HMIS Participation Datasets")
 ## Create Data for HMIS Participation ------------------------------------------
 # Fix Household Type in Enrollment Adjust
 EnrollmentAdjust_BUI <- EnrollmentAdjust %>% 
-  fmutate("HouseholdType" = fcase(HouseholdType == "PY", 3,
-                                  HouseholdType == "ACminusPY",3,
-                                  HouseholdType == "UY", 1,
-                                  HouseholdType == "AOminusUY",1,
-                                  HouseholdType == "CO", 4,
-                                  default = as.numeric( HouseholdType)))
+  fmutate("HouseholdType" = fcase(HHTypeAtRecordStart == "PY", 3,
+                                  HHTypeAtRecordStart == "ACminusPY",3,
+                                  HHTypeAtRecordStart == "UY", 1,
+                                  HHTypeAtRecordStart == "AOminusUY",1,
+                                  HHTypeAtRecordStart == "CO", 4,
+                                  default = NA)) 
 # Inventory Level --------------------------------------------------------------
 HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
