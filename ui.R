@@ -856,10 +856,7 @@ nav_panel(
           conditionalPanel(
             condition = "input.mbm_status_filter == 'All'",
             plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
-              withSpinner()
-          ),
-          conditionalPanel(
-            condition = "input.mbm_status_filter == 'All'",
+              withSpinner(),
             DTOutput("sys_inflow_outflow_monthly_table") %>%
               withSpinner()
           )
