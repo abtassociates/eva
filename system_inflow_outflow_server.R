@@ -430,7 +430,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       ystart = lag(cumsum(N), default = 0),
       yend = round(cumsum(N)),
       group.id = GRPid(Summary),
-      N_formatted = scales::comma(abs(N))
+      N_formatted = format(abs(N), big.mark = ",", scientific = FALSE)
     ) %>%
     # Remove Active at Start/End bars that are 0, since there's no label other 
     # than legend, which makes it hard to interpret the floating 0
@@ -721,7 +721,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             )) %>% 
             # hide labels if value is 0
             fmutate(Count = na_if(Count, 0)),
-          aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+          aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = format(Count, big.mark = ",", scientific = FALSE), group = PlotFillGroups),
           stat = "identity",
           color = "black",
           fill = "white",
@@ -737,7 +737,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             )) %>% 
             # hide labels if value is 0
             fmutate(Count = na_if(Count, 0)),
-          aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = Count, group = PlotFillGroups),
+          aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = format(Count, big.mark = ",", scientific = FALSE), group = PlotFillGroups),
           stat = "identity",
           color = "black",
           fill = "white",
@@ -755,7 +755,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
   get_sys_inflow_outflow_monthly_plot()()
 })
 
-# Pure line chart -------
+# Pure line chart (suppressed) -------
 # output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
 #   plot_data <- sys_inflow_outflow_monthly_chart_data()
 #   
@@ -816,7 +816,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 #     )
 # })
 
-# Combined line + bar chart -------------
+# Combined line + bar chart (suppressed) -------------
 # output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
 #   plot_data <- sys_inflow_outflow_monthly_chart_data()
 #   
@@ -995,7 +995,9 @@ get_sys_inflow_outflow_monthly_table <- reactive({
         c("Active at Start: Homeless", "Active at End: Housed"), 
         rep("white", 2)
       )
-    )
+    ) %>%
+    # Format other columns to display with commas
+    formatCurrency(columns = 2:ncol(summary_data_with_change), currency = "", digits = 0, mark = ",") 
   
   ## Commenting out this section which highlights max and min inflow/outfow values
   ## since we are now using the same background color with a pattern fill instead
@@ -1101,7 +1103,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   
   ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(aes(fill = PlotFillGroups), width = 0.3, color = "black") +
-    geom_text(aes(label = Count), vjust = -0.5, size = sys_chart_text_font) +
+    geom_text(aes(label = format(Count, big.mark = ",", scientific = FALSE)), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",
