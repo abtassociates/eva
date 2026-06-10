@@ -907,32 +907,32 @@ dedicated <- function(data, grouping_vars, choose){
                                                              Units = fsum(PIT_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_Beds),
                                                              HMIS_Units = fsum(PIT_HMIS_Units))
-  }else if(choose == "Veteran Dedicated"){
+  }else if(choose == "Veteran"){
     data <- data %>% fgroup_by(grouping_vars) %>% fsummarise(Beds = fsum(PIT_Vet_Beds),
                                                              Units = fsum(PIT_Vet_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_Vet_Beds),
                                                              HMIS_Units = fsum(PIT_HMIS_Vet_Units) )
-  }else if(choose == "Veteran Youth Dedicated"){
+  }else if(choose == "Veteran Youth Dedicated"){ # No longer an Option
     data <- data %>% fgroup_by(grouping_vars) %>% fsummarise(Beds = fsum(PIT_YouthVet_Beds),
                                                              Units = fsum(PIT_YouthVet_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_YouthVet_Beds),
                                                              HMIS_Units = fsum(PIT_HMIS_YouthVet_Units) )
-  }else if(choose == "Veteran Child Dedicated"){
+  }else if(choose == "Chronically Homeless Veteran Dedicated"){ # No longer an Option
     data <- data %>% fgroup_by(grouping_vars) %>% fsummarise(Beds = fsum(PIT_CHVet_Beds),
                                                              Units = fsum(PIT_CHVet_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_CHVet_Beds),
                                                              HMIS_Units = fsum(PIT_HMIS_CHVet_Units) )
-  }else if(choose == "Youth Dedicated"){
+  }else if(choose == "Youth"){
     data <- data %>% fgroup_by(grouping_vars) %>% fsummarise(Beds = fsum(PIT_Youth_Beds),
                                                              Units = fsum(PIT_Youth_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_Youth_Beds),
                                                              HMIS_Units = fsum(PIT_HMIS_Youth_Units) )
-  }else if(choose == "Youth Child Dedicated"){
+  }else if(choose == "Chronically Homeless Youth Dedicated"){ # No longer an Option
     data <- data %>% fgroup_by(grouping_vars) %>% fsummarise(Beds = fsum(PIT_CHYouth_Beds),
                                                              Units = fsum(PIT_CHYouth_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_CHYouth_Beds),
                                                              HMIS_Units = fsum(PIT_HMIS_CHYouth_Units) )
-  }else if(choose == "Child Dedicated"){
+  }else if(choose == "Chronically Homeless"){ 
     data <- data %>% fgroup_by(grouping_vars) %>% fsummarise(Beds = fsum(PIT_CH_Beds),
                                                              Units = fsum(PIT_CH_Units),
                                                              HMIS_Beds = fsum(PIT_HMIS_CH_Beds),
@@ -953,81 +953,33 @@ transform_names <- function(x){
 }
 
 # Monthly/Quarterly Reactives for system level summaries by project or household type 
-summary_sys_proj_q <- reactive({
+summary_sys_proj <- reactive({
   req(session$userData$valid_file() == 1 )
-  selected_projs <- session$userData$project_level_util_q %>% fungroup
+  
+  if(input$bui_period_filter_sys == "Monthly"){
+    selected_projs <- session$userData$project_level_util_m%>% fungroup
+  }else{
+    selected_projs <- session$userData$project_level_util_q %>% fungroup
+  }
 
-  if(input$bui_bed_avail_sys != "All ES Bed/Unit Availability Types"){ # what is ESBedType?
+  if(input$bui_bed_avail_sys != "All Availability Types"){ # what is ESBedType?
     selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
-  }
-  if(input$bui_victim_service != "All Organizations"){ 
-    selected_projs <- selected_projs %>% fsubset(VictimServiceProvider %in% input$bui_victim_service) 
-  }
-  if(input$bui_housing_type != "All Housing Types"){ 
-    selected_projs <- selected_projs %>% fsubset(HousingType %in% input$bui_housing_type) 
-  }
-  if(input$bui_target_pop != "All Target Populations"){ 
-    selected_projs <- selected_projs %>% fsubset(TargetPopulation %in% input$bui_target_pop) 
   }
 
   selected_projs <- dedicated(data= selected_projs, grouping_vars = c("PIT", "label", "ProjectType"), choose = input$bui_dedicated)
   return(selected_projs)
 })
-summary_sys_hh_q <- reactive({
+summary_sys_hh <- reactive({
   req(session$userData$valid_file() == 1 )
-  selected_projs <- session$userData$project_level_util_q %>% fungroup
   
-  if(input$bui_bed_avail_sys != "All ES Bed/Unit Availability Types"){ # what is ESBedType?
+  if(input$bui_period_filter_sys == "Monthly"){
+    selected_projs <- session$userData$project_level_util_m%>% fungroup
+  }else{
+    selected_projs <- session$userData$project_level_util_q %>% fungroup
+  }
+  
+  if(input$bui_bed_avail_sys != "All Availability Types"){ # what is ESBedType?
     selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
-  }
-  if(input$bui_victim_service != "All Organizations"){ 
-    selected_projs <- selected_projs %>% fsubset(VictimServiceProvider %in% input$bui_victim_service) 
-  }
-  if(input$bui_housing_type != "All Housing Types"){ 
-    selected_projs <- selected_projs %>% fsubset(HousingType %in% input$bui_housing_type) 
-  }
-  if(input$bui_target_pop != "All Target Populations"){ 
-    selected_projs <- selected_projs %>% fsubset(TargetPopulation %in% input$bui_target_pop) 
-  }
-  
-  selected_projs <- dedicated(data= selected_projs, grouping_vars = c("PIT", "label", "HouseholdType"), choose = input$bui_dedicated)
-  return(selected_projs)
-})
-summary_sys_proj_m <- reactive({
-  req(session$userData$valid_file() == 1 )
-  selected_projs <- session$userData$project_level_util_m %>% fungroup
-  
-  if(input$bui_bed_avail_sys != "All ES Bed/Unit Availability Types"){ # what is ESBedType?
-    selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
-  }
-  if(input$bui_victim_service != "All Organizations"){ 
-    selected_projs <- selected_projs %>% fsubset(VictimServiceProvider %in% input$bui_victim_service) 
-  }
-  if(input$bui_housing_type != "All Housing Types"){ 
-    selected_projs <- selected_projs %>% fsubset(HousingType %in% input$bui_housing_type) 
-  }
-  if(input$bui_target_pop != "All Target Populations"){ 
-    selected_projs <- selected_projs %>% fsubset(TargetPopulation %in% input$bui_target_pop) 
-  }
-  
-  selected_projs <- dedicated(data= selected_projs, grouping_vars = c("PIT", "label", "ProjectType"), choose = input$bui_dedicated)
-  return(selected_projs)
-})
-summary_sys_hh_m <- reactive({
-  req(session$userData$valid_file() == 1 )
-  selected_projs <- session$userData$project_level_util_m %>% fungroup
-  
-  if(input$bui_bed_avail_sys != "All ES Bed/Unit Availability Types"){ # what is ESBedType?
-    selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
-  }
-  if(input$bui_victim_service != "All Organizations"){ 
-    selected_projs <- selected_projs %>% fsubset(VictimServiceProvider %in% input$bui_victim_service) 
-  }
-  if(input$bui_housing_type != "All Housing Types"){ 
-    selected_projs <- selected_projs %>% fsubset(HousingType %in% input$bui_housing_type) 
-  }
-  if(input$bui_target_pop != "All Target Populations"){ 
-    selected_projs <- selected_projs %>% fsubset(TargetPopulation %in% input$bui_target_pop) 
   }
   
   selected_projs <- dedicated(data= selected_projs, grouping_vars = c("PIT", "label", "HouseholdType"), choose = input$bui_dedicated)
@@ -1040,31 +992,19 @@ sys_inv_filters <- reactive({
     br(),
     strong("Date Range: "),
     
-    format(min(get_quarters()), "%m-%d-%Y"), " to ", format(min(get_quarters())+years(1), "%m-%d-%Y"), br(),
-    
-    if(input$bui_target_pop != "All Target Populations"){
+    if(input$bui_period_filter_sys == "Points in Time"){
+      paste(format(sort(get_quarters()), "%m-%d-%Y"), collapse = ', ')
+    }else{
+      paste(format(min(get_quarters()), "%m-%d-%Y"), "to", format(min(get_quarters())+years(1)-days(1), "%m-%d-%Y"))
+    }, br(),
+    if(input$bui_bed_avail_sys != "All Availability Types"){
       HTML(glue(
-        "<strong>Target Population:</strong> {input$bui_target_pop} <br>"
-      ))
-    },
-    if(input$bui_housing_type != "All Housing Types"){
-      HTML(glue(
-        "<strong>Housing Type:</strong> {input$bui_housing_type} <br>"
-      ))
-    },
-    if(input$bui_victim_service != "All Organizations"){
-      HTML(glue(
-        "<strong>Victim Service Provider:</strong> {input$bui_victim_service} <br>"
-      ))
-    },
-    if(input$bui_bed_avail_sys != "All ES Bed/Unit Availability Types"){
-      HTML(glue(
-        "<strong>ES Bed Availabiliy Types:</strong> {input$bui_bed_avail_sys} <br>"
+        "<strong>Inventory Availabiliy Types:</strong> {input$bui_bed_avail_sys} <br>"
       ))
     },
     if(input$bui_dedicated != "All Types"){
       HTML(glue(
-        "<strong>Inventory Dedicated Bed/Unit Type:</strong> {input$bui_dedicated} <br>"
+        "<strong>Dedicated Inventory Type:</strong> {input$bui_dedicated} <br>"
       ))
     },
     HTML(glue(
@@ -1075,32 +1015,24 @@ sys_inv_filters <- reactive({
   )
 })
 
-# Render Display box on 'Quarterly' & 'By Project Type' tabs
-output$bui_filter_q_selections_sys_proj <- renderUI({
+# Render Display box on 'By Project Type' tabs
+output$bui_filter_selections_sys_proj <- renderUI({
   req(session$userData$valid_file() == 1 )
   sys_inv_filters() 
 })
-# Render Display box on 'Quarterly' & 'By Household Type' tabs
-output$bui_filter_q_selections_sys_hh <- renderUI({
-  req(session$userData$valid_file() == 1 )
-  sys_inv_filters() 
-})
-# Render Display box on 'Monthly' & 'By Project Type' tabs
-output$bui_filter_m_selections_sys_proj <- renderUI({
-  req(session$userData$valid_file() == 1 )
-  sys_inv_filters() 
-})
-# Render Display box on 'Quarterly' & 'By Household Type' tabs
-output$bui_filter_m_selections_sys_hh <- renderUI({
+# Render Display box on 'By Household Type' tabs
+output$bui_filter_selections_sys_hh <- renderUI({
   req(session$userData$valid_file() == 1 )
   sys_inv_filters() 
 })
 # Render DataTables for Monthly/Quarterly system level summaries by project or household type 
-output$sys_bui_q_sum_proj <- renderDT({
-  
+output$sys_bui_sum_proj <- renderDT({
+  req(session$userData$valid_file() == 1 )
 
-  data <- summary_sys_proj_q() %>% fungroup %>% 
-    fmutate(ProjectType = ifelse(is.na(project_type_abb(ProjectType)), "Unknown", project_type_abb(ProjectType)))
+  data <- summary_sys_proj() %>% fungroup %>% 
+    fmutate(ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
+                                ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
+                                default = project_type_abb(ProjectType)))
   data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
                            `Total Beds` = sum(Beds),
                            `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
@@ -1138,102 +1070,14 @@ output$sys_bui_q_sum_proj <- renderDT({
     style = "default"
   )
 })
-output$sys_bui_q_sum_hh <- renderDT({
+output$sys_bui_sum_hh <- renderDT({
   
-  
-  data <- summary_sys_hh_q() %>% fungroup %>% 
+  req(session$userData$valid_file() == 1 )
+  data <- summary_sys_hh() %>% fungroup %>% 
     fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
                                   HouseholdType == 3, "Adult-Child",
                                   HouseholdType == 4, "Child-Only",
                                   default = as.numeric( HouseholdType)))
-  
-  data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
-    `Total Beds` = sum(Beds),
-    `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
-    `Total Units` = sum(Units),
-    `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
-  
-  data <- pivot(data, 
-                ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),      # Columns to keep as identifiers
-                names = "HouseholdType",    # Column(s) whose values become new column names
-                values = c("Beds", "Units"),   # Column(s) containing the values to fill
-                how = "wider") 
-  data <- data %>% fgroup_by(PIT, label)  %>%
-    fsummarise(across(where(is.numeric), fsum))
-  
-  # select columns based on inventory level
-  if(input$bui_inventory_level_sys == "Beds"){
-    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
-  }else{
-    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
-  }
-  
-  colnames(sys_inv_filtered) <- lapply(colnames(sys_inv_filtered), FUN = transform_names) %>% unlist()
-  
-  labels <- sys_inv_filtered$label
-  sys_inv_filtered <- sys_inv_filtered %>% select(-label) %>% t()  # transpose 
-  colnames(sys_inv_filtered) <- labels
-  
-  datatable( # return table
-    sys_inv_filtered,
-    rownames = TRUE,
-    options = list(dom = 't', 
-                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
-                   pageLength = -1,
-                   autoWidth = TRUE),
-    style = "default"
-  )
-})
-output$sys_bui_m_sum_proj <- renderDT({
-  
-  
-  data <- summary_sys_proj_m() %>% fungroup %>% 
-    fmutate(ProjectType = ifelse(is.na(project_type_abb(ProjectType)), "Unknown", project_type_abb(ProjectType)))
-  data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
-    `Total Beds` = sum(Beds),
-    `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
-    `Total Units` = sum(Units),
-    `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
-  
-  data <- pivot(data, 
-                ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),  # Columns to keep as identifiers
-                names = "ProjectType",    # Column(s) whose values become new column names
-                values = c("Beds", "Units"),   # Column(s) containing the values to fill
-                how = "wider")  
-  data <- data %>% fgroup_by(PIT, label)  %>%
-    fsummarise(across(where(is.numeric), fsum))
-  
-  # select columns based on inventory level
-  if(input$bui_inventory_level_sys == "Beds"){
-    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
-  }else{
-    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
-  }
-  
-  colnames(sys_inv_filtered) <- lapply(colnames(sys_inv_filtered), FUN = transform_names) %>% unlist()
-  
-  labels <- sys_inv_filtered$label
-  sys_inv_filtered <- sys_inv_filtered %>% select(-label) %>% t()  # transpose 
-  colnames(sys_inv_filtered) <- labels
-  
-  datatable( # return table
-    sys_inv_filtered,
-    rownames = TRUE,
-    options = list(dom = 't', 
-                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
-                   pageLength = -1,
-                   autoWidth = TRUE),
-    style = "default"
-  )
-})
-output$sys_bui_m_sum_hh <- renderDT({
-  
-  
-  data <- summary_sys_hh_m() %>% fungroup %>% 
-    fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
-                                    HouseholdType == 3, "Adult-Child",
-                                    HouseholdType == 4, "Child-Only",
-                                    default = as.numeric( HouseholdType)))
   
   data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
     `Total Beds` = sum(Beds),

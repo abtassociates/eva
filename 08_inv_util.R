@@ -3,12 +3,12 @@ logToConsole(session, "building HMIS Participation Datasets")
 ## Create Data for HMIS Participation ------------------------------------------
 # Fix Household Type in Enrollment Adjust
 EnrollmentAdjust_BUI <- EnrollmentAdjust %>% 
-  fmutate("HouseholdType" = fcase(HouseholdType == "PY", 3,
-                                  HouseholdType == "ACminusPY",3,
-                                  HouseholdType == "UY", 1,
-                                  HouseholdType == "AOminusUY",1,
-                                  HouseholdType == "CO", 4,
-                                  default = as.numeric( HouseholdType)))
+  fmutate("HouseholdType" = fcase(HHTypeAtReportStart == "PY", 3,
+                                  HHTypeAtReportStart == "ACminusPY",3,
+                                  HHTypeAtReportStart == "UY", 1,
+                                  HHTypeAtReportStart == "AOminusUY",1,
+                                  HHTypeAtReportStart == "CO", 4,
+                                  default = NA)) 
 # Inventory Level --------------------------------------------------------------
 HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
@@ -84,37 +84,10 @@ updatePickerInput(session = session,
                   choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
 
 # on Inventory & Utilization dropdown - System LeveL tab ----
-c_choices <- sort(unique(HMIS_projects_w_active_inv$TargetPopulation))
-c_choices[is.na(c_choices)] <- "NA"
-if(length(c_choices) > 1) { 
-  c_choices = c("All Target Populations", c_choices)
-  updatePickerInput(session = session,
-                    inputId = "bui_target_pop",
-                    choices =  c_choices)
-}
-
-c_choices <- sort(unique(HMIS_projects_w_active_inv$HousingType))
-c_choices[is.na(c_choices)] <- "NA"
-if(length(c_choices) > 1) {
-  c_choices = c("All Housing Types", c_choices)
-  updatePickerInput(session = session,
-                    inputId = "bui_housing_type",
-                    choices = c_choices)
-}
-
-c_choices <- sort(unique(HMIS_projects_w_active_inv$VictimServiceProvider))
-c_choices[is.na(c_choices)] <- "NA"
-if(length(c_choices) > 1) {
-  c_choices = c("All Organizations", c_choices)
-  updatePickerInput(session = session,
-                    inputId = "bui_victim_service",
-                    choices =  c_choices)
-}
-
 c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
 c_choices[is.na(c_choices)] <- "NA"
 if(length(c_choices) > 1) {
-  c_choices = c( "All ES Bed/Unit Availability Types", c_choices)
+  c_choices = c( "All Availability Types", c_choices)
   updatePickerInput(session = session,
                     inputId = "bui_bed_avail_sys",
                     choices = c_choices)
@@ -296,7 +269,6 @@ count_Enrollments <-function(pit_dates, pit_labels, extra_groups = NULL){
       PIT_Served = fsum(Served),
       PIT_HHServed = fsum(HHServed))%>%
     fungroup()  %>% fsubset(!is.na(PIT_Served) & (ProjectType != es_nbn_project_type |eligProjNBN))
-  
   return(Bed_Unit_Util)
 } 
 
@@ -305,7 +277,7 @@ logToConsole(session, "building project-level utilization")
 # sort PIT dates
 quarters <- get_quarters() %>% sort
 mons <- get_months() %>% sort
-sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType", 
+sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType", "ProjectType",
                        "TargetPopulation", "HousingType", 
                        "VictimServiceProvider", "Availability") # all filters
 #print(colnames(EnrollmentAdjust))
@@ -317,9 +289,6 @@ project_level_util_q <- count_Beds_Units(quarters, extra_groups = sys_grouping_v
 project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars) %>%
   join(count_Enrollments(mons, names(mons), extra_groups = c("HouseholdType")), how = "left") %>% 
   group_by( PIT) %>% fill("label", .direction = "updown") %>% fungroup
-
-
-
 
 # pass results to session for server_09_inv_util.R to finish 
 session$userData$project_level_util_q <- project_level_util_q 
