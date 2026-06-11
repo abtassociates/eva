@@ -3,6 +3,15 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "06-12-2026",
+    "<b>New Features</b> <br>
+      - System Exits charts, visualizations, and exports <br>
+    <b>Bug Fixes</b> <br>
+      - Fixed incorrect zero utilization warning for projects with multiple HMIS Participation Records (Issue <a href='https://github.com/abtassociates/eva/issues/994' target='_blank'>#994</a>)<br>
+    <b>Miscellaneous</b> <br>
+      - Renamed Glossary page to System Performance Glossary <br>
+      - Updated System Performance Glossary to include new entries related to System Exits
+    ",
     "05-08-2026",
     "<b>Bug Fixes</b> <br>
       - Ignore persons over age 100 in <i>Incorrect DOB or Entry Date</i> DQ check. Added a separate DQ Warning for persons over age 100 to encourage double-checking of the data. (Issue <a href='https://github.com/abtassociates/eva/issues/983' target='_blank'>#983</a>)<br>",
