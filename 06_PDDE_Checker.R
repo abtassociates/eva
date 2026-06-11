@@ -271,21 +271,11 @@ vsps_in_hmis <- session$userData$Project0 %>%
 # Zero Utilization --------------------------------------------------------
 # HMIS participating projects that have ANY active inventory (with available beds) 
 # should not have 0 enrollments
-logToConsole(session, paste0('dim(activeInventory): ', fnrow(activeInventory), 'x',fncol(activeInventory)))
-logToConsole(session, paste0('dim(Enrollment): ', fnrow(Enrollment), 'x',fncol(Enrollment)))
-logToConsole(session, paste0('dim(Project0): ', fnrow(session$userData$Project0), 'x',fncol(session$userData$Project0)))
-logToConsole(session, paste0('dim(ProjectSegments): ', fnrow(ProjectSegments), 'x',fncol(ProjectSegments)))
-logToConsole(session, paste0('num NA HMISPart.: ',sum(is.na(ProjectSegments$HMISParticipationType))))
-logToConsole(session, paste0('num 0 HMISPart.: ',sum(ProjectSegments$HMISParticipationType == 0, na.rm=T)))
-logToConsole(session, paste0('Export Start Date: ',session$userData$meta_HUDCSV_Export_Start))
 
 zero_utilization <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
-  fsubset(!is.na(HMISParticipationType)) %>% 
-  fsubset(HMISParticipationType == 1) %>% 
-  fsubset(is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start) %>%
-  # fsubset(!is.na(HMISParticipationType) & HMISParticipationType == 1 &
-  #           (is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start)) %>% 
+  fsubset(!is.na(HMISParticipationType) & HMISParticipationType == 1 &
+            (is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start)) %>%
   fselect(
     ProjectID, 
     ProjectTimeID, 
