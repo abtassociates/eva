@@ -277,22 +277,59 @@ populate_client_level_export <- function(type = 'overview', file){
         Value = fnrow(all_filtered_syse())
       )
     )
-    colnames(filter_selections) <- c("Filter","Selection")
+    # remove column names by setting them to the values from the first row and then subsetting
+    colnames(filter_selections) <- filter_selections[1,]
+    filter_selections <- filter_selections[2:nrow(filter_selections),]
     
+    adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
+      fsubset(
+        adjusted_dates == TRUE, 
+        PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
+      )
+    if(nrow(session$userData$lh_info) > 0) {
+      adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
+        join(
+          session$userData$lh_info %>% 
+            fgroup_by(EnrollmentID) %>% 
+            fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
+            fungroup() %>%
+            fsubset(lh_dates != "NA"),
+          on = "EnrollmentID"
+        )
+    }
+    
+    
+    # TEST using Officer Package
+    # 1)  the package version might be outdated because the function 'sheet_write_data' 
+    #     from the package documentation (https://cran.r-project.org/web/packages/officer/officer.pdf) 
+    #     does not seem to exist. I'm unable to actually write any data to the newly created sheets without this function. 
+    # 2) I'm not sure how to add sheets BEFORE the existing sheets, so 'Metadata' comes after 'Instructions' and 'Data Dictionary'
+    # 3) When I open the file after downloading it, I get an error message that it must be repaired. 
+    
+    #wb <- read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
+    #wb <- add_sheet(wb, "Metadata")
+    #wb <- add_sheet(wb, "Client Details")
+    #wb <- add_sheet(wb, "Monthly Statuses")
+    #wb <- add_sheet(wb, "Adjusted Enrollments")
+    #print(wb, target = file)
     
     # everything together
     client_level_export_list <- list(
       client_level_metadata = filter_selections,
+      instructions = read_excel(here("www/CLE Instructions and Data Dictionary.xlsx"), sheet = "Instructions"),
       data_dictionary = setNames(
-        read.csv(here("www/client-level-export-data-dictionary.csv")),
+        read_excel(here("www/CLE Instructions and Data Dictionary.xlsx"), sheet = "Data Dictionary"),
         c("Column Name", "Variable Type", "Definition")
       ),
       client_level_details = client_level_details
     )
     names(client_level_export_list) = c(
       "Metadata",
+      "Instructions",
       "Data Dictionary",
-      "Client Details"
+      "Client Details",
+      "Monthly Statuses",
+      "Adjusted Enrollments"
     )
   }
  
