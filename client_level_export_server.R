@@ -273,10 +273,12 @@ populate_client_level_export <- function(type = 'overview', file){
     # officer load the excel file with all its formatting
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
+    
     wb <- sheet_write_data(wb, filter_selections, "Metadata")
     wb <- sheet_write_data(wb, client_level_details, "Client Details")
     
-    # drop the other sheets 
+    # drop the other sheets and instrunctions
+    wb <- sheet_remove(wb, "Instructions")
     wb <- sheet_remove(wb, "Monthly Statuses")
     wb <- sheet_remove(wb, "Adjusted Enrollments")
     
