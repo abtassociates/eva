@@ -8,7 +8,7 @@ output$changelog <- renderDT({
       - System Exits charts, visualizations, and exports <br>
     <b>Bug Fixes</b> <br>
       - Fixed incorrect zero utilization warning for projects with multiple HMIS Participation Records (Issue <a href='https://github.com/abtassociates/eva/issues/994' target='_blank'>#994</a>)<br>
-      - Added FSA check for when Client.csv has no records <br>
+      - Fixed incorrect unhashed file upload error for exports that have the correct HashStatus but no client records (Issue <a href='https://github.com/abtassociates/eva/issues/994' target='_blank'>#998</a>) <br>
     <b>Miscellaneous</b> <br>
       - Renamed Glossary page to System Performance Glossary <br>
       - Updated System Performance Glossary to include new entries related to System Exits
