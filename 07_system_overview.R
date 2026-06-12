@@ -556,3 +556,195 @@ session$userData$enrollment_categories <- enrollment_categories %>%
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
 period_specific_data()
+
+
+# Previous Year Enrollments -----------------------------------------------
+
+startDatePrev <- session$userData$ReportStart %m-% years(1)
+endDatePrev <- session$userData$ReportEnd %m-% years(1)
+
+enrollment_categories_prev <- enrollment_prep_hohs %>% 
+  fsubset(
+    ProjectType != hp_project_type & 
+      EntryDate <= endDatePrev & ExitAdjust >= (startDatePrev %m-% years(2))
+  ) %>%
+  fmutate(
+    during_period = EntryDate <= endDatePrev & ExitAdjust >= startDatePrev
+  ) %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(has_enrl_in_date_range = anyv(during_period, TRUE)) %>%
+  fungroup() %>%
+  fsubset(has_enrl_in_date_range) %>%
+  fmutate(
+    ProjectTypeWeight = fcase(
+      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
+      ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
+      ProjectType %in% lh_residential_project_types, 60,
+      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40,
+      ProjectType == ce_project_type, 30,
+      default = 20
+    ),
+    lh_prior_livingsituation = !is.na(LivingSituation) &
+      (LivingSituation %in% homeless_livingsituation_incl_TH |
+         (LivingSituation %in% institutional_livingsituation &
+            LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
+            !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
+         )
+      ),
+    # The purpose of this variable is to capture the idea that an LH date (LH PLS, LH CLS, or Bed Night)
+    # Can tell us something about a person's LH status for some time beyond that particular date
+    # In this way, it will help us construct an enrollment's last LH date
+    # It also helps us determine if an enrollment is LH at period start/end, 
+    # by looking back from the period start/end this number of days to see if there's an LH date
+    days_lh_valid = fcase(
+      ProjectType == ce_project_type, 90,
+      ProjectType %in% non_res_project_types, 60,
+      ProjectType == es_nbn_project_type, 15,
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.numeric(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
+      default = 0
+    ),
+    
+    lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
+      (ProjectType %in% non_res_project_types & lh_prior_livingsituation)
+  ) %>% 
+  fselect(
+    EnrollmentID,
+    PersonalID,
+    HouseholdID,
+    ProjectID,
+    EntryDate,
+    MoveInDateAdjust,
+    ExitDate,
+    ExitAdjust,
+    ProjectType,
+    MostRecentAgeAtEntry,
+    LivingSituation,
+    lh_prior_livingsituation,
+    LOSUnderThreshold,
+    PreviousStreetESSH,
+    Destination,
+    AgeAtEntry,
+    CorrectedHoH,
+    # DomesticViolenceCategory,
+    HouseholdType,
+    ProjectTypeWeight,
+    days_lh_valid,
+    lh_at_entry
+  ) %>% 
+  setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
+
+# Remove "problematic" enrollments ----------------------------------
+# These are non-residential (other than SO) enrollments for which we have no LH evidence: 
+# So any enrollment that is not lh_prior_livingsituation and has no LH CLS
+problematic_nonres_enrollmentIDs_prev <- base::setdiff(
+  (enrollment_categories_prev %>% 
+     fsubset(ProjectType %in% non_res_nonlh_project_types & !lh_prior_livingsituation)
+  )$EnrollmentID,
+  unique(lh_cls$EnrollmentID)
+)
+
+enrollment_categories_prev <- enrollment_categories_prev %>%
+  fsubset(
+    !EnrollmentID %in% problematic_nonres_enrollmentIDs_prev &
+      EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
+  )
+
+# Set MoveInDateAdjust to no_end_date if NA. 
+# This will allow us to just use MoveInDateAdjust without also checking for NA
+# MoveInDateAdjust is used to determine if/when a person was Housed.
+enrollment_categories_prev <- enrollment_categories_prev %>%
+  ftransform(MoveInDateAdjust = MoveInDateAdjust)
+
+# This step does 2 things:
+#  1. Compute lh_date, first_lh_date. and last_lh_date
+#  2. Modify EntryDate and ExitAdjust to be these first and last LH dates. 
+#     (Only applicable to non-res projects with no LH PLS or no ExitDate, but with an LH CLS)
+# lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
+# first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
+session$userData$lh_info_prev <- enrollment_categories_prev %>%
+  join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  fmutate(
+    lh_date = fcoalesce(lh_date, lh_date_s),
+    non_exit_lh_in_report = 
+      ((EntryDate + days_lh_valid) %between% list(startDatePrev, endDatePrev) & lh_prior_livingsituation) |
+      (lh_date + days_lh_valid) %between% list(startDatePrev, endDatePrev)
+  ) %>%
+  fgroup_by(EnrollmentID) %>%
+  fmutate(exit_is_only_lh = !any(non_exit_lh_in_report, na.rm=TRUE)) %>%
+  fungroup() %>%
+  fmutate(
+    first_lh_compare_date = pmin(
+      fifelse(MoveInDateAdjust <= startDatePrev, NA, ExitAdjust),
+      fifelse(
+        lh_at_entry,
+        EntryDate,
+        fifelse(lh_date < EntryDate, ExitAdjust, lh_date)
+      ),
+      na.rm=TRUE
+    ),
+    last_lh_compare_date = pmax(
+      pmin(lh_date + days_lh_valid, ExitAdjust), # Handle if lh_date + days_lh_valid goes beyond ExitDate.
+      fifelse(!exit_is_only_lh & !ProjectType %in% non_res_project_types, ExitDate, NA), # For non-res projects, we don't use ExitDate. LH_date + days_lh_valid is sufficient
+      fifelse(
+        lh_at_entry,
+        pmin(EntryDate + days_lh_valid, ExitAdjust),
+        NA
+      ),
+      na.rm=TRUE
+    )
+  ) %>%
+  fgroup_by(EnrollmentID) %>%
+  fmutate(
+    first_lh_date = fmin(first_lh_compare_date),
+    last_lh_date = fmax(last_lh_compare_date)
+  ) %>%
+  ftransform(
+    last_lh_date = fifelse(
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types),
+      fcoalesce(MoveInDateAdjust, ExitAdjust),
+      last_lh_date
+    )
+  ) %>%
+  fungroup() %>%
+  fselect(
+    PersonalID, 
+    EnrollmentID,
+    ProjectType, 
+    MoveInDateAdjust,
+    lh_prior_livingsituation, 
+    days_lh_valid,
+    lh_date,
+    first_lh_date,
+    last_lh_date,
+    EntryDate, ExitAdjust
+  )
+
+session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
+
+session$userData$enrollment_categories_prev <- enrollment_categories_prev %>%
+  join(
+    session$userData$lh_info_prev %>% fselect(EnrollmentID, first_lh_date, last_lh_date) %>% funique(),
+    on = "EnrollmentID"
+  ) %>%
+  fmutate(
+    # "Trimming" EntryDate and ExitAdjust for non-res and NbN projects
+    # This is because such projects SHOULD have an LH CLS when they enter, but don't always do this.
+    # So we set Entry and Exit to the first/last LH dates in these cases.
+    EntryDate_orig = EntryDate,
+    
+    ExitAdjust_orig = ExitAdjust,
+    
+    EntryDate = fifelse(
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type),
+      EntryDate,
+      first_lh_date
+    ),
+    ExitAdjust = fifelse(
+      ProjectType %in% nbn_non_res & ExitAdjust == no_end_date,
+      last_lh_date + days_lh_valid,
+      ExitAdjust
+    ),
+    adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
+  ) %>%
+  fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
