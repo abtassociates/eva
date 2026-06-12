@@ -56,11 +56,17 @@ is_hashed <- function() {
   session$userData$Client <- importFile(upload_filepath, "Client")
   
   # decide if the export is hashed
+  
   return(  
     # TRUE
     session$userData$Export$HashStatus == 4 &
-      min(nchar(session$userData$Client$FirstName), na.rm = TRUE) ==
-      max(nchar(session$userData$Client$FirstName), na.rm = TRUE)
+      # if Client.csv has data, 
+      ifelse(fnrow(session$userData$Client) > 0, 
+        # test the FirstName column
+        min(nchar(session$userData$Client$FirstName), na.rm = TRUE) ==
+        max(nchar(session$userData$Client$FirstName), na.rm = TRUE),
+        # otherwise (nrow == 0), return TRUE 
+        TRUE) 
   )
 }
 
