@@ -3,12 +3,12 @@ logToConsole(session, "building HMIS Participation Datasets")
 ## Create Data for HMIS Participation ------------------------------------------
 # Fix Household Type in Enrollment Adjust
 EnrollmentAdjust_BUI <- EnrollmentAdjust %>% 
-  fmutate("HouseholdType" = fcase(HouseholdType == "PY", 3,
-                                  HouseholdType == "ACminusPY",3,
-                                  HouseholdType == "UY", 1,
-                                  HouseholdType == "AOminusUY",1,
-                                  HouseholdType == "CO", 4,
-                                  default = as.numeric( HouseholdType)))
+  fmutate("HouseholdType" = fcase(HHTypeAtReportStart == "PY", 3,
+                                  HHTypeAtReportStart == "ACminusPY",3,
+                                  HHTypeAtReportStart == "UY", 1,
+                                  HHTypeAtReportStart == "AOminusUY",1,
+                                  HHTypeAtReportStart == "CO", 4,
+                                  default = NA)) 
 # Inventory Level --------------------------------------------------------------
 HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
   fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
@@ -95,20 +95,22 @@ if(length(c_choices) > 1) {
  
 
 ## Functions -------------------------------------------------------------------
-# make function get_quarters() to get quarterly PIT dates ----------------------
-# this always returns the last 4 quarterly end dates, even when they come before session$userDate$ReportStart
-# for example, if the report start was january 1st 2024 and the report end is december 31st 2024
-# this returns the last wednesday in january, april, july, and october of 2024
-# In our calculations,
-# q1 would track end of january 2024 - end of april 2024
-# q2 would track end of april 2024 - end of july 2024
-# q3 would track end of july 2024 - end of october 2024
-# q4 would track end of october 2023 - end of january 2024
-# since the current 4th quarter is not complete until end of january 2025, it displays the last Q4
-# annual totals will therefore be looking at end of october 2023 - end of october 2024
-# we don't consider ReportStart at all. We do sort the quarters when they are used.
-# however, annual totals will look at dates a year prior to 
+# make function get_quarters() to get quarterly PIT dates between ReportStart and ReportEnd  ----------------------
+
 get_quarters <- function(){
+  # this always returns the last 4 quarterly end dates, even when they come before session$userDate$ReportStart
+  # for example, if the report start was january 1st 2024 and the report end is december 31st 2024
+  # this returns the last wednesday in january, april, july, and october of 2024
+  # In our calculations,
+  # q1 would track end of january 2024 - end of april 2024
+  # q2 would track end of april 2024 - end of july 2024
+  # q3 would track end of july 2024 - end of october 2024
+  # q4 would track end of october 2023 - end of january 2024
+  # since the current 4th quarter is not complete until end of january 2025, it displays the last Q4
+  # annual totals will therefore be looking at end of october 2023 - end of october 2024
+  # we don't consider ReportStart at all. We do sort the quarters when they are used.
+  # however, annual totals will look at dates a year prior to 
+  
   # get the last date in activeInventory
   lastday <- as.Date(session$userData$ReportEnd)
   y_last <- year(lastday)
@@ -140,10 +142,10 @@ get_quarters <- function(){
   
   quarters <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT) # create vector of quarterly dates
   names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
-  return(quarters)
+  return(quarters[quarters>=as.Date(session$userData$ReportStart)])
 }
 
-# make function get_months() to get monthly PIT dates --------------------------
+# make function get_months() to get monthly PIT dates between ReportStart and ReportEnd --------------------------
 get_months <- function(){
   lastday <- as.Date(session$userData$ReportEnd)
   y_last <- year(lastday)
@@ -156,7 +158,7 @@ get_months <- function(){
   ))
   months <- seq(end_month - months(11), end_month, by = "months")
   names(months) <- month.abb[month(months)]
-  return(months)
+  return(months[months>=as.Date(session$userData$ReportStart)])
 }
 # counting functions count_Beds_Units() & count_Enrollments() ------------------
 # create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments) on list of dates

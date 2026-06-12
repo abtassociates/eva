@@ -91,38 +91,39 @@ EnrollmentStaging <- Enrollment %>%
   join(Exit %>% fselect(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
        on = "EnrollmentID") %>%
   fmutate(ExitAdjust = fcoalesce(ExitDate, no_end_date),
-         AgeAtEntry = age_years(DOB, EntryDate),
-         DOB = NULL) %>%
+          AgeAtEntry = age_years(DOB, EntryDate),
+          AgeAtReportStart = age_years(DOB, max(EntryDate, session$userData$meta_HUDCSV_Export_Start, session$userData$ReportStart, na.rm=TRUE)),
+          DOB = NULL) %>%
   fgroup_by(ProjectID, HouseholdID) %>%
   fmutate(
     max_AgeAtEntry = fmax(AgeAtEntry),
     min_AgeAtEntry = fmin(AgeAtEntry),
+    max_AgeAtReportStart = fmax(AgeAtReportStart),
+    min_AgeAtReportStart = fmin(AgeAtReportStart),
     # DomesticViolenceCategory = fcase(
     #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
     #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
     #   default = "NotDV"
     # ),
     HouseholdType = factor(
-      fifelse(
-        any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
-        fifelse(
-          between(max_AgeAtEntry, 0, 24),
-          "PY",
-          "ACminusPY"
-        ),
-        fifelse(
-          min_AgeAtEntry >= 18,
-          fifelse(
-            between(max_AgeAtEntry, 0, 24),
-            "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
-            "AOminusUY"
-          ),
-          fifelse(
-            min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
-            "CO", 
-            "UN"
-          )
-        )
+      
+      fcase(min_AgeAtEntry < 18 & between(max_AgeAtEntry, 18, 24), "PY",
+            min_AgeAtEntry < 18 & max_AgeAtEntry >= 18, "ACminusPY",
+            min_AgeAtEntry >= 18 & between(max_AgeAtEntry, 0, 24), "UY", 
+            min_AgeAtEntry >= 18, "AOminusUY",
+            min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17, "CO", 
+            default = "UN"
+      ),
+      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+    ),
+    HHTypeAtReportStart = factor(
+      
+      fcase(min_AgeAtReportStart < 18 & between(max_AgeAtReportStart, 18, 24), "PY",
+            min_AgeAtReportStart < 18 & max_AgeAtReportStart >= 18, "ACminusPY",
+            min_AgeAtReportStart >= 18 & between(max_AgeAtReportStart, 0, 24), "UY", 
+            min_AgeAtReportStart >= 18, "AOminusUY",
+            min_AgeAtReportStart >= 0 & max_AgeAtReportStart <= 17, "CO", 
+            default = "UN"
       ),
       levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
