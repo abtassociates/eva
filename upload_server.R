@@ -63,6 +63,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       userData = list(
         Project0 = session$userData$Project0,
         meta_HUDCSV_Export_Date = session$userData$meta_HUDCSV_Export_Date,
+        meta_HUDCSV_Export_Start = session$userData$meta_HUDCSV_Export_Start,
         meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End,
         validation = session$userData$validation
       )
@@ -70,10 +71,10 @@ process_upload <- function(upload_filename, upload_filepath) {
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)
-      
+
       logToConsole(session, "About to run pdde_mirai")
       source("06_PDDE_Checker.R", local = TRUE)
-      
+
       list(
         dq_main = dq_main,
         overlap_details = overlap_details,
