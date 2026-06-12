@@ -89,7 +89,7 @@ syse_client_categories_filtered <- reactive({
 
 # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
 enrollments_filtered_syse <- reactive({
-  logToConsole(session, "in enrollments_filtered")
+  logToConsole(session, "in enrollments_filtered_syse")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
   en_unfilt <-  join(
@@ -132,7 +132,7 @@ enrollments_filtered_syse <- reactive({
 })
 
 enrollments_filtered_syse_prev <- reactive({
-  logToConsole(session, "in enrollments_filtered")
+  logToConsole(session, "in enrollments_filtered_syse_prev")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
   en_unfilt <-  join(
@@ -243,7 +243,7 @@ all_filtered_syse_time <- reactive({
 })
 
 all_filtered_syse_demog <- reactive({
-  logToConsole(session, "in all_filtered_syse")
+  logToConsole(session, "in all_filtered_syse_demog")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
   tmp <-  enrollments_filtered_syse()
