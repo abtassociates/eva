@@ -516,6 +516,7 @@ re_calc <- reactive({
   
   data <- hh_avg() %>% fungroup
   
+  data <- data %>% fsubset(Availability %in% c("Total", input$bui_bed_avail))
   # print subset of columns as check
   #cols <- c("label", "PIT", paste("PIT",input$bui_inventory_level), "PITstart", paste("Total", input$bui_inventory_level),  "Availability")
   #if(input$bui_hh_type != "All"){
