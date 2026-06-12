@@ -1124,31 +1124,9 @@ nav_menu(
                 individual = TRUE,
                 checkIcon = list(yes = icon("check"))
               ), 
-              # todo - add another switch for Value: Average or Point in Time (PIT)
-                conditionalPanel(
-                  condition = "input.bui_hh_type == 'Adult-Only'",
-                  # todo - plotOutput
-                  DTOutput("proj_bui_ao_hh", width = "100%", height = "500") %>% 
+              DTOutput("proj_bui_hh", width = "100%", height = "500") %>% 
                     withSpinner() 
-                ), 
-                conditionalPanel(
-                  condition = "input.bui_hh_type =='Adult-Child'",
-                  # todo - plotOutput
-                  DTOutput("proj_bui_ac_hh", width = "100%", height = "500") %>% 
-                    withSpinner()
-                ),
-                conditionalPanel(
-                  condition = "input.bui_hh_type == 'Child-Only'",
-                  # todo - plotOutput
-                  DTOutput("proj_bui_co_hh", width = "100%", height = "500") %>% 
-                    withSpinner()
-                ),
-                conditionalPanel(
-                  condition = "input.bui_hh_type == 'All'",
-                  # todo - plotOutput
-                  DTOutput("proj_bui_all_hh", width = "100%", height = "500") %>% 
-                    withSpinner()
-                )
+              
           ),
           nav_panel( # Information
             title = headerTab("Information")
