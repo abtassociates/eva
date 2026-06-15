@@ -990,7 +990,6 @@ nav_menu(
     ),
 
 # System Exits tab --------------------------------------------------------
-  #tabSystemExits
 nav_panel(
   title = "System Exits",
   value = "tabSystemExits",
