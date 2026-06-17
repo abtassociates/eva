@@ -137,6 +137,7 @@ EnrollmentOutside <- qDT(EnrollmentStaging) %>%
               fselect(ProjectID,
                      ProjectTimeID,
                      ProjectType,
+                     HMISParticipationType,
                      HMISParticipationStatusStartDate,
                      HMISParticipationStatusEndDate,
                      OperatingStartDate,
@@ -185,7 +186,8 @@ EnrollmentOutside <- EnrollmentOutside %>%
     EnrollmentvOperating = Enrollmentvs(
       EntryDate, ExitAdjust, 
       OperatingStartDate, OperatingEndDate, 
-      "Operating")
+      "Operating"),
+    EnrollmentvHMISParticipating = (EnrollmentvParticipating == "Enrollment After Participating Period") & (HMISParticipationType == 1)
   )
 
 # Get First HMIS span for each Project (technically, the enrollment record)

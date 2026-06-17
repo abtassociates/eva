@@ -994,10 +994,11 @@ rm(income_subs)
 # Enrollment Active Outside Participating Dates ---------------------------
 
 enrollment_positions <- Enrollment %>%
-  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating) %>%
+  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, EnrollmentvHMISParticipating, HMISParticipationStatusEndDate) %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left')
+
 enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period") %>%
+  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & EnrollmentvHMISParticipating == TRUE & !is.na(HMISParticipationStatusEndDate)) %>%
   merge_check_info_dt(checkIDs = 111) %>%
   fselect(vars_we_want)
 
