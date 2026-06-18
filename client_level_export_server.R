@@ -278,8 +278,10 @@ populate_client_level_export <- function(type = 'overview', file){
       )
     )
     # remove column names by setting them to the values from the first row and then subsetting
-    colnames(filter_selections) <- filter_selections[1,]
-    filter_selections <- filter_selections[2:nrow(filter_selections),]
+    if(type == 'overview'){
+      colnames(filter_selections) <- filter_selections[1,]
+      filter_selections <- filter_selections[2:nrow(filter_selections),]
+    }
     
     adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
       fsubset(
@@ -323,14 +325,23 @@ populate_client_level_export <- function(type = 'overview', file){
       ),
       client_level_details = client_level_details
     )
-    names(client_level_export_list) = c(
-      "Metadata",
-      "Instructions",
-      "Data Dictionary",
-      "Client Details",
-      "Monthly Statuses",
-      "Adjusted Enrollments"
-    )
+   if(type == 'overview'){
+     names(client_level_export_list) <- c(
+       "Metadata",
+       "Instructions",
+       "Data Dictionary",
+       "Client Details",
+       "Monthly Statuses",
+       "Adjusted Enrollments"
+     )
+   } else if(type == 'exits'){
+     names(client_level_export_list) <- c(
+       "Metadata",
+       "Instructions",
+       "Data Dictionary",
+       "Client Details"
+     )
+   }
   }
  
   
