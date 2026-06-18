@@ -57,52 +57,47 @@ process_upload <- function(upload_filename, upload_filepath) {
     if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Assessing your data quality..", value = .7)
-    # dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
-    # dq_and_pdde_dependencies[["session"]] <- list(
-    #   token = session$token,
-    #   userData = list(
-    #     Project0 = session$userData$Project0,
-    #     meta_HUDCSV_Export_Date = session$userData$meta_HUDCSV_Export_Date,
-    #     meta_HUDCSV_Export_Start = session$userData$meta_HUDCSV_Export_Start,
-    #     meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End,
-    #     validation = session$userData$validation
-    #   )
-    # )
-    # dq_pdde_mirai <- mirai({
-    #   logToConsole(session, "About to run dq_mirai")
-    #   source("05_DataQuality.R", local = TRUE)
-    # 
-    #   logToConsole(session, "About to run pdde_mirai")
-    #   source("06_PDDE_Checker.R", local = TRUE)
-    # 
-    #   list(
-    #     dq_main = dq_main,
-    #     overlap_details = overlap_details,
-    #     outstanding_referrals = outstanding_referrals,
-    #     pdde_main = pdde_main,
-    #     long_stayers = long_stayers
-    #   )
-    # }, .args = dq_and_pdde_dependencies) %...>% {
-    #   # Store results of DQ and PDDE ------------------------------------------
-    #   dq_pdde_results <- .[]
-    # 
-    #   logToConsole(session, "saving DQ and PDDE results to session")
-    #   session$userData$pdde_main <- dq_pdde_results$pdde_main
-    #   session$userData$dq_main <- dq_pdde_results$dq_main
-    #   session$userData$overlap_details <- dq_pdde_results$overlap_details
-    #   session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
-    #   session$userData$long_stayers <- dq_pdde_results$long_stayers
-    #   session$userData$dq_pdde_mirai_complete(1)
-    # } %...!% {
-    #   logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
-    #   show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
-    #   if(IN_DEV_MODE) browser()
-    # }
-    logToConsole(session, "About to run dq_mirai")
-    source("05_DataQuality.R", local = TRUE)
+    dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
+    dq_and_pdde_dependencies[["session"]] <- list(
+      token = session$token,
+      userData = list(
+        Project0 = session$userData$Project0,
+        meta_HUDCSV_Export_Date = session$userData$meta_HUDCSV_Export_Date,
+        meta_HUDCSV_Export_Start = session$userData$meta_HUDCSV_Export_Start,
+        meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End,
+        validation = session$userData$validation
+      )
+    )
+    dq_pdde_mirai <- mirai({
+      logToConsole(session, "About to run dq_mirai")
+      source("05_DataQuality.R", local = TRUE)
 
-    logToConsole(session, "About to run pdde_mirai")
-    source("06_PDDE_Checker.R", local = TRUE)
+      logToConsole(session, "About to run pdde_mirai")
+      source("06_PDDE_Checker.R", local = TRUE)
+
+      list(
+        dq_main = dq_main,
+        overlap_details = overlap_details,
+        outstanding_referrals = outstanding_referrals,
+        pdde_main = pdde_main,
+        long_stayers = long_stayers
+      )
+    }, .args = dq_and_pdde_dependencies) %...>% {
+      # Store results of DQ and PDDE ------------------------------------------
+      dq_pdde_results <- .[]
+
+      logToConsole(session, "saving DQ and PDDE results to session")
+      session$userData$pdde_main <- dq_pdde_results$pdde_main
+      session$userData$dq_main <- dq_pdde_results$dq_main
+      session$userData$overlap_details <- dq_pdde_results$overlap_details
+      session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
+      session$userData$long_stayers <- dq_pdde_results$long_stayers
+      session$userData$dq_pdde_mirai_complete(1)
+    } %...!% {
+      logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
+      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
+      if(IN_DEV_MODE) browser()
+    }
     
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
