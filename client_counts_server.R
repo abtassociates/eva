@@ -319,11 +319,11 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   
   names(exportDFList) = c(
     "Metadata", 
-    "validation - Date Range",
-    "validation - Full Export Range",
-    "validation - Detail",
-    "validation - Timeliness Start",
-    "validation - Timeliness Exit"
+    "Client Counts - Date Range",
+    "Client Counts - Full Export Range",
+    "Client Counts - Detail",
+    "Timeliness - Project Start",
+    "Timeliness - Project Exit"
   )
 
   exportTestValues(
@@ -346,7 +346,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
 
   if(!is.null(validationCLS)){
     exportDFList[[length(exportDFList) + 1]] <- validationCLS
-    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CLS"
+    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CLS"
     exportTestValues(
       client_count_download_timeliness_cls = summarize_df(validationCLS %>% nice_names_timeliness(record_type = 'cls'))
     )
@@ -354,7 +354,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   
   if(!is.null(validationNbN)){
     exportDFList[[length(exportDFList) + 1]] <- validationNbN
-    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness NbN"
+    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - Bed-Night Dates"
     exportTestValues(
       client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
     )
@@ -362,7 +362,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   
   if(!is.null(validationCEAssess)){
     exportDFList[[length(exportDFList) + 1]] <- validationCEAssess
-    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CE Assess"
+    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CE Assessment"
     exportTestValues(
       client_count_download_timeliness_ce_assess = summarize_df(validationCEAssess %>% nice_names_timeliness(record_type = 'ce_assess'))
     )
@@ -370,7 +370,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   
   if(!is.null(validationCEEvent)){
     exportDFList[[length(exportDFList) + 1]] <- validationCEEvent
-    names(exportDFList)[[length(exportDFList)]] <- "validation - Timeliness CE Event"
+    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CE Event"
     exportTestValues(
       client_count_download_timeliness_ce_event = summarize_df(validationCEEvent %>% nice_names_timeliness(record_type = 'ce_event'))
     )
