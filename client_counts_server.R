@@ -97,7 +97,8 @@ necessaryCols <- c(
 keepCols <- c(
   "OrganizationName", 
   "ProjectID", 
-  "ProjectName"
+  "ProjectName",
+  "ProjectType"
 )
 
 # function to pivot statuses to cols for the summary datasets
@@ -110,7 +111,7 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
   )
   
   pivoted <- df %>%
-    fselect(c(keepCols, "Status", "ProjectType", "PersonalID")) %>%
+    fselect(c(keepCols, "Status", "PersonalID")) %>%
     funique() %>%
     pivot(how="wider", names = "Status", values = "PersonalID", FUN = "count", sort="names", drop=FALSE) %>%
     fmutate(
@@ -182,7 +183,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
             `Exited Project`
           )
         ) %>%
-        fselect(-ProjectType) %>%
+        fmutate(ProjectType = project_type(ProjectType)) %>% 
         roworder(OrganizationName, ProjectName)
     }
     
@@ -215,7 +216,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
         validationDateRange <- NULL
       } else {
         validationDateRange <- pivot_att %>%
-          fselect(-ProjectType) %>%
+          fmutate(ProjectType = project_type(ProjectType)) %>% 
           roworder(OrganizationName, ProjectName)
       }
     }
@@ -228,27 +229,28 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   ### DETAIL TAB ###
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
     validationDetail <- validationDF %>% # full dataset for the detail
-    fmutate(
-      Status = fifelse(
-        Status %in% c("Currently Moved In", "Currently in Project"), 
-        paste0(Status, " (", days, " days)"),
-        as.character(Status)
-      )
-    ) %>%
-    fselect(c(keepCols, clientCountDetailCols)) %>%
-    roworder(OrganizationName, ProjectName, EntryDate)
+      fmutate(
+        Status = fifelse(
+          Status %in% c("Currently Moved In", "Currently in Project"), 
+          paste0(Status, " (", days, " days)"),
+          as.character(Status)
+        ),
+        ProjectType = project_type(ProjectType)
+      ) %>%
+      fselect(c(keepCols, clientCountDetailCols)) %>%
+      roworder(OrganizationName, ProjectName, EntryDate)
   } else {
     logToConsole(session, "validationDF is NULL or has 0 rows. validationDetail set to NULL.")
     validationDetail <- NULL
   }
 
   if(!is.null(tl_df_project_start())){
-  validationStart <- tl_df_project_start() %>% 
-    fsubset(OrganizationName %in% orgList) %>% 
-    select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
-    mutate(ProjectType = project_type(ProjectType)) %>% 
-    arrange(OrganizationName, ProjectName) %>% 
-    nice_names_timeliness(record_type = 'start')
+    validationStart <- tl_df_project_start() %>% 
+      fsubset(OrganizationName %in% orgList) %>% 
+      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
+      mutate(ProjectType = project_type(ProjectType)) %>% 
+      arrange(OrganizationName, ProjectName) %>% 
+      nice_names_timeliness(record_type = 'start')
   } else {
     validationStart <- NULL
   }
