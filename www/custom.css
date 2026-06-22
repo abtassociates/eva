@@ -248,3 +248,7 @@ body.idle-timeout-occurred #ss-connect-dialog {
 #notice {
   border: 3px solid #FCB248;
 }
+
+#client_count_ti_subtabs {
+  margin-bottom: 10px;
+}
