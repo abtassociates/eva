@@ -63,6 +63,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       userData = list(
         Project0 = session$userData$Project0,
         meta_HUDCSV_Export_Date = session$userData$meta_HUDCSV_Export_Date,
+        meta_HUDCSV_Export_Start = session$userData$meta_HUDCSV_Export_Start,
         meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End,
         validation = session$userData$validation
       )
@@ -70,10 +71,10 @@ process_upload <- function(upload_filename, upload_filepath) {
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
       source("05_DataQuality.R", local = TRUE)
-      
+
       logToConsole(session, "About to run pdde_mirai")
       source("06_PDDE_Checker.R", local = TRUE)
-      
+
       list(
         dq_main = dq_main,
         overlap_details = overlap_details,
@@ -100,14 +101,14 @@ process_upload <- function(upload_filename, upload_filepath) {
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
       logToConsole(session, "Only HP enrollments found - skipping System Performance")
-      nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
+      nav_hide(id = 'pageid', target = 'menuSysPerf', session = session)
     } else {
      
       err <- source_trycatch("07_system_overview.R")
       if(!is.null(err)) {
-        nav_hide(id = 'pageid', target = "tabSystemOverview", session = session)
+        nav_hide(id = 'pageid', target = "menuSysPerf", session = session)
       } else {
-        nav_show(id = 'pageid', target = "tabSystemOverview", session = session)
+        nav_show(id = 'pageid', target = "menuSysPerf", session = session)
         setProgress(detail = "Preparing System Overview Data", value = .85)
       }
     }
@@ -219,12 +220,14 @@ process_upload <- function(upload_filename, upload_filepath) {
       
     }
     
-    toggle_sys_components(session$userData$valid_file() == 1)
+    toggle_sys_components(prefix='sys', session$userData$valid_file() == 1)
+    toggle_sys_components(prefix = 'syse', session$userData$valid_file() == 1)
   })
 }
 
 observeEvent(input$imported, {
   process_upload(input$imported$name, input$imported$datapath)
+  session$sendCustomMessage("uploaded_file", TRUE)
 }, ignoreInit = TRUE)
 
 # file upload status text ----------------------------------------------------

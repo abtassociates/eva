@@ -1,0 +1,33 @@
+---
+title: "Eva System Performance Glossary"
+output: word_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(flextable)
+library(stringr)
+```
+
+```{r table, message=F, warning=F}
+# Version Updated 4/7/2026
+gloss <- readxl::read_xlsx(path = gsub('sandbox', 'public-resources/system performance glossary.xlsx', getwd()))
+
+gloss <- gloss |> dplyr::mutate(Definition = str_replace_all(Definition,c('<br>'= '<br><br>','\\?' = '-', "“" = '"', '”' = '"')))
+gloss <- gloss |> dplyr::filter(Term != 'Percent Difference')
+
+gloss$Definition <- str_squish(gloss$Definition)
+gloss$Definition <- str_replace_all(gloss$Definition,pattern='<br>', replacement = '\n\n')
+
+flextable::set_flextable_defaults(
+    font.family = "Roboto" 
+  )
+flextable(gloss) |>
+  font(fontname = 'Roboto', part = 'header') |>
+  bold(part = 'header') |>
+  font(fontname = 'Roboto', part = 'body') |>
+  border_inner() |>
+  border_outer() |>
+  set_table_properties(layout = "autofit") |>
+  fit_to_width(max_width = 7.5)
+```
