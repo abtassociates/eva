@@ -321,9 +321,9 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   
   names(exportDFList) = c(
     "Metadata", 
-    "Client Counts - Date Range",
-    "Client Counts - Full Export Range",
-    "Client Counts - Detail",
+    "ClientCounts - Date Range",
+    "ClientCounts-Full Export Range",
+    "ClientCounts - Detail",
     "Timeliness - Project Start",
     "Timeliness - Project Exit"
   )
@@ -815,20 +815,25 @@ output$timelinessTable <- renderDT({
   } else {
     dat$nbn <- NULL
   }
-  
-  if(cc_project_type() %in% project_types_w_cls & input$currentProviderList %in% tl_df_cls()$ProjectName){
+  if(cc_project_type() %in% c(es_nbn_project_type, out_project_type, ce_project_type)){
+    dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else if(cc_project_type() %in% project_types_w_cls & input$currentProviderList %in% tl_df_cls()$ProjectName){
     dat$cls = tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$cls <- NULL
   }
   
-  if(cc_project_type() == ce_project_type & input$currentProviderList %in% tl_df_ce_assess()$ProjectName){
+  if(cc_project_type() == ce_project_type){# & input$currentProviderList %in% tl_df_ce_assess()$ProjectName){
+    dat$ce_assess = tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else if(input$currentProviderList %in% tl_df_ce_assess()$ProjectName){
     dat$ce_assess = tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$ce_assess <- NULL
   } 
   
- if(cc_project_type() == ce_project_type & input$currentProviderList %in% tl_df_ce_event()$ProjectName){
+  if(cc_project_type() == ce_project_type){# & input$currentProviderList %in% tl_df_ce_event()$ProjectName){
+    dat$ce_event = tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+  } else if(input$currentProviderList %in% tl_df_ce_event()$ProjectName){
     dat$ce_event = tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   } else {
     dat$ce_event <- NULL
