@@ -553,14 +553,15 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     ),
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
    ) %>%
-  fmutate(unsheltered = ProjectType == out_project_type | (ProjectType %in% non_res_project_types &
-                                                             (!is.na(CurrentLivingSituation) & CurrentLivingSituation == 116) |
-                                                             (!is.na(LivingSituation) & LivingSituation == 116)),
-          sheltered = ProjectType %in% lh_residential_project_types,
-          permanent_housing = ProjectType %in% ph_project_types,
-          other_non_res = ProjectType %in% non_res_nonlh_project_types &
-            ((!is.na(CurrentLivingSituation) & CurrentLivingSituation %in% setdiff(homeless_livingsituation_incl_TH, 116)) |
-               (!is.na(LivingSituation) & LivingSituation %in% setdiff(homeless_livingsituation_incl_TH, 116)))
+  fmutate(unsheltered = (ProjectType == out_project_type) | 
+                        (ProjectType %in% non_res_project_types &
+                          (!is.na(CurrentLivingSituation) & CurrentLivingSituation == 116) |
+                          (!is.na(LivingSituation) & LivingSituation == 116)),
+          sheltered = (ProjectType %in% lh_residential_project_types) |
+                      ProjectType %in% non_res_nonlh_project_types &
+                        ((!is.na(CurrentLivingSituation) & CurrentLivingSituation %in% setdiff(homeless_livingsituation_incl_TH, 116)) |
+                        (!is.na(LivingSituation) & (lh_prior_livingsituation == TRUE) & LivingSituation != 116)),
+          permanent_housing = ProjectType %in% ph_project_types
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
 
