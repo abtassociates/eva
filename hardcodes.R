@@ -18,7 +18,7 @@ allowed_current_living_sit <-
 
 allowed_destinations <- 
   c(116, 101, 118, 215, 206, 207, 225, 204, 205, 302, 329, 314, 332, 312, 313,
-    327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99)
+    327, 422, 423, 426, 410, 435, 421, 411, 30, 17, 24, 8, 9, 99, -888)
 
 allowed_living_situations <- 
   c(allowed_prior_living_sit,

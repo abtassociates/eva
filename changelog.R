@@ -3,6 +3,32 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "06-12-2026",
+    "<b>New Features</b> <br>
+      - System Exits charts, visualizations, and exports <br>
+    <b>Bug Fixes</b> <br>
+      - Fixed incorrect zero utilization warning for projects with multiple HMIS Participation Records (Issue <a href='https://github.com/abtassociates/eva/issues/994' target='_blank'>#994</a>)<br>
+      - Fixed incorrect unhashed file upload error for exports that have the correct HashStatus but no client records (Issue <a href='https://github.com/abtassociates/eva/issues/994' target='_blank'>#998</a>) <br>
+    <b>Miscellaneous</b> <br>
+      - Renamed Glossary page to System Performance Glossary <br>
+      - Updated System Performance Glossary to include new entries related to System Exits
+    ",
+    "05-08-2026",
+    "<b>Bug Fixes</b> <br>
+      - Ignore persons over age 100 in <i>Incorrect DOB or Entry Date</i> DQ check. Added a separate DQ Warning for persons over age 100 to encourage double-checking of the data. (Issue <a href='https://github.com/abtassociates/eva/issues/983' target='_blank'>#983</a>)<br>",
+    "05-08-2026",
+    "<b>Bug Fixes</b> <br>
+      - Ignore non-HoH children in DQ check for Days Since Most Recent CLS for Street Outreach, Services Only, and Coordinated Entry projects. (Issue <a href='https://github.com/abtassociates/eva/issues/940' target='_blank'>#940</a>)
+    ",
+    "02-24-2026",
+    "<b>Bug Fixes</b> <br>
+      - Corrected logic for refreshing DQ and PDDE tables and downloads when multiple datasets are uploaded within a session. (Issue <a href='https://github.com/abtassociates/eva/issues/963' target='_blank'>#963</a>)<br>
+      - Added more error-catching logic for upload file processing, which includes popups for easier issue creation.",
+    "02-05-2026",
+    "<b>Bug Fixes</b> <br>
+      - Corrected exit date adjustments for night-by-night and non-residential project enrollments in System Performance calculations, 
+    resulting in some clients to be counted as Exited instead of Inactive in the System Flow charts. For enrollments without exit dates, 
+    the adjusted exit dates were based on buffer periods that were double the length they should have been.",
     "01-12-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed logic for DQ report downloads when Referrals sheet was empty, which was causing downloads to fail.",

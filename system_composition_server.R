@@ -71,7 +71,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
     suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
   return(
-    ggplot(plot_df, aes("", .data[[selection]])) +
+    ggplot(plot_df  %>% fmutate(n= ifelse(is.na(n) & wasRedacted, 0, n)), aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
       geom_tile(
         color = '#f0f0f0',
@@ -79,14 +79,22 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
         linetype = 1,
         aes(fill = n)
       ) +
-      scale_fill_gradient(
-        low = get_brand_color('light_purple'),
+      # scale_fill_gradient(
+      #   low = get_brand_color('light_purple'),
+      #   high = get_brand_color('dark_purple'),
+      #   na.value = ifelse(
+      #     is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
+      #     "white",
+      #     get_brand_color('very_light_purple')
+      #   )
+      # ) +
+      scale_fill_gradient2(
+        low = get_brand_color('very_light_purple'),
+        mid=get_brand_color('light_purple'),
         high = get_brand_color('dark_purple'),
-        na.value = ifelse(
-          is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
-          "white",
-          get_brand_color('very_light_purple')
-        )
+        midpoint=0,
+        #breaks = #c(0,seq(0,45,by=5)),
+        na.value = 'white'
       ) +
       # set text color to be 508 compliant contrasting
       geom_text(
@@ -194,10 +202,14 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     replace(is.na(.), 0)
   
   if(methodology_type == 1) {
-    h_total <- plot_df %>%
-      group_by(!!!syms(selections[[2]])) %>%
-      summarise(N = ifelse(all(is.na(n)), NA, sum(n, na.rm = TRUE))) %>%
-      mutate(!!selections[[1]] := 'Total') %>%
+   
+    h_total_tmp <- plot_df %>%
+      fgroup_by(selections[2]) %>%
+      fsummarise(N = fsum(n))
+   
+    h_total_tmp[[selections[1]]] <- "Total"
+    
+    h_total <- h_total_tmp %>% 
       suppress_values("N") %>%
       suppress_next_val_if_one_suppressed_in_group(selections[1], "N")
     
@@ -224,7 +236,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
   
-  g <- ggplot(plot_df, aes(.data[[selections[1]]], .data[[selections[2]]])) +
+  g <- ggplot(plot_df %>% fmutate(n = ifelse(is.na(n) & wasRedacted, 0, n)), aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
     geom_tile(
       color = '#f0f0f0',
@@ -241,6 +253,13 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
         get_brand_color('very_light_purple')
       )
     ) + # na.value makes 0s invisible
+    # scale_fill_gradient2(
+    #   low = get_brand_color('very_light_purple'),
+    #   mid=get_brand_color('light_purple'),
+    #   high = get_brand_color('dark_purple'),
+    #   midpoint=0,
+    #   na.value = 'white'
+    # ) +
     # set text color to be 508 compliant contrasting
     geom_text(
       # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
@@ -268,7 +287,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
       ggnewscale::new_scale("fill") +
       # Row totals
       geom_tile(
-        data = h_total,
+        data = h_total %>% fmutate(N= ifelse(is.na(N) & wasRedacted, 0, N)),
         color = "white",
         lwd = 0.5,
         linetype = 1,
@@ -278,7 +297,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
       scale_fill_gradient(
         low = get_brand_color('light_grey'),
         high = get_brand_color('dark_grey'),
-        na.value = ifelse(h_total$wasRedacted, get_brand_color('light_grey'), 'white')
+        na.value = 'white'#ifelse(h_total$wasRedacted, get_brand_color('light_grey'), 'white')
       ) +
       
       geom_text(
@@ -305,7 +324,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
       scale_fill_gradient(
         low = get_brand_color('light_grey'),
         high = get_brand_color('dark_grey'),
-        na.value = ifelse(v_total$wasRedacted, get_brand_color('light_grey'), 'white')
+        na.value = 'white'#ifelse(v_total$wasRedacted, get_brand_color('light_grey'), 'white')
       ) +
       
       geom_text(

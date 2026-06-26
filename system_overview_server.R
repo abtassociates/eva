@@ -140,13 +140,14 @@ observe({
 source("client_level_export_server.R", local=TRUE)
 
 # Get period report_dates --------------------------------------------
-get_months_in_report_period <- function() {
-  seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
+get_months_in_report_period <- function(reportStart = session$userData$ReportStart,
+                                        reportEnd = session$userData$ReportEnd) {
+  seq.Date(from = reportStart, to = reportEnd, by = "months")
 } 
-get_report_dates <- function() {
-  months_in_report_period <- get_months_in_report_period()
+get_report_dates <- function(reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
+  months_in_report_period <- get_months_in_report_period(reportStart, reportEnd)
   c(
-    list("Full" = c(session$userData$ReportStart, session$userData$ReportEnd)),
+    list("Full" = c(reportStart, reportEnd)),
     setNames(
       lapply(months_in_report_period, function(d) {
         c(d, ceiling_date(d, "month") - days(1))
@@ -193,6 +194,21 @@ period_specific_data <- reactive({
   exportTestValues(period_data = period_data)
   if(IN_DEV_MODE && nrow(period_data) > 0) {
     inflow_outflow_qc_checks(period_data)
+
+    d <- enrollment_categories_all %>%
+      join(
+        period_data,
+        on = c("PersonalID"),
+        multiple = TRUE,
+        drop.dup.cols = 'y',
+        keep.col.order = FALSE
+      ) %>%
+      setorder(PersonalID, period, EntryDate) %>%
+      fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
+    
+    saveRDS(d, file = here("sandbox/enrollment_categories_all.rds"))
+    
+    # saveRDS(period_data, file = here("sandbox/period_data.rds"))
     # browser()
     export_for_qc(period_data)
   }
@@ -294,8 +310,9 @@ enrollments_filtered <- reactive({
     fselect(-VeteranStatus)
 })
 
-get_active_info <- function(all_filtered_by_period, all_filtered) {
-  lh_info_filtered <- session$userData$lh_info %>%
+get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info,
+                            reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
+  lh_info_filtered <- lh_info_df %>%
     fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
     join(
       all_filtered %>% fselect(EnrollmentID, EntryDate, ExitAdjust),
@@ -347,7 +364,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   )) %>%
     fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
     fmutate(
-      active_in_full_period = active_start <= session$userData$ReportEnd & active_end >= session$userData$ReportStart
+      active_in_full_period = active_start <= reportEnd & active_end >= reportStart
     )
   
   all_filtered_w_first_last_active <- all_filtered_by_period %>%
@@ -369,7 +386,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
     fmutate(
       active_in_period = startDate <= active_end & endDate >= active_start,
       exited_in_period = ExitAdjust %between% list(startDate, endDate),
-      period_of_activity = fifelse(active_in_period & (endDate != session$userData$ReportEnd | startDate != session$userData$ReportStart), startDate, NA)
+      period_of_activity = fifelse(active_in_period & (endDate != reportEnd | startDate != reportStart), startDate, NA)
     ) %>%
     fgroup_by(PersonalID, active_start) %>%
     fmutate(
@@ -456,7 +473,8 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   return(all_filtered_w_active_info)
 }
 
-get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm') {
+get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm', reportStart = session$userData$ReportStart,
+                                     reportEnd = session$userData$ReportEnd) {
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
@@ -474,10 +492,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       active_at_start = (
         startDate == first_active_date_in_period & (
-          startDate == session$userData$ReportStart |
+          startDate == reportStart |
             (first_active_date_in_period - prev_active) %between% c(0, 14)
         ) | (
-          startDate == session$userData$ReportStart &
+          startDate == reportStart &
             startDate <= (first_active_date_in_period + 14) &
             (first_active_date_in_period - prev_active) %between% c(0, 14)
         )
@@ -503,10 +521,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       active_at_end = (
         endDate == last_active_date_in_period & (
-          endDate == session$userData$ReportEnd |
+          endDate == reportEnd |
             (next_active - last_active_date_in_period) %between% c(0, 14)
         ) | (
-          endDate == session$userData$ReportEnd &
+          endDate == reportEnd &
             endDate > last_active_date_in_period &
             (next_active - last_active_date_in_period) %between% c(0, 14)
         )
@@ -531,7 +549,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       ### Continuous at Start  ----------
       continuous_at_start = !active_at_start &
-        startDate > session$userData$ReportStart & 
+        startDate > reportStart & 
         startDate <= first_active_date_in_period + 14 &
         (first_active_date_in_period - prev_active) %between% c(0, 14),
       
@@ -547,7 +565,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       
       
       ### First-of-month Exit  ----------
-      first_of_month_exit = startDate > session$userData$ReportStart &
+      first_of_month_exit = startDate > reportStart &
         ExitAdjust == startDate,
       
       ### Unknown  ----------
@@ -596,52 +614,63 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       exited_perm = exited_system & Destination %in% perm_livingsituation,
       
       ### Continuous at End ----------
-      continuous_at_end = endDate < session$userData$ReportEnd &
+      continuous_at_end = endDate < reportEnd &
         !active_at_end & (next_active - last_active_date_in_period) %between% c(0, 14),
       
       ### Last-of-month Entry ----------
       last_of_the_month_entry = 
-        endDate < session$userData$ReportEnd &
+        endDate < reportEnd &
         EntryDate == endDate,
       
       ### Inactive ----------
       inactive = ExitAdjust > endDate & (next_active - last_active_date_in_period) > 14 &
-        ProjectType %in% nbn_non_res,
-      
-      ### OutflowTypeDetail  ----------
-      OutflowTypeDetail = factor(
-        fcase(
-          # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
-          # S------------------------x---------------------E------x----------------
-          # S------------------------x--------------y-------Ex---y------------------
-          #   
-          # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
-          # S------------------------x--------------------x-E---y------------------
-          #   
-          # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
-          # S------------------------x--------------------x-E--------------y-------y
-          # S------------------------x--------------------Ex---------------y-------y
-          ae_housed, "Housed",
-          ae_homeless, "Homeless",
-          inactive, "Inactive",
-          exited_nonperm, "Exited, Non-Permanent",
-          exited_perm, "Exited, Permanent",
-          continuous_at_end, "Continuous at End",
-          last_of_the_month_entry, "Last-of-Month Entry",
-          default = "something's wrong"
-        ),
-        levels = c(active_at_levels, outflow_detail_levels)
-      ),
-
-      ### OutflowTypeSummary----------
-      OutflowTypeSummary = fct_collapse(
-        OutflowTypeDetail,
-        `Active at End` = active_at_levels, 
-        Outflow = outflow_chart_detail_levels
-      )
+        ProjectType %in% nbn_non_res
     )
+  # outflows %>% 
+  #   fsubset(endDate == ExitAdjust & exited_system & (ae_homeless | ae_housed))
+  #browser()
+  # outflows <- outflows %>% 
+  #   fmutate(OutflowTypeDetail = fifelse(endDate == ExitAdjust & exited_system, 'Exited, Non-Permanent', OutflowTypeDetail),
+  #           OutflowTypeSummary = fifelse(endDate == ExitAdjust & exited_system, 'Outflow', OutflowTypeSummary))
  
+ 
+  
   if(chart_type == 'mbm'){
+    
+    outflows <- outflows %>% 
+      fmutate(
+        ### OutflowTypeDetail  ----------
+        OutflowTypeDetail = factor(
+          fcase(
+            # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
+            # S------------------------x---------------------E------x----------------
+            # S------------------------x--------------y-------Ex---y------------------
+            #   
+            # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+            # S------------------------x--------------------x-E---y------------------
+            #   
+            # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
+            # S------------------------x--------------------x-E--------------y-------y
+            # S------------------------x--------------------Ex---------------y-------y
+            ae_housed, "Housed",
+            ae_homeless, "Homeless",
+            inactive, "Inactive",
+            exited_nonperm, "Exited, Non-Permanent",
+            exited_perm, "Exited, Permanent",
+            continuous_at_end, "Continuous at End",
+            last_of_the_month_entry, "Last-of-Month Entry",
+            default = "something's wrong"
+          ),
+          levels = c(active_at_levels, outflow_detail_levels)
+        ),
+        
+        ### OutflowTypeSummary----------
+        OutflowTypeSummary = fct_collapse(
+          OutflowTypeDetail,
+          `Active at End` = active_at_levels, 
+          Outflow = outflow_chart_detail_levels
+        )
+      )
     inflows_and_outflows <- join(
       inflows, 
       outflows,
@@ -658,6 +687,42 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
         first_active_date_in_period, prev_active
       )
   } else if (chart_type == 'exits') {
+    
+    outflows <- outflows %>% 
+      fmutate(
+        ### OutflowTypeDetail  ----------
+        OutflowTypeDetail = factor(
+          fcase(
+            # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
+            # S------------------------x---------------------E------x----------------
+            # S------------------------x--------------y-------Ex---y------------------
+            #   
+            # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+            # S------------------------x--------------------x-E---y------------------
+            #   
+            # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
+            # S------------------------x--------------------x-E--------------y-------y
+            # S------------------------x--------------------Ex---------------y-------y
+            ae_housed & !exited_system, "Housed",
+            ae_homeless & !exited_system, "Homeless",
+            inactive, "Inactive",
+            exited_nonperm, "Exited, Non-Permanent",
+            exited_perm, "Exited, Permanent",
+            continuous_at_end, "Continuous at End",
+            last_of_the_month_entry, "Last-of-Month Entry",
+            default = "something's wrong"
+          ),
+          levels = c(active_at_levels, outflow_detail_levels)
+        ),
+        
+        ### OutflowTypeSummary----------
+        OutflowTypeSummary = fct_collapse(
+          OutflowTypeDetail,
+          `Active at End` = active_at_levels, 
+          Outflow = outflow_chart_detail_levels
+        )
+      )
+    
     inflows_and_outflows <- join(
       inflows, 
       outflows,
@@ -671,7 +736,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
         InflowTypeDetail, OutflowTypeDetail, 
         InflowTypeSummary, OutflowTypeSummary, 
         Destination,
-        EnrollmentID, EnrollmentID_lecr, 
+        EnrollmentID, EnrollmentID_lecr,
         first_active_date_in_period, prev_active
       )
   }

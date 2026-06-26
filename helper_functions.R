@@ -9,7 +9,21 @@ age_years <- function(earlier, later)
 
 # Display Helpers ---------------------------------------------------------
 
+fix_missing_destination <- function(ReferenceNo, Detail = NULL){
+  if(!missing(Detail)){
+    ReferenceNo <- fcase(
+      is.na(ReferenceNo) & Detail == 'Exited, Non-Permanent', 99,
+      is.na(ReferenceNo) & Detail == 'Inactive', -888,
+      !is.na(ReferenceNo) & (ReferenceNo %in% perm_livingsituation) & Detail == 'Inactive', -888,
+      default = ReferenceNo
+    )
+  } 
+  
+  ReferenceNo
+}
+
 living_situation <- function(ReferenceNo) {
+  
   fcase(
     ReferenceNo == 8,"Client doesn't know",
     ReferenceNo == 9,"Client prefers not to answer",
@@ -44,7 +58,8 @@ living_situation <- function(ReferenceNo) {
     ReferenceNo == 410,"Rental by client, no ongoing housing subsidy",
     ReferenceNo == 426,"Moved from one HOPWA funded project to HOPWA PH",
     ReferenceNo == 421,"Owned by client, with ongoing housing subsidy",
-    ReferenceNo == 411,"Owned by client, no ongoing housing subsidy"
+    ReferenceNo == 411,"Owned by client, no ongoing housing subsidy",
+    ReferenceNo == -888, "Inactive"
   )
 }
 
@@ -497,7 +512,7 @@ reset_postvalid_components <- function(session) {
   
   shinyjs::hide("syse_time_download_btn")
   shinyjs::hide("syse_time_download_btn_ppt")
-  
+ 
   shinyjs::hide("syse_subpop_download_btn")
   shinyjs::hide("syse_subpop_download_btn_ppt")
   
@@ -621,11 +636,13 @@ get_all_enrollments_for_debugging <- function(bad_records, universe_w_ppl_flags,
     fselect(PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, InflowTypeDetail, OutflowTypeDetail, lh_dates)
 }
 
-
-## list all destination types and subtypes based on allowed_destinations vector
-## used for systems exit data downloads
-list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
-  destinations_df <- data.table(Destination = allowed_destinations) %>% 
+## create Destination Type df column from Destination 
+add_destination_type <- function(df, as_factor = FALSE){
+  if(!('Destination' %in% names(df))){
+    warning('No destination column found. Returning df as-is.')
+    return(df)
+  }
+  df <- df |>
     fmutate(`Destination Type` = fcase(
       Destination %in% perm_livingsituation, 'Permanent',
       Destination %in% 100:199, 'Homeless',
@@ -633,7 +650,21 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
       Destination %in% institutional_livingsituation, 'Institutional',
       Destination %in% other_livingsituation, 'Other/Unknown',
       default = 'Other/Unknown'
-    )) %>% 
+    )
+    )
+  
+  if(as_factor){
+    df <- df |>
+      fmutate(`Destination Type` = factor(`Destination Type`, levels = c('Permanent','Homeless','Institutional','Temporary','Other/Unknown')))
+  }
+  df
+}
+
+## list all destination types and subtypes based on allowed_destinations vector
+## used for systems exit data downloads
+list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
+  destinations_df <- data.table(Destination = allowed_destinations) %>% 
+    add_destination_type() %>% 
     fmutate(`Destination Type Detail`= living_situation(Destination)) %>% 
     fselect(-Destination)
   
@@ -670,4 +701,65 @@ list_all_destinations <- function(df, fill_zero=FALSE, add_totals = FALSE){
 standardize_org_name <- function(orgname){
   orgname <- gsub('\\\\','/',orgname)
   stringr::str_replace_all(orgname, "[@\\$%~\\^,/\\[+<>()|\\:&;#?*'\\]]", "_")
+}
+
+# show popup if upload scripts encounter errors
+show_trycatch_popup <- function(script_name){
+  script_num <- as.numeric(substr(script_name, 1, 2))
+  title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
+  showModal(
+    modalDialog(
+      HTML(
+        "<p>Your upload encountered an issue in Eva's processing pipeline. Please report this issue on our <a target = '_blank' href = 'https://github.com/abtassociates/eva/issues'>GitHub</a> page, with the following information:</p><br>",
+        paste0("<b>Location: </b>", script_name,'<br>',
+               '<b>Date of Issue: </b>', Sys.Date(), '<br>',
+               '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+      ),
+      
+      easyClose = TRUE,
+      title = title,
+      footer = modalButton("OK")
+    )
+  )
+}
+
+# Get snapshot of System Overview stuff
+# key datasets (session$userData$enrollment_categories and period_data), when in dev mode
+# are saved along the way in an RDS file in user's sandbox folder
+get_snapshot <- function(personalID) {
+  # read rds
+  enrollment_categories <- readRDS(here("sandbox/enrollment_categories_all.rds"))
+  print(enrollment_categories %>% fsubset(PersonalID %in% personalID))
+}
+
+
+## add counts in parens for table formatting
+format_compare_value <- function(count, total){
+  pct <- scales::percent(count/total, accuracy = 1, scale = 100)
+  sprintf('%s (%s)', pct, count)
+}
+
+## % difference: not currently used
+calc_pct_diff <- function(val1, val2, format = 'char'){
+  if(val1 == 0 | val2 == 0){
+    ifelse(format == 'char', '-', NA)
+  } else {
+    pct_diff <- abs(val1 - val2)/((val1 + val2)/2)
+    ifelse(format == 'char', 
+           scales::percent(pct_diff, accuracy = 0.1, scale = 100),
+           pct_diff)
+  }
+}
+
+# % change: used for time charts
+calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='char'){
+  if(count_prev == 0){
+    ifelse(format=='char', '-', NA)
+  } else {
+    pct_change <- (count_current - count_prev) / count_prev
+    
+    ifelse(format == 'char', 
+           scales::percent(pct_change, accuracy = accuracy, scale = 100),
+           pct_change)
+  }
 }

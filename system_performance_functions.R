@@ -43,7 +43,7 @@ sys_export_summary_initial_df <- function(type = 'overview') {
   
   logMetadata(session, glue("Downloaded System {ttype} Tabular Data: {tabbox}{demotext}", 
                             ttype=str_to_title(type),
-                            demotext = if_else(isTruthy(T), " - DEMO MODE", "")))
+                            demotext = if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
   if(type == 'exits_time'){
    
@@ -78,7 +78,11 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                    'overview' = c(
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, input$syso_methodology_type),
+                     getNameByValue(sys_methodology_types, 
+                                    ifelse(input$syso_tabbox == '<h4>System Demographics',
+                                           ifelse('All Races/Ethnicities' %in% input$system_composition_selections, '1',
+                                                  ifelse('Grouped Races/Ethnicities' %in% input$system_composition_selections, '2', NA)),
+                                           input$syso_methodology_type)),
                      getNameByValue(sys_hh_types, input$syso_hh_type),
                      getNameByValue(sys_level_of_detail, input$syso_level_of_detail),
                      getNameByValue(sys_project_types, input$syso_project_type)
@@ -86,7 +90,11 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                    'exits' = c(
                      strftime(session$userData$ReportStart, "%m/%d/%y"),
                      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, input$syse_methodology_type),
+                     getNameByValue(sys_methodology_types, 
+                                    ifelse(input$syse_tabbox == '<h4>Exits to PH Demographics</h4>',
+                                           ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
+                                                  ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
+                                           input$syse_methodology_type)),
                      getNameByValue(sys_hh_types, input$syse_hh_type),
                      getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
                      getNameByValue(sys_project_types, input$syse_project_type)
@@ -100,9 +108,13 @@ sys_export_summary_initial_df <- function(type = 'overview') {
                      getNameByValue(sys_hh_types, input$syse_hh_type),
                      getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
                      getNameByValue(sys_project_types, input$syse_project_type)
-                   ))
-    
+                   )
+  )
+ 
+
   df$Value <- values
+  # remove Methodology Type line if value was NA
+  df <- df[df$Value != 'NA, NA',]
   return(df)
 }
 
@@ -131,9 +143,9 @@ sys_export_filter_selections <- function(type = 'overview') {
           getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
       ),
       'exits_subpop' = c(
-        ifelse(identical(sys_age_cats, input$syse_age), "All Ages",paste(input$syse_age, collapse=", ")),
-        getNameByValue(sys_spec_pops_people, input$syse_spec_pops),
-        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
+        ifelse(identical(sys_age_cats, input$syse_subpop_age), "All Ages",paste(input$syse_subpop_age, collapse=", ")),
+        getNameByValue(sys_spec_pops_people, input$syse_subpop_spec_pops),
+        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input[[glue('syse_subpop_race_ethnicity{input$syse_methodology_type}')]])
       )
   )
   selections$Value <- values
@@ -211,7 +223,7 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                    "System Exit Types" = "types",
                    "Exits by Year" = "time",
                    "Exits by Subpopulation" = "subpop",
-                   "Permanent Housing Demographics" = "phd"
+                   "Exits to PH Demographics" = "phd"
                  )
   )
   
@@ -240,7 +252,6 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
     }
   }
   
-  if(prefix == 'sys'){
     shinyjs::toggle(glue('{prefixnone}client_level_download_btn'), condition = cond)
     if(init) {
       shinyjs::runjs(glue("
@@ -250,7 +261,6 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
         .toggle('{cond}' == 'TRUE');
     "))
     }
-  }
  
   
 }
@@ -388,7 +398,7 @@ sys_heatmap_xl_export <- function(file,
     write_xlsx(
       setNames(
         list(sys_phd_selections_summary(), sys_phd_export()),
-        c("System Exits Metadata", tab_name)
+        c("SystemExitDemographics Metadata", tab_name)
       ),
       path = file,
       format_headers = FALSE,
@@ -554,10 +564,10 @@ sys_detailBox <- function(
       )
     )
   } else if (detail_type == 'subpop') {
-    subpop_mini_header <- list(HTML("<b>Selected Subpopulation</b> <br>") )
+    subpop_mini_header <- list(HTML("<b>Subpopulation Selections</b> <br>") )
   }
   
-  if(race_eth != "All"){
+  if(!is.null(race_eth) && (race_eth != "All" | (!is.null(selection) & !is.na(methodology_type)))){
     
     race_eth_methodology_type <- list(
       #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
@@ -581,9 +591,25 @@ sys_detailBox <- function(
   
   # For System Comp/Demographics and System Exits, the demographic items to display 
   # are which checkboxes user selected for the chart. Otherwise, they're the selected filter values
-  demographics <- if(!is.null(selection)) {
+  demographics <- if(!is.null(selection) & detail_type != 'subpop') {
     list(
       HTML(glue("<strong>Selections</strong>: {paste(selection, collapse=' and ')} <br>"))
+    )
+  } else if (detail_type == 'subpop'){
+    list(
+      if (length(age) != length(sys_age_cats))
+        HTML(glue(
+          "<div style='text-indent: 20px;'><b>Age:</b> {paste(age, collapse = ', ')}</div>"
+        )),
+      
+      if (!is.null(race_eth) && race_eth != "All")
+        div(style='text-indent: 20px;',
+            chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth)),
+      
+      if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
+        HTML(glue(
+          "<div style='text-indent: 20px;'><b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')}</div>"
+        ))
     )
   } else {
     list(
@@ -592,7 +618,7 @@ sys_detailBox <- function(
           "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
         )),
       
-      if (race_eth != "All")
+      if (!is.null(race_eth) && race_eth != "All")
         chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
       
       if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
@@ -603,11 +629,14 @@ sys_detailBox <- function(
   }
   
   if(detail_type == 'subpop'){
-    return(c(date_range, race_eth_methodology_type, subpop_mini_header, project_type, demographics))
+    if (!is.null(race_eth) && race_eth != "All"){
+      return(c(date_range, race_eth_methodology_type, subpop_mini_header, demographics))
+    } else {
+      return(c(date_range, subpop_mini_header, demographics))
+    }
     
-  } else {
+  }  else {
     return(c(date_range, race_eth_methodology_type, project_type, demographics))
-    
   }
 }
 
@@ -658,8 +687,8 @@ sys_demographics_selection_info <- function(type = 'overview', selection = input
         ),
         Value = c(
           selection[1],
-          nrow(tree_exits_data()),
-          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          fnrow(all_filtered_syse_demog()),
+          fnrow(all_filtered_syse_demog() %>% fsubset(Destination %in% perm_livingsituation))
           
         )
       )
@@ -675,8 +704,8 @@ sys_demographics_selection_info <- function(type = 'overview', selection = input
         Value = c(
           selection[1],
           selection[2],
-          nrow(tree_exits_data()),
-          nrow(tree_exits_data() %>% fsubset(`Destination Type` == 'Permanent'))
+          fnrow(all_filtered_syse_demog()),
+          fnrow(all_filtered_syse_demog() %>% fsubset(Destination %in% perm_livingsituation))
           
         )
       )
@@ -802,7 +831,7 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
 # Period-Specific Enrollment Categories ----------------------------------------
 # "expand" the dataset to get repeated rows per period (full + each month)
 # then filter based on the period start and end
-expand_by_periods <- function(dt, chart_type = 'mbm') {
+expand_by_periods <- function(dt, chart_type = 'mbm', reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
   if(chart_type == 'mbm'){
     all_periods <- data.table(
       period = factor(names(session$userData$report_dates)),
@@ -817,10 +846,10 @@ expand_by_periods <- function(dt, chart_type = 'mbm') {
   } else if(chart_type == 'exits_time'){
     all_periods <- data.table(
       period = c('Current Year','Previous Year'),
-      startDate = c(session$userData$ReportStart,
-                    session$userData$ReportStart %m-% years(1)),
-      endDate = c(session$userData$ReportEnd,
-                  session$userData$ReportEnd %m-% years(1))
+      startDate = c(reportStart,
+                    reportStart %m-% years(1)),
+      endDate = c(reportEnd,
+                  reportEnd %m-% years(1))
     ) %>% 
       ftransform(
         exit_cutoff = startDate %m-% years(2),
@@ -829,8 +858,8 @@ expand_by_periods <- function(dt, chart_type = 'mbm') {
   } else {
     all_periods <- data.table(
       period = c('Full'),
-      startDate = session$userData$ReportStart,
-      endDate = session$userData$ReportEnd
+      startDate = reportStart,
+      endDate = reportEnd
     ) %>% 
       ftransform(
         exit_cutoff = startDate %m-% years(2),
