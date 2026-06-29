@@ -67,7 +67,7 @@ observeEvent(
     input$syso_project_type
   ),
   {
-    num_rows <- nrow(period_specific_data()[["Full"]])
+    num_rows <- fnrow(period_specific_data()[["Full"]])
     
     num_people <- ifelse(
       num_rows > 0,

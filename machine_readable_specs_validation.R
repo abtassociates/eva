@@ -24,7 +24,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   csv_validation_info <- cols_and_data_types %>%
     fsubset(CSV == csv_name)
   
-  unique_id_colname <- unique_id_lookup[CSV == csv_name]$UniqueID
+  unique_id_colname <- funique(reporting_info[CSV == csv_name]$UniqueID)
   
   
   # Check 1: Column Mispelled/Misordered/Missing/Extra ------------------------------
