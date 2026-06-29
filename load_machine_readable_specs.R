@@ -10,6 +10,7 @@ if(file.exists(specs_prepped_path)) {
   cols_and_data_types <- specs_prepped$cols_and_data_types
   csv_join_prerequisites <- specs_prepped$csv_join_prerequisites
   invalid_non_null_dynamic_lists_dt <- specs_prepped$invalid_non_null_dynamic_lists_dt
+  null_unless_additional_reqs <- specs_prepped$null_unless_additional_reqs
   
   rm(specs_prepped)
 } else {
@@ -479,7 +480,8 @@ saveRDS(
     valid_values = valid_values,
     cols_and_data_types = cols_and_data_types,
     csv_join_prerequisites = csv_join_prerequisites,
-    invalid_non_null_dynamic_lists_dt = invalid_non_null_dynamic_lists_dt
+    invalid_non_null_dynamic_lists_dt = invalid_non_null_dynamic_lists_dt,
+    null_unless_additional_reqs = null_unless_additional_reqs
   ), 
   specs_prepped_path
 )
