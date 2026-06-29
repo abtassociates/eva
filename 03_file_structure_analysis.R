@@ -14,9 +14,21 @@ if (nrow(Enrollment) == 0) {
   no_enrollment_records <- data.table(
     Detail = "There are 0 enrollment records in the Enrollment.csv file"
   ) %>%
-  merge_check_info_dt(checkIDs = 101)
+  merge_check_info_dt(checkIDs = 101) %>% 
+  fselect(issue_display_cols)
 } else {
   no_enrollment_records <- data.table()
+}
+
+# Integrity Client --------------------------------------------------------
+if (nrow(Client) == 0) {
+  no_client_records <- data.table(
+    Detail = "There are 0 client records in the Client.csv file"
+  ) %>%
+    merge_check_info_dt(checkIDs = 109) %>% 
+    fselect(issue_display_cols) 
+} else {
+  no_client_records <- data.table()
 }
 
 # Count (unique) HouseholdIDs within a Project
@@ -39,6 +51,7 @@ duplicate_household_id <- Enrollment %>%
 session$userData$file_structure_analysis_main(
   rbind(
     no_enrollment_records,
+    no_client_records,
     duplicate_household_id,
     specs_validation_issues,
     fill = TRUE,

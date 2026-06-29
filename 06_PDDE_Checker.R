@@ -271,17 +271,20 @@ vsps_in_hmis <- session$userData$Project0 %>%
 # Zero Utilization --------------------------------------------------------
 # HMIS participating projects that have ANY active inventory (with available beds) 
 # should not have 0 enrollments
+
 zero_utilization <- qDT(ProjectSegments) %>%
   # HMiS-participating projects
-  fsubset(HMISParticipationType == 1, 
-          ProjectID, 
-          ProjectTimeID, 
-          ProjectType,
-          HMISParticipationStatusStartDate, 
-          HMISParticipationStatusEndDate,
-          OperatingStartDate,
-          OperatingEndDate
-  ) %>%
+  fsubset(!is.na(HMISParticipationType) & HMISParticipationType == 1 &
+            (is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start)) %>%
+  fselect(
+    ProjectID, 
+    ProjectTimeID, 
+    ProjectType,
+    HMISParticipationStatusStartDate, 
+    HMISParticipationStatusEndDate,
+    OperatingStartDate,
+    OperatingEndDate
+  ) %>% 
   join(
     activeInventory %>% 
       fselect(ProjectID, InventoryStartDate, InventoryEndDate, Availability, BedInventory) %>%

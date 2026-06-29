@@ -37,16 +37,16 @@ observeEvent(input$sys_comp_subtabs, {
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
-observeEvent(input$methodology_type, {
+observeEvent(input$syso_methodology_type, {
   
   updatePickerInput(
     session, 
     "syso_race_ethnicity", 
-    choices = syso_race_ethnicity_cats(input$methodology_type)
+    choices = sys_race_ethnicity_cats(input$syso_methodology_type)
   )
 
   # update System Composition Grouped Races/Ethnicities label
-  grouped_re_lbl_new <- ifelse(input$methodology_type == 1, "Grouped", "Hispanic-Focused")
+  grouped_re_lbl_new <- ifelse(input$syso_methodology_type == 1, "Grouped", "Hispanic-Focused")
   shinyjs::runjs(
     glue("
       $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
@@ -90,234 +90,30 @@ observeEvent(
 # observeEvent(input$syso_level_of_detail, {
 #   updatePickerInput(session, "syso_spec_pops",
 #                     # label = "Special Populations",
-#                     choices = syso_spec_pops_people)
+#                     choices = sys_spec_pops_people)
 # })
 
 #### DISPLAY FILTER SELECTIONS ###
 syso_detailBox <- reactive({
-  list(
-    br(),
-    strong("Date Range: "),
-    
-    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
-    
-    if (input$syso_project_type != "All")
-      chart_selection_detail_line("Project Type Group", syso_project_types, str_remove(input$syso_project_type, "- ")),
-    
-    #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
-    HTML(glue(
-      "<b>Methodology Type:</b> {str_sub(getNameByValue(syso_methodology_types, input$methodology_type), start = 1, end = 8)} <br>"
-    )),
-    
-    if (length(input$syso_age) != length(syso_age_cats))
-      HTML(glue(
-        "<b>Age:</b> {paste(input$syso_age, collapse = ', ')} <br>"
-      )),
-    
-    if (input$syso_race_ethnicity != "All")
-      chart_selection_detail_line("Race/Ethnicity", syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity),
-    
-    if(getNameByValue(syso_spec_pops_people, input$syso_spec_pops) != "All Statuses")
-      HTML(glue(
-        "<b>Veteran Status:</b> {paste(getNameByValue(syso_spec_pops_people, input$syso_spec_pops), '(Adult Only)')} <br>"
-      ))
-    
-  )
+  
+  sys_detailBox(
+    detail_type = 'overview',
+    methodology_type = input$syso_methodology_type,
+    cur_project_types = input$syso_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syso_age,
+    spec_pops = input$syso_spec_pops,
+    race_eth = input$syso_race_ethnicity
+    )
 })
 
-toggle_sys_components <- function(cond, init=FALSE) {
-  # 1. toggles the filters (disabled for Composition)
-  # 2. toggles subtabs and download button based if valid file has been uploaded
-  # 3. moves download button to be in line with subtabs
-  tabs <- c(
-    "System Flow" = "inflow_outflow",
-    "Client System Status" = "status",
-    "System Demographics" = "comp"
-  )
-  
-  for (tab in tabs) {
-    shinyjs::toggle(glue('sys_{tab}_subtabs'), condition = cond)
-    shinyjs::toggle(selector = glue('#sys_{tab}_subtabs + div.tab-content'), condition = cond)
-    shinyjs::toggle(glue('sys_{tab}_download_btn'), condition = cond)
-    shinyjs::toggle(glue('sys_{tab}_download_btn_ppt'), condition = cond)
-    
-    # move download button to subtab row and only show if there's data
-    if(init) {
-      shinyjs::runjs(
-        glue("
-            document.getElementById('sys_{tab}_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"sys_{tab}_download_tab\"></li>');
-            $('#sys_{tab}_download_btn').appendTo('#sys_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-            $('#sys_{tab}_download_btn_ppt').appendTo('#sys_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-          ")
-      )
-    }
-  }
-  
-  shinyjs::toggle('client_level_download_btn', condition = cond)
-  if(init) {
-    shinyjs::runjs("
-      document.getElementById('syso_tabbox')
-        .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"client_level_download_tab\"></li>');
-      $('#client_level_download_btn').appendTo('#client_level_download_tab')
-        .toggle('{cond}' == 'TRUE');
-    ")
-  }
-  
-}
-toggle_sys_components(FALSE, init=TRUE) # initially hide them
 
-sys_export_summary_initial_df <- function() {
-  
-  logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
-  return(data.frame(
-    Chart = c(
-      "Start Date",
-      "End Date",
-      "Methodology Type",
-      "Household Type",
-      "Level of Detail",
-      "Project Type Group"
-    ),
-    Value = c(
-      strftime(session$userData$ReportStart, "%m/%d/%y"),
-      strftime(session$userData$ReportEnd, "%m/%d/%y"),
-      getNameByValue(syso_methodology_types, input$methodology_type),
-      getNameByValue(syso_hh_types, input$syso_hh_type),
-      getNameByValue(syso_level_of_detail, input$syso_level_of_detail),
-      getNameByValue(syso_project_types, input$syso_project_type)
-    )
-  ))
-}
-
-sys_export_filter_selections <- function() {
-  return(tibble(
-    Chart = c(
-      "Age",
-      "Veteran Status",
-      "Race/Ethnicity"
-    ),
-    Value = c(
-      if(identical(syso_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
-      getNameByValue(syso_spec_pops_people, input$syso_spec_pops),
-      getNameByValue(syso_race_ethnicity_cats(input$methodology_type), input$syso_race_ethnicity)
-    )
-  ))
-}
+toggle_sys_components(prefix = 'sys', FALSE, init=TRUE) # initially hide them
 
 #### FILTERS ###
 
 # Population reactives ----------------------------------------------------
-
-# Set race/ethnicity filter options based on methodology type selection
-# Set special populations options based on level of detail selection
-syso_race_ethnicity_cats <- function(methodology = 1){
-  if(methodology == 1) syso_race_ethnicity_method1 
-  else syso_race_ethnicity_method2
-}
-
-# PowerPoint Export -------------------------------------------------------
-sys_overview_ppt_export <- function(file,
-                                    title_slide_title,
-                                    summary_items,
-                                    plots,
-                                    summary_font_size) {
-  
-  logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
-                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  #NEED TO UPDATE - if want to get more granular, need to detect with title slide
-  
-  report_period <- paste0("Report Period: ", 
-                          format(session$userData$ReportStart, "%m/%d/%Y"),
-                          " - ",
-                          format(session$userData$ReportEnd, "%m/%d/%Y")
-  )
-  loc_title <- ph_location_type(type = "title")
-  loc_footer <- ph_location_type(type = "ftr")
-  loc_dt <- ph_location_type(type = "dt")
-  loc_slidenum <- ph_location_type(type = "sldNum")
-  loc_body <- ph_location_type(type = "body")
-  loc_subtitle <- ph_location_type(type = "subTitle")
-  loc_ctrtitle <- ph_location_type(type = "ctrTitle")
-  
-  fp_normal <- fp_text(font.size = summary_font_size)
-  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
-  fp_bold <- update(fp_normal, bold = TRUE)
-  fp_red <- update(fp_normal, color = "red")
-  
-  ppt <- read_pptx(here("system_pptx_template.pptx"))
-  
-  add_footer <- function(.ppt) {
-    return(
-      .ppt %>%
-        ph_with(value = paste0("CoC Code: ", session$userData$Export$SourceID), location = loc_footer) %>%
-        ph_with(value = report_period, location = loc_dt) %>%
-        ph_with(
-          value = paste0(
-            "Export Generated: ",
-            format(Sys.Date()),
-            "\n",
-            "https://hmis.abtsites.com/eva/"
-          ),
-          location = loc_slidenum
-        )
-    )
-  }
-  
-  # title Slide
-  ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
-    ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
-    ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
-    add_footer()
-  
-  # Summary
-  s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
-    fpar(
-      ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
-    )
-  }))
-  
-  ppt <- add_slide(ppt, layout = "Title and Content") %>%
-    ph_with(value = "Summary", location = loc_title) %>%
-    ph_with(
-      value = s_items,
-      level_list = c(rep(1L, length(s_items))),
-      location = loc_body
-    ) %>% 
-    add_footer()
-  
-  # Chart
-  for(plot_slide_title in names(plots)) {
-    p <- plots[[plot_slide_title]]
-    if(!is.null(p)) {
-      ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
-        ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
-        ph_with(value = p, location = loc_body) %>%
-        add_footer()
-    }
-  }
-  
-  # Export the PowerPoint
-  return(print(ppt, target = file))
-}
-
-suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
-no_data_msg <- "No data to show."
-
-# Display Filter Selection in Detail Box ----------------------------------
-
-chart_selection_detail_line <- function(detail_label, val_list, inputVal) {
-  return(
-    HTML(glue(
-      "<strong>{detail_label}:</strong> {getNameByValue(val_list, inputVal)} <br>"
-    ))
-  )
-}
-
 
 # Total Count Above Chart -------------------------------------------------
 
@@ -335,11 +131,7 @@ sys_total_count_display <- function(total_count) {
   )
 }
 
-get_adj_font_size <- function(font_size, isExport) {
-  return(
-    font_size*ifelse(isExport, sys_chart_export_font_reduction, 1)
-  )
-}
+
 
 observe({
   windowSize(input$dimension)
@@ -348,13 +140,14 @@ observe({
 source("client_level_export_server.R", local=TRUE)
 
 # Get period report_dates --------------------------------------------
-get_months_in_report_period <- function() {
-  seq.Date(from = session$userData$ReportStart, to = session$userData$ReportEnd, by = "months")
+get_months_in_report_period <- function(reportStart = session$userData$ReportStart,
+                                        reportEnd = session$userData$ReportEnd) {
+  seq.Date(from = reportStart, to = reportEnd, by = "months")
 } 
-get_report_dates <- function() {
-  months_in_report_period <- get_months_in_report_period()
+get_report_dates <- function(reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
+  months_in_report_period <- get_months_in_report_period(reportStart, reportEnd)
   c(
-    list("Full" = c(session$userData$ReportStart, session$userData$ReportEnd)),
+    list("Full" = c(reportStart, reportEnd)),
     setNames(
       lapply(months_in_report_period, function(d) {
         c(d, ceiling_date(d, "month") - days(1))
@@ -373,8 +166,8 @@ period_specific_data <- reactive({
   
   # Get filtered records based on user selection
   filtered_enrollments <- enrollments_filtered()
-  filtered_clients <- client_categories_filtered() 
-  
+  filtered_clients <- syso_client_categories_filtered() 
+
   # If either are empty, return empty
   if(nrow(filtered_clients) == 0 || nrow(filtered_enrollments) == 0) return(empty_return)
   
@@ -389,7 +182,7 @@ period_specific_data <- reactive({
   if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
 
   period_data <- all_filtered %>% 
-    expand_by_periods() %>% # expand/repeat enrollments across periods
+    expand_by_periods(chart_type = 'mbm') %>% # expand/repeat enrollments across periods
     get_active_info(all_filtered) %>%
     get_inflows_and_outflows()
   
@@ -457,8 +250,10 @@ if(!isTRUE(getOption("shiny.testmode")))
   )
 
 # Client-level flags, filtered ----------------------------------------------------
-client_categories_filtered <- reactive({
-  logToConsole(session, "In client_categories_filtered")
+syso_client_categories_filtered <- reactive({
+  
+  
+  logToConsole(session, "In syso_client_categories_filtered")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   req(fnrow(session$userData$client_categories) > 0)
  
@@ -515,33 +310,9 @@ enrollments_filtered <- reactive({
     fselect(-VeteranStatus)
 })
 
-# Period-Specific Enrollment Categories ----------------------------------------
-# "expand" the dataset to get repeated rows per period (full + each month)
-# then filter based on the period start and end
-expand_by_periods <- function(dt) {
-  all_periods <- data.table(
-    period = factor(names(session$userData$report_dates)),
-    startDate = as.Date(sapply(session$userData$report_dates, `[`, 1)),
-    endDate = as.Date(sapply(session$userData$report_dates, `[`, 2))
-  ) %>% 
-    ftransform(
-      exit_cutoff = startDate %m-% years(2),
-      temp_key = 1
-    )
-  
-  dt %>%
-    ftransform(temp_key = 1) %>%
-    join(
-      all_periods,
-      on = "temp_key",
-      multiple = TRUE
-    ) %>%
-    fselect(-temp_key, -exit_cutoff) %>%
-    setkeyv(cols=c("PersonalID", "period", "EnrollmentID"))
-}
-
-get_active_info <- function(all_filtered_by_period, all_filtered) {
-  lh_info_filtered <- session$userData$lh_info %>%
+get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info,
+                            reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
+  lh_info_filtered <- lh_info_df %>%
     fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
     join(
       all_filtered %>% fselect(EnrollmentID, EntryDate, ExitAdjust),
@@ -593,7 +364,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   )) %>%
     fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
     fmutate(
-      active_in_full_period = active_start <= session$userData$ReportEnd & active_end >= session$userData$ReportStart
+      active_in_full_period = active_start <= reportEnd & active_end >= reportStart
     )
   
   all_filtered_w_first_last_active <- all_filtered_by_period %>%
@@ -615,7 +386,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
     fmutate(
       active_in_period = startDate <= active_end & endDate >= active_start,
       exited_in_period = ExitAdjust %between% list(startDate, endDate),
-      period_of_activity = fifelse(active_in_period & (endDate != session$userData$ReportEnd | startDate != session$userData$ReportStart), startDate, NA)
+      period_of_activity = fifelse(active_in_period & (endDate != reportEnd | startDate != reportStart), startDate, NA)
     ) %>%
     fgroup_by(PersonalID, active_start) %>%
     fmutate(
@@ -702,7 +473,8 @@ get_active_info <- function(all_filtered_by_period, all_filtered) {
   return(all_filtered_w_active_info)
 }
 
-get_inflows_and_outflows <- function(all_filtered_w_active_info) {
+get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm', reportStart = session$userData$ReportStart,
+                                     reportEnd = session$userData$ReportEnd) {
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
@@ -720,10 +492,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       
       active_at_start = (
         startDate == first_active_date_in_period & (
-          startDate == session$userData$ReportStart |
+          startDate == reportStart |
             (first_active_date_in_period - prev_active) %between% c(0, 14)
         ) | (
-          startDate == session$userData$ReportStart &
+          startDate == reportStart &
             startDate <= (first_active_date_in_period + 14) &
             (first_active_date_in_period - prev_active) %between% c(0, 14)
         )
@@ -749,10 +521,10 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       
       active_at_end = (
         endDate == last_active_date_in_period & (
-          endDate == session$userData$ReportEnd |
+          endDate == reportEnd |
             (next_active - last_active_date_in_period) %between% c(0, 14)
         ) | (
-          endDate == session$userData$ReportEnd &
+          endDate == reportEnd &
             endDate > last_active_date_in_period &
             (next_active - last_active_date_in_period) %between% c(0, 14)
         )
@@ -777,7 +549,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       
       ### Continuous at Start  ----------
       continuous_at_start = !active_at_start &
-        startDate > session$userData$ReportStart & 
+        startDate > reportStart & 
         startDate <= first_active_date_in_period + 14 &
         (first_active_date_in_period - prev_active) %between% c(0, 14),
       
@@ -793,7 +565,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       
       
       ### First-of-month Exit  ----------
-      first_of_month_exit = startDate > session$userData$ReportStart &
+      first_of_month_exit = startDate > reportStart &
         ExitAdjust == startDate,
       
       ### Unknown  ----------
@@ -842,66 +614,133 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info) {
       exited_perm = exited_system & Destination %in% perm_livingsituation,
       
       ### Continuous at End ----------
-      continuous_at_end = endDate < session$userData$ReportEnd &
+      continuous_at_end = endDate < reportEnd &
         !active_at_end & (next_active - last_active_date_in_period) %between% c(0, 14),
       
       ### Last-of-month Entry ----------
       last_of_the_month_entry = 
-        endDate < session$userData$ReportEnd &
+        endDate < reportEnd &
         EntryDate == endDate,
       
       ### Inactive ----------
       inactive = ExitAdjust > endDate & (next_active - last_active_date_in_period) > 14 &
-        ProjectType %in% nbn_non_res,
-      
-      ### OutflowTypeDetail  ----------
-      OutflowTypeDetail = factor(
-        fcase(
-          # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
-          # S------------------------x---------------------E------x----------------
-          # S------------------------x--------------y-------Ex---y------------------
-          #   
-          # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
-          # S------------------------x--------------------x-E---y------------------
-          #   
-          # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
-          # S------------------------x--------------------x-E--------------y-------y
-          # S------------------------x--------------------Ex---------------y-------y
-          ae_housed, "Housed",
-          ae_homeless, "Homeless",
-          inactive, "Inactive",
-          exited_nonperm, "Exited, Non-Permanent",
-          exited_perm, "Exited, Permanent",
-          continuous_at_end, "Continuous at End",
-          last_of_the_month_entry, "Last-of-Month Entry",
-          default = "something's wrong"
-        ),
-        levels = c(active_at_levels, outflow_detail_levels)
-      ),
-
-      ### OutflowTypeSummary----------
-      OutflowTypeSummary = fct_collapse(
-        OutflowTypeDetail,
-        `Active at End` = active_at_levels, 
-        Outflow = outflow_chart_detail_levels
-      )
+        ProjectType %in% nbn_non_res
     )
+  # outflows %>% 
+  #   fsubset(endDate == ExitAdjust & exited_system & (ae_homeless | ae_housed))
+  #browser()
+  # outflows <- outflows %>% 
+  #   fmutate(OutflowTypeDetail = fifelse(endDate == ExitAdjust & exited_system, 'Exited, Non-Permanent', OutflowTypeDetail),
+  #           OutflowTypeSummary = fifelse(endDate == ExitAdjust & exited_system, 'Outflow', OutflowTypeSummary))
+ 
+ 
   
-  inflows_and_outflows <- join(
-    inflows, 
-    outflows,
-    on=c("PersonalID","period"), 
-    how = "inner",
-    suffix = "_lecr"
-  ) %>%
-    fselect(
-      PersonalID, 
-      period, 
-      InflowTypeDetail, OutflowTypeDetail, 
-      InflowTypeSummary, OutflowTypeSummary, 
-      EnrollmentID, EnrollmentID_lecr, 
-      first_active_date_in_period, prev_active
-    )
+  if(chart_type == 'mbm'){
+    
+    outflows <- outflows %>% 
+      fmutate(
+        ### OutflowTypeDetail  ----------
+        OutflowTypeDetail = factor(
+          fcase(
+            # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
+            # S------------------------x---------------------E------x----------------
+            # S------------------------x--------------y-------Ex---y------------------
+            #   
+            # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+            # S------------------------x--------------------x-E---y------------------
+            #   
+            # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
+            # S------------------------x--------------------x-E--------------y-------y
+            # S------------------------x--------------------Ex---------------y-------y
+            ae_housed, "Housed",
+            ae_homeless, "Homeless",
+            inactive, "Inactive",
+            exited_nonperm, "Exited, Non-Permanent",
+            exited_perm, "Exited, Permanent",
+            continuous_at_end, "Continuous at End",
+            last_of_the_month_entry, "Last-of-Month Entry",
+            default = "something's wrong"
+          ),
+          levels = c(active_at_levels, outflow_detail_levels)
+        ),
+        
+        ### OutflowTypeSummary----------
+        OutflowTypeSummary = fct_collapse(
+          OutflowTypeDetail,
+          `Active at End` = active_at_levels, 
+          Outflow = outflow_chart_detail_levels
+        )
+      )
+    inflows_and_outflows <- join(
+      inflows, 
+      outflows,
+      on=c("PersonalID","period"), 
+      how = "inner",
+      suffix = "_lecr"
+    ) %>%
+      fselect(
+        PersonalID, 
+        period, 
+        InflowTypeDetail, OutflowTypeDetail, 
+        InflowTypeSummary, OutflowTypeSummary, 
+        EnrollmentID, EnrollmentID_lecr, 
+        first_active_date_in_period, prev_active
+      )
+  } else if (chart_type == 'exits') {
+    
+    outflows <- outflows %>% 
+      fmutate(
+        ### OutflowTypeDetail  ----------
+        OutflowTypeDetail = factor(
+          fcase(
+            # Active at End (AE): (ExitAdjust > endDate | (ExitAdjust == endDate & days_to_next_lh %between% c(0,14)))
+            # S------------------------x---------------------E------x----------------
+            # S------------------------x--------------y-------Ex---y------------------
+            #   
+            # Continuous at End:  ExitAdjust < endDate & days_to_next_lh %between% c(0, 14),
+            # S------------------------x--------------------x-E---y------------------
+            #   
+            # System Exit: ExitAdjust <= endDate & days_to_next_lh > 14
+            # S------------------------x--------------------x-E--------------y-------y
+            # S------------------------x--------------------Ex---------------y-------y
+            ae_housed & !exited_system, "Housed",
+            ae_homeless & !exited_system, "Homeless",
+            inactive, "Inactive",
+            exited_nonperm, "Exited, Non-Permanent",
+            exited_perm, "Exited, Permanent",
+            continuous_at_end, "Continuous at End",
+            last_of_the_month_entry, "Last-of-Month Entry",
+            default = "something's wrong"
+          ),
+          levels = c(active_at_levels, outflow_detail_levels)
+        ),
+        
+        ### OutflowTypeSummary----------
+        OutflowTypeSummary = fct_collapse(
+          OutflowTypeDetail,
+          `Active at End` = active_at_levels, 
+          Outflow = outflow_chart_detail_levels
+        )
+      )
+    
+    inflows_and_outflows <- join(
+      inflows, 
+      outflows,
+      on=c("PersonalID","period"), 
+      how = "inner",
+      suffix = "_lecr"
+    ) %>%
+      fselect(
+        PersonalID, 
+        period, 
+        InflowTypeDetail, OutflowTypeDetail, 
+        InflowTypeSummary, OutflowTypeSummary, 
+        Destination,
+        EnrollmentID, EnrollmentID_lecr,
+        first_active_date_in_period, prev_active
+      )
+  }
+  
   
   if(!IN_DEV_MODE) {
     # only need these vars for QC checks
