@@ -554,9 +554,9 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
    ) %>%
   fmutate(unsheltered = (ProjectType == out_project_type) | 
-                        (ProjectType %in% non_res_project_types &
-                          (!is.na(CurrentLivingSituation) & CurrentLivingSituation == 116) |
-                          (!is.na(LivingSituation) & LivingSituation == 116)),
+                        (ProjectType %in% non_res_nonlh_project_types &
+                          ((!is.na(CurrentLivingSituation) & CurrentLivingSituation == 116) |
+                          (!is.na(LivingSituation) & LivingSituation == 116))),
           sheltered = (ProjectType %in% lh_residential_project_types) |
                       ProjectType %in% non_res_nonlh_project_types &
                         ((!is.na(CurrentLivingSituation) & CurrentLivingSituation %in% setdiff(homeless_livingsituation_incl_TH, 116)) |
@@ -564,6 +564,23 @@ session$userData$enrollment_categories <- enrollment_categories %>%
           permanent_housing = ProjectType %in% ph_project_types
   ) %>%
   fsubset(EntryDate < ExitAdjust) # After trimming, want to ensure that the new EntryDate < new ExitAdjust
+
+homeless_type <- session$userData$enrollment_categories %>% 
+  fsubset(
+    ProjectType != hp_project_type & 
+      EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
+  ) %>% 
+  fgroup_by(PersonalID) %>% 
+  fsummarize(HomelessnessType = fcase(
+    (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
+    fsum(unsheltered) > 0, 'Unsheltered',
+    fsum(sheltered) > 0, 'Sheltered',
+    (fsum(permanent_housing) > 0) & (fsum(unsheltered) == 0) & (fsum(sheltered) == 0), 'PH Only',
+    default='Other'
+  ))
+
+session$userData$client_categories <- session$userData$client_categories %>% 
+  join(homeless_type, on='PersonalID')
 
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
