@@ -89,7 +89,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
 
 output$downloadImpermissibleCharacterDetailBtn <- renderUI({
   # browser()
-  req("Impermissible characters" %in% c(session$userData$file_structure_analysis_main()$Issue))
+  req("Impermissible Characters" %in% c(session$userData$file_structure_analysis_main()$Issue))
   tagList(
     actionButton("showDownloadImpermissibleButton",
                  "Download Impermissible Character Detail", 
