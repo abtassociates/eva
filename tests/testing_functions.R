@@ -608,6 +608,8 @@ get_all_helper_filenames <- function(test_script_name) {
   return(gsub("\\..*$", "", new_files))
 }
 review_helpers <- function(datasetnames = NULL, test_script_name = "main-valid", comparison_type = 1) {
+  library(here)
+  library(data.table)
   if(is.null(datasetnames)) 
     datasetnames <- get_all_helper_filenames(test_script_name)
 

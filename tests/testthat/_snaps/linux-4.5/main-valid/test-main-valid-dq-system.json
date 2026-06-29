@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 53cb5278fd01a336f7432be2129da28e]",
+      "src": "[image data hash: e57e97fbceae1f282bde38e6b6950a49]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -71,9 +71,9 @@
 
                 ],
                 "y": [
-                  "Missing Months or Times Homeless",
                   "Incomplete Living Situation Data",
                   "Conflicting Health Insurance yes/no at Entry",
+                  "Null Unless",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: fdc307e31c12218c349c35b42f4d07de]",
+      "src": "[image data hash: ca7b57b7bb2f17e849a583bc25dbac3d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -142,12 +142,14 @@
               "left": 0,
               "right": 726,
               "bottom": 0.4,
-              "top": 3.6,
+              "top": 5.6,
               "discrete_limits": {
                 "x": [
 
                 ],
                 "y": [
+                  "Identifier does not match across files",
+                  "Null Unless",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
                   "Missing Relationship to Head of Household"
