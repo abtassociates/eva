@@ -97,7 +97,41 @@ gz1 <- gzfile(here("tests/temp/FY26-test-wrong-file-type.gz"), "w")
 write.csv(data.frame(), gz1)
 Sys.sleep(1)
 close(gz1)
+
 ############### VALID FILES #################
+# Initial Fixes to pass machine-readable specs
+if("TcellCount" %in% names(original_data$Disabilities))
+  original_data$Disabilities <- original_data$Disabilities |>
+    frename(
+      TCellCount = TcellCount,
+      TCellSource = TcellSource
+    )
+
+original_data$Disabilities <- original_data$Disabilities |>
+  fsubset(EnrollmentID != "696923") # fixes non-matching enrollment issue
+
+original_data$Enrollment <- original_data$Enrollment |>
+  colorder(DateCreated, DateUpdated, UserID, DateDeleted, ExportID, pos="end") # fixes MentalHealthConsultation being out-of-order
+
+original_data$Client <- original_data$Client |>
+  colorder(DOBDataQuality, Sex, pos="after") # fixes Sex being out-of-order
+
+original_data$Inventory <- original_data$Inventory |>
+  fsubset(!InventoryID %in% c("4627", "4626"))
+
+original_data$Services <- original_data$Services |>
+  fmutate(
+    SubTypeProvided = fifelse(
+      ServicesID %in% c("4701489","4619566","4616611","4594911","4630274","4271320","4265356","4352817","4352818","4593821","4593825","4481912","4668968","4593619","4702917","4702916","4619563","4618136","4641247","4629927","4649143","4627720","4656719","4658078","4658077","4708744","4710028","4737855"),
+      1,
+      fifelse(
+        ServicesID %in% c("4458004","4653986", "4654974", "4668954","4707540"),
+        11,
+        SubTypeProvided
+      )
+    )
+  )
+  
 # FSA ---------------------------------------------------
 reduced_data_fsa <- lapply(original_data, function(x) x[ifelse(nrow(x) >= 6, 6, 1)])
 source(here("tests/update_test_good_fsa.R"), local = TRUE)

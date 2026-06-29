@@ -36,8 +36,8 @@ original_data$CurrentLivingSituation <- original_data$CurrentLivingSituation %>%
     rn = seq_row(.),
     CLSSubsidyType = fcase(
       rn %in% split_rows[[1]], NA_integer_, # null values
-      rn %in% split_rows[[2]], as.integer(99), # 99 (Data not collected, generally) values
-      rn %in% split_rows[[3]], as.integer(234), # nonsense values
+      # rn %in% split_rows[[2]], as.integer(99), # 99 (Data not collected, generally) values
+      # rn %in% split_rows[[3]], as.integer(234), # nonsense values
       default = CLSSubsidyType
     ),
     rn = NULL
@@ -50,8 +50,8 @@ original_data$Enrollment <- original_data$Enrollment %>%
     rn = seq_row(.),
     RentalSubsidyType = fcase(
       rn %in% split_rows[[1]], NA_integer_, # null values
-      rn %in% split_rows[[2]], as.integer(99), # 99 (Data not collected, generally) values
-      rn %in% split_rows[[3]], as.integer(234), # nonsense values
+      # rn %in% split_rows[[2]], as.integer(99), # 99 (Data not collected, generally) values
+      # rn %in% split_rows[[3]], as.integer(234), # nonsense values
       default = RentalSubsidyType
     ),
     rn = NULL
