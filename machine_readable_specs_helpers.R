@@ -22,8 +22,12 @@ clean_rule_for_null_unless <- function(Name, validation_notes) {
     clean_text()
 }
 
+not_null_when <- function(col, cond) {
+  is.na(col) & cond
+}
+
 null_unless <- function(col, cond) {
-  (is.na(col) & cond) | (!is.na(col) & !cond)
+  !is.na(col) & !cond
 }
 
 # Prep functions ---------------
@@ -119,60 +123,71 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       # Subset the dataset to only rows that failed the check
       invalid_dt <- dt |> fsubset(is_invalid == TRUE)
       
-      if (fnrow(invalid_dt) > 0) {
-        # Attach the metadata so we know exactly what failed
-        cols_to_select <- unique(c(
-          unlist(strsplit(rule_row$`Key Fields`, ", ", fixed = TRUE)),
-          rule_row$AnchorID,
-          rule_row$Name
-        )) |>
-          na_omit()
-        
-        invalid_dt <- invalid_dt |>
-          fselect(cols_to_select) |>
-          funique() |>
+      if (fnrow(invalid_dt) == 0) return(NULL)
+      
+      # Attach the metadata so we know exactly what failed
+      cols_to_select <- unique(c(
+        unlist(strsplit(rule_row$`Key Fields`, ", ", fixed = TRUE)),
+        rule_row$AnchorID,
+        rule_row$Name
+      )) |>
+        na_omit()
+      
+      
+      invalid_dt_full <- invalid_dt |>
+        fselect(cols_to_select) |>
+        funique() |>
+        fmutate(
+          CSV = csv_name,
+          Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
+          List = if(is.na(rule_row$List))
+            eval(parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name]$rule_text), envir = invalid_dt)
+          else
+            rule_row$List,
+          issue_type = factor(rule_row$issue_type),
+          Issue = rule_row$Issue,
+          Guidance = rule_row$Guidance,
+          Priority = rule_row$Priority,
+          foreign_tbl = rule_row$foreign_tbl,
+          AnchorID = rule_row$AnchorID,
+          str_len_limit = rule_row$str_len_limit,
+          validation_notes = rule_row$validation_notes,
+          readable_validation_notes = rule_row$readable_validation_notes,
+          key_template = fifelse(is.na(rule_row$`Key Fields`), "", gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)),
+          detail_template = stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template) %>%
+            stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))
+        )
+      
+      if(rule_row$issue_type == "Null Unless") {
+        invalid_dt_full <- invalid_dt_full |>
           fmutate(
-            CSV = csv_name,
-            Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
-            List = if(is.na(rule_row$List))
-              eval(parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name]$rule_text), envir = invalid_dt)
-            else
-              rule_row$List,
-            issue_type = factor(rule_row$issue_type),
-            Issue = rule_row$Issue,
-            Guidance = rule_row$Guidance,
-            Priority = rule_row$Priority,
-            foreign_tbl = rule_row$foreign_tbl,
-            AnchorID = rule_row$AnchorID,
-            str_len_limit = rule_row$str_len_limit,
-            validation_notes = rule_row$validation_notes,
-            readable_validation_notes = rule_row$readable_validation_notes,
-            key_template = fifelse(is.na(rule_row$`Key Fields`), "", gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)),
-            detail_template = stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template) %>%
-              stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))
+            detail_template = fifelse(
+              !eval(parse(text = rule_row$codified_rule), envir = invalid_dt),
+              stringi::stri_replace_all_fixed(detail_template, "should be null unless", "should not be null when"),
+              detail_template
+            )
           )
-        
-        # Perform glue by-group to actually pipe the necessary values in to the Detail
-        invalid_dt[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
-        invalid_dt[, AnchorValue := if (is.na(AnchorID[1L]) || AnchorID[1L] == "") NA
-                   else as.character(get(AnchorID[1L])),
-                   by = AnchorID]
-        
-        # 4. Final Cleanup
-        # Note: Add the columns you need for your UI here
-        invalid_dt <- invalid_dt |>
-          fselect(c(issue_display_cols, "CSV", "Name", "AnchorID", "AnchorValue")) |>
-          fmutate(
-            Issue = factor(Issue),
-            Guidance = factor(Guidance),
-            CSV = factor(CSV),
-            Name = factor(Name),
-            AnchorID = factor(AnchorID)
-          )
-        
-        return(invalid_dt)
       }
-      return(NULL)
+      
+      # Perform glue by-group to actually pipe the necessary values in to the Detail
+      invalid_dt_full[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
+      invalid_dt_full[, AnchorValue := if (is.na(AnchorID[1L]) || AnchorID[1L] == "") NA
+                 else as.character(get(AnchorID[1L])),
+                 by = AnchorID]
+      
+      # 4. Final Cleanup
+      # Note: Add the columns you need for your UI here
+      invalid_dt_full <- invalid_dt_full |>
+        fselect(c(issue_display_cols, "CSV", "Name", "AnchorID", "AnchorValue")) |>
+        fmutate(
+          Issue = factor(Issue),
+          Guidance = factor(Guidance),
+          CSV = factor(CSV),
+          Name = factor(Name),
+          AnchorID = factor(AnchorID)
+        )
+      
+      return(invalid_dt_full)
     })
     
     # Bind all rule results for this CSV

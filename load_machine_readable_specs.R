@@ -395,9 +395,8 @@ specs_rules[
   issue_type == "Null Unless",
   `:=`(
     rule_expr = unlist(
-      purrr::map2(Name, codified_rule, ~rlang::parse_expr(glue("null_unless({.x}, {.y})")))
+      purrr::map2(Name, codified_rule, ~rlang::parse_expr(glue("null_unless({.x}, {.y}) | not_null_when({.x}, {.y})")))
     ),
-    
     readable_validation_notes = humanize_rule(codified_rule, specs_rules, valid_values_df)
   )
 ]
