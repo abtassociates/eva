@@ -154,6 +154,9 @@ function(input, output, session) {
   source("syse_subpop_server.R", local = TRUE)
   source("syse_phd_server.R", local = TRUE)
   
+  source("unsheltered_server.R", local = TRUE)
+  
+  
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
     gc()
