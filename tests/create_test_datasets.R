@@ -8,6 +8,7 @@ library(collapse)
 library(data.table)
 source(here("hardcodes.R"), local = TRUE)
 source(here("helper_functions.R"), local = TRUE)
+source(here("load_machine_readable_specs.R"))
 
 # unzip main test data to temp directory. 
 # this will allow us to overwrite individual csv files
