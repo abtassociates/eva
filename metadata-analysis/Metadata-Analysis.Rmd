@@ -328,9 +328,10 @@ staging_last6months %>%
     str_detect(Event, "tabLocalSettings") , "Local Settings",
     str_detect(Event, "tabPDDE") , "PDDE DQ",
     str_detect(Event, "tabSystemOverview") , "System Overview",
+    str_detect(Event, "tabSystemExit") , "System Exits",
     str_detect(Event, "tabGlossary") , "Glossary",
     default = as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "DQ Export Interface", "PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "DQ Export Interface", "PDDE DQ", "System DQ", "Organization DQ", "System Overview","System Exits", "Glossary", "Changelog"))) %>%
   fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
@@ -515,6 +516,7 @@ counts_by_week %>%
   fsubset(!str_detect(Event, "Client Level Export")) %>% 
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "System Exits")) %>% 
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   fmutate(Event2 = fcase(
         str_detect(Event, "Attempting to Download Org-Level Data Quality Reports"), "Attempted Org-Level DQ Download",
