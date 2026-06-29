@@ -569,18 +569,18 @@ counts_by_week %>%
 counts_by_week %>%
   fsubset(str_detect(Event, "Download")) %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
-  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
+  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export") | str_detect(Event, "System Exits")) %>%
   fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>% 
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(linewidth=0.75) +
   geom_point(size=1) +
   geom_text(nudge_x = .5, color = "gray15", check_overlap = TRUE) +
-  scale_color_manual(values = eva_colors) +
+  #scale_color_manual(values = eva_colors) +
   scale_x_date(date_breaks = "1 week", date_labels = "%m-%d") +
-  labs(title = "Weekly Eva Downloads - System Overview",
+  labs(title = "Weekly Eva Downloads - System Performance",
        x = "Week Ending",
        y = "",
-       caption = "System Overview downloads not available until October, 2024.") +
+       caption = "System Overview downloads not available until October, 2024. System Exits downloads not available until June, 2026.") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   guides(color = guide_legend(ncol = 2))
