@@ -194,6 +194,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$expect_values(name="just-uploaded", input=TRUE, output=TRUE)
     
     app$wait_for_idle(timeout = 1e+06)
+    
+    app$run_js("$('#downloadImpermissibleCharacterDetail').css('visibility', 'visible');")
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
     app$set_inputs(pageid = "tabClientCount")
