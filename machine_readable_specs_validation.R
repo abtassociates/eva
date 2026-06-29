@@ -225,16 +225,16 @@ specs_validation_issues <- rbindlist(
 
 if(fnrow(specs_validation_issues) > 0) {
   specs_validation_issues <- specs_validation_issues %>%
-  join(
-    reporting_info %>% fselect(CSV, List, issue_type, Issue, Priority, Guidance, `Detail Text`, `Key Fields`, AnchorID),
-    on = c("CSV","issue_type"),
-    drop.dup.cols = "x"
-  ) %>%
-  fmutate(
-    detail_template = fifelse(is.na(`Key Fields`), stringi::stri_replace_all_fixed(`Detail Text`, "Key Info: {Key Field Info}", ""), `Detail Text`),
-    key_template = fifelse(is.na(`Key Fields`), "", stringi::stri_replace_all_regex(`Key Fields`, "([A-Za-z0-9_.]+)", "$1 {$1}")),
-    detail_template = stringi::stri_replace_all_fixed(detail_template, "{Key Field Info}", key_template)
-  )
+    join(
+      reporting_info %>% fselect(CSV, List, issue_type, Issue, Priority, Guidance, `Detail Text`, `Key Fields`, AnchorID),
+      on = c("CSV","issue_type"),
+      drop.dup.cols = "x"
+    ) %>%
+    fmutate(
+      detail_template = fifelse(is.na(`Key Fields`), stringi::stri_replace_all_fixed(`Detail Text`, "Key Info: {Key Field Info}", ""), `Detail Text`),
+      key_template = fifelse(is.na(`Key Fields`), "", stringi::stri_replace_all_regex(`Key Fields`, "([A-Za-z0-9_.]+)", "$1 {$1}")),
+      detail_template = stringi::stri_replace_all_fixed(detail_template, "{Key Field Info}", key_template)
+    )
   
   specs_validation_issues[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
 
