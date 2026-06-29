@@ -163,14 +163,14 @@ evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', l
     #browser()
     if('header' %in% contentList[[i]]){
       tl <- tagAppendChild(tl,
-                           uiOutput("{prefix}_{subtabsids[i]}_filter_selections") %>%
+                           uiOutput(outputId = glue("{prefix}_{subtabids[i]}_filter_selections")) %>%
                              withSpinner())
     }
    
     if('plot' %in% contentList[[i]]){
       tl <- tagAppendChild(
         tl,
-        plotOutput("{prefix}_{subtabsids[i]}_chart"
+        plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")
         ) %>%
           withSpinner()
       )
@@ -181,7 +181,7 @@ evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', l
         tl,
         tagList(
         br(),
-        DTOutput("{prefix}_{subtabsids[i]}_table")
+        DTOutput(outputId = glue("{prefix}_{subtabsids[i]}_table"))
         )
       )
     }
