@@ -15,7 +15,7 @@ fix_missing_destination <- function(ReferenceNo, Detail = NULL){
       is.na(ReferenceNo) & Detail == 'Exited, Non-Permanent', 99L,
       is.na(ReferenceNo) & Detail == 'Inactive', -888L,
       !is.na(ReferenceNo) & (ReferenceNo %in% perm_livingsituation) & Detail == 'Inactive', -888L,
-      default = ReferenceNo
+      default = as.integer(ReferenceNo)
     )
   } 
   
