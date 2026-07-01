@@ -274,42 +274,6 @@ syso_client_categories_filtered <- reactive({
 })
 
 # Create passes-enrollment-filter flag to exclude enrollments from eecr -------
-enrollments_filtered <- reactive({
-  logToConsole(session, "in enrollments_filtered")
-  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  
-  join(
-    session$userData$enrollment_categories,
-    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID", 
-    how = "inner"
-  ) %>%
-    fsubset(
-      # Household type filter
-      (input$syso_hh_type == "All" |
-      (input$syso_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-      (input$syso_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-      (input$syso_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-      (input$syso_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-      input$syso_hh_type == HouseholdType
-      ) &
-      # Level of detail filter
-      (input$syso_level_of_detail == "All" |
-      (input$syso_level_of_detail == "HoHsAndAdults" &
-         (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-      (input$syso_level_of_detail == "HoHsOnly" &
-         CorrectedHoH == 1)) &
-      # Project type filter
-      (input$syso_project_type == "All" |
-      (input$syso_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-      (input$syso_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-      (input$syso_project_type == "SO" & ProjectType == out_project_type) |
-      (input$syso_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
-      )
-    ) %>%
-    fselect(-VeteranStatus)
-})
-
 get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info,
                             reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
   lh_info_filtered <- lh_info_df %>%
