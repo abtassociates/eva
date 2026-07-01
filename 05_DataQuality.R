@@ -994,31 +994,31 @@ rm(income_subs)
 # Enrollment Active Outside Participating Dates ---------------------------
 
 enrollment_positions <- Enrollment %>%
-  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, EnrollmentvHMISParticipating, HMISParticipationStatusEndDate) %>%
+  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate) %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left')
-
+#browser()
 enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & EnrollmentvHMISParticipating == TRUE & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
   merge_check_info_dt(checkIDs = 111) %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_start <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start" & EnrollmentvHMISParticipating == TRUE) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start" & HMISParticipationType == 1) %>%
   merge_check_info_dt(checkIDs = 112) %>%
   fselect(vars_we_want)
 
 enrollment_before_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & EnrollmentvHMISParticipating == TRUE) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & HMISParticipationType == 1) %>%
   merge_check_info_dt(checkIDs = 113) %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_end <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & EnrollmentvHMISParticipating == TRUE & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
   merge_check_info_dt(checkIDs = 114) %>% 
   fselect(vars_we_want)
 
 enrollment_x_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participation Period" & EnrollmentvHMISParticipating == TRUE) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participation Period" & HMISParticipationType == 1) %>%
   merge_check_info_dt(checkIDs = 115) %>%
   fselect(vars_we_want)
 

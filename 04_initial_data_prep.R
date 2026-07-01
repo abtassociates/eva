@@ -186,8 +186,7 @@ EnrollmentOutside <- EnrollmentOutside %>%
     EnrollmentvOperating = Enrollmentvs(
       EntryDate, ExitAdjust, 
       OperatingStartDate, OperatingEndDate, 
-      "Operating"),
-    EnrollmentvHMISParticipating = (!is.na(EnrollmentvParticipating)) & (HMISParticipationType == 1)
+      "Operating")
   )
 
 # Get First HMIS span for each Project (technically, the enrollment record)
