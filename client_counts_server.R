@@ -679,8 +679,15 @@ tl_df_ce_event <- reactive({
 # TIMELINESS - value boxes ------------------------------------------------
 cc_project_type <- reactive({
   req(session$userData$valid_file() == 1)
-  (client_count_data_df() %>% 
-    fsubset(ProjectName == input$currentProviderList) %>% pull(ProjectType))[1]
+  
+  cc_filt <- (client_count_data_df() %>% 
+    fsubset(ProjectName == input$currentProviderList) %>% pull(ProjectType))
+  
+  if(length(cc_filt) > 0){
+    cc_filt[1]
+  } else {
+    NULL
+  }
 })
 
 output$timeliness_vb1_val <- renderText({
@@ -791,7 +798,12 @@ output$timeliness_vb3 <- renderUI({
 output$timelinessTable <- renderDT({
   req(session$userData$valid_file() == 1)
 
-  
+  validate(
+    need(
+      length(cc_project_type()) > 0,
+      message = no_data_msg
+    )
+  )
   time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
   
   dat <-  data.frame(
