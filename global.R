@@ -3,28 +3,27 @@ Sys.setenv(TZ = "America/New_York")
 
 library(tidyverse) # loads ggplot2, dplyr, tidyr, readr, purrr, tibble, stringr, forcats, lubridate
 library(shiny)
-library(bslib)
-library(bsicons)
-library(shinyWidgets)
-library(scales)
-library(DT)
+library(bslib) # bslib: bootstrap UI and theming
+library(bsicons) # bsicons: bootstrap icons for tabs
+library(shinyWidgets) # shinyWidgets: for System filters (i.e. pickerInputs)
+library(scales) # scales: rendering percent labels in ggplot2
+library(DT) # DT: interactive data tables
+library(writexl) # writexl: for XLSX downloads
+library(glue) # glue: string interpolation for cleaner dynamic strings
+library(shinyjs) # shinyjs: javascript functionality
+library(shinydisconnect)  # shinydisconnect: show message when session crashes
+library(here) # here: specify directories relatively
+library(shinycssloaders) # shinycssloaders: show loading animation while chart/table loads
+library(data.table) # data.table: performance
+library(ggalluvial) # ggalluvial: for System Status Sankey chart
+library(treemapify) # treemapify: for System Exit Types chart
+library(officer) # officer: construct PPTs for download
+library(mirai) # mirai: asynch/parallel processing for performance
+library(collapse) # collapse: performance
+library(flextable) # flextable: tables in PPT. (DT does not work well with PPT)
+library(promises) # promises: asynch/parallel processing for performance
+library(ggarchery) # ggarchery: arrows for System Exit Comparison dotplots
 library(readxl)
-library(writexl)
-library(glue)
-library(shinyjs)
-library(shinydisconnect)
-library(here)
-library(shinycssloaders)
-library(dtplyr)
-library(data.table)
-library(ggalluvial)
-library(officer)
-library(mirai)
-library(plotly)
-library(collapse)
-library(flextable)
-library(promises)
-#library(fillpattern) # used for pattern fills in sys overview charts
 library(ggnewscale) # used for applying pattern fills to sankey charts
 library(brandr) # used for extracting style info from brand.yml file
 
