@@ -137,8 +137,6 @@ observe({
   windowSize(input$dimension)
 })
 
-source("client_level_export_server.R", local=TRUE)
-
 # Get period report_dates --------------------------------------------
 get_months_in_report_period <- function(reportStart = session$userData$ReportStart,
                                         reportEnd = session$userData$ReportEnd) {
