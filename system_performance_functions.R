@@ -924,7 +924,8 @@ get_enrollments_filtered <- function(
        (syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_types) |
        (syse_project_type == "SO" & ProjectType == out_type) |
        (syse_project_type == "AllNonRes" & ProjectType %in% non_res_types))
-    )
+    ) |>
+    fselect(-VeteranStatus)
 }
 
 enrollments_filtered <- reactive({
