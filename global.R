@@ -34,7 +34,7 @@ options(BRANDR_BRAND_YML = here::here("_brand.yml"))
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
 
 source(here("hardcodes.R")) # hard-coded variables and data frames
-source(here("helper_functions.R")) # functions used throughout the app
+source(here("functions_00_helper.R")) # functions used throughout the app
 source(here('tab_instructions.R')) # static HTML text elements
 source(here("eva_chart_colors.R"))
 
@@ -59,7 +59,8 @@ mirai::everywhere({
   options(shiny.stacktraceon = TRUE)
   
   source(here("hardcodes.R"))
-  source(here("helper_functions.R"))
+  source(here("functions_00_helper.R"))
+  
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
 onStop(function() daemons(0))
