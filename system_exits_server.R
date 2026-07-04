@@ -130,7 +130,7 @@ all_filtered_syse <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
   get_system_exits(
-    enrollments_filtered(),
+    syse_enrollments_filtered(),
     syse_client_categories_filtered(), 
     ctype = 'exits_types',
     reportStart = session$userData$ReportStart,
@@ -149,7 +149,7 @@ all_filtered_syse_time <- reactive({
     fmutate(period = "Current Year")
   
   period_data_prev <- get_system_exits(
-    enrollments_filtered_prev(), # Uses cached reactive
+    syse_enrollments_filtered_prev(), # Uses cached reactive
     syse_client_categories_filtered(), 
     ctype = 'exits_types', 
     reportStart = session$userData$ReportStart %m-% years(1), 
@@ -168,7 +168,7 @@ all_filtered_syse_demog <- reactive({
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
   get_system_exits(
-    enrollments_filtered(), # Uses cached reactive
+    syse_enrollments_filtered(),
     session$userData$client_categories, 
     ctype = 'exits_demog',
     reportStart = session$userData$ReportStart,
@@ -199,11 +199,11 @@ all_filtered_syse_subpop <- reactive({
       join(session$userData$enrollment_categories %>% fselect(PersonalID, EnrollmentID, HouseholdType))
   }
   
-  out_subpop <- get_subpop_exits(enrollments_filtered()) %>% 
+  out_subpop <- get_subpop_exits(syse_enrollments_filtered()) %>% 
     fmutate(meets_ev_else = FALSE)
   
   if (input$syse_hh_type != "All") {
-    out_oth_hh_types <- get_subpop_exits(enrollments_filtered_no_hh()) %>%
+    out_oth_hh_types <- get_subpop_exits(syse_enrollments_filtered_no_hh()) %>%
       fmutate( 
         meets_ev_else = 
           (input$syse_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
@@ -292,3 +292,9 @@ observeEvent(input$syse_methodology_type, {
 ignoreInit = TRUE)
 
 toggle_sys_components(prefix='syse', FALSE, init=TRUE) # initially hide them
+
+# Then, create your specific reactives:
+syse_enrollments_filtered <- create_filtered_enrollments_reactive("syse")
+syse_enrollments_filtered_prev <- create_filtered_enrollments_reactive("syse", prev_yr = TRUE, TRUE)
+syse_enrollments_filtered_no_hh <- create_filtered_enrollments_reactive("syse", filter_hh_type = FALSE)
+

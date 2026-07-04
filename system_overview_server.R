@@ -165,7 +165,7 @@ period_specific_data <- reactive({
   empty_return <- list(Full = data.table(), Months = data.table())
   
   # Get filtered records based on user selection
-  filtered_enrollments <- enrollments_filtered()
+  filtered_enrollments <- syso_enrollments_filtered()
   filtered_clients <- syso_client_categories_filtered() 
 
   # If either are empty, return empty
@@ -1082,3 +1082,5 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
   }
   
 }
+
+syso_enrollments_filtered <- create_filtered_enrollments_reactive("syso")

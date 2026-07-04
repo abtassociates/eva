@@ -928,39 +928,18 @@ get_enrollments_filtered <- function(
     fselect(-VeteranStatus)
 }
 
-enrollments_filtered <- reactive({
-  req(session$userData$enrollment_categories)
-  get_enrollments_filtered(
-    enrollment_cats      = session$userData$enrollment_categories,
-    client_cats          = session$userData$client_categories,
-    syse_hh_type         = input$syse_hh_type,
-    syse_level_of_detail = input$syse_level_of_detail,
-    syse_project_type    = input$syse_project_type,
-    filter_hh_type       = TRUE
-  )
-})
-
-enrollments_filtered_prev <- reactive({
-  req(session$userData$enrollment_categories_prev)
-  get_enrollments_filtered(
-    enrollment_cats      = session$userData$enrollment_categories_prev,
-    client_cats          = session$userData$client_categories,
-    syse_hh_type         = input$syse_hh_type,
-    syse_level_of_detail = input$syse_level_of_detail,
-    syse_project_type    = input$syse_project_type,
-    filter_hh_type       = TRUE
-  )
-})
-
-enrollments_filtered_no_hh <- reactive({
-  req(session$userData$enrollment_categories)
-  get_enrollments_filtered(
-    enrollment_cats      = session$userData$enrollment_categories,
-    client_cats          = session$userData$client_categories,
-    syse_hh_type         = input$syse_hh_type,
-    syse_level_of_detail = input$syse_level_of_detail,
-    syse_project_type    = input$syse_project_type,
-    filter_hh_type       = FALSE
-  )
-})
-
+# A function that returns a reactive expression
+create_filtered_enrollments_reactive <- function(prefix, prev_yr = FALSE, filter_hh_type = TRUE) {
+  reactive({
+    enrollment_cats <- if (prev_yr) session$userData$enrollment_categories_prev else session$userData$enrollment_categories
+    
+    get_enrollments_filtered(
+      enrollment_cats      = enrollment_cats,
+      client_cats          = session$userData$client_categories,
+      syse_hh_type         = input[[paste0(prefix, "_hh_type")]], # Dynamic input access
+      syse_level_of_detail = input[[paste0(prefix, "_level_of_detail")]],
+      syse_project_type    = input[[paste0(prefix, "_project_type")]],
+      filter_hh_type       = filter_hh_type
+    )
+  })
+}
