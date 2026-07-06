@@ -131,6 +131,7 @@ function(input, output, session) {
   source("upload_server.R", local=TRUE)
   
   source("client_counts_server.R", local = TRUE)
+  source("project_dashboard_metrics_server.R", local = TRUE)
   
   source("fsa_server.R", local = TRUE)
   

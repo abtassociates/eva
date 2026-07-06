@@ -417,6 +417,80 @@ page_navbar(
         ),
         
         nav_panel(
+          title = headerTab("Metrics"),
+          
+          navset_card_underline(
+            id = "metrics_subtabs",
+            nav_panel(
+              title = headerSubTab("Summary"),
+              layout_column_wrap(
+                width = "30%",
+                gap = "1rem",
+                
+                value_box(
+                  title = "Length of Stay (All Households)",
+                  value = tagList(
+                    div("Average: ", textOutput("los_avg", inline = TRUE)),
+                    div("Median: ", textOutput("los_median", inline = TRUE))
+                  ),
+                  showcase = bs_icon("house-door")
+                ),
+                
+                value_box(
+                  title = "Entered from Place Not Meant for Habitation (HoHs/Adults)",
+                  value = div(
+                    class = "d-inline",
+                    textOutput("entered_non_habitat_pct", inline = TRUE),
+                    " of all HoHs/Adults"
+                  ),
+                  showcase = bs_icon("signpost-split")
+                ),
+                
+                value_box(
+                  title = "Successful Exits (All Clients)",
+                  value = div(
+                    class = "d-inline",
+                    textOutput("successful_exit_pct", inline = TRUE),
+                    " of all exited clients"
+                  ),
+                  showcase = bs_icon("check-circle")
+                ),
+                
+                value_box(
+                  title = "Zero Income at Entry (HoHs/Adults)",
+                  value = div(
+                    class = "d-inline",
+                    textOutput("zero_income_pct", inline = TRUE),
+                    " of all HoHs/Adults"
+                  ),
+                  showcase = bs_icon("wallet2")
+                ),
+                
+                value_box(
+                  title = "Income Growth from Entry to Exit (HoHs/Adults)",
+                  value = div(
+                    class = "d-inline",
+                    textOutput("income_growth_pct", inline = TRUE),
+                    " of all exited HoHs/Adults"
+                  ),
+                  showcase = bs_icon("graph-up-arrow")
+                ),
+                
+                value_box(
+                  title = "CE Assessments (HoHs Only)",
+                  value = textOutput("ce_assessments", inline = TRUE),
+                  showcase = bs_icon("clipboard-check")
+                )
+              )
+            ),
+            nav_panel(
+              title = headerSubTab("Detail"),
+              DTOutput("metricsData")
+            ),
+          )
+        ),
+        
+        nav_panel(
           title = headerTab("Timeliness"),
           navset_card_underline(
             id = "timeliness_subtabs",

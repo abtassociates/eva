@@ -416,6 +416,7 @@ session$userData$Services <- Services
 session$userData$Exit <- Exit
 session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
+session$userData$IncomeBenefits <- IncomeBenefits
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
