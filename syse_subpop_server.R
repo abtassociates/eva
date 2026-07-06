@@ -373,8 +373,8 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
     fsubset(`Destination Type` == dest_type)
   
   title <- paste0("Total System Exits for ", 
-                  c(paste0('Subpopulation: ', scales::label_comma()(nrow(subpop()))),
-                    paste0('Everyone Else: ', scales::label_comma()(nrow(everyone_else())))),
+                  c(paste0('Subpopulation: ', format(nrow(subpop()), big.mark = ',', scientific=FALSE)),
+                    paste0('Everyone Else: ', format(nrow(everyone_else()), big.mark = ',', scientific=FALSE))),
                   collapse='\n'
   )
   
@@ -480,7 +480,7 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
       values = subgroup_colors
     ) +
     geom_text(
-      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(pct, accuracy = 1), '\n', '(',N,' of ',total,')'))),#scales::comma(n))),
+      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(pct, accuracy = 1), '\n', '(',format(N, big.mark = ',', scientific = FALSE),' of ',format(total, big.mark = ',', scientific = FALSE),')'))),#scales::comma(n))),
       size = sys_chart_text_font,
       color = "black"
     ) +

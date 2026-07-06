@@ -20,7 +20,7 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
     fungroup() %>% 
     fmutate(Percent = Count/fsum(Count),
             text_color = fifelse(`Destination Type` %in% c('Temporary','Institutional','Other/Unknown'), 'black', 'white'),
-            label = str_c(`Destination Type`, ': ', scales::label_comma()(Count),
+            label = str_c(`Destination Type`, ': ', format(Count, big.mark=',', scientific = TRUE),
                           ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
             )) %>% 
     fmutate(border_color = "black") %>% 
@@ -33,7 +33,7 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   if(show_legend == FALSE){
     ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
                                 label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
-      labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+      labs(title = paste0(format(nr, big.mark=',', scientific = TRUE), " System Exits for ",
                           syse_level_of_detail_text(), " in ",
                           str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
                           if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")
@@ -52,7 +52,7 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   } else if (show_legend == TRUE){
     ggplot(tree_exits_summ, aes(area = Count, fill = `Destination Type`,
                                 label = label, subgroup = border_color, subgroup2 = subgroup2 ) )+
-      labs(title = paste0(scales::label_comma()(nr), " System Exits for ",
+      labs(title = paste0(format(nr, big.mark=',', scientific = TRUE), " System Exits for ",
                           syse_level_of_detail_text(), " in ",
                           str_remove(getNameByValue(sys_hh_types, input$syse_hh_type), "- "),
                           if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"),"\n")

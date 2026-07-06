@@ -10,7 +10,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     roworder(-Begin) %>%
     fmutate(label_pos = fcumsum(freq) - freq/2,
            End = 0,
-           Begin = glue("{freq} {Begin}"))
+           Begin = glue("{format(freq, big.mark=',', scientific=FALSE)} {Begin}"))
   
   end_labels <- plot_data %>%
     fgroup_by(End) %>%
@@ -18,7 +18,7 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
     roworder(-End) %>%
     fmutate(label_pos = fcumsum(freq) - freq/2,
            Begin = 0,
-           End = glue("{freq} {End}"))
+           End = glue("{format(freq, big.mark=',', scientific=FALSE)} {End}"))
   
   # need to construct the Begin bars
   # will overlay on top of the Begin stratum

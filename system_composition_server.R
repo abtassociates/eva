@@ -98,7 +98,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
       ) +
       # set text color to be 508 compliant contrasting
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
+        aes(label = ifelse(wasRedacted, "***", format(n, big.mark = ',', scientific = FALSE))),
         size = sys_chart_text_font,
         color = ifelse(
           plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
@@ -263,7 +263,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     # set text color to be 508 compliant contrasting
     geom_text(
       # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
-      aes(label = ifelse(wasRedacted, "***", scales::comma(n))),
+      aes(label = ifelse(wasRedacted, "***", format(n, big.mark = ',', scientific = FALSE))),
       size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
       color = ifelse(
         plot_df$n > mean(plot_df$n, na.rm = TRUE) & !plot_df$wasRedacted,
@@ -301,8 +301,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***",
-                           scales::comma(N))),
+        aes(label = ifelse(format(N, big.mark = ',', scientific = FALSE))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
         color = ifelse(
           h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
@@ -329,7 +328,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
       
       geom_text(
         aes(label = ifelse(wasRedacted, "***",
-                           scales::comma(N))),
+                           format(N, big.mark = ',', scientific = FALSE))),
         size = sys_chart_text_font * ifelse(isExport, 0.7, 1),
         color = ifelse(
           v_total$N > mean(v_total$N, na.rm = TRUE) & !v_total$wasRedacted,
