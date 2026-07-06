@@ -31,13 +31,6 @@ function(input, output, session) {
   # while these seem like they could be "globalized" they have output UI elements
   # and are therefore session based
   source(here("glossary.R"), local = TRUE)
-  shinyjs::runjs(
-    glue("
-            document.getElementById('glossary_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li class=\"syso_download_tab\" id=\"glossary_download_tab\"></li>');
-            $('#glossary_download_btn').appendTo('#glossary_download_tab');
-          ")
-  )
   source(here("changelog.R"), local = TRUE)
   source(here("demo_management.R"), local = TRUE)
 
@@ -151,6 +144,8 @@ function(input, output, session) {
   source("data_quality_server.R", local = TRUE)
   #source("sever_04_data_quality.R", local=TRUE)
   
+  source("system_performance_functions.R", local = TRUE)
+  
   source("system_overview_server.R", local = TRUE)
   #source("sever_05_system_overview.R", local=TRUE)
   
@@ -164,6 +159,12 @@ function(input, output, session) {
   #source("sever_08_system_status.R", local=TRUE)
   
   source("server_09_inv_util.R", local = TRUE)
+  
+  source("system_exits_server.R", local = TRUE)
+  source("syse_types_server.R", local = TRUE)
+  source("syse_time_server.R", local = TRUE)
+  source("syse_subpop_server.R", local = TRUE)
+  source("syse_phd_server.R", local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){

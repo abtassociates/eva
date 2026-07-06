@@ -1,3 +1,5 @@
+#source('tabSystemExits.R')
+
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
@@ -14,46 +16,9 @@ page_navbar(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
+      tags$script(src = "js/disconnect.js"),
       tags$script(HTML(
-        "function idleTimer() {
-          var timeoutTime = 900000; //15 mins
-          var t = setTimeout(showTimeoutDialog, timeoutTime);
-          window.onmousemove = resetTimer;
-          window.onmousedown = resetTimer;
-          window.onclick = resetTimer;
-          window.onscroll = resetTimer;
-          window.onkeypress = resetTimer;
-      
-          function showTimeoutDialog() {
-            document.querySelector('a[data-value=\"tabHome\"]').click();
-            
-            // If user clicks Cancel, disable all interactivity
-            document.body.style.opacity = '0.5';
-            document.body.style.pointerEvents = 'none';
-            
-            // Add a banner at the top of the page
-            var banner = document.createElement('div');
-            banner.style.position = 'fixed';
-            banner.style.top = '40%';
-            banner.style.left = '0';
-            banner.style.width = '100%';
-            banner.style.padding = '10px';
-            banner.style.backgroundColor = 'lightgray';
-            banner.style.color = 'black';
-            banner.style.fontSize = '2em';
-            banner.style.textAlign = 'center';
-            banner.style.zIndex = '9999';
-            banner.innerHTML = 'Session ended due to inactivity. Please refresh the page to continue.';
-            document.body.appendChild(banner);
-          }
-      
-          function resetTimer() {
-              clearTimeout(t);
-              t = setTimeout(showTimeoutDialog, timeoutTime);
-          }
-        }
-        idleTimer();
-                       
+        "
         var dimension = [0, 0];
         $(document).on('shiny:connected', function(e) {
           dimension[0] = window.innerWidth;
@@ -66,7 +31,11 @@ page_navbar(
           Shiny.setInputValue('dimension', dimension);
         });
         "
-      ))
+      )),
+      tags$div(
+        id = "timeout-overlay",
+        "Session ended due to inactivity. Please refresh the page to continue..."
+      )
     ),
     ## Enable shinyjs -----
     useShinyjs(),
@@ -562,13 +531,13 @@ page_navbar(
           
           navset_underline(
             id = 'hp_errors_dqsystem_subtabs',
-            selected = headerSubTab("Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("sysDQHighPriorityByIssue_ui")
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Organizations'),
+              title = headerSubTab('Top Organizations'),
               uiOutput("sysDQHighPriorityByOrg_ui")
             )
           )
@@ -580,13 +549,13 @@ page_navbar(
           
           navset_underline(
             id = 'g_errors_dqsystem_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Top 10 Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("sysDQErrorByIssue_ui")
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Organizations'),
+              title = headerSubTab('Top Organizations'),
               uiOutput("sysDQErrorByOrg_ui")
             )
           )
@@ -597,13 +566,13 @@ page_navbar(
           title = headerTab('Warnings'),
           navset_underline(
             id = 'warnings_dqsystem_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab("Top 10 Issues"), 
+              title = headerSubTab("Top Issues"), 
               uiOutput("sysDQWarningByIssue_ui")
             ),
             nav_panel(
-              title = headerSubTab("Top 10 Organizations"), 
+              title = headerSubTab("Top Organizations"), 
               uiOutput("sysDQWarningByOrg_ui")
             )
           )
@@ -651,13 +620,13 @@ page_navbar(
           
           navset_underline(
             id = 'hp_errors_dqorg_subtabs',
-            selected = headerSubTab("Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("orgDQHighPriorityByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Projects'),
+              title = headerSubTab('Top Projects'),
               uiOutput("orgDQHighPriorityByProject_ui")  %>% withSpinner()
             )
           )
@@ -669,13 +638,13 @@ page_navbar(
           
           navset_underline(
             id = 'g_errors_dqorg_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab('Top 10 Issues'),
+              title = headerSubTab('Top Issues'),
               uiOutput("orgDQErrorByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = headerSubTab('Top 10 Projects'),
+              title = headerSubTab('Top Projects'),
               uiOutput("orgDQErrorByProject_ui")  %>% withSpinner()
             )
           )
@@ -686,13 +655,13 @@ page_navbar(
           title = headerTab('Warnings'),
           navset_underline(
             id = 'warnings_dqorg_subtabs',
-            selected = headerSubTab("Top 10 Issues"),
+            selected = headerSubTab("Top Issues"),
             nav_panel(
-              title = headerSubTab("Top 10 Issues"), 
+              title = headerSubTab("Top Issues"), 
               uiOutput("orgDQWarningByIssue_ui") %>% withSpinner()
             ),
             nav_panel(
-              title = headerSubTab("Top 10 Projects"), 
+              title = headerSubTab("Top Projects"), 
               uiOutput("orgDQWarningByProject_ui") %>% withSpinner()
             )
           )
@@ -731,614 +700,869 @@ page_navbar(
     )
 ),
 
-  # System Performance Overview tab -------------------
-nav_panel(
-  title = "System Performance Overview",
-  value = "tabSystemOverview",
-  icon = icon("chart-simple"),
-  
-  card(
-    htmlOutput("headerSystemOverview")
-  ),
-  accordion(
-    id = 'accordion_systemoverview',
-    open = FALSE,
-    accordion_panel(
-      title = 'Instructions',
-      tabSystemOverview_instructions
-    )
-  ),
-  br(),
-    ### Filters --------------
-    card(
-      card_header(headerCard('Filters')),
-      layout_columns(
-        col_widths=c(6,6),
-        gap = 0,
-        card(
-          id = 'card_filters1',
-          style='border-width:0;border-radius:0',
-          layout_columns(
-            col_widths = c(4,4,4,6,6),
-            fill = T,
-            
-            pickerInput(
-              label = "Household Type",
-              inputId = "syso_hh_type",
-              choices = syso_hh_types,
-              selected = syso_hh_types[1],
-              options = pickerOptions(container = "body")
-            ),
-            pickerInput(
-              label = "Level of Detail",
-              inputId = "syso_level_of_detail",
-              choices = syso_level_of_detail,
-              selected = syso_level_of_detail[1],
-              options = pickerOptions(container = "body")
-            ),
-            pickerInput(
-              label = "Project Type Group",
-              inputId = "syso_project_type",
-              choices = syso_project_types,
-              selected = syso_project_types[1],
-              options = pickerOptions(container = "body")
-            ),
-            pickerInput(
-              inputId = "syso_age",
-              label = "Age",
-              selected = syso_age_cats,
-              choices = syso_age_cats,
-              multiple = TRUE,
-              options = pickerOptions(
-                actionsBox = TRUE,
-                selectedTextFormat = paste("count >", length(syso_age_cats)-1),
-                countSelectedText = "All Ages",
-                noneSelectedText = "All Ages",
-                container = "body"
-              )
-            ),
-            pickerInput(
-              label = "Veteran Status",
-              inputId = "syso_spec_pops",
-              choices = syso_spec_pops_people,
-              selected = syso_spec_pops_people[1],
-              options = pickerOptions(container = "body")
-            )
-          )
-        ),
-        card(
-          id = 'card_filters2',
-          style="border-width:0;border-left-width: 1px; border-radius:0",
-          layout_columns(
-            col_widths = c(12,12),
-            pickerInput(
-              label = "Race/Ethnicity Methodology Type",
-              inputId = "methodology_type",
-              multiple = FALSE,
-              selected = syso_methodology_types[1],
-              choices = syso_methodology_types,
-              options = pickerOptions(container = "body")
-            ),
-            pickerInput(
-              label = "Race/Ethnicity",
-              inputId = "syso_race_ethnicity",
-              choices = syso_race_ethnicity_method1,
-              selected = syso_race_ethnicity_method1,
-              options = list(
-                `dropdown-align-right` = TRUE,
-                `dropup-auto` = FALSE,
-                container = "body"
-              )
-            )
-          )
-        )
-      )
-      
-    ),
-    
-    navset_card_underline(
-      id = 'syso_tabbox',
-      
-    ### System Flow -------------
+
+  # System Performance drop-down  ------------------------------------------------
+    nav_menu(
+      title = 'System Performance',
+      value = 'menuSysPerf',
+    ## System Performance Overview tab -------------------
       nav_panel(
-        id = 'syso_inflowoutflow',
-        title = headerTab('System Flow'),
+        title = "System Overview",
+        value = "tabSystemOverview",
+        icon = icon("chart-simple"),
         
-        navset_underline(
-          id = "sys_inflow_outflow_subtabs",
-          selected = headerSubTab("Summary Chart"),
-          nav_panel(
-            title = headerSubTab('Summary Chart'),
-            uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
-              withSpinner(),
-            plotOutput("sys_inflow_outflow_summary_ui_chart",
-                       width = "70%",
-                       height = "500") %>%
-              withSpinner()
-          ),
-          nav_panel(
-            title = headerSubTab('Detail Chart'),
-            uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
-              withSpinner(),
-            plotOutput("sys_inflow_outflow_detail_ui_chart",
-                       width = "100%",
-                       height = "500") %>%
-              withSpinner()
-          ),
-          nav_panel(
-            title = headerSubTab("Month-by-Month Chart"), 
-            uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
-             withSpinner(),
-            radioGroupButtons(
-              inputId = "mbm_status_filter",
-              label = "Flow Type Filters",
-              choices = c("All", "First-Time Homeless", "Inactive"),
-              #Inactive
-              selected = "All",
-              individual = TRUE,
-              checkIcon = list(yes = icon("check"))
-            ), 
-            conditionalPanel(
-              condition = "input.mbm_status_filter == 'Inactive'",
-              plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
-            ), 
-            conditionalPanel(
-              condition = "input.mbm_status_filter == 'First-Time Homeless'",
-              plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
-            ),
-            conditionalPanel(
-              condition = "input.mbm_status_filter == 'All'",
-              plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
-                withSpinner()
-            ),
-            conditionalPanel(
-              condition = "input.mbm_status_filter == 'All'",
-              DTOutput("sys_inflow_outflow_monthly_table") %>%
-                withSpinner()
-            )
-          ),
-          # nav_panel(
-          #   title = "Timeline Chart",
-          #          plotlyOutput("timelinePlot", height = "600px"),
-          #          selectizeInput(
-          #            inputId = "enrollmentIDFilter",
-          #            label = "Search by Enrollment ID",
-          #            choices = NULL, # We'll populate this dynamically
-          #            options = list(
-          #              placeholder = "Type to search for Enrollment ID",
-          #              closeAfterSelect = TRUE
-          #            ),
-          #            multiple = TRUE
-          #          ),
-          #          
-          #          # PersonalID Filter
-          #          selectizeInput(
-          #            inputId = "personalIDFilter",
-          #            label = "Search by Personal ID",
-          #            choices = NULL, # We'll populate this dynamically
-          #            options = list(
-          #              placeholder = "Type to search for Personal ID",
-          #              closeAfterSelect = TRUE
-          #            ),
-          #            multiple = TRUE
-          #          ),
-          #          conditionalPanel(
-          #            condition = "len(input.personalIDFilter)",
-          #            h4("Person's Monthly Inflow/Outflow"),
-          #            verbatimTextOutput("personDetails")
-          #          )
-          #          
-          # ),
-          nav_panel(
-            title = headerSubTab("Information"),
-            br(),
-            tab_sys_inflow_outflow_subtabs_information
+        card(
+          htmlOutput("headerSystemOverview")
+        ),
+        accordion(
+          id = 'accordion_systemoverview',
+          open = FALSE,
+          accordion_panel(
+            title = 'Instructions',
+            tabSystemOverview_instructions
           )
         ),
-        downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
-      ),
-      
-    ### System Status/Sankey ----------------
-      nav_panel(
-        id = 'syso_systemstatus',
-        title = headerTab("Client System Status"),
-        navset_underline(
-          id = 'sys_status_subtabs',
-          selected = headerSubTab("Chart"),
-          
-          nav_panel(
-            title = headerSubTab("Chart"),   
-            uiOutput("sankey_filter_selections") %>% withSpinner(),
-            plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
-          ),
-          nav_panel(
-            title = headerSubTab("Information"),
-            br(),
-            tab_sys_status_subtabs_information
-          )
-        ),
-        downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_status_download_btn_ppt", "Image Download"),
-      ),
-      
-    ### System Demographics/Composition --------------
-      nav_panel(
-        id = 'syso_composition',
-        title = headerTab("System Demographics"),
-        
-        navset_underline(
-          id = 'sys_comp_subtabs',
-          selected = headerSubTab("Chart"),
-          nav_panel(
-            title = headerSubTab("Chart"),
+        br(),
+        ### Filters --------------
+        card(
+          card_header(headerCard('Filters')),
+          layout_columns(
+            col_widths=c(6,6),
+            gap = 0,
             card(
-              br(),
-              strong("Select Demographic Crosstab Categories (up to 2)"),
-              p(str_glue(
-                "For a simple count of totals within a demographic 
-                                   category, select only one category. To see the 
-                                   intersection of two demographic categories, select 
-                                   both categories to create a crosstab chart. To 
-                                   change your crosstab selection, uncheck at least 
-                                   one of your previous selections before selecting 
-                                   new categories. Note that you can only select one Race/Ethnicity 
-                                   category to display in the chart at a time."
-              )),
-              checkboxGroupInput(
-                "system_composition_selections",
-                label = "",
-                choices = sys_comp_selection_choices,
-                selected = c("All Races/Ethnicities", "Age"),
-                inline = TRUE
-              ),
-              width = 12
-            ),
-            br(),
-            uiOutput("sys_comp_summary_selections",inline = TRUE),
-            plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
-          ),
-          nav_panel(
-            title = headerSubTab("Information"),
-            br(),
-            tab_sys_comp_subtabs_information
-            
-          )
-        ),
-        downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_comp_download_btn_ppt", "Image Download")
-      )
-      
-      ),
-      downloadButton("client_level_download_btn", "Client Level Download")
-    
-    
-    ),
-  
-  # nav_panel(
-  #   title = "System Exits",
-  #   value = "systemExitDetail",
-  #   card(
-  #     card_header(htmlOutput("headerSystemExit")),
-  #     card_body(
-  #       HTML("<h2>Placeholder</h2>")
-  #     )
-  #   )
-  # ),
-  
-  # Inventory and Utilization drop-down  -----------
-nav_menu(
-  title = 'Inventory and Utilization',
-  icon = icon("book"),
-  
-    ## Project Level tab -------------
-  nav_panel(
-    title = "Project-Level",
-    value = "tabProjectLevelInvUtil",
-    
-    card(
-      htmlOutput("headerProjBUI")
-    ),
-    accordion(
-      id = 'accordion_projBUI',
-      open = FALSE,
-      accordion_panel(
-        title = 'Instructions',
-        #tabSystemOverview_instructions
-      )
-    ),
-    br(),
-      ### Filters ----------------
-    card(
-      card_header(headerCard("Filters")),
-      layout_columns(
-        col_widths=c(6,6),
-        gap = '0px',
-        
-        pickerInput(
-          label = 'Select Project',
-          inputId = "bui_HMISprojects",
-          choices = NULL,
-          options = pickerOptions(liveSearch = TRUE,
-                                  liveSearchStyle = 'contains', 
-                                  container = 'body')
-        ),
-        pickerInput(
-          label = "Inventory Level",
-          inputId = "bui_inventory_level",
-          choices = c("Beds","Units"),
-          selected = "Beds",
-          options = pickerOptions(container = "body")
-        ),
-        #pickerInput(
-        #  label = "Target Population",
-        #  inputId = "target_pop_sys",
-        #  choices = "All Target Populations",
-        #  selected = "All Target Populations",
-        #  options = pickerOptions(container = "body")
-        #),
-        #pickerInput(
-        #  label = "Household Type",
-        #  inputId = "housing_type_sys",
-        #  choices = "All Housing Types",
-        #  selected = "All Housing Types",
-        #  options = pickerOptions(container = "body")
-        #),
-        #pickerInput(
-        #  label = "Victim Services Provider",
-        #  inputId = "victim_service_sys",
-        #  choices = "All Organizations",
-        #  selected = "All Organizations",
-        #  options = pickerOptions(container = "body")
-        #),
-        pickerInput(
-          label = "Period",
-          inputId = "bui_period_filter",
-          choices = c("Quarterly", "Monthly", "Points in Time"),
-          selected = "Quarterly",
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          inputId = "bui_bed_avail",
-          label = "ES Bed/Unit Availability Type",
-          choices = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
-          selected = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
-          multiple = TRUE,
-          options = pickerOptions(container = "body")
-        ),
-      )
-    ),
-      ### Project Level Utilization ----------------
-    navset_underline( # Inventory or Utilization
-      id = "project_level_box",
-      selected = headerTab("Inventory and Utilization"),
-      nav_panel(
-          title = headerTab("Inventory and Utilization"),
-          uiOutput("bui_filter_selections"),
-              radioGroupButtons(
-                inputId = "bui_hh_type",
-                label = "Household Type Filters",
-                choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
-                #Inactive
-                selected = "All",
-                individual = TRUE,
-                checkIcon = list(yes = icon("check"))
-              ), 
-              DTOutput("proj_bui_hh", width = "100%", height = "500") %>% 
-                    withSpinner() 
-              
-          ),
-          nav_panel( # Information
-            title = headerTab("Information")
-          )
-        )
-    ),
-    ## System Level tab --------------
-  nav_panel(
-    title = "System-level",
-    value = "tabSystemLevelInvUtil",
-    
-    card(
-      htmlOutput("headerSysBUI")
-    ),
-    accordion(
-      id = 'accordion_sysBUI',
-      open = FALSE,
-      accordion_panel(
-        title = 'Instructions',
-        #tabSystemOverview_instructions
-      )
-    ),
-    br(),
-    ### Filters ----------------
-    card(
-      card_header(headerCard("Filters")),
-      layout_columns(
-        col_widths=c(6,6),
-        gap = '0px',
-        pickerInput(
-          label = "Time Period",
-          inputId = "bui_period_filter_sys",
-          choices = c("Quarterly", "Monthly", "Points in Time"),
-          selected = "Points in Time",
-          options = pickerOptions(container = "body")
-        ),
-        #pickerInput(
-        #  label = 'Project Target Population',
-        #  inputId = "bui_target_pop",
-        #  choices = "All Target Populations", # add other options in 08_inv_util.R
-        #  selected = "All Target Populations",
-          #multiple = TRUE,
-        #  options = pickerOptions(container = 'body',)
-        #),
-        #pickerInput(
-        #  label = "Project Housing Type",
-        #  inputId = "bui_housing_type",
-        #  choices = "All Housing Types", # add other options in 08_inv_util.R
-        #  selected = "All Housing Types",
-        #  options = pickerOptions(container = "body")
-        #),
-        pickerInput(
-          label = "Inventory Level",
-          inputId = "bui_inventory_level_sys",
-          choices = c("Beds","Units"),
-          selected = "Beds",
-          options = pickerOptions(container = "body")
-        ),
-        #pickerInput(
-        #  label = "Organization Victim Service Provider Status",
-        #  inputId = "bui_victim_service",
-        #  choices = "All Organizations", # add other options in 08_inv_util.R
-        #  selected = "All Organizations",
-        #  options = pickerOptions(container = "body")
-        #),
-        pickerInput(
-          label = "Dedicated Inventory Type",
-          inputId = "bui_dedicated",
-          choices = c("All Types", "Not Dedicated", 
-                      "Chronically Homeless", "Veteran",
-                      "Youth"),
-          selected = "All Bed Types",
-          options = pickerOptions(container = "body")
-        ),
-        pickerInput(
-          label = "Inventory Availability Type",
-          inputId = "bui_bed_avail_sys",
-          choices = "All Availability Types", # add other options in 08_inv_util.R
-          selected = "All Availability Types",
-          options = pickerOptions(container = "body")
-        )
-      )
-    ),
-    navset_underline( # Inventory or Utilization
-      id = "system_level_box",
-      selected = headerTab("Inventory"),
-      ### System Level Inventory ----------------
-      nav_panel(
-        title = headerTab('Inventory'),
-        navset_underline( # by Project Type or By Household Type
-            id = "system_level_box_filter",
-            selected = headerSubTab("By Project Type"),
-            nav_panel( # By Project Type
-              title = headerSubTab("By Project Type"),
-              uiOutput("bui_filter_selections_sys_proj"),
-              radioGroupButtons(
-                inputId = "bui_sys_line_proj",
-                choices = c("Summary", "Trend"),
-                selected = "Summary",
-                individual = TRUE,
-                checkIcon = list(yes = icon("check"))
-              ), 
-              conditionalPanel(
-                condition = "input.bui_sys_line_proj == 'Summary'",
-                # todo with data as stacked bar graph  - plotOutput
-                DTOutput("sys_bui_sum_proj", width = "100%", height = "500") %>% 
-                  withSpinner() 
-              ), 
-              conditionalPanel(
-                condition = "input.bui_sys_line_proj == 'Trend'",
-                # todo with data as stacked line graph - plotOutput
+              id = 'syso_filters_left',
+              style='border-width:0;border-radius:0',
+              layout_columns(
+                col_widths = c(4,4,4,6,6),
+                fill = T,
+                
+                pickerInput(
+                  label = "Household Type",
+                  inputId = "syso_hh_type",
+                  choices = sys_hh_types,
+                  selected = sys_hh_types[1],
+                  options = pickerOptions(container = "body")
+                ),
+                pickerInput(
+                  label = "Level of Detail",
+                  inputId = "syso_level_of_detail",
+                  choices = sys_level_of_detail,
+                  selected = sys_level_of_detail[1],
+                  options = pickerOptions(container = "body")
+                ),
+                pickerInput(
+                  label = "Project Type Group",
+                  inputId = "syso_project_type",
+                  choices = sys_project_types,
+                  selected = sys_project_types[1],
+                  options = pickerOptions(container = "body")
+                ),
+                pickerInput(
+                  inputId = "syso_age",
+                  label = "Age",
+                  selected = sys_age_cats,
+                  choices = sys_age_cats,
+                  multiple = TRUE,
+                  options = pickerOptions(
+                    actionsBox = TRUE,
+                    selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                    countSelectedText = "All Ages",
+                    noneSelectedText = "All Ages",
+                    container = "body"
+                  )
+                ),
+                pickerInput(
+                  label = "Veteran Status",
+                  inputId = "syso_spec_pops",
+                  choices = sys_spec_pops_people,
+                  selected = sys_spec_pops_people[1],
+                  options = pickerOptions(container = "body")
+                )
               )
             ),
-          nav_panel( # By Household Type
-            title = headerSubTab('By Household Type'),
-            uiOutput("bui_filter_selections_sys_hh"),
-            radioGroupButtons(
-              inputId = "bui_sys_line_hh",
-              choices = c("Summary", "Trend"),
-              selected = "Summary",
-              individual = TRUE,
-              checkIcon = list(yes = icon("check"))
-            ), 
-            conditionalPanel(
-              condition = "input.bui_sys_line_hh == 'Summary'",
-              # todo with data as stacked bar graph  - plotOutput
-              DTOutput("sys_bui_sum_hh", width = "100%", height = "500") %>% 
-                withSpinner() 
-            ), 
-            conditionalPanel(
-              condition = "input.bui_sys_line_hh == 'Trend'",
-              # todo with data as stacked line graph - plotOutput
+            card(
+              id = 'syso_card_filters_right',
+              style="border-width:0;border-left-width: 1px; border-radius:0",
+              layout_columns(
+                col_widths = c(12,12),
+                pickerInput(
+                  label = "Race/Ethnicity Methodology Type",
+                  inputId = "syso_methodology_type",
+                  multiple = FALSE,
+                  selected = sys_methodology_types[1],
+                  choices = sys_methodology_types,
+                  options = pickerOptions(container = "body")
+                ),
+                pickerInput(
+                  label = "Race/Ethnicity",
+                  inputId = "syso_race_ethnicity",
+                  choices = sys_race_ethnicity_method1,
+                  selected = sys_race_ethnicity_method1,
+                  options = list(
+                    `dropdown-align-right` = TRUE,
+                    `dropup-auto` = FALSE,
+                    container = "body"
+                  )
+                )
+              )
             )
-          ),
-          nav_panel( # Information
-            title = headerSubTab("Information")
           )
+    
+        ),
+        
+        navset_card_underline(
+          id = 'syso_tabbox',
+          
+          ### System Flow -------------
+          nav_panel(
+            id = 'syso_inflowoutflow',
+            title = headerTab('System Flow'),
+            
+            navset_underline(
+              id = "sys_inflow_outflow_subtabs",
+              selected = headerSubTab("Summary Chart"),
+              nav_panel(
+                title = headerSubTab('Summary Chart'),
+                uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
+                  withSpinner(),
+                plotOutput("sys_inflow_outflow_summary_ui_chart",
+                           width = "70%",
+                           height = "500") %>%
+                  withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab('Detail Chart'),
+                uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
+                  withSpinner(),
+                plotOutput("sys_inflow_outflow_detail_ui_chart",
+                           width = "100%",
+                           height = "500") %>%
+                  withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab("Month-by-Month Chart"), 
+                uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+                 withSpinner(),
+                radioGroupButtons(
+                  inputId = "mbm_status_filter",
+                  label = "Flow Type Filters",
+                  choices = c("All", "First-Time Homeless", "Inactive"),
+                  #Inactive
+                  selected = "All",
+                  individual = TRUE,
+                  checkIcon = list(yes = icon("check"))
+                ), 
+                conditionalPanel(
+                  condition = "input.mbm_status_filter == 'Inactive'",
+                  plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
+                ), 
+                conditionalPanel(
+                  condition = "input.mbm_status_filter == 'First-Time Homeless'",
+                  plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
+                ),
+                conditionalPanel(
+                  condition = "input.mbm_status_filter == 'All'",
+                  plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+                    withSpinner()
+                ),
+                conditionalPanel(
+                  condition = "input.mbm_status_filter == 'All'",
+                  DTOutput("sys_inflow_outflow_monthly_table") %>%
+                    withSpinner()
+                )
+              ),
+              # nav_panel(
+              #   title = "Timeline Chart",
+              #          plotlyOutput("timelinePlot", height = "600px"),
+              #          selectizeInput(
+              #            inputId = "enrollmentIDFilter",
+              #            label = "Search by Enrollment ID",
+              #            choices = NULL, # We'll populate this dynamically
+              #            options = list(
+              #              placeholder = "Type to search for Enrollment ID",
+              #              closeAfterSelect = TRUE
+              #            ),
+              #            multiple = TRUE
+              #          ),
+              #          
+              #          # PersonalID Filter
+              #          selectizeInput(
+              #            inputId = "personalIDFilter",
+              #            label = "Search by Personal ID",
+              #            choices = NULL, # We'll populate this dynamically
+              #            options = list(
+              #              placeholder = "Type to search for Personal ID",
+              #              closeAfterSelect = TRUE
+              #            ),
+              #            multiple = TRUE
+              #          ),
+              #          conditionalPanel(
+              #            condition = "len(input.personalIDFilter)",
+              #            h4("Person's Monthly Inflow/Outflow"),
+              #            verbatimTextOutput("personDetails")
+              #          )
+              #          
+              # ),
+              nav_panel(
+                title = headerSubTab("Information"),
+                br(),
+                tab_sys_inflow_outflow_subtabs_information
+              )
+            ),
+            downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
+          ),
+          
+          ### System Status/Sankey ----------------
+          nav_panel(
+            id = 'syso_systemstatus',
+            title = headerTab("Client System Status"),
+            navset_underline(
+              id = 'sys_status_subtabs',
+              selected = headerSubTab("Chart"),
+              
+              nav_panel(
+                title = headerSubTab("Chart"),   
+                uiOutput("sankey_filter_selections") %>% withSpinner(),
+                plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab("Information"),
+                br(),
+                tab_sys_status_subtabs_information
+              )
+            ),
+            downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("sys_status_download_btn_ppt", "Image Download"),
+          ),
+          
+          ### System Demographics/Composition --------------
+          nav_panel(
+            id = 'syso_composition',
+            title = headerTab("System Demographics"),
+            
+            navset_underline(
+              id = 'sys_comp_subtabs',
+              selected = headerSubTab("Chart"),
+              nav_panel(
+                title = headerSubTab("Chart"),
+                card(
+                  br(),
+                  strong("Select Demographic Crosstab Categories (up to 2)"),
+                  p(str_glue(
+                    "For a simple count of totals within a demographic 
+                                       category, select only one category. To see the 
+                                       intersection of two demographic categories, select 
+                                       both categories to create a crosstab chart. To 
+                                       change your crosstab selection, uncheck at least 
+                                       one of your previous selections before selecting 
+                                       new categories. Note that you can only select one Race/Ethnicity 
+                                       category to display in the chart at a time."
+                  )),
+                  checkboxGroupInput(
+                    "system_composition_selections",
+                    label = "",
+                    choices = sys_heatmap_selection_choices,
+                    selected = c("All Races/Ethnicities", "Age"),
+                    inline = TRUE
+                  ),
+                  width = 12
+                ),
+                br(),
+                uiOutput("sys_comp_summary_selections",inline = TRUE),
+                plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+              ),
+              nav_panel(
+                title = headerSubTab("Information"),
+                br(),
+                tab_sys_comp_subtabs_information
+                
+              )
+            ),
+            downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
+            downloadButton("sys_comp_download_btn_ppt", "Image Download")
+          )
+          
+          ),
+          downloadButton("client_level_download_btn", "Client Level Download")
+        
+        
+        ),
+    
+    ## System Exits tab --------------------------------------------------------
+    nav_panel(
+      title = "System Exits",
+      value = "tabSystemExits",
+      icon = icon('door-open'),
+      
+      card(
+        htmlOutput("headerSystemExit")
+      ),
+      accordion(
+        id = 'accordion_systemexits',
+        open = FALSE,
+        accordion_panel(
+          title = 'Instructions',
+          tabSystemExits_instructions
         )
       ),
-      ### System Level Utilization ----------------
-      nav_panel(
-        title = headerTab("Utilization"),
+      br(),
+
+      navset_card_underline(
+        id = 'syse_tabbox',
+        ### Exits by Type -----
+        nav_panel(
+          title = headerTab('Exits by Type'),
+          
+          navset_underline(
+            id = "syse_types_subtabs",
+            selected = headerSubTab("Chart"),
+            
+            nav_panel(
+              title = headerSubTab("Chart"),
+              uiOutput("syse_types_filter_selections") %>%
+                withSpinner(),
+              
+              plotOutput("syse_types_ui_chart",
+                         #width = "75%"
+                         height = "700px"
+              ) %>%
+                withSpinner()
+            ),
+            nav_panel(
+              title = headerSubTab("Information"),
+              br(),
+              tab_syse_types_subtabs_information
+            )
+          ),
+          downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
+          downloadButton("syse_types_download_btn_ppt", "Image Download")
+        ),
         
-        navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
-          id = "system_level_box_util",
-          selected = headerSubTab("Quarterly Utilization"),
-          nav_panel( # Quarterly Utilization
-            title = headerSubTab('Quarterly Utilization')
+        ### Exits by Year -----
+        nav_panel(
+          title = headerTab('Exits by Year'),
+          navset_underline(
+            id = "syse_time_subtabs",
+            selected = headerSubTab('Chart'),
+            nav_panel(
+              title = headerSubTab('Chart'),
+              uiOutput("syse_compare_time_filter_selections") %>%
+                withSpinner(),
+              div(
+                style='margin-left:17px;',
+                plotOutput("syse_compare_time_chart",
+                           width = "92%",
+                           height = "500"
+                ) %>% withSpinner()
+              ),
+              
+              DTOutput("syse_compare_time_table") %>%
+                withSpinner()
+            ),
+            nav_panel(
+              title = headerSubTab('Information'),
+              br(),
+              tab_syse_time_chart_information
+            )
           ),
-          nav_panel( # Monthly Utilization
-            title = headerSubTab("Monthly Utilization")
-            #DTOutput("m_proj_inv_filtered")
+          downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
+          downloadButton("syse_time_download_btn_ppt", "Image Download")
+        ),
+        
+        ### Exits by Subpop -----
+        nav_panel(
+          title = headerTab('Exits by Subpopulation'),
+          navset_underline(
+            id = "syse_subpop_subtabs",
+            selected = headerSubTab('Chart'),
+            nav_panel(
+              title = headerSubTab('Chart'),
+              card(
+                br(),
+                strong("Select Demographic Crosstab Categories (up to 2) and a Destination Type"),
+                HTML("<p>Select one demographic category to view totals within that group, or two categories to create a crosstab showing intersections between groups. To change your selection, uncheck a category before selecting a new one. You may also apply a Household Type filter, which functions as an additional grouping.</p>
+                            <br>
+                            <p>Select a destination type to determine which exit outcomes are displayed.</p>"
+                ),
+                br(),
+                layout_columns(
+                  col_widths = c(3,3,6),fill=T,
+                  tagList(
+                    checkboxInput('syse_subpop_age_selection', 'Age'),
+                    div(id ='age_picker',style='margin-top:0px; padding-top:0px;',
+                        pickerInput(
+                          inputId = "syse_subpop_age",
+                          label=NULL,#label = "Age",
+                          selected = sys_age_cats,
+                          choices = sys_age_cats,
+                          multiple = TRUE,
+                          options = pickerOptions(
+                            actionsBox = TRUE,
+                            selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                            countSelectedText = "",
+                            noneSelectedText = "None Selected",
+                            container = "body",
+                          )
+                        )
+                    )
+                  ),
+                  tagList(
+                    checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
+                    div(id = 'vet_picker',
+                        pickerInput(
+                          label = NULL,#label = "Veteran Status",
+                          inputId = "syse_subpop_spec_pops",
+                          #choices = sys_spec_pops_people,
+                          choices = setNames(sys_spec_pops_people,
+                                             nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                          ),
+                          selected = "None Selected",
+                          options = pickerOptions(container = "body")
+                        )
+                    )
+                  ),
+                  tagList(
+                    checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
+                    div(id='race_eth_picker',
+                        conditionalPanel(condition = 'input.syse_methodology_type == 1',
+                                         pickerInput(
+                                           label = NULL,#"Race/Ethnicity",
+                                           inputId = "syse_subpop_race_ethnicity1",
+                                           choices = setNames(sys_race_ethnicity_method1,
+                                                              c("None Selected", names(sys_race_ethnicity_method1)[-1])
+                                           ),
+                                           selected = "None Selected",
+                                           options = list(
+                                             `dropdown-align-right` = TRUE,
+                                             `dropup-auto` = FALSE,
+                                             container = "body",
+                                             noneSelectedText = "-"
+                                           )
+                                         )
+                        ),
+                        conditionalPanel(condition = 'input.syse_methodology_type == 2',
+                                         pickerInput(
+                                           label = NULL,#"Race/Ethnicity",
+                                           inputId = "syse_subpop_race_ethnicity2",
+                                           choices = setNames(sys_race_ethnicity_method2,
+                                                              c("None Selected",names(sys_race_ethnicity_method2)[-1])),
+                                           selected = "None Selected",
+                                           options = list(
+                                             `dropdown-align-right` = TRUE,
+                                             `dropup-auto` = FALSE,
+                                             container = "body",
+                                             noneSelectedText = "-"
+                                           )
+                                         )
+                        )
+                    )
+                  )
+                ),
+                radioGroupButtons(
+                  inputId = "subpop_dest_type",
+                  label = "Destination Type",
+                  choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
+                  #Inactive
+                  selected = "Permanent",
+                  individual = TRUE
+                ), 
+                width = 12
+              ),
+              br(),
+              uiOutput("syse_compare_subpop_filter_selections") %>%
+                withSpinner(),
+              div(
+                style='margin-left:17px;',
+                plotOutput("syse_compare_subpop_chart",
+                           width = "92%",
+                           height = "500")
+              ),
+              
+            ),
+            nav_panel(
+              title = headerSubTab('Information'),
+              br(),
+              tab_syse_subpop_chart_information
+            )
           ),
-          nav_panel( # Information
-            title = headerSubTab("Information")
-          )
+          downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
+          downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+        ),
+        
+        ### Exits by PH Demographics -----
+        nav_panel(
+          title = headerTab('Exits to PH Demographics'),
+          navset_underline(
+            id = "syse_phd_subtabs",
+            selected = headerSubTab("Chart"),
+            
+            nav_panel(
+              title = headerSubTab("Chart"),
+              card(
+                
+                strong("Select Demographic Crosstab Categories (up to 2)"),
+                p(str_glue(
+                  "For a simple count of totals within a demographic 
+                                       category, select only one category. To see the 
+                                       intersection of two demographic categories, select 
+                                       both categories to create a crosstab chart. To 
+                                       change your crosstab selection, uncheck at least 
+                                       one of your previous selections before selecting 
+                                       new categories. Note that you can only select one Race/Ethnicity 
+                                       category to display in the chart at a time."
+                )),
+                checkboxGroupInput(
+                  "syse_phd_selections",
+                  label = "",
+                  choices = sys_heatmap_selection_choices,
+                  selected = c("All Races/Ethnicities", "Age"),
+                  inline = TRUE
+                ),
+                width = 12
+              ),
+              br(),
+              
+              uiOutput("syse_phd_summary_selections",inline = TRUE),
+              #plotOutput("syse_phd_chart", width="100%") %>% withSpinner()
+              conditionalPanel(
+                condition = 'input.syse_phd_selections.length == 1',
+                plotOutput("syse_phd_chart_1d",height=700,width=500) %>% withSpinner(),
+              ),
+              conditionalPanel(
+                condition = 'input.syse_phd_selections.length == 2',
+                plotOutput("syse_phd_chart_2d", height=700,width="auto") %>% withSpinner()
+                
+              )
+              
+            ),
+            ### Information -------
+            nav_panel(
+              title = headerSubTab("Information"),
+              br(),
+              tab_syse_phd_subtabs_information
+            )
+          ),
+          downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
+          downloadButton("syse_phd_download_btn_ppt", "Image Download")
         )
-      )
-    )
-  )
-), 
-  # Resources dropdown -----------
-nav_menu(
-  title = 'Resources',
-  icon = icon("book"),
-  
-  # Glossary tab -------------
-  nav_panel(
-    title = "Glossary",
-    value = "tabGlossary",
-    navset_card_underline(
-      id = "glossary_subtabs",
-    nav_panel(
-      id = 'glossary_card',
-      title = HTML('<h2>Glossary</h2>'),
-               tabGlossary_instructions,
-        downloadButton('glossary_download_btn', label = 'Download Glossary'),
-        DTOutput("glossary")
-    )
-  )
-  ),
-  # Changelog tab --------------
-  nav_panel(
-    title = "Changelog",
-    value = "tabChangelog",
-    card(
-      card_header(HTML("<h2>Changelog</h2>"),class = 'cardhdr'),
-      card_body(
-        tabChangelog_instructions,
-        dataTableOutput("changelog")
-      ), min_height = 1000, fill = FALSE
-      
-    )
-  )
-), 
-nav_spacer(),
-nav_item(
-  input_switch(
-    id = 'in_demo_mode',
-    label = tooltip(
-      id = "demo_mode_tooltip",
-      trigger = list('DEMO MODE', bs_icon('info-circle')),
-      HTML('
-       <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
-       <strong>On</strong>: Uses a demo HMIS CSV Export.'
-      )
+      ),
+      downloadButton("syse_client_level_download_btn", "Client Level Download")
     ),
-    value=FALSE
-  ),
-  id="demo_wrapper",
-  style="text-align: right;"
-)
+    ),
+  # Inventory and Utilization drop-down  -----------
+          nav_menu(
+            title = 'Inventory and Utilization',
+            icon = icon("book"),
+    ## Project Level tab -------------
+            nav_panel(
+              title = "Project-Level",
+              value = "tabProjectLevelInvUtil",
+              
+              card(
+                htmlOutput("headerProjBUI")
+              ),
+              accordion(
+                id = 'accordion_projBUI',
+                open = FALSE,
+                accordion_panel(
+                  title = 'Instructions',
+                  #tabSystemOverview_instructions
+                )
+              ),
+              br(),
+              ### Filters ----------------
+              card(
+                card_header(headerCard("Filters")),
+                layout_columns(
+                  col_widths=c(6,6),
+                  gap = '0px',
+                  
+                  pickerInput(
+                    label = 'Select Project',
+                    inputId = "bui_HMISprojects",
+                    choices = NULL,
+                    options = pickerOptions(liveSearch = TRUE,
+                                            liveSearchStyle = 'contains', 
+                                            container = 'body')
+                  ),
+                  pickerInput(
+                    label = "Inventory Level",
+                    inputId = "bui_inventory_level",
+                    choices = c("Beds","Units"),
+                    selected = "Beds",
+                    options = pickerOptions(container = "body")
+                  ),
+                  #pickerInput(
+                  #  label = "Target Population",
+                  #  inputId = "target_pop_sys",
+                  #  choices = "All Target Populations",
+                  #  selected = "All Target Populations",
+                  #  options = pickerOptions(container = "body")
+                  #),
+                  #pickerInput(
+                  #  label = "Household Type",
+                  #  inputId = "housing_type_sys",
+                  #  choices = "All Housing Types",
+                  #  selected = "All Housing Types",
+                  #  options = pickerOptions(container = "body")
+                  #),
+                  #pickerInput(
+                  #  label = "Victim Services Provider",
+                  #  inputId = "victim_service_sys",
+                  #  choices = "All Organizations",
+                  #  selected = "All Organizations",
+                  #  options = pickerOptions(container = "body")
+                  #),
+                  pickerInput(
+                    label = "Period",
+                    inputId = "bui_period_filter",
+                    choices = c("Quarterly", "Monthly", "Points in Time"),
+                    selected = "Quarterly",
+                    options = pickerOptions(container = "body")
+                  ),
+                  pickerInput(
+                    inputId = "bui_bed_avail",
+                    label = "ES Bed/Unit Availability Type",
+                    choices = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
+                    selected = c("Year-round", "Overflow (ES Only)", "Seasonal (ES Only)"),
+                    multiple = TRUE,
+                    options = pickerOptions(container = "body")
+                  ),
+                )
+              ),
+              ### Project Level Utilization ----------------
+              navset_underline( # Inventory or Utilization
+                id = "project_level_box",
+                selected = headerTab("Inventory and Utilization"),
+                nav_panel(
+                  title = headerTab("Inventory and Utilization"),
+                  uiOutput("bui_filter_selections"),
+                  radioGroupButtons(
+                    inputId = "bui_hh_type",
+                    label = "Household Type Filters",
+                    choices = c("All", "Adult-Only","Adult-Child", "Child-Only"),
+                    #Inactive
+                    selected = "All",
+                    individual = TRUE,
+                    checkIcon = list(yes = icon("check"))
+                  ), 
+                  DTOutput("proj_bui_hh", width = "100%", height = "500") %>% 
+                    withSpinner() 
+                  
+                ),
+                nav_panel( # Information
+                  title = headerTab("Information")
+                )
+              )
+            ),
+    ## System Level tab --------------
+            nav_panel(
+              title = "System-level",
+              value = "tabSystemLevelInvUtil",
+              
+              card(
+                htmlOutput("headerSysBUI")
+              ),
+              accordion(
+                id = 'accordion_sysBUI',
+                open = FALSE,
+                accordion_panel(
+                  title = 'Instructions',
+                  #tabSystemOverview_instructions
+                )
+              ),
+              br(),
+              ### Filters ----------------
+              card(
+                card_header(headerCard("Filters")),
+                layout_columns(
+                  col_widths=c(6,6),
+                  gap = '0px',
+                  pickerInput(
+                    label = "Time Period",
+                    inputId = "bui_period_filter_sys",
+                    choices = c("Quarterly", "Monthly", "Points in Time"),
+                    selected = "Points in Time",
+                    options = pickerOptions(container = "body")
+                  ),
+                  #pickerInput(
+                  #  label = 'Project Target Population',
+                  #  inputId = "bui_target_pop",
+                  #  choices = "All Target Populations", # add other options in 08_inv_util.R
+                  #  selected = "All Target Populations",
+                  #multiple = TRUE,
+                  #  options = pickerOptions(container = 'body',)
+                  #),
+                  #pickerInput(
+                  #  label = "Project Housing Type",
+                  #  inputId = "bui_housing_type",
+                  #  choices = "All Housing Types", # add other options in 08_inv_util.R
+                  #  selected = "All Housing Types",
+                  #  options = pickerOptions(container = "body")
+                  #),
+                  pickerInput(
+                    label = "Inventory Level",
+                    inputId = "bui_inventory_level_sys",
+                    choices = c("Beds","Units"),
+                    selected = "Beds",
+                    options = pickerOptions(container = "body")
+                  ),
+                  #pickerInput(
+                  #  label = "Organization Victim Service Provider Status",
+                  #  inputId = "bui_victim_service",
+                  #  choices = "All Organizations", # add other options in 08_inv_util.R
+                  #  selected = "All Organizations",
+                  #  options = pickerOptions(container = "body")
+                  #),
+                  pickerInput(
+                    label = "Dedicated Inventory Type",
+                    inputId = "bui_dedicated",
+                    choices = c("All Types", "Not Dedicated", 
+                                "Chronically Homeless", "Veteran",
+                                "Youth"),
+                    selected = "All Bed Types",
+                    options = pickerOptions(container = "body")
+                  ),
+                  pickerInput(
+                    label = "Inventory Availability Type",
+                    inputId = "bui_bed_avail_sys",
+                    choices = "All Availability Types", # add other options in 08_inv_util.R
+                    selected = "All Availability Types",
+                    options = pickerOptions(container = "body")
+                  )
+                )
+              ),
+              navset_underline( # Inventory or Utilization
+                id = "system_level_box",
+                selected = headerTab("Inventory"),
+                ### System Level Inventory ----------------
+                nav_panel(
+                  title = headerTab('Inventory'),
+                  navset_underline( # by Project Type or By Household Type
+                    id = "system_level_box_filter",
+                    selected = headerSubTab("By Project Type"),
+                    nav_panel( # By Project Type
+                      title = headerSubTab("By Project Type"),
+                      uiOutput("bui_filter_selections_sys_proj"),
+                      radioGroupButtons(
+                        inputId = "bui_sys_line_proj",
+                        choices = c("Summary", "Trend"),
+                        selected = "Summary",
+                        individual = TRUE,
+                        checkIcon = list(yes = icon("check"))
+                      ), 
+                      conditionalPanel(
+                        condition = "input.bui_sys_line_proj == 'Summary'",
+                        # todo with data as stacked bar graph  - plotOutput
+                        DTOutput("sys_bui_sum_proj", width = "100%", height = "500") %>% 
+                          withSpinner() 
+                      ), 
+                      conditionalPanel(
+                        condition = "input.bui_sys_line_proj == 'Trend'",
+                        # todo with data as stacked line graph - plotOutput
+                      )
+                    ),
+                    nav_panel( # By Household Type
+                      title = headerSubTab('By Household Type'),
+                      uiOutput("bui_filter_selections_sys_hh"),
+                      radioGroupButtons(
+                        inputId = "bui_sys_line_hh",
+                        choices = c("Summary", "Trend"),
+                        selected = "Summary",
+                        individual = TRUE,
+                        checkIcon = list(yes = icon("check"))
+                      ), 
+                      conditionalPanel(
+                        condition = "input.bui_sys_line_hh == 'Summary'",
+                        # todo with data as stacked bar graph  - plotOutput
+                        DTOutput("sys_bui_sum_hh", width = "100%", height = "500") %>% 
+                          withSpinner() 
+                      ), 
+                      conditionalPanel(
+                        condition = "input.bui_sys_line_hh == 'Trend'",
+                        # todo with data as stacked line graph - plotOutput
+                      )
+                    ),
+                    nav_panel( # Information
+                      title = headerSubTab("Information")
+                    )
+                  )
+                ),
+                ### System Level Utilization ----------------
+                nav_panel(
+                  title = headerTab("Utilization"),
+                  
+                  navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
+                    id = "system_level_box_util",
+                    selected = headerSubTab("Quarterly Utilization"),
+                    nav_panel( # Quarterly Utilization
+                      title = headerSubTab('Quarterly Utilization')
+                    ),
+                    nav_panel( # Monthly Utilization
+                      title = headerSubTab("Monthly Utilization")
+                      #DTOutput("m_proj_inv_filtered")
+                    ),
+                    nav_panel( # Information
+                      title = headerSubTab("Information")
+                    )
+                  )
+                )
+              )
+            )
+          ), 
+  # Resources dropdown -----------
+  nav_menu(
+    title = 'Resources',
+    icon = icon("book"),
+    
+    ## Glossary tab -------------
+    nav_panel(
+      title = "System Performance Glossary",
+      value = "tabGlossary",
+      card(
+        id = 'glossary_card',
+            card_header(class = "d-flex justify-content-between align-items-end",
+                        HTML('<h2>System Performance Glossary</h2>'),
+                        #downloadButton('glossary_download_btn', label = 'Download Glossary')
+                        ),
+                 tabGlossary_instructions,
+          DTOutput("glossary")
+        )
+    ),
+    ## Changelog tab --------------
+    nav_panel(
+      title = "Changelog",
+      value = "tabChangelog",
+      card(
+        card_header(HTML("<h2>Changelog</h2>"),class = 'cardhdr'),
+        card_body(
+          tabChangelog_instructions,
+          dataTableOutput("changelog")
+        ), min_height = 1000, fill = FALSE
+        
+      )
+    )
+  ), 
+  nav_spacer(),
+  nav_item(
+    input_switch(
+      id = 'in_demo_mode',
+      label = tooltip(
+        id = "demo_mode_tooltip",
+        trigger = list('DEMO MODE', bs_icon('info-circle')),
+        HTML('
+         <strong>Off</strong>: Upload your own HMIS CSV Export.<br><br>
+         <strong>On</strong>: Uses a demo HMIS CSV Export.'
+        )
+      ),
+      value=FALSE
+    ),
+    id="demo_wrapper",
+    style="text-align: right;"
+  )
+  
+  
+  )
 
-
-)
+  

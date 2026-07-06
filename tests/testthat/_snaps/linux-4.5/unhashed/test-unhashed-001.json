@@ -15,6 +15,7 @@
     "accordion_home": null,
     "accordion_local_settings": null,
     "accordion_pdde": null,
+<<<<<<< HEAD
     "accordion_projBUI": null,
     "accordion_sysBUI": null,
     "accordion_systemoverview": null,
@@ -33,6 +34,11 @@
     "bui_period_filter": "Quarterly",
     "card_filters1_full_screen": false,
     "card_filters2_full_screen": false,
+=======
+    "accordion_systemexits": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+>>>>>>> dev
     "client_count_cc_subtabs": "<h5>Summary<\/h5>",
     "client_count_subtabs": "<h4>Client Counts<\/h4>",
     "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
@@ -61,6 +67,7 @@
     ],
     "dq_export_orgList": null,
     "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
+<<<<<<< HEAD
     "es_bed_avail_sys": "All ES Bed Availability Types",
     "g_errors_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
     "g_errors_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>",
@@ -68,6 +75,13 @@
     "housing_type_sys": "All Housing Types",
     "hp_errors_dqorg_subtabs": "<h5>Issues<\/h5>",
     "hp_errors_dqsystem_subtabs": "<h5>Issues<\/h5>",
+=======
+    "g_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
+    "glossary_card_full_screen": false,
+    "hp_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
+>>>>>>> dev
     "imported": {
       "name": [
         "FY26-test-unhashed.zip"
@@ -85,14 +99,66 @@
     "in_demo_mode": false,
     "inventory_level_sys": "Beds",
     "mbm_status_filter": "All",
-    "methodology_type": "1",
     "orgList": null,
     "pageid": "tabUpload",
     "pdde_subtabs": "<h4>PDDE Check Summary<\/h4>",
+<<<<<<< HEAD
     "project_level_box": "<h4>Inventory and Utilization<\/h4>",
+=======
+    "subpop_dest_type": "Permanent",
+>>>>>>> dev
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
     "sys_status_subtabs": "<h5>Chart<\/h5>",
+    "syse_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_filters_left_full_screen": false,
+    "syse_filters_right_full_screen": false,
+    "syse_hh_type": "All",
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_phd_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ],
+    "syse_phd_subtabs": "<h5>Chart<\/h5>",
+    "syse_project_type": "All",
+    "syse_race_ethnicity": "All",
+    "syse_spec_pops": "None",
+    "syse_subpop_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_subpop_age_selection": false,
+    "syse_subpop_race_eth_selection": false,
+    "syse_subpop_race_ethnicity1": "All",
+    "syse_subpop_race_ethnicity2": "All",
+    "syse_subpop_spec_pops": "None",
+    "syse_subpop_subtabs": "<h5>Chart<\/h5>",
+    "syse_subpop_vet_selection": false,
+    "syse_tabbox": "<h4>Exits by Type<\/h4>",
+    "syse_time_subtabs": "<h5>Chart<\/h5>",
+    "syse_types_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -106,8 +172,11 @@
       "75 and older",
       "Unknown"
     ],
+    "syso_card_filters_right_full_screen": false,
+    "syso_filters_left_full_screen": false,
     "syso_hh_type": "All",
     "syso_level_of_detail": "All",
+    "syso_methodology_type": "1",
     "syso_project_type": "All",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
@@ -123,9 +192,14 @@
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
     "target_pop_sys": "All Target Populations",
     "timeliness_metric": 3,
+<<<<<<< HEAD
     "victim_service_sys": "All Organizations",
     "warnings_dqorg_subtabs": "<h5>Top 10 Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top 10 Issues<\/h5>"
+=======
+    "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
+>>>>>>> dev
   },
   "output": {
     "downloadFileStructureAnalysisBtn": {
