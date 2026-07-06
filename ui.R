@@ -350,10 +350,10 @@ page_navbar(
     # Project Dashboard tab ----------------
     nav_panel(
       title = "Project Dashboard",
-      value = "tabProjectPerformance",
+      value = "tabProjectDeshboard",
       card(
         card_title(
-          htmlOutput("headerProjectPerformance")
+          htmlOutput("headerProjectDeshboard")
         )
       ),
       accordion(
@@ -361,7 +361,7 @@ page_navbar(
         open = FALSE,
         accordion_panel(
           title = "Instructions",
-          tabProjectPerformance_instructions
+          tabProjectDeshboard_instructions
         )
       ),
       br(),
@@ -527,7 +527,7 @@ page_navbar(
         
         nav_spacer(),
         nav_item(
-          uiOutput("downloadProjectPerformanceReportButton", inline = TRUE)
+          uiOutput("downloadProjectDeshboardReportButton", inline = TRUE)
         )
       )
       # card(

@@ -25,7 +25,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(pageid = "tabProjectPerformance")
+    app$set_inputs(pageid = "tabProjectDeshboard")
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
@@ -198,7 +198,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(pageid = "tabProjectPerformance")
+    app$set_inputs(pageid = "tabProjectDeshboard")
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(client_count_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
@@ -217,7 +217,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "clientCountData",
         "clientCountSummary",
         "timelinessTable",
-        "downloadProjectPerformanceReportButton"
+        "downloadProjectDeshboardReportButton"
       )
     )
     
@@ -567,7 +567,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
-    customDownload(app, "downloadProjectPerformanceReport", "Project-Performance-Download.xlsx")
+    customDownload(app, "downloadProjectDeshboardReport", "Project-Performance-Download.xlsx")
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")
