@@ -308,7 +308,7 @@ tabLocalSettings_long_stayers <-  HTML("
                 the defaults (these defaults do not imply any HUD recommendations)."
 )
 
-tabClientCount_instructions <- HTML("
+tabProjectPerformance_instructions <- HTML("
                <h4>Project Dashboard Report</h4>
                <p>The Project Dashboard Report provides the number of households/clients 
                 who have been served in each project and their enrollment status at the 

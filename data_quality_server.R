@@ -680,7 +680,7 @@ dq_export_date_range_end <- reactive({
 observeEvent(input$dateRangeCount, {
   req(session$userData$valid_file() == 1)
   #req(session$userData$dq_pdde_mirai_complete() == 1)
-  if(input$pageid == 'tabClientCount'){
+  if(input$pageid == 'tabProjectDashboard'){
     
       updateDateRangeInput(session, 'dq_export_date_multiple',
                            start = input$dateRangeCount[1],

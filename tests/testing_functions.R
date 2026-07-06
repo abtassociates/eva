@@ -25,7 +25,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(pageid = "tabClientCount")
+    app$set_inputs(pageid = "tabProjectPerformance")
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
@@ -198,30 +198,26 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(pageid = "tabClientCount")
+    app$set_inputs(pageid = "tabProjectPerformance")
     app$wait_for_idle(timeout = 1e+06)
-    #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
-    #app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
+    app$set_inputs(client_count_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = "<h4>Timeliness</h4>")
+    app$set_inputs(project_performance_subtabs = "<h4>Timeliness</h4>")
     app$wait_for_idle(timeout = 1e+06)
-    # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
-    # app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "client-count",
+      name = "project-performance",
       input = c(
         "currentProviderList",
         "dateRangeCount",
         inputs_no_bindings(DTs = c("clientCountData", "clientCountSummary"))
       ),
       output = c(
-        "headerClientCounts",
-        "headerClientCounts_supp",
+        "headerProjectDashboard",
+        "headerProjectDashboard_supp",
         "clientCountData",
         "clientCountSummary",
         "timelinessTable",
-        "downloadClientCountsReportButton"
+        "downloadProjectPerformanceReportButton"
       )
     )
     
@@ -571,7 +567,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
-    customDownload(app, "downloadClientCountsReport", "Client-Counts-Download.xlsx")
+    customDownload(app, "downloadProjectPerformanceReport", "Project-Performance-Download.xlsx")
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")

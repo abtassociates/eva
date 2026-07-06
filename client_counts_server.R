@@ -735,16 +735,16 @@ output$timelinessTable <- renderDT({
 
 # CLIENT COUNT DOWNLOAD ---------------------------------------------------
 
-output$downloadClientCountsReportButton  <- renderUI({
+output$downloadProjectPerformanceReportButton  <- renderUI({
   req(session$userData$valid_file() == 1)
-  downloadButton(outputId = "downloadClientCountsReport",
+  downloadButton(outputId = "downloadProjectPerformanceReport",
                  label = "Download System-Wide")
 })
 
 # the download basically contains a pivoted and summarized version of the
 # two app tables, but for all projects along with a Current tab limited to
 # just the current date.
-output$downloadClientCountsReport <- downloadHandler(
+output$downloadProjectPerformanceReport <- downloadHandler(
   filename = date_stamped_filename("System-level Project Dashboard Report-"),
   content = function(file){
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",

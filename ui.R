@@ -347,21 +347,21 @@ page_navbar(
       )
     ),
     
-    # Client counts tab ----------------
+    # Project Dashboard tab ----------------
     nav_panel(
       title = "Project Dashboard",
-      value = "tabClientCount",
+      value = "tabProjectPerformance",
       card(
         card_title(
-          htmlOutput("headerClientCounts")
+          htmlOutput("headerProjectPerformance")
         )
       ),
       accordion(
-        id = 'accordion_client_count',
+        id = 'accordion_project_performance',
         open = FALSE,
         accordion_panel(
           title = "Instructions",
-          tabClientCount_instructions
+          tabProjectPerformance_instructions
         )
       ),
       br(),
@@ -388,7 +388,7 @@ page_navbar(
                                     container = 'body')
           ),
           conditionalPanel(
-            condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
+            condition = "input.project_performance_subtabs=='<h4>Timeliness</h4>'",
             numericInput(inputId = 'timeliness_metric',
                          label = 'Timeliness: Max Record Entry Days',
                          value = 3,
@@ -398,13 +398,13 @@ page_navbar(
       ),
       
       navset_card_underline(
-        id = 'client_count_subtabs',
+        id = 'project_performance_subtabs',
         
         nav_panel(
           title = headerTab("Client Counts"),
           
           navset_card_underline(
-            id = "client_count_cc_subtabs",
+            id = "client_count_subtabs",
             nav_panel(
               title = headerSubTab("Summary"),
               DTOutput("clientCountSummary")
@@ -419,7 +419,7 @@ page_navbar(
         nav_panel(
           title = headerTab("Timeliness"),
           navset_card_underline(
-            id = "client_count_ti_subtabs",
+            id = "timeliness_subtabs",
             nav_panel(
               title = headerSubTab("Record Entry"),
               layout_column_wrap(
@@ -453,7 +453,7 @@ page_navbar(
         
         nav_spacer(),
         nav_item(
-          uiOutput("downloadClientCountsReportButton", inline = TRUE)
+          uiOutput("downloadProjectPerformanceReportButton", inline = TRUE)
         )
       )
       # card(
