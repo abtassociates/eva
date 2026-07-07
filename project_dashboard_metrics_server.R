@@ -50,7 +50,7 @@ metrics <- reactive({
     successful_exit_pct = fnrow(session$userData$Exit[Destination >= 400])/fnrow(session$userData$Exit[!is.na(Destination)]),
     zero_income_pct = fnrow(zero_income_dt[is.na(IncomeFromAnySource) | IncomeFromAnySource == 0])/fnrow(zero_income_dt),
     income_growth_pct = fnrow(income_growth_dt[income_growth > 0])/fnrow(income_growth_dt),
-    ce_assessments = 10
+    ce_assessments = session$userData$CEAssessedHouseholds
   )  
 })
 

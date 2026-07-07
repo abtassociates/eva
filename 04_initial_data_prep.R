@@ -417,6 +417,10 @@ session$userData$Exit <- Exit
 session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
 session$userData$IncomeBenefits <- IncomeBenefits
+session$userData$CEAssessedHouseholds <- Assessment |> 
+  join(Enrollment |> fsubset(RelationshipToHoH == 1, EnrollmentID, HouseholdID), how = "inner") |>
+  fnrow()
+  
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
