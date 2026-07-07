@@ -1,31 +1,53 @@
 metrics <- reactive({
-  all_hohs_adults <- session$userData$Enrollment |> 
-    fsubset(RelationshipToHoH == 1 | AgeAtEntry >= 18, EnrollmentID, LivingSituation)
+  enrollment_w_project_type <- session$userData$Enrollment |> 
+    fsubset(EntryDate >= input$dateRangeCount[1] & ExitAdjust <= input$dateRangeCount[2]) |>
+    join(session$userData$Project0 |> fselect(ProjectID, ProjectType), on = "ProjectID") 
+  
+  los_dt <- enrollment_w_project_type |>
+    fsubset(ProjectType %in% c(lh_residential_project_types, ph_project_types))
+  
+  entered_non_habitat_dt <- enrollment_w_project_type |>
+    fsubset(
+      ProjectType %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type))	&
+        (RelationshipToHoH == 1 | AgeAtEntry >= 18), 
+      EnrollmentID, LivingSituation
+    )
   
   zero_income_dt <- session$userData$IncomeBenefits |>
     fsubset(DataCollectionStage == 1, EnrollmentID, IncomeFromAnySource) |>
     join(
-      session$userData$Enrollment |> fsubset(RelationshipToHoH == 1 | AgeAtEntry >= 18, EnrollmentID),
+      enrollment_w_project_type |> fsubset(ProjectType == hp_project_type & (RelationshipToHoH == 1 | AgeAtEntry >= 18), EnrollmentID),
+      on = "EnrollmentID",
       how = "inner"
     )
   
   income_growth_dt <- session$userData$IncomeBenefits |>
-    fmutate(
-      income_at_entry = fifelse(DataCollectionStage == 1, TotalMonthlyIncome, NA),
-      income_at_exit = fifelse(DataCollectionStage == 3, TotalMonthlyIncome, NA),
-      income_growth = income_at_exit > income_at_entry
+    join(
+      enrollment_w_project_type |> fsubset(ProjectType %in% c(ph_project_types, hp_project_type), EnrollmentID, EntryDate, ExitAdjust),
+      on = "EnrollmentID",
+      how = "inner"
     ) |>
+    fmutate(TotalIncome = TotalMonthlyIncome*12) |>
+    # fselect(EnrollmentID, DataCollectionStage, TotalIncome, InformationDate, EntryDate, ExitAdjust) |>
+    fmutate(
+      income_at_entry = fifelse(DataCollectionStage == 1, TotalIncome, NA),
+      income_at_exit = fifelse(DataCollectionStage == 3, TotalIncome, NA)
+    ) |>
+    roworder(EnrollmentID, EntryDate) |>
     fgroup_by(EnrollmentID) |>
-    fmutate(has_income_at_entry = anyv(income_at_entry, TRUE)) |>
+    fmutate(income_at_entry = ffirst(income_at_entry)) |>
     fungroup() |>
-    fsubset(has_income_at_entry == TRUE)
+    roworder(EnrollmentID, ExitAdjust) |>
+    fgroup_by(EnrollmentID) |>
+    fmutate(income_at_exit = flast(income_at_entry)) |>
+    fslice(how = "first") |>
+    fungroup()
   
-  browser()
   list(
-    avg_los = mean(session$userData$Enrollment$LengthOfStay, na.rm=TRUE),
-    median_los = median(session$userData$Enrollment$LengthOfStay, na.rm=TRUE),
-    entered_non_habitat_pct = fnrow(all_hohs_adults[LivingSituation == 116L])/fnrow(all_hohs_adults),
-    successful_exit_pct = fnrow(session$userData$Exit[Destination %in% c(116L)])/fnrow(session$userData$Exit[!is.na(Destination)]),
+    avg_los = mean(los_dt$LengthOfStay, na.rm=TRUE),
+    median_los = median(los_dt$LengthOfStay, na.rm=TRUE),
+    entered_non_habitat_pct = fnrow(entered_non_habitat_dt[LivingSituation == 116L])/fnrow(entered_non_habitat_dt),
+    successful_exit_pct = fnrow(session$userData$Exit[Destination >= 400])/fnrow(session$userData$Exit[!is.na(Destination)]),
     zero_income_pct = fnrow(zero_income_dt[is.na(IncomeFromAnySource) | IncomeFromAnySource == 0])/fnrow(zero_income_dt),
     income_growth_pct = fnrow(income_growth_dt[income_growth > 0])/fnrow(income_growth_dt),
     ce_assessments = 10
