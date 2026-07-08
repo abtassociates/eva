@@ -368,7 +368,7 @@ session$userData$lh_cls <- CurrentLivingSituation %>%
   funique()
 
 
-get_session_userdata_dts <- function(reportStart, reportEnd) {
+keep_enrl_in_range <- function(reportStart, reportEnd) {
   enrollment_categories <- enrollment_prep_hohs %>% 
     fsubset(
       ProjectType != hp_project_type & 
@@ -397,13 +397,7 @@ get_session_userdata_dts <- function(reportStart, reportEnd) {
               !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
            )
         ),
-      # The purpose of this variable is to capture the idea that an LH date (LH PLS, LH CLS, or Bed Night)
-      # Can tell us something about a person's LH status for some time beyond that particular date
-      # In this way, it will help us construct an enrollment's last LH date
-      # It also helps us determine if an enrollment is LH at period start/end, 
-      # by looking back from the period start/end this number of days to see if there's an LH date
-      days_lh_valid = get_days_lh_valid(.),
-      
+     
       lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
         (ProjectType %in% non_res_project_types & lh_prior_livingsituation)
     ) %>% 
@@ -428,7 +422,6 @@ get_session_userdata_dts <- function(reportStart, reportEnd) {
       # DomesticViolenceCategory,
       HouseholdType,
       ProjectTypeWeight,
-      days_lh_valid,
       lh_at_entry
     ) %>% 
     setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
@@ -456,24 +449,11 @@ get_session_userdata_dts <- function(reportStart, reportEnd) {
   enrollment_categories <- enrollment_categories %>%
     ftransform(MoveInDateAdjust = MoveInDateAdjust)
   
-  lh_info <- get_lh_info(enrollment_categories, session$userData$lh_cls, Services, reportStart, reportEnd)
-  enrollment_categories_trimmed <- trim_entry_exit(enrollment_categories, lh_info)
-  
-  list(
-    lh_info = lh_info,
-    enrollment_categories = enrollment_categories_trimmed
-  )
+  return(enrollment_categories)
 }
 
-session_userdata <- get_session_userdata_dts(session$userData$ReportStart, session$userData$ReportEnd)
-
-session$userData$lh_info <- session_userdata$lh_info
-session$userData$enrollment_categories <- session_userdata$enrollment_categories
+session$userData$enrollment_categories <- keep_enrl_in_range(session$userData$ReportStart, session$userData$ReportEnd)
 session$userData$report_dates <- get_report_dates()
-
-# Force run/calculate period_specific_data reactive
-# Better to do it up-front than while charts are loading
-period_specific_data()
 
 
 # Previous Year Enrollments -----------------------------------------------
@@ -481,8 +461,5 @@ period_specific_data()
 startDatePrev <- session$userData$ReportStart %m-% years(1)
 endDatePrev <- session$userData$ReportEnd %m-% years(1)
 
-session_userdata_prev <- get_session_userdata_dts(startDatePrev, endDatePrev)
-
-session$userData$lh_info_prev <- session_userdata_prev$lh_info
-session$userData$enrollment_categories_prev <- session_userdata_prev$enrollment_categories
+session$userData$enrollment_categories_prev <- keep_enrl_in_range(startDatePrev, endDatePrev)
 session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)

@@ -1128,6 +1128,12 @@ get_lh_info <- function(enrollment_categories, lh_cls, Services, reportStart, re
   # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
   # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
   lh_info <- enrollment_categories %>%
+    # The purpose of days_lh_valid is to capture the idea that an LH date (LH PLS, LH CLS, or Bed Night)
+    # Can tell us something about a person's LH status for some time beyond that particular date
+    # In this way, it will help us construct an enrollment's last LH date
+    # It also helps us determine if an enrollment is LH at period start/end, 
+    # by looking back from the period start/end this number of days to see if there's an LH date
+    fmutate(days_lh_valid = get_days_lh_valid(.)) %>%
     join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
     join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
     fmutate(
@@ -1191,7 +1197,7 @@ get_lh_info <- function(enrollment_categories, lh_cls, Services, reportStart, re
 trim_entry_exit <- function(enrollment_categories, lh_info) {
   dt <- enrollment_categories %>%
     join(
-      lh_info %>% fselect(EnrollmentID, first_lh_date, last_lh_date) %>% funique(),
+      lh_info %>% fselect(EnrollmentID, first_lh_date, last_lh_date, days_lh_valid) %>% funique(),
       on = "EnrollmentID"
     ) %>%
     fmutate(
@@ -1234,6 +1240,7 @@ get_days_lh_valid <- function(dt) {
 
 
 observeEvent(c(
+  session$userData$valid_file(),
   input$ESNbNLongStayers, 
   input$OUTLongStayers, 
   input$ServicesOnlyLongStayers, 
@@ -1241,51 +1248,46 @@ observeEvent(c(
   input$DayShelterLongStayers, 
   input$CELongStayers
 ), {
-  if(!allv(c(
-    input$ESNbNLongStayers, 
-    input$OUTLongStayers, 
-    input$ServicesOnlyLongStayers, 
-    input$OtherLongStayers, 
-    input$DayShelterLongStayers, 
-    input$CELongStayers
-  ), 90)) {
-    session$userData$enrollment_categories <- session$userData$enrollment_categories %>%
-      fmutate(
-        days_lh_valid = get_days_lh_valid(.)
-      )
-    
-    session$userData$enrollment_categories_prev <- session$userData$enrollment_categories_prev %>%
-      fmutate(
-        days_lh_valid = get_days_lh_valid(.)
-      )
-    
-    
-    session$userData$lh_info <- get_lh_info(
-      session$userData$enrollment_categories, 
-      session$userData$lh_cls,
-      session$userData$Services,
-      session$userData$ReportStart, 
-      session$userData$ReportEnd
-    )
   
-    session$userData$enrollment_categories <- trim_entry_exit(
-      session$userData$enrollment_categories, 
-      session$userData$lh_info
-    )
-    
-    session$userData$lh_info_prev <- get_lh_info(
-      session$userData$enrollment_categories_prev, 
-      session$userData$lh_cls,
-      session$userData$Services,
-      session$userData$ReportStart, 
-      session$userData$ReportEnd
-    )
-    
-    session$userData$enrollment_categories_prev <- trim_entry_exit(
-      session$userData$enrollment_categories_prev, 
-      session$userData$lh_info_prev
-    )
-    
-    message("System data has been updated after Local Settings were updated!")
-  }
-}, ignoreInit = TRUE, ignoreNULL = TRUE)
+  req(session$userData$valid_file() == 1)
+ 
+  session$userData$lh_info <- get_lh_info(
+    session$userData$enrollment_categories, 
+    session$userData$lh_cls,
+    session$userData$Services,
+    session$userData$ReportStart, 
+    session$userData$ReportEnd
+  )
+  
+  cols_to_overwrite <- c(
+    "first_lh_date", 
+    "last_lh_date", 
+    "EntryDate_orig",
+    "ExitAdjust_orig", 
+    "adjusted_dates"
+  )
+  session$userData$enrollment_categories <- trim_entry_exit(
+    session$userData$enrollment_categories %>% get_vars(setdiff(names(.), cols_to_overwrite)),
+    session$userData$lh_info
+  )
+  
+  # Force run/calculate period_specific_data reactive
+  # Better to do it up-front than while charts are loading
+  period_specific_data()
+  
+  session$userData$lh_info_prev <- get_lh_info(
+    session$userData$enrollment_categories_prev, 
+    session$userData$lh_cls,
+    session$userData$Services,
+    session$userData$ReportStart, 
+    session$userData$ReportEnd
+  )
+  
+  session$userData$enrollment_categories_prev <- trim_entry_exit(
+    session$userData$enrollment_categories_prev %>% get_vars(setdiff(names(.), cols_to_overwrite)),
+    session$userData$lh_info_prev
+  )
+  
+  message("System data has been updated after Local Settings were updated!")
+}, ignoreInit = TRUE, ignoreNULL = TRUE) |>
+  debounce(1000)
