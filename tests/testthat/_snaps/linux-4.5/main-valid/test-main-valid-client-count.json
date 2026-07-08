@@ -775,13 +775,13 @@
         }
       ]
     },
-    "headerClientCounts": {
-      "html": "<h2>Project Dashboard Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerClientCounts_supp\" class=\"shiny-html-output\"><\/div>",
+    "headerProjectDashboard": {
+      "html": "<h2>Project Dashboard Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerProjectDashboard_supp\" class=\"shiny-html-output\"><\/div>",
       "deps": [
 
       ]
     },
-    "headerClientCounts_supp": {
+    "headerProjectDashboard_supp": {
       "html": "<h4>\n  Organization A‰\n  |\n  Organization A - ES\n<\/h4>",
       "deps": [
 
