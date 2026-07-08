@@ -515,7 +515,6 @@ tl_df_project_start <- reactive({
   ## Time to Entry - Project Start
   df_start <- join(
     client_count_data_df() %>% 
-     #filter(ProjectName == input$currentProviderList) %>% 
       rename(ProjectStartDate = EntryDate),
     session$userData$Enrollment %>% fselect(PersonalID,EnrollmentID, Enrollment.DateCreated = DateCreated),
     how = "left"
@@ -546,7 +545,6 @@ tl_df_project_exit <- reactive({
   ## Time to Entry - Project Exit
   df_exit <- join(
     client_count_data_df() %>% 
-      #filter(ProjectName == input$currentProviderList) %>% 
       rename(ProjectExitDate = ExitDate),
     session$userData$Exit %>% fselect(PersonalID, EnrollmentID, Exit.DateCreated = DateCreated),
     how = "left"
@@ -576,11 +574,9 @@ tl_df_nbn <- reactive({
   ## Time to Entry - Night by Night
   nbn_df <- join(
     client_count_data_df(),
-    #filter(ProjectName == input$currentProviderList) %>% 
     session$userData$Services %>% rename(Services.DateCreated = DateCreated, Services.DateProvided = DateProvided),
     how = "left"
   ) %>% 
-    #filter(!is.na(Services.DateCreated)) %>% 
     fsubset(between(Services.DateProvided, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
     fmutate(DaysToEntry = as.numeric(as.Date(Services.DateCreated) - as.Date(Services.DateProvided)),
            HoursToEntry = as.numeric(difftime(Services.DateCreated, Services.DateProvided, units="hours"))) 
@@ -598,7 +594,6 @@ tl_df_cls <- reactive({
   ## Time to Entry - CLS
   cls_df <- join(
     client_count_data_df(), 
-      #fsubset(ProjectName == input$currentProviderList) %>% 
     session$userData$CurrentLivingSituation %>% 
       fselect(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate),
     how = "inner"
