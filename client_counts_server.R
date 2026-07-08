@@ -618,7 +618,6 @@ tl_df_cls <- reactive({
       fselect(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate),
     how = "inner"
   ) %>% 
-    fsubset(!is.na(CurrentLivingSituation.DateCreated)) %>% 
     fsubset(between(CurrentLivingSituation.InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
     fmutate(DaysToEntry = as.numeric(as.Date(CurrentLivingSituation.DateCreated) - as.Date(CurrentLivingSituation.InformationDate)),
            HoursToEntry = as.numeric(difftime(CurrentLivingSituation.DateCreated, CurrentLivingSituation.InformationDate, units="hours"))) 
@@ -639,9 +638,8 @@ tl_df_ce_assess <- reactive({
     client_count_data_df(), 
     session$userData$Assessment %>% 
       fselect(PersonalID, EnrollmentID, Assessment.DateCreated = DateCreated, Assessment.AssessmentDate = AssessmentDate),
-    how = "left"
-  ) %>% 
-    fsubset(!is.na(Assessment.DateCreated)) %>% 
+    how = "inner"
+  ) %>%
     fsubset(between(Assessment.AssessmentDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
     fmutate(DaysToEntry = as.numeric(as.Date(Assessment.DateCreated) - as.Date(Assessment.AssessmentDate)),
             HoursToEntry = as.numeric(difftime(Assessment.DateCreated, Assessment.AssessmentDate, units="hours"))) 
@@ -662,9 +660,8 @@ tl_df_ce_event <- reactive({
     client_count_data_df(), 
     session$userData$Event %>% 
       fselect(EventID, EnrollmentID, Event.DateCreated = DateCreated, Event.EventDate = EventDate),
-    how = "left"
+    how = "inner"
   ) %>% 
-    fsubset(!is.na(Event.DateCreated)) %>% 
     fsubset(between(Event.EventDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
     fmutate(DaysToEntry = as.numeric(as.Date(Event.DateCreated) - as.Date(Event.EventDate)),
             HoursToEntry = as.numeric(difftime(Event.DateCreated, Event.EventDate, units="hours"))) 
