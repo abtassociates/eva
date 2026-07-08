@@ -616,7 +616,7 @@ tl_df_cls <- reactive({
       #fsubset(ProjectName == input$currentProviderList) %>% 
     session$userData$CurrentLivingSituation %>% 
       fselect(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate),
-    how = "left"
+    how = "inner"
   ) %>% 
     fsubset(!is.na(CurrentLivingSituation.DateCreated)) %>% 
     fsubset(between(CurrentLivingSituation.InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
