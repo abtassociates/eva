@@ -368,6 +368,8 @@ tabClientCount_instructions <- HTML("
                <li>Exit Date for Project Exit records</li>
                <li>Information Date for Current Living Situation records</li>
                <li>Date Provided for Bed Night service records</li>
+               <li>Assessment Date for Coordinated Entry Assessment records</li>
+               <li>Event Date for Coordinated Entry Event records</li>
                </ul>
                
                <h4>Download System-wide Project Dashboard Report</h4>

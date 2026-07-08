@@ -403,7 +403,7 @@ page_navbar(
         nav_panel(
           title = headerTab("Client Counts"),
           
-          navset_card_underline(
+          navset_underline(
             id = "client_count_cc_subtabs",
             nav_panel(
               title = headerSubTab("Summary"),
@@ -418,7 +418,7 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
-          navset_card_underline(
+          navset_underline(
             id = "client_count_ti_subtabs",
             nav_panel(
               title = headerSubTab("Record Entry"),
