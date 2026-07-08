@@ -615,7 +615,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     handle_helper_data(app, test_script_name, "period_data")
     
     print("saving shiny log")
-    view(app$get_logs())
+    View(app$get_logs())
   })
 }
 
