@@ -132,6 +132,18 @@ pivot_and_sum <- function(df, isDateRange = FALSE) {
   return(pivoted)
 }
 
+clean_timeliness_df <- function(tl_df, record_type, orgList = unique(client_count_data_df()$OrganizationName)){
+
+  validationDF <- tl_df %>% 
+    fsubset(OrganizationName %in% orgList) %>% 
+    fselect(c(keepCols, "nlt0", "n0", "n1_3", "n4_6", "n7_10", "n11p", "mdn")) %>%  
+    fmutate(ProjectType = project_type(ProjectType)) %>% 
+    roworder(OrganizationName, ProjectName) %>% 
+    nice_names_timeliness(record_type = record_type)
+  
+  return(validationDF)
+}
+
 get_clientcount_download_info <- function(orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
   logToConsole(session, "in get_clientcount_download_info")
@@ -245,67 +257,40 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   }
 
   if(!is.null(tl_df_project_start())){
-    validationStart <- tl_df_project_start() %>% 
-      fsubset(OrganizationName %in% orgList) %>% 
-      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%  
-      mutate(ProjectType = project_type(ProjectType)) %>% 
-      arrange(OrganizationName, ProjectName) %>% 
-      nice_names_timeliness(record_type = 'start')
+    validationStart <- clean_timeliness_df(tl_df_project_start(), record_type = 'start')
   } else {
     validationStart <- NULL
   }
 
   if(!is.null(tl_df_project_exit())){
-    validationExit <- tl_df_project_exit() %>% 
-      fsubset(OrganizationName %in% orgList) %>% 
-      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-      mutate(ProjectType = project_type(ProjectType)) %>% 
-      arrange(OrganizationName, ProjectName) %>% 
-      nice_names_timeliness(record_type = 'exit')
+    validationExit <- clean_timeliness_df(tl_df_project_exit(), record_type = 'exit')
   } else {
     validationExit <- NULL
   }
  
   if(!is.null(tl_df_cls())){
-    validationCLS <- tl_df_cls() %>% 
-      fsubset(OrganizationName %in% orgList) %>% 
-      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-      mutate(ProjectType = project_type(ProjectType)) %>% 
-      arrange(OrganizationName, ProjectName) %>% 
-      nice_names_timeliness(record_type = 'cls')
+    validationCLS <- clean_timeliness_df(tl_df_cls(), record_type = 'cls')
   } else {
     validationCLS <- NULL
   }
 
   if(!is.null(tl_df_nbn())){
-    validationNbN <- tl_df_nbn() %>% 
-      fsubset(OrganizationName %in% orgList) %>% 
-      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-      mutate(ProjectType = project_type(ProjectType)) %>% 
-      arrange(OrganizationName, ProjectName) %>% 
-      nice_names_timeliness(record_type = 'nbn')
+    validationNbN <- clean_timeliness_df(tl_df_nbn(), record_type = 'nbn')
+    
   } else {
     validationNbN <- NULL
   }
   
   if(!is.null(tl_df_ce_assess())){
-    validationCEAssess <- tl_df_ce_assess() %>% 
-      fsubset(OrganizationName %in% orgList) %>% 
-      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-      mutate(ProjectType = project_type(ProjectType)) %>% 
-      arrange(OrganizationName, ProjectName) %>% 
-      nice_names_timeliness(record_type = 'ce_assess')
+    validationCEAssess <- clean_timeliness_df(tl_df_ce_assess(), record_type = 'ce_assess')
+    
   } else {
     validationCEAssess <- NULL
   }
   
   if(!is.null(tl_df_ce_event())){
-    validationCEEvent <- tl_df_ce_event() %>% 
-      fsubset(OrganizationName %in% orgList) %>% 
-      select(!!keepCols, ProjectType, nlt0, n0, n1_3, n4_6, n7_10, n11p, mdn) %>%
-      mutate(ProjectType = project_type(ProjectType)) %>% 
-      arrange(OrganizationName, ProjectName) %>% 
-      nice_names_timeliness(record_type = 'ce_event')
+    validationCEEvent <- clean_timeliness_df(tl_df_ce_event(), record_type = 'ce_event')
+    
   } else {
     validationCEEvent <- NULL
   }
