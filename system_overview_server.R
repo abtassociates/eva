@@ -1239,18 +1239,51 @@ get_days_lh_valid <- function(dt) {
 }
 
 
-observeEvent(c(
-  session$userData$valid_file(),
-  input$ESNbNLongStayers, 
-  input$OUTLongStayers, 
-  input$ServicesOnlyLongStayers, 
-  input$OtherLongStayers, 
-  input$DayShelterLongStayers, 
-  input$CELongStayers
-), {
-  
+# 1. Initialize previous states with current values (using isolate to prevent reactive cycles)
+prev_long_stayers <- reactiveValues(
+  "session$userData$valid_file" = isolate(session$userData$valid_file()),
+  "input$ESNbNLongStayers"        = isolate(input$ESNbNLongStayers),
+  "input$OUTLongStayers"          = isolate(input$OUTLongStayers),
+  "input$ServicesOnlyLongStayers" = isolate(input$ServicesOnlyLongStayers),
+  "input$OtherLongStayers"        = isolate(input$OtherLongStayers),
+  "input$DayShelterLongStayers"   = isolate(input$DayShelterLongStayers),
+  "input$CELongStayers"           = isolate(input$CELongStayers)
+)
+
+# 2. Group all inputs into a single reactive list
+long_stayers_group <- reactive({
+  list(
+    "input$ESNbNLongStayers"        = input$ESNbNLongStayers,
+    "input$OUTLongStayers"          = input$OUTLongStayers,
+    "input$ServicesOnlyLongStayers" = input$ServicesOnlyLongStayers,
+    "input$OtherLongStayers"        = input$OtherLongStayers,
+    "input$DayShelterLongStayers"   = input$DayShelterLongStayers,
+    "input$CELongStayers"           = input$CELongStayers
+  )
+})
+
+# 3. Apply debounce to the grouped reactive expression
+long_stayers_debounced <- debounce(long_stayers_group, 2000)
+
+observeEvent(c(long_stayers_debounced(), session$userData$valid_file()), {
   req(session$userData$valid_file() == 1)
- 
+  
+  curr_values <- long_stayers_debounced()
+  changed_input <- NULL
+  
+  # Identify which input changed and update the tracked state
+  for (input_name in names(curr_values)) {
+    if (!identical(curr_values[[input_name]], prev_long_stayers[[input_name]])) {
+      changed_input <- input_name
+      prev_long_stayers[[input_name]] <- curr_values[[input_name]]
+    }
+  }
+  
+  # Log the metadata with the specific input that changed
+  if (!is.null(changed_input)) {
+    logMetadata(session, paste0("Changed long stayer setting: ", changed_input))
+  }
+  
   session$userData$lh_info <- get_lh_info(
     session$userData$enrollment_categories, 
     session$userData$lh_cls,
@@ -1289,5 +1322,4 @@ observeEvent(c(
   )
   
   message("System data has been updated after Local Settings were updated!")
-}, ignoreInit = TRUE, ignoreNULL = TRUE) |>
-  debounce(1000)
+}, ignoreInit = TRUE, ignoreNULL = TRUE)
