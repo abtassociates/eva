@@ -75,7 +75,7 @@ psh_oph_project_types <- c(psh_project_type, ph_other_project_types)
 
 ph_project_types <- c(psh_oph_project_types, rrh_project_type)
 
-lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
+lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 10, 12, 13)
 
 coc_funded_project_types <- c(2, 3, 13)
 

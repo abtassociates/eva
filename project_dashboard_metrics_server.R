@@ -21,6 +21,28 @@ metrics <- reactive({
       how = "inner"
     )
   
+  success_ful_exit_dt <- session$userData$Exit |>
+    fsubset(!is.na(ExitDate)) |>
+    join(
+      enrollment_w_project_type |> fselect(EnrollmentID, ProjectType),
+      on = "EnrollmentID",
+      how = "inner"
+    ) |>
+    fmutate(
+      successful_exit = fcase(
+        ProjectType == out_project_type, Destination %in% setdiff(c(100:499),c(116,206,207,329)),
+        ProjectType %in% c(es_ee_project_type, es_nbn_project_type, th_project_type) = c(332,400:499),
+        default = c(400:499)
+      )
+    ) |>
+    fsubset(
+      !(
+        (Destination %in% c(24, 206) & ProjectType %in% lh_ph_hp_project_types) |
+        (Destination %in% c(215, 225) & ProjectType %in% setdiff(lh_ph_hp_project_types, out_project_type)) |
+        (Destination == 329 & ProjectType == out_project_type)
+      )
+    )
+  
   income_growth_dt <- session$userData$IncomeBenefits |>
     join(
       enrollment_w_project_type |> fsubset(ProjectType %in% c(ph_project_types, hp_project_type), EnrollmentID, EntryDate, ExitAdjust),
@@ -47,7 +69,7 @@ metrics <- reactive({
     avg_los = mean(los_dt$LengthOfStay, na.rm=TRUE),
     median_los = median(los_dt$LengthOfStay, na.rm=TRUE),
     entered_non_habitat_pct = fnrow(entered_non_habitat_dt[LivingSituation == 116L])/fnrow(entered_non_habitat_dt),
-    successful_exit_pct = fnrow(session$userData$Exit[Destination >= 400])/fnrow(session$userData$Exit[!is.na(Destination)]),
+    successful_exit_pct = fnrow(success_ful_exit_dt[successful_exit == TRUE])/fnrow(success_ful_exit_dt),
     zero_income_pct = fnrow(zero_income_dt[is.na(IncomeFromAnySource) | IncomeFromAnySource == 0])/fnrow(zero_income_dt),
     income_growth_pct = fnrow(income_growth_dt[income_growth > 0])/fnrow(income_growth_dt),
     ce_assessments = session$userData$CEAssessedHouseholds
