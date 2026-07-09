@@ -168,25 +168,30 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
   # subset to dates within report range
   labels <- labels[period >= as.Date(session$userData$ReportStart) & period <= as.Date(session$userData$ReportEnd) ]
   period <- period[period >= as.Date(session$userData$ReportStart) & period <= as.Date(session$userData$ReportEnd) ] 
-
+  # for quarters where the PIT does not land on the 1st of a month, get the beginning of the month instead
+  # keeping PIT the same is required for merging tables 
+  period_start <- as.Date(paste0(substr(period, 1, 8), "01"))
+  
   for (q in 1:(length(period)+1)){ # q stands for quarter, but this is generalized to work for months too
     
-    if(period[1] == as.Date(session$userData$ReportStart) ){ # if first period equals report start (monthly view)
+    if(period_start[1] == as.Date(session$userData$ReportStart) ){ # if first period equals report start (monthly view)
       
-      q_start <- as.Date(fifelse(q <= length(period),  period[q], NA )) # current period or NA (for post-last period)
-      q_end <- as.Date(fifelse(q >= length(period), session$userData$ReportEnd, period[q+1]-days(1))) # next period minus a day or Report End (for last & post-last periods)
-      q_lab <- fcase(q > length(period), NA_character_, 
-                     q == length(period) & as.Date(period[1]+years(1)-days(1)) != as.Date(session$userData$ReportEnd), paste(labels[q], "to Report End"), # construct post-last label with previous period to Report End
+      q_start <- as.Date(fifelse(q <= length(period_start),  period_start[q], NA )) # current period or NA (for post-last period)
+      q_end <- as.Date(fifelse(q >= length(period_start), session$userData$ReportEnd, period_start[q+1]-days(1))) # next period minus a day or Report End (for last & post-last periods)
+      q_lab <- fcase(q > length(period_start), NA_character_, 
+                     q == length(period_start) & as.Date(period_start[1]+years(1)-days(1)) != as.Date(session$userData$ReportEnd), paste(labels[q], "to Report End"), # construct post-last label with previous period to Report End
                      default =  labels[q]) # otherwise use label as-is
+      q_pit <- as.Date(fifelse(q > length(period), session$userData$ReportEnd, period[q]))
       
     }else{
       
-      q_start <- as.Date(ifelse(q==1, session$userData$ReportStart, period[q-1] + days(1))) # Report start (for first period) or previous period + a day
-      q_end <- as.Date(ifelse(q>length(period), session$userData$ReportEnd, period[q])) # current period or Report End (for post-last period)
-      q_lab <- fcase(q > length(period) & as.Date(period[1]+years(1)-days(1)) == as.Date(session$userData$ReportEnd), labels[1],
-                     q > length(period), paste(labels[q-1], "to Report End"), # construct post-last label with previous period to Report End
+      q_start <- as.Date(ifelse(q==1, session$userData$ReportStart, period_start[q-1] + days(1))) # Report start (for first period) or previous period + a day
+      q_end <- as.Date(ifelse(q>length(period_start), session$userData$ReportEnd, period_start[q])) # current period or Report End (for post-last period)
+      q_lab <- fcase(q > length(period_start) & as.Date(period_start[1]+years(1)-days(1)) == as.Date(session$userData$ReportEnd), labels[1],
+                     q > length(period_start), paste(labels[q-1], "to Report End"), # construct post-last label with previous period to Report End
                      q==1, paste("Report Start to",  labels[q]), # update first label to note it starts from Report Start
                      default =  labels[q]) # otherwise use label as-is
+      q_pit <- as.Date(fifelse(q > length(period), session$userData$ReportEnd, period[q]))
     }
     
     if(!is.na(q_start)){ # skip if q_start is NA (post-last period)
@@ -198,7 +203,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
                                      extra_groups = extragroups), how = "full") %>% 
           fmutate(PITstart = q_start,
                   PITend = q_end,
-                  PIT = q_end,
+                  PIT = q_pit,
                   label = q_lab)
       }else{
         
@@ -208,7 +213,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
           join(count_Enrollments_rng(q_start, q_end, proj_list = projlist), how = "full") %>%
           fmutate(PITstart = q_start,
                   PITend = q_end,
-                  PIT = q_end,
+                  PIT = q_pit,
                   label = q_lab)
       }
       
@@ -218,13 +223,9 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
         out <- out %>% rowbind(nightly_avg_q)
       }
       rm(nightly_avg_q) # delete quarter
-    }else{
-    # if you did skip the post last, swap PIT with PITstart so joins outside the function work properly
-    out <- out %>% fmutate(
-      PIT = PITstart
-    )
     }
-  }
+    }
+  
   nightly_avg_tot <- out %>% fgroup_by(grouping_vars) %>%
   fsummarise(Total_Beds = fsum(Total_Beds),
              Total_HMIS_Beds = fsum(Total_HMIS_Beds),
@@ -372,7 +373,7 @@ util_filters <- reactive({
     br(),
     strong("Date Range: "),
     
-    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportStart, "%m-%d-%Y"), br(),
+    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
     
     # subset project_level_util_q by it's filters
     #if(input$target_pop_sys != "All Target Populations"){
