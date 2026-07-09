@@ -312,6 +312,8 @@ enrollments_filtered <- reactive({
 
 get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info,
                             reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
+  logToConsole(session, "In get_active_info")
+  
   lh_info_filtered <- lh_info_df %>%
     fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
     join(
@@ -366,7 +368,11 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
     fmutate(
       active_in_full_period = active_start <= reportEnd & active_end >= reportStart
     )
+  logToConsole(session, paste0("Rows in active_info: ", fnrow(active_info)))
   
+  
+  logToConsole(session, "About to create all_filtered_w_first_last_active")
+  logToConsole(session, paste0("Rows in all_filtered_by_period: ", fnrow(all_filtered_by_period)))
   all_filtered_w_first_last_active <- all_filtered_by_period %>%
     fselect(
       period, 
@@ -413,7 +419,12 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
     ) %>%
     fungroup() %>%
     fselect(-first_active_date_in_period0, -last_active_date_in_period0, -period_of_activity)
+  logToConsole(session, paste0("Unique values of first_active_date_in_period: ", funique(all_filtered_w_first_last_active$first_active_date_in_period)))
+  logToConsole(session, paste0("Unique values of last_active_date_in_period: ", funique(all_filtered_w_first_last_active$last_active_date_in_period)))
   
+  logToConsole(session, "About to create prev_info")
+  logToConsole(session, paste0("Rows in subsetted all_filtered_w_first_last_active: ", all_filtered_w_first_last_active %>%
+                                 fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period) %>% fnrow()))
   # get days between the earliest active date in the period and the most recent active before that
   prev_info <- all_filtered_w_first_last_active %>%
     fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period) %>%
@@ -440,6 +451,10 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
       prev_active, prev_exit, prev_exit_dest_perm
     ) %>%
     funique()
+  
+  logToConsole(session, "About to create next_info")
+  logToConsole(session, paste0("Rows in subsetted all_filtered_w_first_last_active: ", all_filtered_w_first_last_active %>%
+                                 fsubset(!is.na(last_active_date_in_period) & active_end > last_active_date_in_period) %>% fnrow()))
   
   next_info <- all_filtered_w_first_last_active %>%
     fsubset(!is.na(last_active_date_in_period) & active_end > last_active_date_in_period) %>%
@@ -475,6 +490,9 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
 
 get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm', reportStart = session$userData$ReportStart,
                                      reportEnd = session$userData$ReportEnd) {
+  logToConsole(session, "In get_inflows_and_outflows")
+  logToConsole(session, paste0("Rows in all_filtered_w_active_info: ", fnrow(all_filtered_w_active_info)))
+  
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),

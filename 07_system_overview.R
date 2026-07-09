@@ -355,7 +355,12 @@ rm(hh_adjustments)
 # which are then used to select the EECR/LECR
 # throws out HP and enrollments outside Report window and 2 years prior
 # limits to only necessary columns
-
+logToConsole(session, "About to create enrollment_categories from enrollment_prep_hohs")
+logToConsole(session, paste0("Rows after subset: ", enrollment_prep_hohs %>% 
+                               fsubset(
+                                 ProjectType != hp_project_type & 
+                                   EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
+                               ) %>% fnrow()))
 enrollment_categories <- enrollment_prep_hohs %>% 
   fsubset(
     ProjectType != hp_project_type & 
@@ -465,6 +470,8 @@ enrollment_categories <- enrollment_categories %>%
 #     (Only applicable to non-res projects with no LH PLS or no ExitDate, but with an LH CLS)
 # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
 # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
+logToConsole(session, "About to create session$userData$lh_info from enrollment_categories")
+logToConsole(session, paste0("Rows in enrollment_categories: ", fnrow(enrollment_categories)))
 session$userData$lh_info <- enrollment_categories %>%
   join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
   join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
