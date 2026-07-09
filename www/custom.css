@@ -319,3 +319,14 @@ SESSION TIMEOUT
   text-align:center;
   padding:20px;
 }
+
+/***********
+PROJECT DASHBOARD > METRICS
+***********/
+.project_dashboard_valbox .value-box-title {
+  font-size: 1.5rem;
+}
+
+.project_dashboard_valbox .value-box-value {
+  font-size: 1rem;
+}
