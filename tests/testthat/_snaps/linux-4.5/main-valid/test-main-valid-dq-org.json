@@ -674,7 +674,7 @@
       ]
     },
     "orgDQErrorByProject": {
-      "src": "[image data hash: ed4423248f0f99b5609a6b94d6a8bc62]",
+      "src": "[image data hash: 37bbe64ba305c1e91046a48ad5bdb37d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most General Errors.",
@@ -818,7 +818,7 @@
       ]
     },
     "orgDQHighPriorityByProject": {
-      "src": "[image data hash: a7e4b74f12eb2d9f3fe2b968058b87a5]",
+      "src": "[image data hash: d5c6137f46496fd689c5871d98dac8f8]",
       "width": 1640,
       "height": 400,
       "alt": "Plot object",
@@ -888,7 +888,7 @@
       ]
     },
     "orgDQWarningByIssue": {
-      "src": "[image data hash: 037f9c6ad91ab3520c7f01c1ee7ba143]",
+      "src": "[image data hash: 4afa65ac49d6b40bec4b085421a8fcd6]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top Warnings in the organization.",
@@ -965,7 +965,7 @@
       ]
     },
     "orgDQWarningByProject": {
-      "src": "[image data hash: 6d9268b297e53cc65f8b38107d054af2]",
+      "src": "[image data hash: 07baba30a07569e4b97a2f84a49519bb]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most Warnings.",
