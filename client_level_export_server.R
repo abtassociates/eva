@@ -267,8 +267,10 @@ populate_client_level_export <- function(type = 'overview', file){
       )
     )
     # remove column names by setting them to the values from the first row and then subsetting
-    colnames(filter_selections) <- filter_selections[1,]
-    filter_selections <- filter_selections[2:nrow(filter_selections),]
+    if(type == 'overview'){
+      colnames(filter_selections) <- filter_selections[1,]
+      filter_selections <- filter_selections[2:nrow(filter_selections),]
+    }
     
     # officer load the excel file with all its formatting
     # All sheets exist in the desired order with view set to start on 'Instructions' 
