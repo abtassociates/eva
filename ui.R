@@ -189,7 +189,7 @@ page_navbar(
             numericInput(
               inputId = "ESNbNLongStayers",
               label = "Emergency Shelter (NbN only!):",
-              value = 90,
+              value = 15,
               min = 0,
               max = 3650,
               step = 5,
@@ -198,7 +198,7 @@ page_navbar(
             numericInput(
               inputId = "OUTLongStayers",
               label = "Street Outreach:",
-              value = 90,
+              value = 60,
               min = 0,
               max = 3650,
               step = 5,
@@ -207,7 +207,7 @@ page_navbar(
             numericInput(
               inputId = "OtherLongStayers",
               label = "Other:",
-              value = 90,
+              value = 60,
               min = 0,
               max = 3650,
               step = 5,
@@ -217,7 +217,7 @@ page_navbar(
             numericInput(
               inputId = "ServicesOnlyLongStayers",
               label = "Services Only:",
-              value = 90,
+              value = 60,
               min = 0,
               max = 3650,
               step = 5,
@@ -226,7 +226,7 @@ page_navbar(
             numericInput(
               inputId = "DayShelterLongStayers",
               label = "Day Shelter:",
-              value = 90,
+              value = 60,
               min = 0,
               max = 3650,
               step = 5,
