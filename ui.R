@@ -428,57 +428,60 @@ page_navbar(
                 gap = "1rem",
                 
                 value_box(
-                  title = "Length of Stay (All Households)",
+                  class = "project_dashboard_valbox",
+                  title = "Length of Stay in Residence (All Households)",
                   value = tagList(
                     div("Average: ", textOutput("los_avg", inline = TRUE)),
-                    div("Median: ", textOutput("los_median", inline = TRUE))
+                    div("Median: ", textOutput("los_median", inline = TRUE)),
+                    div("Missing LOS: ", textOutput("los_nmiss", inline = TRUE))
                   ),
                   showcase = bs_icon("house-door")
                 ),
                 
                 value_box(
+                  class = "project_dashboard_valbox",
                   title = "Entered from Place Not Meant for Habitation (HoHs/Adults)",
-                  value = div(
-                    class = "d-inline",
-                    textOutput("entered_non_habitat_pct", inline = TRUE),
-                    " of all HoHs/Adults"
+                  value = tagList(
+                    div("Percent of all HoHs/Adults: ", textOutput("entered_non_habitat_pct", inline = TRUE)),
+                    div("Missing LivingSituation: ", textOutput("entered_non_habitat_nmiss", inline = TRUE))
                   ),
                   showcase = bs_icon("signpost-split")
                 ),
                 
                 value_box(
+                  class = "project_dashboard_valbox",
                   title = "Successful Exits (All Clients)",
-                  value = div(
-                    class = "d-inline",
-                    textOutput("successful_exit_pct", inline = TRUE),
-                    " of all exited clients"
+                  value = tagList(
+                    div("Percent of all exited clients: ", textOutput("successful_exit_pct", inline = TRUE)),
+                    div("Missing Destination: ", textOutput("successful_exit_nmiss", inline = TRUE))
                   ),
                   showcase = bs_icon("check-circle")
                 ),
                 
                 value_box(
+                  class = "project_dashboard_valbox",
                   title = "Zero Income at Entry (HoHs/Adults)",
-                  value = div(
-                    class = "d-inline",
-                    textOutput("zero_income_pct", inline = TRUE),
-                    " of all HoHs/Adults"
+                  value = tagList(
+                    div("Percent of all HoHs/Adults: ", textOutput("zero_income_pct", inline = TRUE)),
+                    div("Missing IncomeFromAnySource: ", textOutput("zero_income_nmiss", inline = TRUE))
                   ),
                   showcase = bs_icon("wallet2")
                 ),
                 
                 value_box(
+                  class = "project_dashboard_valbox",
                   title = "Income Growth from Entry to Exit (HoHs/Adults)",
-                  value = div(
-                    class = "d-inline",
-                    textOutput("income_growth_pct", inline = TRUE),
-                    " of all exited HoHs/Adults"
+                  value = tagList(
+                    div("Percent of all exited HoHs/Adults: ", textOutput("income_growth_pct", inline = TRUE)),
+                    div("Missing TotalMonthlyIncome: ", textOutput("income_growth_nmiss", inline = TRUE))
                   ),
                   showcase = bs_icon("graph-up-arrow")
                 ),
                 
                 value_box(
+                  class = "project_dashboard_valbox",
                   title = "CE Assessments (HoHs Only)",
-                  value = textOutput("ce_assessments", inline = TRUE),
+                  value = div("Number of CE Assessments: ", textOutput("ce_assessments", inline = TRUE)),
                   showcase = bs_icon("clipboard-check")
                 )
               )
