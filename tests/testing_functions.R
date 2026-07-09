@@ -27,7 +27,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     
     app$set_inputs(pageid = "tabProjectDashboard")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
+    app$set_inputs(project_dashboard_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
