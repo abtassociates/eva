@@ -137,6 +137,7 @@ EnrollmentOutside <- qDT(EnrollmentStaging) %>%
               fselect(ProjectID,
                      ProjectTimeID,
                      ProjectType,
+                     HMISParticipationType,
                      HMISParticipationStatusStartDate,
                      HMISParticipationStatusEndDate,
                      OperatingStartDate,
