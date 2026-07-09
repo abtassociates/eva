@@ -418,7 +418,7 @@ session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
 session$userData$IncomeBenefits <- IncomeBenefits
 session$userData$CEAssessedHouseholds <- Assessment |> 
-  join(Enrollment |> fsubset(RelationshipToHoH == 1, EnrollmentID, HouseholdID), how = "inner") |>
+  join(Enrollment |> fsubset(RelationshipToHoH == 1 & ProjectType == ce_project_type, EnrollmentID, HouseholdID), how = "inner") |>
   fnrow()
   
 # desk_time_providers <- validation() %>%
