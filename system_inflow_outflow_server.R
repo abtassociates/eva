@@ -431,7 +431,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
       ystart = lag(cumsum(N), default = 0),
       yend = round(cumsum(N)),
       group.id = GRPid(Summary),
-      N_formatted = format(abs(N), big.mark = ",", scientific = FALSE)
+      N_formatted = format(abs(N), big.mark = ",", scientific = FALSE, trim = TRUE)
     ) %>%
     # Remove Active at Start/End bars that are 0, since there's no label other 
     # than legend, which makes it hard to interpret the floating 0
@@ -722,7 +722,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             )) %>% 
             # hide labels if value is 0
             fmutate(Count = na_if(Count, 0)),
-          aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = format(Count, big.mark = ",", scientific = FALSE), group = PlotFillGroups),
+          aes(x = month_numeric - mbm_export_bar_width/2, y = Count, label = format(Count, big.mark = ",", scientific = FALSE, trim = TRUE), group = PlotFillGroups),
           stat = "identity",
           color = "black",
           fill = "white",
@@ -738,7 +738,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
             )) %>% 
             # hide labels if value is 0
             fmutate(Count = na_if(Count, 0)),
-          aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = format(Count, big.mark = ",", scientific = FALSE), group = PlotFillGroups),
+          aes(x = month_numeric + mbm_export_bar_width/2, y = Count, label = format(Count, big.mark = ",", scientific = FALSE, trim = TRUE), group = PlotFillGroups),
           stat = "identity",
           color = "black",
           fill = "white",
@@ -1104,7 +1104,7 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
   
   ggplot(plot_data, aes(x = month, y = Count)) +
     geom_col(aes(fill = PlotFillGroups), width = 0.3, color = "black") +
-    geom_text(aes(label = format(Count, big.mark = ",", scientific = FALSE)), vjust = -0.5, size = sys_chart_text_font) +
+    geom_text(aes(label = format(Count, big.mark = ",", scientific = FALSE, trim = TRUE)), vjust = -0.5, size = sys_chart_text_font) +
     theme_minimal() +
     labs(
       x = "Month",

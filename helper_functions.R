@@ -736,7 +736,7 @@ get_snapshot <- function(personalID) {
 ## add counts in parens for table formatting
 format_compare_value <- function(count, total){
   pct <- scales::percent(count/total, accuracy = 1, scale = 100)
-  count <- format(count, big.mark = ",", scientific = FALSE)
+  count <- format(count, big.mark = ",", scientific = FALSE, trim = TRUE)
   sprintf('%s (%s)', pct, count)
 }
 

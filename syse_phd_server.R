@@ -138,7 +138,7 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
       # ) + # na.value makes 0s invisible
       # set text color to be 508 compliant contrasting
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',',scientific = FALSE),' of ',format(n, big.mark = ',',scientific = FALSE),')'))),
+        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',',scientific = FALSE, trim = TRUE),' of ',format(n, big.mark = ',',scientific = FALSE, trim = TRUE),')'))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction * 0.6, 1),
         color = ifelse(
           plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
@@ -381,7 +381,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
     # set text color to be 508 compliant contrasting
     geom_text(
       # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
-      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE),' of ',format(n, big.mark = ',', scientific = FALSE),')'))),#scales::comma(n))),
+      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE, trim = TRUE),' of ',format(n, big.mark = ',', scientific = FALSE, trim = TRUE),')'))),#scales::comma(n))),
       size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction * 0.6, 1),
       color = ifelse(
         plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
@@ -420,7 +420,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE),' of ',format(N, big.mark = ',', scientific = FALSE),')'))),
+        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE, trim = TRUE),' of ',format(N, big.mark = ',', scientific = FALSE, trim = TRUE),')'))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction* 0.6, 1),
         color = ifelse(
           h_total_joined$frac > mean(h_total_joined$frac, na.rm = TRUE) & !h_total_joined$wasRedacted,
@@ -447,7 +447,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE),' of ',format(N, big.mark = ',', scientific = FALSE),')'))),
+        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE, trim = TRUE),' of ',format(N, big.mark = ',', scientific = FALSE, trim = TRUE),')'))),
         size = sys_chart_text_font * ifelse(isExport, 0.45, 1),
         color = ifelse(
           v_total_joined$frac > mean(v_total_joined$frac, na.rm = TRUE) & !v_total_joined$wasRedacted,

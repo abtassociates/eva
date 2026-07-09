@@ -122,7 +122,7 @@ sys_total_count_display <- function(total_count) {
       paste0(
         full_unit_of_analysis_display(),
         ": ",
-        format(total_count, big.mark = ',', scientific = FALSE)
+        format(total_count, big.mark = ',', scientific = FALSE, trim = TRUE)
       ),
       width = 40
     ),

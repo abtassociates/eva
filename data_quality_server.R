@@ -466,7 +466,7 @@ renderDQPlot <- function(level, issueType, byType, color) {
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank()
       ) +
-      geom_text(aes(label =  format(countVar, big.mark = ",", scientific = FALSE)), hjust = -0.5, color = "black", size = sys_chart_text_font)
+      geom_text(aes(label =  format(countVar, big.mark = ",", scientific = FALSE, trim = TRUE)), hjust = -0.5, color = "black", size = sys_chart_text_font)
   },
   alt = case_match(
     plot_output_id,
