@@ -18,14 +18,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       
     }
     
-    logToConsole <- function(session, msg) {
-      message(paste0(
-        session$token, "  ",  
-        Sys.time(), "  ",
-        msg
-      ))
-    }
-    
+    # 00 -------------------
     setProgress(message = "Processing...", value = .01)
     
     setProgress(detail = "Checking initial validity ", value = .05)
@@ -42,15 +35,15 @@ process_upload <- function(upload_filename, upload_filepath) {
       files = paste0(unique(cols_and_data_types$File), ".csv"),
       exdir = tempdir()
     )
-    
+    # 01 -------------------
     setProgress(detail = "Reading your files..", value = .2)
 
     err <- source_trycatch(here("rcode","01_get_export.R"))
     if(!is.null(err)) return(NULL)
-    
+    # 02 -------------------
     err <- source_trycatch(here("rcode","02_export_dates.R"))
     if(!is.null(err)) return(NULL)
-    
+    # 03 -------------------
     setProgress(detail = "Checking file structure", value = .35)
     
     err <- source_trycatch(here("rcode","03_file_structure_analysis.R"))
@@ -58,12 +51,12 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     if(session$userData$valid_file() == 0)
       return(NULL)
-    
+    # 04 -------------------
     setProgress(detail = "Prepping initial data..", value = .4)
     
     err <- source_trycatch(here("rcode","04_initial_data_prep.R"))
     if(!is.null(err)) return(NULL)
-    
+    # 05 & 06 (MIRAI) -------------------
     setProgress(detail = "Assessing your data quality..", value = .7)
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
     dq_and_pdde_dependencies[["session"]] <- list(
@@ -104,9 +97,9 @@ process_upload <- function(upload_filename, upload_filepath) {
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
-      #if(IN_DEV_MODE) browser()
+      if(IN_DEV_MODE) browser()
     }
-    
+    # 07 -------------------
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
       logToConsole(session, "Only HP enrollments found - skipping System Performance")
