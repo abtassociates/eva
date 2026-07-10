@@ -14,7 +14,9 @@ process_upload <- function(upload_filename, upload_filepath) {
         logToConsole(session, paste0("Error occured in ", script_name))
         show_trycatch_popup(script_name)
         return("err")
-      } else {}
+      } else if("intentional_stop" %in% class(src_att)) {
+        logToConsole(session, paste0("Intentional stop occurred: ", src_att$message))
+      }
       
     }
     

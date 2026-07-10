@@ -350,6 +350,8 @@ enrollment_prep_hohs <- enrollment_prep %>%
 rm(hh_adjustments)
 
 # Full Enrollment-level Data Prep ----------------------------------------------
+session$userData$report_dates <- get_report_dates()
+
 # **ProjectTypeWeight** helps determine eecr/lecr
 # **lh_prior_livingsituation** is used to define was_lh_at_start and was_lh_at_end
 # which are then used to select the EECR/LECR
@@ -360,7 +362,17 @@ enrollment_categories <- enrollment_prep_hohs %>%
   fsubset(
     ProjectType != hp_project_type & 
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
-  ) %>%
+  )
+
+enrollment_categories <- enrollment_categories %>% fslice(0)
+browser()
+if(fnrow(enrollment_categories) == 0) {
+  session$userData$enrollment_categories <- data.table()
+  session$userData$enrollment_categories_prev <- data.table()
+  intentional_stop(message = "enrollment_categories has no rows after removing HP and enrollments outside Report window and 2 years prior")
+}
+
+enrollment_categories <- enrollment_categories %>%
   fmutate(
     during_period = EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
   ) %>%
@@ -453,6 +465,13 @@ enrollment_categories <- enrollment_categories %>%
     EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
   )
 
+
+if(fnrow(enrollment_categories) == 0) {
+  session$userData$enrollment_categories <- data.table()
+  session$userData$enrollment_categories_prev <- data.table()
+  intentional_stop(message = "enrollment_categories has no rows after removing problematic enrollments")
+}
+
 # Set MoveInDateAdjust to no_end_date if NA. 
 # This will allow us to just use MoveInDateAdjust without also checking for NA
 # MoveInDateAdjust is used to determine if/when a person was Housed.
@@ -524,7 +543,6 @@ session$userData$lh_info <- enrollment_categories %>%
     EntryDate, ExitAdjust
   )
 
-session$userData$report_dates <- get_report_dates()
 
 session$userData$enrollment_categories <- enrollment_categories %>%
   join(
@@ -562,12 +580,20 @@ period_specific_data()
 
 startDatePrev <- session$userData$ReportStart %m-% years(1)
 endDatePrev <- session$userData$ReportEnd %m-% years(1)
+session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
 
 enrollment_categories_prev <- enrollment_prep_hohs %>% 
   fsubset(
     ProjectType != hp_project_type & 
       EntryDate <= endDatePrev & ExitAdjust >= (startDatePrev %m-% years(2))
-  ) %>%
+  )
+
+if(fnrow(enrollment_categories_prev) == 0) {
+  session$userData$enrollment_categories_prev <- data.table()
+  intentional_stop(message = "enrollment_categories_prev has no rows after removing HP and enrollments outside Report window and 2 years prior")
+}
+
+enrollment_categories_prev <- enrollment_categories_prev %>%
   fmutate(
     during_period = EntryDate <= endDatePrev & ExitAdjust >= startDatePrev
   ) %>%
@@ -649,6 +675,12 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
       EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
   )
 
+
+if(fnrow(enrollment_categories_prev) == 0) {
+  session$userData$enrollment_categories_prev <- data.table()
+  intentional_stop(message = "enrollment_categories_prev has no rows after removing problematic enrollments")
+}
+
 # Set MoveInDateAdjust to no_end_date if NA. 
 # This will allow us to just use MoveInDateAdjust without also checking for NA
 # MoveInDateAdjust is used to determine if/when a person was Housed.
@@ -719,8 +751,6 @@ session$userData$lh_info_prev <- enrollment_categories_prev %>%
     last_lh_date,
     EntryDate, ExitAdjust
   )
-
-session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
 
 session$userData$enrollment_categories_prev <- enrollment_categories_prev %>%
   join(

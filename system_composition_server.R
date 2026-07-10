@@ -420,6 +420,13 @@ output$sys_comp_summary_ui_chart <- renderPlot({
     session$userData$valid_file() == 1 &
     between(length(input$system_composition_selections), 1, 2)
   )
+  
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
 
   if(length(input$system_composition_selections) == 1) {
     sys_comp_plot_1var(subtab = 'comp', 

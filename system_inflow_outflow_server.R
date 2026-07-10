@@ -569,7 +569,14 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
 renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
   output[[chart_id]] <- renderPlot({
       req(session$userData$valid_file() == 1)
-    
+      
+      validate(
+        need(
+          fnrow(session$userData$enrollment_categories) > 0,
+          no_valid_data_msg
+        )
+      )
+      
       validate(
         need(
           nrow(get_inflow_outflow_full()) > 0,
@@ -1137,6 +1144,14 @@ output$sys_fth_monthly_ui_chart <- renderPlot({
 
 monthly_chart_validation <- function() {
   logToConsole(session, "In monthly_chart_validation")
+  
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   num_people <- length(unique(get_inflow_outflow_monthly()$PersonalID))
   
   validate(
