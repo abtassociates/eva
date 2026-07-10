@@ -3,6 +3,11 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "06-25-2026",
+    "<b>Bug Fixes</b> <br>
+      - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
+      - Updated Enrollment DQ Checks to only show warnings for actively HMIS participating enrollments.
+    ",
     "06-12-2026",
     "<b>New Features</b> <br>
       - System Exits charts, visualizations, and exports <br>
