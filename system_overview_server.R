@@ -213,6 +213,7 @@ period_specific_data <- reactive({
     export_for_qc(period_data)
   }
   
+  logToConsole(session, "Got through period_specific_data!")
   # Split into months and full-period datasets
   list(
     Full = fsubset(period_data, period == "Full"),
@@ -771,6 +772,13 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
 }
 
 remove_sequential_inactives <- function(inflows_and_outflows) {
+  logToConsole(session, "In remove_sequential_inactives")
+  
+  n <- inflows_and_outflows %>%
+    fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
+    fnrow()
+  
+  logToConsole(session, paste0("Rows in subsetted inflows_and_outflows: ", n))
   # Only want the first of multiple inactives in a row.
   enrollments_to_remove <- inflows_and_outflows %>%
     fsubset(period != "Full", PersonalID, period, InflowTypeDetail, OutflowTypeDetail) %>%
@@ -785,6 +793,7 @@ remove_sequential_inactives <- function(inflows_and_outflows) {
   inflows_and_outflows_clean <- inflows_and_outflows %>%
     join(enrollments_to_remove, on = c("PersonalID", "period"), how="anti")
 
+  logToConsole(session, "Finished removing sequential inactives")
   return(inflows_and_outflows_clean)
 }
 

@@ -570,6 +570,17 @@ period_specific_data()
 startDatePrev <- session$userData$ReportStart %m-% years(1)
 endDatePrev <- session$userData$ReportEnd %m-% years(1)
 
+logToConsole(session, "creating enrollment_categories_prev in 07")
+logToConsole(session, paste0("StartDatePrev = ", startDatePrev, " and endDatePrev = ", endDatePrev))
+
+n <- enrollment_prep_hohs %>% 
+  fsubset(
+    ProjectType != hp_project_type & 
+      EntryDate <= endDatePrev & ExitAdjust >= (startDatePrev %m-% years(2))
+  ) %>%
+  fnrow()
+logToConsole(session, paste0("Rows in subsetted enrollment_prep_hohs for enrollment_categories_prev = ", n))
+
 enrollment_categories_prev <- enrollment_prep_hohs %>% 
   fsubset(
     ProjectType != hp_project_type & 
@@ -655,6 +666,8 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
     !EnrollmentID %in% problematic_nonres_enrollmentIDs_prev &
       EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
   )
+logToConsole(session, "Got through creating enrollment_categories_prev")
+logToConsole(session, paste0("Rows in enrollment_categories_prev = ", fnrow(enrollment_categories_prev)))
 
 # Set MoveInDateAdjust to no_end_date if NA. 
 # This will allow us to just use MoveInDateAdjust without also checking for NA
