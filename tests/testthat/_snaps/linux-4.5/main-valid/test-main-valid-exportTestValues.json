@@ -1837,70 +1837,41 @@
       ],
       "System Summary": [
         [
-<<<<<<< HEAD
-          "Length:75         ",
+          "Length:74         ",
           "Min.   :    1.0  ",
-          "Length:75         "
+          "Length:74         "
         ],
         [
           "Class :character  ",
-          "1st Qu.:   25.0  ",
+          "1st Qu.:   29.0  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
-          "Median :  136.0  ",
-=======
-          "High Priority: 3  ",
-          "Min.   :    1  ",
-          "Length:71         "
-        ],
-        [
-          "Error        :38  ",
-          "1st Qu.:   25  ",
-          "Class :character  "
-        ],
-        [
-          "Warning      :30  ",
-          "Median :  140  ",
->>>>>>> dev
+          "Median :  138.0  ",
           "Mode  :character  "
         ],
         [
           null,
-<<<<<<< HEAD
-          "Mean   :  778.3  ",
-=======
-          "Mean   :  811  ",
->>>>>>> dev
+          "Mean   :  788.7  ",
           null
         ],
         [
           null,
-<<<<<<< HEAD
-          "3rd Qu.:  529.0  ",
-=======
-          "3rd Qu.:  529  ",
->>>>>>> dev
+          "3rd Qu.:  531.5  ",
           null
         ],
         [
           null,
-          "Max.   :11744  ",
+          "Max.   :11744.0  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-<<<<<<< HEAD
-          "Length:1038       ",
-          "Length:1038       ",
-          "Length:1038       ",
-=======
-          "Length:995        ",
-          "High Priority: 56  ",
-          "Length:995        ",
->>>>>>> dev
+          "Length:1037       ",
+          "Length:1037       ",
+          "Length:1037       ",
           "Min.   :   1.00  "
         ],
         [
@@ -1911,11 +1882,7 @@
         ],
         [
           "Mode  :character  ",
-<<<<<<< HEAD
           "Mode  :character  ",
-=======
-          "Warning      :497  ",
->>>>>>> dev
           "Mode  :character  ",
           "Median :   8.00  "
         ],
@@ -1923,11 +1890,7 @@
           null,
           null,
           null,
-<<<<<<< HEAD
-          "Mean   :  56.23  "
-=======
-          "Mean   :  57.87  "
->>>>>>> dev
+          "Mean   :  56.28  "
         ],
         [
           null,
@@ -1944,15 +1907,9 @@
       ],
       "Guidance": [
         [
-<<<<<<< HEAD
-          "Length:75         ",
-          "Length:75         ",
-          "Length:75         "
-=======
-          "High Priority: 3  ",
-          "Length:71         ",
-          "Length:71         "
->>>>>>> dev
+          "Length:74         ",
+          "Length:74         ",
+          "Length:74         "
         ],
         [
           "Class :character  ",
@@ -1960,11 +1917,7 @@
           "Class :character  "
         ],
         [
-<<<<<<< HEAD
           "Mode  :character  ",
-=======
-          "Warning      :30  ",
->>>>>>> dev
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -2119,28 +2072,16 @@
       ],
       "Warnings": [
         [
-<<<<<<< HEAD
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
+          "Length:43874      ",
+          "Length:43874      ",
+          "Length:43874      ",
+          "Length:43874      ",
+          "Length:43874      ",
+          "Length:43874      ",
+          "Length:43874      ",
+          "Length:43874      ",
           "Min.   :2005-04-14  ",
-          "Length:43883      "
-=======
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Min.   :2005-04-14  "
->>>>>>> dev
+          "Length:43874      "
         ],
         [
           "Class :character  ",

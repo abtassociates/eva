@@ -79,11 +79,15 @@
     "fileStructureAnalysis_columns_selected": null,
     "fileStructureAnalysis_rows_all": [
       1,
-      2
+      2,
+      3,
+      4
     ],
     "fileStructureAnalysis_rows_current": [
       1,
-      2
+      2,
+      3,
+      4
     ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
@@ -139,7 +143,7 @@
         "FY26-test-main-valid.zip"
       ],
       "size": [
-        19590311
+        17725113
       ],
       "type": [
         "application/zip"
@@ -292,7 +296,7 @@
       "x": {
         "filter": "none",
         "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Priority<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
           "language": {
@@ -304,7 +308,7 @@
               "targets": 2
             },
             {
-              "name": "Type",
+              "name": "Priority",
               "targets": 0
             },
             {
