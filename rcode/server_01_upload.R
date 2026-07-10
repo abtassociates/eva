@@ -181,7 +181,7 @@ process_upload <- function(upload_filename, upload_filepath) {
             $('#imported')
               .closest('.input-group-btn')
               .next()
-              .val('./utilities/demo.zip');
+              .val('./util/demo.zip');
           "))
       }
       
