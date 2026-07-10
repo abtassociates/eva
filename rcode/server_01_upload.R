@@ -18,11 +18,19 @@ process_upload <- function(upload_filename, upload_filepath) {
       
     }
     
+    logToConsole <- function(session, msg) {
+      message(paste0(
+        session$token, "  ",  
+        Sys.time(), "  ",
+        msg
+      ))
+    }
+    
     setProgress(message = "Processing...", value = .01)
     
     setProgress(detail = "Checking initial validity ", value = .05)
-
-    err <- source_trycatch("00_initially_valid_import.R")
+    source(here("rcode","functions_00_helper.R"))
+    err <- source_trycatch(here("rcode","00_initially_valid_import.R"))
     if(!is.null(err)) return(NULL)
 
     if(session$userData$initially_valid_import() == 0)
@@ -37,15 +45,15 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Reading your files..", value = .2)
 
-    err <- source_trycatch("01_get_export.R")
+    err <- source_trycatch(here("rcode","01_get_export.R"))
     if(!is.null(err)) return(NULL)
     
-    err <- source_trycatch("02_export_dates.R")
+    err <- source_trycatch(here("rcode","02_export_dates.R"))
     if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Checking file structure", value = .35)
     
-    err <- source_trycatch("03_file_structure_analysis.R")
+    err <- source_trycatch(here("rcode","03_file_structure_analysis.R"))
     if(!is.null(err)) return(NULL)
     
     if(session$userData$valid_file() == 0)
@@ -53,7 +61,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     setProgress(detail = "Prepping initial data..", value = .4)
     
-    err <- source_trycatch("04_initial_data_prep.R")
+    err <- source_trycatch(here("rcode","04_initial_data_prep.R"))
     if(!is.null(err)) return(NULL)
     
     setProgress(detail = "Assessing your data quality..", value = .7)
@@ -70,10 +78,10 @@ process_upload <- function(upload_filename, upload_filepath) {
     )
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
-      source("05_data_quality.R", local = TRUE)
+      source(here("rcode","05_data_quality.R"), local = TRUE)
       
       logToConsole(session, "About to run pdde_mirai")
-      source("06_PDDE_checker.R", local = TRUE)
+      source(here("rcode","06_PDDE_checker.R"), local = TRUE)
       
       list(
         dq_main = dq_main,
@@ -96,7 +104,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
-      if(IN_DEV_MODE) browser()
+      #if(IN_DEV_MODE) browser()
     }
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
@@ -104,7 +112,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       nav_hide(id = 'pageid', target = 'menuSysPerf', session = session)
     } else {
      
-      err <- source_trycatch("07_system_overview.R")
+      err <- source_trycatch(here("rcode","07_system_overview.R"))
       if(!is.null(err)) {
         nav_hide(id = 'pageid', target = "menuSysPerf", session = session)
       } else {
@@ -179,7 +187,7 @@ process_upload <- function(upload_filename, upload_filepath) {
             $('#imported')
               .closest('.input-group-btn')
               .next()
-              .val('demo.zip');
+              .val('./utilities/demo.zip');
           "))
       }
       
