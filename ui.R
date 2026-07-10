@@ -1100,7 +1100,7 @@ nav_panel(
     nav_panel(
       title = headerTab('Exits by Type'),
       
-      navset_underline(
+      navset_underline( 
         id = "syse_types_subtabs",
         selected = headerSubTab("Chart"),
         
