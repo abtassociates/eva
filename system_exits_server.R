@@ -414,6 +414,8 @@ observeEvent(input$syse_tabbox, {
     shinyjs::show('syse_race_ethnicity')
   }
   
+  # Household Type is not a filter for Exits by Subpopulation
+  shinyjs::toggle("syse_hh_type", condition = input$syse_tabbox != '<h4>Exits by Subpopulation</h4>')
 })
 
 observeEvent(input$syse_types_subtabs, {
