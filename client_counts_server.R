@@ -74,7 +74,7 @@ client_count_summary_df <- reactive({
   req(!is.null(input$currentProviderList))
   
   client_counts <- client_count_data_df() %>%
-    fsubset(ProjectName == input$currentProviderList) %>%
+    fsubset(ProjectID == input$currentProviderList) %>%
     fgroup_by(Status)
   if(nrow(client_counts) == 0){
     return(NULL)
@@ -433,11 +433,11 @@ output$clientCountData <- renderDT({
   req(session$userData$valid_file() == 1)
   req(nrow(session$userData$validation) > 0)
   
-  # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectName == input$currentProviderList`.
+  # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectID == input$currentProviderList`.
   # Caused by error:
   #   ! `..1` must be of size 292 or 1, not size 0.
   x <- client_count_data_df() %>%
-    fsubset(ProjectName == input$currentProviderList) %>%
+    fsubset(ProjectID == input$currentProviderList) %>%
     fselect(c(clientCountDetailCols, "days")) %>%
     fmutate(
       Status = fifelse(!is.na(days), paste0(Status, " (", days, " days)"), as.character(Status)),
@@ -658,7 +658,7 @@ cc_project_type <- reactive({
   req(session$userData$valid_file() == 1)
   
   cc_filt <- (client_count_data_df() %>% 
-    fsubset(ProjectName == input$currentProviderList) %>% pull(ProjectType))
+    fsubset(ProjectID == input$currentProviderList) %>% pull(ProjectType))
   
   if(length(cc_filt) > 0){
     cc_filt[1]
@@ -670,9 +670,9 @@ cc_project_type <- reactive({
 output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
   
-  if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectName){
+  if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectID){
     tl_df_project_start() %>%  
-      fsubset(ProjectName == input$currentProviderList) %>% 
+      fsubset(ProjectID == input$currentProviderList) %>% 
       pull(mdn)
   } else {
     '-'
@@ -683,9 +683,9 @@ output$timeliness_vb1_val <- renderText({
 output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
   
-  if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectName){
+  if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectID){
     tl_df_project_exit() %>% 
-      fsubset(ProjectName == input$currentProviderList) %>% 
+      fsubset(ProjectID == input$currentProviderList) %>% 
       pull(mdn)
   } else {
     '-'
@@ -700,32 +700,32 @@ output$timeliness_vb3 <- renderUI({
   num_hours_var <- "n_lt_metric"
   
   if(!is.null(tl_df_nbn())){
-    num_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
-    den_nbn <- tl_df_nbn() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+    num_nbn <- tl_df_nbn() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(num_hours_var)
+    den_nbn <- tl_df_nbn() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(n_records)
   } else {
     num_nbn <- 0
     den_nbn <- 0
   }
   
   if(!is.null(tl_df_cls())){
-    num_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
-    den_cls <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+    num_cls <- tl_df_cls() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(num_hours_var)
+    den_cls <- tl_df_cls() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(n_records)
   } else {
     num_cls <- 0
     den_cls <- 0
   }
  
   if(!is.null(tl_df_ce_assess())){
-    num_ce_assess <- tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
-    den_ce_assess <- tl_df_ce_assess() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+    num_ce_assess <- tl_df_ce_assess() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(num_hours_var)
+    den_ce_assess <- tl_df_ce_assess() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(n_records)
   } else {
     num_ce_assess <- 0
     den_ce_assess <- 0
   }
   
   if(!is.null(tl_df_ce_event())){
-    num_ce_event <- tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var)
-    den_ce_event <- tl_df_ce_event() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records)
+    num_ce_event <- tl_df_ce_event() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(num_hours_var)
+    den_ce_event <- tl_df_ce_event() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(n_records)
   } else {
     num_ce_event <- 0
     den_ce_event <- 0
@@ -733,8 +733,8 @@ output$timeliness_vb3 <- renderUI({
      
     num <- sum(
       c(
-        ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
-        ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(num_hours_var), 0),
+        ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(num_hours_var), 0),
+        ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(num_hours_var), 0),
       num_nbn,
       num_cls,
       num_ce_assess,
@@ -744,8 +744,8 @@ output$timeliness_vb3 <- renderUI({
     )
     den <-  sum(
       c(
-      ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
-      ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectName == input$currentProviderList) %>% pull(n_records), 0),
+      ifelse(!is.null(tl_df_project_start()), tl_df_project_start() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(n_records), 0),
+      ifelse(!is.null(tl_df_project_exit()), tl_df_project_exit() %>% fsubset(ProjectID == input$currentProviderList) %>% pull(n_records), 0),
       den_nbn,
       den_cls,
       den_ce_assess,
@@ -776,7 +776,7 @@ pull_time_cols <- function(cond, df, set_zero = TRUE) {
   time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
   
   if(cond)
-    df %>% fsubset(ProjectName == input$currentProviderList) %>% fselect(time_cols) %>% unlist
+    df %>% fsubset(ProjectID == input$currentProviderList) %>% fselect(time_cols) %>% unlist
   else if(set_zero)
     0
   else 
@@ -799,23 +799,23 @@ output$timelinessTable <- renderDT({
     )
   
   dat$proj_start <- pull_time_cols(
-    !is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectName,
+    !is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectID,
     tl_df_project_start()
   )
   
   dat$proj_exit <- pull_time_cols(
-    !is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectName,
+    !is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectID,
     tl_df_project_exit()
   )
   
   dat$nbn <-  pull_time_cols(
-    cc_project_type() == es_nbn_project_type && input$currentProviderList %in% tl_df_nbn()$ProjectName,
+    cc_project_type() == es_nbn_project_type && input$currentProviderList %in% tl_df_nbn()$ProjectID,
     tl_df_nbn(),
     set_zero = FALSE
   )
  
   if(cc_project_type() %in% c(es_nbn_project_type, out_project_type, ce_project_type)){
-    cls_df <- tl_df_cls() %>% fsubset(ProjectName == input$currentProviderList)
+    cls_df <- tl_df_cls() %>% fsubset(ProjectID == input$currentProviderList)
     if(fnrow(cls_df) > 0){
 
       dat$cls = cls_df %>% fselect(time_cols) %>% unlist
@@ -824,20 +824,20 @@ output$timelinessTable <- renderDT({
     }
   } else {
     dat$cls <- pull_time_cols(
-      cc_project_type() %in% project_types_w_cls && input$currentProviderList %in% tl_df_cls()$ProjectName,
+      cc_project_type() %in% project_types_w_cls && input$currentProviderList %in% tl_df_cls()$ProjectID,
       tl_df_cls(),
       set_zero = FALSE
     )  
   }
   
   dat$ce_assess <-  pull_time_cols(
-    cc_project_type() == ce_project_type || input$currentProviderList %in% tl_df_ce_assess()$ProjectName,
+    cc_project_type() == ce_project_type || input$currentProviderList %in% tl_df_ce_assess()$ProjectID,
     tl_df_ce_assess(),
     set_zero = FALSE
   )
   
   dat$ce_event <-  pull_time_cols(
-    cc_project_type() == ce_project_type || input$currentProviderList %in% tl_df_ce_event()$ProjectName,
+    cc_project_type() == ce_project_type || input$currentProviderList %in% tl_df_ce_event()$ProjectID,
     tl_df_ce_event(),
     set_zero = FALSE
   )

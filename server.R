@@ -67,10 +67,14 @@ function(input, output, session) {
   output$headerProjectDashboard_supp <- renderUI({ 
     req(session$userData$valid_file() == 1)
     organization <- session$userData$Project0 %>%
-      fsubset(ProjectName == input$currentProviderList) %>%
+      fsubset(ProjectID == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(organization, "|", input$currentProviderList)
+    project_name <- session$userData$Project0 %>%
+      fsubset(ProjectID == input$currentProviderList) %>%
+      pull(ProjectName)
+    
+    h4(organization, "|", project_name)
   })
   
   output$headerProjectDashboard <- headerGeneric(session, "Project Dashboard Report",
