@@ -78,10 +78,10 @@ process_upload <- function(upload_filename, upload_filepath) {
     )
     dq_pdde_mirai <- mirai({
       logToConsole(session, "About to run dq_mirai")
-      source(here("rcode","05_data_quality.R"), local = TRUE)
+      source(here("rcode", "05_data_quality.R"), local = TRUE)
       
       logToConsole(session, "About to run pdde_mirai")
-      source(here("rcode","06_PDDE_checker.R"), local = TRUE)
+      source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
       
       list(
         dq_main = dq_main,
@@ -112,7 +112,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       nav_hide(id = 'pageid', target = 'menuSysPerf', session = session)
     } else {
      
-      err <- source_trycatch(here("rcode","07_system_overview.R"))
+      err <- source_trycatch(here("rcode", "07_system_overview.R"))
       if(!is.null(err)) {
         nav_hide(id = 'pageid', target = "menuSysPerf", session = session)
       } else {

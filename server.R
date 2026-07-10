@@ -31,9 +31,9 @@ function(input, output, session) {
   # while these seem like they could be "globalized" they have output UI elements
   # and are therefore session based
 
-  source(here("server_00_glossary.R"), local = TRUE)
-  source(here("server_00_changelog.R"), local = TRUE)
-  source(here("server_00_demo_management.R"), local = TRUE)
+  source(here("rcode", "server_00_glossary.R"), local = TRUE)
+  source(here("rcode", "server_00_changelog.R"), local = TRUE)
+  source(here("rcode", "server_00_demo_management.R"), local = TRUE)
 
   logMetadata(session, "Session started")
   
@@ -129,28 +129,28 @@ function(input, output, session) {
     session$reload()
   })
   
-  source("server_01_upload.R", local=TRUE)
+  source(here("rcode", "server_01_upload.R"), local=TRUE)
   
-  source("server_03_file_structure_analysis.R", local = TRUE)
+  source(here("rcode", "server_03_file_structure_analysis.R"), local = TRUE)
   
-  source("server_05_data_quality.R", local = TRUE)
+  source(here("rcode", "server_05_data_quality.R"), local = TRUE)
   
-  source("server_06_client_counts.R", local = TRUE)
-  source("server_06.1_client_level_export.R", local=TRUE)
+  source(here("rcode", "server_06_client_counts.R"), local = TRUE)
+  source(here("rcode", "server_06.1_client_level_export.R"), local=TRUE)
   
   
-  source("functions_07_system_performance.R", local = TRUE)
+  source(here("rcode", "functions_07_system_performance.R"), local = TRUE)
   
-  source("server_07_system_overview.R", local = TRUE)
-  source("server_07.1_system_composition.R", local = TRUE)
-  source("server_07.2_system_inflow_outflow.R", local = TRUE)
-  source("server_07.3_system_status.R", local = TRUE)
+  source(here("rcode", "server_07_system_overview.R"), local = TRUE)
+  source(here("rcode", "server_07.1_system_composition.R"), local = TRUE)
+  source(here("rcode", "server_07.2_system_inflow_outflow.R"), local = TRUE)
+  source(here("rcode", "server_07.3_system_status.R"), local = TRUE)
   
-  source("server_07.4_system_exits.R", local = TRUE)
-  source("server_07.4.1_syse_types.R", local = TRUE)
-  source("server_07.4.2_syse_time.R", local = TRUE)
-  source("server_07.4.3_syse_subpop.R", local = TRUE)
-  source("server_07.4.4_syse_phd.R", local = TRUE)
+  source(here("rcode", "server_07.4_system_exits.R"), local = TRUE)
+  source(here("rcode", "server_07.4.1_syse_types.R"), local = TRUE)
+  source(here("rcode", "server_07.4.2_syse_time.R"), local = TRUE)
+  source(here("rcode", "server_07.4.3_syse_subpop.R"), local = TRUE)
+  source(here("rcode", "server_07.4.4_syse_phd.R"), local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
