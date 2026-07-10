@@ -1007,7 +1007,92 @@ page_navbar(
         )
       ),
       br(),
-
+      ### Filters --------------
+      card(
+        card_header(headerCard('Filters')),
+        layout_columns(
+          col_widths=c(6,6),
+          gap = 0,
+          card(
+            id = 'syse_filters_left',
+            style='border-width:0;border-radius:0',
+            layout_columns(
+              col_widths = c(4,4,4,6,6),
+              fill = T,
+              
+              pickerInput(
+                label = "Household Type",
+                inputId = "syse_hh_type",
+                choices = sys_hh_types,
+                selected = sys_hh_types[1],
+                options = pickerOptions(container = "body")
+              ),
+              pickerInput(
+                label = "Level of Detail",
+                inputId = "syse_level_of_detail",
+                choices = sys_level_of_detail,
+                selected = sys_level_of_detail[1],
+                options = pickerOptions(container = "body")
+              ),
+              pickerInput(
+                label = "Project Type Group",
+                inputId = "syse_project_type",
+                choices = sys_project_types,
+                selected = sys_project_types[1],
+                options = pickerOptions(container = "body")
+              ),
+              pickerInput(
+                inputId = "syse_age",
+                label = "Age",
+                selected = sys_age_cats,
+                choices = sys_age_cats,
+                multiple = TRUE,
+                options = pickerOptions(
+                  actionsBox = TRUE,
+                  selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                  countSelectedText = "All Ages",
+                  noneSelectedText = "All Ages",
+                  container = "body"
+                )
+              ),
+              pickerInput(
+                label = "Veteran Status",
+                inputId = "syse_spec_pops",
+                choices = sys_spec_pops_people,
+                selected = sys_spec_pops_people[1],
+                options = pickerOptions(container = "body")
+              )
+            )
+          ),
+          card(
+            id = 'syse_filters_right',
+            style="border-width:0;border-left-width: 1px; border-radius:0",
+            layout_columns(
+              col_widths = c(12,12),
+              pickerInput(
+                label = "Race/Ethnicity Methodology Type",
+                inputId = "syse_methodology_type",
+                multiple = FALSE,
+                selected = sys_methodology_types[1],
+                choices = sys_methodology_types,
+                options = pickerOptions(container = "body")
+              ),
+              pickerInput(
+                label = "Race/Ethnicity",
+                inputId = "syse_race_ethnicity",
+                choices = sys_race_ethnicity_method1,
+                selected = sys_race_ethnicity_method1,
+                options = list(
+                  `dropdown-align-right` = TRUE,
+                  `dropup-auto` = FALSE,
+                  container = "body"
+                )
+              )
+            )
+          )
+        )
+        
+      ),
       navset_card_underline(
         id = 'syse_tabbox',
         ### Exits by Type -----
