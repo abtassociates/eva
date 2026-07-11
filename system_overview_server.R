@@ -420,11 +420,11 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   prev_info <- all_filtered_w_first_last_active %>%
     fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period)
   
-  prev_row <- if(fnrow(prev_info) == 0)
+  prev_info <- if(fnrow(prev_info) == 0)
     data.table(
       PersonalID = character(), 
       period = factor(),
-      prev_active  = Date(), 
+      prev_active = Date(), 
       prev_exit = Date(), 
       prev_exit_dest_perm = logical()
     )
