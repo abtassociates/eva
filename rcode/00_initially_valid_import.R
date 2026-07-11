@@ -80,6 +80,7 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
     issueID = 127, 
     title = "Unsuccessful Upload: You did not upload a zip file"
   )
+  logMetadata(session, "Unsuccessful upload - zip file not .zip")
 } else {
   zipContents <- utils::unzip(zipfile = upload_filepath, list = TRUE)
     
