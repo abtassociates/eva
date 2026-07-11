@@ -416,7 +416,17 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   
   # get days between the earliest active date in the period and the most recent active before that
   prev_info <- all_filtered_w_first_last_active %>%
-    fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period) %>%
+    fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period)
+  
+  prev_row <- if(fnrow(prev_info) == 0)
+    data.table(
+      PersonalID = character(), 
+      period = factor(),
+      prev_active  = Date(), 
+      prev_exit = Date(), 
+      prev_exit_dest_perm = logical()
+    )
+  else prev_info %>%
     fselect(PersonalID, period, EnrollmentID, ProjectType, active_start, active_end, ExitAdjust, Destination, first_active_date_in_period) %>%
     fmutate(
       prev_active = pmin(active_end, first_active_date_in_period, na.rm=TRUE),
@@ -442,7 +452,15 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
     funique()
   
   next_info <- all_filtered_w_first_last_active %>%
-    fsubset(!is.na(last_active_date_in_period) & active_end > last_active_date_in_period) %>%
+    fsubset(!is.na(last_active_date_in_period) & active_end > last_active_date_in_period)
+  
+  next_info <- if(fnrow(next_info) == 0)
+    data.table(
+      PersonalID = character(), 
+      period = factor(),
+      next_active  = Date()
+    )
+  else next_info %>%
     fselect(PersonalID, period, active_start, active_end, last_active_date_in_period, exited_in_period, Destination) %>%
     fmutate(
       next_active = pmax(active_start, last_active_date_in_period, na.rm=TRUE)
@@ -475,6 +493,30 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
 
 get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'mbm', reportStart = session$userData$ReportStart,
                                      reportEnd = session$userData$ReportEnd) {
+  
+  if(fnrow(all_filtered_w_active_info) == 0) {
+    dt <- data.table(
+      PersonalID = character(), 
+      period = factor(), 
+      InflowTypeDetail = factor(), 
+      OutflowTypeDetail = factor(), 
+      InflowTypeSummary = factor(), 
+      OutflowTypeSummary = factor(),
+      Destination = numeric(),
+      EnrollmentID = character(), 
+      EnrollmentID_lecr = character(),
+      first_active_date_in_period = Date(), 
+      prev_active = Date()
+    )
+    
+    if(!IN_DEV_MODE) {
+      # only need these vars for QC checks
+      dt <- dt %>%
+        fselect(-first_active_date_in_period, -prev_active)
+    }
+    return(dt)
+  }
+  
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
