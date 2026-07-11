@@ -206,8 +206,8 @@ get_syse_compare_time_chart <- function( isExport = FALSE){
                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
   
   title <- paste0(title_start, 
-                  c(paste0(': ', scales::label_comma()(nrow(everyone() %>% fsubset(period == 'Current Year')))),
-                    paste0(': ', scales::label_comma()(nrow(everyone() %>% fsubset(period == 'Previous Year'))))),
+                  c(paste0(': ', format(nrow(everyone() %>% fsubset(period == 'Current Year')), big.mark=',', scientific = FALSE, trim = TRUE)),
+                    paste0(': ', format(nrow(everyone() %>% fsubset(period == 'Previous Year')), big.mark=',', scientific = FALSE, trim = TRUE))),
                   collapse='\n'
   )
   
