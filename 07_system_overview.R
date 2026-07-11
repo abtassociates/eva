@@ -364,12 +364,10 @@ enrollment_categories <- enrollment_prep_hohs %>%
     EntryDate <= session$userData$ReportEnd & ExitAdjust >= (session$userData$ReportStart %m-% years(2))
   )
 
-enrollment_categories <- enrollment_categories %>% fslice(0)
-browser()
 if(fnrow(enrollment_categories) == 0) {
   session$userData$enrollment_categories <- data.table()
   session$userData$enrollment_categories_prev <- data.table()
-  intentional_stop(message = "enrollment_categories has no rows after removing HP and enrollments outside Report window and 2 years prior")
+  intentional_stop(session, message = "enrollment_categories has no rows after removing HP and enrollments outside Report window and 2 years prior")
 }
 
 enrollment_categories <- enrollment_categories %>%
@@ -469,7 +467,7 @@ enrollment_categories <- enrollment_categories %>%
 if(fnrow(enrollment_categories) == 0) {
   session$userData$enrollment_categories <- data.table()
   session$userData$enrollment_categories_prev <- data.table()
-  intentional_stop(message = "enrollment_categories has no rows after removing problematic enrollments")
+  intentional_stop(session, message = "enrollment_categories has no rows after removing problematic enrollments")
 }
 
 # Set MoveInDateAdjust to no_end_date if NA. 
@@ -590,7 +588,7 @@ enrollment_categories_prev <- enrollment_prep_hohs %>%
 
 if(fnrow(enrollment_categories_prev) == 0) {
   session$userData$enrollment_categories_prev <- data.table()
-  intentional_stop(message = "enrollment_categories_prev has no rows after removing HP and enrollments outside Report window and 2 years prior")
+  intentional_stop(session, message = "enrollment_categories_prev has no rows after removing HP and enrollments outside Report window and 2 years prior")
 }
 
 enrollment_categories_prev <- enrollment_categories_prev %>%
@@ -678,7 +676,7 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
 
 if(fnrow(enrollment_categories_prev) == 0) {
   session$userData$enrollment_categories_prev <- data.table()
-  intentional_stop(message = "enrollment_categories_prev has no rows after removing problematic enrollments")
+  intentional_stop(session, message = "enrollment_categories_prev has no rows after removing problematic enrollments")
 }
 
 # Set MoveInDateAdjust to no_end_date if NA. 
