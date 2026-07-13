@@ -174,24 +174,25 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL){
   
   for (q in 1:(length(period)+1)){ # q stands for quarter, but this is generalized to work for months too
     
-    if(period_start[1] == as.Date(session$userData$ReportStart) ){ # if first period equals report start (monthly view)
+    if(period_start[1] == as.Date(session$userData$ReportStart) ){ # if first period equals report start (monthly/even quarterly view)
       
-      q_start <- as.Date(fifelse(q <= length(period_start),  period_start[q], NA )) # current period or NA (for post-last period)
-      q_end <- as.Date(fifelse(q >= length(period_start), session$userData$ReportEnd, period_start[q+1]-days(1))) # next period minus a day or Report End (for last & post-last periods)
-      q_lab <- fcase(q > length(period_start), NA_character_, 
-                     q == length(period_start) & as.Date(period_start[1]+years(1)-days(1)) != as.Date(session$userData$ReportEnd), paste(labels[q], "to Report End"), # construct post-last label with previous period to Report End
+      q_start <- as.Date(fifelse(q <= length(period_start),  period_start[q], NA )) # current period or NA (for post-last iter)
+      q_end <- as.Date(fifelse(q >= length(period_start), session$userData$ReportEnd, period_start[q+1]-days(1))) # next period minus a day or Report End (for last & post-last iter)
+      q_lab <- fcase(q > length(period_start), NA_character_, # no post-last iter label
+                     q == length(period_start) & as.Date(session$userData$ReportEnd) != (min(period_start) + years(1) - days(1)), paste(labels[q], "to Report End"),
                      default =  labels[q]) # otherwise use label as-is
-      q_pit <- as.Date(fifelse(q > length(period), session$userData$ReportEnd, period[q]))
+      q_pit <- as.Date(fifelse(q > length(period), NA, # no post-last iter label
+                       period[q]) )# otherwise use pit as-is
       
     }else{
       
-      q_start <- as.Date(ifelse(q==1, session$userData$ReportStart, period_start[q-1] + days(1))) # Report start (for first period) or previous period + a day
-      q_end <- as.Date(ifelse(q>length(period_start), session$userData$ReportEnd, period_start[q])) # current period or Report End (for post-last period)
-      q_lab <- fcase(q > length(period_start) & as.Date(period_start[1]+years(1)-days(1)) == as.Date(session$userData$ReportEnd), labels[1],
-                     q > length(period_start), paste(labels[q-1], "to Report End"), # construct post-last label with previous period to Report End
-                     q==1, paste("Report Start to",  labels[q]), # update first label to note it starts from Report Start
-                     default =  labels[q]) # otherwise use label as-is
-      q_pit <- as.Date(fifelse(q > length(period), session$userData$ReportEnd, period[q]))
+      q_start <- as.Date(ifelse(q==1, session$userData$ReportStart, period_start[q-1] )) # Report start (for first iter) or previous period start
+      q_end <- as.Date(ifelse(q>length(period_start), session$userData$ReportEnd, period_start[q] -days(1))) # current period start minus a day or Report End (for post-last iter)
+      q_lab <- fcase(q > length(period_start), paste(labels[q-1], "to Report End"), # construct post-last iter label with previous label to Report End
+                     q==1, paste("Report Start to",  labels[q]), # update first iter label to note it starts from Report Start
+                     default =  labels[q-1]) # otherwise use label of previous period
+      q_pit <- as.Date(ifelse(q ==1, NA, # no post-last iter pit (purely for linking data)
+                               period[q-1]) )# otherwise use pit as-is
     }
     
     if(!is.na(q_start)){ # skip if q_start is NA (post-last period)
@@ -508,7 +509,7 @@ hh_avg<- reactive({
   
   # remove underscores
   colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
-  proj_inv_filtered
+  proj_inv_filtered %>% arrange(PITstart)
 })
 
 re_calc <- reactive({
@@ -609,12 +610,15 @@ output$proj_bui_hh <- renderDT({
   
   if(input$bui_period_filter == "Points in Time"){
     colnames(data) <- gsub("PIT Total", "PIT", colnames(data))
+    # filter out rows for post-last quarter (if 4 even quarters) and the first quarter (if partial quarters)
+    # adjust the first period label to remove additional text
+    data <- data %>% fsubset(!is.na(PIT)) %>%
+      fmutate(label = gsub('Report Start to | to Report End', "", label))
+    
     data <- data %>% rename(`Time Period` = PIT)
     data <- data %>% select(-Availability, -contains("Avg Nightly "), -contains("Total ")) %>% unique()
     
-    # filter out rows for post-last quarter and adjust the first period label 
-    data <- data %>% fsubset(!grepl("Report End", label)) %>%
-      fmutate(label = gsub("Report Start to", "", label))
+    
     
   }else{
     colnames(data) <- gsub("Avg Nightly Total", "Avg Nightly", colnames(data))
@@ -625,7 +629,7 @@ output$proj_bui_hh <- renderDT({
   
   
   labels <- data$label
-  data <- data %>% select(-label) %>% t()  # transpose 
+  data <- data %>% fselect(-label) %>% t()  # transpose 
   colnames(data) <- labels
   
   for (f in input$bui_bed_avail){
