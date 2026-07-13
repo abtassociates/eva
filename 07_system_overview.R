@@ -310,6 +310,9 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
+if(fnrow(enrollment_prep) == 0)
+  stop("No valid Continuum records in enrollment_prep")
+
 # IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
 # check that
 # enrollment_prep %>%
