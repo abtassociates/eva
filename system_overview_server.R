@@ -52,8 +52,7 @@ observeEvent(input$syso_methodology_type, {
       $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
     ")
   )
-},
-ignoreInit = TRUE)
+}, ignoreInit = TRUE)
 
 observeEvent(
   list(
@@ -123,7 +122,7 @@ sys_total_count_display <- function(total_count) {
       paste0(
         full_unit_of_analysis_display(),
         ": ",
-        scales::comma(total_count)
+        format(total_count, big.mark = ',', scientific = FALSE, trim = TRUE)
       ),
       width = 40
     ),
