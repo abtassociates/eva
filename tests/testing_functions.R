@@ -221,7 +221,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "clientCountData",
         "clientCountSummary",
         "timelinessTable",
-        "downloadClientCountsReportButton"
+        "downloadProjectDashboardReportButton"
       )
     )
     
@@ -571,7 +571,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
-    customDownload(app, "downloadClientCountsReport", "Client-Counts-Download.xlsx")
+    customDownload(app, "downloadProjectDashboardReport", "Project-Dashboard-Download.xlsx")
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")

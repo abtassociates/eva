@@ -144,9 +144,9 @@ clean_timeliness_df <- function(tl_df, record_type, orgList = unique(client_coun
   return(validationDF)
 }
 
-get_clientcount_download_info <- function(orgList = unique(client_count_data_df()$OrganizationName),
+get_project_dashboard_download_info <- function(orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
-  logToConsole(session, "in get_clientcount_download_info")
+  logToConsole(session, "in get_project_dashboard_download_info")
    client_counts_metadata <- data.table(
     Chart = c(
       "Export Date",
@@ -362,7 +362,7 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
       client_count_download_timeliness_ce_event = summarize_df(validationCEEvent %>% nice_names_timeliness(record_type = 'ce_event'))
     )
   }
-  logToConsole(session, "returning from get_clientcount_download_info")
+  logToConsole(session, "returning from get_project_dashboard_download_info")
   
   
   return(exportDFList[lengths(exportDFList) > 0])
@@ -862,22 +862,22 @@ output$timelinessTable <- renderDT({
 
 # CLIENT COUNT DOWNLOAD ---------------------------------------------------
 
-output$downloadClientCountsReportButton  <- renderUI({
+output$downloadProjectDashboardReportButton  <- renderUI({
   req(session$userData$valid_file() == 1)
-  downloadButton(outputId = "downloadClientCountsReport",
+  downloadButton(outputId = "downloadProjectDashboardReport",
                  label = "Download System-Wide")
 })
 
 # the download basically contains a pivoted and summarized version of the
 # two app tables, but for all projects along with a Current tab limited to
 # just the current date.
-output$downloadClientCountsReport <- downloadHandler(
+output$downloadProjectDashboardReport <- downloadHandler(
   filename = date_stamped_filename("System-level Project Dashboard Report-"),
   content = function(file){
     logMetadata(session, paste0("Downloaded Project Dashboard Report with Date Range = [",
                                 paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    df_xl <- get_clientcount_download_info()
+    df_xl <- get_project_dashboard_download_info()
    
     write_xlsx(df_xl,
                path = file)

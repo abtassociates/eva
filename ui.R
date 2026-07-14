@@ -453,7 +453,7 @@ page_navbar(
         
         nav_spacer(),
         nav_item(
-          uiOutput("downloadClientCountsReportButton", inline = TRUE)
+          uiOutput("downloadProjectDashboardReportButton", inline = TRUE)
         )
       )
       # card(
