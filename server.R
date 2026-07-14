@@ -128,6 +128,16 @@ function(input, output, session) {
     session$reload()
   })
   
+  observeEvent(input$toggle_help, {
+    shinyjs::toggleClass(id = "help_sidebar", class = "open")
+  })
+  
+  # 2. Close via X button inside the sidebar
+  observeEvent(input$close_help, {
+    shinyjs::removeClass(id = "help_sidebar", class = "open")
+  })
+  
+  
   source("upload_server.R", local=TRUE)
   
   source("client_counts_server.R", local = TRUE)

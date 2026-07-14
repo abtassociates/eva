@@ -49,6 +49,89 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
+    ),
+    div(
+      id = "help_sidebar",
+      
+      # The floating button attached to the outside
+      actionLink(
+        "toggle_help", 
+        label = icon("gear")
+      ),
+      
+      # Inner container that handles the scrolling padding
+      div(
+        id = "help_sidebar_content",
+        tagList(
+          h4(
+            stringr::str_to_title("Local Settings"),
+            div(
+              style = "position: absolute; top: 10px; right: 20px;",
+              actionButton("close_help", "X", class = "btn-danger btn-sm")
+            )
+          ),
+          hr()
+        ),
+        layout_columns(
+          col_widths = c(6,6,6,6,6,6),
+          class = "align-items-end",
+          numericInput(
+            inputId = "ESNbNLongStayers",
+            label = "Emergency Shelter (NbN only!):",
+            value = 15,
+            min = 0,
+            max = 3650,
+            step = 5,
+            width = "200px"
+          ),
+          numericInput(
+            inputId = "OUTLongStayers",
+            label = "Street Outreach:",
+            value = 60,
+            min = 0,
+            max = 3650,
+            step = 5,
+            width = "200px"
+          ),
+          numericInput(
+            inputId = "OtherLongStayers",
+            label = "Other:",
+            value = 60,
+            min = 0,
+            max = 3650,
+            step = 5,
+            width = "200px"
+          ),
+          
+          numericInput(
+            inputId = "ServicesOnlyLongStayers",
+            label = "Services Only:",
+            value = 60,
+            min = 0,
+            max = 3650,
+            step = 5,
+            width = "200px"
+          ),
+          numericInput(
+            inputId = "DayShelterLongStayers",
+            label = "Day Shelter:",
+            value = 60,
+            min = 0,
+            max = 3650,
+            step = 5,
+            width = "200px"
+          ),
+          numericInput(
+            inputId = "CELongStayers",
+            label = "Coordinated Entry:",
+            value = 90,
+            min = 0,
+            max = 3650,
+            step = 5,
+            width = "200px"
+          )
+        )
+      )
     )
   ), 
   
