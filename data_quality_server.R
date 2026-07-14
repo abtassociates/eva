@@ -310,7 +310,7 @@ get_dq_plot_data <- function(level, issueType, groupVars) {
   # First, need to get long_stayers, if any
   # Unlike other DQ checks, this happens here because it needs to be reactive tp
   # local setting changes
-  logToConsole(session, glue::glue("in get_Dq_plot_data, level = {level}, issueType = {issueType}, groupVars = {groupVars}"))
+  logToConsole(session, glue::glue("in get_Dq_plot_data, level = {level}, issueType = {issueType}, groupVars = {paste(groupVars, collapse = ', ')}"))
   dq_data <- dq_full()
   
   if(level == "sys") {
@@ -874,22 +874,24 @@ output$dq_export_download_btn <- downloadHandler(
         )
         
         orgs_to_save <- input$dq_export_orgList
+        
         logMetadata(session, paste0("Attempting to Download Org-Level Data Quality Reports for ",
                                     length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         dq_counter <- 0
         
-        for(i in orgs_to_save){
-          dq_export_list <- get_dqDownloadInfo_export(i, value = "org")
+        for(i in 1:length(orgs_to_save)){
+          
+          dq_export_list <- get_dqDownloadInfo_export(orgs_to_save[i], value = "org")
           progress$inc(amount = 1 / length(orgs_to_save),
-                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))          
+                       detail = paste0('Org ', i, ' of ', length(orgs_to_save)))          
          
           if(length(dq_export_list) <= 1) {
             next
           } else {
             dq_counter <- dq_counter + 1 
           }
-          org_name_std <- standardize_org_name(i)
+          org_name_std <- standardize_org_name(orgs_to_save[i])
           
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
@@ -925,13 +927,13 @@ output$dq_export_download_btn <- downloadHandler(
                                     length(orgs_to_save),' organizations',
                                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
         pdde_counter <- 0
-        for(i in orgs_to_save){
+        for(i in 1:length(orgs_to_save)){
           
           progress$inc(amount = 1 / length(orgs_to_save),
-                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
+                       detail = paste0('Org ', i, ' of ', length(orgs_to_save)))     
           
           summary_df <- session$userData$pdde_main %>% 
-            fsubset(OrganizationName == i) %>% 
+            fsubset(OrganizationName == orgs_to_save[i]) %>% 
             fgroup_by(Issue, Type) %>%
             fsummarise(Count = GRPN()) %>%
             fungroup() %>% 
@@ -942,7 +944,7 @@ output$dq_export_download_btn <- downloadHandler(
           } else {
             pdde_counter <- pdde_counter + 1
           }
-          org_name_std <- standardize_org_name(i)
+          org_name_std <- standardize_org_name(orgs_to_save[i])
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
           if(!dir.exists(path_prefix)){
@@ -954,8 +956,8 @@ output$dq_export_download_btn <- downloadHandler(
           write_xlsx(
             list("Summary" = summary_df,
                  "Data" = session$userData$pdde_main %>% 
-                   fsubset(OrganizationName == i) %>% 
-                   join(session$userData$Project0 %>% fsubset(OrganizationName == i) %>% fselect(ProjectID, ProjectType), 
+                   fsubset(OrganizationName == orgs_to_save[i]) %>% 
+                   join(session$userData$Project0 %>% fsubset(OrganizationName == orgs_to_save[i]) %>% fselect(ProjectID, ProjectType), 
                         how = "left", on="ProjectID") %>%
                    roworder(Type, Issue) %>% 
                    nice_names()
@@ -996,19 +998,19 @@ output$dq_export_download_btn <- downloadHandler(
         
         proj_dash_counter <- 0
         
-        for(i in orgs_to_save){
+        for(i in 1:length(orgs_to_save)){
           progress$inc(amount = 1 / length(orgs_to_save),
-                       detail = paste0('Org ', which(orgs_to_save == i), ' of ', length(orgs_to_save)))     
+                       detail = paste0('Org ', i, ' of ', length(orgs_to_save)))     
           
           validationDF <- client_count_data_df() %>% 
-            fsubset(OrganizationName == i)
+            fsubset(OrganizationName == orgs_to_save[i])
           
           if(is.null(validationDF) | nrow(validationDF) == 0) {
             next
           } else {
             proj_dash_counter <- proj_dash_counter + 1
           }
-          org_name_std <- standardize_org_name(i)
+          org_name_std <- standardize_org_name(orgs_to_save[i])
 
           path_prefix <- file.path(tempdir(), org_name_std)
           zip_prefix <- str_glue('{org_name_std}/')
@@ -1017,7 +1019,7 @@ output$dq_export_download_btn <- downloadHandler(
           }
           proj_dash_filename <- date_stamped_filename(str_glue('{org_name_std} - Project Dashboard Report-'))
           pd_org_export <- get_clientcount_download_info( 
-                                        orgList = i, dateRangeEnd = dq_export_date_range_end())
+                                        orgList = orgs_to_save[i], dateRangeEnd = dq_export_date_range_end())
           if(length(pd_org_export) > 1){
             write_xlsx(pd_org_export, path = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)))
             zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
