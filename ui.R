@@ -357,7 +357,7 @@ page_navbar(
         )
       ),
       accordion(
-        id = 'accordion_project_performance',
+        id = 'accordion_project_dashboard',
         open = FALSE,
         accordion_panel(
           title = "Instructions",
@@ -398,13 +398,13 @@ page_navbar(
       ),
       
       navset_card_underline(
-        id = 'project_performance_subtabs',
+        id = 'project_dashboard_subtabs',
         
         nav_panel(
           title = headerTab("Client Counts"),
           
           navset_card_underline(
-            id = "client_count_subtabs",
+            id = "project_dashboard_cc_subtabs",
             nav_panel(
               title = headerSubTab("Summary"),
               DTOutput("clientCountSummary")
@@ -420,7 +420,7 @@ page_navbar(
           title = headerTab("Metrics"),
           
           navset_card_underline(
-            id = "metrics_subtabs",
+            id = "project_dashboard_metrics_subtabs",
             nav_panel(
               title = headerSubTab("Summary"),
               layout_column_wrap(
@@ -488,7 +488,7 @@ page_navbar(
             ),
             nav_panel(
               title = headerSubTab("Detail"),
-              DTOutput("metricsData")
+              DTOutput("metricsDT")
             ),
           )
         ),
