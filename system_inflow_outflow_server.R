@@ -1314,7 +1314,7 @@ output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
           "sys_inflow_outflow_detail_ui_chart",
           isExport = TRUE
         ),
-        "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE),
+        "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
         "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
         "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
         "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
