@@ -185,8 +185,8 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   comp_df <- all_filtered_syse_demog() %>% 
     remove_non_applicables(selection = selections) %>% 
     fselect(
-      PersonalID, 
-      Destination,
+      "PersonalID", 
+      "Destination",
       unname(var_cols[[selections[1]]]), 
       unname(var_cols[[selections[2]]])
     ) %>%

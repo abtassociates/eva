@@ -17,10 +17,9 @@ sys_comp_selections_summary <- function() {
 sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
   var_cols <- get_var_cols(methodology_type)
   
-  
   comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables(selection = selection) %>%
-    select(PersonalID, unname(var_cols[[selection]]))
+    fselect("PersonalID", unname(var_cols[[selection]]))
   
   validate(
     need(
@@ -140,8 +139,8 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
   # get dataset underlying the freqs we will produce below
   comp_df <- get_people_universe_filtered() %>%
     remove_non_applicables(selection = selections) %>%
-    select(
-      PersonalID, 
+    fselect(
+      "PersonalID", 
       unname(var_cols[[selections[1]]]), 
       unname(var_cols[[selections[2]]])
     ) %>%
@@ -301,7 +300,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
       ) +
       
       geom_text(
-        aes(label = ifelse(format(N, big.mark = ',', scientific = FALSE, trim = TRUE))),
+        aes(label = ifelse(wasRedacted, '***', format(N, big.mark = ',', scientific = FALSE, trim = TRUE))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction, 1),
         color = ifelse(
           h_total$N > mean(h_total$N, na.rm = TRUE) & !h_total$wasRedacted,
