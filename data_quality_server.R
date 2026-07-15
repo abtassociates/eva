@@ -90,7 +90,9 @@ output$pdde_summary_table <- renderDT({
     filter = 'none',
     options = list(dom = 't'),
     style = "default"
-  )
+  ) %>%
+    # Format Count to display with commas
+    formatCurrency(columns = "Count", currency = "", digits = 0, mark = ",") 
 })
 
 # PDDE Guidance -----------------------------------------------------------
@@ -159,7 +161,9 @@ output$dq_organization_summary_table <- renderDT({
     filter = list(position = 'top', plain = TRUE),
     options = list(dom = 'ltpi'),
     style = "default"
-  )
+  ) %>%
+    # Format Count to display with commas
+    formatCurrency(columns = "Clients", currency = "", digits = 0, mark = ",") 
 })
 
 # DQ Org Guidance -------------------------------------------------------
@@ -460,7 +464,7 @@ renderDQPlot <- function(level, Priority, byType, color) {
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank()
       ) +
-      geom_text(aes(label = countVar), hjust = -0.5, color = "black", size = sys_chart_text_font)
+      geom_text(aes(label =  format(countVar, big.mark = ",", scientific = FALSE, trim = TRUE)), hjust = -0.5, color = "black", size = sys_chart_text_font)
   },
   alt = case_match(
     plot_output_id,
