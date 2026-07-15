@@ -232,14 +232,6 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "downloadClientCountsReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "downloadFileStructureAnalysisBtn": {
       "html": "<a id=\"downloadFileStructureAnalysis\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
       "deps": [
@@ -270,6 +262,14 @@
       ]
     },
     "downloadPDDEReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadProjectDashboardReportButton": {
       "message": "",
       "call": "NULL",
       "type": [

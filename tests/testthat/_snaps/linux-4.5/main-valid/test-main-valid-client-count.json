@@ -754,8 +754,8 @@
         }
       ]
     },
-    "downloadClientCountsReportButton": {
-      "html": "<a id=\"downloadClientCountsReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download System-Wide\n<\/a>",
+    "downloadProjectDashboardReportButton": {
+      "html": "<a id=\"downloadProjectDashboardReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download System-Wide\n<\/a>",
       "deps": [
         {
           "name": "font-awesome",

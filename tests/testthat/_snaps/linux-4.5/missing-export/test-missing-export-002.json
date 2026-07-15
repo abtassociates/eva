@@ -165,14 +165,6 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "downloadClientCountsReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "downloadFileStructureAnalysisBtn": {
       "message": "",
       "call": "NULL",
@@ -182,6 +174,14 @@
       ]
     },
     "downloadImpermissibleCharacterDetailBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadProjectDashboardReportButton": {
       "message": "",
       "call": "NULL",
       "type": [
