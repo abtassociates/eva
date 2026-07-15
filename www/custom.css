@@ -329,8 +329,8 @@ LOCAL SETTINGS SLIDE-OUT PANEL
 #help_sidebar {
   position: fixed;
   top: 0;
-  right: -400px; /* Hidden completely off-screen */
-  width: 400px;
+  right: -21vw; /* Hidden completely off-screen */
+  width: 21vw;
   max-width: 100vw;
   height: 100vh;
   background-color: #ffffff;
@@ -372,7 +372,23 @@ LOCAL SETTINGS SLIDE-OUT PANEL
 
 /* Scrollable container inside for the actual content */
 #help_sidebar_content {
-  height: 100vh;
-  padding: 20px;
-  overflow-y: auto; /* Handles scrolling for the text */
+  flex: 1 1 auto; /* Takes up remaining space above the footer */
+  padding: 10px;
+  overflow-y: auto; /* Handles scrolling only when content exceeds height */
+}
+
+/* Footer styling to keep buttons aligned at the bottom */
+#help_sidebar_footer {
+  flex-shrink: 0; /* Prevents the footer from shrinking */
+  padding: 15px 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #dee2e6; /* Optional border separator */
+  display: flex;
+  gap: 10px; /* Adds space between the buttons */
+  justify-content: flex-start; /* Aligns buttons to the left; change to space-between if preferred */
+}
+
+#help_sidebar_footer .btn {
+  flex: 1; 
+  white-space: normal; /* Allows the text to wrap if the sidebar is narrowed */
 }

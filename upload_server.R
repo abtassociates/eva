@@ -91,8 +91,11 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$dq_main <- dq_pdde_results$dq_main
       session$userData$overlap_details <- dq_pdde_results$overlap_details
       session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
+      outstanding_referrals_tc(get_outstanding_referrals())
       session$userData$long_stayers <- dq_pdde_results$long_stayers
+      long_stayers_tc(get_long_stayers())
       session$userData$dq_pdde_mirai_complete(1)
+      
     } %...!% {
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
