@@ -12,10 +12,10 @@ age_years <- function(earlier, later)
 fix_missing_destination <- function(ReferenceNo, Detail = NULL){
   if(!missing(Detail)){
     ReferenceNo <- fcase(
-      is.na(ReferenceNo) & Detail == 'Exited, Non-Permanent', 99,
-      is.na(ReferenceNo) & Detail == 'Inactive', -888,
-      !is.na(ReferenceNo) & (ReferenceNo %in% perm_livingsituation) & Detail == 'Inactive', -888,
-      default = ReferenceNo
+      is.na(ReferenceNo) & Detail == 'Exited, Non-Permanent', 99L,
+      is.na(ReferenceNo) & Detail == 'Inactive', -888L,
+      !is.na(ReferenceNo) & (ReferenceNo %in% perm_livingsituation) & Detail == 'Inactive', -888L,
+      default = as.integer(ReferenceNo)
     )
   } 
   
@@ -736,6 +736,7 @@ get_snapshot <- function(personalID) {
 ## add counts in parens for table formatting
 format_compare_value <- function(count, total){
   pct <- scales::percent(count/total, accuracy = 1, scale = 100)
+  count <- format(count, big.mark = ",", scientific = FALSE, trim = TRUE)
   sprintf('%s (%s)', pct, count)
 }
 

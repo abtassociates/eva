@@ -12,7 +12,8 @@ process_upload <- function(upload_filename, upload_filepath) {
       if(inherits(src_att, 'simpleError')){
         logToConsole(session, src_att)
         logToConsole(session, paste0("Error occured in ", script_name))
-        show_trycatch_popup(script_name)
+        if(src_att$message != "No valid Continuum records in enrollment_prep")
+          show_trycatch_popup(script_name)
         return("err")
       } else {}
       
@@ -98,6 +99,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
       if(IN_DEV_MODE) browser()
     }
+    
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
       logToConsole(session, "Only HP enrollments found - skipping System Performance")
