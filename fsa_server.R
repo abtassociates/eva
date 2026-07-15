@@ -74,7 +74,8 @@ output$downloadFileStructureAnalysis <- downloadHandler(
     write_xlsx(
       session$userData$file_structure_analysis_main() %>%
         arrange(Type, Issue) %>%
-        nice_names(),
+        nice_names() %>%
+        xlsx_char_trunc(log_loc = "in downloadFileStructureAnalysis"),
       path = file
     )
     
@@ -103,7 +104,8 @@ output$downloadImpermissibleCharacterDetail <- downloadHandler(
     bracket_files_detail <- bracket_files_detail()
     
     write_xlsx(
-      bracket_files_detail %>% nice_names(),
+      bracket_files_detail %>% nice_names()%>%
+        xlsx_char_trunc(log_loc = "in downloadImpermissibleCharacterDetail"),
       path = file
     )
     

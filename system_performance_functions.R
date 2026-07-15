@@ -375,7 +375,9 @@ sys_heatmap_xl_export <- function(file,
     
     write_xlsx(
       setNames(
-        list(sys_comp_selections_summary(), num_df, pct_df),
+        list(xlsx_char_trunc(sys_comp_selections_summary(), log_loc = "in sys_heatmap_xl_export - System Demographics Metadata"), 
+             xlsx_char_trunc(num_df, log_loc = paste("in sys_heatmap_xl_export -", num_tab_name)), 
+             xlsx_char_trunc(pct_df, log_loc = paste("in sys_heatmap_xl_export -", pct_tab_name))),
         c("System Demographics Metadata", num_tab_name, pct_tab_name)
       ),
       path = file,
@@ -397,7 +399,8 @@ sys_heatmap_xl_export <- function(file,
     }
     write_xlsx(
       setNames(
-        list(sys_phd_selections_summary(), sys_phd_export()),
+        list(xlsx_char_trunc(sys_phd_selections_summary(), log_loc = "in sys_heatmap_xl_export - SystemExitDemographics Metadata"), 
+             xlsx_char_trunc(sys_phd_export(), log_loc = paste("in sys_heatmap_xl_export -", tab_name))),
         c("SystemExitDemographics Metadata", tab_name)
       ),
       path = file,

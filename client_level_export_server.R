@@ -237,14 +237,19 @@ populate_client_level_export <- function(type = 'overview', file){
   
     # everything together
     client_level_export_list <- list(
-      client_level_metadata = filter_selections,
+      client_level_metadata = filter_selections%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Metadata"),
       data_dictionary = setNames(
         read.csv(here("www/client-level-export-data-dictionary.csv")),
         c("Column Name", "Variable Type", "Definition")
-      ),
-      client_level_details = client_level_details,
-      monthly_statuses,
-      adjusted_non_res_enrl
+      )%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Data Dictionary"),
+      client_level_details = client_level_details%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Client Details"),
+      monthly_statuses%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Monthly Statuses"),
+      adjusted_non_res_enrl%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Adjusted Non-Res")
     )
     
     names(client_level_export_list) = c(
@@ -315,21 +320,26 @@ populate_client_level_export <- function(type = 'overview', file){
     
     # everything together
     client_level_export_list <- list(
-      client_level_metadata = filter_selections,
-      instructions = read_excel(here("www/CLE Instructions and Data Dictionary.xlsx"), sheet = "Instructions"),
+      client_level_metadata = filter_selections %>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Metadata"),
+      # Excluded wrapping with xlsx_char_trunc
+      instructions = read_excel(here("www/CLE Instructions and Data Dictionary.xlsx"), sheet = "Instructions")%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Instructions"),
       data_dictionary = setNames(
         read_excel(here("www/CLE Instructions and Data Dictionary.xlsx"), sheet = "Data Dictionary"),
         c("Column Name", "Variable Type", "Definition")
-      ),
-      client_level_details = client_level_details
+      )%>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Data Dictionary"),
+      client_level_details = client_level_details %>%
+        xlsx_char_trunc(log_loc = "in populate_client_level_export - Client Details")
     )
     names(client_level_export_list) = c(
       "Metadata",
       "Instructions",
       "Data Dictionary",
       "Client Details",
-      "Monthly Statuses",
-      "Adjusted Enrollments"
+      #"Monthly Statuses",
+      #"Adjusted Enrollments"
     )
   }
  

@@ -53,8 +53,10 @@ output$downloadPDDEReport <- downloadHandler(
       nice_names()
     
     write_xlsx(
-      list("Summary" = summary_df,
-           "Data" = data_df),
+      list("Summary" = summary_df%>%
+             xlsx_char_trunc(log_loc = "in downloadPDDEReport - Summary"),
+           "Data" = data_df%>%
+             xlsx_char_trunc(log_loc = "in downloadPDDEReport - Data")),
       path = file)
     
     logMetadata(session, paste0("Downloaded PDDE Report",
@@ -214,7 +216,8 @@ output$downloadOrgDQReport <- downloadHandler(
       showNotification("No DQ issues to report for this Organization.")
       
     } else {
-      write_xlsx(dqDownloadInfo()$orgDQData, path = file)
+      write_xlsx(dqDownloadInfo()$orgDQData %>%
+                   xlsx_char_trunc(log_loc = "in downloadOrgDQReport"), path = file)
       logMetadata(session, paste0("Downloaded Org-level DQ Report",
                                   if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
       exportTestValues(orgDQ_download = summarize_df(dqDownloadInfo()$orgDQData))
@@ -240,7 +243,8 @@ output$downloadSystemDQReportButton  <- renderUI({
 output$downloadSystemDQReport <- downloadHandler(
   filename = date_stamped_filename("Full Data Quality Report-"),
   content = function(file) {
-    write_xlsx(dqDownloadInfo()$systemDQData, path = file)
+    write_xlsx(dqDownloadInfo()$systemDQData  %>%
+                 xlsx_char_trunc(log_loc = "in downloadSystemDQReport"), path = file)
     logMetadata(session, paste0("Downloaded System-level DQ Report",
                        if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     exportTestValues(systemDQ_download = summarize_df(dqDownloadInfo()$systemDQData))
@@ -764,7 +768,8 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
                           orgDQoverlapDetails,
                           "ProjectName",
                           orgDQReferrals
-      )
+      ) %>%
+        xlsx_char_trunc(log_loc = "in get_dqDownloadInfo_export - org")
     )
   } else if(value == "system"){
     return(
@@ -772,7 +777,8 @@ get_dqDownloadInfo_export <- function(org_name, value = "org"){
                           session$userData$overlap_details,
                           "OrganizationName",
                           session$userData$outstanding_referrals
-      )
+      )%>%
+        xlsx_char_trunc(log_loc = "in get_dqDownloadInfo_export - system")
     )
   }
   
@@ -902,7 +908,7 @@ output$dq_export_download_btn <- downloadHandler(
           dq_org_filename <- date_stamped_filename(str_glue('{org_name_std} - Data Quality Report-'))
           
           if(length(dq_export_list) > 1){
-           
+           # wrapped xlsx_char_trunc in get_dqDownloadInfo_export
             write_xlsx(dq_export_list, path = file.path(tempdir(), str_glue(zip_prefix, dq_org_filename)))
             zip_files <- c(zip_files, str_glue(zip_prefix, dq_org_filename))
           } 
@@ -954,13 +960,15 @@ output$dq_export_download_btn <- downloadHandler(
           pdde_filename <- date_stamped_filename(str_glue("{org_name_std} - PDDE Report-"))
           
           write_xlsx(
-            list("Summary" = summary_df,
+            list("Summary" = summary_df%>%
+                   xlsx_char_trunc(log_loc = "in dq_export_download_btn - Summary"),
                  "Data" = session$userData$pdde_main %>% 
                    fsubset(OrganizationName == orgs_to_save[i]) %>% 
                    join(session$userData$Project0 %>% fsubset(OrganizationName == orgs_to_save[i]) %>% fselect(ProjectID, ProjectType), 
                         how = "left", on="ProjectID") %>%
                    roworder(Type, Issue) %>% 
-                   nice_names()
+                   nice_names()%>%
+                   xlsx_char_trunc(log_loc = "in dq_export_download_btn - Data")
             ),
             path = file.path(tempdir(), str_glue(zip_prefix, pdde_filename))
           )
@@ -1021,6 +1029,7 @@ output$dq_export_download_btn <- downloadHandler(
           pd_org_export <- get_clientcount_download_info( 
                                         orgList = orgs_to_save[i], dateRangeEnd = dq_export_date_range_end())
           if(length(pd_org_export) > 1){
+            # wrapped with xlsx_char_trunc in get_clientcount_download_info
             write_xlsx(pd_org_export, path = file.path(tempdir(), str_glue(zip_prefix, proj_dash_filename)))
             zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
           } 
@@ -1066,6 +1075,7 @@ output$dq_export_download_btn <- downloadHandler(
         if(fnrow(client_count_data_df()) > 0){
           pd_sys_export <- get_clientcount_download_info(dateRangeEnd = dq_export_date_range_end())
           if(length(pd_sys_export) > 1){
+            # wrapped with xlsx_char_trunc in get_clientcount_download_info
             write_xlsx(pd_sys_export, path = file.path(path_prefix, proj_dash_filename))
             zip_files <- c(zip_files, str_glue(zip_prefix, proj_dash_filename))
           } else {
@@ -1106,11 +1116,13 @@ output$dq_export_download_btn <- downloadHandler(
         
         if(nrow(summary_df) > 0){
           write_xlsx(
-            list("Summary" = summary_df,
+            list("Summary" = summary_df %>%
+                   xlsx_char_trunc(log_loc = "in dq_export_download_btn - Summary"),
                  "Data" = session$userData$pdde_main %>% 
                    join(session$userData$Project0 %>% fselect(ProjectID, ProjectType), how = "left", on = "ProjectID") %>%
                    roworder(Type, Issue) %>% 
-                   nice_names()
+                   nice_names()%>%
+                   xlsx_char_trunc(log_loc = "in dq_export_download_btn - Data")
             ),
             path = file.path(path_prefix,pdde_filename))
           zip_files <- c(zip_files, str_glue(zip_prefix, pdde_filename))
@@ -1133,7 +1145,8 @@ output$dq_export_download_btn <- downloadHandler(
         
         dq_system_filename <- date_stamped_filename("System-level Data Quality Report-")
         if(length(dqDownloadInfo()$systemDQData) > 1) {
-          write_xlsx(dqDownloadInfo()$systemDQData, path = file.path(path_prefix,dq_system_filename))
+          write_xlsx(dqDownloadInfo()$systemDQData%>%
+                       xlsx_char_trunc(log_loc = "in dq_export_download_btn"), path = file.path(path_prefix,dq_system_filename))
           logMetadata(session, paste0("Downloaded System-level DQ Report",
                                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
           zip_files <- c(zip_files, str_glue(zip_prefix, dq_system_filename))

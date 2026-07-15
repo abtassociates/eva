@@ -102,7 +102,8 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
         sys_export_filter_selections(type = 'exits'),
         data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
       ) %>% 
-      frename('System Exits by Type' = Value),
+      frename('System Exits by Type' = Value) %>%
+      xlsx_char_trunc(log_loc = "in syse_types_download_btn - SystemExitsByType Metadata"),
     
     "SystemExitTypesData" = tree_exits_data() %>% 
       fmutate(`Destination Type Detail` = living_situation(Destination)) %>% 
@@ -110,7 +111,8 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
       fsummarize(Count = GRPN()) %>% 
       fungroup() %>% 
       list_all_destinations(fill_zero = TRUE) %>% 
-      fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))
+      fmutate(Percent = scales::label_percent(accuracy = 0.1,scale=100)(Count / fsum(Count)))%>%
+      xlsx_char_trunc(log_loc = "in syse_types_download_btn - SystemExitTypesData")
   ) 
    write_xlsx(
      types_dl,

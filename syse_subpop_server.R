@@ -525,9 +525,12 @@ output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filen
                                                                       Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else())))
                                                            )
                                                          ) %>% 
-                                                         frename("System Exits by Subpopulation" = Value),
-                                                       "SubpopulationComparisonSummary" = syse_subpop_export_summary(),
-                                                       "SubpopulationExitDetail" = syse_subpop_export_detail()
+                                                         frename("System Exits by Subpopulation" = Value)%>%
+                                                         xlsx_char_trunc(log_loc = "in syse_subpop_download_btn - System Exits by Subpopulation"),
+                                                       "SubpopulationComparisonSummary" = syse_subpop_export_summary()%>%
+                                                         xlsx_char_trunc(log_loc = "in syse_subpop_download_btn - SubpopulationComparisonSummary"),
+                                                       "SubpopulationExitDetail" = syse_subpop_export_detail()%>%
+                                                         xlsx_char_trunc(log_loc = "in syse_subpop_download_btn - SubpopulationExitDetail")
                                                      )
                                                      
                                                      write_xlsx(
