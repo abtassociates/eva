@@ -634,7 +634,7 @@ tl_df_ce_assess <- reactive({
 ## Timeliness - Coordinated Entry (CE) Event Records
 tl_df_ce_event <- reactive({
   req(session$userData$valid_file() == 1)
-  #browser()
+  
   ## Time to Entry - CE event
   ce_event_df <- join(
     client_count_data_df(), 
@@ -642,7 +642,7 @@ tl_df_ce_event <- reactive({
       fselect(EventID, EnrollmentID, DateCreated, EventDate),
     how = "inner"
   ) %>% 
-    fsubset(between(Event.EventDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fsubset(between(EventDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
     fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(EventDate)),
             HoursToEntry = as.numeric(difftime(DateCreated, EventDate, units="hours"))) 
   
