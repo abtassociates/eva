@@ -777,3 +777,14 @@ xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = ""){
   }
   return(df)
 }
+
+# Helper function for intentionally stopping script execution early.
+intentional_stop <- function(session, message) {
+  logToConsole(session, message)
+  stop(
+    structure(
+      list(message = message), 
+      class = c("intentional_stop", "error", "condition")
+    )
+  )
+}

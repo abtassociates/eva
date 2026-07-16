@@ -184,9 +184,9 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   
   comp_df <- all_filtered_syse_demog() %>% 
     remove_non_applicables(selection = selections) %>% 
-    select(
-      PersonalID, 
-      Destination,
+    fselect(
+      "PersonalID", 
+      "Destination",
       unname(var_cols[[selections[1]]]), 
       unname(var_cols[[selections[2]]])
     ) %>%
@@ -497,6 +497,13 @@ output$syse_phd_chart_1d <- renderPlot({
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 1)
   
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
 }, height = 700, width = 500,
@@ -507,6 +514,13 @@ output$syse_phd_chart_2d <- renderCachedPlot({
   req(session$userData$valid_file() == 1 &
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 2)
+  
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
   
   sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   

@@ -134,6 +134,13 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
 output$sankey_ui_chart <- renderPlot({
   logToConsole(session, "in sankey_ui_chart")
   req(session$userData$valid_file() == 1)
+
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
   
   plot_data <- get_sankey_data()
   

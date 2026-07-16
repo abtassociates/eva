@@ -2,6 +2,20 @@
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories_prev) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   cond <- interval(startDate, endDate) >= days(729)
   
   ## whether to show validate message or not
