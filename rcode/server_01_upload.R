@@ -25,7 +25,6 @@ process_upload <- function(upload_filename, upload_filepath) {
     setProgress(message = "Processing...", value = .01)
     
     setProgress(detail = "Checking initial validity ", value = .05)
-    source(here("rcode","functions_00_helper.R"))
     err <- source_trycatch(here("rcode","00_initially_valid_import.R"))
     if(!is.null(err)) return(NULL)
 
