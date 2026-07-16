@@ -138,19 +138,16 @@ function(input, output, session) {
   source(here("rcode", "server_06_client_counts.R"), local = TRUE)
   source(here("rcode", "server_06.1_client_level_export.R"), local=TRUE)
   
-  
-  source(here("rcode", "functions_07_system_performance.R"), local = TRUE)
-  
-  source(here("rcode", "server_07_system_overview.R"), local = TRUE)
-  source(here("rcode", "server_07.1_system_composition.R"), local = TRUE)
-  source(here("rcode", "server_07.2_system_inflow_outflow.R"), local = TRUE)
-  source(here("rcode", "server_07.3_system_status.R"), local = TRUE)
-  
-  source(here("rcode", "server_07.4_system_exits.R"), local = TRUE)
-  source(here("rcode", "server_07.4.1_syse_types.R"), local = TRUE)
-  source(here("rcode", "server_07.4.2_syse_time.R"), local = TRUE)
-  source(here("rcode", "server_07.4.3_syse_subpop.R"), local = TRUE)
-  source(here("rcode", "server_07.4.4_syse_phd.R"), local = TRUE)
+  source(here("rcode", "server_07.0_system_performance.R"), local = TRUE)
+  source(here("rcode", "server_07.1_system_overview.R"), local = TRUE)
+  source(here("rcode", "server_07.1.1_system_status.R"), local = TRUE)
+  source(here("rcode", "server_07.1.2_system_inflow_outflow.R"), local = TRUE)
+  source(here("rcode", "server_07.1.3_system_composition.R"), local = TRUE)
+  source(here("rcode", "server_07.2_system_exits.R"), local = TRUE)
+  source(here("rcode", "server_07.2.1_syse_types.R"), local = TRUE)
+  source(here("rcode", "server_07.2.2_syse_time.R"), local = TRUE)
+  source(here("rcode", "server_07.2.3_syse_subpop.R"), local = TRUE)
+  source(here("rcode", "server_07.2.4_syse_phd.R"), local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
