@@ -764,3 +764,15 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
            pct_change)
   }
 }
+
+
+# Helper function for intentionally stopping script execution early.
+intentional_stop <- function(session, message) {
+  logToConsole(session, message)
+  stop(
+    structure(
+      list(message = message), 
+      class = c("intentional_stop", "error", "condition")
+    )
+  )
+}
