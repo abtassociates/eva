@@ -516,12 +516,12 @@ tl_df_project_start <- reactive({
   df_start <- join(
     client_count_data_df() %>% 
       rename(ProjectStartDate = EntryDate),
-    session$userData$Enrollment %>% fselect(PersonalID,EnrollmentID, Enrollment.DateCreated = DateCreated),
+    session$userData$Enrollment %>% fselect(PersonalID,EnrollmentID,DateCreated),
     how = "left"
   ) %>% 
     fsubset(between(ProjectStartDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(Enrollment.DateCreated) - ProjectStartDate),
-            HoursToEntry = as.numeric(difftime(Enrollment.DateCreated, ProjectStartDate, units="hours"))) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - ProjectStartDate),
+            HoursToEntry = as.numeric(difftime(DateCreated, ProjectStartDate, units="hours"))) %>% 
     calc_time_to_entry()
 
   ## create rows of zeros for any projects without Project Start records  
@@ -546,12 +546,12 @@ tl_df_project_exit <- reactive({
   df_exit <- join(
     client_count_data_df() %>% 
       rename(ProjectExitDate = ExitDate),
-    session$userData$Exit %>% fselect(PersonalID, EnrollmentID, Exit.DateCreated = DateCreated),
+    session$userData$Exit %>% fselect(PersonalID, EnrollmentID, DateCreated),
     how = "left"
   ) %>%  
     fsubset(between(ProjectExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(Exit.DateCreated) ),
-            HoursToEntry = as.numeric(difftime(ProjectExitDate, Exit.DateCreated, units="hours"))) %>% 
+    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(DateCreated) ),
+            HoursToEntry = as.numeric(difftime(ProjectExitDate, DateCreated, units="hours"))) %>% 
     calc_time_to_entry()
   
   ## create rows of zeros for any projects without Project Start records  
@@ -574,12 +574,12 @@ tl_df_nbn <- reactive({
   ## Time to Entry - Night by Night
   nbn_df <- join(
     client_count_data_df(),
-    session$userData$Services %>% rename(Services.DateCreated = DateCreated, Services.DateProvided = DateProvided),
+    session$userData$Services,
     how = "left"
   ) %>% 
-    fsubset(between(Services.DateProvided, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(Services.DateCreated) - as.Date(Services.DateProvided)),
-           HoursToEntry = as.numeric(difftime(Services.DateCreated, Services.DateProvided, units="hours"))) 
+    fsubset(between(DateProvided, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(DateProvided)),
+           HoursToEntry = as.numeric(difftime(DateCreated, DateProvided, units="hours"))) 
   
   if(nrow(nbn_df) > 0){
     calc_time_to_entry(nbn_df) 
@@ -595,12 +595,12 @@ tl_df_cls <- reactive({
   cls_df <- join(
     client_count_data_df(), 
     session$userData$CurrentLivingSituation %>% 
-      fselect(PersonalID, EnrollmentID, CurrentLivingSituation.DateCreated = DateCreated, CurrentLivingSituation.InformationDate = InformationDate),
+      fselect(PersonalID, EnrollmentID, DateCreated, InformationDate),
     how = "inner"
   ) %>% 
-    fsubset(between(CurrentLivingSituation.InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(CurrentLivingSituation.DateCreated) - as.Date(CurrentLivingSituation.InformationDate)),
-           HoursToEntry = as.numeric(difftime(CurrentLivingSituation.DateCreated, CurrentLivingSituation.InformationDate, units="hours"))) 
+    fsubset(between(InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(InformationDate)),
+           HoursToEntry = as.numeric(difftime(DateCreated, InformationDate, units="hours"))) 
     
     if(nrow(cls_df) > 0){
       calc_time_to_entry(cls_df) 
@@ -617,12 +617,12 @@ tl_df_ce_assess <- reactive({
   ce_assess_df <- join(
     client_count_data_df(), 
     session$userData$Assessment %>% 
-      fselect(PersonalID, EnrollmentID, Assessment.DateCreated = DateCreated, Assessment.AssessmentDate = AssessmentDate),
+      fselect(PersonalID, EnrollmentID, DateCreated, AssessmentDate),
     how = "inner"
   ) %>%
-    fsubset(between(Assessment.AssessmentDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(Assessment.DateCreated) - as.Date(Assessment.AssessmentDate)),
-            HoursToEntry = as.numeric(difftime(Assessment.DateCreated, Assessment.AssessmentDate, units="hours"))) 
+    fsubset(between(AssessmentDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(AssessmentDate)),
+            HoursToEntry = as.numeric(difftime(DateCreated, AssessmentDate, units="hours"))) 
   
   if(nrow(ce_assess_df) > 0){
     calc_time_to_entry(ce_assess_df) 
@@ -639,12 +639,12 @@ tl_df_ce_event <- reactive({
   ce_event_df <- join(
     client_count_data_df(), 
     session$userData$Event %>% 
-      fselect(EventID, EnrollmentID, Event.DateCreated = DateCreated, Event.EventDate = EventDate),
+      fselect(EventID, EnrollmentID, DateCreated, EventDate),
     how = "inner"
   ) %>% 
     fsubset(between(Event.EventDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(Event.DateCreated) - as.Date(Event.EventDate)),
-            HoursToEntry = as.numeric(difftime(Event.DateCreated, Event.EventDate, units="hours"))) 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(EventDate)),
+            HoursToEntry = as.numeric(difftime(DateCreated, EventDate, units="hours"))) 
   
   if(nrow(ce_event_df) > 0){
     calc_time_to_entry(ce_event_df) 
