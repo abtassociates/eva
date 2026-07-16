@@ -108,7 +108,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       nav_hide(id = 'pageid', target = 'menuSysPerf', session = session)
     } else {
      
-      err <- source_trycatch(here("rcode", "07_system_overview.R"))
+      err <- source_trycatch(here("rcode", "07_system_performance.R"))
       if(!is.null(err)) {
         nav_hide(id = 'pageid', target = "menuSysPerf", session = session)
       } else {

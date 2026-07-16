@@ -135,10 +135,10 @@ function(input, output, session) {
   
   source(here("rcode", "server_05_data_quality.R"), local = TRUE)
   
-  source(here("rcode", "server_06_client_counts.R"), local = TRUE)
-  source(here("rcode", "server_06.1_client_level_export.R"), local=TRUE)
+  source(here("rcode", "server_06_project_dashboard.R"), local = TRUE)
   
   source(here("rcode", "server_07.0_system_performance.R"), local = TRUE)
+  source(here("rcode", "server_07.0_system_performance_export.R"), local=TRUE)
   source(here("rcode", "server_07.1_system_overview.R"), local = TRUE)
   source(here("rcode", "server_07.1.1_system_status.R"), local = TRUE)
   source(here("rcode", "server_07.1.2_system_inflow_outflow.R"), local = TRUE)
