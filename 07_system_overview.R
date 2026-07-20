@@ -353,6 +353,8 @@ enrollment_prep_hohs <- enrollment_prep %>%
 rm(hh_adjustments)
 
 # Full Enrollment-level Data Prep ----------------------------------------------
+session$userData$report_dates <- get_report_dates()
+
 # **ProjectTypeWeight** helps determine eecr/lecr
 # **lh_prior_livingsituation** is used to define was_lh_at_start and was_lh_at_end
 # which are then used to select the EECR/LECR
@@ -463,6 +465,7 @@ session$userData$report_dates <- get_report_dates()
 
 startDatePrev <- session$userData$ReportStart %m-% years(1)
 endDatePrev <- session$userData$ReportEnd %m-% years(1)
+session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
 
 session$userData$enrollment_categories_prev <- keep_enrl_in_range(startDatePrev, endDatePrev)
 session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
