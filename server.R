@@ -137,12 +137,12 @@ function(input, output, session) {
   source("data_quality_server.R", local = TRUE)
   
   source("system_performance_functions.R", local = TRUE)
-  
+  source("sys_export_server.R", local=TRUE)
   source("system_overview_server.R", local = TRUE)
   
   source("system_inflow_outflow_server.R", local = TRUE)
     
-  source("system_composition_server.R", local = TRUE)
+  source("system_demographics_server.R", local = TRUE)
 
   source("system_status_server.R", local = TRUE)
   

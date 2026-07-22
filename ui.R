@@ -908,9 +908,7 @@ nav_menu(
             br(),
             tab_sys_inflow_outflow_subtabs_information
           )
-        ),
-        downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
+        )
       ),
       
       ## System Status/Sankey ----------------
@@ -931,9 +929,7 @@ nav_menu(
             br(),
             tab_sys_status_subtabs_information
           )
-        ),
-        downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_status_download_btn_ppt", "Image Download"),
+        )
       ),
       
       ## System Demographics/Composition --------------
@@ -978,16 +974,15 @@ nav_menu(
             tab_sys_comp_subtabs_information
             
           )
-        ),
-        downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_comp_download_btn_ppt", "Image Download")
+        )
+      ),
+      div(
+        class = "export-container-floating",
+        custom_sys_export_dropdown("syso")
       )
       
-      ),
-      downloadButton("client_level_download_btn", "Client Level Download")
-    
-    
-    ),
+    ) # End syso_tabbox
+  ),
 
 # System Exits tab --------------------------------------------------------
 nav_panel(
@@ -1120,9 +1115,7 @@ nav_panel(
           br(),
           tab_syse_types_subtabs_information
         )
-      ),
-      downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_types_download_btn_ppt", "Image Download")
+      )
     ),
     nav_panel(
       title = headerTab('Exits by Year'),
@@ -1149,9 +1142,7 @@ nav_panel(
           br(),
           tab_syse_time_chart_information
         )
-      ),
-      downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_time_download_btn_ppt", "Image Download")
+      )
     ),
     
     nav_panel(
@@ -1268,9 +1259,7 @@ nav_panel(
           br(),
           tab_syse_subpop_chart_information
         )
-      ),
-      downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+      )
     ),
     
     nav_panel(
@@ -1323,12 +1312,11 @@ nav_panel(
           br(),
           tab_syse_phd_subtabs_information
         )
-      ),
-      downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_phd_download_btn_ppt", "Image Download")
-    )
-  ),
-  downloadButton("syse_client_level_download_btn", "Client Level Download")
+      )
+    ),
+    # FLOATING CONSOLIDATED DOWNLOADS (TOP RIGHT)
+    custom_sys_export_dropdown("syse")
+  ) # End syse_tabbox
 )
 ),
 # Resources menu -----------
