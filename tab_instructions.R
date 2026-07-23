@@ -362,7 +362,7 @@ tabProjectDashboard_instructions <- HTML("
               <h4>Timeliness Record Entry</h4>
                <p>The Record Entry tab of the Timeliness panel provides counts of different 
               record types for a project along with timeliness metrics. Time for Record Entry 
-              is calculated by comapring a record's Created Date against the:
+              is calculated by comparing a record's Created Date against the:
                <ul>
                <li>Entry Date for Project Start records</li>
                <li>Exit Date for Project Exit records</li>
