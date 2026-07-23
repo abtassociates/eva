@@ -3,6 +3,11 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "07-23-2026",
+    "<b>Improvements</b> <br>
+      - Adjust default Local Settings to be more project-type-specific <br>
+      - Connect Local Settings to System Performance <br>
+      - Make Local Settings a slide-out panel vs. a separate tab",
     "06-25-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
