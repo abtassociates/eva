@@ -1711,7 +1711,7 @@
         ],
         [
           null,
-          "Mean   :  811  ",
+          "Mean   :  801  ",
           null
         ],
         [
@@ -1748,7 +1748,7 @@
           null,
           null,
           null,
-          "Mean   :  57.87  "
+          "Mean   :  57.16  "
         ],
         [
           null,
@@ -1850,14 +1850,14 @@
       ],
       "Errors": [
         [
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
+          "Length:11916      ",
+          "Length:11916      ",
+          "Length:11916      ",
+          "Length:11916      ",
+          "Length:11916      ",
+          "Length:11916      ",
+          "Length:11916      ",
+          "Length:11916      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1869,7 +1869,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-05-29  "
+          "1st Qu.:2020-05-26  "
         ],
         [
           "Mode  :character  ",
@@ -1880,7 +1880,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-03-08  "
+          "Median :2021-02-26  "
         ],
         [
           null,
@@ -1891,7 +1891,7 @@
           null,
           null,
           null,
-          "Mean   :2021-01-24  "
+          "Mean   :2021-01-17  "
         ],
         [
           null,
@@ -1902,7 +1902,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-12-14  "
+          "3rd Qu.:2021-12-10  "
         ],
         [
           null,
