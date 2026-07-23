@@ -495,8 +495,6 @@ calc_time_to_entry <- function(df){
       ProjectName = ffirst(ProjectName),
       ProjectType = ffirst(ProjectType),
       n_records = GRPN(),
-      #n_lt24 = fsum(HoursToEntry < 24),
-      #n_lt48 = fsum(HoursToEntry < 48),
       n_lt_metric = fsum(DaysToEntry <= input$timeliness_metric),
       mdn = fmedian(DaysToEntry,na.rm=T),
       nlt0 = fsum(DaysToEntry < 0, na.rm=T),
@@ -520,8 +518,7 @@ tl_df_project_start <- reactive({
     how = "left"
   ) %>% 
     fsubset(between(ProjectStartDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - ProjectStartDate),
-            HoursToEntry = as.numeric(difftime(DateCreated, ProjectStartDate, units="hours"))) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - ProjectStartDate)) %>% 
     calc_time_to_entry()
 
   ## create rows of zeros for any projects without Project Start records  
@@ -550,8 +547,7 @@ tl_df_project_exit <- reactive({
     how = "left"
   ) %>%  
     fsubset(between(ProjectExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(DateCreated) ),
-            HoursToEntry = as.numeric(difftime(ProjectExitDate, DateCreated, units="hours"))) %>% 
+    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(DateCreated))) %>% 
     calc_time_to_entry()
   
   ## create rows of zeros for any projects without Project Start records  
@@ -578,8 +574,7 @@ tl_df_nbn <- reactive({
     how = "left"
   ) %>% 
     fsubset(between(DateProvided, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(DateProvided)),
-           HoursToEntry = as.numeric(difftime(DateCreated, DateProvided, units="hours"))) 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(DateProvided))) 
   
   if(nrow(nbn_df) > 0){
     calc_time_to_entry(nbn_df) 
@@ -599,8 +594,7 @@ tl_df_cls <- reactive({
     how = "inner"
   ) %>% 
     fsubset(between(InformationDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(InformationDate)),
-           HoursToEntry = as.numeric(difftime(DateCreated, InformationDate, units="hours"))) 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(InformationDate))) 
     
     if(nrow(cls_df) > 0){
       calc_time_to_entry(cls_df) 
@@ -621,8 +615,7 @@ tl_df_ce_assess <- reactive({
     how = "inner"
   ) %>%
     fsubset(between(AssessmentDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(AssessmentDate)),
-            HoursToEntry = as.numeric(difftime(DateCreated, AssessmentDate, units="hours"))) 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(AssessmentDate))) 
   
   if(nrow(ce_assess_df) > 0){
     calc_time_to_entry(ce_assess_df) 
@@ -643,8 +636,7 @@ tl_df_ce_event <- reactive({
     how = "inner"
   ) %>% 
     fsubset(between(EventDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(EventDate)),
-            HoursToEntry = as.numeric(difftime(DateCreated, EventDate, units="hours"))) 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(EventDate))) 
   
   if(nrow(ce_event_df) > 0){
     calc_time_to_entry(ce_event_df) 
