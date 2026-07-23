@@ -176,7 +176,7 @@ calc_by_hh_group <- function(data, func, col = NULL) {
 }
 
 calc_entered_non_habitat_pct <- function(dt) {
-  fsum(dt$LivingSituation == 116L)/fnrow(dt[!is.na(LivingSituation)]),
+  fsum(dt$LivingSituation == 116L)/fnrow(dt[!is.na(LivingSituation)])
 }
 get_details_by_hh_type <- function(m) {
   # We Want:
