@@ -7,6 +7,12 @@ output$changelog <- renderDT({
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
       - Updated Enrollment DQ Checks to only show warnings for actively HMIS participating enrollments.
+      - Instead of crashing, hide System Performance tab when:
+        - No Continuum Project records
+        - Only HP projects or enrollments outside reporting period
+      - Handle other System Performance empty dataset scenarios by showing 'No valid data message' in place of the charts
+    <b>Miscellaneous</b> <br>
+      - Handle empty Destinations scenario causing crash in GHA (assumed to be edge case scenario)
     ",
     "06-12-2026",
     "<b>New Features</b> <br>
