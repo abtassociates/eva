@@ -815,7 +815,7 @@ output$timelinessTable <- renderDT({
   ## for other project types, display CLS column only if the selected project has those records
   } else {
     dat$cls <- pull_time_cols(
-      cc_project_type() %in% project_types_w_cls && input$currentProviderList %in% tl_df_cls()$ProjectID,
+      input$currentProviderList %in% tl_df_cls()$ProjectID,
       tl_df_cls(),
       set_zero = FALSE
     )  

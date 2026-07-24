@@ -791,7 +791,7 @@
       "x": {
         "filter": "none",
         "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n      <th>Number of CE Assessment Records<\/th>\n      <th>Number of CE Event Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n      <th>Number of Current Living Situation Records<\/th>\n      <th>Number of CE Assessment Records<\/th>\n      <th>Number of CE Event Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
           "ordering": false,
@@ -802,7 +802,8 @@
                 1,
                 2,
                 3,
-                4
+                4,
+                5
               ]
             },
             {
@@ -818,12 +819,16 @@
               "targets": 2
             },
             {
-              "name": "Number of CE Assessment Records",
+              "name": "Number of Current Living Situation Records",
               "targets": 3
             },
             {
-              "name": "Number of CE Event Records",
+              "name": "Number of CE Assessment Records",
               "targets": 4
+            },
+            {
+              "name": "Number of CE Event Records",
+              "targets": 5
             }
           ],
           "order": [
