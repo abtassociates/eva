@@ -422,11 +422,11 @@
       },
       "< 0 Days": {
         "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 27.39024390243902,
-        "3rd Qu.": 15,
-        "Max.": 705
+        "1st Qu.": 10,
+        "Median": 45,
+        "Mean": 264.409756097561,
+        "3rd Qu.": 142,
+        "Max.": 22203
       },
       "0 Days": {
         "Min.": 0,
@@ -440,41 +440,41 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 23.94634146341463,
-        "3rd Qu.": 4,
-        "Max.": 1097
+        "Mean": 10.04390243902439,
+        "3rd Qu.": 2,
+        "Max.": 451
       },
       "4-6 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 14.29756097560976,
-        "3rd Qu.": 3,
-        "Max.": 749
+        "Mean": 4.092682926829268,
+        "3rd Qu.": 1,
+        "Max.": 151
       },
       "7-10 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 15.15121951219512,
-        "3rd Qu.": 6,
-        "Max.": 1030
+        "Mean": 2.536585365853659,
+        "3rd Qu.": 0,
+        "Max.": 76
       },
       "11 + Days": {
         "Min.": 0,
-        "1st Qu.": 9,
-        "Median": 35,
-        "Mean": 211.0146341463415,
-        "3rd Qu.": 119,
-        "Max.": 19327
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 10.71707317073171,
+        "3rd Qu.": 3,
+        "Max.": 501
       },
       "Median Days to Project Exit Record Entry": {
-        "Min.": -218,
-        "1st Qu.": 24,
-        "Median": 83,
-        "Mean": 149.6522842639594,
-        "3rd Qu.": 167,
-        "Max.": 1778,
+        "Min.": -1778,
+        "1st Qu.": -167,
+        "Median": -83,
+        "Mean": -149.6522842639594,
+        "3rd Qu.": -24,
+        "Max.": 218,
         "NA's": 8
       }
     },
@@ -2448,12 +2448,12 @@
         84
       ],
       "Number of Project Exit Records": [
-        94,
+        222,
         9,
         34,
-        20,
-        25,
-        143
+        16,
+        8,
+        36
       ],
       "Number of CE Assessment Records": [
         0,
