@@ -804,14 +804,15 @@ output$timelinessTable <- renderDT({
     set_zero = FALSE
   )
  
+  ## Ensure that ESNbN, SO, and CE projects always have the Current Living Situation (CLS) column (keep even if all 0s)
   if(cc_project_type() %in% c(es_nbn_project_type, out_project_type, ce_project_type)){
-    cls_df <- tl_df_cls() %>% fsubset(ProjectID == input$currentProviderList)
-    if(fnrow(cls_df) > 0){
-
-      dat$cls = cls_df %>% fselect(time_cols) %>% unlist
-    } else {
-      dat$cls = NULL
-    }
+    dat$cls <- pull_time_cols(
+      fnrow(tl_df_cls() %>% fsubset(ProjectID == input$currentProviderList)) > 0,
+      tl_df_cls(),
+      set_zero = TRUE
+    )  
+    
+  ## for other project types, display CLS column only if the selected project has those records
   } else {
     dat$cls <- pull_time_cols(
       cc_project_type() %in% project_types_w_cls && input$currentProviderList %in% tl_df_cls()$ProjectID,
