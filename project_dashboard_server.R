@@ -512,13 +512,12 @@ tl_df_project_start <- reactive({
   
   ## Time to Entry - Project Start
   df_start <- join(
-    client_count_data_df() %>% 
-      rename(ProjectStartDate = EntryDate),
+    client_count_data_df(), 
     session$userData$Enrollment %>% fselect(PersonalID,EnrollmentID,DateCreated),
     how = "left"
   ) %>% 
-    fsubset(between(ProjectStartDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - ProjectStartDate)) %>% 
+    fsubset(between(EntryDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - EntryDate)) %>% 
     calc_time_to_entry()
 
   ## create rows of zeros for any projects without Project Start records  
@@ -541,13 +540,12 @@ tl_df_project_exit <- reactive({
   
   ## Time to Entry - Project Exit
   df_exit <- join(
-    client_count_data_df() %>% 
-      rename(ProjectExitDate = ExitDate),
+    client_count_data_df(),
     session$userData$Exit %>% fselect(PersonalID, EnrollmentID, DateCreated),
     how = "left"
   ) %>%  
-    fsubset(between(ProjectExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
-    fmutate(DaysToEntry = as.numeric(ProjectExitDate - as.Date(DateCreated))) %>% 
+    fsubset(between(ExitDate, input$dateRangeCount[1], input$dateRangeCount[2])) %>% 
+    fmutate(DaysToEntry = as.numeric(as.Date(DateCreated) - ExitDate )) %>% 
     calc_time_to_entry()
   
   ## create rows of zeros for any projects without Project Start records  
