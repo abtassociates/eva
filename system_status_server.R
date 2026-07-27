@@ -186,11 +186,9 @@ output$sys_status_download_btn <- downloadHandler(
       "System Status Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
         bind_rows(sys_export_filter_selections(type = 'overview')) %>%
         bind_rows(sys_status_export_info(get_sankey_data())) %>%
-        rename("System Status" = Value) %>%
-        xlsx_char_trunc(log_loc = "in sys_status_export_info - System Status Metadata"),
-      "System Status Detail" = xlsx_char_trunc(spd, log_loc = "in sys_status_export_info - System Status Detail") 
+        rename("System Status" = Value),
+      "System Status Detail" = spd
     )
-    
 
     write_xlsx(
       tab_names,
@@ -269,4 +267,5 @@ get_sankey_data <- reactive({
       End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
       End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
     )
-  })
+  
+})

@@ -287,18 +287,12 @@ get_clientcount_download_info <- function(orgList = unique(client_count_data_df(
   }
   
   exportDFList <- list(
-    Metadata = client_counts_metadata %>%
-      xlsx_char_trunc(log_loc = "in get_clientcount_download_info - Metadata"),
-    validationDateRange = validationDateRange %>% nice_names()%>%
-      xlsx_char_trunc(log_loc = "in get_clientcount_download_info - validation - Date Range"),
-    validationFullExportRange = validationFullExportRange %>% nice_names()%>%
-      xlsx_char_trunc(log_loc = "in get_clientcount_download_info - validation - Full Export Range"),
-    validationDetail = validationDetail %>% nice_names()%>%
-      xlsx_char_trunc(log_loc = "in get_clientcount_download_info - validation - Detail"),
-    validationStart = validationStart%>%
-      xlsx_char_trunc(log_loc = "in get_clientcount_download_info - validation - Timeliness Start"),
-    validationExit = validationExit%>%
-      xlsx_char_trunc(log_loc = "in get_clientcount_download_info - validation - Timeliness Exit")
+    Metadata = client_counts_metadata,
+    validationDateRange = validationDateRange %>% nice_names(),
+    validationFullExportRange = validationFullExportRange %>% nice_names(),
+    validationDetail = validationDetail %>% nice_names(),
+    validationStart = validationStart,
+    validationExit = validationExit
   )
   
   names(exportDFList) = c(
@@ -757,7 +751,7 @@ output$downloadClientCountsReport <- downloadHandler(
                                 paste0(input$dateRangeCount, collapse=', '),']',
                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
     df_xl <- get_clientcount_download_info()
-   # wrapped with xlsx_char_trunc in get_clientcount_download_info
+   
     write_xlsx(df_xl,
                path = file)
   }

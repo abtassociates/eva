@@ -1229,7 +1229,7 @@ sys_export_monthly_info <- function() {
 output$sys_inflow_outflow_download_btn <- downloadHandler(
   filename = date_stamped_filename("System Flow Report - "),
   content = function(file) {
-    logToConsole(session, "In Inflow/Outflow data download")
+    logToConsole(session, "Inflow/Outflow data download")
 
     df <- sys_inflow_outflow_annual_chart_data() %>% 
       ftransform(
@@ -1254,25 +1254,20 @@ output$sys_inflow_outflow_download_btn <- downloadHandler(
       list(
         "System Flow Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
           bind_rows(
-            sys_export_filter_selections(type = 'overview'), # tibble
-            sys_inflow_outflow_totals(), # data.table
+            sys_export_filter_selections(type = 'overview'),
+            sys_inflow_outflow_totals(),
             monthly_data$monthly_averages
           ) %>%
           mutate(Value = replace_na(Value, 0)) %>%
-          rename("System Flow" = Value) %>%
-            xlsx_char_trunc(log_loc = "in sys_inflow_outflow_download_btn - System Flow Metadata"),
-          
+          rename("System Flow" = Value),
         "System Flow Summary" = bind_rows(df, totals_df) %>%
           roworder(Summary) %>%
           fselect(
             "Summary Category" = Summary,
             "Detail Category" = Detail,
             "Count" = N
-          )%>%
-          xlsx_char_trunc(log_loc = "in sys_inflow_outflow_download_btn - System Flow Summary"),
-        
-        "System Flow Data Monthly" = monthly_data$monthly_counts%>%
-          xlsx_char_trunc(log_loc = "in sys_inflow_outflow_download_btn - System Flow Data Monthly")
+          ),
+        "System Flow Data Monthly" = monthly_data$monthly_counts
       ),
       path = file,
       format_headers = FALSE,

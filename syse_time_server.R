@@ -393,10 +393,8 @@ output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filenam
                                                                     )
                                                          )
                                                        ) %>% 
-                                                       frename("System Exits by Year" = Value)%>%
-                                                       xlsx_char_trunc(log_loc = "in syse_time_download_btn - SystemExitsByYear Metadata"),
-                                                     "YearComparisonData" = syse_time_export()%>%
-                                                       xlsx_char_trunc(log_loc = "in syse_time_download_btn - YearComparisonData")
+                                                       frename("System Exits by Year" = Value),
+                                                     "YearComparisonData" = syse_time_export()
                                                      
                                                    )
                                                    

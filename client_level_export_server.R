@@ -239,15 +239,11 @@ populate_client_level_export <- function(type = 'overview', file){
     # officer load the excel file with all its formatting
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
-    wb <- sheet_write_data(wb, filter_selections %>%
-                             xlsx_char_trunc(log_loc = "in populate_client_level_export - Metadata"), "Metadata")
-    wb <- sheet_write_data(wb, client_level_details %>%
-                             xlsx_char_trunc(log_loc = "in populate_client_level_export - Client Details"), "Client Details")
-    wb <- sheet_write_data(wb,  monthly_statuses %>%
-                             xlsx_char_trunc(log_loc = "in populate_client_level_export - Monthly Statuses"),  "Monthly Statuses")
-    wb <- sheet_write_data(wb,   adjusted_non_res_enrl %>%
-                             xlsx_char_trunc(log_loc = "in populate_client_level_export - Adjusted Enrollments"), "Adjusted Enrollments")
-    
+    wb <- sheet_write_data(wb, filter_selections , "Metadata")
+    wb <- sheet_write_data(wb, client_level_details, "Client Details")
+    wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
+    wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
+
   } else if(type == 'exits'){
     
     # User's filter selections - metadata tab
@@ -281,10 +277,8 @@ populate_client_level_export <- function(type = 'overview', file){
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
     
-    wb <- sheet_write_data(wb, filter_selections %>%
-                             xlsx_char_trunc(log_loc = "in populate_client_level_export - Metadata"), "Metadata")
-    wb <- sheet_write_data(wb, client_level_details %>%
-                             xlsx_char_trunc(log_loc = "in populate_client_level_export - Client Details"), "Client Details")
+    wb <- sheet_write_data(wb, filter_selections, "Metadata")
+    wb <- sheet_write_data(wb, client_level_details, "Client Details")
     
     # drop the other sheets and instrunctions
     wb <- sheet_remove(wb, "Monthly Statuses")
