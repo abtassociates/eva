@@ -24,18 +24,32 @@
 
 logToConsole(session, "Running initial data prep")
 
-# Project data ------------------------------------------------------------
-
+# Project0 ------------------
 # breaking out Projects into their participating times, adjusting ProjectIDs
-
 project_prep <- Project %>%
   join(
     Organization %>%
       fselect(OrganizationID, OrganizationName, VictimServiceProvider),
     how = "left",
     on = "OrganizationID"
-  )
+  ) 
 
+session$userData$Project0 <- project_prep %>%
+  fselect(ProjectID,
+          ProjectName,
+          OrganizationID,
+          OrganizationName,
+          OperatingStartDate,
+          OperatingEndDate,
+          ProjectType,
+          RRHSubType,
+          HousingType,
+          VictimServiceProvider,
+          ContinuumProject) %>%
+  funique() %>%
+  xlsx_char_trunc(log_loc = "Project0 (04_initial_data_prep)", sesh = session)
+
+# ProjectSegments ------------------------
 ProjectSegments <- project_prep %>%
   join(
     HMISParticipation %>%
@@ -60,31 +74,16 @@ ProjectSegments <- project_prep %>%
     )
   ) %>%
   fungroup() %>%
-  relocate(ProjectTimeID, .after = ProjectID)
-
+  relocate(ProjectTimeID, .after = ProjectID) %>%
+  xlsx_char_trunc(log_loc = "ProjectSegments (04_initial_data_prep)", sesh = session)
+rm(project_prep)
 # * Use Project0 for most things.
 # * Use ProjectSegments if your analysis uses specific participation data
 # * Use Project if you need something from the original data as it came in that's
 #     not in Project0 or ProjectSegments
 
-session$userData$Project0 <- project_prep %>%
-  fselect(ProjectID,
-         ProjectName,
-         OrganizationID,
-         OrganizationName,
-         OperatingStartDate,
-         OperatingEndDate,
-         ProjectType,
-         RRHSubType,
-         HousingType,
-         VictimServiceProvider,
-         ContinuumProject) %>%
-  funique()
-
-rm(project_prep)
-
 # Enrollment --------------------------------------------------------------
-# Truncating Enrollments based on Operating/Participating -----------------
+## Truncating Enrollments based on Operating/Participating -----------------
 EnrollmentStaging <- Enrollment %>%
   join(Client %>% fselect(PersonalID, DOB), 
        on = "PersonalID") %>%
@@ -129,7 +128,7 @@ EnrollmentStaging <- Enrollment %>%
   ) %>%
   fungroup()
 
-# Truncating Enrollments based on Operating/Participating -----------------
+## Truncating Enrollments based on Operating/Participating -----------------
 # This also brings in Project-level info, e.g. ProjectType to the Enrollment dataset
 EnrollmentOutside <- qDT(EnrollmentStaging) %>%
   fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust) %>%
@@ -221,7 +220,7 @@ Enrollment <- EnrollmentStaging %>%
   ) %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
-# Adjust Move-In Date -----------------------------------------------------------
+## Adjust Move-In Date -----------------------------------------------------------
 # Move-In Date is only collected for HoH. So we need to compute an adjusted 
 # household move-In Date (HMID) for all members, using the HoH's earliest move-in date
 # Note households are tied to the Project. There may mistakenly be multiple HoH, so take earliest
@@ -273,13 +272,17 @@ Enrollment <- Enrollment %>%
       )
     )
   )
-
 rm(HHMoveIn)
 
-# Only contains EEs within Operating and Participating Dates --------------
+## Truncate & store to userData ----------------------
+
+session$userData$Enrollment <- Enrollment %>%
+  xlsx_char_trunc(log_loc = "Enrollment (04_initial_data_prep)", sesh = session)
+
+# EnrollmentAdjust --------------------------------------------------------
+# Only contains EEs within Operating and Participating Dates
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
-
 EnrollmentAdjust <- Enrollment %>%
   fsubset(
     !EnrollmentvParticipating %in% c(
@@ -291,15 +294,19 @@ EnrollmentAdjust <- Enrollment %>%
         "Enrollment Before Operating Period"
       )
   )
+  # no need to truncate characters since Enrollment already did
 
-# Only BedNight Services --------------------------------------------------
-
+# Services --------------------------------------------------
+# filter to Only BedNights
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
   fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
+session$userData$Services <- Services %>%
+  xlsx_char_trunc(log_loc = "Services (04_initial_data_prep)", sesh = session)
 
-# Build validation df for app ---------------------------------------------
+# validation  ---------------------------------------------
+# Build validation df for app 
 # this contains Project and Org info together
 validationProject <- ProjectSegments %>%
   fselect(
@@ -356,8 +363,10 @@ session$userData$validation <- validationProject %>%
     DateCreated
   ) %>%
   fsubset(!is.na(EntryDate))
+# no need to truncate characters since Enrollment and ProjectSegments already eid
 
-# Checking requirements by projectid --------------------------------------
+# project_funders_types ---------------------------------------
+# Checking requirements by projectid 
 
 projects_funders_types <- Funder %>%
   join(Project %>%
@@ -377,7 +386,9 @@ projects_funders_types <- Funder %>%
             hi = fmax(hi, na.rm = TRUE),
             dv = fmax(dv, na.rm = TRUE)) %>%
   fungroup() %>%
-  qDT()
+  qDT() %>%
+  xlsx_char_trunc(log_loc = "projects_funders_types (04_initial_data_prep)", sesh = session)
+
 
 # Active Inventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
@@ -397,9 +408,10 @@ activeInventory <- Inventory %>%
   fsubset(
     fcoalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
-  )
+  ) %>%
+  xlsx_char_trunc(log_loc = "activeInventory (04_initial_data_prep)", sesh = session)
 
-# Event (Used in DQ)
+# Event (Used in DQ) ------------------------------------
 Event <- Event %>% 
   fselect(
     EnrollmentID,
@@ -411,12 +423,17 @@ Event <- Event %>%
     LocationCrisisOrPHHousing,
     ReferralResult,
     ResultDate
-  )
+  ) %>%
+  xlsx_char_trunc(log_loc = "Event (04_initial_data_prep)", sesh = session)
 
-session$userData$Services <- Services
-session$userData$Exit <- Exit
-session$userData$Enrollment <- Enrollment
-session$userData$CurrentLivingSituation <- CurrentLivingSituation
+
+# Exit --------------------------
+session$userData$Exit <- Exit %>%
+  xlsx_char_trunc(log_loc = "Exit (04_initial_data_prep)", sesh = session)
+# CurrentLivingSituation -------------------------------
+session$userData$CurrentLivingSituation <- CurrentLivingSituation %>%
+  xlsx_char_trunc(log_loc = "CurrentLivingSituation (04_initial_data_prep)", sesh = session)
+
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
