@@ -3,6 +3,13 @@
 subpop_chart_validation <- function(show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
   
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   
   cond <- any(did_factors_change()) 
   
