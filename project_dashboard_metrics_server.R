@@ -3,7 +3,7 @@ metrics <- reactive({
   latest_enrollments <- get_latest_enrollments()
   
   metric_specific_datasets <- get_metric_specific_datasets(latest_enrollments)
-    
+  
   detail_dataset <- get_details_by_hh_type(metric_specific_datasets)
   
   list(
@@ -12,7 +12,7 @@ metrics <- reactive({
     los_nmiss = fsum(is.na(metric_specific_datasets$los$LengthOfStay)),
     
     entered_non_habitat_pct = calc_entered_non_habitat_pct(metric_specific_datasets$entered_non_habitat),
-    entered_non_habitat_nmiss = fsum(is.na(latest_enrollments$Full$LivingSituation)),
+    entered_non_habitat_nmiss = fsum(is.na(latest_enrollments$LivingSituation)),
     
     successful_exit_pct = fsum(metric_specific_datasets$successful_exit$successful_exit)/fnrow(successful_exit_dt),
     successful_exit_nmiss = fsum(is.na(successful_exit_dt$Destination)),
@@ -32,14 +32,14 @@ metrics <- reactive({
 get_metric_specific_datasets <- function(latest_enrollments) {
   # Metric-specific data prep -----------
   ## LOS -------------
-  los_dt <- latest_enrollments$Entry |>
+  los_dt <- latest_enrollments |>
     fsubset(
       ProjectType %in% c(lh_residential_project_types, ph_project_types), 
       EnrollmentID, LengthOfStay, HouseholdType
     )
   
   ## Entered Place Not Meant for Habitation -------------
-  entered_non_habitat_dt <- latest_enrollments$Entry |>
+  entered_non_habitat_dt <- latest_enrollments |>
     fsubset(
       ProjectType %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type))	&
         (RelationshipToHoH == 1 | AgeAtEntry >= 18), 
@@ -50,7 +50,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   zero_income_dt <- session$userData$IncomeBenefits |>
     fsubset(DataCollectionStage == 1, EnrollmentID, IncomeFromAnySource) |>
     join(
-      latest_enrollments$Entry |> 
+      latest_enrollments |> 
         fsubset(
           ProjectType == hp_project_type & 
             (RelationshipToHoH == 1 | AgeAtEntry >= 18), 
@@ -64,7 +64,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   successful_exit_dt <- session$userData$Exit |>
     fselect(EnrollmentID, Destination) |>
     join(
-      latest_enrollments$Exit |> fselect(EnrollmentID, ProjectType, HouseholdType),
+      latest_enrollments |> 
+        fsubset(!is.na(ExitAdjust), EnrollmentID, ProjectType, HouseholdType),
       on = "EnrollmentID",
       how = "inner"
     ) |>
@@ -78,13 +79,13 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     fsubset(
       !(
         (Destination %in% c(24, 206) & ProjectType %in% lh_ph_hp_project_types) |
-          (Destination %in% c(215, 225) & ProjectType %in% setdiff(lh_ph_hp_project_types, out_project_type)) |
-          (Destination == 329 & ProjectType == out_project_type)
+        (Destination %in% c(215, 225) & ProjectType %in% setdiff(lh_ph_hp_project_types, out_project_type)) |
+        (Destination == 329 & ProjectType == out_project_type)
       )
     )
   
   ## Income Growth -------------
-  income_growth_latest_enrl <- latest_enrollments$Exit |>
+  income_growth_latest_enrl <- latest_enrollments |>
     fsubset(
       ProjectType %in% c(ph_project_types, hp_project_type) &
         (RelationshipToHoH == 1 | AgeAtEntry >= 18), 
@@ -133,29 +134,16 @@ get_latest_enrollments <- function() {
     join(session$userData$Project0 |> fselect(ProjectID, ProjectType), on = "ProjectID") |>
     fselect(PersonalID, EnrollmentID, EntryDate, ExitAdjust, HouseholdType, ProjectType, AgeAtEntry, LivingSituation, RelationshipToHoH, LengthOfStay)
   
-  ## Only want the "latest" (Entry or Exit, depending on metric) when calculating metrics
-  latest_entry <- enrollment_w_project_type[EntryDate %between% input$dateRangeCount]
-  latest_entry <- if(fnrow(latest_entry) > 0)
-    latest_entry |>
-    fgroup_by(PersonalID, EntryDate) |>
-    fslice(how = "last") |>
-    fselect(PersonalID, EnrollmentID, HouseholdType, ProjectType, AgeAtEntry, LivingSituation, RelationshipToHoH, LengthOfStay)
+  ## Only want the "latest" Entry when calculating metrics
+  latest_enrollments <- if(fnrow(enrollment_w_project_type) > 0)
+    enrollment_w_project_type |>
+      fgroup_by(PersonalID, EntryDate) |>
+      fslice(how = "last") |>
+      fselect(PersonalID, EnrollmentID, HouseholdType, ProjectType, AgeAtEntry, LivingSituation, RelationshipToHoH, LengthOfStay, ExitAdjust)
   else
     data.table()
   
-  latest_exit <- enrollment_w_project_type[ExitAdjust %between% input$dateRangeCount]
-  latest_exit <- if(fnrow(latest_exit) > 0)
-    latest_exit |>
-    fsubset(ExitAdjust %between% input$dateRangeCount) |>
-    fgroup_by(PersonalID, ExitAdjust) |>
-    fslice(how = "last") |>
-    fselect(PersonalID, EnrollmentID, HouseholdType, ProjectType, RelationshipToHoH, AgeAtEntry)
-  else
-    data.table()
-  
-  return(
-    list("Full" = enrollment_w_project_type, "Entry" = latest_entry, "Exit" = latest_exit)
-  )
+  return(latest_enrollments)
 }
 
 groups <- list(
@@ -168,7 +156,7 @@ groups <- list(
 
 calc_by_hh_group <- function(data, func, col = NULL) {
   lapply(groups, function(g) {
-    d <- data[HouseholdType %in% g, with = FALSE]
+    d <- data[HouseholdType %in% g]
     if(!is.null(col)) d <- d$col
     
     func(d)
@@ -202,15 +190,15 @@ get_details_by_hh_type <- function(m) {
   # CE Assessed Households                                       #                     #                       #                        #                       #                    ce_project_type, any other project that has CE Assessment data within report
   # Current Living Situation Records: Total                      #                     #                       #                        #                       #                    es_nbn_project_type, setdiff(non_res_project_types, hp_project_type)
   # ====================================================================================================================================================================================================================
+  total_clients_served <- calc_by_hh_group(m$latest_enrollments, fnunique, "PersonalID") 
   browser()
-  total_clients_served <- calc_by_hh_group(m$latest_enrollments$Entry, fnunique, "PersonalID") 
-  length_of_participation_dt <- m$latest_enrollments$Entry |> 
+  length_of_participation_dt <- m$latest_enrollments |> 
     fmutate(length_of_participation = ExitAdjust - EntryDate)
   
-  time_to_movein <- m$latest_enrollments$Entry |> 
+  time_to_movein <- m$latest_enrollments |> 
     fmutate(time_to_move_in = MoveInDateAdjust - EntryDate)
   
-  avg_household_size_dt <- m$latest_enrollments$Entry |>
+  avg_household_size_dt <- m$latest_enrollments |>
     fgroup_by(HouseholdID) |>
     fmutate(hh_size = fcount(PersonalID)) |>
     fungroup() |>
@@ -218,8 +206,8 @@ get_details_by_hh_type <- function(m) {
 
   rbindlist(
     list(
-      "Total Clients Served" = calc_by_hh_group(m$latest_enrollments$Entry, fnunique, "PersonalID"),
-      "Total Households Served" = calc_by_hh_group(m$latest_enrollments$Entry, fnunique, "HouseholdID")
+      "Total Clients Served" = calc_by_hh_group(m$latest_enrollments, fnunique, "PersonalID"),
+      "Total Households Served" = calc_by_hh_group(m$latest_enrollments, fnunique, "HouseholdID"),
       "Average Households Size" = calc_by_hh_group(avg_household_size_dt, fmean, "hh_size"),
       "Average Length of Participation (All Clients)" = calc_by_hh_group(length_of_participation_dt, fmean, "length_of_participation"),
       "Median Length of Participation (All Clients)" = calc_by_hh_group(length_of_participation_dt, fmedian, "length_of_participation"),
