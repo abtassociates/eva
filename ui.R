@@ -14,7 +14,8 @@ page_navbar(
   header = tagList(
     ## css, idle management, and dimension management --------
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      includeCSS(here("www/custom.css")),
+      # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
       tags$script(HTML(
