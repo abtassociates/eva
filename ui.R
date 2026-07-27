@@ -1179,10 +1179,7 @@ nav_panel(
               # ==========================================
               div(
                 id = "syse_subpop_hh_type",
-                div(
-                  class = "label",
-                  "Household Type"
-                ),
+                div(class = "label", "Household Type"),
                 div(
                   pickerInput(
                     inputId = "syse_subpop_hh_type",
