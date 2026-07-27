@@ -766,15 +766,19 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
 }
 
 # truncate columns of dataframes being exported to xlsx
-xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = ""){
+xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = "", sesh = session){
   # checking if any columns need to be truncated
-  trunc_cols <- map(df, ~ifelse(is.character(.x), max(nchar(.x), na.rm=TRUE)>max_nchar, FALSE) ) %>% unlist()
+  df_chars <- char_vars(df)
+  if(length(df_chars) == 0) return(df)
   
-  if(any(trunc_cols)){
-    df <- map_at(df, which(trunc_cols), ~str_sub(.x, 1, max_nchar)) %>% as.data.frame()
-    logToConsole(session, paste("truncating", log_loc, "column(s) :", paste(names(which(trunc_cols)), sep = ", "), 
-                                "that exceed the maximum number of characters", max_nchar))
-  }
+  trunc_flags <- df_chars |> map_lgl(~any(stringi::stri_length(.x) > max_nchar, na.rm = TRUE))
+  if (!any(trunc_flags)) return(df)
+  
+  truncated_list <- modify_at(df_chars, which(trunc_flags), ~stringi::stri_sub(.x, 1, max_nchar))
+  df_final <- ftransform(df, truncated_list)
+  
+  logToConsole(sesh, paste("truncating", log_loc, "column(s) :", paste(names(which(trunc_flags)), collapse = ", "),
+                              "that exceed the maximum number of characters", max_nchar))
   return(df)
 }
 
