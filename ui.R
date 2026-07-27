@@ -1014,17 +1014,13 @@ nav_panel(
       gap = 0,
       card(
         id = 'syse_filters_left',
-        style='border-width:0;border-radius:0',
-        # --- ROW 1 (The 3 top filters) ---
         div(
-          style = "display: flex; gap: 15px; margin-bottom: 0",
-          
           pickerInput(
             label = "Household Type",
             inputId = "syse_hh_type",
             choices = sys_hh_types,
             selected = sys_hh_types[1],
-            width = "100%", # <--- ADDED
+            width = "100%",
             options = pickerOptions(container = "body")
           ),
           pickerInput(
@@ -1032,7 +1028,7 @@ nav_panel(
             inputId = "syse_level_of_detail",
             choices = sys_level_of_detail,
             selected = sys_level_of_detail[1],
-            width = "100%", # <--- ADDED
+            width = "100%",
             options = pickerOptions(container = "body")
           ),
           pickerInput(
@@ -1040,22 +1036,19 @@ nav_panel(
             inputId = "syse_project_type",
             choices = sys_project_types,
             selected = sys_project_types[1],
-            width = "100%", # <--- ADDED
+            width = "100%",
             options = pickerOptions(container = "body")
           )
         ),
         
-        # --- ROW 2 (The 2 bottom filters) ---
         div(
-          style = "display: flex; gap: 15px; margin-bottom: 0",
-          
           pickerInput(
             inputId = "syse_age",
             label = "Age",
             selected = sys_age_cats,
             choices = sys_age_cats,
             multiple = TRUE,
-            width = "100%", # <--- ADDED
+            width = "100%",
             options = pickerOptions(
               actionsBox = TRUE,
               selectedTextFormat = paste("count >", length(sys_age_cats)-1),
@@ -1069,14 +1062,13 @@ nav_panel(
             inputId = "syse_spec_pops",
             choices = sys_spec_pops_people,
             selected = sys_spec_pops_people[1],
-            width = "100%", # <--- ADDED
+            width = "100%",
             options = pickerOptions(container = "body")
           )
         )
       ),
       card(
         id = 'syse_filters_right',
-        style="border-width:0;border-left-width: 1px; border-radius:0",
         layout_columns(
           col_widths = c(12,12),
           pickerInput(
@@ -1179,32 +1171,18 @@ nav_panel(
             ),
             br(),
             div(
-              id = "inline_filter_row", 
-              style = "display: flex; flex-wrap: wrap; align-items: center; gap: 15px;",
-              
-              # CSS FIX: Removes the invisible bottom margins Shiny adds to inputs
-              tags$style("
-    #inline_filter_row .form-group, 
-    #inline_filter_row .shiny-input-container, 
-    #inline_filter_row .checkbox, 
-    #inline_filter_row .form-check {
-      margin-bottom: 0 !important;
-      margin-top: 0 !important;
-    }
-  "),
+              id = "syse_subpop_crosstab_selectors", 
               
               # ==========================================
               # GROUP 1: Household Type
               # ==========================================
-              # flex: 0 0 auto; means it will NOT stretch, keeping the vertical line right next to it.
               div(
-                style = "flex: 0 0 auto; display: flex; align-items: center; gap: 10px; border-right: 2px solid #ccc; padding-right: 15px;",
+                id = "syse_subpop_hh_type",
                 div(
-                  style = "flex: 0 0 auto;",
-                  tags$label("Household Type", style = "margin-bottom: 0; white-space: nowrap;") 
+                  class = "label",
+                  "Household Type"
                 ),
                 div(
-                  style = "flex: 0 0 200px;", # Added a fixed 200px width so the dropdown doesn't squish
                   pickerInput(
                     inputId = "syse_subpop_hh_type",
                     label = NULL, 
@@ -1219,21 +1197,12 @@ nav_panel(
               # ==========================================
               # GROUP 2: The Three Checkboxes
               # ==========================================
-              # flex: 1 1 700px; tells it to stretch, BUT if it can't maintain at least 700px
-              # next to Household Type, it forces this entire block to wrap to the next line.
               div(
-                style = "flex: 1 1 700px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px;",
-                
                 # --- Column 1: Age ---
                 div(
-                  style = "flex: 1 1 180px; display: flex; align-items: center; gap: 5px;",
-                  div(
-                    style = "flex: 0 0 auto;",
-                    checkboxInput('syse_subpop_age_selection', 'Age', width = "auto") 
-                  ),
+                  checkboxInput('syse_subpop_age_selection', 'Age', width = "auto"),
                   div(
                     id = 'age_picker',
-                    style = "flex: 1; min-width: 0;", 
                     pickerInput(
                       inputId = "syse_subpop_age",
                       label = NULL,
@@ -1254,14 +1223,9 @@ nav_panel(
                 
                 # --- Column 2: Veteran Status ---
                 div(
-                  style = "flex: 1 1 260px; display: flex; align-items: center; gap: 5px;", 
-                  div(
-                    style = "flex: 0 0 auto;",
-                    checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)', width = "auto")
-                  ),
+                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)', width = "auto"),
                   div(
                     id = 'vet_picker',
-                    style = "flex: 1; min-width: 0;",
                     pickerInput(
                       label = NULL,
                       inputId = "syse_subpop_spec_pops",
@@ -1278,14 +1242,9 @@ nav_panel(
                 
                 # --- Column 3: Race/Ethnicity ---
                 div(
-                  style = "flex: 1 1 220px; display: flex; align-items: center; gap: 5px;",
-                  div(
-                    style = "flex: 0 0 auto;",
-                    checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity', width = "auto")
-                  ),
+                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity', width = "auto"),
                   div(
                     id = 'race_eth_picker',
-                    style = "flex: 1; min-width: 0;",
                     conditionalPanel(
                       condition = 'input.syse_methodology_type == 1',
                       pickerInput(
@@ -1326,7 +1285,6 @@ nav_panel(
                     )
                   )
                 )
-                
               ) # End of Group 2
             ),
             br(),
