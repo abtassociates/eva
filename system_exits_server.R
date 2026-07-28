@@ -278,14 +278,6 @@ all_filtered_syse_subpop <- reactive({
   ) %>% 
     fmutate(
       passes_enrollment_filters =
-        # Household type filter
-        (input$syse_hh_type == "All" |
-           (input$syse_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-           (input$syse_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) |
-           (input$syse_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) |
-           (input$syse_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) |
-           input$syse_hh_type == HouseholdType
-        ) &
         # Level of detail filter
         (input$syse_level_of_detail == "All" |
            (input$syse_level_of_detail == "HoHsAndAdults" &
@@ -373,13 +365,13 @@ all_filtered_syse_subpop <- reactive({
     how = "inner"
   ) %>% 
     join(tmp_ev_else %>% fselect(PersonalID, EnrollmentID, HouseholdType)) %>% 
-    fmutate( meets_ev_else =   
+    fmutate( meets_ev_else =    
                (#input$syse_hh_type != "All" |
-                  (input$syse_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
+                  (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
                   #(input$syse_hh_type == "YYA" & !(HouseholdType == "CO") & VeteranStatus != 1) |
-                  (input$syse_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
-                  (input$syse_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
-                  !(input$syse_hh_type %in% c("YYA","AO","AC")) & input$syse_hh_type != HouseholdType
+                  (input$syse_subpop_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
+                  (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
+                  !(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType
                )) %>% 
     fsubset(meets_ev_else)
   
