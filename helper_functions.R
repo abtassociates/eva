@@ -766,7 +766,7 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
 }
 
 # truncate columns of dataframes being exported to xlsx
-xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = "", sesh = session){
+xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = "", session){
   # checking if any columns need to be truncated
   df_chars <- char_vars(df)
   if(length(df_chars) == 0) return(df)
