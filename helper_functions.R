@@ -164,7 +164,7 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
+importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000, session) {
   if(isTRUE(str_sub(upload_filepath, -4, -1) != ".zip")) {
     capture.output("User tried uploading a non-zip file!") 
   }
@@ -216,6 +216,9 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     }
   }
 
+  # truncate strings exceeding the maximum excel limit
+  data <- xlsx_char_trunc(data, log_loc = paste(filename, "(importFile)"), session = session)
+    
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
       fsubset(is.na(DateDeleted))
