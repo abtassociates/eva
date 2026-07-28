@@ -89,6 +89,12 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       # Skip if the column isn't in the dataset
       if(!rule_row$Name %in% names(dt)) return(NULL)
       
+      key_fields_list <- unlist(strsplit(rule_row$`Key Fields`, ", ", fixed = TRUE))
+      
+      # Skip if any Key Fields aren't in the dataset
+      if(!all(key_fields_list %in% names(dt)))
+        return(NULL)
+      
       # print(glue::glue("rule_row = {rule_row[, .(Name, rule_expr)]}"))
       
       # For null-unless, add conditional funder+project type reqs
@@ -127,7 +133,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       
       # Attach the metadata so we know exactly what failed
       cols_to_select <- unique(c(
-        unlist(strsplit(rule_row$`Key Fields`, ", ", fixed = TRUE)),
+        key_fields_list,
         rule_row$AnchorID,
         rule_row$Name
       )) |>
