@@ -26,6 +26,7 @@ raw[1, ] <- t(tidyr::fill(data.frame(t(raw[1, ])), everything()))
 header <- paste(raw[1,], raw[2,], sep = "_") |>
   gsub("NA_|_NA", "", x = _)
 
+library(collapse)
 cols_and_data_types <- raw[-(1:2),] |> 
   setNames(header) |>
   qDT()
@@ -53,6 +54,7 @@ unique_id_lookup <- cols_and_data_types |>
 # The multi-header gives you one group of three columns per check type:
 #   Source, Include AnchorID?, Key Fields
 # Pivot gives us: CSV, Name, issue_type, Source, Include, AnchorID, Key Fields
+library(tidyr)
 reporting_info <- cols_and_data_types %>%
   fselect(-c(`DE#`, Type, Null, Notes, Order)) |>
   pivot_longer(
@@ -69,6 +71,8 @@ reporting_info <- cols_and_data_types %>%
   )
 
 ## Resolve key fields and AnchorID --------------
+library(stringr)
+library(data.table)
 reporting_info <- reporting_info |>
   join(unique_id_lookup, on = "CSV", how = "left") |>
   join(keys_and_anchors, on = "CSV", how = "left") |>
@@ -388,6 +392,7 @@ specs_rules <- cols_and_data_types %>%
   fmutate(rule_expr = list(NULL))
 
 ## 1. Null Unless  ------------
+library(glue)
 specs_rules[
   issue_type == "Null Unless",
   validation_notes := str_split_i(validation_notes, "\r\n", 1)
