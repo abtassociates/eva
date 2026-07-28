@@ -184,7 +184,7 @@ to group All + Grouped Race selections*/
   margin-top: 0 !important;
 }
 
-#syse_subpop_hh_type {
+#syse_subpop_hh_type_container {
   display: flex; 
   align-items: center; 
   gap: 10px; 
@@ -192,7 +192,7 @@ to group All + Grouped Race selections*/
   padding-right: 15px;
 }
 
-#syse_subpop_hh_type > .label {
+#syse_subpop_hh_type_container > .label {
   margin-bottom: 0; 
   white-space: nowrap;
 }

@@ -1178,7 +1178,7 @@ nav_panel(
               # GROUP 1: Household Type
               # ==========================================
               div(
-                id = "syse_subpop_hh_type",
+                id = "syse_subpop_hh_type_container",
                 div(class = "label", "Household Type"),
                 div(
                   pickerInput(
