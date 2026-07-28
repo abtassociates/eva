@@ -498,8 +498,6 @@ calc_time_to_entry <- function(df){
       ProjectName = ffirst(ProjectName),
       ProjectType = ffirst(ProjectType),
       n_records = GRPN(),
-      #n_lt24 = fsum(HoursToEntry < 24),
-      #n_lt48 = fsum(HoursToEntry < 48),
       n_lt_metric = fsum(DaysToEntry <= input$timeliness_metric),
       mdn = fmedian(DaysToEntry),
       nlt0 = fsum(DaysToEntry < 0),
@@ -700,7 +698,7 @@ pull_time_cols <- function(cond, df, set_zero = TRUE) {
     
   
   if (fnrow(x) == 0)
-    return(if (default_to_zero) 0 else NULL)
+    return(if (set_zero) 0 else NULL)
   
   # Select and unlist the timeliness columns
   return(unlist(x))
