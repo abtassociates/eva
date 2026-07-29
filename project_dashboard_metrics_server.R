@@ -477,7 +477,7 @@ get_details_by_hh_type <- function(m, selected_project_type) {
   }))
   
   
-  # Row filtering based on Project Type rules (Image 1)
+  # Row filtering based on Project Type rules
   applicable_rules <- list(
     "Average Length of Stay in Residence (All Clients)"         = selected_project_type %in% project_types_w_beds,
     "Median Length of Stay in Residence (All Clients)"          = selected_project_type %in% project_types_w_beds,
