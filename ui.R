@@ -1464,6 +1464,7 @@ page_navbar(
                 layout_columns(
                   col_widths=c(6,6),
                   gap = '0px',
+                  #### Time Period (bui_period_filter_sys) ------------------
                   pickerInput(
                     label = "Time Period",
                     inputId = "bui_period_filter_sys",
@@ -1471,21 +1472,7 @@ page_navbar(
                     selected = "Points in Time",
                     options = pickerOptions(container = "body")
                   ),
-                  #pickerInput(
-                  #  label = 'Project Target Population',
-                  #  inputId = "bui_target_pop",
-                  #  choices = "All Target Populations", # add other options in 08_inv_util.R
-                  #  selected = "All Target Populations",
-                  #multiple = TRUE,
-                  #  options = pickerOptions(container = 'body',)
-                  #),
-                  #pickerInput(
-                  #  label = "Project Housing Type",
-                  #  inputId = "bui_housing_type",
-                  #  choices = "All Housing Types", # add other options in 08_inv_util.R
-                  #  selected = "All Housing Types",
-                  #  options = pickerOptions(container = "body")
-                  #),
+                  #### Inventory Level (bui_inventory_level_sys) ------------------
                   pickerInput(
                     label = "Inventory Level",
                     inputId = "bui_inventory_level_sys",
@@ -1493,13 +1480,7 @@ page_navbar(
                     selected = "Beds",
                     options = pickerOptions(container = "body")
                   ),
-                  #pickerInput(
-                  #  label = "Organization Victim Service Provider Status",
-                  #  inputId = "bui_victim_service",
-                  #  choices = "All Organizations", # add other options in 08_inv_util.R
-                  #  selected = "All Organizations",
-                  #  options = pickerOptions(container = "body")
-                  #),
+                  #### Dedicated Inventory Type (bui_dedicated) ------------------
                   pickerInput(
                     label = "Dedicated Inventory Type",
                     inputId = "bui_dedicated",
@@ -1509,6 +1490,7 @@ page_navbar(
                     selected = "All Bed Types",
                     options = pickerOptions(container = "body")
                   ),
+                  #### Inventory Availability Type (bui_bed_avail_sys) ------------------
                   pickerInput(
                     label = "Inventory Availability Type",
                     inputId = "bui_bed_avail_sys",
@@ -1532,42 +1514,26 @@ page_navbar(
                       uiOutput("bui_filter_selections_sys_proj"),
                       radioGroupButtons(
                         inputId = "bui_sys_line_proj",
-                        choices = c("Summary", "Trend"),
-                        selected = "Summary",
+                        choices = c("All", "Homeless Projects", "Permanent Housing Projects"),
+                        selected = "All",
                         individual = TRUE,
                         checkIcon = list(yes = icon("check"))
                       ), 
-                      conditionalPanel(
-                        condition = "input.bui_sys_line_proj == 'Summary'",
-                        # todo with data as stacked bar graph  - plotOutput
-                        DTOutput("sys_bui_sum_proj", width = "100%", height = "500") %>% 
+                      DTOutput("sys_bui_sum_proj", width = "100%", height = "500") %>% 
                           withSpinner() 
-                      ), 
-                      conditionalPanel(
-                        condition = "input.bui_sys_line_proj == 'Trend'",
-                        # todo with data as stacked line graph - plotOutput
-                      )
                     ),
                     nav_panel( # By Household Type
                       title = headerSubTab('By Household Type'),
                       uiOutput("bui_filter_selections_sys_hh"),
                       radioGroupButtons(
                         inputId = "bui_sys_line_hh",
-                        choices = c("Summary", "Trend"),
-                        selected = "Summary",
+                        choices = c("All", "Homeless Projects", "Permanent Housing Projects"),
+                        selected = "All",
                         individual = TRUE,
                         checkIcon = list(yes = icon("check"))
                       ), 
-                      conditionalPanel(
-                        condition = "input.bui_sys_line_hh == 'Summary'",
-                        # todo with data as stacked bar graph  - plotOutput
                         DTOutput("sys_bui_sum_hh", width = "100%", height = "500") %>% 
                           withSpinner() 
-                      ), 
-                      conditionalPanel(
-                        condition = "input.bui_sys_line_hh == 'Trend'",
-                        # todo with data as stacked line graph - plotOutput
-                      )
                     ),
                     nav_panel( # Information
                       title = headerSubTab("Information")
