@@ -64,7 +64,19 @@ metric_units <- list(
 # ==========================================
 # 2. VALUE BOX GENERATORS & KEYS
 # ==========================================
-
+# ===========================================================================================================================================================================================
+# Metric                                                       | lh_residential_project_types | ph_project_types | non_res_project_types (excl. ce & hp) | ce_project_type | hp_project_type
+# -------------------------------------------------------------+------------------------------+------------------+---------------------------------------+-----------------+------------------
+# Total Clients Served                                         | X                            | X                | X                                     |                 | X
+# Total Households Served                                      | X                            | X                | X                                     |                 | X
+# Length of Stay in Residence (All Clients)                    | X                            | X                |                                       |                 |
+# Time to Housing Move-In (All Clients)                        |                              | X                |                                       |                 |
+# Length of Participation (All Clients)                        |                              |                  | X                                     | X               | X
+# Entered from Place Not Meant for Habitation (HoHs/Adults)    | X                            |                  | X                                     | X               |
+# Entered from Permanent Housing Situation (HoHs/Adults)       | X                            |                  |                                       | X               |
+# Zero Income at Entry (HoHs/Adults)                           |                              |                  |                                       |                 | X
+# Income Growth from Entry to Exit (HoHs/Adults)               |                              | X                |                                       |                 | X
+# Successful Exits (All Clients)                               | X                            | X                | X                                     | X
 get_summary_metric_keys <- function(selected_project_type) {
   if (selected_project_type %in% lh_residential_project_types) {
     c("total_clients", "total_households", "los", "entered_non_habitat", "entered_permanent", "successful_exits")
@@ -394,7 +406,28 @@ get_metric_specific_datasets <- function(latest_enrollments) {
 # ==========================================
 
 get_details_by_hh_type <- function(m, selected_project_type) {
-  
+  # =====================================================================================================================================================================================================================
+  # Metric                                                       | All Household Types | Adult Only Households | Adult-Child Households | Child Only Households | Unknown Households | Metric Data Table Display - Applicable Project Types
+  # -------------------------------------------------------------+---------------------+-----------------------+------------------------+-----------------------+--------------------+-----------------------------------------------------------------------------
+  # Total Clients Served                                         | #                   | #                     | #                      | #                     | #                  | All
+  # Total Households Served                                      | #                   | #                     | #                      | #                     | #                  | All
+  # Average Households Size                                      | #                   | #                     | #                      | #                     | #                  | All
+  # Average Length of Participation (All Clients)                | #                   | #                     | #                      | #                     | #                  | All
+  # Median Length of Participation (All Clients)                 | #                   | #                     | #                      | #                     | #                  | All
+  # Average Length of Stay in Residence (All Clients)            | #                   | #                     | #                      | #                     | #                  | project_types_w_beds
+  # Median Length of Stay in Residence (All Clients)             | #                   | #                     | #                      | #                     | #                  | project_types_w_beds
+  # Average Time to Housing Move-In (All Clients)                | #                   | #                     | #                      | #                     | #                  | ph_project_types
+  # Median Time to Housing Move-In (All Clients)                 | #                   | #                     | #                      | #                     | #                  | ph_project_types
+  # Moved into Housing (HoHs)                                    | %                   | %                     | %                      | %                     | %                  | ph_project_types
+  # Entered from Place Not Meant for Habitation (HoHs/Adults)    | %                   | %                     | %                      | %                     | %                  | All
+  # Entered from Permanent Housing Situation (HoHs/Adults)       | %                   | %                     | %                      | %                     | %                  | All
+  # Zero Income at Entry (HoHs/Adults)                           | %                   | %                     | %                      | %                     | %                  | All
+  # Income Growth from Entry to Exit (HoHs/Adults)               | %                   | %                     | %                      | %                     | %                  | All
+  # Non-Cash Benefits Growth from Entry to Exit (HoHs/Adults)    | %                   | %                     | %                      | %                     | %                  | All
+  # Successful Exits (All Clients)                               | %                   | %                     | %                      | %                     | %                  | All
+  # CE Assessed Households                                       | #                   | #                     | #                      | #                     | #                  | ce_project_type, any other project that has CE Assessment data within report
+  # Current Living Situation Records: Total                      | #                   | #                     | #                      | #                     | #                  | es_nbn_project_type, setdiff(non_res_project_types, hp_project_type)
+  # =====================================================================================================================================================================================================================
   pct_calc <- function(dt, num_col) {
     if (is.null(dt) || fnrow(dt) == 0) return(NA_real_)
     fsum(dt[[num_col]]) / fnrow(dt)
