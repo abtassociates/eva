@@ -307,7 +307,10 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   
   ## 7. Zero Income at Entry ----
   zero_income_dt <- session$userData$IncomeBenefits |>
-    fsubset(DataCollectionStage == 1, EnrollmentID, IncomeFromAnySource) |>
+    fsubset(
+      DataCollectionStage == 1 & !(IncomeFromAnySource %in% c(8,9,99) | is.na(IncomeFromAnySource)), 
+      EnrollmentID, IncomeFromAnySource
+    ) |>
     join(
       latest_enrollments |> 
         fsubset(
@@ -458,7 +461,7 @@ get_details_by_hh_type <- function(m, selected_project_type) {
     "Moved into Housing (HoHs)"                                 = calc_by_hh_group(m$moved_into_housing, function(d) pct_calc(d, "moved_into_housing")),
     "Entered from Place Not Meant for Habitation (HoHs/Adults)" = calc_by_hh_group(m$entered_from, function(d) fsum(d$LivingSituation == 116L) / fnrow(d[!is.na(LivingSituation)])),
     "Entered from Permanent Housing Situation (HoHs/Adults)"    = calc_by_hh_group(m$entered_from, function(d) fsum(d$LivingSituation %in% 400:499) / fnrow(d[!is.na(LivingSituation)])),
-    "Zero Income at Entry (HoHs/Adults)"                        = calc_by_hh_group(m$zero_income, function(d) fsum(is.na(d$IncomeFromAnySource) | d$IncomeFromAnySource == 0) / fnrow(d)),
+    "Zero Income at Entry (HoHs/Adults)"                        = calc_by_hh_group(m$zero_income, function(d) fsum(d$IncomeFromAnySource == 0) / fnrow(d)),
     "Income Growth from Entry to Exit (HoHs/Adults)"            = calc_by_hh_group(m$income_growth, function(d) pct_calc(d, "has_growth")),
     "Non-Cash Benefits Growth from Entry to Exit (HoHs/Adults)" = calc_by_hh_group(m$non_cash_growth, function(d) pct_calc(d, "has_growth")),
     "Successful Exits (All Clients)"                            = calc_by_hh_group(m$successful_exit, function(d) pct_calc(d, "successful_exit")),
