@@ -217,7 +217,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000, sessio
   }
 
   # truncate strings exceeding the maximum excel limit
-  data <- xlsx_char_trunc(data, log_loc = paste(filename, "(importFile)"), session = session)
+  data <- xlsx_char_trunc(data, log_loc = paste(csvFile, "(importFile)"), session = session)
     
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
@@ -774,13 +774,13 @@ xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = "", session){
   df_chars <- char_vars(df)
   if(length(df_chars) == 0) return(df)
   
-  trunc_flags <- df_chars |> map_lgl(~any(stringi::stri_length(.x) > max_nchar, na.rm = TRUE))
+  trunc_flags <- df_chars |> map_lgl(~any(stringi::stri_length(str_conv( .x , encoding = "UTF8")) > max_nchar, na.rm = TRUE))
   if (!any(trunc_flags)) return(df)
   
   truncated_list <- modify_at(df_chars, which(trunc_flags), ~stringi::stri_sub(.x, 1, max_nchar))
   df_final <- ftransform(df, truncated_list)
   
-  logToConsole(sesh, paste("truncating", log_loc, "column(s) :", paste(names(which(trunc_flags)), collapse = ", "),
+  logToConsole(session, paste("truncating", log_loc, "column(s) :", paste(names(which(trunc_flags)), collapse = ", "),
                               "that exceed the maximum number of characters", max_nchar))
   return(df)
 }
