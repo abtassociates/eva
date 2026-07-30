@@ -11,8 +11,10 @@ output$changelog <- renderDT({
         - No Continuum Project records
         - Only HP projects or enrollments outside reporting period
       - Handle other System Performance empty dataset scenarios by showing 'No valid data message' in place of the charts
+      - Fix Data Quality and System Performance plots and data tables to always use commas for formating large numbers.
     <b>Miscellaneous</b> <br>
       - Handle empty Destinations scenario causing crash in GHA (assumed to be edge case scenario)
+      - Revised Client-level Download Instructions, Data Dictionary, and file formatting.
     ",
     "06-12-2026",
     "<b>New Features</b> <br>
