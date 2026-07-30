@@ -260,7 +260,7 @@ count_Enrollments <-function(pit_dates, pit_labels, extra_groups = NULL){
       activeEnroll = EntryDate <= as.Date(PIT) & (is.na(ExitAdjust) | ExitAdjust > as.Date(PIT)),
       eligProjPerm = !(ProjectType %in% c(3,9,10,13)) | fifelse(is.na(MoveInDateAdjust), 
                                                                 FALSE, # if MoveInDateAdjust is missing, use FALSE to count zero days
-                                                                MoveInDateAdjust >= as.Date(PIT))
+                                                                MoveInDateAdjust >= EntryDate)
     ) %>% 
     fmutate(Served = fifelse(activeEnroll & eligProjPerm, 1, 0), # flag active & eligible enrollments
             HHServed = fifelse(activeEnroll & eligProjPerm & RelationshipToHoH==1, # count households by just flagging active/elig enrollments that are head of household
