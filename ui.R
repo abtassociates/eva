@@ -1469,7 +1469,7 @@ page_navbar(
                     label = "Time Period",
                     inputId = "bui_period_filter_sys",
                     choices = c("Quarterly", "Monthly", "Points in Time"),
-                    selected = "Points in Time",
+                    selected = "Quarterly",
                     options = pickerOptions(container = "body")
                   ),
                   #### Inventory Level (bui_inventory_level_sys) ------------------
@@ -1544,15 +1544,34 @@ page_navbar(
                 nav_panel(
                   title = headerTab("Utilization"),
                   
-                  navset_underline( # Quarterly Utilization, Monthly Utilization, or Information
+                  navset_underline( # by Project Type or By Household Type
                     id = "system_level_box_util",
-                    selected = headerSubTab("Quarterly Utilization"),
-                    nav_panel( # Quarterly Utilization
-                      title = headerSubTab('Quarterly Utilization')
+                    selected = headerSubTab("By Project Type"),
+                    nav_panel( # By Project Type
+                      title = headerSubTab("By Project Type"),
+                      uiOutput("bui_util_selections_sys_proj"),
+                      radioGroupButtons(
+                        inputId = "bui_sys_line_proj_util",
+                        choices = c("All", "Homeless Projects", "Permanent Housing Projects"),
+                        selected = "All",
+                        individual = TRUE,
+                        checkIcon = list(yes = icon("check"))
+                      ), 
+                      DTOutput("sys_bui_sum_proj_util", width = "100%", height = "500") %>% 
+                        withSpinner() 
                     ),
-                    nav_panel( # Monthly Utilization
-                      title = headerSubTab("Monthly Utilization")
-                      #DTOutput("m_proj_inv_filtered")
+                    nav_panel( # By Household Type
+                      title = headerSubTab('By Household Type'),
+                      uiOutput("bui_util_selections_sys_hh"),
+                      radioGroupButtons(
+                        inputId = "bui_sys_line_hh_util",
+                        choices = c("All", "Homeless Projects", "Permanent Housing Projects"),
+                        selected = "All",
+                        individual = TRUE,
+                        checkIcon = list(yes = icon("check"))
+                      ), 
+                      DTOutput("sys_bui_sum_hh_util", width = "100%", height = "500") %>% 
+                        withSpinner() 
                     ),
                     nav_panel( # Information
                       title = headerSubTab("Information")

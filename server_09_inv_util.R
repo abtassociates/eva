@@ -105,28 +105,34 @@ count_Beds_Units_rng <- function(range_start,range_end, extra_groups = NULL, pro
   Bed_Unit_Count$active_days_hmis <- mapply(activeDays, inv_start = Bed_Unit_Count$InvHMISActiveStart, inv_end = Bed_Unit_Count$InvHMISActiveEnd) # count days of active/operating/HMISparticipating [HMISParticipationType determines Participating/Not-Participating?] overlapping with days of range
   
   # Rename the proper column to BedInventory and UnitInventory
-  Bed_Unit_Count <- Bed_Unit_Count %>% frename(c(get(dedicated0(choose = dedicate, unit = "Bed")) = BedInventory,
-                                                get(dedicated0(choose = dedicate, unit = "Unit")) = UnitInventory))
   
+  if(dedicate != "All Types"){
+    Bed_Unit_Count <- Bed_Unit_Count %>% select(-BedInventory, - UnitInventory)
+    bed_inv_col <- which(colnames(Bed_Unit_Count) == dedicated0(choose = dedicate, unit = "Bed"))
+    Bed_Unit_Count <- frename(Bed_Unit_Count, "BedInventory", cols = bed_inv_col)
+    unit_inv_col <- which(colnames(Bed_Unit_Count) == dedicated0(choose = dedicate, unit = "Unit"))
+    Bed_Unit_Count <- frename(Bed_Unit_Count, "UnitInventory", cols = unit_inv_col)
+    rm(bed_inv_col, unit_inv_col)
+  }
   #print(unique(Bed_Unit_Count %>% select(ProjectID, active_days)))
   
   Bed_Unit_Count <- Bed_Unit_Count %>%
     #fmutate(active_days_hmis = ifelse(HMISParticipationType == 1, active_days_hmis, 0)) %>% 
     fgroup_by(grouping_vars) %>%
     fsummarize(
-      Total_Beds = fsum(active_days*BedInventory),
-      Total_HMIS_Beds = fsum(active_days_hmis*BedInventory),
-      Total_Units = fsum(active_days*UnitInventory),
-      Total_HMIS_Units = fsum(active_days_hmis*BedInventory)
+      Total_BedNights = fsum(active_days*BedInventory),
+      Total_HMIS_BedNights = fsum(active_days_hmis*BedInventory),
+      Total_UnitNights = fsum(active_days*UnitInventory),
+      Total_HMIS_UnitNights = fsum(active_days_hmis*UnitInventory)
     ) %>% fungroup()
   
   # calculate length of range 
   report_length <- as.numeric(range_end - range_start)
   Bed_Unit_Count <- Bed_Unit_Count %>% # use it to calculate average nightly beds/units
-    fmutate(Avg_Nightly_Beds = round(Total_Beds / report_length, digits = 1) ,
-            Avg_Nightly_HMIS_Beds = round(Total_HMIS_Beds / report_length, digits = 1) ,
-            Avg_Nightly_Units = round(Total_Units / report_length , digits = 1),
-            Avg_Nightly_HMIS_Units = round(Total_HMIS_Units / report_length , digits = 1))
+    fmutate(Avg_Nightly_Beds = round(Total_BedNights / report_length, digits = 1) ,
+            Avg_Nightly_HMIS_Beds = round(Total_HMIS_BedNights / report_length, digits = 1) ,
+            Avg_Nightly_Units = round(Total_UnitNights / report_length , digits = 1),
+            Avg_Nightly_HMIS_Units = round(Total_HMIS_UnitNights / report_length , digits = 1))
   
   return(Bed_Unit_Count)
 }
@@ -193,7 +199,7 @@ count_Enrollments_rng <-function(range_start,range_end, extra_groups = NULL, pro
 } 
 # pass quarter start/end dates through ranged counting functions
 # use difference in dates to calculate the 'report length' and calculate nightly averages
-nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type = "All Types"){
+nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type = "All Types", total = FALSE){
   
   # subset to dates within report range
   labels <- labels[period >= as.Date(session$userData$ReportStart) & period <= as.Date(session$userData$ReportEnd) ]
@@ -259,33 +265,36 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type 
     }
   }
   
-  nightly_avg_tot <- out %>% fgroup_by(grouping_vars) %>%
-    fsummarise(Total_Beds = fsum(Total_Beds),
-               Total_HMIS_Beds = fsum(Total_HMIS_Beds),
-               Total_Units = fsum(Total_Units),
-               Total_HMIS_Units = fsum(Total_HMIS_Units),
-               Total_Served = unique(Total_Served),
-               Total_HHServed = unique(Total_HHServed),
-               Avg_Nightly_Beds = fsum(Avg_Nightly_Beds),
-               Avg_Nightly_HMIS_Beds = fsum(Avg_Nightly_HMIS_Beds),
-               Avg_Nightly_Units = fsum(Avg_Nightly_Units),
-               Avg_Nightly_HMIS_Units = fsum(Avg_Nightly_HMIS_Units),
-               Avg_Nightly_Served =unique(Avg_Nightly_Served),
-               Avg_Nightly_HHServed = unique(Avg_Nightly_HHServed)) %>% 
-    fungroup %>%
-    fmutate(
-      #PIT = as.Date(NA),
-      #label = "Annual",
-      Availability = "Total"
-      # this could be a format mask to download with more digits
-      #Avg_Nightly_Beds = round(Total_Beds / 365, digits = 1),
-      #Avg_Nightly_Units = round(Total_Units / 365, digits = 1),
-      #Avg_Nightly_Served = round(Total_Served / 365, digits = 1),
-      #Avg_Nightly_HHServed = round(Total_HHServed / 365, digits = 1) 
-    )
+  if(total){
+    nightly_avg_tot <- out %>% fgroup_by(grouping_vars) %>%
+      fsummarise(Total_BedNights = fsum(Total_BedNights),
+                 Total_HMIS_BedNights = fsum(Total_HMIS_BedNights),
+                 Total_UnitNights = fsum(Total_UnitNights),
+                 Total_HMIS_UnitNights = fsum(Total_HMIS_UnitNights),
+                 Total_Served = fsum(unique(Total_Served)), # if ProjectID not in grouping_vars, this relys on no project having exactly the same Total Served..
+                 Total_HHServed = fsum(unique(Total_HHServed)), # if ProjectID not in grouping_vars, this relys on no project having exactly the same Total HHServed..
+                 Avg_Nightly_BedNights = fsum(Avg_Nightly_BedNights),
+                 Avg_Nightly_HMIS_BedNights = fsum(Avg_Nightly_HMIS_BedNights),
+                 Avg_Nightly_UnitNights = fsum(Avg_Nightly_UnitNights),
+                 Avg_Nightly_HMIS_UnitNights = fsum(Avg_Nightly_HMIS_UnitNights),
+                 Avg_Nightly_Served = fsum(unique(Avg_Nightly_Served)), # if ProjectID not in grouping_vars, this relys on no project having exactly the same Avg Nightly Served..
+                 Avg_Nightly_HHServed = fsum(unique(Avg_Nightly_HHServed))) %>%  # if ProjectID not in grouping_vars, this relys on no project having exactly the same Avg Nightly HHServed..
+      fungroup %>%
+      fmutate(
+        #PIT = as.Date(NA),
+        #label = "Annual",
+        Availability = "Total"
+        # this could be a format mask to download with more digits
+        #Avg_Nightly_Beds = round(Total_Beds / 365, digits = 1),
+        #Avg_Nightly_Units = round(Total_Units / 365, digits = 1),
+        #Avg_Nightly_Served = round(Total_Served / 365, digits = 1),
+        #Avg_Nightly_HHServed = round(Total_HHServed / 365, digits = 1) 
+      )
+    out <- out %>% rowbind(nightly_avg_tot)
+  }
   # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
   # fill = TRUE fills the missing Availability Column 
-  out <- out %>% rowbind(nightly_avg_tot) %>%
+  out <- out %>% 
     fmutate(Avg_Nightly_Bed_Util = paste(round(100*Avg_Nightly_Served / Avg_Nightly_HMIS_Beds, digits = 1), "%"),
             Avg_Nightly_Unit_Util = paste(round(100*Avg_Nightly_HHServed / Avg_Nightly_HMIS_Units, digits = 1), "%"))
   return(out)
@@ -460,7 +469,13 @@ hh_avg<- reactive({
   
   # join with selected project avg nightly details
   project_level_util <-  project_level_util %>%
-    join(nightly_avg, how = "full") %>% arrange(ProjectID, PIT) %>% select(-ProjectID)
+    join(nightly_avg, how = "full") %>% arrange(ProjectID, PIT) %>% select(-ProjectID)  %>% 
+    group_by(PIT) %>% fill("PITstart", .direction = "updown") %>% 
+    fill("PITend", .direction = "updown")  %>% 
+    fill("label", .direction = "updown")  %>% 
+    fill("PIT_Served", .direction = "updown") %>%
+    fill("Total_Served", .direction = "updown") %>% 
+    fill("Avg_Nightly_Served", .direction = "updown") 
   
   # select bed or unit columns
   if(input$bui_inventory_level == "Beds"){
@@ -485,7 +500,6 @@ re_calc <- reactive({
   req(input$bui_period_filter)
   
   data <- hh_avg() %>% fungroup
-  
   data <- data %>% fsubset(Availability %in% c("Total", input$bui_bed_avail))
   # print subset of columns as check
   #cols <- c("label", "PIT", paste("PIT",input$bui_inventory_level), "PITstart", paste("Total", input$bui_inventory_level),  "Availability")
@@ -500,11 +514,11 @@ re_calc <- reactive({
     for (i in 1:length(bed_types)){
       
       data[,paste("PIT", bed_types[i], "Beds" ) ] <-  ifelse(data$Availability == bed_types[i], data$`PIT Beds`, NA)
-      data[,paste("Total", bed_types[i], "Beds" ) ] <- ifelse(data$Availability == bed_types[i], data$`Total Beds`, NA)
+      data[,paste("Total", bed_types[i], "Beds" ) ] <- ifelse(data$Availability == bed_types[i], data$`Total BedNights`, NA)
       
       # recalculate the Avg Nightly & Totals (originally calculated for all Availability Types in nightly_avg function)
       if(bed_types[i]=="Total"){
-        data <- data %>% group_by( PIT) %>% 
+        data <- data %>% group_by( PIT, PITstart, PITend) %>% 
           fmutate(`Avg Nightly Total Beds` = fsum(ifelse(Availability != "Total", `Avg Nightly Beds`,NA)) ,
                   `Avg Nightly Total HMIS Beds` = fsum(ifelse(Availability != "Total", `Avg Nightly HMIS Beds`,NA)),
                   `PIT Total Beds` = fsum(ifelse(Availability != "Total", `PIT Beds`,NA)),
@@ -514,10 +528,7 @@ re_calc <- reactive({
         data[,paste("Avg Nightly",bed_types[i], "Beds") ] <- ifelse(data$Availability == bed_types[i], data$`Avg Nightly Beds`, NA)
       }
     }
-    data <- data %>% group_by( PIT) %>% fill("label", .direction = "updown") %>%
-      fill("PIT Served", .direction = "updown") %>%
-      fill("Total Served", .direction = "updown") %>% 
-      fill("Avg Nightly Served", .direction = "updown") %>%
+    data <- data %>% group_by( PIT) %>% 
       fill(paste0("PIT ", bed_types, " Beds"), .direction = "updown") %>% 
       fill(paste0("Total ", bed_types, " Beds"), .direction = "updown")%>% 
       fill(paste0("Avg Nightly ",bed_types, " Beds"), .direction = "updown") %>%
@@ -527,14 +538,14 @@ re_calc <- reactive({
       fmutate(
         `PIT Bed Util` = paste(round(100*unique(`PIT Served`) /  `PIT Total HMIS Beds`, digits = 1), "%"),
         `Avg Nightly Bed Util` = paste(round(100*unique(`Avg Nightly Served`) / `Avg Nightly Total HMIS Beds`, digits = 1), "%")) %>%
-      ungroup  %>% unique() %>% select(-`Total Beds`)
+      ungroup  %>% unique() %>% select(-`Total BedNights`)
     
     
   }else{
     for (i in 1:length(bed_types)){
       
       data[,paste0("PIT ", bed_types[i], " Units") ] <- ifelse(data$Availability == bed_types[i], data$`PIT Units`, NA)
-      data[,paste0("Total ", bed_types[i], " Units") ] <- ifelse(data$Availability == bed_types[i], data$`Total Units`, NA)
+      data[,paste0("Total ", bed_types[i], " Units") ] <- ifelse(data$Availability == bed_types[i], data$`Total UnitNights`, NA)
       if(bed_types[i]=="Total"){
         
         data <- data %>% group_by(PIT) %>% 
@@ -560,7 +571,7 @@ re_calc <- reactive({
     data <- data %>%
       fmutate(`PIT Unit Util` = paste(round(100* unique(`PIT HHServed`) /  `PIT Total HMIS Units`, digits = 1), "%"),
         `Avg Nightly Unit Util` = paste(round(100*unique(`Avg Nightly HHServed`)/ `Avg Nightly Total HMIS Units`, digits = 1), "%")) %>%
-      ungroup %>% unique() %>% select(-`Total Units`)
+      ungroup %>% unique() %>% select(-`Total UnitNights`)
     
   }
 })
@@ -638,9 +649,8 @@ row_order <- c(row_names[grepl("Time Period", row_names)], row_names[grepl("Serv
   )
 })
 
-#  System Level Tab  ---------------
-
-# system-level functions ----------------------------------
+# System Level Tab  ---------------
+## system-level functions ----------------------------------
 
 summarise_ded <- function(data, grouping_vars, choose){
   # summarise columns of 'data' when grouped by 'grouping_vars' 
@@ -689,12 +699,13 @@ summarise_ded <- function(data, grouping_vars, choose){
   return(data )
 }
 transform_names <- function(x){
-  # when a column name starts with Beds_ or Units_ after the pivot, switch that to ending in Beds or Units respectively
-  if(grepl("Beds_", x)){return(paste(gsub("Beds_", "", x), "Beds"))}
-  if(grepl("Units_", x)){return(paste(gsub("Units_", "", x), "Units"))}
-  return(x)
+  # when a column name contains Beds_ or Units_ after the pivot, switch that to ending in Beds or Units respectively
+  if(grepl("Beds_", x)){x <- paste(gsub("Beds_", "", x), "Beds")}
+  if(grepl("Units_", x)){x <- paste(gsub("Units_", "", x), "Units")}
+  
+  return(gsub("_", " ", x)) # remove _ for Avg_Night
 }
-# Update Filters & Selections -----------------------------------------
+## Update Filters & Selections -----------------------------------------
 
 # Display box Reactive for system-level filters
 sys_inv_filters <- reactive({
@@ -705,7 +716,7 @@ sys_inv_filters <- reactive({
     if(input$bui_period_filter_sys == "Points in Time"){
       paste(format(sort(get_quarters()), "%m-%d-%Y"), collapse = ', ')
     }else{
-      paste(format(min(get_quarters()), "%m-%d-%Y"), "to", format(min(get_quarters())+years(1)-days(1), "%m-%d-%Y"))
+      paste(format(session$userData$ReportStart, "%m-%d-%Y"), "to", format(session$userData$ReportEnd, "%m-%d-%Y"))
     }, br(),
     if(input$bui_bed_avail_sys != "All Availability Types"){
       HTML(glue(
@@ -719,81 +730,145 @@ sys_inv_filters <- reactive({
     },
     HTML(glue(
       "<strong>Inventory Level:</strong> {input$bui_inventory_level_sys} <br>"
-    )),
-    br()
-    
+    ))
   )
 })
 
 # Render Display box on 'By Project Type' tabs
 output$bui_filter_selections_sys_proj <- renderUI({
   req(session$userData$valid_file() == 1 )
-  sys_inv_filters() 
+  sys_inv_filters()
+  if(input$bui_sys_line_proj != "All"){
+    list(sys_inv_filters(),
+         HTML(glue(
+           "<strong>Project Type:</strong> {input$bui_sys_line_proj} <br>")),
+         br()
+    )
+  }else{list(sys_inv_filters(),
+             br())
+    }
+})
+output$bui_util_selections_sys_proj <- renderUI({
+  req(session$userData$valid_file() == 1 )
+  sys_inv_filters()
+  if(input$bui_sys_line_proj_util != "All"){
+    list(sys_inv_filters(),
+         HTML(glue(
+           "<strong>Project Type:</strong> {input$bui_sys_line_proj_util} <br>")),
+         br()
+    )
+  }else{list(sys_inv_filters(),
+             br())
+  }
 })
 # Render Display box on 'By Household Type' tabs
 output$bui_filter_selections_sys_hh <- renderUI({
   req(session$userData$valid_file() == 1 )
-  sys_inv_filters() 
+  
+  if(input$bui_sys_line_hh != "All"){
+    list(sys_inv_filters(),
+         HTML(glue(
+           "<strong>Project Type:</strong> {input$bui_sys_line_hh} <br>")),
+         br())
+  }else{list(sys_inv_filters(),
+             br())}
+})
+output$bui_util_selections_sys_hh <- renderUI({
+  req(session$userData$valid_file() == 1 )
+  
+  if(input$bui_sys_line_hh_util != "All"){
+    list(sys_inv_filters(),
+         HTML(glue(
+           "<strong>Project Type:</strong> {input$bui_sys_line_hh_util} <br>")),
+         br())
+  }else{list(sys_inv_filters(),
+             br())}
 })
 
-# Data Reactives ---------------------------------------
+## Data Reactives ---------------------------------------
 # Monthly/Quarterly Reactives for system level summaries by project or household type 
-summary_sys_proj <- reactive({
+get_selected_proj <- reactive({
   req(session$userData$valid_file() == 1 )
   
   if(input$bui_period_filter_sys == "Monthly"){
-    selected_projs <- session$userData$project_level_util_m%>% fungroup
-    period <- get_months() %>% sort()
+    selected_projs <- session$userData$project_level_util_m %>% fungroup
   }else{
     selected_projs <- session$userData$project_level_util_q %>% fungroup
-    period <- get_quarters() %>% sort()
   }
-
+  
   if(input$bui_bed_avail_sys != "All Availability Types"){ # what is ESBedType?
     selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
   }
-  req(nrow(selected_projs) > 0)
-  proj_sum <- summarise_ded(data= selected_projs, grouping_vars = c("PIT", "label", "ProjectType"), choose = input$bui_dedicated)
-  # get averages over period
-  nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(selected_projs$ProjectID),
-                             extragroups = c("ProjectType"))
-  #grouping_vars = c("ProjectID", "PIT", "ProjectType",  "Availability")
-  if(input$bui_sys_line_proj == "Homeless Projects"){
-    selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
-    #nightly_avg <- nightly_avg %>% fsubset(ProjectType %in% lh_residential_project_types)
-  }else if(input$bui_sys_line_proj == "Permanent Housing Projects"){
-    selected_projs <- selected_projs %>% fsubset(ProjectType %in% ph_project_types)
-    #nightly_avg <- nightly_avg %>% fsubset(ProjectType %in% ph_project_types)
+  
+  selected_projs
+})
+
+summary_sys_proj <- reactive({
+  req(session$userData$valid_file() == 1 )
+  if(input$bui_period_filter_sys == "Monthly"){
+    period <- get_months() %>% sort()
+  }else{
+    period <- get_quarters() %>% sort()
   }
   
+  selected_projs <- get_selected_proj()
+  if(input$bui_sys_line_proj == "Homeless Projects"){
+    selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
+  }else if(input$bui_sys_line_proj == "Permanent Housing Projects"){
+    selected_projs <- selected_projs %>% fsubset(ProjectType %in% ph_project_types)
+  }
   
+  req(nrow(selected_projs) > 0)
+  proj_sum <- summarise_ded(data= selected_projs, grouping_vars = c("PIT", "label", "ProjectType"), choose = input$bui_dedicated)
+
   
-  print(nightly_avg)
+  if(input$bui_period_filter_sys != "Points in Time"){
+    # get averages over period
+    nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(selected_projs$ProjectID),
+                               extragroups = c("ProjectType"), ded_type = input$bui_dedicated) 
+    
+    nightly_avg <- nightly_avg %>% fgroup_by(PIT, PITstart, PITend, label, ProjectType)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+    
+    proj_sum <- proj_sum %>% left_join(nightly_avg) # left join for only the selections
+  }
   
-  proj_sum <- proj_sum %>% left_join(nightly_avg) 
-  
-  print(selected_projs)
-  print(proj_sum)
   return(proj_sum)
 })
 summary_sys_hh <- reactive({
   req(session$userData$valid_file() == 1 )
   
   if(input$bui_period_filter_sys == "Monthly"){
-    selected_projs <- session$userData$project_level_util_m%>% fungroup
+    period <- get_months() %>% sort()
   }else{
-    selected_projs <- session$userData$project_level_util_q %>% fungroup
+    period <- get_quarters() %>% sort()
   }
   
-  if(input$bui_bed_avail_sys != "All Availability Types"){ # what is ESBedType?
-    selected_projs <- selected_projs %>% fsubset(Availability %in% input$bui_bed_avail_sys) 
+  selected_projs <- get_selected_proj()
+  if(input$bui_sys_line_hh == "Homeless Projects"){
+    selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
+  }else if(input$bui_sys_line_hh == "Permanent Housing Projects"){
+    selected_projs <- selected_projs %>% fsubset(ProjectType %in% ph_project_types)
   }
   
-  selected_projs <- dedicated(data= selected_projs, grouping_vars = c("PIT", "label", "HouseholdType"), choose = input$bui_dedicated)
-  return(selected_projs)
+  req(nrow(selected_projs) > 0)
+  proj_sum <- summarise_ded(data= selected_projs, grouping_vars = c("PIT", "label", "HouseholdType"), choose = input$bui_dedicated)
+  
+  if(input$bui_period_filter_sys != "Points in Time"){
+    # get averages over period
+    nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(selected_projs$ProjectID),
+                               extragroups = c("HouseholdType"), ded_type = input$bui_dedicated) 
+    
+    nightly_avg <- nightly_avg %>% fgroup_by(PIT, PITstart, PITend, label, HouseholdType)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+    
+    proj_sum <- proj_sum %>% left_join(nightly_avg) # left join for only the selections
+  }
+
+  return(proj_sum)
 })
 
-# Render DT - Inventory summaries by project or household type --------------------
+## Render DT - Inventory summaries by project or household type --------------------
 output$sys_bui_sum_proj <- renderDT({
   req(session$userData$valid_file() == 1 )
 
@@ -801,19 +876,105 @@ output$sys_bui_sum_proj <- renderDT({
     fmutate(ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
                                 ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
                                 default = project_type_abb(ProjectType)))
-  data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
-                           `Total Beds` = sum(Beds),
-                           `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
-                           `Total Units` = sum(Units),
-                           `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
   
-  data <- pivot(data, 
-                ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),  # Columns to keep as identifiers
-                names = "ProjectType",    # Column(s) whose values become new column names
-                values = c("Beds", "Units"),   # Column(s) containing the values to fill
-                how = "wider")  
-  data <- data %>% fgroup_by(PIT, label)  %>%
-    fsummarise(across(where(is.numeric), fsum))
+  if(input$bui_period_filter_sys == "Points in Time"){
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Beds` = sum(Beds),
+      `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
+      `Total Units` = sum(Units),
+      `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),  # Columns to keep as identifiers
+                  names = "ProjectType",    # Column(s) whose values become new column names
+                  values = c("Beds", "Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    data <- data %>% fgroup_by(PIT, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }else{
+    
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Avg Nightly Beds` = sum(Avg_Nightly_Beds),
+      `Total Avg Nightly HMIS Beds` = sum(Avg_Nightly_HMIS_Beds, na.rm = TRUE),
+      `Total Avg Nightly Units` = sum(Avg_Nightly_Units),
+      `Total Avg Nightly HMIS Units` = sum(Avg_Nightly_HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PITstart","PITend", "label", "Total Avg Nightly Beds", "Total Avg Nightly HMIS Beds", "Total Avg Nightly Units", "Total Avg Nightly HMIS Units"),  # Columns to keep as identifiers
+                  names = "ProjectType",    # Column(s) whose values become new column names
+                  values = c("Avg_Nightly_Beds", "Avg_Nightly_Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    
+    data <- data %>% fgroup_by(PITstart, PITend, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }
+   
+
+  
+  # select columns based on inventory level
+  if(input$bui_inventory_level_sys == "Beds"){
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  
+  colnames(sys_inv_filtered) <- lapply(colnames(sys_inv_filtered), FUN = transform_names) %>% unlist()
+  
+  labels <- sys_inv_filtered$label
+  sys_inv_filtered <- sys_inv_filtered %>% select(-label) %>% t()  # transpose 
+  colnames(sys_inv_filtered) <- labels
+  
+  datatable( # return table
+    sys_inv_filtered,
+    rownames = TRUE,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
+output$sys_bui_sum_proj_util <- renderDT({
+  req(session$userData$valid_file() == 1 )
+  
+  data <- summary_sys_proj() %>% fungroup %>% 
+    fmutate(ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
+                                ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
+                                default = project_type_abb(ProjectType)))
+  
+  if(input$bui_period_filter_sys == "Points in Time"){
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Beds` = sum(Beds),
+      `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
+      `Total Units` = sum(Units),
+      `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),  # Columns to keep as identifiers
+                  names = "ProjectType",    # Column(s) whose values become new column names
+                  values = c("Beds", "Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    data <- data %>% fgroup_by(PIT, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }else{
+    
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Avg Nightly Beds` = sum(Avg_Nightly_Beds),
+      `Total Avg Nightly HMIS Beds` = sum(Avg_Nightly_HMIS_Beds, na.rm = TRUE),
+      `Total Avg Nightly Units` = sum(Avg_Nightly_Units),
+      `Total Avg Nightly HMIS Units` = sum(Avg_Nightly_HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PITstart","PITend", "label", "Total Avg Nightly Beds", "Total Avg Nightly HMIS Beds", "Total Avg Nightly Units", "Total Avg Nightly HMIS Units"),  # Columns to keep as identifiers
+                  names = "ProjectType",    # Column(s) whose values become new column names
+                  values = c("Avg_Nightly_Beds", "Avg_Nightly_Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    
+    data <- data %>% fgroup_by(PITstart, PITend, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }
+  
+  
   
   # select columns based on inventory level
   if(input$bui_inventory_level_sys == "Beds"){
@@ -845,21 +1006,43 @@ output$sys_bui_sum_hh <- renderDT({
     fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
                                   HouseholdType == 3, "Adult-Child",
                                   HouseholdType == 4, "Child-Only",
-                                  default = as.numeric( HouseholdType)))
+                                  default = as.numeric( HouseholdType))
+            #,ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
+             #                   ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
+              #                  default = project_type_abb(ProjectType)
+            )
   
-  data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
-    `Total Beds` = sum(Beds),
-    `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
-    `Total Units` = sum(Units),
-    `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
-  
-  data <- pivot(data, 
-                ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),      # Columns to keep as identifiers
-                names = "HouseholdType",    # Column(s) whose values become new column names
-                values = c("Beds", "Units"),   # Column(s) containing the values to fill
-                how = "wider") 
-  data <- data %>% fgroup_by(PIT, label)  %>%
-    fsummarise(across(where(is.numeric), fsum))
+  if(input$bui_period_filter_sys == "Points in Time"){
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Beds` = sum(Beds),
+      `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
+      `Total Units` = sum(Units),
+      `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),  # Columns to keep as identifiers
+                  names = "HouseholdType",    # Column(s) whose values become new column names
+                  values = c("Beds", "Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    data <- data %>% fgroup_by(PIT, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }else{
+    
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Avg Nightly Beds` = sum(Avg_Nightly_Beds),
+      `Total Avg Nightly HMIS Beds` = sum(Avg_Nightly_HMIS_Beds, na.rm = TRUE),
+      `Total Avg Nightly Units` = sum(Avg_Nightly_Units),
+      `Total Avg Nightly HMIS Units` = sum(Avg_Nightly_HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PITstart","PITend", "label", "Total Avg Nightly Beds", "Total Avg Nightly HMIS Beds", "Total Avg Nightly Units", "Total Avg Nightly HMIS Units"),  # Columns to keep as identifiers
+                  names = "HouseholdType",    # Column(s) whose values become new column names
+                  values = c("Avg_Nightly_Beds", "Avg_Nightly_Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    
+    data <- data %>% fgroup_by(PITstart, PITend, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }
   
   # select columns based on inventory level
   if(input$bui_inventory_level_sys == "Beds"){
@@ -884,7 +1067,74 @@ output$sys_bui_sum_hh <- renderDT({
     style = "default"
   )
 })
-
+output$sys_bui_sum_hh_util <- renderDT({
+  
+  req(session$userData$valid_file() == 1 )
+  data <- summary_sys_hh() %>% fungroup %>% 
+    fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
+                                    HouseholdType == 3, "Adult-Child",
+                                    HouseholdType == 4, "Child-Only",
+                                    default = as.numeric( HouseholdType))
+            #,ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
+            #                   ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
+            #                  default = project_type_abb(ProjectType)
+    )
+  
+  if(input$bui_period_filter_sys == "Points in Time"){
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Beds` = sum(Beds),
+      `Total HMIS Beds` = sum(HMIS_Beds, na.rm = TRUE),
+      `Total Units` = sum(Units),
+      `Total HMIS Units` = sum(HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PIT", "label", "Total Beds", "Total HMIS Beds", "Total Units", "Total HMIS Units"),  # Columns to keep as identifiers
+                  names = "HouseholdType",    # Column(s) whose values become new column names
+                  values = c("Beds", "Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    data <- data %>% fgroup_by(PIT, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }else{
+    
+    data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
+      `Total Avg Nightly Beds` = sum(Avg_Nightly_Beds),
+      `Total Avg Nightly HMIS Beds` = sum(Avg_Nightly_HMIS_Beds, na.rm = TRUE),
+      `Total Avg Nightly Units` = sum(Avg_Nightly_Units),
+      `Total Avg Nightly HMIS Units` = sum(Avg_Nightly_HMIS_Units, na.rm = TRUE)) %>% fungroup 
+    
+    data <- pivot(data, 
+                  ids = c("PITstart","PITend", "label", "Total Avg Nightly Beds", "Total Avg Nightly HMIS Beds", "Total Avg Nightly Units", "Total Avg Nightly HMIS Units"),  # Columns to keep as identifiers
+                  names = "HouseholdType",    # Column(s) whose values become new column names
+                  values = c("Avg_Nightly_Beds", "Avg_Nightly_Units"),   # Column(s) containing the values to fill
+                  how = "wider") 
+    
+    data <- data %>% fgroup_by(PITstart, PITend, label)  %>%
+      fsummarise(across(where(is.numeric), fsum))
+  }
+  
+  # select columns based on inventory level
+  if(input$bui_inventory_level_sys == "Beds"){
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'unit|hhserved', ignore.case = TRUE)])) # columns not containing 'unit' or 'hhserved'
+  }else{
+    sys_inv_filtered<-data %>% fselect(unlist(colnames(data)[!sapply(colnames(data), FUN = grepl, pattern = 'bed|_served', ignore.case = TRUE)])) # columns not containing 'bed' or '_served'
+  }
+  
+  colnames(sys_inv_filtered) <- lapply(colnames(sys_inv_filtered), FUN = transform_names) %>% unlist()
+  
+  labels <- sys_inv_filtered$label
+  sys_inv_filtered <- sys_inv_filtered %>% select(-label) %>% t()  # transpose 
+  colnames(sys_inv_filtered) <- labels
+  
+  datatable( # return table
+    sys_inv_filtered,
+    rownames = TRUE,
+    options = list(dom = 't', 
+                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
+                   pageLength = -1,
+                   autoWidth = TRUE),
+    style = "default"
+  )
+})
 
 #q_sys_bed_unit_inv <- reactive({
 
