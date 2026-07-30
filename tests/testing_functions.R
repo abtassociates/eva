@@ -584,8 +584,10 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     if(run_system_exits){
       customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
       customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
-      customDownload(app, "syse_compare_download_btn", "System-Exit-Comparison-Download.xlsx")
-      customDownload(app, "syse_compare_download_btn_ppt", "System-Exit-Comparison-Download-PPT.pptx")
+      customDownload(app, "syse_time_download_btn", "System-Exit-Time-Download.xlsx")
+      customDownload(app, "syse_time_download_btn_ppt", "System-Exit-Time-Download-PPT.pptx")
+      customDownload(app, "syse_subpop_download_btn", "System-Exit-Subpop-Download.xlsx")
+      customDownload(app, "syse_subpop_download_btn_ppt", "System-Exit-Subpop-Download-PPT.pptx")
       customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
       customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
       
@@ -897,8 +899,10 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     
     customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
     customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
-    customDownload(app, "syse_compare_download_btn", "System-Exit-Comparison-Download.xlsx")
-    customDownload(app, "syse_compare_download_btn_ppt", "System-Exit-Comparison-Download-PPT.pptx")
+    customDownload(app, "syse_time_download_btn", "System-Exit-Time-Download.xlsx")
+    customDownload(app, "syse_time_download_btn_ppt", "System-Exit-Time-Download-PPT.pptx")
+    customDownload(app, "syse_subpop_download_btn", "System-Exit-Subpop-Download.xlsx")
+    customDownload(app, "syse_subpop_download_btn_ppt", "System-Exit-Subpop-Download-PPT.pptx")
     customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
     customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
     

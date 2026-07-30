@@ -138,7 +138,7 @@ sys_phd_plot_1var <- function(subtab = 'phd', methodology_type, selection, isExp
       # ) + # na.value makes 0s invisible
       # set text color to be 508 compliant contrasting
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),
+        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',',scientific = FALSE, trim = TRUE),' of ',format(n, big.mark = ',',scientific = FALSE, trim = TRUE),')'))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction * 0.6, 1),
         color = ifelse(
           plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
@@ -184,9 +184,9 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   
   comp_df <- all_filtered_syse_demog() %>% 
     remove_non_applicables(selection = selections) %>% 
-    select(
-      PersonalID, 
-      Destination,
+    fselect(
+      "PersonalID", 
+      "Destination",
       unname(var_cols[[selections[1]]]), 
       unname(var_cols[[selections[2]]])
     ) %>%
@@ -381,7 +381,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
     # set text color to be 508 compliant contrasting
     geom_text(
       # aes(label = paste0(scales::comma(n), "\n", "(",scales::percent(pct, accuracy = 0.1),")")),
-      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',n,')'))),#scales::comma(n))),
+      aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE, trim = TRUE),' of ',format(n, big.mark = ',', scientific = FALSE, trim = TRUE),')'))),#scales::comma(n))),
       size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction * 0.6, 1),
       color = ifelse(
         plot_df_joined$frac > mean(plot_df_joined$frac, na.rm = TRUE) & !plot_df_joined$wasRedacted,
@@ -420,7 +420,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',N,')'))),
+        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE, trim = TRUE),' of ',format(N, big.mark = ',', scientific = FALSE, trim = TRUE),')'))),
         size = sys_chart_text_font * ifelse(isExport, sys_chart_export_font_reduction* 0.6, 1),
         color = ifelse(
           h_total_joined$frac > mean(h_total_joined$frac, na.rm = TRUE) & !h_total_joined$wasRedacted,
@@ -447,7 +447,7 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
       ) +
       
       geom_text(
-        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',num,' of ',N,')'))),
+        aes(label = ifelse(wasRedacted, "***", paste0(scales::percent(frac, accuracy = 1), '\n', '(',format(num, big.mark = ',', scientific = FALSE, trim = TRUE),' of ',format(N, big.mark = ',', scientific = FALSE, trim = TRUE),')'))),
         size = sys_chart_text_font * ifelse(isExport, 0.45, 1),
         color = ifelse(
           v_total_joined$frac > mean(v_total_joined$frac, na.rm = TRUE) & !v_total_joined$wasRedacted,
@@ -497,6 +497,13 @@ output$syse_phd_chart_1d <- renderPlot({
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 1)
   
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   sys_phd_plot_1var(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
 }, height = 700, width = 500,
@@ -507,6 +514,13 @@ output$syse_phd_chart_2d <- renderCachedPlot({
   req(session$userData$valid_file() == 1 &
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 2)
+  
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
   
   sys_phd_plot_2vars(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
