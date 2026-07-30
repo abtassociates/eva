@@ -242,7 +242,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type 
           fmutate(PITstart = q_start,
                   PITend = q_end,
                   PIT = q_pit,
-                  label = q_lab)
+                  label = q_lab) %>% replace_na(value = 0, cols = c("Avg_Nightly_Served", "Avg_Nightly_HHServed"))
       }else{
         
         grouping_vars <-c("PIT", "PITstart" ,  "PITend", "label")
@@ -826,14 +826,24 @@ summary_sys_proj <- reactive({
     # get averages over period
     nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(selected_projs$ProjectID),
                                extragroups = c("ProjectType"), ded_type = input$bui_dedicated) 
-    
+    print(nightly_avg)
     nightly_avg <- nightly_avg %>% fgroup_by(PIT, PITstart, PITend, label, ProjectType)  %>%
-      fsummarise(across(where(is.numeric), fsum))
-    
+      fsummarise(across(where(is.numeric), fsum)) %>%
+      fmutate(Bed_Utilization = 100*Avg_Nightly_Served/ Avg_Nightly_HMIS_Beds,
+              Unit_Utilization = 100*Avg_Nightly_HHServed / Avg_Nightly_HMIS_Units)
+    print(nightly_avg)
     proj_sum <- proj_sum %>% left_join(nightly_avg) # left join for only the selections
   }
   
-  return(proj_sum)
+  print(colnames(proj_sum))
+  proj_sum %>% fungroup %>% 
+    fmutate(ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
+                                ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
+                                default = project_type_abb(ProjectType)))
+  
+            #,ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
+            #                   ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
+            #                  default = project_type_abb(ProjectType)
 })
 summary_sys_hh <- reactive({
   req(session$userData$valid_file() == 1 )
@@ -864,18 +874,20 @@ summary_sys_hh <- reactive({
     
     proj_sum <- proj_sum %>% left_join(nightly_avg) # left join for only the selections
   }
-
-  return(proj_sum)
+  
+  print(colnames(proj_sum))
+  proj_sum %>% fungroup %>% 
+           fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
+                                           HouseholdType == 3, "Adult-Child",
+                                           HouseholdType == 4, "Child-Only",
+                                           default = as.numeric( HouseholdType)))
 })
 
 ## Render DT - Inventory summaries by project or household type --------------------
 output$sys_bui_sum_proj <- renderDT({
   req(session$userData$valid_file() == 1 )
 
-  data <- summary_sys_proj() %>% fungroup %>% 
-    fmutate(ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
-                                ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
-                                default = project_type_abb(ProjectType)))
+  data <- summary_sys_proj() 
   
   if(input$bui_period_filter_sys == "Points in Time"){
     data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
@@ -908,8 +920,6 @@ output$sys_bui_sum_proj <- renderDT({
     data <- data %>% fgroup_by(PITstart, PITend, label)  %>%
       fsummarise(across(where(is.numeric), fsum))
   }
-   
-
   
   # select columns based on inventory level
   if(input$bui_inventory_level_sys == "Beds"){
@@ -937,10 +947,7 @@ output$sys_bui_sum_proj <- renderDT({
 output$sys_bui_sum_proj_util <- renderDT({
   req(session$userData$valid_file() == 1 )
   
-  data <- summary_sys_proj() %>% fungroup %>% 
-    fmutate(ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
-                                ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
-                                default = project_type_abb(ProjectType)))
+  data <- summary_sys_proj() 
   
   if(input$bui_period_filter_sys == "Points in Time"){
     data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
@@ -959,15 +966,13 @@ output$sys_bui_sum_proj_util <- renderDT({
   }else{
     
     data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
-      `Total Avg Nightly Beds` = sum(Avg_Nightly_Beds),
-      `Total Avg Nightly HMIS Beds` = sum(Avg_Nightly_HMIS_Beds, na.rm = TRUE),
-      `Total Avg Nightly Units` = sum(Avg_Nightly_Units),
-      `Total Avg Nightly HMIS Units` = sum(Avg_Nightly_HMIS_Units, na.rm = TRUE)) %>% fungroup 
+      `Total Bed Utilization` = 100*fsum(Avg_Nightly_Served) / fsum(Avg_Nightly_HMIS_Beds),
+      `Total Unit Utilization` = 100*fsum(Avg_Nightly_HHServed) / fsum(Avg_Nightly_HMIS_Units)) %>% fungroup 
     
     data <- pivot(data, 
-                  ids = c("PITstart","PITend", "label", "Total Avg Nightly Beds", "Total Avg Nightly HMIS Beds", "Total Avg Nightly Units", "Total Avg Nightly HMIS Units"),  # Columns to keep as identifiers
+                  ids = c("PITstart","PITend", "label", "Total Bed Utilization", "Total Unit Utilization"),  # Columns to keep as identifiers
                   names = "ProjectType",    # Column(s) whose values become new column names
-                  values = c("Avg_Nightly_Beds", "Avg_Nightly_Units"),   # Column(s) containing the values to fill
+                  values = c("Bed_Utilization", "Unit_Utilization"),   # Column(s) containing the values to fill
                   how = "wider") 
     
     data <- data %>% fgroup_by(PITstart, PITend, label)  %>%
@@ -1000,17 +1005,9 @@ output$sys_bui_sum_proj_util <- renderDT({
   )
 })
 output$sys_bui_sum_hh <- renderDT({
-  
   req(session$userData$valid_file() == 1 )
-  data <- summary_sys_hh() %>% fungroup %>% 
-    fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
-                                  HouseholdType == 3, "Adult-Child",
-                                  HouseholdType == 4, "Child-Only",
-                                  default = as.numeric( HouseholdType))
-            #,ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
-             #                   ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
-              #                  default = project_type_abb(ProjectType)
-            )
+  
+  data <- summary_sys_hh()
   
   if(input$bui_period_filter_sys == "Points in Time"){
     data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
@@ -1068,17 +1065,9 @@ output$sys_bui_sum_hh <- renderDT({
   )
 })
 output$sys_bui_sum_hh_util <- renderDT({
-  
   req(session$userData$valid_file() == 1 )
-  data <- summary_sys_hh() %>% fungroup %>% 
-    fmutate("HouseholdType" = fcase(HouseholdType == 1, "Adult-Only",
-                                    HouseholdType == 3, "Adult-Child",
-                                    HouseholdType == 4, "Child-Only",
-                                    default = as.numeric( HouseholdType))
-            #,ProjectType = fcase(is.na(project_type_abb(ProjectType)), "Unknown",
-            #                   ProjectType %in% c(es_ee_project_type, es_nbn_project_type), "ES",
-            #                  default = project_type_abb(ProjectType)
-    )
+  
+  data <- summary_sys_hh() 
   
   if(input$bui_period_filter_sys == "Points in Time"){
     data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
