@@ -18,7 +18,7 @@ if(file.exists(specs_prepped_path)) {
 source(here("machine_readable_specs_helpers.R"), local=TRUE)
 source(here("helper_functions.R"), local=TRUE)
   
-validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
+validation_specs_bk <- "/media/sdrive/projects/CE_Data_Toolkit/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx"
 
 # Import Specs -----------------------
 ## Import primary specs sheet (includes expected CSVs, columns, data types, and rule notes) ------
