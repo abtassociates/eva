@@ -180,6 +180,11 @@ valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na
 # Special Cases: Value-Not-in-List  -----
 # Special cases: these are cases that could not be easily codified directly from the specs
 special_validation_rules <- list(
+  Affiliation = list(
+    "Foreign Key Missing" = list(
+      ResProjectID = quote(.join == "dt")
+    )
+  ),
   CEParticipation = list(
     "Conditonally Invalid Value" = list(
       PreventionAssessment = quote((is.na(PreventionAssessment) & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & PreventionAssessment != 0)),
@@ -215,8 +220,11 @@ special_validation_rules <- list(
   Enrollment = list(
     "Non-Null Invalid" = list(
       # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
-      EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "x")),
+      EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "dt")),
       LivingSituation = quote(LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37))
+    ),
+    "Foreign Key Missing" = list(
+      EnrollmentCoC = quote(ContinuumProject == 1 & .join == "dt")
     )
   ),
   Exit = list(
@@ -242,6 +250,15 @@ special_validation_rules <- list(
     ),
     "Unallowed Null" = list(
       SourceName = quote(SourceType != 1 & is.na(SourceName))
+    )
+  ),
+  Inventory = list(
+    "Foreign Key Missing" = list(
+      CoCCode = quote(
+        ProjectType %in% project_types_w_beds & 
+        ((ProjectType == rrh_project_type & RRHSubType == 2) | ProjectType != rrh_project_type) &
+        .join == "dt"
+      )
     )
   ),
   ProjectCoC = list(
@@ -320,6 +337,9 @@ special_validation_rules_dt <- rbindlist(
 
 # Supplemental files needed for specific CSVs -----------
 csv_join_prerequisites <- list(
+  Affiliation = list(
+    list(tbl = "Project",    on = c("ResProjectID" = "ProjectID"), cols = "ProjectID", column=TRUE)
+  ),
   CurrentLivingSituation = list(
     list(tbl = "Enrollment", on = "EnrollmentID", cols = "ProjectID"),
     list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType")
@@ -355,7 +375,8 @@ csv_join_prerequisites <- list(
     list(tbl = "Funder",     on = "ProjectID",    cols = "Funder")
   ),
   Inventory = list(
-    list(tbl = "Project",    on = "ProjectID",    cols = "ProjectType")
+    list(tbl = "Project",    on = "ProjectID",    cols = c("ProjectType", "RRHSubType")),
+    list(tbl = "ProjectCoC", on = c("ProjectID", "CoCCode"), cols = "ProjectID", column=TRUE)
   ),
   Organization = list(
     list(tbl = "Project",    on = "OrganizationID", cols = "ProjectID")
