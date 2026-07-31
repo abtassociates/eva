@@ -239,10 +239,18 @@ populate_client_level_export <- function(type = 'overview', file){
     # officer load the excel file with all its formatting
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
-    wb <- sheet_write_data(wb, filter_selections , "Metadata")
-    wb <- sheet_write_data(wb, client_level_details, "Client Details")
-    wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
-    wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(filter_selections, 
+                                               log_loc = "Metadata (client_level_export_server)",
+                                               session = session) , "Metadata")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(client_level_details, 
+                                               log_loc = "Client Details (client_level_export_server)",
+                                               session = session), "Client Details")
+    wb <- sheet_write_data(wb,  xlsx_char_trunc(monthly_statuses, 
+                                                log_loc = "Monthly Statuses (client_level_export_server)",
+                                                session = session) ,  "Monthly Statuses")
+    wb <- sheet_write_data(wb,   xlsx_char_trunc(adjusted_non_res_enrl, 
+                                                 log_loc = "Adjusted Enrollments (client_level_export_server)",
+                                                 session = session), "Adjusted Enrollments")
 
   } else if(type == 'exits'){
     
@@ -277,8 +285,12 @@ populate_client_level_export <- function(type = 'overview', file){
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
     
-    wb <- sheet_write_data(wb, filter_selections, "Metadata")
-    wb <- sheet_write_data(wb, client_level_details, "Client Details")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(filter_selections, 
+                                               log_loc = "Exits Metadata (client_level_export_server)",
+                                               session = session), "Metadata")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(client_level_details, 
+                                               log_loc = "Exits Client Details (client_level_export_server)",
+                                               session = session), "Client Details")
     
     # drop the other sheets and instrunctions
     wb <- sheet_remove(wb, "Monthly Statuses")
