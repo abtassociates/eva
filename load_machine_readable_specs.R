@@ -15,6 +15,9 @@ if(file.exists(specs_prepped_path)) {
   rm(specs_prepped)
 } else {
 
+source(here("machine_readable_specs_helpers.R"), local=TRUE)
+source(here("helper_functions.R"), local=TRUE)
+  
 validation_specs_bk <- here("public-resources/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx")
 
 # Import Specs -----------------------
