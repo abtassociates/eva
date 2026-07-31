@@ -1696,40 +1696,40 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    1  ",
-          "Length:71         "
+          "Min.   :    1.0  ",
+          "Length:70         "
         ],
         [
           "Error        :38  ",
-          "1st Qu.:   25  ",
+          "1st Qu.:   29.0  ",
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
-          "Median :  140  ",
+          "Warning      :29  ",
+          "Median :  143.5  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  811  ",
+          "Mean   :  822.5  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  529  ",
+          "3rd Qu.:  531.5  ",
           null
         ],
         [
           null,
-          "Max.   :11744  ",
+          "Max.   :11744.0  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-          "Length:995        ",
+          "Length:991        ",
           "High Priority: 56  ",
-          "Length:995        ",
+          "Length:991        ",
           "Min.   :   1.00  "
         ],
         [
@@ -1740,7 +1740,7 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :497  ",
+          "Warning      :493  ",
           "Mode  :character  ",
           "Median :   8.00  "
         ],
@@ -1748,7 +1748,7 @@
           null,
           null,
           null,
-          "Mean   :  57.87  "
+          "Mean   :  58.09  "
         ],
         [
           null,
@@ -1766,8 +1766,8 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:71         ",
-          "Length:71         "
+          "Length:70         ",
+          "Length:70         "
         ],
         [
           "Error        :38  ",
@@ -1775,7 +1775,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :30  ",
+          "Warning      :29  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1918,14 +1918,14 @@
       ],
       "Warnings": [
         [
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
-          "Length:43874      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
           "Min.   :2005-04-14  "
         ],
         [

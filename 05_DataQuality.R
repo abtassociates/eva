@@ -1008,7 +1008,7 @@ enrollment_x_participating_start <- enrollment_positions %>%
   fselect(vars_we_want)
 
 enrollment_before_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & HMISParticipationType == 1) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & HMISParticipationType == 0) %>%
   merge_check_info_dt(checkIDs = 113) %>%
   fselect(vars_we_want)
 
