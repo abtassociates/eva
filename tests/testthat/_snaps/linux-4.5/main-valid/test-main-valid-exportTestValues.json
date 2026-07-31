@@ -1697,26 +1697,26 @@
         [
           "High Priority: 3  ",
           "Min.   :    1.0  ",
-          "Length:70         "
+          "Length:72         "
         ],
         [
           "Error        :38  ",
-          "1st Qu.:   29.0  ",
+          "1st Qu.:   20.0  ",
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
-          "Median :  143.5  ",
+          "Warning      :31  ",
+          "Median :  138.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  822.5  ",
+          "Mean   :  799.9  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  531.5  ",
+          "3rd Qu.:  526.5  ",
           null
         ],
         [
@@ -1727,9 +1727,9 @@
       ],
       "Organization Summary": [
         [
-          "Length:991        ",
+          "Length:996        ",
           "High Priority: 56  ",
-          "Length:991        ",
+          "Length:996        ",
           "Min.   :   1.00  "
         ],
         [
@@ -1740,7 +1740,7 @@
         ],
         [
           "Mode  :character  ",
-          "Warning      :493  ",
+          "Warning      :498  ",
           "Mode  :character  ",
           "Median :   8.00  "
         ],
@@ -1748,7 +1748,7 @@
           null,
           null,
           null,
-          "Mean   :  58.09  "
+          "Mean   :  57.82  "
         ],
         [
           null,
@@ -1766,8 +1766,8 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:70         ",
-          "Length:70         "
+          "Length:72         ",
+          "Length:72         "
         ],
         [
           "Error        :38  ",
@@ -1775,7 +1775,7 @@
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
+          "Warning      :31  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1918,14 +1918,14 @@
       ],
       "Warnings": [
         [
-          "Length:43862      ",
-          "Length:43862      ",
-          "Length:43862      ",
-          "Length:43862      ",
-          "Length:43862      ",
-          "Length:43862      ",
-          "Length:43862      ",
-          "Length:43862      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
+          "Length:43883      ",
           "Min.   :2005-04-14  "
         ],
         [

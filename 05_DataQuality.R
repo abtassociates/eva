@@ -995,10 +995,12 @@ rm(income_subs)
 
 enrollment_positions <- Enrollment %>%
   fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate) %>%
-  join(base_dq_data, on = "EnrollmentID", how = 'left')
-#browser()
+  join(base_dq_data, on = "EnrollmentID", how = 'left') |> 
+  fcount(EnrollmentID, add = TRUE, name = 'n_hmis_periods')
+
 enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & !is.na(HMISParticipationStatusEndDate) &
+            ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 1))) %>%
   merge_check_info_dt(checkIDs = 111) %>%
   fselect(vars_we_want)
 
@@ -1008,7 +1010,8 @@ enrollment_x_participating_start <- enrollment_positions %>%
   fselect(vars_we_want)
 
 enrollment_before_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & HMISParticipationType == 0) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & 
+            ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 0))) %>%
   merge_check_info_dt(checkIDs = 113) %>%
   fselect(vars_we_want)
 
