@@ -92,7 +92,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       key_fields_list <- unlist(strsplit(rule_row$`Key Fields`, ", ", fixed = TRUE))
       
       # Skip if any Key Fields aren't in the dataset
-      if(!all(key_fields_list %in% names(dt)))
+      if(!all(key_fields_list %in% names(dt)) && !is.na(key_fields_list))
         return(NULL)
       
       # print(glue::glue("rule_row = {rule_row[, .(Name, rule_expr)]}"))
@@ -132,7 +132,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       if (fnrow(invalid_dt) == 0) return(NULL)
       
       # Attach the metadata so we know exactly what failed
-      cols_to_select <- unique(c(
+      cols_to_select <- funique(c(
         key_fields_list,
         rule_row$AnchorID,
         rule_row$Name
