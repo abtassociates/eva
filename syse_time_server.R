@@ -2,6 +2,20 @@
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories_prev) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   cond <- interval(startDate, endDate) >= days(729)
   
   ## whether to show validate message or not
@@ -192,8 +206,8 @@ get_syse_compare_time_chart <- function( isExport = FALSE){
                         if_else(getNameByValue(sys_hh_types, input$syse_hh_type) == "All Household Types", "", " Households"))
   
   title <- paste0(title_start, 
-                  c(paste0(': ', scales::label_comma()(nrow(everyone() %>% fsubset(period == 'Current Year')))),
-                    paste0(': ', scales::label_comma()(nrow(everyone() %>% fsubset(period == 'Previous Year'))))),
+                  c(paste0(': ', format(nrow(everyone() %>% fsubset(period == 'Current Year')), big.mark=',', scientific = FALSE, trim = TRUE)),
+                    paste0(': ', format(nrow(everyone() %>% fsubset(period == 'Previous Year')), big.mark=',', scientific = FALSE, trim = TRUE))),
                   collapse='\n'
   )
   
