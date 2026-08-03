@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 4951c4ce9be9e412dad69eccfab4fc05]",
+      "src": "[image data hash: 6a9d6d37bd3c372e205d1edbc9b5cd8e]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: ca7b57b7bb2f17e849a583bc25dbac3d]",
+      "src": "[image data hash: 98515bd77f230920e038904ec28e6e3a]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -142,13 +142,12 @@
               "left": 0,
               "right": 726,
               "bottom": 0.4,
-              "top": 5.6,
+              "top": 4.6,
               "discrete_limits": {
                 "x": [
 
                 ],
                 "y": [
-                  "Identifier does not match across files",
                   "Null Unless",
                   "Duplicate Entries",
                   "Too Many Heads of Household",

@@ -1182,13 +1182,13 @@
         "Client-level data in VSP organization",
         "Project Missing in ProjectCoC file",
         "Residential Project Missing Housing Type",
-        "Invalid Non-Null Value",
         "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
         "Incorrect CoC in bed inventory",
+        "Identifier does not match across files",
         "Nulls not allowed",
         "Inventory Start Precedes Operating Start",
         "No Enrollments within Active Inventory",
@@ -1203,7 +1203,7 @@
         "High Priority",
         "High Priority",
         "High Priority",
-        "High Priority",
+        "Error",
         "Error",
         "Error",
         "Error",
@@ -1224,13 +1224,13 @@
         13,
         1,
         1,
-        1,
         3,
         12,
         6,
         1,
         13,
         2,
+        9,
         2,
         137,
         1,
@@ -1242,8 +1242,8 @@
     },
     "pdde_guidance_summary": {
       "Priority": {
-        "High Priority": 6,
-        "Error": 7,
+        "High Priority": 5,
+        "Error": 8,
         "Warning": 6
       },
       "Issue": {
@@ -1264,7 +1264,7 @@
         "Project Missing in ProjectCoC file": 1,
         "Residential Project Missing Housing Type": 1,
         "Long-Term Seasonal Inventory": 1,
-        "Invalid Non-Null Value": 1,
+        "Identifier does not match across files": 1,
         "Nulls not allowed": 1
       },
       "Guidance": {
@@ -1284,7 +1284,8 @@
         "This Continuum project is missing from your ProjectCoC file. This may mean the project is either missing a Continuum of Care Information record which includes fields such as 'Geocode', 'Project ZIP code', and 'Project Street Address', or there is an existing Continuum of Care Information record for the project, but the record does not have the correct CoC Code.": 1,
         "This project is missing a Housing Type. Please check this project's setup in your HMIS and identify whether the project's Housing Type is Site-based – single site, Site-based – clustered / multiple sites, or Tenant-based – scattered site.": 1,
         "This project has at least one Seasonal inventory record that either does not have an inventory end date or has inventory start and end dates that indicate the inventory was available for a year or longer. Seasonal beds are not available year-round, but instead are available on a planned basis, with set start and end dates, during an anticipated period of higher demand. Please check the dates of the inventory record ID(s) in the Detail column to ensure they align with this inventory's seasonal availability.": 1,
-        "NA's": 2
+        "Per the HMIS CSV Format Specifications, all *identifiers* in the *target* file should have a record in the *source* file.": 1,
+        "NA's": 1
       }
     },
     "pdde_summary_table": {
@@ -1306,20 +1307,20 @@
         "Project Missing in ProjectCoC file": 1,
         "Residential Project Missing Housing Type": 1,
         "Long-Term Seasonal Inventory": 1,
-        "Invalid Non-Null Value": 1,
+        "Identifier does not match across files": 1,
         "Nulls not allowed": 1
       },
       "Priority": {
-        "High Priority": 6,
-        "Error": 7,
+        "High Priority": 5,
+        "Error": 8,
         "Warning": 6
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 1,
-        "Median": 2,
-        "Mean": 11.10526315789474,
-        "3rd Qu.": 6,
+        "1st Qu.": 1.5,
+        "Median": 3,
+        "Mean": 11.52631578947368,
+        "3rd Qu.": 7.5,
         "Max.": 137
       }
     },
@@ -1837,41 +1838,41 @@
       ],
       "System Summary": [
         [
-          "Length:74         ",
-          "Min.   :    1.0  ",
-          "Length:74         "
+          "Length:73         ",
+          "Min.   :    1  ",
+          "Length:73         "
         ],
         [
           "Class :character  ",
-          "1st Qu.:   29.0  ",
+          "1st Qu.:   29  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
-          "Median :  138.0  ",
+          "Median :  140  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  788.7  ",
+          "Mean   :  799  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  531.5  ",
+          "3rd Qu.:  534  ",
           null
         ],
         [
           null,
-          "Max.   :11744.0  ",
+          "Max.   :11744  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-          "Length:1037       ",
-          "Length:1037       ",
-          "Length:1037       ",
+          "Length:1026       ",
+          "Length:1026       ",
+          "Length:1026       ",
           "Min.   :   1.00  "
         ],
         [
@@ -1890,7 +1891,7 @@
           null,
           null,
           null,
-          "Mean   :  56.28  "
+          "Mean   :  56.85  "
         ],
         [
           null,
@@ -1907,9 +1908,9 @@
       ],
       "Guidance": [
         [
-          "Length:74         ",
-          "Length:74         ",
-          "Length:74         "
+          "Length:73         ",
+          "Length:73         ",
+          "Length:73         "
         ],
         [
           "Class :character  ",
@@ -1924,16 +1925,16 @@
       ],
       "High Priority": [
         [
-          "Length:1237       ",
-          "Length:1237       ",
-          "Length:1237       ",
-          "Length:1237       ",
-          "Length:1237       ",
-          "Length:1237       ",
-          "Length:1237       ",
-          "Length:1237       ",
+          "Length:1203       ",
+          "Length:1203       ",
+          "Length:1203       ",
+          "Length:1203       ",
+          "Length:1203       ",
+          "Length:1203       ",
+          "Length:1203       ",
+          "Length:1203       ",
           "Min.   :2016-09-15  ",
-          "Length:1237       "
+          "Length:1203       "
         ],
         [
           "Class :character  ",
@@ -1944,7 +1945,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-08-26  ",
+          "1st Qu.:2020-08-21  ",
           "Class :character  "
         ],
         [
@@ -1956,7 +1957,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-23  ",
+          "Median :2021-02-22  ",
           "Mode  :character  "
         ],
         [
@@ -1968,7 +1969,7 @@
           null,
           null,
           null,
-          "Mean   :2021-05-03  ",
+          "Mean   :2021-05-02  ",
           null
         ],
         [
@@ -1980,7 +1981,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-04-14  ",
+          "3rd Qu.:2022-04-17  ",
           null
         ],
         [
