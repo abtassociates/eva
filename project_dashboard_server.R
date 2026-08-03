@@ -18,7 +18,13 @@ time_cols <- c("nlt0","n0","n1_3","n4_6","n7_10","n11p")
 client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
-
+  
+  validate(
+    need(
+      !is.na(ReportStart) && !is.na(ReportEnd) && ReportEnd > ReportStart,
+      message = "Please input a valid date range. The date range you set is outside the date range of your current file."
+    )
+  )
   session$userData$validation %>%
     fmutate(
       PersonalID = as.character(PersonalID),
