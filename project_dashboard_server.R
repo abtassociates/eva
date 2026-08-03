@@ -542,7 +542,7 @@ process_timeliness_df <- function(join_df, date_col_name, date_range, how, type)
   ) %>% 
     fsubset(get(date_col_name) %between% date_range) %>% 
     fmutate(
-      DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(get(date_col_name))) * ifelse(type == "exit", -1, 1)
+      DaysToEntry = as.numeric(as.Date(DateCreated) - as.Date(get(date_col_name)))
     )
   
   if(fnrow(res_df) == 0) return(NULL) else calc_time_to_entry(res_df)
