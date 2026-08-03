@@ -19,12 +19,6 @@ client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
   
-  validate(
-    need(
-      !is.na(ReportStart) && !is.na(ReportEnd) && ReportEnd > ReportStart,
-      message = "Please input a valid date range. The date range you set is outside the date range of your current file."
-    )
-  )
   session$userData$validation %>%
     fmutate(
       PersonalID = as.character(PersonalID),
@@ -441,6 +435,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
 output$clientCountData <- renderDT({
   req(session$userData$valid_file() == 1)
   req(nrow(session$userData$validation) > 0)
+  validate_date_range(input$dateRangeCount)
+  
   
   # getting an error sometimes? Warning: Error in filter: â„¹ In argument: `ProjectID == input$currentProviderList`.
   # Caused by error:
@@ -470,9 +466,18 @@ output$clientCountData <- renderDT({
 
 
 # CLIENT COUNT SUMMARY - APP ----------------------------------------------
+validate_date_range <- function(range) {
+  validate(
+    need(
+      !is.na(range[1]) && !is.na(range[2]) && range[2] > range[1],
+      message = "Please input a valid date range. The date range you set is outside the date range of your current file."
+    )
+  )
+}
 
 output$clientCountSummary <- renderDT({
   req(session$userData$valid_file() == 1)
+  validate_date_range(input$dateRangeCount)
   
   exportTestValues(clientCountSummary = client_count_summary_df())
   
@@ -558,6 +563,8 @@ make_timeliness_reactive <- function(
   
   reactive({
     req(session$userData$valid_file() == 1)
+    req(length(input$dateRangeCount) == 2)
+    req(input$dateRangeCount[2] > input$dateRangeCount[1])
     
     df <- process_timeliness_df(
       join_df = join_df,
@@ -617,6 +624,37 @@ tl_df_ce_event <- make_timeliness_reactive(
 
 
 # TIMELINESS - value boxes ------------------------------------------------
+output$timeliness_record_entry <- renderUI({
+  req(session$userData$valid_file() == 1)
+  validate_date_range(input$dateRangeCount)
+  
+  list(
+  layout_column_wrap(
+    width = "250px",
+    fill = FALSE,
+    
+    value_box(
+      title = "Median Days to Project Start Data Entry",
+      value = textOutput("timeliness_vb1_val"),
+      showcase = bs_icon("calendar-plus"),
+      theme = "text-primary",
+      class = "border-primary"
+    ),
+    value_box(
+      title = "Median Days to Project Exit Data Entry",
+      value = textOutput("timeliness_vb2_val"),
+      showcase = bs_icon("calendar-minus"),
+      theme = "text-primary",
+      class = "border-primary"
+    ),
+    uiOutput("timeliness_vb3", fill = TRUE)
+    
+  ),
+  br(),
+  DTOutput("timelinessTable")
+  )
+})
+
 cc_project_type <- reactive({
   req(session$userData$valid_file() == 1)
   
