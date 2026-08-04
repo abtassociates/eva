@@ -540,6 +540,8 @@ pad_missing_projects <- function(df, base_df) {
 }
 
 process_timeliness_df <- function(join_df, date_col_name, date_range, how, type) {
+  if(is.null(join_df) || fnrow(join_df) == 0) return(NULL)
+  
   res_df <- join(
     client_count_data_df(), 
     join_df, 
@@ -574,7 +576,7 @@ make_timeliness_reactive <- function(
       type = type
     )
     
-    if(type %in% c("start", "exit"))
+    if(!is.null(df) && type %in% c("start", "exit"))
       df <- df |> pad_missing_projects(client_count_data_df())
     
     return(df)
@@ -734,7 +736,7 @@ output$timeliness_vb3 <- renderUI({
 # TIMELINESS DT table ----------------------------------------------
 pull_time_cols <- function(cond, df, set_zero = TRUE) {
   # If the column is not relevant to this project type, omit it entirely
-  if (!cond) return(NULL)
+  if (!cond || is.null(df)) return(if (cond && set_zero) 0 else NULL)
   
   x <- df %>%
     fsubset(ProjectID == input$currentProviderList) %>%
