@@ -41,6 +41,11 @@
         "Class": "character",
         "Mode": "character"
       },
+      "Project Type": {
+        "Length": "173",
+        "Class": "character",
+        "Mode": "character"
+      },
       "Currently in Project": {
         "Min.": 1,
         "1st Qu.": 4,
@@ -106,6 +111,11 @@
         "Class": "character",
         "Mode": "character"
       },
+      "Project Type": {
+        "Length": "205",
+        "Class": "character",
+        "Mode": "character"
+      },
       "Currently in Project": {
         "Min.": 0,
         "1st Qu.": 2,
@@ -153,6 +163,162 @@
         "Mean": 22.20975609756098,
         "3rd Qu.": 12,
         "Max.": 632
+      }
+    },
+    "client_count_download_timeliness_ce_assess": {
+      "Organization Name": {
+        "Length": "84",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "84",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "84",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "84",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.9880952380952381,
+        "3rd Qu.": 0,
+        "Max.": 70
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 2,
+        "Mean": 129.8928571428571,
+        "3rd Qu.": 5,
+        "Max.": 10464
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 19.98809523809524,
+        "3rd Qu.": 1.25,
+        "Max.": 1502
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6.071428571428571,
+        "3rd Qu.": 0,
+        "Max.": 466
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 3.654761904761905,
+        "3rd Qu.": 0,
+        "Max.": 289
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 7.095238095238095,
+        "3rd Qu.": 1,
+        "Max.": 560
+      },
+      "Median Days to CE Assessment Record Entry": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 6.696428571428571,
+        "3rd Qu.": 1.625,
+        "Max.": 243.5
+      }
+    },
+    "client_count_download_timeliness_ce_event": {
+      "Organization Name": {
+        "Length": "107",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project ID": {
+        "Length": "107",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Name": {
+        "Length": "107",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Project Type": {
+        "Length": "107",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "< 0 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 1.186915887850467,
+        "3rd Qu.": 0,
+        "Max.": 116
+      },
+      "0 Days": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 3,
+        "Mean": 94.58878504672897,
+        "3rd Qu.": 6,
+        "Max.": 9332
+      },
+      "1-3 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 16.31775700934579,
+        "3rd Qu.": 3,
+        "Max.": 1347
+      },
+      "4-6 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 5.878504672897196,
+        "3rd Qu.": 1,
+        "Max.": 389
+      },
+      "7-10 Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 4.121495327102804,
+        "3rd Qu.": 1,
+        "Max.": 219
+      },
+      "11 + Days": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 7.532710280373832,
+        "3rd Qu.": 2,
+        "Max.": 519
+      },
+      "Median Days to CE Event Record Entry": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0.5,
+        "Mean": 8.11214953271028,
+        "3rd Qu.": 3,
+        "Max.": 243.5
       }
     },
     "client_count_download_timeliness_cls": {
@@ -256,11 +422,11 @@
       },
       "< 0 Days": {
         "Min.": 0,
-        "1st Qu.": 0,
-        "Median": 0,
-        "Mean": 27.39024390243902,
-        "3rd Qu.": 15,
-        "Max.": 705
+        "1st Qu.": 10,
+        "Median": 45,
+        "Mean": 264.409756097561,
+        "3rd Qu.": 142,
+        "Max.": 22203
       },
       "0 Days": {
         "Min.": 0,
@@ -274,41 +440,41 @@
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 23.94634146341463,
-        "3rd Qu.": 4,
-        "Max.": 1097
+        "Mean": 10.04390243902439,
+        "3rd Qu.": 2,
+        "Max.": 451
       },
       "4-6 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 14.29756097560976,
-        "3rd Qu.": 3,
-        "Max.": 749
+        "Mean": 4.092682926829268,
+        "3rd Qu.": 1,
+        "Max.": 151
       },
       "7-10 Days": {
         "Min.": 0,
         "1st Qu.": 0,
         "Median": 0,
-        "Mean": 15.15121951219512,
-        "3rd Qu.": 6,
-        "Max.": 1030
+        "Mean": 2.536585365853659,
+        "3rd Qu.": 0,
+        "Max.": 76
       },
       "11 + Days": {
         "Min.": 0,
-        "1st Qu.": 9,
-        "Median": 35,
-        "Mean": 211.0146341463415,
-        "3rd Qu.": 119,
-        "Max.": 19327
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 10.71707317073171,
+        "3rd Qu.": 3,
+        "Max.": 501
       },
       "Median Days to Project Exit Record Entry": {
-        "Min.": -218,
-        "1st Qu.": 24,
-        "Median": 83,
-        "Mean": 149.6522842639594,
-        "3rd Qu.": 167,
-        "Max.": 1778,
+        "Min.": -1778,
+        "1st Qu.": -167,
+        "Median": -83,
+        "Mean": -149.6522842639594,
+        "3rd Qu.": -24,
+        "Max.": 218,
         "NA's": 8
       }
     },
@@ -2282,12 +2448,36 @@
         84
       ],
       "Number of Project Exit Records": [
-        94,
+        222,
         9,
         34,
-        20,
-        25,
-        143
+        16,
+        8,
+        36
+      ],
+      "Number of Current Living Situation Records": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "Number of CE Assessment Records": [
+        0,
+        2,
+        3,
+        0,
+        0,
+        0
+      ],
+      "Number of CE Event Records": [
+        0,
+        2,
+        3,
+        2,
+        0,
+        0
       ]
     }
   }
