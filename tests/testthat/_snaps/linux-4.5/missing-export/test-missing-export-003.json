@@ -8,19 +8,16 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
-    "accordion_client_count": null,
     "accordion_dqexport": null,
     "accordion_dqorg": null,
     "accordion_dqsystem": null,
     "accordion_home": null,
     "accordion_local_settings": null,
     "accordion_pdde": null,
+    "accordion_project_dashboard": null,
     "accordion_systemexits": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
-    "client_count_cc_subtabs": "<h5>Detail<\/h5>",
-    "client_count_subtabs": "<h4>Client Counts<\/h4>",
-    "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
     "currentProviderList": null,
     "dateRangeCount": [
       null,
@@ -69,6 +66,9 @@
     "orgList": null,
     "pageid": "tabPDDE",
     "pdde_subtabs": "<h4>Guidance<\/h4>",
+    "project_dashboard_cc_subtabs": "<h5>Detail<\/h5>",
+    "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
+    "project_dashboard_tl_subtabs": "<h5>Record Entry<\/h5>",
     "subpop_dest_type": "Permanent",
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
@@ -165,14 +165,6 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "downloadClientCountsReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "downloadFileStructureAnalysisBtn": {
       "message": "",
       "call": "NULL",
@@ -197,19 +189,27 @@
         "validation"
       ]
     },
+    "downloadProjectDashboardReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "headerClientCounts": {
+    "headerPDDE": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
       ]
     },
-    "headerPDDE": {
+    "headerProjectDashboard": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 

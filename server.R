@@ -64,17 +64,21 @@ function(input, output, session) {
   # this _supp renderUI needed to be associated with an output in order to make 
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
-  output$headerClientCounts_supp <- renderUI({ 
+  output$headerProjectDashboard_supp <- renderUI({ 
     req(session$userData$valid_file() == 1)
     organization <- session$userData$Project0 %>%
-      fsubset(ProjectName == input$currentProviderList) %>%
+      fsubset(ProjectID == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(organization, "|", input$currentProviderList)
+    project_name <- session$userData$Project0 %>%
+      fsubset(ProjectID == input$currentProviderList) %>%
+      pull(ProjectName)
+    
+    h4(organization, "|", project_name)
   })
   
-  output$headerClientCounts <- headerGeneric(session, "Project Dashboard Report",
-                                             htmlOutput("headerClientCounts_supp"))
+  output$headerProjectDashboard <- headerGeneric(session, "Project Dashboard Report",
+                                             htmlOutput("headerProjectDashboard_supp"))
   
   output$headerPDDE <- headerGeneric(session, "Project Descriptor Data Elements Checker")
   
@@ -130,7 +134,7 @@ function(input, output, session) {
   
   source("upload_server.R", local=TRUE)
   
-  source("client_counts_server.R", local = TRUE)
+  source("project_dashboard_server.R", local = TRUE)
   
   source("fsa_server.R", local = TRUE)
   
