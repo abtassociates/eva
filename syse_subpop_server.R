@@ -310,32 +310,15 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
   }
 }
 
-observeEvent(input$syse_subpop_age_selection,
-             {
-               if(isTruthy(input$syse_subpop_age_selection)){
-                 shinyjs::enable(id = 'age_picker')
-               } else {
-                 shinyjs::disable(id = 'age_picker')
-               }                 
-             })
-
-observeEvent(input$syse_subpop_race_eth_selection,
-             {
-               if(isTruthy(input$syse_subpop_race_eth_selection)){
-                 shinyjs::enable(id = 'race_eth_picker')
-               } else {
-                 shinyjs::disable(id = 'race_eth_picker')
-               }                 
-             }, ignoreInit=F)
-
-observeEvent(input$syse_subpop_vet_selection,
-             {
-               if(isTruthy(input$syse_subpop_vet_selection)){
-                 shinyjs::enable(id = 'vet_picker')
-               } else {
-                 shinyjs::disable(id = 'vet_picker')
-               }                 
-             })
+observeEvent(input$syse_subpop_age_selection, 
+             shinyjs::toggleState(id = "age_picker", condition = isTruthy(input$syse_subpop_age_selection))
+)
+observeEvent(input$syse_subpop_race_eth_selection, 
+             shinyjs::toggleState(id = "race_eth_picker", condition = isTruthy(input$syse_subpop_race_eth_selection))
+)
+observeEvent(input$syse_subpop_vet_selection, 
+             shinyjs::toggleState(id = "vet_picker", condition = isTruthy(input$syse_subpop_vet_selection))
+)
 
 
 observeEvent(syse_subpop_selections(),{
