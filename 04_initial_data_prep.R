@@ -430,9 +430,34 @@ session$userData$Exit <- Exit
 session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
 session$userData$IncomeBenefits <- IncomeBenefits
-session$userData$CEAssessedHouseholds <- Assessment |> 
-  join(Enrollment |> fsubset(RelationshipToHoH == 1 & ProjectType == ce_project_type, EnrollmentID, HouseholdID), how = "inner") |>
-  fnrow()
+
+## Used only for CE Assessed Households Project Dashboard Metric ----
+# TO EXCLUDE:
+# - CEParticipation.AccessPoint == 0
+# - AssessmentDate not within project’s CE Participation Period
+# - ProjectID not found in CEParticipation.csv
+session$userData$CEAssessedHouseholds <- CEParticipation |>
+  join(
+    Enrollment |> 
+      fsubset(
+        RelationshipToHoH == 1,
+        EnrollmentID, ProjectID, ProjectType, HouseholdID, HouseholdType
+      ),
+    on = "ProjectID",
+    column = TRUE
+  ) |>
+  join(
+    Assessment |> fselect(AssessmentID, EnrollmentID, AssessmentDate), 
+    on = "EnrollmentID"
+  ) |>
+  fmutate(
+    nmiss = AccessPoint == 0 | 
+      !AssessmentDate %inrange% list(CEParticipationStatusStartDate, CEParticipationStatusEndDate) |
+      .join == "CEParticipation"
+  ) |>
+  fselect(EnrollmentID, ProjectID, ProjectType, HouseholdID, HouseholdType, AssessmentDate, nmiss) |>
+  funique()
+  
   
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
