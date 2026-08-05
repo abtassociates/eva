@@ -3,14 +3,20 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "06-25-2026",
+    "08-05-2026",
+    "<b>Bug Fixes</b> <br>
+      - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
+    ",
+    "08-03-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
       - Updated Enrollment DQ Checks to only show warnings for actively HMIS participating enrollments.
       - Instead of crashing, hide System Performance tab when:
-        - No Continuum Project records
-        - Only HP projects or enrollments outside reporting period
-      - Handle other System Performance empty dataset scenarios by showing 'No valid data message' in place of the charts
+        <ul>
+        <li>No Continuum Project records (Issue <a href='https://github.com/abtassociates/eva/issues/1028' target='_blank'>#1028</a>)</li>
+        <li>Only HP projects or enrollments outside reporting period</li>
+        </ul>
+      - Handle other System Performance empty dataset scenarios by showing 'No valid data message' in place of the charts (Issue <a href='https://github.com/abtassociates/eva/issues/1027' target='_blank'>#1027</a>)
       - Fix Data Quality and System Performance plots and data tables to always use commas for formating large numbers.
     <b>Miscellaneous</b> <br>
       - Handle empty Destinations scenario causing crash in GHA (assumed to be edge case scenario)
