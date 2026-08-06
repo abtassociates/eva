@@ -3,6 +3,9 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "08-06-2026",
+    "<b>Performance Metrics</b> <br>
+      - New Project Dashboard tab containing performance metrics for selected project <br>",
     "06-25-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
