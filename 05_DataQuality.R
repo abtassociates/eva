@@ -998,7 +998,7 @@ enrollment_positions <- Enrollment %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left')
 #browser()
 enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate) & HMISParticipationStatusEndDate >= session$userData$meta_HUDCSV_Export_Start) %>%
   merge_check_info_dt(checkIDs = 111) %>%
   fselect(vars_we_want)
 
@@ -1013,7 +1013,7 @@ enrollment_before_participating_period <- enrollment_positions %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_end <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate) & HMISParticipationStatusEndDate >= session$userData$meta_HUDCSV_Export_Start) %>%
   merge_check_info_dt(checkIDs = 114) %>% 
   fselect(vars_we_want)
 

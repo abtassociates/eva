@@ -336,6 +336,10 @@ body.idle-timeout-occurred #ss-connect-dialog {
   border: 3px solid #FCB248;
 }
 
+#project_dashboard_tl_subtabs {
+  margin-bottom: 10px;
+}
+
 #age_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
     cursor: not-allowed;
     background-color: var(--brand-med_grey2);

@@ -87,299 +87,145 @@ syse_client_categories_filtered <- reactive({
   ]
 })
 
-# Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
-enrollments_filtered_syse <- reactive({
-  logToConsole(session, "in enrollments_filtered_syse")
-  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  
-  en_unfilt <-  join(
-    session$userData$enrollment_categories,
-    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID", 
+get_system_exits <- function(
+    enrl, 
+    clients, 
+    ctype, 
+    reportStart = session$userData$ReportStart, 
+    reportEnd = session$userData$ReportEnd, 
+    append_client_info = FALSE,
+    client_categories = NULL
+) {
+  df <- join( 
+    enrl,
+    clients,
+    on = "PersonalID",
     how = "inner"
-  )
+  ) 
   
-  en_filt <- en_unfilt %>%
-    fmutate(
-      passes_enrollment_filters =
-        # Household type filter
-        (input$syse_hh_type == "All" |
-           (input$syse_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-           (input$syse_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-           (input$syse_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-           (input$syse_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-           input$syse_hh_type == HouseholdType
-        ) &
-        # Level of detail filter
-        (input$syse_level_of_detail == "All" |
-           (input$syse_level_of_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (input$syse_level_of_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
-        # Project type filter
-        (input$syse_project_type == "All" |
-           (input$syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-           (input$syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-           (input$syse_project_type == "SO" & ProjectType == out_project_type) |
-           (input$syse_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
-        )
-    ) %>%
-    fselect(-VeteranStatus)
+  df <- df %>% 
+    expand_by_periods(chart_type = ctype, reportStart = reportStart, reportEnd = reportEnd) %>% 
+    get_active_info(df, reportStart = reportStart, reportEnd = reportEnd) %>%
+    get_inflows_and_outflows(chart_type = 'exits', reportStart = reportStart, reportEnd = reportEnd) %>% 
+    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
+    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
   
-  en_filt %>% 
-    fsubset(passes_enrollment_filters)
+  # Though we merge in clients in `get_system_exits`, we do so only to obtain 
+  # VeteranStatus for use in filtering enrollments by HouseholdType
+  if(append_client_info && !is.null(client_categories))
+    df <- join( 
+      df,
+      client_categories,
+      on = "PersonalID",
+      how = "inner"
+    )
   
-})
+  df
+}
 
-enrollments_filtered_syse_prev <- reactive({
-  logToConsole(session, "in enrollments_filtered_syse_prev")
-  req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  
-  en_unfilt <-  join(
-    session$userData$enrollment_categories_prev,
-    session$userData$client_categories %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID", 
-    how = "inner"
-  )
-  
-  en_filt <- en_unfilt %>%
-    fmutate(
-      passes_enrollment_filters =
-        # Household type filter
-        (input$syse_hh_type == "All" |
-           (input$syse_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
-           (input$syse_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
-           (input$syse_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
-           (input$syse_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
-           input$syse_hh_type == HouseholdType
-        ) &
-        # Level of detail filter
-        (input$syse_level_of_detail == "All" |
-           (input$syse_level_of_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (input$syse_level_of_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
-        # Project type filter
-        (input$syse_project_type == "All" |
-           (input$syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-           (input$syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-           (input$syse_project_type == "SO" & ProjectType == out_project_type) |
-           (input$syse_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
-        )
-    ) %>%
-    fselect(-VeteranStatus)
-  
-  en_filt %>% 
-    fsubset(passes_enrollment_filters)
-  
-})
-
-
+# Dataset for System Exits by (Destination) Type
+# Contains system exits, filtered by user-selected enrollment and client filters
 all_filtered_syse <- reactive({
   logToConsole(session, "in all_filtered_syse")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  tmp <- join( 
-    enrollments_filtered_syse(),
-    syse_client_categories_filtered(),
-    on = "PersonalID",
-    how = "inner"
-  ) 
-  
-  period_data <- tmp %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_active_info(tmp) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
-  period_data
-  
+  get_system_exits(
+    syse_enrollments_filtered(),
+    syse_client_categories_filtered(), 
+    ctype = 'exits_types',
+    reportStart = session$userData$ReportStart,
+    reportEnd = session$userData$ReportEnd
+  )
 })
 
+# Dataset for System Exits by Year
+# Contains system exits, filtered by user-selected enrollment and client filters
+# Compares these for current and previous years
 all_filtered_syse_time <- reactive({
   logToConsole(session, "in all_filtered_syse_time")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode)) 
   
-  tmp <- join( 
-    enrollments_filtered_syse(),
-    syse_client_categories_filtered(),
-    on = "PersonalID",
-    how = "inner"
-  ) 
-  
-  tmp_prev <- join( 
-    enrollments_filtered_syse_prev(),
-    syse_client_categories_filtered(),
-    on = "PersonalID",
-    how = "inner"
-  ) 
-  
-  period_data_cur <- tmp %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_active_info(tmp) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
+  period_data_cur <- all_filtered_syse() %>% 
     fmutate(period = "Current Year")
   
-  period_data_prev <- tmp_prev %>% 
-    expand_by_periods(chart_type = 'exits_types',
-                      reportStart = session$userData$ReportStart %m-% years(1), 
-                      reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
-    get_active_info(tmp_prev, lh_info_df = session$userData$lh_info_prev,
-                    reportStart = session$userData$ReportStart %m-% years(1), 
-                    reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
-    get_inflows_and_outflows(chart_type = 'exits',
-                             reportStart = session$userData$ReportStart %m-% years(1), 
-                             reportEnd = session$userData$ReportEnd %m-% years(1)) %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive')) %>% 
+  period_data_prev <- get_system_exits(
+    syse_enrollments_filtered_prev(), # Uses cached reactive
+    syse_client_categories_filtered(), 
+    ctype = 'exits_types', 
+    reportStart = session$userData$ReportStart %m-% years(1), 
+    reportEnd = session$userData$ReportEnd %m-% years(1)
+  ) %>% 
     fmutate(period = "Previous Year")
   
-  period_data <- rowbind(period_data_cur, period_data_prev)
-  
-  period_data
-  
+  rowbind(period_data_cur, period_data_prev)
 })
 
+# Dataset for System Exits by Demographic (Age, (All/Grouped) Race/Ethnicity), Veteran Status)
+# Contains system exits, filtered by user-selected enrollment filters
+# Re-joins clients to get all client info
 all_filtered_syse_demog <- reactive({
   logToConsole(session, "in all_filtered_syse_demog")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
   
-  tmp <-  enrollments_filtered_syse()
-  
-  period_data <- tmp %>% 
-    expand_by_periods(chart_type = 'exits_demog') %>% 
-    get_active_info(tmp) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
-  
-  join( 
-    period_data,
-    session$userData$client_categories,
-    on = "PersonalID",
-    how = "inner"
-  ) 
+  get_system_exits(
+    syse_enrollments_filtered(),
+    session$userData$client_categories, 
+    ctype = 'exits_demog',
+    reportStart = session$userData$ReportStart,
+    reportEnd = session$userData$ReportEnd,
+    append_client_info = TRUE,
+    client_categories = session$userData$client_categories
+  )
 })
 
+# Dataset for System Exits by Subpop (HouseholdType and/or up to 2 of Age, Race/Ethnicity, Veteran Status)
+# Contains system exits, filtered by user-selected enrollment filters (except HH Type)
+# Re-joins clients to get all client info
+# Re-joins filtered enrollments to get HouseholdType
 all_filtered_syse_subpop <- reactive({
   logToConsole(session, "in all_filtered_syse_subpop")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
+ 
+  get_subpop_exits <- function(filter_hh_type) {
+    enrl_filtered <- get_enrollments_filtered(
+      enrollment_cats      = session$userData$enrollment_categories,
+      client_cats          = session$userData$client_categories,
+      syse_hh_type         = input$syse_subpop_hh_type, # Dynamic input access
+      syse_level_of_detail = input$syse_level_of_detail,
+      syse_project_type    = input$syse_project_type,
+      filter_hh_type       = filter_hh_type
+    )
+    
+    get_system_exits(
+      enrl_filtered,
+      session$userData$client_categories, 
+      ctype = 'exits_types',
+      reportStart = session$userData$ReportStart,
+      reportEnd = session$userData$ReportEnd,
+      append_client_info = TRUE,
+      client_categories = session$userData$client_categories
+    ) 
+  }
   
-  
-  client <- session$userData$client_categories
-  
-  enrl_subpop <- join(
-    session$userData$enrollment_categories,
-    client %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID", 
-    how = "inner"
-  ) %>% 
-    fmutate(
-      passes_enrollment_filters =
-        # Level of detail filter
-        (input$syse_level_of_detail == "All" |
-           (input$syse_level_of_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (input$syse_level_of_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
-        # Project type filter
-        (input$syse_project_type == "All" |
-           (input$syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-           (input$syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-           (input$syse_project_type == "SO" & ProjectType == out_project_type) |
-           (input$syse_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
-        )
-    ) %>% 
-    fsubset(passes_enrollment_filters)
-  
-  tmp_subpop <- join(
-    enrl_subpop,
-    client %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID",
-    how = "inner"
-  )
-  
-  period_data_subpop <- tmp_subpop %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_active_info(tmp_subpop) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
-  
-  out_subpop <- join( 
-    period_data_subpop,
-    client,
-    on = "PersonalID",
-    how = "inner"
-  ) %>% 
-    join(tmp_subpop %>% fselect(PersonalID, EnrollmentID, HouseholdType)) %>% 
+  out_subpop <- get_subpop_exits(filter_hh_type = TRUE) |>
     fmutate(meets_ev_else = FALSE)
   
-  if(input$syse_hh_type != "All"){
-    
-  
-  enrl_ev_else <- join(
-    session$userData$enrollment_categories,
-    client %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID", 
-    how = "inner"
-  ) %>% 
-    fmutate(
-      passes_enrollment_filters =
-        # Level of detail filter
-        (input$syse_level_of_detail == "All" |
-           (input$syse_level_of_detail == "HoHsAndAdults" &
-              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
-           (input$syse_level_of_detail == "HoHsOnly" &
-              CorrectedHoH == 1)) &
-        # Project type filter
-        (input$syse_project_type == "All" |
-           (input$syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
-           (input$syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
-           (input$syse_project_type == "SO" & ProjectType == out_project_type) |
-           (input$syse_project_type == "AllNonRes" & ProjectType %in% non_res_project_types)
-        )
-    ) %>% 
-    fsubset(passes_enrollment_filters)
-  
-  tmp_ev_else <- join(
-    enrl_ev_else,
-    client %>% fselect(PersonalID, VeteranStatus),
-    on = "PersonalID",
-    how = "inner"
-  )
-  
-  period_data_ev_else <- tmp_ev_else %>% 
-    expand_by_periods(chart_type = 'exits_types') %>% 
-    get_active_info(tmp_ev_else) %>%
-    get_inflows_and_outflows(chart_type = 'exits') %>% 
-    fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
-    fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))
-  
-  out_ev_else <- join( 
-    period_data_ev_else,
-    client,
-    on = "PersonalID",
-    how = "inner"
-  ) %>% 
-    join(tmp_ev_else %>% fselect(PersonalID, EnrollmentID, HouseholdType)) %>% 
-    fmutate( meets_ev_else =    
-               (#input$syse_hh_type != "All" |
-                  (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
-                  #(input$syse_hh_type == "YYA" & !(HouseholdType == "CO") & VeteranStatus != 1) |
-                  (input$syse_subpop_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
-                  (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
-                  !(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType
-               )) %>% 
-    fsubset(meets_ev_else)
-  
-  rowbind(out_subpop, out_ev_else)
-  
+  if (input$syse_subpop_hh_type != "All") {
+    out_oth_hh_types <- get_subpop_exits(filter_hh_type = FALSE) %>%
+      fmutate( 
+        meets_ev_else = 
+          (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
+          (input$syse_subpop_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
+          (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
+          (!(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType)
+      ) %>% 
+      fsubset(meets_ev_else)
+
+    rowbind(out_subpop, out_oth_hh_types)
   } else {
     out_subpop
   }
+  
 })
 
 full_unit_of_analysis_display_syse <- reactive({
@@ -456,3 +302,9 @@ observeEvent(input$syse_methodology_type, {
 ignoreInit = TRUE)
 
 toggle_sys_components(prefix='syse', FALSE, init=TRUE) # initially hide them
+
+# Then, create your specific reactives:
+syse_enrollments_filtered <- create_filtered_enrollments_reactive("syse")
+syse_enrollments_filtered_prev <- create_filtered_enrollments_reactive("syse", prev_yr = TRUE, TRUE)
+syse_enrollments_filtered_no_hh <- create_filtered_enrollments_reactive("syse", filter_hh_type = FALSE)
+
