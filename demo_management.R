@@ -28,7 +28,7 @@ observeEvent(input$pageid, {
              cause Eva to recalculate the data quality metrics with the selected
              parameters.",
            
-           "tabProjectDeshboard" = "Welcome to the Project Dashboard Report page. This page 
+           "tabProjectDashboard" = "Welcome to the Project Dashboard Report page. This page 
            helps users review the counts of households/clients served in each 
            project and verify that a project is up to date on their HMIS data 
            entry and following local timeliness guidelines. In Demo Mode, you 

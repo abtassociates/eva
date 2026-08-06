@@ -415,8 +415,10 @@ activeInventory <- Inventory %>%
 Event <- Event %>% 
   fselect(
     EnrollmentID,
+    PersonalID,
     EventID,
     EventDate,
+    DateCreated,
     Event,
     ProbSolDivRRResult,
     ReferralCaseManageAfter,
@@ -429,6 +431,7 @@ session$userData$Services <- Services
 session$userData$Exit <- Exit
 session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
+
 session$userData$IncomeBenefits <- IncomeBenefits
 
 ## Used only for CE Assessed Households Project Dashboard Metric ----
@@ -436,7 +439,7 @@ session$userData$IncomeBenefits <- IncomeBenefits
 # - CEParticipation.AccessPoint == 0
 # - AssessmentDate not within project’s CE Participation Period
 # - ProjectID not found in CEParticipation.csv
-session$userData$CEAssessedHouseholds <- CEParticipation |>
+session$userData$CEParticipation <- CEParticipation |>
   join(
     Enrollment |> 
       fsubset(
@@ -458,7 +461,9 @@ session$userData$CEAssessedHouseholds <- CEParticipation |>
   fselect(EnrollmentID, ProjectID, ProjectType, HouseholdID, HouseholdType, AssessmentDate, nmiss) |>
   funique()
   
-  
+session$userData$Assessment <- Assessment
+session$userData$Event <- Event
+
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |

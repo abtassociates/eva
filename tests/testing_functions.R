@@ -25,9 +25,9 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(pageid = "tabProjectDeshboard")
+    app$set_inputs(pageid = "tabProjectDashboard")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
+    app$set_inputs(project_dashboard_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
@@ -198,11 +198,13 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(pageid = "tabProjectDeshboard")
+    app$set_inputs(pageid = "tabProjectDashboard")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = '<h5>Detail</h5>')
+    #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
+    #app$wait_for_idle(timeout = 1e+06)
+    app$set_inputs(project_dashboard_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(project_performance_subtabs = "<h4>Timeliness</h4>")
+    app$set_inputs(project_dashboard_subtabs = "<h4>Timeliness</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "project-performance",
@@ -217,7 +219,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         "clientCountData",
         "clientCountSummary",
         "timelinessTable",
-        "downloadProjectDeshboardReportButton"
+        "downloadProjectDashboardReportButton"
       )
     )
     
@@ -567,7 +569,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
-    customDownload(app, "downloadProjectDeshboardReport", "Project-Performance-Download.xlsx")
+    customDownload(app, "downloadProjectDashboardReport", "Project-Dashboard-Download.xlsx")
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")
@@ -613,7 +615,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     handle_helper_data(app, test_script_name, "period_data")
     
     print("saving shiny log")
-    view(app$get_logs())
+    if(Sys.getenv('RSTUDIO') == "1")
+      View(app$get_logs())
   })
 }
 
