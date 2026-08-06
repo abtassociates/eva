@@ -192,6 +192,9 @@ to group All + Grouped Race selections*/
   padding-right: 15px;
 }
 
+.syse_subpop_other_container {
+  margin-bottom: 0;
+}
 #syse_subpop_hh_type_container > .label {
   margin-bottom: 0; 
   white-space: nowrap;
@@ -356,11 +359,7 @@ body.idle-timeout-occurred #ss-connect-dialog {
     background-color: var(--brand-med_grey2);
 }
 
-#race_eth_picker > div:nth-child(1) > div {
-  width:100%;
-}
-
-#race_eth_picker > div:nth-child(2) > div {
+#race_eth_picker > div > div {
   width:100%;
 }
 

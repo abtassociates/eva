@@ -1195,10 +1195,12 @@ nav_panel(
               # ==========================================
               # GROUP 2: The Three Checkboxes
               # ==========================================
-              div(
+              layout_columns(
+                class = "syse_subpop_other_container",
+                col_widths = c(3,3,6),
                 # --- Column 1: Age ---
                 div(
-                  checkboxInput('syse_subpop_age_selection', 'Age', width = "auto"),
+                  checkboxInput('syse_subpop_age_selection', 'Age'),
                   div(
                     id = 'age_picker',
                     pickerInput(
@@ -1207,7 +1209,6 @@ nav_panel(
                       selected = sys_age_cats,
                       choices = sys_age_cats,
                       multiple = TRUE,
-                      width = "100%", 
                       options = pickerOptions(
                         actionsBox = TRUE,
                         selectedTextFormat = paste("count >", length(sys_age_cats)-1),
@@ -1221,7 +1222,7 @@ nav_panel(
                 
                 # --- Column 2: Veteran Status ---
                 div(
-                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)', width = "auto"),
+                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
                   div(
                     id = 'vet_picker',
                     pickerInput(
@@ -1232,7 +1233,6 @@ nav_panel(
                         nm = c("None Selected", names(sys_spec_pops_people[-1]))
                       ),
                       selected = "None Selected",
-                      width = "100%", 
                       options = pickerOptions(container = "body")
                     )
                   )
@@ -1240,7 +1240,7 @@ nav_panel(
                 
                 # --- Column 3: Race/Ethnicity ---
                 div(
-                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity', width = "auto"),
+                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
                   div(
                     id = 'race_eth_picker',
                     conditionalPanel(
@@ -1253,7 +1253,6 @@ nav_panel(
                           c("None Selected", names(sys_race_ethnicity_method1)[-1])
                         ),
                         selected = "None Selected",
-                        width = "100%",
                         options = list(
                           `dropdown-align-right` = TRUE,
                           `dropup-auto` = FALSE,
@@ -1272,7 +1271,6 @@ nav_panel(
                           c("None Selected", names(sys_race_ethnicity_method2)[-1])
                         ),
                         selected = "None Selected",
-                        width = "100%",
                         options = list(
                           `dropdown-align-right` = TRUE,
                           `dropup-auto` = FALSE,
