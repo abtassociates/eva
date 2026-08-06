@@ -214,7 +214,7 @@ calc_by_hh_group <- function(metric_name, m_datasets) {
   
   vals <- sapply(groups, function(g) {
     if (is.null(sub_dt) || fnrow(sub_dt) == 0) return(NA_real_)
-    grp_dt <- sub_dt[HouseholdType %in% g]
+    grp_dt <- sub_dt[HHTypeAtReportStart %in% g]
     if (fnrow(grp_dt) == 0) return(NA_real_)
     
     def$calc_func(grp_dt)
@@ -413,7 +413,7 @@ latest_enrollments <- reactive({
     fsubset(
       EntryDate %between% input$dateRangeCount | 
         ExitAdjust %between% input$dateRangeCount,
-      PersonalID, EnrollmentID, HouseholdID, HouseholdType, ProjectID, ProjectType, 
+      PersonalID, EnrollmentID, HouseholdID, HHTypeAtReportStart, ProjectID, ProjectType, 
       EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust,
       AgeAtReportStart, LivingSituation, RelationshipToHoH, LengthOfStay
     )
@@ -445,7 +445,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     fgroup_by(ProjectID, HouseholdID) |>
     fmutate(hh_size = GRPN()) |>
     fungroup() |>
-    fselect(ProjectID, HouseholdID, hh_size, HouseholdType) |>
+    fselect(ProjectID, HouseholdID, hh_size, HHTypeAtReportStart) |>
     funique()
   
   length_of_participation_dt <- latest_enrollments |> 
@@ -458,7 +458,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   los_dt <- latest_enrollments |>
     fsubset(
       ProjectType %in% project_types_w_beds, 
-      EnrollmentID, ProjectID, ProjectType, EntryDate, MoveInDateAdjust, ExitDate, HouseholdType
+      EnrollmentID, ProjectID, ProjectType, EntryDate, MoveInDateAdjust, ExitDate, HHTypeAtReportStart
     ) |>
     join(
       session$userData$Services |>
@@ -479,13 +479,13 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         default = NA
       )
     ) |>
-    fselect(EnrollmentID, ProjectID, HouseholdType, los_res)
+    fselect(EnrollmentID, ProjectID, HHTypeAtReportStart, los_res)
   
   time_to_movein_dt <- latest_enrollments |> 
     fsubset(
       ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd,
-      EnrollmentID, ProjectID, EntryDate, MoveInDateAdjust, HouseholdType
+      EnrollmentID, ProjectID, EntryDate, MoveInDateAdjust, HHTypeAtReportStart
     ) |>
     fmutate(
       time_to_move_in = as.integer(difftime(MoveInDateAdjust, EntryDate, units = "days"))
@@ -494,7 +494,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   moved_into_housing_dt <- latest_enrollments |>
     fsubset(
       ProjectType %in% ph_project_types & RelationshipToHoH == 1, 
-      EnrollmentID, ProjectID, MoveInDateAdjust, HouseholdType
+      EnrollmentID, ProjectID, MoveInDateAdjust, HHTypeAtReportStart
     ) |>
     fmutate(
       moved_into_housing = !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd
@@ -504,7 +504,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     fsubset(
       ProjectType %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type)) &
         (RelationshipToHoH == 1 | AgeAtReportStart > 17), 
-      EnrollmentID, ProjectID, LivingSituation, HouseholdType
+      EnrollmentID, ProjectID, LivingSituation, HHTypeAtReportStart
     ) |>
     fmutate(
       entered_from_place_not_meant = LivingSituation == 116L,
@@ -521,7 +521,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
       latest_enrollments |> 
         fsubset(
           (RelationshipToHoH == 1 | AgeAtReportStart > 17), 
-          EnrollmentID, ProjectID, HouseholdType
+          EnrollmentID, ProjectID, HHTypeAtReportStart
         ),
       on = "EnrollmentID",
       how = "inner"
@@ -537,7 +537,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
       latest_enrollments |> 
         fsubset(
           !is.na(ExitDate), 
-          EnrollmentID, ProjectID, ProjectType, HouseholdType
+          EnrollmentID, ProjectID, ProjectType, HHTypeAtReportStart
         ),
       on = "EnrollmentID",
       how = "inner"
@@ -559,7 +559,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   income_growth_latest_enrl <- latest_enrollments |>
     fsubset(
       !is.na(ExitDate) & (RelationshipToHoH == 1 | AgeAtReportStart > 17), 
-      EnrollmentID, ProjectID, HouseholdType
+      EnrollmentID, ProjectID, HHTypeAtReportStart
     )
   
   get_growth_dt <- function(ib_dt, var_name) {
@@ -592,7 +592,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   
   cls_records_dt <- session$userData$CurrentLivingSituation |>
     join(
-      latest_enrollments |> fselect(EnrollmentID, ProjectID, HouseholdType, ProjectType), 
+      latest_enrollments |> fselect(EnrollmentID, ProjectID, HHTypeAtReportStart, ProjectType), 
       on = "EnrollmentID"
     )
   
