@@ -52,7 +52,7 @@
         "FY26-test-wrong-csv-version.zip"
       ],
       "size": [
-        9046
+        7990
       ],
       "type": [
         "application/zip"
@@ -64,11 +64,12 @@
     "in_demo_mode": false,
     "mbm_status_filter": "All",
     "orgList": null,
-    "pageid": "tabProjectDeshboard",
+    "pageid": "tabProjectDashboard",
     "pdde_subtabs": "<h4>PDDE Check Summary<\/h4>",
-    "project_dashboard_cc_subtabs": "<h5>Summary<\/h5>",
+    "project_dashboard_cc_subtabs": "<h5>Detail<\/h5>",
     "project_dashboard_metrics_subtabs": "<h5>Summary<\/h5>",
     "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
+    "project_dashboard_tl_subtabs": "<h5>Record Entry<\/h5>",
     "subpop_dest_type": "Permanent",
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
@@ -151,11 +152,15 @@
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
     "timeliness_metric": 3,
-    "timeliness_subtabs": "<h5>Record Entry<\/h5>",
     "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
   },
   "output": {
+    "clientCountData": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
     "clientCountSummary": [
       "",
       "NULL",
@@ -177,7 +182,7 @@
         "validation"
       ]
     },
-    "downloadProjectDeshboardReportButton": {
+    "downloadProjectDashboardReportButton": {
       "message": "",
       "call": "NULL",
       "type": [
@@ -191,7 +196,7 @@
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "headerProjectDeshboard": {
+    "headerProjectDashboard": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
