@@ -8,19 +8,16 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
-    "accordion_client_count": null,
     "accordion_dqexport": null,
     "accordion_dqorg": null,
     "accordion_dqsystem": null,
     "accordion_home": null,
     "accordion_local_settings": null,
     "accordion_pdde": null,
+    "accordion_project_dashboard": null,
     "accordion_systemexits": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
-    "client_count_cc_subtabs": "<h5>Summary<\/h5>",
-    "client_count_subtabs": "<h4>Client Counts<\/h4>",
-    "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
     "currentProviderList": "Organization A - ES",
     "dateRangeCount": [
       "2019-10-01",
@@ -139,7 +136,7 @@
         "FY26-test-main-valid.zip"
       ],
       "size": [
-        19590311
+        17725113
       ],
       "type": [
         "application/zip"
@@ -153,6 +150,9 @@
     "orgList": "Organization A‰",
     "pageid": "tabUpload",
     "pdde_subtabs": "<h4>PDDE Check Summary<\/h4>",
+    "project_dashboard_cc_subtabs": "<h5>Summary<\/h5>",
+    "project_dashboard_metrics_subtabs": "<h5>Summary<\/h5>",
+    "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
     "showDownloadImpermissibleButton": 0,
     "subpop_dest_type": "Permanent",
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
@@ -236,6 +236,7 @@
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
     "timeliness_metric": 3,
+    "timeliness_subtabs": "<h5>Record Entry<\/h5>",
     "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
   },

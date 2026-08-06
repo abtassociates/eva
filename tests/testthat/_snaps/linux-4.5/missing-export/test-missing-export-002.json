@@ -8,19 +8,16 @@
     "OUTLongStayers": 90,
     "OtherLongStayers": 90,
     "ServicesOnlyLongStayers": 90,
-    "accordion_client_count": null,
     "accordion_dqexport": null,
     "accordion_dqorg": null,
     "accordion_dqsystem": null,
     "accordion_home": null,
     "accordion_local_settings": null,
     "accordion_pdde": null,
+    "accordion_project_dashboard": null,
     "accordion_systemexits": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
-    "client_count_cc_subtabs": "<h5>Detail<\/h5>",
-    "client_count_subtabs": "<h4>Client Counts<\/h4>",
-    "client_count_ti_subtabs": "<h5>Record Entry<\/h5>",
     "currentProviderList": null,
     "dateRangeCount": [
       null,
@@ -55,7 +52,7 @@
         "FY26-test-missing-export.zip"
       ],
       "size": [
-        7640
+        8696
       ],
       "type": [
         "application/zip"
@@ -67,8 +64,11 @@
     "in_demo_mode": false,
     "mbm_status_filter": "All",
     "orgList": null,
-    "pageid": "tabClientCount",
+    "pageid": "tabProjectDeshboard",
     "pdde_subtabs": "<h4>PDDE Check Summary<\/h4>",
+    "project_dashboard_cc_subtabs": "<h5>Summary<\/h5>",
+    "project_dashboard_metrics_subtabs": "<h5>Summary<\/h5>",
+    "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
     "subpop_dest_type": "Permanent",
     "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
@@ -151,28 +151,16 @@
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
     "timeliness_metric": 3,
+    "timeliness_subtabs": "<h5>Record Entry<\/h5>",
     "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
   },
   "output": {
-    "clientCountData": [
-      "",
-      "NULL",
-      "c(\"shiny.silent.error\", \"validation\")"
-    ],
     "clientCountSummary": [
       "",
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "downloadClientCountsReportButton": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
-      ]
-    },
     "downloadFileStructureAnalysisBtn": {
       "message": "",
       "call": "NULL",
@@ -189,13 +177,21 @@
         "validation"
       ]
     },
+    "downloadProjectDeshboardReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
     "fileInfo": null,
     "fileStructureAnalysis": [
       "",
       "NULL",
       "c(\"shiny.silent.error\", \"validation\")"
     ],
-    "headerClientCounts": {
+    "headerProjectDeshboard": {
       "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
       "deps": [
 
