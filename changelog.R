@@ -3,6 +3,10 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "08-06-2026",
+    "<b>Miscellaneous</b> <br>
+    - Move HouseholdType filter on <strong>Exits by Subpopulation</strong> page to 
+    the chart selector section.",
     "06-25-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
