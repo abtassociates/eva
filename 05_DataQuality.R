@@ -998,7 +998,7 @@ enrollment_positions <- EnrollmentOutside2 %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left') |> 
   fcount(EnrollmentID, add = TRUE, name = 'n_hmis_periods')
 
-# enrollment_before_participating_period <- enrollment_positions %>%
+# enrollment_after_participating_period <- enrollment_positions %>%
 #   fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & !is.na(HMISParticipationStatusEndDate) &
 #             ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 1))) %>%
 #   merge_check_info_dt(checkIDs = 111) %>%
