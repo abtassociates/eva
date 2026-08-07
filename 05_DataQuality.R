@@ -1016,7 +1016,7 @@ enrollment_before_participating_period <- enrollment_positions %>%
   fselect(vars_we_want)
 
 enrollment_during_nonparticipating_period <- enrollment_positions %>% 
-  fsubset(EnrollmentvParticipating == "Inside" | is.na(EnrollmentvParticipating) & HMISParticipationType != 1) %>% 
+  fsubset((EnrollmentvParticipating == "Inside" | is.na(EnrollmentvParticipating)) & HMISParticipationType != 1) %>% 
   merge_check_info_dt(checkIDs = 144) %>%
   fselect(vars_we_want)
 enrollment_x_participating_end <- enrollment_positions %>%
