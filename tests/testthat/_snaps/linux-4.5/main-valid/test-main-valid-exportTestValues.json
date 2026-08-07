@@ -1696,51 +1696,51 @@
       "System Summary": [
         [
           "High Priority: 3  ",
-          "Min.   :    1.0  ",
-          "Length:72         "
+          "Min.   :    1  ",
+          "Length:71         "
         ],
         [
-          "Error        :38  ",
-          "1st Qu.:   20.0  ",
+          "Error        :39  ",
+          "1st Qu.:   25  ",
           "Class :character  "
         ],
         [
-          "Warning      :31  ",
-          "Median :  138.0  ",
+          "Warning      :29  ",
+          "Median :  140  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  799.9  ",
+          "Mean   :  811  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  526.5  ",
+          "3rd Qu.:  529  ",
           null
         ],
         [
           null,
-          "Max.   :11744.0  ",
+          "Max.   :11744  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-          "Length:996        ",
+          "Length:993        ",
           "High Priority: 56  ",
-          "Length:996        ",
+          "Length:993        ",
           "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
-          "Error        :442  ",
+          "Error        :444  ",
           "Class :character  ",
           "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
-          "Warning      :498  ",
+          "Warning      :493  ",
           "Mode  :character  ",
           "Median :   8.00  "
         ],
@@ -1748,7 +1748,7 @@
           null,
           null,
           null,
-          "Mean   :  57.82  "
+          "Mean   :  57.99  "
         ],
         [
           null,
@@ -1766,16 +1766,16 @@
       "Guidance": [
         [
           "High Priority: 3  ",
-          "Length:72         ",
-          "Length:72         "
+          "Length:71         ",
+          "Length:71         "
         ],
         [
-          "Error        :38  ",
+          "Error        :39  ",
           "Class :character  ",
           "Class :character  "
         ],
         [
-          "Warning      :31  ",
+          "Warning      :29  ",
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -1850,14 +1850,14 @@
       ],
       "Errors": [
         [
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
-          "Length:12628      ",
+          "Length:12638      ",
+          "Length:12638      ",
+          "Length:12638      ",
+          "Length:12638      ",
+          "Length:12638      ",
+          "Length:12638      ",
+          "Length:12638      ",
+          "Length:12638      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -1918,14 +1918,14 @@
       ],
       "Warnings": [
         [
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
-          "Length:43883      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
           "Min.   :2005-04-14  "
         ],
         [
