@@ -998,22 +998,23 @@ enrollment_positions <- EnrollmentOutside2 %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left') |> 
   fcount(EnrollmentID, add = TRUE, name = 'n_hmis_periods')
 
-enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & !is.na(HMISParticipationStatusEndDate) &
-            ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 1))) %>%
-  merge_check_info_dt(checkIDs = 111) %>%
-  fselect(vars_we_want)
+# enrollment_before_participating_period <- enrollment_positions %>%
+#   fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & !is.na(HMISParticipationStatusEndDate) &
+#             ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 1))) %>%
+#   merge_check_info_dt(checkIDs = 111) %>%
+#   fselect(vars_we_want)
 
 enrollment_x_participating_start <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start" & HMISParticipationType == 1) %>%
   merge_check_info_dt(checkIDs = 112) %>%
   fselect(vars_we_want)
 
-enrollment_before_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & 
-            ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 0))) %>%
-  merge_check_info_dt(checkIDs = 113) %>%
-  fselect(vars_we_want)
+## this check has been retired and is not currently in use
+# enrollment_before_participating_period <- enrollment_positions %>%
+#   fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & 
+#             ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 0))) %>%
+#   merge_check_info_dt(checkIDs = 113) %>%
+#   fselect(vars_we_want)
 
 enrollment_during_nonparticipating_period <- enrollment_positions %>% 
   fsubset((EnrollmentvParticipating == "Inside" | is.na(EnrollmentvParticipating)) & HMISParticipationType != 1) %>% 
@@ -1875,9 +1876,9 @@ dq_main <- rowbind(
   overlap_dt,
   duplicate_ees,
   enrollment_after_operating_period,
-  enrollment_after_participating_period,
+  #enrollment_after_participating_period,
   enrollment_before_operating_period,
-  enrollment_before_participating_period,
+  #enrollment_before_participating_period,
   enrollment_during_nonparticipating_period,
   enrollment_x_operating_end,
   enrollment_x_operating_period,
