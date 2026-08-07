@@ -993,7 +993,7 @@ rm(income_subs)
 
 # Enrollment Active Outside Participating Dates ---------------------------
 
-enrollment_positions <- Enrollment %>%
+enrollment_positions <- EnrollmentOutside2 %>%
   fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate) %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left') |> 
   fcount(EnrollmentID, add = TRUE, name = 'n_hmis_periods')
@@ -1015,6 +1015,10 @@ enrollment_before_participating_period <- enrollment_positions %>%
   merge_check_info_dt(checkIDs = 113) %>%
   fselect(vars_we_want)
 
+enrollment_during_nonparticipating_period <- enrollment_positions %>% 
+  fsubset(EnrollmentvParticipating == "Inside" | is.na(EnrollmentvParticipating) & HMISParticipationType != 1) %>% 
+  merge_check_info_dt(checkIDs = 144) %>%
+  fselect(vars_we_want)
 enrollment_x_participating_end <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
   merge_check_info_dt(checkIDs = 114) %>% 
@@ -1874,6 +1878,7 @@ dq_main <- rowbind(
   enrollment_after_participating_period,
   enrollment_before_operating_period,
   enrollment_before_participating_period,
+  enrollment_during_nonparticipating_period,
   enrollment_x_operating_end,
   enrollment_x_operating_period,
   enrollment_x_operating_start,
