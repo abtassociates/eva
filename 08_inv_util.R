@@ -79,9 +79,11 @@ HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
 
 ## Update Input Pickers --------------------------------------------------------
 # on Inventory & Utilization dropdown - Project LeveL tab ---- 
+
+bui_projects <- Project %>% fsubset((ProjectType %in% project_types_w_beds) & !(ProjectType == rrh_project_type & RRHSubType == 1)) %>% pull(ProjectName)
 updatePickerInput(session = session,
                   inputId = "bui_HMISprojects",
-                  choices = sort(unique(HMIS_projects_w_active_inv$ProjectName)))
+                  choices = bui_projects)
 
 # on Inventory & Utilization dropdown - System LeveL tab ----
 c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))

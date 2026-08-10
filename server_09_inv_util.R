@@ -302,7 +302,7 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type 
 # Project-Level Tab ---------------------------------------
 ## Update Filters & Selections ---------------------------------
 # define selectedProjects
-# prioriize to run before the renderDT
+# prioritize to run before the renderDT
 observe({
   req(session$userData$valid_file() == 1 & !is.null(input$bui_HMISprojects))
   # Update the list of Projects depending on the currently selected filters
@@ -317,16 +317,15 @@ observe({
     # except for the project picker which should choose from to the project choices based on current filters
     updatePickerInput(session = session,
                       inputId = "bui_HMISprojects",
-                      choices =  sort(unique(project_choices$ProjectName)),
-                      selected = sort(unique(project_choices$ProjectName))[1])
+                      choices = bui_projects)
   }else{
     # If projects are selected, update the drop-down options to reflect the choices appearing in selected projects
     
     # the project picker drops selections that don't appear based on current filters
-    updatePickerInput(session = session,
-                      inputId = "bui_HMISprojects",
-                      choices =  sort(unique(project_choices$ProjectName)),
-                      selected = input$bui_HMISprojects) #sort(unique(selected_projs$ProjectName)))
+    # updatePickerInput(session = session,
+    #                   inputId = "bui_HMISprojects",
+    #                   choices =  bui_projects,#sort(unique(project_choices$ProjectName)),
+    #                   selected = input$bui_HMISprojects) #sort(unique(selected_projs$ProjectName)))
     
     
   }
@@ -347,37 +346,21 @@ observe({
 util_filters <- reactive({
   list(
     br(),
-    strong("Date Range: "),
-    
-    format(session$userData$ReportStart, "%m-%d-%Y"), " to ", format(session$userData$ReportEnd, "%m-%d-%Y"), br(),
-    
-    # subset project_level_util_q by it's filters
-    #if(input$target_pop_sys != "All Target Populations"){
-    #  chart_selection_detail_line("Target Population", input$target_pop_sys)
-    #},
-    #if(input$housing_type_sys != "All Housing Types"){
-    #  chart_selection_detail_line("Housing Type", input$housing_type_sys)
-    #},
-    #if(input$victim_service_sys != "All Organizations"){
-    #  chart_selection_detail_line("Victim Service Provider", input$victim_service_sys)
-    #},
-    #if(input$bui_bed_avail != "All ES Bed Availability Types"){
-      HTML(glue(
-        "<strong>ES Bed Availabiliy Types:</strong> {paste(input$bui_bed_avail, collapse = ', ')} <br>"
-      )),
-    #},
-    
-    
+    HTML(paste0('<strong>Date Range:</strong> ',  format(min(get_quarters()), "%m-%d-%Y"), " to ", format(min(get_quarters()) + years(1), "%m-%d-%Y"), collapse='')),
+    br(),
+    HTML(glue(
+      "<strong>ES Bed Availabiliy Types:</strong> {paste(input$bui_bed_avail, collapse = ', ')} <br>"
+    )),
     if (!is.null(input$bui_HMISprojects)){
       HTML(glue(
-                "<b>Projects:</b> {paste(input$bui_HMISprojects, collapse = ', ')} <br>"
-              ))
+        "<b>Projects:</b> {paste(input$bui_HMISprojects, collapse = ', ')} <br>"
+      ))
     },
     HTML(glue(
       "<strong>Inventory Level:</strong> {input$bui_inventory_level} <br>"
     )),
     br()
-
+    
   )
 })
 output$bui_filter_selections <- renderUI({
@@ -575,8 +558,84 @@ re_calc <- reactive({
   }
 })
 
+output$proj_bui_all_hh_plot <- renderPlot({
+browser()
+  if(input$bui_inventory_level == "Beds"){
+    if(input$bui_period_filter == "Points in Time"){
+      plot_df <- re_calc() %>% 
+        fmutate(pct_util = `PIT Served` / `PIT Total Beds`)
+    } else {
+      plot_df <- re_calc() %>% 
+      #fgroup_by(Availability) %>% 
+        fmutate(pct_util = `Avg Nightly Served` / `Avg Nightly Beds`)
+    }
+  } else if(input$bui_inventory_level == "Units"){
+    if(input$bui_period_filter == 'Points in Time'){
+      plot_df <- re_calc() %>% 
+        fmutate(pct_util = `PIT HHServed` / `PIT Total HMIS Units`)
+    } else {
+      plot_df <- re_calc() %>% 
+        #fgroup_by(Availability) %>% 
+        fmutate(pct_util = `Avg Nightly HHServed` / `Avg Nightly Units`)
+    }
+  }
+  
+  if(input$bui_period_filter == 'Quarterly'){
+    plot_df <- plot_df %>% 
+      fmutate(plot_order = fcase(label =='Q4',1,label =='Q1',2,label =='Q2',3,label =='Q3',4)) 
+  } else if(input$bui_period_filter == 'Monthly'){
+    plot_df <- plot_df %>% 
+      fmutate(plot_order = ((match(label, month.abb) + 2 ) %% 12) + 1) 
+  } else if(input$bui_period_filter == 'Points in Time'){
+    plot_df <- plot_df %>% 
+      fmutate(plot_order = fcase(label =='Q4',1,label =='Q1',2,label =='Q2',3,label =='Q3',4)) 
+  }
+  pt_colors <- c('ES (E/E)' = get_brand_color('dark_red'), 'ES (NbN)' = get_brand_color('dark_red'),'SH' = get_brand_color('coral'), 
+                 'TH' = get_brand_color('light_brown'), 'RRH' = get_brand_color('dark_blue'),'PSH' = get_brand_color('blue'),
+                 'OPH' = get_brand_color('light_green2'))
+  
+  plot_df$ProjectType <- session$userData$HMIS_projects_w_active_inv %>% 
+    fsubset(ProjectName == input$bui_HMISprojects) %>% 
+    fslice(1) %>% 
+    pull(ProjectType) %>% 
+    project_type_abb()
+  if(str_detect(plot_df$ProjectType[1], 'ES')){
+    plot_df <- plot_df %>% fsubset(Availability == 'Total')
+  }
+  max_bound <- 5*ceiling(max(plot_df$pct_util, na.rm=T)*5)
+  ggplot(plot_df, aes(x=plot_order, y = pct_util, group = Availability, fill = ProjectType)) + 
+    geom_hline(aes(yintercept = 0.65), linetype = 'dashed', size=rel(0.8), color = 'red') +
+    geom_hline(aes(yintercept = 1.05), linetype = 'dashed', size=rel(0.8), color = 'red') +
+    #geom_line(aes(color = ProjectType), size=rel(2), show.legend = FALSE) + 
+    geom_line(color = 'black', size=rel(1.5), show.legend = FALSE) + 
+    geom_point(shape = 21, size=rel(5), show.legend = F) + 
+    labs(x='', y='Utilization', title = glue('{input$bui_period_filter} {input$bui_inventory_level} Utilization')) +
+    #scale_x_discrete() +
+    scale_y_continuous(limits=c(0, NA), expand=expansion(0, 0.05), breaks = seq(0, max_bound, by=0.2), labels = scales::label_percent()) +
+    scale_fill_manual(values = pt_colors) +
+    #scale_color_manual(values = pt_colors) +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(),
+          axis.text.y = element_text(size = sys_axis_text_font),
+          axis.title.y = element_text(size = sys_axis_text_font),
+          plot.title= element_text(hjust = 0.5, size = sys_chart_title_font))
+})
+
 ## Render DT - Utilization Subsets by HouseholdType --------------------
 output$proj_bui_hh <- renderDT({
+  
+  datatable( 
+    bui_dt_data(),
+    options = list(dom = 't',
+                   
+                   pageLength = -1,
+                   autoWidth = F),
+    selection = 'none',
+    style = "default"
+  )
+})
+
+bui_dt_data <- reactive({
   
   data <- re_calc() %>% select(-paste("PIT", input$bui_inventory_level),
                                -paste("Avg Nightly", input$bui_inventory_level),
@@ -584,7 +643,14 @@ output$proj_bui_hh <- renderDT({
                                -paste("Avg Nightly HMIS", input$bui_inventory_level))
   colnames(data) <- gsub("Served", "People Served", colnames(data))
   colnames(data) <- gsub("HHPeople", "Households", colnames(data))
-  colnames(data) <- gsub("Util", "Utilization", colnames(data))
+
+  shortened_util <- (grepl('Util', colnames(data))) & (!grepl('Utilization', colnames(data)))
+  if(sum(shortened_util) > 0)
+    colnames(data)[shortened_util] <- gsub("Util", "Utilization", colnames(data)[shortened_util])
+  
+  # if(input$bui_period_filter == 'Quarterly'){
+  #   data[1,] <- str_c(data[1,] ,' to ',as.Date(data[1,]) + months(3) - days(2))
+  # }
   
   if(input$bui_period_filter == "Points in Time"){
     colnames(data) <- gsub("PIT Total", "PIT", colnames(data))
@@ -628,24 +694,17 @@ output$proj_bui_hh <- renderDT({
     }
     
   }
-row_names <- rownames(data)  
+  row_names <- rownames(data)  
   
-row_order <- c(row_names[grepl("Time Period", row_names)], row_names[grepl("Served", row_names)], 
-               row_names[grepl("Year-round", row_names)],
-               row_names[grepl("Overflow", row_names)], 
-               row_names[grepl("Seasonal", row_names)], 
-               ifelse(input$bui_period_filter == "Points in Time", paste("PIT", input$bui_inventory_level), paste("Avg Nightly", input$bui_inventory_level)),
-               ifelse(input$bui_period_filter == "Points in Time", paste("PIT HMIS", input$bui_inventory_level), paste("Avg Nightly HMIS", input$bui_inventory_level)),
-               row_names[grepl("Util", row_names)])
-  datatable( # return table
-    data[row_order,] ,
-    #rownames = data$label,
-    options = list(dom = 't', 
-                   #lengthMenu = list(c(5, 15, -1), c('5', '15', 'All')),
-                   pageLength = -1,
-                   autoWidth = TRUE),
-    style = "default"
-  )
+  row_order <- c(row_names[grepl("Time Period", row_names)], row_names[grepl("Served", row_names)], 
+                 row_names[grepl("Year-round", row_names)],
+                 row_names[grepl("Overflow", row_names)], 
+                 row_names[grepl("Seasonal", row_names)], 
+                 ifelse(input$bui_period_filter == "Points in Time", paste("PIT", input$bui_inventory_level), paste("Avg Nightly", input$bui_inventory_level)),
+                 ifelse(input$bui_period_filter == "Points in Time", paste("PIT HMIS", input$bui_inventory_level), paste("Avg Nightly HMIS", input$bui_inventory_level)),
+                 row_names[grepl("Util", row_names)])
+  
+  return(data[row_order,])
 })
 
 # System Level Tab  ---------------
