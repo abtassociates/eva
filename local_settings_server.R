@@ -108,25 +108,7 @@ observeEvent(input$update_dq, {
 
 
 ## System Performance - days_lh_valid
-observeEvent(input$update_sys_perf, {
-  req(session$userData$valid_file() == 1)
-  
-  curr_values <- long_stayers_debounced()
-  changed_input <- NULL
-  
-  # Identify which input changed and update the tracked state
-  for (input_name in names(curr_values)) {
-    if (!identical(curr_values[[input_name]], prev_long_stayers[[input_name]])) {
-      changed_input <- input_name
-      prev_long_stayers[[input_name]] <- curr_values[[input_name]]
-    }
-  }
-  
-  # Log the metadata with the specific input that changed
-  if (!is.null(changed_input)) {
-    
-  }
-  
+set_user_data_lh_info <- function() {
   session$userData$lh_info <- get_lh_info(
     session$userData$enrollment_categories, 
     session$userData$lh_cls,
@@ -163,10 +145,31 @@ observeEvent(input$update_sys_perf, {
     session$userData$enrollment_categories_prev %>% get_vars(setdiff(names(.), cols_to_overwrite)),
     session$userData$lh_info_prev
   )
+}
+observeEvent(input$update_sys_perf, {
+  req(session$userData$valid_file() == 1)
+  
+  curr_values <- long_stayers_debounced()
+  changed_input <- NULL
+  browser()
+  # Identify which input changed and update the tracked state
+  for (input_name in names(curr_values)) {
+    if (!identical(curr_values[[input_name]], prev_long_stayers[[input_name]])) {
+      changed_input <- input_name
+      prev_long_stayers[[input_name]] <- curr_values[[input_name]]
+    }
+  }
+  
+  # Log the metadata with the specific input that changed
+  if (!is.null(changed_input)) {
+    browser()
+  }
+  
+  set_user_data_lh_info()
   
   show_alert("System Performance Updated!", "Your System Performance dashboard has been updated", type = "success")
   shinyjs::toggleState("update_sys_perf", condition = FALSE)
-}, ignoreInit = TRUE, ignoreNULL = TRUE)
+}, ignoreInit = FALSE, ignoreNULL = TRUE)
 
 observeEvent(long_stayers_debounced(), {
   show <- session$userData$valid_file() == 1

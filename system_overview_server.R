@@ -277,6 +277,9 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
                             reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
   logToConsole(session, "In get_active_info")
   
+  if(is.null(lh_info_df))
+    lh_info_df <- set_user_data_lh_info()
+  
   lh_info_filtered <- lh_info_df %>%
     fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
     join(
