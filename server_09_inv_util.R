@@ -622,14 +622,14 @@ browser()
 })
 
 ## Render DT - Utilization Subsets by HouseholdType --------------------
-output$proj_bui_hh <- renderDT({
+output$proj_bui_hh_dt <- renderDT({
   
   datatable( 
     bui_dt_data(),
     options = list(dom = 't',
                    
                    pageLength = -1,
-                   autoWidth = F),
+                   autoWidth = T),
     selection = 'none',
     style = "default"
   )

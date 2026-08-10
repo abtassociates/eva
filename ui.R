@@ -1360,7 +1360,7 @@ page_navbar(
               card(
                 card_header(headerCard("Filters")),
                 layout_columns(
-                  col_widths=c(6,6),
+                  col_widths=c(3,3,3,3),
                   gap = '0px',
                   
                   pickerInput(
@@ -1378,27 +1378,6 @@ page_navbar(
                     selected = "Beds",
                     options = pickerOptions(container = "body")
                   ),
-                  #pickerInput(
-                  #  label = "Target Population",
-                  #  inputId = "target_pop_sys",
-                  #  choices = "All Target Populations",
-                  #  selected = "All Target Populations",
-                  #  options = pickerOptions(container = "body")
-                  #),
-                  #pickerInput(
-                  #  label = "Household Type",
-                  #  inputId = "housing_type_sys",
-                  #  choices = "All Housing Types",
-                  #  selected = "All Housing Types",
-                  #  options = pickerOptions(container = "body")
-                  #),
-                  #pickerInput(
-                  #  label = "Victim Services Provider",
-                  #  inputId = "victim_service_sys",
-                  #  choices = "All Organizations",
-                  #  selected = "All Organizations",
-                  #  options = pickerOptions(container = "body")
-                  #),
                   pickerInput(
                     label = "Period",
                     inputId = "bui_period_filter",
@@ -1416,13 +1395,14 @@ page_navbar(
                   ),
                 )
               ),
+              
               ### Project Level Utilization ----------------
-              navset_underline( # Inventory or Utilization
+              navset_card_underline( # Inventory or Utilization
                 id = "project_level_box",
                 selected = headerTab("Inventory and Utilization"),
                 nav_panel(
                   title = headerTab("Inventory and Utilization"),
-                  uiOutput("bui_filter_selections"),
+                  uiOutput("bui_filter_selections") %>% withSpinner(),
                   radioGroupButtons(
                     inputId = "bui_hh_type",
                     label = "Household Type Filters",
@@ -1432,7 +1412,9 @@ page_navbar(
                     individual = TRUE,
                     checkIcon = list(yes = icon("check"))
                   ), 
-                  DTOutput("proj_bui_hh", width = "100%", height = "500") %>% 
+                  plotOutput("proj_bui_hh_plot", width = "66.6%", height = "500") %>% 
+                    withSpinner(),
+                  DTOutput("proj_bui_hh_dt", width = "80%", height = "500") %>% 
                     withSpinner() 
                   
                 ),
