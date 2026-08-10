@@ -290,7 +290,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
       multiple = TRUE
     ) %>%
     frename(
-      active_start = lh_date
+      lh_date = active_start
     )
 
   entry_as_active <- all_filtered %>%
