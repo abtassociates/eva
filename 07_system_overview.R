@@ -469,3 +469,5 @@ session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePr
 
 session$userData$enrollment_categories_prev <- keep_enrl_in_range(startDatePrev, endDatePrev)
 session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
+
+set_user_data_lh_info()
