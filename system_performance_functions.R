@@ -878,3 +878,68 @@ expand_by_periods <- function(dt, chart_type = 'mbm', reportStart = session$user
     fselect(-temp_key, -exit_cutoff) %>%
     setkeyv(cols=c("PersonalID", "period", "EnrollmentID"))
 }
+
+get_enrollments_filtered <- function(
+    enrollment_cats,
+    client_cats,
+    syse_hh_type,
+    syse_level_of_detail,
+    syse_project_type,
+    lh_res_types = lh_residential_project_types,
+    ph_types = ph_project_types,
+    out_type = out_project_type,
+    non_res_types = non_res_project_types,
+    filter_hh_type = TRUE
+) {
+  
+  join(
+    enrollment_cats,
+    client_cats %>% fselect(PersonalID, VeteranStatus),
+    on = "PersonalID", 
+    how = "inner"
+  ) %>%
+    fsubset(
+      # Household type filter
+      (if (filter_hh_type) {
+        (syse_hh_type == "All" |
+           (syse_hh_type == "YYA" & HouseholdType %in% c("PY", "UY")) |
+           (syse_hh_type == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+           (syse_hh_type == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+           (syse_hh_type == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+           syse_hh_type == HouseholdType)
+      } else {
+        TRUE
+      }) &
+        
+      # Level of detail filter
+      (syse_level_of_detail == "All" |
+       (syse_level_of_detail == "HoHsAndAdults" &
+          (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+       (syse_level_of_detail == "HoHsOnly" &
+          CorrectedHoH == 1)) &
+      
+      # Project type filter (wrapped in parentheses to preserve logical order of operations)
+      (syse_project_type == "All" |
+       (syse_project_type %in% c("LHRes", "AllRes") & ProjectType %in% lh_res_types) |
+       (syse_project_type %in% c("PHRes", "AllRes") & ProjectType %in% ph_types) |
+       (syse_project_type == "SO" & ProjectType == out_type) |
+       (syse_project_type == "AllNonRes" & ProjectType %in% non_res_types))
+    ) |>
+    fselect(-VeteranStatus)
+}
+
+# A function that returns a reactive expression
+create_filtered_enrollments_reactive <- function(prefix, prev_yr = FALSE, filter_hh_type = TRUE) {
+  reactive({
+    enrollment_cats <- if (prev_yr) session$userData$enrollment_categories_prev else session$userData$enrollment_categories
+    
+    get_enrollments_filtered(
+      enrollment_cats      = enrollment_cats,
+      client_cats          = session$userData$client_categories,
+      syse_hh_type         = input[[paste0(prefix, "_hh_type")]], # Dynamic input access
+      syse_level_of_detail = input[[paste0(prefix, "_level_of_detail")]],
+      syse_project_type    = input[[paste0(prefix, "_project_type")]],
+      filter_hh_type       = filter_hh_type
+    )
+  })
+}

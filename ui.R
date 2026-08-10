@@ -463,18 +463,18 @@ page_navbar(
     # Client counts tab ----------------
     nav_panel(
       title = "Project Dashboard",
-      value = "tabClientCount",
+      value = "tabProjectDashboard",
       card(
         card_title(
-          htmlOutput("headerClientCounts")
+          htmlOutput("headerProjectDashboard")
         )
       ),
       accordion(
-        id = 'accordion_client_count',
+        id = 'accordion_project_dashboard',
         open = FALSE,
         accordion_panel(
           title = "Instructions",
-          tabClientCount_instructions
+          tabProjectDashboard_instructions
         )
       ),
       br(),
@@ -501,7 +501,7 @@ page_navbar(
                                     container = 'body')
           ),
           conditionalPanel(
-            condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
+            condition = "input.project_dashboard_subtabs=='<h4>Timeliness</h4>'",
             numericInput(inputId = 'timeliness_metric',
                          label = 'Timeliness: Max Record Entry Days',
                          value = 3,
@@ -511,13 +511,13 @@ page_navbar(
       ),
       
       navset_card_underline(
-        id = 'client_count_subtabs',
+        id = 'project_dashboard_subtabs',
         
         nav_panel(
           title = headerTab("Client Counts"),
           
-          navset_card_underline(
-            id = "client_count_cc_subtabs",
+          navset_underline(
+            id = "project_dashboard_cc_subtabs",
             nav_panel(
               title = headerSubTab("Summary"),
               DTOutput("clientCountSummary")
@@ -531,34 +531,11 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
-          navset_card_underline(
-            id = "client_count_ti_subtabs",
+          navset_underline(
+            id = "project_dashboard_tl_subtabs",
             nav_panel(
               title = headerSubTab("Record Entry"),
-              layout_column_wrap(
-                width = "250px",
-                fill = FALSE,
-                
-                value_box(
-                  title = "Median Days to Project Start Data Entry",
-                  value = textOutput("timeliness_vb1_val"),
-                  showcase = bs_icon("calendar-plus"),
-                  theme = "text-primary",
-                  class = "border-primary"
-                ),
-                value_box(
-                  title = "Median Days to Project Exit Data Entry",
-                  value = textOutput("timeliness_vb2_val"),
-                  showcase = bs_icon("calendar-minus"),
-                  theme = "text-primary",
-                  class = "border-primary"
-                ),
-                uiOutput("timeliness_vb3", fill = TRUE)
-                
-              ),
-              br(),
-              DTOutput("timelinessTable")
-              
+              uiOutput("timeliness_record_entry")
             )
           )
           
@@ -566,7 +543,7 @@ page_navbar(
         
         nav_spacer(),
         nav_item(
-          uiOutput("downloadClientCountsReportButton", inline = TRUE)
+          uiOutput("downloadProjectDashboardReportButton", inline = TRUE)
         )
       )
       # card(

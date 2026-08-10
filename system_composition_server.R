@@ -497,7 +497,7 @@ output$sys_comp_download_btn_ppt <- downloadHandler(
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({
-  full_data <- enrollments_filtered() %>%
+  full_data <- syso_enrollments_filtered() %>%
     join(session$userData$lh_info %>% fselect(EnrollmentID, lh_date), on="EnrollmentID", multiple = TRUE) %>%
     fsubset(ExitAdjust >= session$userData$ReportStart & (
       ProjectType %in% c(ph_project_types, lh_project_types_nonbn) | # defintiionally active the whole time

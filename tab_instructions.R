@@ -308,7 +308,7 @@ tabLocalSettings_long_stayers <-  HTML("
                 the defaults (these defaults do not imply any HUD recommendations)."
 )
 
-tabClientCount_instructions <- HTML("
+tabProjectDashboard_instructions <- HTML("
                <h4>Project Dashboard Report</h4>
                <p>The Project Dashboard Report provides the number of households/clients 
                 who have been served in each project and their enrollment status at the 
@@ -362,12 +362,14 @@ tabClientCount_instructions <- HTML("
               <h4>Timeliness Record Entry</h4>
                <p>The Record Entry tab of the Timeliness panel provides counts of different 
               record types for a project along with timeliness metrics. Time for Record Entry 
-              is calculated by comapring a record's Created Date against the:
+              is calculated by comparing a record's Created Date against the:
                <ul>
                <li>Entry Date for Project Start records</li>
                <li>Exit Date for Project Exit records</li>
                <li>Information Date for Current Living Situation records</li>
                <li>Date Provided for Bed Night service records</li>
+               <li>Assessment Date for Coordinated Entry Assessment records</li>
+               <li>Event Date for Coordinated Entry Event records</li>
                </ul>
                
                <h4>Download System-wide Project Dashboard Report</h4>
