@@ -558,8 +558,9 @@ re_calc <- reactive({
   }
 })
 
-output$proj_bui_all_hh_plot <- renderPlot({
-browser()
+output$proj_bui_hh_plot <- renderPlot({
+  validate(need(fnrow(re_calc()) > 0,no_data_msg))
+           
   if(input$bui_inventory_level == "Beds"){
     if(input$bui_period_filter == "Points in Time"){
       plot_df <- re_calc() %>% 
@@ -599,9 +600,13 @@ browser()
     fslice(1) %>% 
     pull(ProjectType) %>% 
     project_type_abb()
+  
   if(str_detect(plot_df$ProjectType[1], 'ES')){
     plot_df <- plot_df %>% fsubset(Availability == 'Total')
   }
+  validate(need(fnrow(plot_df) > 0,'Insufficient data to generate plots. Please select more options.'))
+  validate(need(!all(is.na(plot_df$pct_util)),'Insufficient utilization data to generate plots. Please select fewer filters.'))
+  
   max_bound <- 5*ceiling(max(plot_df$pct_util, na.rm=T)*5)
   ggplot(plot_df, aes(x=plot_order, y = pct_util, group = Availability, fill = ProjectType)) + 
     geom_hline(aes(yintercept = 0.65), linetype = 'dashed', size=rel(0.8), color = 'red') +
