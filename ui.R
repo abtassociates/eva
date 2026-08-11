@@ -14,7 +14,8 @@ page_navbar(
   header = tagList(
     ## css, idle management, and dimension management --------
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      includeCSS(here("www/custom.css")),
+      # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
       tags$script(HTML(
@@ -924,7 +925,6 @@ nav_menu(
           nav_panel(
             title = headerSubTab("Chart"),
             card(
-              br(),
               strong("Select Demographic Crosstab Categories (up to 2)"),
               p(str_glue(
                 "For a simple count of totals within a demographic 
@@ -992,16 +992,13 @@ nav_panel(
       gap = 0,
       card(
         id = 'syse_filters_left',
-        style='border-width:0;border-radius:0',
-        layout_columns(
-          col_widths = c(4,4,4,6,6),
-          fill = T,
-          
+        div(
           pickerInput(
             label = "Household Type",
             inputId = "syse_hh_type",
             choices = sys_hh_types,
             selected = sys_hh_types[1],
+            width = "100%",
             options = pickerOptions(container = "body")
           ),
           pickerInput(
@@ -1009,6 +1006,7 @@ nav_panel(
             inputId = "syse_level_of_detail",
             choices = sys_level_of_detail,
             selected = sys_level_of_detail[1],
+            width = "100%",
             options = pickerOptions(container = "body")
           ),
           pickerInput(
@@ -1016,14 +1014,19 @@ nav_panel(
             inputId = "syse_project_type",
             choices = sys_project_types,
             selected = sys_project_types[1],
+            width = "100%",
             options = pickerOptions(container = "body")
-          ),
+          )
+        ),
+        
+        div(
           pickerInput(
             inputId = "syse_age",
             label = "Age",
             selected = sys_age_cats,
             choices = sys_age_cats,
             multiple = TRUE,
+            width = "100%",
             options = pickerOptions(
               actionsBox = TRUE,
               selectedTextFormat = paste("count >", length(sys_age_cats)-1),
@@ -1037,13 +1040,13 @@ nav_panel(
             inputId = "syse_spec_pops",
             choices = sys_spec_pops_people,
             selected = sys_spec_pops_people[1],
+            width = "100%",
             options = pickerOptions(container = "body")
           )
         )
       ),
       card(
         id = 'syse_filters_right',
-        style="border-width:0;border-left-width: 1px; border-radius:0",
         layout_columns(
           col_widths = c(12,12),
           pickerInput(
@@ -1139,21 +1142,47 @@ nav_panel(
         nav_panel(
           title = headerSubTab('Chart'),
           card(
-            br(),
             strong("Select Demographic Crosstab Categories (up to 2) and a Destination Type"),
             HTML("<p>Select one demographic category to view totals within that group, or two categories to create a crosstab showing intersections between groups. To change your selection, uncheck a category before selecting a new one. You may also apply a Household Type filter, which functions as an additional grouping.</p>
                         <br>
                         <p>Select a destination type to determine which exit outcomes are displayed.</p>"
             ),
             br(),
-            layout_columns(
-              col_widths = c(3,3,6),fill=T,
-              tagList(
-                checkboxInput('syse_subpop_age_selection', 'Age'),
-                div(id ='age_picker',style='margin-top:0px; padding-top:0px;',
+            div(
+              id = "syse_subpop_crosstab_selectors", 
+              
+              # ==========================================
+              # GROUP 1: Household Type
+              # ==========================================
+              div(
+                id = "syse_subpop_hh_type_container",
+                div(class = "label", "Household Type"),
+                div(
+                  pickerInput(
+                    inputId = "syse_subpop_hh_type",
+                    label = NULL, 
+                    choices = sys_hh_types,
+                    selected = sys_hh_types[1],
+                    width = "100%",
+                    options = pickerOptions(container = "body")
+                  )
+                )
+              ),
+              
+              # ==========================================
+              # GROUP 2: The Three Checkboxes
+              # ==========================================
+              layout_columns(
+                class = "syse_subpop_other_container",
+                col_widths = c(3,3,6),
+                # --- Column 1: Age ---
+                div(
+                  checkboxInput('syse_subpop_age_selection', 'Age'),
+                  div(
+                    id = 'age_picker',
                     pickerInput(
                       inputId = "syse_subpop_age",
-                      label=NULL,#label = "Age",
+                      label = NULL,
                       selected = sys_age_cats,
                       choices = sys_age_cats,
                       multiple = TRUE,
@@ -1162,63 +1191,76 @@ nav_panel(
                         selectedTextFormat = paste("count >", length(sys_age_cats)-1),
                         countSelectedText = "",
                         noneSelectedText = "None Selected",
-                        container = "body",
+                        container = "body"
                       )
                     )
-                )
-              ),
-              tagList(
-                checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
-                div(id = 'vet_picker',
+                  )
+                ),
+                
+                # --- Column 2: Veteran Status ---
+                div(
+                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
+                  div(
+                    id = 'vet_picker',
                     pickerInput(
-                      label = NULL,#label = "Veteran Status",
+                      label = NULL,
                       inputId = "syse_subpop_spec_pops",
-                      #choices = sys_spec_pops_people,
-                      choices = setNames(sys_spec_pops_people,
-                                         nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                      choices = setNames(
+                        sys_spec_pops_people,
+                        nm = c("None Selected", names(sys_spec_pops_people[-1]))
                       ),
                       selected = "None Selected",
                       options = pickerOptions(container = "body")
                     )
-                )
-              ),
-              tagList(
-                checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
-                div(id='race_eth_picker',
-                    conditionalPanel(condition = 'input.syse_methodology_type == 1',
-                                     pickerInput(
-                                       label = NULL,#"Race/Ethnicity",
-                                       inputId = "syse_subpop_race_ethnicity1",
-                                       choices = setNames(sys_race_ethnicity_method1,
-                                                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
-                                       ),
-                                       selected = "None Selected",
-                                       options = list(
-                                         `dropdown-align-right` = TRUE,
-                                         `dropup-auto` = FALSE,
-                                         container = "body",
-                                         noneSelectedText = "-"
-                                       )
-                                     )
+                  )
+                ),
+                
+                # --- Column 3: Race/Ethnicity ---
+                div(
+                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
+                  div(
+                    id = 'race_eth_picker',
+                    conditionalPanel(
+                      condition = 'input.syse_methodology_type == 1',
+                      pickerInput(
+                        label = NULL,
+                        inputId = "syse_subpop_race_ethnicity1",
+                        choices = setNames(
+                          sys_race_ethnicity_method1,
+                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
+                        ),
+                        selected = "None Selected",
+                        options = list(
+                          `dropdown-align-right` = TRUE,
+                          `dropup-auto` = FALSE,
+                          container = "body",
+                          noneSelectedText = "-"
+                        )
+                      )
                     ),
-                    conditionalPanel(condition = 'input.syse_methodology_type == 2',
-                                     pickerInput(
-                                       label = NULL,#"Race/Ethnicity",
-                                       inputId = "syse_subpop_race_ethnicity2",
-                                       choices = setNames(sys_race_ethnicity_method2,
-                                                          c("None Selected",names(sys_race_ethnicity_method2)[-1])),
-                                       selected = "None Selected",
-                                       options = list(
-                                         `dropdown-align-right` = TRUE,
-                                         `dropup-auto` = FALSE,
-                                         container = "body",
-                                         noneSelectedText = "-"
-                                       )
-                                     )
+                    conditionalPanel(
+                      condition = 'input.syse_methodology_type == 2',
+                      pickerInput(
+                        label = NULL,
+                        inputId = "syse_subpop_race_ethnicity2",
+                        choices = setNames(
+                          sys_race_ethnicity_method2,
+                          c("None Selected", names(sys_race_ethnicity_method2)[-1])
+                        ),
+                        selected = "None Selected",
+                        options = list(
+                          `dropdown-align-right` = TRUE,
+                          `dropup-auto` = FALSE,
+                          container = "body",
+                          noneSelectedText = "-"
+                        )
+                      )
                     )
+                  )
                 )
-              )
+              ) # End of Group 2
             ),
+            br(),
             radioGroupButtons(
               inputId = "subpop_dest_type",
               label = "Destination Type",
@@ -1259,7 +1301,6 @@ nav_panel(
         nav_panel(
           title = headerSubTab("Chart"),
           card(
-            
             strong("Select Demographic Crosstab Categories (up to 2)"),
             p(str_glue(
               "For a simple count of totals within a demographic 
