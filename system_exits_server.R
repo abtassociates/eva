@@ -185,34 +185,47 @@ all_filtered_syse_demog <- reactive({
 all_filtered_syse_subpop <- reactive({
   logToConsole(session, "in all_filtered_syse_subpop")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
-  
-  get_subpop_exits <- function(enrl_data) {
+ 
+  get_subpop_exits <- function(filter_hh_type) {
+    enrl_filtered <- get_enrollments_filtered(
+      enrollment_cats      = session$userData$enrollment_categories,
+      client_cats          = session$userData$client_categories,
+      syse_hh_type         = input$syse_subpop_hh_type, # Dynamic input access
+      syse_level_of_detail = input$syse_level_of_detail,
+      syse_project_type    = input$syse_project_type,
+      filter_hh_type       = filter_hh_type
+    )
+    
     get_system_exits(
-      enrl_data, # Pass cached reactive data frame directly
+      enrl_filtered,
       session$userData$client_categories, 
       ctype = 'exits_types',
       reportStart = session$userData$ReportStart,
       reportEnd = session$userData$ReportEnd,
       append_client_info = TRUE,
       client_categories = session$userData$client_categories
-    ) %>% 
-      join(session$userData$enrollment_categories %>% fselect(PersonalID, EnrollmentID, HouseholdType))
+    ) 
   }
   
-  out_subpop <- get_subpop_exits(syse_enrollments_filtered()) %>% 
+  out_subpop <- get_subpop_exits(filter_hh_type = TRUE) |>
     fmutate(meets_ev_else = FALSE)
   
-  if (input$syse_hh_type != "All") {
-    out_oth_hh_types <- get_subpop_exits(syse_enrollments_filtered_no_hh()) %>%
+  if (input$syse_subpop_hh_type != "All") {
+    out_oth_hh_types <- get_subpop_exits(filter_hh_type = FALSE) %>%
+      join(
+        session$userData$enrollment_categories[, .(EnrollmentID, HouseholdType)], 
+        on = "EnrollmentID"
+      ) %>%
       fmutate( 
         meets_ev_else = 
-          (input$syse_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
-          (input$syse_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
-          (input$syse_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
-          (!(input$syse_hh_type %in% c("YYA","AO","AC")) & input$syse_hh_type != HouseholdType)
+          (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
+          (input$syse_subpop_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
+          (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
+          (!(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType)
       ) %>% 
-      fsubset(meets_ev_else)
-    
+      fsubset(meets_ev_else) %>%
+      fselect(-HouseholdType)
+
     rowbind(out_subpop, out_oth_hh_types)
   } else {
     out_subpop
@@ -244,6 +257,8 @@ observeEvent(input$syse_tabbox, {
     shinyjs::show('syse_race_ethnicity')
   }
   
+  # Household Type is not a filter for Exits by Subpopulation
+  shinyjs::toggle("syse_hh_type", condition = input$syse_tabbox != '<h4>Exits by Subpopulation</h4>')
 })
 
 observeEvent(input$syse_types_subtabs, {
