@@ -595,6 +595,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
       latest_enrollments |> 
         fsubset(
           RelationshipToHoH == 1,
+          EnrollmentID, ProjectID, ProjectType, HouseholdID, HHTypeAtReportStart
         ),
       on = "ProjectID",
       column = TRUE
@@ -608,6 +609,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         !AssessmentDate %inrange% list(CEParticipationStatusStartDate, CEParticipationStatusEndDate) |
         .join == "CEParticipation"
     ) |>
+    fselect(EnrollmentID, ProjectID, ProjectType, HouseholdID, HHTypeAtReportStart, AssessmentDate, nmiss) |>
     funique() |>
     fsubset(ProjectType == ce_project_type | AssessmentDate %in% input$dateRangeCount)
   
