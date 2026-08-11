@@ -598,6 +598,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
           EnrollmentID, ProjectID, ProjectType, HouseholdID, HHTypeAtReportStart
         ),
       on = "ProjectID",
+      how = "inner",
       column = TRUE
     ) |>
     join(
