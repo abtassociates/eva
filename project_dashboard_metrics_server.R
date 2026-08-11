@@ -688,13 +688,7 @@ kpi_applicable_dt_keys_for_project <- reactive({
 
 selected_proj_type <- reactive({
   req(input$currentProviderList)
-  session$userData$Project0[ProjectName == input$currentProviderList, ProjectType][1]
-})
-
-
-selected_proj_id <- reactive({
-  req(input$currentProviderList)
-  session$userData$Project0[ProjectName == input$currentProviderList, ProjectID][1]
+  session$userData$Project0[ProjectID == input$currentProviderList, ProjectType][1]
 })
 
 # Summary UI Card Output
