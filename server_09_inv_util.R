@@ -679,8 +679,7 @@ bui_dt_data <- reactive({
   
   labels <- data$label
   data <- data %>% fselect(-label) %>% t()  # transpose 
-  colnames(data) <- labels
-  
+  colnames(data) <- paste0(format(as.Date(data['Time Period Start',]),format='%m/%d/%y'), '-', format(as.Date(data['Time Period End',]),format='%m/%d/%y'))
   for (f in input$bui_bed_avail){
     #print(rownames(data))
     #print(grepl(f,rownames(data)))
@@ -701,7 +700,8 @@ bui_dt_data <- reactive({
   }
   row_names <- rownames(data)  
   
-  row_order <- c(row_names[grepl("Time Period", row_names)], row_names[grepl("Served", row_names)], 
+  row_order <- c(#row_names[grepl("Time Period", row_names)], 
+                row_names[grepl("Served", row_names)], 
                  row_names[grepl("Year-round", row_names)],
                  row_names[grepl("Overflow", row_names)], 
                  row_names[grepl("Seasonal", row_names)], 
