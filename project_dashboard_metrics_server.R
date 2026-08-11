@@ -586,23 +586,21 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   
   income_growth_dt <- get_growth_dt(session$userData$IncomeBenefits, "TotalMonthlyIncome")
   
-  ce_assessments_dt <- ## Used only for CE Assessed Households Project Dashboard Metric ----
   # TO EXCLUDE:
   # - CEParticipation.AccessPoint == 0
   # - AssessmentDate not within project’s CE Participation Period
   # - ProjectID not found in CEParticipation.csv
-  session$userData$CEAssessedHouseholds <- CEParticipation |>
+  ce_assessments_dt <- session$userData$CEParticipation |>
     join(
       latest_enrollments |> 
         fsubset(
           RelationshipToHoH == 1,
-          EnrollmentID, ProjectID, ProjectType, HouseholdID, HouseholdType
         ),
       on = "ProjectID",
       column = TRUE
     ) |>
     join(
-      Assessment |> fselect(AssessmentID, EnrollmentID, AssessmentDate), 
+      session$userData$Assessment |> fselect(AssessmentID, EnrollmentID, AssessmentDate), 
       on = "EnrollmentID"
     ) |>
     fmutate(
@@ -610,7 +608,6 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         !AssessmentDate %inrange% list(CEParticipationStatusStartDate, CEParticipationStatusEndDate) |
         .join == "CEParticipation"
     ) |>
-    fselect(EnrollmentID, ProjectID, ProjectType, HouseholdID, HouseholdType, AssessmentDate, nmiss) |>
     funique() |>
     fsubset(ProjectType == ce_project_type | AssessmentDate %in% input$dateRangeCount)
   
