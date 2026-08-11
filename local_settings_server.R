@@ -34,20 +34,6 @@ observeEvent(input$close_help, {
   shinyjs::removeClass(id = "help_sidebar", class = "open")
 })
 
-calc_long_stayers <- function(dt) {
-  fmutate(dt,
-    too_many_days = case_match(
-      ProjectType,
-      es_nbn_project_type ~ input$ESNbNLongStayers,
-      out_project_type ~ input$OUTLongStayers,
-      sso_project_type ~ input$ServicesOnlyLongStayers,
-      other_project_project_type ~ input$OtherLongStayers,
-      day_project_type ~ input$DayShelterLongStayers,
-      ce_project_type ~ input$CELongStayers
-    )
-  )
-}
-
 # Log changes to metadata
 observeEvent(long_stayers_debounced(), {
   curr_values <- long_stayers_debounced()
@@ -77,9 +63,9 @@ get_long_stayers <- function() {
           ProjectType == ce_project_type, input$CELongStayers,
           default = 99999
         )
-      ) %>% 
+      ) %>%
       fsubset(DaysSinceLastKnown > too_many_days) %>%
-      fselect(c(vars_we_want, "DaysSinceLastKnown", "too_many_days")) %>%
+      fselect(vars_we_want) %>%
       fmutate(Type = factor(Type, levels = issue_levels)),
     error = function(e){e}
   )

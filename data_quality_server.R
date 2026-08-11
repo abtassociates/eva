@@ -261,8 +261,7 @@ dq_full <- reactive({
 
   logToConsole(session, "in dq_full")
   
-  if(!is.null(session$userData$long_stayers) &&
-                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
+  if(!is.null(session$userData$long_stayers)) {
     
     
     if(inherits(long_stayers_tc, 'simpleError')){
