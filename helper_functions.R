@@ -403,7 +403,9 @@ nice_names_timeliness <- function(df, record_type){
                        'start' = 'Median Days to Project Start Record Entry',
                        'exit' = 'Median Days to Project Exit Record Entry',
                        'nbn' = 'Median Days to Night-by-Night Record Entry',
-                       'cls' = 'Median Days to Current Living Situation Record Entry')
+                       'cls' = 'Median Days to Current Living Situation Record Entry',
+                       'ce_assess' = 'Median Days to CE Assessment Record Entry',
+                       'ce_event' = 'Median Days to CE Event Record Entry')
   
   colnames(df) <- str_replace_all(names(df), 
                                c('OrganizationName' = 'Organization Name', 

@@ -407,8 +407,10 @@ activeInventory <- Inventory %>%
 Event <- Event %>% 
   fselect(
     EnrollmentID,
+    PersonalID,
     EventID,
     EventDate,
+    DateCreated,
     Event,
     ProbSolDivRRResult,
     ReferralCaseManageAfter,
@@ -416,12 +418,15 @@ Event <- Event %>%
     ReferralResult,
     ResultDate
   )
-
+session$userData$Event <- Event
 
 # Exit --------------------------
 session$userData$Exit <- Exit 
 # CurrentLivingSituation -------------------------------
 session$userData$CurrentLivingSituation <- CurrentLivingSituation 
+
+# Assessment -------------------------
+session$userData$Assessment <- Assessment
 
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
