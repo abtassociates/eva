@@ -25,9 +25,9 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     customDownload(app, "downloadFileStructureAnalysis","File-Structure-Analysis-Download")
     app$expect_values()
     
-    app$set_inputs(pageid = "tabClientCount")
+    app$set_inputs(pageid = "tabProjectDashboard")
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
+    app$set_inputs(project_dashboard_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values()
     
@@ -170,7 +170,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
     
-    app <- AppDriver$new(
+    app <- shinytest2::AppDriver$new(
       variant = platform_variant(),
       name = test_script_name, 
       screenshot_args = FALSE,
@@ -198,13 +198,13 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
-    app$set_inputs(pageid = "tabClientCount")
+    app$set_inputs(pageid = "tabProjectDashboard")
     app$wait_for_idle(timeout = 1e+06)
     #app$set_inputs(client_count_subtabs = "<h4>Client Counts</h4>")
     #app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_cc_subtabs = '<h5>Detail</h5>')
+    app$set_inputs(project_dashboard_cc_subtabs = '<h5>Detail</h5>')
     app$wait_for_idle(timeout = 1e+06)
-    app$set_inputs(client_count_subtabs = "<h4>Timeliness</h4>")
+    app$set_inputs(project_dashboard_subtabs = "<h4>Timeliness</h4>")
     app$wait_for_idle(timeout = 1e+06)
     # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
     # app$wait_for_idle(timeout = 1e+06)
@@ -216,12 +216,12 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
         inputs_no_bindings(DTs = c("clientCountData", "clientCountSummary"))
       ),
       output = c(
-        "headerClientCounts",
-        "headerClientCounts_supp",
+        "headerProjectDashboard",
+        "headerProjectDashboard_supp",
         "clientCountData",
         "clientCountSummary",
         "timelinessTable",
-        "downloadClientCountsReportButton"
+        "downloadProjectDashboardReportButton"
       )
     )
     
@@ -571,7 +571,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     
     customDownload(app, "downloadFileStructureAnalysis", "File-Structure-Analysis-Download.xlsx")
-    customDownload(app, "downloadClientCountsReport", "Client-Counts-Download.xlsx")
+    customDownload(app, "downloadProjectDashboardReport", "Project-Dashboard-Download.xlsx")
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")
@@ -617,7 +617,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     handle_helper_data(app, test_script_name, "period_data")
     
     print("saving shiny log")
-    view(app$get_logs())
+    if(Sys.getenv('RSTUDIO') == "1")
+      View(app$get_logs())
   })
 }
 
@@ -791,7 +792,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   )
   
   ## System Exits by Subpopulation
-  syse_subpop_universe_filters <- c('syse_subpop_age','syse_subpop_spec_pops',
+  syse_subpop_universe_filters <- c('syse_subpop_hh_type', 'syse_subpop_age','syse_subpop_spec_pops',
                                     'syse_subpop_race_ethnicity1','syse_subpop_race_ethnicity2',
                                     'syse_subpop_age_selection','syse_subpop_vet_selection','syse_subpop_race_eth_selection')
   
@@ -799,7 +800,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
     "pageid",
     "syse_subpop_subtabs",
     syse_subpop_universe_filters,
-    syse_project_filters,
+    setdiff(syse_project_filters, "syse_hh_type"),
     syse_other_inputs
   )
   syse_subpop_outputs <- c(
@@ -810,7 +811,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   
   app$set_inputs(syse_tabbox = '<h4>Exits by Subpopulation</h4>')
   app$wait_for_idle(timeout = 1e+06)
-  app$set_inputs(syse_hh_type = "AO")
+  app$set_inputs(syse_subpop_hh_type = "AO")
   app$expect_values(
     name = "syse-subpop-chart-AO",
     input = syse_subpop_inputs,
@@ -827,7 +828,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   )
   
   ## reset enrollment filters
-  app$set_inputs(syse_hh_type = "All", syse_spec_pops = "None")
+  app$set_inputs(syse_subpop_hh_type = "All", syse_spec_pops = "None")
   app$wait_for_idle(timeout = 2e+06)
   
   ## System Exit PH Demographics
