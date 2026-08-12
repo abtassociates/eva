@@ -994,9 +994,7 @@ rm(income_subs)
 # Enrollment Active Outside Participating Dates ---------------------------
 
 enrollment_positions <- EnrollmentOutside2 %>%
-  join(base_dq_data, on = "EnrollmentID", how = 'left') |> 
-  fcount(EnrollmentID, add = TRUE, name = 'n_hmis_periods')
-
+  join(base_dq_data, on = "EnrollmentID", how = 'left') 
 
 enrollment_x_participating_start <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start" & HMISParticipationType == 1) %>%
