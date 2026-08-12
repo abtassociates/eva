@@ -24,7 +24,7 @@
 
 logToConsole(session, "Running initial data prep")
 
-# Project0 ------------------
+# project_prep (Project left join Organization) --------------------
 # breaking out Projects into their participating times, adjusting ProjectIDs
 project_prep <- Project %>%
   join(
@@ -33,6 +33,8 @@ project_prep <- Project %>%
     how = "left",
     on = "OrganizationID"
   ) 
+
+# Project0 (unique project_prep) ------------------
 
 session$userData$Project0 <- project_prep %>%
   fselect(ProjectID,
@@ -48,7 +50,7 @@ session$userData$Project0 <- project_prep %>%
           ContinuumProject) %>%
   funique() 
 
-# ProjectSegments ------------------------
+# ProjectSegments (project_prep left join HMISParticipation) ------------------------
 ProjectSegments <- project_prep %>%
   join(
     HMISParticipation %>%
@@ -81,12 +83,12 @@ rm(project_prep)
 #     not in Project0 or ProjectSegments
 
 # Enrollment --------------------------------------------------------------
-## Truncating Enrollments based on Operating/Participating -----------------
+## EnrollmentStaging (Enrollment left join Client left join Exit) -----------------
 EnrollmentStaging <- Enrollment %>%
   join(Client %>% fselect(PersonalID, DOB), 
-       on = "PersonalID") %>%
+       on = "PersonalID") %>% # left join by default
   join(Exit %>% fselect(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
-       on = "EnrollmentID") %>%
+       on = "EnrollmentID") %>% # left join by default
   fmutate(ExitAdjust = fcoalesce(ExitDate, no_end_date),
          AgeAtEntry = age_years(DOB, EntryDate),
          DOB = NULL) %>%
@@ -126,7 +128,7 @@ EnrollmentStaging <- Enrollment %>%
   ) %>%
   fungroup()
 
-## Truncating Enrollments based on Operating/Participating -----------------
+## EnrollmentOutside (EnrollmentStaging left join ProjectSegments) -----------------
 # This also brings in Project-level info, e.g. ProjectType to the Enrollment dataset
 EnrollmentOutside <- qDT(EnrollmentStaging) %>%
   fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust) %>%
@@ -155,6 +157,7 @@ EnrollmentOutside <- qDT(EnrollmentStaging) %>%
 # z <- x[y, on = .(id)]
 # print(z)
 
+### Calculate EnrollmentvParticipating and EnrollmentvOperating ------------------------
 Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, comparisonWord) {
   fcase(
     (EntryDate >= ComparisonStart & ExitAdjust <= ComparisonEnd) |
@@ -186,11 +189,13 @@ EnrollmentOutside <- EnrollmentOutside %>%
       "Operating")
   )
 
-# Get First HMIS span for each Project (technically, the enrollment record)
+### Get First HMIS span for each Project (technically, the enrollment record) --------------
 EnrollmentOutside <- EnrollmentOutside %>%
   roworder(ProjectTimeID) %>%
   collap( ~ ProjectID + EnrollmentID, ffirst) %>% 
   fselect(-EntryDate, -ExitAdjust)
+
+## Enrollment (EnrollmentStaging left join EnrollmentOutside) -------------------------
 
 Enrollment <- EnrollmentStaging %>%
   join(
@@ -198,7 +203,7 @@ Enrollment <- EnrollmentStaging %>%
     on = "EnrollmentID",
     how = "left"
   ) %>%
-  fmutate(
+  fmutate( ## calculate EntryDateTruncated & ExitDateTruncated
     EntryDateTruncated = fifelse(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
@@ -383,7 +388,7 @@ projects_funders_types <- Funder %>%
   qDT() 
 
 
-# Active Inventory -------------------------------------------------------------
+# activeInventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
   join(
     session$userData$Project0 %>%
@@ -424,7 +429,6 @@ session$userData$Event <- Event
 session$userData$Exit <- Exit 
 # CurrentLivingSituation -------------------------------
 session$userData$CurrentLivingSituation <- CurrentLivingSituation 
-
 # Assessment -------------------------
 session$userData$Assessment <- Assessment
 
