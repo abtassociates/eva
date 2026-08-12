@@ -150,7 +150,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             eval(parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name]$rule_text), envir = invalid_dt)
           else
             rule_row$List,
-          issue_type = factor(rule_row$issue_type),
+          issue_type = rule_row$issue_type,
           Issue = rule_row$Issue,
           Guidance = rule_row$Guidance,
           Priority = rule_row$Priority,
@@ -165,12 +165,18 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         )
       
       if(rule_row$issue_type == "Null Unless") {
+        cond <- paste0("(", rule_row$codified_rule, ") & is.na(", rule_row$Name, ")")
         invalid_dt_full <- invalid_dt_full |>
           fmutate(
             detail_template = fifelse(
-              !eval(parse(text = rule_row$codified_rule), envir = invalid_dt),
+              eval(parse(text = cond), envir = invalid_dt),
               paste0("{Name} is missing in HMIS even though {readable_validation_notes}. Key Info: ", key_template),
               detail_template
+            ),
+            Issue = fifelse(
+              eval(parse(text = cond), envir = invalid_dt),
+              "Not Null When",
+              Issue
             )
           )
       }
