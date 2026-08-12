@@ -13,10 +13,10 @@ groups <- list(
 exclude_vals <- c(8, 9, 99, NA)
 
 format_val <- function(val, unit_type = "clients") {
-  if (is.na(val) || is.null(val) || length(val) == 0) return("-")
+  if (allNA(val) || is.null(val) || length(val) == 0) return("-")
   
   if (unit_type %in% c("days", "clients", "assessments", "households", "people", "records", "enrollments")) {
-    glue::glue("{comma(val, accuracy = ifelse(val %% 1 == 0, 1, 0.1))} {unit_type}")
+    paste0(comma(val, accuracy = ifelse(val %% 1 == 0, 1, 0.1)), " ", unit_type)
   } else if (unit_type == "pct") {
     percent(val, accuracy = 0.1)
   } else {
@@ -212,7 +212,7 @@ calc_by_hh_group <- function(metric_name, m_datasets) {
   def <- METRIC_DEFINITIONS[[metric_name]]
   sub_dt <- m_datasets[[def$dt_key]]
   
-  vals <- sapply(groups, function(g) {
+  vals <- lapply(groups, function(g) {
     if (is.null(sub_dt) || fnrow(sub_dt) == 0) return(NA_real_)
     grp_dt <- sub_dt[HHTypeAtReportStart %in% g]
     if (fnrow(grp_dt) == 0) return(NA_real_)
@@ -234,13 +234,26 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "total_clients" = {
       m <- eval_metric("Total Clients Served", metric_dataset)
+      # Safe extraction helper function
+      get_age_count <- function(res_dt, target_group) {
+        if (is.data.frame(res_dt) && fnrow(res_dt) > 0) {
+          val <- res_dt[AgeGroup == target_group, n_unique]
+          if (length(val) > 0) return(val)
+        }
+        NA_real_
+      }
+      
+      adult_val   <- get_age_count(m$val, "Adult")
+      child_val   <- get_age_count(m$val, "Child")
+      unknown_val <- get_age_count(m$val, "Unknown")
+      
       value_box(
         class = "project_dashboard_valbox",
         title = "Total Clients Served",
         value = tagList(
-          div("Adults: ", format_val(m$val[AgeGroup == "Adult"]$n_unique, "clients")),
-          div("Children: ", format_val(m$val[AgeGroup == "Child"]$n_unique, "clients")),
-          div("Unknown: ", format_val(m$val[AgeGroup == "Unknown"]$n_unique, "clients"))
+          div("Adults: ", format_val(adult_val, "clients")),
+          div("Children: ", format_val(child_val, "clients")),
+          div("Unknown: ", format_val(unknown_val, "clients"))
         ),
         showcase = bs_icon("people"),
         id = "total_clients_box"
@@ -646,14 +659,38 @@ get_details_by_hh_type <- function(m_datasets, selected_project_type) {
   dt_list <- lapply(names(METRIC_DEFINITIONS), function(m_name) {
     m_def <- METRIC_DEFINITIONS[[m_name]]
     
-    vals <- calc_by_hh_group(m_name, m_datasets)
-    formatted_vals <- sapply(vals, format_val, unit_type = m_def$unit)
+    # Filter by applicability
+    if (!m_def$applies(selected_project_type)) return(NULL)
     
-    as.list(c(Metric = m_name, formatted_vals))
+    vals <- calc_by_hh_group(m_name, m_datasets)
+    if (m_name == "Total Clients Served") {
+      age_groups <- c("Adult", "Child", "Unknown")
+      
+      rows <- lapply(age_groups, function(ag) {
+        formatted_vals <- lapply(vals, function(group_res) {
+          # Check if group_res is a valid data.frame returned by calc_func
+          if (is.data.frame(group_res) && fnrow(group_res) > 0) {
+            cnt <- group_res[AgeGroup == ag, n_unique]
+            val_to_fmt <- if (length(cnt) > 0 && !is.na(cnt)) cnt else 0
+          } else {
+            val_to_fmt <- NA_real_
+          }
+          format_val(val_to_fmt, unit_type = m_def$unit)
+        })
+        
+        as.list(c(Metric = paste0("Total Clients Served (", ag, "s)"), formatted_vals))
+      })
+      return(rbindlist(rows, fill=TRUE))
+      
+    } else {
+      # Standard handling for single-value scalar metrics
+      formatted_vals <- lapply(vals, format_val, unit_type = m_def$unit)
+      return(as.list(c(Metric = m_name, formatted_vals)) |> qDT())
+    }
   })
   
   dt_list <- dt_list[!sapply(dt_list, is.null)]
-  rbindlist(dt_list)
+  rbindlist(dt_list, fill=TRUE)
 }
 
 # ==========================================
