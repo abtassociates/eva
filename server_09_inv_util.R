@@ -612,7 +612,7 @@ output$proj_bui_hh_plot <- renderPlot({
     geom_hline(aes(yintercept = 0.65), linetype = 'dashed', size=rel(0.8), color = 'red') +
     geom_hline(aes(yintercept = 1.05), linetype = 'dashed', size=rel(0.8), color = 'red') +
     #geom_line(aes(color = ProjectType), size=rel(2), show.legend = FALSE) + 
-    geom_line(color = 'black', size=rel(1.5), show.legend = FALSE) + 
+    geom_line(color = 'black', linewidth=rel(1.5), show.legend = FALSE) + 
     geom_point(shape = 21, size=rel(5), show.legend = F) + 
     labs(x='', y='Utilization', title = glue('{input$bui_period_filter} {input$bui_inventory_level} Utilization')) +
     #scale_x_discrete() +
@@ -676,10 +676,15 @@ bui_dt_data <- reactive({
     data <- data %>% select(-Availability, -contains("PIT"), -contains("Total ")) %>% unique()
   }
   
-  
   labels <- data$label
   data <- data %>% fselect(-label) %>% t()  # transpose 
-  colnames(data) <- paste0(format(as.Date(data['Time Period Start',]),format='%m/%d/%y'), '-', format(as.Date(data['Time Period End',]),format='%m/%d/%y'))
+  if(input$bui_period_filter == "Points in Time"){
+    colnames(data) <- paste0(format(as.Date(data['Time Period',]),format='%m/%d/%y'))
+
+  } else {
+    colnames(data) <- paste0(format(as.Date(data['Time Period Start',]),format='%m/%d/%y'), '-', format(as.Date(data['Time Period End',]),format='%m/%d/%y'))
+    
+  }
   for (f in input$bui_bed_avail){
     #print(rownames(data))
     #print(grepl(f,rownames(data)))
