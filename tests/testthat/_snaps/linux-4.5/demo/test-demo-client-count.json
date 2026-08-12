@@ -510,7 +510,7 @@
         }
       ]
     },
-    "currentProviderList": "Organization A - ES",
+    "currentProviderList": "486",
     "dateRangeCount": [
       "2019-10-01",
       "2022-09-30"
@@ -754,8 +754,8 @@
         }
       ]
     },
-    "downloadClientCountsReportButton": {
-      "html": "<a id=\"downloadClientCountsReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download System-Wide\n<\/a>",
+    "downloadProjectDashboardReportButton": {
+      "html": "<a id=\"downloadProjectDashboardReport\" class=\"btn btn-default shiny-download-link disabled\" href=\"\" target=\"_blank\" download aria-disabled=\"true\" tabindex=\"-1\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download System-Wide\n<\/a>",
       "deps": [
         {
           "name": "font-awesome",
@@ -775,13 +775,13 @@
         }
       ]
     },
-    "headerClientCounts": {
-      "html": "<h2>Project Dashboard Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerClientCounts_supp\" class=\"shiny-html-output\"><\/div>",
+    "headerProjectDashboard": {
+      "html": "<h2>Project Dashboard Report<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>\n<div id=\"headerProjectDashboard_supp\" class=\"shiny-html-output\"><\/div>",
       "deps": [
 
       ]
     },
-    "headerClientCounts_supp": {
+    "headerProjectDashboard_supp": {
       "html": "<h4>\n  Organization A\n  |\n  Organization A - ES\n<\/h4>",
       "deps": [
 
@@ -791,7 +791,7 @@
       "x": {
         "filter": "none",
         "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Time for Record Entry<\/th>\n      <th>Number of Project Start Records<\/th>\n      <th>Number of Project Exit Records<\/th>\n      <th>Number of Current Living Situation Records<\/th>\n      <th>Number of CE Assessment Records<\/th>\n      <th>Number of CE Event Records<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "t",
           "ordering": false,
@@ -800,7 +800,10 @@
               "className": "dt-right",
               "targets": [
                 1,
-                2
+                2,
+                3,
+                4,
+                5
               ]
             },
             {
@@ -814,6 +817,18 @@
             {
               "name": "Number of Project Exit Records",
               "targets": 2
+            },
+            {
+              "name": "Number of Current Living Situation Records",
+              "targets": 3
+            },
+            {
+              "name": "Number of CE Assessment Records",
+              "targets": 4
+            },
+            {
+              "name": "Number of CE Event Records",
+              "targets": 5
             }
           ],
           "order": [
