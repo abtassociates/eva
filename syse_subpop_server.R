@@ -37,7 +37,7 @@ syse_subpop_export_summary <- reactive({
   which_factors_changed <- names(which(did_factors_change() == 1))
   
   labels_factors_changed <- c(
-    meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
+    meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_subpop_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_subpop_hh_type), NA_character_),
     meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
     meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
                                    ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
@@ -54,7 +54,7 @@ syse_subpop_export_summary <- reactive({
     levels(subpop_table_df[['meets_hh_type']]) <- c(labels_factors_changed['meets_hh_type'],labels_all_other['meets_hh_type'])
   } else {
     subpop_table_df <- subpop_table_df %>% 
-      fmutate(meets_hh_type = getNameByValue(sys_hh_types, input$syse_hh_type))
+      fmutate(meets_hh_type = getNameByValue(sys_hh_types, input$syse_subpop_hh_type))
   }
   
   if('meets_age_filter' %in% which_factors_changed){
@@ -152,7 +152,7 @@ syse_subpop_selections <- reactive({
 
 did_factors_change <- reactive({
   c(
-    meets_hh_type = (input$syse_hh_type != 'All'),
+    meets_hh_type = (input$syse_subpop_hh_type != 'All'),
     meets_age_filter = ('Age' %in% syse_subpop_selections() && length(input$syse_subpop_age) < length(sys_age_cats)),
     meets_race_eth_filter = (input$syse_methodology_type == '1' && input$syse_subpop_race_ethnicity1 != 'All') + 
       (input$syse_methodology_type == '2' && input$syse_subpop_race_ethnicity2 != 'All'),
@@ -164,7 +164,7 @@ compute_subpop_and_everyone_else <- function(input_df){
   
   subpop_w_client_filters <- input_df
   
-  if(input$syse_hh_type != 'All'){
+  if(input$syse_subpop_hh_type != 'All'){
     subpop_w_client_filters <- subpop_w_client_filters %>% 
       fmutate(meets_hh_type = !meets_ev_else)
              
@@ -278,7 +278,7 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
   
   # which_factors_changed <- names(which(did_factors_change() == 1))
   # labels_factors_changed <- c(
-  #   meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
+  #   meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_subpop_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_subpop_hh_type), NA_character_),
   #   meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
   #   meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
   #                                  ifelse(input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
@@ -389,7 +389,7 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
   which_factors_changed <- names(which(did_factors_change() == 1))
   
   labels_factors_changed <- c(
-    meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_hh_type), NA_character_),
+    meets_hh_type = ifelse('meets_hh_type' %in% which_factors_changed && input$syse_subpop_hh_type != 'All', getNameByValue(sys_hh_types,input$syse_subpop_hh_type), NA_character_),
     meets_age_filter = ifelse('meets_age_filter' %in% which_factors_changed && length(input$syse_subpop_age) < length(sys_age_cats), paste0(input$syse_subpop_age, collapse=', '), NA_character_),
     meets_race_eth_filter = ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_methodology_type == '1' && input$syse_subpop_race_ethnicity1 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(1), input$syse_subpop_race_ethnicity1), collapse=','), 
                                    ifelse('meets_race_eth_filter' %in% which_factors_changed && input$syse_methodology_type == '2' && input$syse_subpop_race_ethnicity2 != 'All', paste0(getNameByValue(sys_race_ethnicity_cats(2), input$syse_subpop_race_ethnicity2)) , NA_character_)),
