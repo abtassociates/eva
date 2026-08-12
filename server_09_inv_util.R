@@ -608,6 +608,8 @@ output$proj_bui_hh_plot <- renderPlot({
   validate(need(!all(is.na(plot_df$pct_util)),'Insufficient utilization data to generate plots. Please select fewer filters.'))
   
   max_bound <- 5*ceiling(max(plot_df$pct_util, na.rm=T)*5)
+  validate(need(is.finite(max_bound), 'There are zero units available. Utilization cannot be calculated'))
+  
   ggplot(plot_df, aes(x=plot_order, y = pct_util, group = Availability, fill = ProjectType)) + 
     geom_hline(aes(yintercept = 0.65), linetype = 'dashed', size=rel(0.8), color = 'red') +
     geom_hline(aes(yintercept = 1.05), linetype = 'dashed', size=rel(0.8), color = 'red') +
