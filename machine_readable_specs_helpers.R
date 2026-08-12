@@ -169,7 +169,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           fmutate(
             detail_template = fifelse(
               !eval(parse(text = rule_row$codified_rule), envir = invalid_dt),
-              stringi::stri_replace_all_fixed(detail_template, "should be null unless", "should not be null when"),
+              paste0("{Name} is missing in HMIS even though {readable_validation_notes}. Key Info: ", key_template),
               detail_template
             )
           )
