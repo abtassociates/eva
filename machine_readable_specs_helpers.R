@@ -127,7 +127,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       }
       
       # Subset the dataset to only rows that failed the check
-      invalid_dt <- dt |> fsubset(is_invalid == TRUE)
+      invalid_dt <- dt[is_invalid == TRUE]
       
       if (fnrow(invalid_dt) == 0) return(NULL)
       
