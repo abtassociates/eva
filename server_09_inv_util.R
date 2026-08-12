@@ -1,6 +1,6 @@
 # Server for Inventory & Utilization Tabs
 # functions ---------------------
-get_quarters <- function(){
+get_pits <- function(){
   # get the last date in activeInventory
   lastday <- as.Date(session$userData$ReportEnd)
   y_last <- year(lastday)
@@ -34,6 +34,7 @@ get_quarters <- function(){
   names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
   return(quarters[quarters >= as.Date(session$userData$ReportStart)])
 } # get quarterly dates - copied from 08_inv_util.r
+
 get_months <- function(){
   lastday <- as.Date(session$userData$ReportEnd)
   y_last <- year(lastday)
@@ -49,6 +50,26 @@ get_months <- function(){
   return(months[months>=as.Date(session$userData$ReportStart)])
 } # get monthly dates - copied from 08_inv_util.r
 
+get_quarters <- function(){
+  
+  # split months into quarters
+  mons <- get_months()
+  
+  if(length(mons)>=3){
+    quarts <- c(mons[seq.int(1,length(mons) - length(mons)%%3 , 3)]) 
+    # subtract the module to make it divisible by 3
+    # 12 ~ 12, 11 ~ 9, 10 ~ 9, 9 ~ 9, 8 ~ 6, etc.
+  }else{
+    quarts <- mons[1]
+  }
+  
+  # Rename according to Month
+  names(quarts) <- case_when(names(quarts) %in% c("Jan", "Feb", "Mar") ~ "Q1",
+                             names(quarts) %in% c("Apr", "May", "Jun") ~ "Q2",
+                             names(quarts) %in% c("Jul", "Aug", "Sep") ~ "Q3",
+                             names(quarts) %in% c("Oct", "Nov", "Dec") ~ "Q4")
+  return(quarts)
+}
 # function to build the variable name for dedicated inventories 
 dedicated0 <- function(choose = "All Types", unit = "Bed", HMIS = FALSE, PIT = FALSE){
   
@@ -204,27 +225,24 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type 
   # subset to dates within report range
   labels <- labels[period >= as.Date(session$userData$ReportStart) & period <= as.Date(session$userData$ReportEnd) ]
   period <- period[period >= as.Date(session$userData$ReportStart) & period <= as.Date(session$userData$ReportEnd) ] 
-  # for quarters where the PIT does not land on the 1st of a month, get the beginning of the month instead
-  # keeping PIT the same is required for merging tables 
-  period_start <- as.Date(paste0(substr(period, 1, 8), "01"))
-  
+
   for (q in 1:(length(period)+1)){ # q stands for quarter, but this is generalized to work for months too
     #browser()
-    if(period_start[1] == as.Date(session$userData$ReportStart) ){ # if first period equals report start (monthly/even quarterly view)
+    if(period[1] == as.Date(session$userData$ReportStart) ){ # if first period equals report start (monthly/even quarterly view)
       
-      q_start <- as.Date(fifelse(q <= length(period_start),  period_start[q], NA )) # current period or NA (for post-last iter)
-      q_end <- as.Date(fifelse(q >= length(period_start), session$userData$ReportEnd, period_start[q+1]-days(1))) # next period minus a day or Report End (for last & post-last iter)
-      q_lab <- fcase(q > length(period_start), NA_character_, # no post-last iter label
-                     q == length(period_start) & as.Date(session$userData$ReportEnd) != (min(period_start) + years(1) - days(1)), paste(labels[q], "to Report End"),
+      q_start <- as.Date(fifelse(q <= length(period),  period[q], NA )) # current period or NA (for post-last iter)
+      q_end <- as.Date(fifelse(q >= length(period), session$userData$ReportEnd, period[q+1]-days(1))) # next period minus a day or Report End (for last & post-last iter)
+      q_lab <- fcase(q > length(period), NA_character_, # no post-last iter label
+                     q == length(period) & as.Date(session$userData$ReportEnd) != (min(period) + years(1) - days(1)), paste(labels[q], "to Report End"),
                      default =  labels[q]) # otherwise use label as-is
       q_pit <- as.Date(fifelse(q > length(period), NA, # no post-last iter label
                                period[q]) )# otherwise use pit as-is
       
     }else{
       
-      q_start <- as.Date(ifelse(q==1, session$userData$ReportStart, period_start[q-1] )) # Report start (for first iter) or previous period start
-      q_end <- as.Date(ifelse(q>length(period_start), session$userData$ReportEnd, period_start[q] -days(1))) # current period start minus a day or Report End (for post-last iter)
-      q_lab <- fcase(q > length(period_start), paste(labels[q-1], "to Report End"), # construct post-last iter label with previous label to Report End
+      q_start <- as.Date(ifelse(q==1, session$userData$ReportStart, period[q-1] )) # Report start (for first iter) or previous period start
+      q_end <- as.Date(ifelse(q>length(period), session$userData$ReportEnd, period[q] -days(1))) # current period start minus a day or Report End (for post-last iter)
+      q_lab <- fcase(q > length(period), paste(labels[q-1], "to Report End"), # construct post-last iter label with previous label to Report End
                      q==1, paste("Report Start to",  labels[q]), # update first iter label to note it starts from Report Start
                      default =  labels[q-1]) # otherwise use label of previous period
       q_pit <- as.Date(ifelse(q ==1, NA, # no post-last iter pit (purely for linking data)
@@ -386,10 +404,11 @@ output$bui_filter_selections <- renderUI({
 })
 
 ## Data Reactives ------------------------------------------
-summary_proj_hh<- reactive({
+
+get_selected_proj <- reactive({
+  req(session$userData$valid_file() == 1 )
   req(!is.null(input$bui_HMISprojects))
   req(input$bui_hh_type)
-  req(input$bui_bed_avail)
   
   # Update the list of Projects depending on the currently selected filters
   project_choices <- session$userData$HMIS_projects_w_active_inv
@@ -400,11 +419,8 @@ summary_proj_hh<- reactive({
   # subset project_level_util_q by it's filters
   if(input$bui_period_filter == "Monthly"){
     project_level_util <- session$userData$project_level_util_m %>% fsubset(ProjectID %in% unique(selected_projs$ProjectID))
-    period <- get_months()  %>% sort
   }else{ # Quarterly or Points in Time
     project_level_util <- session$userData$project_level_util_q %>% fsubset(ProjectID %in% unique(selected_projs$ProjectID))
-    period <- get_quarters() %>% sort
-    
   }
   
   if(input$bui_hh_type == "Adult-Only"){
@@ -415,19 +431,40 @@ summary_proj_hh<- reactive({
     project_level_util <- project_level_util %>% fsubset(HouseholdType == 4)
   }
   
+  project_level_util
+})
+
+summary_proj_hh<- reactive({
+  req(!is.null(input$bui_HMISprojects))
+  req(input$bui_hh_type)
+  req(input$bui_bed_avail)
+
+  # get time period
+  if(input$bui_period_filter == "Monthly"){
+    period <- get_months()  %>% sort
+  }else{ # Quarterly or Points in Time
+    if(input$bui_period_filter =="Points in Time"){
+      period <- get_pits() %>% sort
+    }else{
+      period <- get_quarters() %>% sort
+    }
+  }
+  
+  project_level_util <- get_selected_proj()
   # only return a table if anything remains
   req(nrow(project_level_util)>0)
   
   # Avg selected projects over quarters
   if(input$bui_hh_type == "All"){
-    nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(selected_projs$ProjectID),
-                               extragroups = c("ProjectID"))
+    nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(project_level_util$ProjectID),
+                                 extragroups = c("ProjectID"))
     grouping_vars = c("ProjectID", "PIT",  "Availability")
     
   }else{
-    nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(selected_projs$ProjectID),
-                               extragroups = c("ProjectID", "HouseholdType"))
+    nightly_avg <- nightly_avg(period = period, labels = names(period), projlist = unique(project_level_util$ProjectID),
+                                 extragroups = c("ProjectID", "HouseholdType"))
     grouping_vars = c("ProjectID", "PIT", "HouseholdType",  "Availability")
+    
     if(input$bui_hh_type == "Adult-Only"){
       nightly_avg <- nightly_avg %>% fsubset(HouseholdType == 1)
     }else if(input$bui_hh_type == "Adult-Child"){
@@ -435,9 +472,8 @@ summary_proj_hh<- reactive({
     }else if(input$bui_hh_type == "Child-Only"){
       nightly_avg <- nightly_avg %>% fsubset(HouseholdType == 4)
     }
+    
   }
-  
-  
   
   project_level_util <-  project_level_util %>% fgroup_by(grouping_vars) %>%
     fsummarise(PIT_Beds = fsum(PIT_Beds),
@@ -459,21 +495,29 @@ summary_proj_hh<- reactive({
     fmutate(
       Availability = "Total"
      )
+  
+  if(input$bui_period_filter =="Quarterly"){ # fix PIT for Quarterly Period (to merge with PIT)
+    nightly_avg <- nightly_avg %>% fselect(-PIT) %>% 
+      join(data.frame(PIT = get_pits(), label = names(get_pits())) , how = "full") 
+  }
+  
   # join with selected project PIT date details
   project_level_util <-  project_level_util %>% rowbind(project_level_util_tot) %>%
     # this is a string and will be downloaded as such, this needs a format mask or to calculate separately for the download
     fmutate(PIT_Bed_Util = paste(round(PIT_Served / PIT_HMIS_Beds * 100, digits=1), "%"),
             PIT_Unit_Util = paste(round(PIT_HHServed / PIT_HMIS_Units * 100), "%"))
   
+  
   # join with selected project avg nightly details
-  project_level_util <-  project_level_util %>%
-    join(nightly_avg, how = "full") %>% arrange(ProjectID, PIT) %>% select(-ProjectID)  %>% 
-    group_by(PIT) %>% fill("PITstart", .direction = "updown") %>% 
-    fill("PITend", .direction = "updown")  %>% 
-    fill("label", .direction = "updown")  %>% 
-    fill("PIT_Served", .direction = "updown") %>%
-    fill("Total_Served", .direction = "updown") %>% 
-    fill("Avg_Nightly_Served", .direction = "updown") 
+    project_level_util <-  project_level_util %>%
+      join(nightly_avg , how = "full") %>% 
+      arrange(ProjectID, PIT) %>% select(-ProjectID)  %>% 
+      group_by(PIT) %>% fill("PITstart", .direction = "updown") %>% 
+      fill("PITend", .direction = "updown")  %>% 
+      fill("label", .direction = "updown")  %>% 
+      fill("PIT_Served", .direction = "updown") %>%
+      fill("Total_Served", .direction = "updown") %>% 
+      fill("Avg_Nightly_Served", .direction = "updown")
   
   # select bed or unit columns
   if(input$bui_inventory_level == "Beds"){
@@ -490,6 +534,7 @@ summary_proj_hh<- reactive({
   
   # remove underscores
   colnames(proj_inv_filtered) <- colnames(proj_inv_filtered) %>% gsub(pattern = "_", replacement = " ")
+  #print(proj_inv_filtered %>% arrange(PITstart))
   proj_inv_filtered %>% arrange(PITstart)
 })
 
@@ -735,7 +780,7 @@ sys_inv_filters <- reactive({
     strong("Date Range: "),
     
     if(input$bui_period_filter_sys == "Points in Time"){
-      paste(format(sort(get_quarters()), "%m-%d-%Y"), collapse = ', ')
+      paste(format(sort(get_pits()), "%m-%d-%Y"), collapse = ', ')
     }else{
       paste(format(session$userData$ReportStart, "%m-%d-%Y"), "to", format(session$userData$ReportEnd, "%m-%d-%Y"))
     }, br(),
@@ -808,7 +853,7 @@ output$bui_util_selections_sys_hh <- renderUI({
 
 ## Data Reactives ---------------------------------------
 # Monthly/Quarterly Reactives for system level summaries by project or household type 
-get_selected_proj <- reactive({
+get_selected_projs <- reactive({
   req(session$userData$valid_file() == 1 )
   
   if(input$bui_period_filter_sys == "Monthly"){
@@ -829,10 +874,15 @@ summary_sys_proj <- reactive({
   if(input$bui_period_filter_sys == "Monthly"){
     period <- get_months() %>% sort()
   }else{
-    period <- get_quarters() %>% sort()
+    
+    if(input$bui_period_filter =="Points in Time"){
+      period <- get_pits() %>% sort
+    }else{
+      period <- get_quarters() %>% sort
+    }
   }
   
-  selected_projs <- get_selected_proj()
+  selected_projs <- get_selected_projs()
   if(input$bui_sys_line_proj == "Homeless Projects"){
     selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
   }else if(input$bui_sys_line_proj == "Permanent Housing Projects"){
@@ -871,10 +921,14 @@ summary_sys_proj_util <- reactive({
   if(input$bui_period_filter_sys == "Monthly"){
     period <- get_months() %>% sort()
   }else{
-    period <- get_quarters() %>% sort()
+    if(input$bui_period_filter =="Points in Time"){
+      period <- get_pits() %>% sort
+    }else{
+      period <- get_quarters() %>% sort
+    }
   }
   
-  selected_projs <- get_selected_proj()
+  selected_projs <- get_selected_projs()
   if(input$bui_sys_line_proj_util == "Homeless Projects"){
     selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
   }else if(input$bui_sys_line_proj_util == "Permanent Housing Projects"){
@@ -914,10 +968,14 @@ summary_sys_hh <- reactive({
   if(input$bui_period_filter_sys == "Monthly"){
     period <- get_months() %>% sort()
   }else{
-    period <- get_quarters() %>% sort()
+    if(input$bui_period_filter =="Points in Time"){
+      period <- get_pits() %>% sort
+    }else{
+      period <- get_quarters() %>% sort
+    }
   }
   
-  selected_projs <- get_selected_proj()
+  selected_projs <- get_selected_projs()
   if(input$bui_sys_line_hh == "Homeless Projects"){
     selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
   }else if(input$bui_sys_line_hh == "Permanent Housing Projects"){
@@ -957,10 +1015,14 @@ summary_sys_hh_util <- reactive({
   if(input$bui_period_filter_sys == "Monthly"){
     period <- get_months() %>% sort()
   }else{
-    period <- get_quarters() %>% sort()
+    if(input$bui_period_filter =="Points in Time"){
+      period <- get_pits() %>% sort
+    }else{
+      period <- get_quarters() %>% sort
+    }
   }
   
-  selected_projs <- get_selected_proj()
+  selected_projs <- get_selected_projs()
   if(input$bui_sys_line_hh_util == "Homeless Projects"){
     selected_projs <- selected_projs %>% fsubset(ProjectType %in% lh_residential_project_types)
   }else if(input$bui_sys_line_hh_util == "Permanent Housing Projects"){
