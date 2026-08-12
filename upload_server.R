@@ -89,6 +89,9 @@ process_upload <- function(upload_filename, upload_filepath) {
         validation = session$userData$validation
       )
     )
+    logToConsole(session, format(object.size(dq_and_pdde_dependencies), units = "auto"))
+    log_memory(session, "before launching mirai")
+    
     dq_pdde_mirai <- mirai({
       source("machine_readable_specs_helpers.R", local=TRUE)
       
@@ -97,18 +100,22 @@ process_upload <- function(upload_filename, upload_filepath) {
 
       logToConsole(session, "About to run pdde_mirai")
       source("06_PDDE_Checker.R", local = TRUE)
-
-      list(
+      
+      result <- list(
         dq_main = dq_main,
         overlap_details = overlap_details,
         outstanding_referrals = outstanding_referrals,
         pdde_main = pdde_main,
         long_stayers = long_stayers
       )
+      log_memory(session, "after mirai result construction")
+      result
     }, .args = dq_and_pdde_dependencies) %...>% {
       # Store results of DQ and PDDE ------------------------------------------
       dq_pdde_results <- .[]
 
+      log_memory("after mirai result extraction")
+      
       logToConsole(session, "saving DQ and PDDE results to session")
       session$userData$pdde_main <- dq_pdde_results$pdde_main
       session$userData$dq_main <- dq_pdde_results$dq_main
