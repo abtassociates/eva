@@ -114,7 +114,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       # Store results of DQ and PDDE ------------------------------------------
       dq_pdde_results <- .[]
 
-      log_memory("after mirai result extraction")
+      log_memory(session, "after mirai result extraction")
       
       logToConsole(session, "saving DQ and PDDE results to session")
       session$userData$pdde_main <- dq_pdde_results$pdde_main
