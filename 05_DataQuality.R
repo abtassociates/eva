@@ -998,7 +998,7 @@ enrollment_positions <- Enrollment %>%
   join(base_dq_data, on = "EnrollmentID", how = 'left')
 #browser()
 enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate) & HMISParticipationStatusEndDate >= session$userData$meta_HUDCSV_Export_Start) %>%
   merge_check_info_dt(checkIDs = 111) %>%
   fselect(vars_we_want)
 
@@ -1013,7 +1013,7 @@ enrollment_before_participating_period <- enrollment_positions %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_end <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate)) %>%
+  fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating End" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate) & HMISParticipationStatusEndDate >= session$userData$meta_HUDCSV_Export_Start) %>%
   merge_check_info_dt(checkIDs = 114) %>% 
   fselect(vars_we_want)
 
@@ -1539,18 +1539,16 @@ missing_bn2 <- services_chk1 %>%
 
 missing_bn_entry <- missing_bn1 %>% rbind(missing_bn2) %>%
   merge_check_info_dt(checkIDs = 107) %>% 
-  fselect(all_of(vars_we_want)) %>%
+  fselect(vars_we_want) %>%
   funique()
 
 # Bed night available for NBN Enrollment Exit ---------------------------------------
 bn_on_exit <- services_chk1  %>% 
   fsubset(has_bn_eq_exit) %>%  # but it does appear on ExitDate
-  fselect(-has_bn_eq_entry, -has_bn_eq_exit)
-
-bn_on_exit <- missing_bn1 %>% rbind(bn_on_exit) %>% as.data.table() %>%
+  fselect(-has_bn_eq_entry, -has_bn_eq_exit) %>%
   merge_check_info_dt(checkIDs = 108) %>% 
-  fselect(all_of(vars_we_want)) %>%
-  unique()
+  fselect(vars_we_want) %>%
+  funique()
 
 rm(missing_bn1, missing_bn2, services_chk1) 
 # don't get rid of missing_bn0 & services_chk so it can be used in 06_PDDE_Checker.R

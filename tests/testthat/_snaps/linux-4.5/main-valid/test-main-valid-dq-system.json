@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 6a9d6d37bd3c372e205d1edbc9b5cd8e]",
+      "src": "[image data hash: 5b115e13cc70276873cefcdba8aa3d98]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -78,8 +78,8 @@
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Missing Residence Prior",
-                  "Missing Length of Stay",
                   "Bed night entered on Project Exit Date",
+                  "Missing Length of Stay",
                   "No bed night on Entry Date"
                 ]
               }
