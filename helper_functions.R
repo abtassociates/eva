@@ -180,12 +180,30 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   expected_rclasses <- get_expected_rclasses(csvFile)
   
+  # interpret the data in their original encoding, so they display nicely
+  # The resulting characters are almost always UTF-8 characters
+  # While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
+  # So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
+  # as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
+  # But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
+  guessed_enc <- readr::guess_encoding(filename)$encoding[1]
+  fread_enc <- ifelse(guessed_enc %in% c(NA, "UTF-8", "ASCII"), "UTF-8", "Latin-1")
+  
   # import data
   data <- data.table::fread(
     filename,
     colClasses = unlist(unname(expected_rclasses)),
-    na.strings="NA"
+    na.strings="NA",
+    encoding = fread_enc
   )
+  
+  # Tag all character columns as UTF-8
+  # Strings are tagged with a certain encoding metadata that is critical for some
+  # data.table functions (e.g. `roworder`)
+  char_cols <- char_vars(data, return = "names")
+  if (length(char_cols) > 0)
+    settransformv(data, char_cols, enc2utf8)
+  
   
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
   data[, (names(data)) := lapply(.SD, function(x) {
@@ -220,9 +238,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     data <- data %>%
       fsubset(is.na(DateDeleted))
   }
-  
-  attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
-  data <- convert_data_to_utf8(data)
   
   # remove the csv
   file.remove(filename)
@@ -600,41 +615,6 @@ replace_char_at <- function(string, position, replacement) {
     replacement,
     substr(string, position + 1, nchar(string))
   )
-}
-
-# interpret the data in their original encoding, so they display nicely
-# The resulting characters are almost always UTF-8 characters
-# While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
-# So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
-# as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
-# But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
-convert_data_to_utf8 <- function(data) {
-  file_encoding <- attr(data, "encoding")
-  if(file_encoding %in% c("UTF-8","ASCII")) return(data)
-  
-  # Fix encoding in all character columns in place
-  for (col in names(data)) {
-    if (is.character(data[[col]])) {
-      # Original column before conversion
-      original_col <- data[[col]]
-      
-      # Interpret characters in a non-UTF-8 encoded file correctly
-      # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
-      if(is.na(file_encoding)) file_encoding <- "ISO-8559-1"
-
-      tryCatch({
-        converted_col <- iconv(original_col, from = file_encoding, to = "UTF-8")  
-        # Identify changes by comparing original and converted values
-        if (length(which(original_col != converted_col)) > 0) {
-          data[[col]] <- converted_col
-        }
-      }, error = function(e) {
-        print("Conversion failed! Unknown encoding!")
-      })      
-    }
-  }
-  
- return(data)
 }
 
 # Debugging Inflow/Outflow-----------------
