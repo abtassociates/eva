@@ -138,59 +138,6 @@ populate_client_level_export <- function(type = 'overview', file){
            old = report_status_fields, 
            new = names(report_status_fields))
   
-  if(type == 'overview'){
-  # Monthly Statuses
-  monthly_statuses <- period_specific_data()[["Months"]] %>%
-    join(
-      session$userData$enrollment_categories %>% 
-        fmutate(
-          moved_into_housing = ProjectType %in% ph_project_types & 
-            between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE)
-        ) %>%
-        fselect(EnrollmentID, moved_into_housing),
-      on = "EnrollmentID"
-    ) %>%
-    fsubset(
-      InflowTypeSummary == "Inflow" |
-        OutflowTypeSummary == "Outflow" |
-        !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_export
-    ) %>%
-    fgroup_by(PersonalID) %>%
-    fmutate(
-      `Moved into Housing During Report` = anyv(moved_into_housing, TRUE),
-      `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
-      last_outflow = flast(OutflowTypeDetail)
-    ) %>%
-    fungroup() %>%
-    fmutate(
-      `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
-        last_outflow,
-        "Exited, Permanent" ~ "Yes - Exited, Permanent",
-        "Housed" ~ "Yes - Enrolled, Housed",
-        "Homeless" ~ "No - Enrolled, Homeless",
-        .default = paste0("No - ", last_outflow)
-      )
-    ) %>%
-    fselect(
-      PersonalID, 
-      `Moved into Housing During Report`,
-      `Exited to Permanent Destination During Report`,
-      `Moved into Housing or Exited to Permanent Destination by Report End`,
-      month,
-      OutflowTypeDetail
-    ) %>%
-    funique() %>%
-    pivot(
-      ids = c("PersonalID", 
-              "Moved into Housing During Report",
-              "Exited to Permanent Destination During Report",
-              "Moved into Housing or Exited to Permanent Destination by Report End"),        # Column(s) defining the rows of the output
-      names = "month", 
-      values = "OutflowTypeDetail",
-      how = "wider"
-    )
-  
-  
   # User's filter selections - metadata tab
   export_date_info <- tibble(
     Chart = c(
@@ -203,87 +150,114 @@ populate_client_level_export <- function(type = 'overview', file){
     )
   )
   
-  system_df_info <- sys_inflow_outflow_annual_chart_data() %>% 
-    select(Detail, N, Summary, InflowOutflow)
+  if(type == 'overview'){
+    # Monthly Statuses
+    monthly_statuses <- period_specific_data()[["Months"]] %>%
+      join(
+        session$userData$enrollment_categories %>% 
+          fmutate(
+            moved_into_housing = ProjectType %in% ph_project_types & 
+              between(MoveInDateAdjust, session$userData$ReportStart, session$userData$ReportEnd, incbounds = FALSE)
+          ) %>%
+          fselect(EnrollmentID, moved_into_housing),
+        on = "EnrollmentID"
+      ) %>%
+      fsubset(
+        InflowTypeSummary == "Inflow" |
+          OutflowTypeSummary == "Outflow" |
+          !OutflowTypeDetail %in% outflow_statuses_to_exclude_from_export
+      ) %>%
+      fgroup_by(PersonalID) %>%
+      fmutate(
+        `Moved into Housing During Report` = anyv(moved_into_housing, TRUE),
+        `Exited to Permanent Destination During Report` = anyv(OutflowTypeDetail, "Exited, Permanent"),
+        last_outflow = flast(OutflowTypeDetail)
+      ) %>%
+      fungroup() %>%
+      fmutate(
+        `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
+          last_outflow,
+          "Exited, Permanent" ~ "Yes - Exited, Permanent",
+          "Housed" ~ "Yes - Enrolled, Housed",
+          "Homeless" ~ "No - Enrolled, Homeless",
+          .default = paste0("No - ", last_outflow)
+        )
+      ) %>%
+      fselect(
+        PersonalID, 
+        `Moved into Housing During Report`,
+        `Exited to Permanent Destination During Report`,
+        `Moved into Housing or Exited to Permanent Destination by Report End`,
+        month,
+        OutflowTypeDetail
+      ) %>%
+      funique() %>%
+      pivot(
+        ids = c("PersonalID", 
+                "Moved into Housing During Report",
+                "Exited to Permanent Destination During Report",
+                "Moved into Housing or Exited to Permanent Destination by Report End"),        # Column(s) defining the rows of the output
+        names = "month", 
+        values = "OutflowTypeDetail",
+        how = "wider"
+      )
+    
+    total_title <-  "Total Served (Start + Inflow) People"
+    total_val <- sys_inflow_outflow_annual_chart_data() %>% 
+      fselect(Detail, N, Summary, InflowOutflow) %>%
+      fsubset(InflowOutflow == 'Inflow') %>%
+      fsum(N)
+  } else if (type == "exits") {
+    total_title <- "Total Exited People"
+    total_val <- fnrow(all_filtered_syse())
+  }
   
   filter_selections <- rbind(
     export_date_info, # ExportStart, Exportend
-    sys_export_summary_initial_df(type = 'overview'), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-    sys_export_filter_selections(type = 'overview'), # Age, Veteran Status, Race/Ethnicity
+    sys_export_summary_initial_df(type = type), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
+    sys_export_filter_selections(type = type), # Age, Veteran Status, Race/Ethnicity
     tibble(
-      Chart = "Total Served (Start + Inflow) People",
-      Value = sum(system_df_info[InflowOutflow == 'Inflow']$N, na.rm = TRUE)
+      Chart = total_title,
+      Value = total_val
     )
   )
-  # remove column names by setting them to the values from the first row and then subsetting
-  colnames(filter_selections) <- filter_selections[1,]
-  filter_selections <- filter_selections[2:nrow(filter_selections),]
   
-  adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
-    fsubset(
-      adjusted_dates == TRUE, 
-      PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
-    )
-  if(nrow(session$userData$lh_info) > 0) {
-    adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
-      join(
-        session$userData$lh_info %>% 
-          fgroup_by(EnrollmentID) %>% 
-          fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
-          fungroup() %>%
-          fsubset(lh_dates != "NA"),
-        on = "EnrollmentID"
-      )
-  }
-    # officer load the excel file with all its formatting
-    # All sheets exist in the desired order with view set to start on 'Instructions' 
-    wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
-    wb <- sheet_write_data(wb, filter_selections, "Metadata")
-    wb <- sheet_write_data(wb, client_level_details, "Client Details")
-    wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
-    wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
-    
-  } else if(type == 'exits'){
-    
-    # User's filter selections - metadata tab
-    export_date_info <- tibble(
-      Chart = c(
-        "ExportStart",
-        "ExportEnd"
-      ),
-      Value = c(
-        as.character(session$userData$meta_HUDCSV_Export_Start),
-        as.character(session$userData$meta_HUDCSV_Export_End)
-      )
-    )
-    
-    filter_selections <- rbind(
-      export_date_info, # ExportStart, Exportend
-      sys_export_summary_initial_df(type = 'exits'), # ReportStart, ReportEnd, Methodology Type, Household Type, Level of Detail, Project Type Group
-      sys_export_filter_selections(type = 'exits'), # Age, Veteran Status, Race/Ethnicity
-      tibble(
-        Chart = "Total Exited People",
-        Value = fnrow(all_filtered_syse())
-      )
-    )
+  # officer load the excel file with all its formatting
+  # All sheets exist in the desired order with view set to start on 'Instructions' 
+  wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
+  wb <- sheet_write_data(wb, filter_selections, "Metadata")
+  wb <- sheet_write_data(wb, client_level_details, "Client Details")
+  
+  if(type == 'overview') {
     # remove column names by setting them to the values from the first row and then subsetting
-    if(type == 'overview'){
-      colnames(filter_selections) <- filter_selections[1,]
-      filter_selections <- filter_selections[2:nrow(filter_selections),]
+    colnames(filter_selections) <- filter_selections[1,]
+    filter_selections <- filter_selections[2:nrow(filter_selections),]
+    
+    adjusted_non_res_enrl <- session$userData$enrollment_categories %>%
+      fsubset(
+        adjusted_dates == TRUE, 
+        PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
+      )
+    if(nrow(session$userData$lh_info) > 0) {
+      adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
+        join(
+          session$userData$lh_info %>% 
+            fgroup_by(EnrollmentID) %>% 
+            fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
+            fungroup() %>%
+            fsubset(lh_dates != "NA"),
+          on = "EnrollmentID"
+        )
     }
     
-    # officer load the excel file with all its formatting
-    # All sheets exist in the desired order with view set to start on 'Instructions' 
-    wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
-    
-    wb <- sheet_write_data(wb, filter_selections, "Metadata")
-    wb <- sheet_write_data(wb, client_level_details, "Client Details")
-    
+    wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
+    wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
+  } else {
     # drop the other sheets and instrunctions
     wb <- sheet_remove(wb, "Monthly Statuses")
     wb <- sheet_remove(wb, "Adjusted Enrollments")
-    
   }
+  
  
   print(wb, target = file)
   
