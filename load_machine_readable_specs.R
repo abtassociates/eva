@@ -35,7 +35,8 @@ cols_and_data_types <- raw[-(1:2),] |>
   qDT()
 
 ## Import Keys tab -----------------
-# Includes the Anchor ID (EnrollmentID or ProjectID) used for each CSV, which is used to help the user look up data for that CSV
+# Includes the Anchor ID (EnrollmentID, ProjectID, PersonalID, or OrganizationID) 
+# used for each CSV, which is used to help the user look up data for that CSV
 # Also includes the Key Date fields from that CSV, also used for lookups in the hmis system.
 keys_and_anchors <- readxl::read_xlsx(validation_specs_bk, sheet = "Keys") |>
   qDT() |>
@@ -83,9 +84,9 @@ reporting_info <- reporting_info |>
     `Key Fields` = `Key Fields` %>%
       str_replace("UniqueID", UniqueID) %>%
       str_replace("KeyDate", KeyDate),
-    AnchorID = fifelse(`Include AnchorID?` == TRUE, AnchorID, NA)
+    AnchorID = fifelse(`Include AnchorID?` == TRUE, fifelse(Source == "FSA", FSAAnchorID, AnchorID), NA)
   ) |>
-  fselect(-c(UniqueID, `Include AnchorID?`))
+  fselect(-c(UniqueID, `Include AnchorID?`, FSAAnchorID))
 
 ## pull in Evachecks info -------------
 specs_evachecks_issue_xwalk <- c(

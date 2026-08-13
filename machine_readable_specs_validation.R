@@ -250,7 +250,7 @@ specs_validation_issues <- specs_validation_issues %>%
     fill = TRUE
   ) |>
   frename(
-    "EnrollmentID or ProjectID" = AnchorID, 
+    "ID Type" = AnchorID, 
     "ID Value" = AnchorValue
   )
 

@@ -63,7 +63,7 @@ session$userData$file_structure_analysis_main(
 
 if(fnrow(specs_validation_issues) > 0)
   session$userData$file_structure_analysis_main() |>
-    colorderv(neworder = c("CSV", "Column", issue_display_cols, "EnrollmentID or ProjectID"))
+    colorderv(neworder = c("CSV", "Column", issue_display_cols, "ID Type"))
 
 if(session$userData$file_structure_analysis_main() %>% 
    fsubset(Priority == "High Priority") %>%
