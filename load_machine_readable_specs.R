@@ -89,29 +89,15 @@ reporting_info <- reporting_info |>
   fselect(-c(UniqueID, `Include AnchorID?`, FSAAnchorID))
 
 ## pull in Evachecks info -------------
-specs_evachecks_issue_xwalk <- c(
-  "Incorrect Data Type" = "Incorrect Data Type",
-  "Non-Null Invalid" = "Invalid Non-Null Value",
-  "Duplicate UniqueID" = "Duplicate unique identifiers",
-  "Column Mispelled/Misordered/Missing/Extra" = "Incorrect or Misordered Columns",
-  "Null Unless" = "Null Unless",
-  "Impermissible Characters" = "Impermissible Characters",
-  "String Length Limit Exceeded" = "Value length exceeds character limit",
-  "Foreign Key Missing" = "Identifier does not match across files",
-  "Unallowed Null" = "Nulls not allowed",
-  "Conditonally Invalid Value" = "Invalid Value"
-)
-
 reporting_info <- reporting_info |>
   fmutate(
     Source = fcase(
       Source == "FSA", "file structure",
       Source == "DQ", "dq",
       Source == "PDDE", "pdde"
-    ),
-    Issue = specs_evachecks_issue_xwalk[issue_type]
+    )
   ) |>
-  join(evachecks, on = c("Source", "Issue")) |>
+  join(evachecks, on = c("Source", "issue_type" = "Issue")) |>
   frename(
     "reporting_notes" = Notes
   )
@@ -182,12 +168,12 @@ valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na
 # Special cases: these are cases that could not be easily codified directly from the specs
 special_validation_rules <- list(
   Affiliation = list(
-    "Foreign Key Missing" = list(
+    "Identifier does not match across files" = list(
       ResProjectID = quote(.join == "dt")
     )
   ),
   CEParticipation = list(
-    "Conditonally Invalid Value" = list(
+    "Invalid Value" = list(
       PreventionAssessment = quote((is.na(PreventionAssessment) & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & PreventionAssessment != 0)),
       CrisisAssessment     = quote((is.na(CrisisAssessment)     & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & CrisisAssessment != 0)),
       HousingAssessment    = quote((is.na(HousingAssessment)    & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & HousingAssessment != 0)),
@@ -195,7 +181,7 @@ special_validation_rules <- list(
     )
   ),
   Client = list(
-    "Conditonally Invalid Value" = list(
+    "Invalid Value" = list(
       RaceNone = quote(
         !is.na(RaceNone) & 
           Reduce(`|`, lapply(mget(intersect(race_cols, ls())), function(x) x %in% 1), init = FALSE)
@@ -203,15 +189,15 @@ special_validation_rules <- list(
     )
   ),
   CurrentLivingSituation = list(
-    "Unallowed Null" = list(
+    "Nulls not allowed" = list(
       VerifiedBy = quote(is.na(VerifiedBy) & ProjectType == 14)
     ),
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       CurrentLivingSituation = quote(CurrentLivingSituation %in% c(312,313,327,422,423,426,30,24))
     )
   ),
   Disabilities = list(
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       DisabilityResponse = quote(
         (DisabilityType == 10 & !DisabilityResponse %in% valid_values[["4.10.2"]]) |
         (DisabilityType != 10 & !DisabilityResponse %in% valid_values[["1.8"]])
@@ -219,17 +205,17 @@ special_validation_rules <- list(
     )
   ),
   Enrollment = list(
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
       EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "dt")),
       LivingSituation = quote(LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37))
     ),
-    "Foreign Key Missing" = list(
+    "Identifier does not match across files" = list(
       EnrollmentCoC = quote(ContinuumProject == 1 & .join == "dt")
     )
   ),
   Exit = list(
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       SubsidyInformation = quote(
         (HousingAssessment == 1 & !SubsidyInformation %in% c(1,2,3,4)) |
           (HousingAssessment == 2 & !SubsidyInformation %in% c(11,12))
@@ -243,18 +229,18 @@ special_validation_rules <- list(
     )
   ),
   Export = list(
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       SourceID               = quote(SourceType == 1 & !grepl("^[A-Za-z]{2}-[0-9]{3}$", SourceID)),
       SourceContactPhone     = quote(!grepl("^[2-9][0-9]{2}[2-9][0-9]{2}[0-9]{4}$", SourceContactPhone)),
       SourceContactExtension = quote(!grepl("^[0-9]{1,5}$", SourceContactExtension)),
       SourceContactEmail     = quote(!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", SourceContactEmail))
     ),
-    "Unallowed Null" = list(
+    "Nulls not allowed" = list(
       SourceName = quote(SourceType != 1 & is.na(SourceName))
     )
   ),
   Inventory = list(
-    "Foreign Key Missing" = list(
+    "Identifier does not match across files" = list(
       CoCCode = quote(
         ProjectType %in% project_types_w_beds & 
         ((ProjectType == rrh_project_type & RRHSubType == 2) | ProjectType != rrh_project_type) &
@@ -263,14 +249,14 @@ special_validation_rules <- list(
     )
   ),
   ProjectCoC = list(
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       ZIP      = quote(!grepl("^[0-9]{5}$", ZIP)),
       Geocode  = quote(!grepl("^[0-9]{6}$", Geocode)),
       State    = quote(!grepl("^[a-zA-Z]{2}$", State))
     )
   ),
   Services = list(
-    "Non-Null Invalid" = list(
+    "Invalid Non-Null Value" = list(
       TypeProvided = function(dt) {
         valid_vals <- valid_values[record_type_list_lookup[as.character(dt$RecordType)]]
         !mapply(`%in%`, dt$TypeProvided, valid_vals)
@@ -434,9 +420,9 @@ specs_rules[
   )
 ]
 
-## 2. String Length Limit Exceeded -----------
+## 2. Value length exceeds character limit -----------
 specs_rules[
-  issue_type == "String Length Limit Exceeded", 
+  issue_type == "Value length exceeds character limit", 
   rule_expr := Map(function(col, limit) 
     rlang::parse_expr(glue::glue("vlengths({col}) > {limit}")),
     Name, 
@@ -444,17 +430,17 @@ specs_rules[
   )
 ]
 
-## 3. Unallowed Null -----------
+## 3. Nulls not allowed -----------
 specs_rules[
-  issue_type == "Unallowed Null", 
+  issue_type == "Nulls not allowed", 
   rule_expr := lapply(Name, function(col) 
     rlang::parse_expr(glue::glue("is.na({col})"))
   )
 ]
 
-## 4. Non-Null Invalid -----------
+## 4. Invalid Non-Null Value -----------
 specs_rules[
-  issue_type == "Non-Null Invalid" & !is.na(List), 
+  issue_type == "Invalid Non-Null Value" & !is.na(List), 
   rule_expr := Map(function(col, lst)
     # Creates: !is.na(Name) & !(Name %in% valid_values[['ListID']])
     rlang::parse_expr(glue::glue("!is.na({col}) & !({col} %in% valid_values[['{lst}']])")),
@@ -463,9 +449,9 @@ specs_rules[
   )
 ]
 
-## 5. Foreign Key Missing -----------
+## 5. Identifier does not match across files -----------
 specs_rules[
-  issue_type == "Foreign Key Missing",
+  issue_type == "Identifier does not match across files",
   `:=`(
     fk_id_col   = sub(".*Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", validation_notes),
     foreign_tbl = sub(".*Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", validation_notes)
@@ -473,7 +459,7 @@ specs_rules[
 ]
 
 specs_rules[
-  issue_type == "Foreign Key Missing", 
+  issue_type == "Identifier does not match across files", 
   rule_expr := Map(function(c, fc, ft)
    rlang::parse_expr(glue::glue("!is.na({c}) & !({c} %in% get('{ft}')[['{fc}']])")), 
    Name, 
@@ -483,11 +469,11 @@ specs_rules[
 ]
 
 # ignore User ID
-specs_rules <- specs_rules[!(issue_type == "Foreign Key Missing" & Name == "UserID")]
+specs_rules <- specs_rules[!(issue_type == "Identifier does not match across files" & Name == "UserID")]
 
-## 6. Duplicate UniqueID ---------
+## 6. Duplicate unique identifiers ---------
 specs_rules[
-  issue_type == "Duplicate UniqueID", 
+  issue_type == "Duplicate unique identifiers", 
   rule_expr := lapply(Name, function(col)
     # Using all = TRUE ensures BOTH the original and the duplicate are flagged
     rlang::parse_expr(glue::glue("fduplicated({col}, all = TRUE)"))

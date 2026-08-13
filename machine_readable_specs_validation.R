@@ -1,15 +1,15 @@
 # These are checks whose rules we get from the public-resources/FY26 HMIS-CSV-Machine-Readable-Specs.xlsx file
 # 
-# - Check 1: Column Mispelled/Misordered/Missing/Extra
+# - Check 1: Incorrect or Misordered Columns
 # - Check 2: Incorrect Data Type
 # - Check 3: Impermissible Characters
 # - Check 4-8 (evaluated in run_templatable_validaitons): 
-#     String Length Limit Exceeded
-#     Unallowed Null (based on the Null column not being Y)
-#     Non-Null Invalid
+#     Value length exceeds character limit
+#     Nulls not allowed (based on the Null column not being Y)
+#     Invalid Non-Null Value
 #       the easy case to check is when there's a list of valid values
 #       there are special cases with more nuanced conditions
-#     Duplicate UniqueID
+#     Duplicate unique identifiers
 #     FSA-Foreign Key checks
 # These are all HP, except Affiliaton > ProjectID, Affiliation > ResdProjectID, and CEParticipation > ProjectID, which are errors)
 
@@ -27,7 +27,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   unique_id_colname <- funique(reporting_info[CSV == csv_name]$UniqueID)
   
   
-  # Check 1: Column Mispelled/Misordered/Missing/Extra ------------------------------
+  # Check 1: Incorrect or Misordered Columns ------------------------------
   # Reports on missing/extra (misspelled column names will count as both) and otherwise misordered
   imported_cols <- colnames(dt)
   expected_cols <- csv_validation_info$Name
@@ -211,7 +211,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   
   # Compile the standard validation files
   csv_issues[[csv_name]] <- rbindlist(list(
-    "Column Mispelled/Misordered/Missing/Extra" = incorrect_columns,
+    "Incorrect or Misordered Columns" = incorrect_columns,
     "Incorrect Data Type" = incorrect_data_types,
     "Impermissible Characters" = impermissible_characters
   ), fill=TRUE, idcol='issue_type')
