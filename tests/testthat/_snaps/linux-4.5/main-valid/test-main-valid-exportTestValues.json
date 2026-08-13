@@ -2007,28 +2007,28 @@
       ],
       "System Summary": [
         [
-          "Length:73         ",
+          "Length:74         ",
           "Min.   :    1.0  ",
-          "Length:73         "
+          "Length:74         "
         ],
         [
           "Class :character  ",
-          "1st Qu.:   29.0  ",
+          "1st Qu.:   23.0  ",
           "Class :character  "
         ],
         [
           "Mode  :character  ",
-          "Median :  140.0  ",
+          "Median :  138.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  789.3  ",
+          "Mean   :  778.6  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  534.0  ",
+          "3rd Qu.:  531.5  ",
           null
         ],
         [
@@ -2039,47 +2039,47 @@
       ],
       "Organization Summary": [
         [
-          "Length:1027       ",
-          "Length:1027       ",
-          "Length:1027       ",
-          "Min.   :   1.0  "
+          "Length:1028       ",
+          "Length:1028       ",
+          "Length:1028       ",
+          "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:   3.0  "
+          "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :   8.0  "
+          "Median :   8.00  "
         ],
         [
           null,
           null,
           null,
-          "Mean   :  56.1  "
+          "Mean   :  56.05  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  24.0  "
+          "3rd Qu.:  24.00  "
         ],
         [
           null,
           null,
           null,
-          "Max.   :5367.0  "
+          "Max.   :5367.00  "
         ]
       ],
       "Guidance": [
         [
-          "Length:73         ",
-          "Length:73         ",
-          "Length:73         "
+          "Length:74         ",
+          "Length:74         ",
+          "Length:74         "
         ],
         [
           "Class :character  ",

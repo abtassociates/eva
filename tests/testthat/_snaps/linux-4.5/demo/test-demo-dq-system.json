@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: 390870e752bbf2c2b57e83eaab7dc134]",
+      "src": "[image data hash: 5e8a910ae81fd7eca8005066a06d870c]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -148,7 +148,7 @@
 
                 ],
                 "y": [
-                  "Null Unless",
+                  "Not Null When",
                   "Duplicate Entries",
                   "Missing Relationship to Head of Household",
                   "Too Many Heads of Household"
