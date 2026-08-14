@@ -1,17 +1,18 @@
 bracket_regex <- "[\\[\\]<>\\{}]"
 
 # Function to detect non-UTF-8 characters and brackets
-detect_bracket_characters <- function(dt, cols_to_check, key_info) {
+detect_bracket_characters <- function(dt, file, cols_to_check, key_info) {
   # Vectorized detection for non-UTF-8 and bracket issues
   # Identify character columns only
   lapply(cols_to_check, function(col) {
-    bracket_values <- fsubset(dt[[col]], stringi::stri_detect_regex(dt[[col]], bracket_regex))
+    bracket_rows <- stringi::stri_detect_regex(dt[[col]], bracket_regex)
+    bracket_values <- fsubset(dt[[col]], bracket_rows)
     data.table(
       CSV = file,
       Column = col,
       Detail = paste0("Text with impermissible characters: ", bracket_values, glue_data(dt[bracket_rows], key_info))
     )
-  })
+  }) |> rowbind()
 }
 
 bracket_files_detail <- function() {
@@ -23,32 +24,31 @@ bracket_files_detail <- function() {
       on = c("CSV", "Column", "Issue")
     )
   
+  file_list <- funique(impermissible_problems$CSV)
   
   withProgress(
-    message = "Downloading Impermissible Character Export...", {
-      for (file in funique(impermissible_problems$CSV)) {
-        cols_to_keep <- funique(na.omit(unlist(
-          lapply(impermissible_problems[CSV == file, .(Column, `Key Fields`)], as.character), 
-          use.names = FALSE
-        )))
-        idx <- whichv(impermissible_problems$CSV, file)
-        cols_to_check <- as.character(impermissible_problems$Column[idx])
-        key_fields    <- as.character(impermissible_problems$`Key Fields`[idx])
-        key_info <- fifelse(is.na(key_fields), "", gsub("([A-Za-z0-9_.]+)", ". Key Info: \\1 {\\1}", key_fields))
-        
-        path <- utils::unzip(
-          zipfile = input$imported$datapath, 
-          files=paste0(file, ".csv"), 
-          exdir=dirname(tempfile())
-        )
-        
-        dt <- fread(path, select = union(cols_to_check, key_fields)) |>
-          join_prereqs(file, envir = data_env)
-        
-        incProgress(1 / fnrow(impermissible_problems))
-        detect_bracket_characters(dt, cols_to_check, key_info)
-      }
-    }
+    message = "Downloading Impermissible Character Export...",
+    lapply(file_list, function(file) {
+      cols_to_keep <- funique(na.omit(unlist(
+        lapply(impermissible_problems[CSV == file, .(Column, `Key Fields`)], as.character), 
+        use.names = FALSE
+      )))
+      idx <- whichv(impermissible_problems$CSV, file)
+      cols_to_check <- as.character(impermissible_problems$Column[idx])
+      key_fields    <- as.character(impermissible_problems$`Key Fields`[idx])
+      key_info <- fifelse(is.na(key_fields), "", gsub("([A-Za-z0-9_.]+)", ". Key Info: \\1 {\\1}", key_fields))
+      
+      path <- utils::unzip(
+        zipfile = input$imported$datapath, 
+        files=paste0(file, ".csv"), 
+        exdir=dirname(tempfile())
+      )
+      
+      dt <- fread(path, select = union(cols_to_check, key_fields))
+      
+      incProgress(1 / fnrow(impermissible_problems))
+      detect_bracket_characters(dt, file, cols_to_check, key_info)
+    }) |> rowbind()
   )
 }
 
