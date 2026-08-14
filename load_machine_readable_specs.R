@@ -175,7 +175,7 @@ special_validation_rules <- list(
     )
   ),
   CEParticipation = list(
-    "Invalid Value" = list(
+    "Invalid Value(s)" = list(
       PreventionAssessment = quote((is.na(PreventionAssessment) & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & PreventionAssessment != 0)),
       CrisisAssessment     = quote((is.na(CrisisAssessment)     & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & CrisisAssessment != 0)),
       HousingAssessment    = quote((is.na(HousingAssessment)    & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & HousingAssessment != 0)),
@@ -183,7 +183,7 @@ special_validation_rules <- list(
     )
   ),
   Client = list(
-    "Invalid Value" = list(
+    "Invalid Value(s)" = list(
       RaceNone = quote(
         !is.na(RaceNone) & 
           (rowSums(do.call(cbind, mget(intersect(race_cols, ls()))) == 1, na.rm = TRUE) > 0)
