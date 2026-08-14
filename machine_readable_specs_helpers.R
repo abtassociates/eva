@@ -166,10 +166,11 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       if(rule_row$Issue == "Null Unless") {
         cond <- paste0("(", rule_row$codified_rule, ") & is.na(", rule_row$Name, ")")
         invalid_dt_full <- invalid_dt_full |>
+          # Handle Not Null When
           fmutate(
             detail_template = fifelse(
               eval(parse(text = cond), envir = invalid_dt),
-              paste0("{Name} is missing in HMIS even though {readable_validation_notes}. Key Info: ", key_template),
+              stringi::stri_replace(detail_template, "Since {Name} has been collected in HMIS, please ensure that {readable_validation_notes} in HMIS.", "{Name} is missing in HMIS even though {readable_validation_notes}."),
               detail_template
             ),
             Issue = fifelse(
