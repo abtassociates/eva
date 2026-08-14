@@ -259,9 +259,12 @@ if(fnrow(specs_validation_issues) > 0) {
 }
 
 templatable_validations <- run_templatable_validations("FSA", data_env = environment())
-if(fnrow(specs_validation_issues) > 0 && fnrow(templatable_validations) > 0) {
-  specs_validation_issues <- specs_validation_issues %>%
-    rowbind(templatable_validations, fill = TRUE) |>
+if(fnrow(specs_validation_issues) > 0 || fnrow(templatable_validations) > 0) {
+  specs_validation_issues <- rowbind(
+    specs_validation_issues, 
+    templatable_validations, 
+    fill = TRUE
+  ) |>
     frename(
       "ID Type" = AnchorID, 
       "ID Value" = AnchorValue
