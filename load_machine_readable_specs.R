@@ -186,7 +186,7 @@ special_validation_rules <- list(
     "Invalid Value" = list(
       RaceNone = quote(
         !is.na(RaceNone) & 
-          Reduce(`|`, lapply(mget(intersect(race_cols, ls())), function(x) x %in% 1), init = FALSE)
+          (rowSums(do.call(cbind, mget(intersect(race_cols, ls()))) == 1, na.rm = TRUE) > 0)
       )
     )
   ),
