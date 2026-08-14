@@ -204,13 +204,13 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     
     # Bind all rule results for this CSV
     return(rbindlist(csv_issues, fill = TRUE))
-  })
+  }) |> rbindlist(fill = TRUE)
   
   if(fnrow(all_issues) == 0)
     return(data.table())
   
   # 4. Bind all CSV results into one master issues table
-  final_issues <- rbindlist(all_issues, fill = TRUE) |>
+  final_issues <- all_issues |>
     join(
       column_priorities, 
       on=c("CSV" = "File", "Name" = "Column")
