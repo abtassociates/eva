@@ -200,14 +200,23 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   
   
   # Check 7: Impermissible Characters (Brackets) ---------------
-  char_cols <- which(sapply(dt, is.character))
-  if (length(char_cols) == 0) next
+  char_dt <- char_vars(dt)
+  if (ncol(char_dt) == 0) next
   
-  m_mat <- as.matrix(dt[, ..char_cols, drop = FALSE])  # Convert relevant columns to matrix
+  m_mat <- as.matrix(char_dt)
   
-  impermissible_characters <- if (any(grepl(bracket_regex, m_mat, perl=TRUE), na.rm=TRUE)) {
-    data.table(temp = TRUE) 
-  } else data.table()
+  matches <- stringi::stri_detect_regex(m_mat, bracket_regex)
+  dim(matches) <- dim(m_mat)
+  
+  col_has_match <- fmax(matches) == 1
+  
+  impermissible_characters <- if(any(col_has_match, na.rm=TRUE))
+    data.table(
+      Name = names(char_dt)[col_has_match |> replace_NA(FALSE)]
+    )
+  else data.table()
+    
+  rm(char_dt, m_mat, matches, col_has_match)
   
   # Compile the standard validation files
   csv_issues[[csv_name]] <- rbindlist(list(
