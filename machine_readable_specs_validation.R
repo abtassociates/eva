@@ -156,6 +156,11 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
   csv_validation_info <- csv_validation_info |>
     fsubset(Name %in% names(dt))
   
+  if(csv_name %in% files_to_ignore) {
+    csv_issues[[csv_name]] <- incorrect_columns
+    next
+  }
+  
   # Check 6: Incorrect Data Type ----------------
   # includes date and non-date
   # Just focus on the columns whose expected RClass differs from the fread-imported one 
@@ -263,9 +268,8 @@ specs_validation_issues <- specs_validation_issues %>%
     "ID Value" = AnchorValue
   )
 
-rm(list = files_to_ignore)
-
 rm(
+  list = files_to_ignore,
   incorrect_columns, 
   # exceeds_dt, 
   # unallowed_null, 

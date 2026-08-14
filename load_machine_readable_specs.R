@@ -136,7 +136,6 @@ valid_values <- split(valid_values_df$Value, valid_values_df$List)
 ## Manual edits ----
 cols_and_data_types <- cols_and_data_types %>%
   fselect(CSV, `DE#`, Name, Type, List, Null, Notes, Order, additional_notes) %>%
-  fsubset(!CSV %in% c("AssessmentResults","AssessmentQuestions")) %>%
   fmutate(
     Type = gsub("\u00A0", "", Type),
     List = str_trim(ifelse(List == "1.1000000000000001", "1.1", List)),
