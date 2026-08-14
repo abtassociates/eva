@@ -209,9 +209,6 @@ special_validation_rules <- list(
       # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
       EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "dt")),
       LivingSituation = quote(LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37))
-    ),
-    "Identifier does not match across files" = list(
-      EnrollmentCoC = quote(ContinuumProject == 1 & .join == "dt")
     )
   ),
   Exit = list(
