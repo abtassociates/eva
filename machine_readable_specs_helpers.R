@@ -170,7 +170,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           fmutate(
             detail_template = fifelse(
               eval(parse(text = cond), envir = invalid_dt),
-              stringi::stri_replace(detail_template, "Since {Name} has been collected in HMIS, please ensure that {readable_validation_notes} in HMIS.", "{Name} is missing in HMIS even though {readable_validation_notes}."),
+              stringi::stri_replace_all_fixed(detail_template, "Since {Name} has been collected in HMIS, please ensure that {readable_validation_notes} in HMIS.", "{Name} is missing in HMIS even though {readable_validation_notes}."),
               detail_template
             ),
             Issue = fifelse(
