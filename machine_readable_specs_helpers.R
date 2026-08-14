@@ -217,7 +217,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     ) %>%
     fmutate(
       Priority = fcase(
-        DataTypeHighPriority == 1, "High Priority",
+        DataTypeHighPriority == 1 & !(Name == "RaceNone" & Issue == "Invalid Value(s)"), "High Priority",
         Priority == "Warning", "Warning", 
         default = "Error"
       )
