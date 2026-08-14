@@ -1842,7 +1842,7 @@ calculate_outstanding_referrals <- function(dq_data){
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 ## Specs Issues....
-specs_issues <- run_templatable_validations("dq", data_env = environment()) %>%
+specs_issues <- run_templatable_validations("DQ", data_env = environment()) %>%
   frename("EnrollmentID" = AnchorValue) %>%
   join(
     base_dq_data %>% fselect(vars_prep), 

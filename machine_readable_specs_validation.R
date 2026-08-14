@@ -214,7 +214,7 @@ for(csv_name in unique(cols_and_data_types$CSV)) {
     "Incorrect or Misordered Columns" = incorrect_columns,
     "Incorrect Data Type" = incorrect_data_types,
     "Impermissible Characters" = impermissible_characters
-  ), fill=TRUE, idcol='issue_type')
+  ), fill=TRUE, idcol='Issue')
 }
 
 specs_validation_issues <- rbindlist(
@@ -226,8 +226,8 @@ specs_validation_issues <- rbindlist(
 if(fnrow(specs_validation_issues) > 0) {
   specs_validation_issues <- specs_validation_issues %>%
     join(
-      reporting_info %>% fselect(CSV, List, issue_type, Issue, Priority, Guidance, `Detail Text`, `Key Fields`, AnchorID),
-      on = c("CSV","issue_type"),
+      reporting_info %>% fselect(CSV, List, Issue, Priority, Guidance, `Detail Text`, `Key Fields`, AnchorID),
+      on = c("CSV","Issue"),
       drop.dup.cols = "x"
     ) %>%
     fmutate(
@@ -246,7 +246,7 @@ if(fnrow(specs_validation_issues) > 0) {
 
 specs_validation_issues <- specs_validation_issues %>%
   rowbind(
-    run_templatable_validations("file structure", data_env = environment()),
+    run_templatable_validations("FSA", data_env = environment()),
     fill = TRUE
   ) |>
   frename(

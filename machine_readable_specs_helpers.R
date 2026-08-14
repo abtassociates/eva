@@ -52,7 +52,7 @@ join_prereqs <- function(dt, csv_name, envir) {
 }
 
 run_templatable_validations <- function(target_source, data_env = parent.frame()) {
-  # 1. Get only the rules meant for this specific phase (e.g., "dq", "pdde", "file structure")
+  # 1. Get only the rules meant for this specific phase (e.g., "DQ", "PDDE", "FSA")
   source_rules <- specs_rules |> 
     fsubset(Source == target_source)
   
@@ -60,7 +60,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
   if (fnrow(source_rules) == 0) return(data.table())
   
   # 2. Dynamically loop over ONLY the CSVs that have checks in this phase
-  all_issues <- lapply(unique(source_rules$CSV), function(csv_name) {
+  all_issues <- lapply(funique(source_rules$CSV), function(csv_name) {
     print(paste0("getting issues for ", csv_name))
     
     # Safely get the dataset from the environment (skip if user didn't upload it)
@@ -99,7 +99,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       
       # For null-unless, add conditional funder+project type reqs
       # that is, we only run the check if the Funder and ProjectType match the specs
-      if(rule_row$issue_type == "Null Unless") {
+      if(rule_row$Issue == "Null Unless") {
         nu <- null_unless_additional_reqs |>
           fsubset(CSV == csv_name & Name == rule_row$Name & (!is.na(Funder) | !is.na(ProjectType)))
         
@@ -127,7 +127,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       }
       
       # Subset the dataset to only rows that failed the check
-      invalid_dt <- dt[is_invalid == TRUE]
+      invalid_dt <- dt |> fsubset(is_invalid == TRUE)
       
       if (fnrow(invalid_dt) == 0) return(NULL)
       
@@ -150,7 +150,6 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             eval(parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name]$rule_text), envir = invalid_dt)
           else
             rule_row$List,
-          issue_type = rule_row$issue_type,
           Issue = rule_row$Issue,
           Guidance = rule_row$Guidance,
           Priority = rule_row$Priority,
@@ -164,7 +163,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))
         )
       
-      if(rule_row$issue_type == "Null Unless") {
+      if(rule_row$Issue == "Null Unless") {
         cond <- paste0("(", rule_row$codified_rule, ") & is.na(", rule_row$Name, ")")
         invalid_dt_full <- invalid_dt_full |>
           fmutate(

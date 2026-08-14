@@ -68,7 +68,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     dq_and_pdde_dependencies <- mget(unique(c(
       dq_mirai_dependencies, 
       pdde_mirai_dependencies,
-      specs_rules[Source %in% c("dq","pdde")]$CSV
+      specs_rules[Source %in% c("DQ","PDDE")]$CSV
     )))
     
     

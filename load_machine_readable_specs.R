@@ -57,13 +57,13 @@ unique_id_lookup <- cols_and_data_types |>
 ## Pivot to long (CSV + Column + check) -----------------
 # The multi-header gives you one group of three columns per check type:
 #   Source, Include AnchorID?, Key Fields
-# Pivot gives us: CSV, Name, issue_type, Source, Include, AnchorID, Key Fields
+# Pivot gives us: CSV, Name, Issue, Source, Include, AnchorID, Key Fields
 library(tidyr)
 reporting_info <- cols_and_data_types %>%
   fselect(-c(`DE#`, Type, Null, Notes, Order)) |>
   pivot_longer(
     cols      = -c(CSV, List, Name),  # keep the identity columns
-    names_to  = c("issue_type", ".value"),
+    names_to  = c("Issue", ".value"),
     names_sep = "_"
   ) |>
   qDT() |>
@@ -90,14 +90,17 @@ reporting_info <- reporting_info |>
 
 ## pull in Evachecks info -------------
 reporting_info <- reporting_info |>
-  fmutate(
-    Source = fcase(
-      Source == "FSA", "file structure",
-      Source == "DQ", "dq",
-      Source == "PDDE", "pdde"
-    )
+  join(
+    evachecks |> fmutate(
+      Source = fcase(
+        Source == "file structure", "FSA",
+        Source == "dq", "DQ",
+        Source == "pdde", "PDDE",
+        default = NA
+      )
+    ), 
+    on = c("Source", "Issue")
   ) |>
-  join(evachecks, on = c("Source", "issue_type" = "Issue")) |>
   frename(
     "reporting_notes" = Notes
   )
@@ -106,7 +109,7 @@ reporting_info <- reporting_info |>
 reporting_info <- reporting_info |>
   join(
     readxl::read_xlsx(validation_specs_bk, sheet = "Detail Texts"),
-    on = c("issue_type" = "Issue Type")
+    on = "Issue"
   )
   
 # Read in CSV Lists from Specs ---------------------
@@ -402,13 +405,13 @@ specs_rules <- cols_and_data_types %>%
 ## 1. Null Unless  ------------
 library(glue)
 specs_rules[
-  issue_type == "Null Unless",
+  Issue == "Null Unless",
   validation_notes := str_split_i(validation_notes, "\r\n", 1)
 ][
-  issue_type == "Null Unless",
+  Issue == "Null Unless",
   codified_rule := Map(clean_rule_for_null_unless, Name, validation_notes)
 ][
-  issue_type == "Null Unless",
+  Issue == "Null Unless",
   `:=`(
     rule_expr = unlist(
       purrr::map2(Name, codified_rule, ~rlang::parse_expr(glue("null_unless({.x}, {.y}) | not_null_when({.x}, {.y})")))
@@ -419,7 +422,7 @@ specs_rules[
 
 ## 2. Value length exceeds character limit -----------
 specs_rules[
-  issue_type == "Value length exceeds character limit", 
+  Issue == "Value length exceeds character limit", 
   rule_expr := Map(function(col, limit) 
     rlang::parse_expr(glue::glue("vlengths({col}) > {limit}")),
     Name, 
@@ -429,7 +432,7 @@ specs_rules[
 
 ## 3. Nulls not allowed -----------
 specs_rules[
-  issue_type == "Nulls not allowed", 
+  Issue == "Nulls not allowed", 
   rule_expr := lapply(Name, function(col) 
     rlang::parse_expr(glue::glue("is.na({col})"))
   )
@@ -437,7 +440,7 @@ specs_rules[
 
 ## 4. Invalid Non-Null Value -----------
 specs_rules[
-  issue_type == "Invalid Non-Null Value" & !is.na(List), 
+  Issue == "Invalid Non-Null Value" & !is.na(List), 
   rule_expr := Map(function(col, lst)
     # Creates: !is.na(Name) & !(Name %in% valid_values[['ListID']])
     rlang::parse_expr(glue::glue("!is.na({col}) & !({col} %in% valid_values[['{lst}']])")),
@@ -448,7 +451,7 @@ specs_rules[
 
 ## 5. Identifier does not match across files -----------
 specs_rules[
-  issue_type == "Identifier does not match across files",
+  Issue == "Identifier does not match across files",
   `:=`(
     fk_id_col   = sub(".*Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", validation_notes),
     foreign_tbl = sub(".*Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", validation_notes)
@@ -456,7 +459,7 @@ specs_rules[
 ]
 
 specs_rules[
-  issue_type == "Identifier does not match across files", 
+  Issue == "Identifier does not match across files", 
   rule_expr := Map(function(c, fc, ft)
    rlang::parse_expr(glue::glue("!is.na({c}) & !({c} %in% get('{ft}')[['{fc}']])")), 
    Name, 
@@ -466,11 +469,11 @@ specs_rules[
 ]
 
 # ignore User ID
-specs_rules <- specs_rules[!(issue_type == "Identifier does not match across files" & Name == "UserID")]
+specs_rules <- specs_rules[!(Issue == "Identifier does not match across files" & Name == "UserID")]
 
 ## 6. Duplicate unique identifiers ---------
 specs_rules[
-  issue_type == "Duplicate unique identifiers", 
+  Issue == "Duplicate unique identifiers", 
   rule_expr := lapply(Name, function(col)
     # Using all = TRUE ensures BOTH the original and the duplicate are flagged
     rlang::parse_expr(glue::glue("fduplicated({col}, all = TRUE)"))
@@ -481,7 +484,7 @@ specs_rules[
 # overwrites the rule_expr column with the new special rule
 specs_rules[
   special_validation_rules_dt,
-  on = c("CSV", "Name", "issue_type" = "Issue"),
+  on = c("CSV", "Name", "Issue"),
   rule_expr := i.rule_expr
 ]
 
