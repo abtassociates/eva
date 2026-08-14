@@ -15,8 +15,7 @@
       4,
       5,
       6,
-      7,
-      8
+      7
     ],
     "pdde_guidance_summary_rows_current": [
       1,
@@ -25,8 +24,7 @@
       4,
       5,
       6,
-      7,
-      8
+      7
     ],
     "pdde_guidance_summary_rows_selected": null,
     "pdde_guidance_summary_search": "",
@@ -91,8 +89,7 @@
       4,
       5,
       6,
-      7,
-      8
+      7
     ],
     "pdde_summary_table_rows_current": [
       1,
@@ -101,8 +98,7 @@
       4,
       5,
       6,
-      7,
-      8
+      7
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
@@ -181,7 +177,7 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Missing RRH SubType&quot;,&quot;Missing Geography Information&quot;,&quot;Missing Address&quot;,&quot;No Inventory Records&quot;,&quot;Inventory Start Precedes Operating Start&quot;,&quot;Project Missing in ProjectCoC file&quot;,&quot;Residential Project Missing Housing Type&quot;,&quot;Identifier does not match across files&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;All RRH projects must have an RRH SubType. Please update the data at the project level.&quot;,&quot;Please ensure geography information for projects is complete.&quot;,&quot;Residential projects should have inventory data. Please enter inventory in HMIS for the project. If this project operates in more than one CoC, there must be separate Bed and Unit Inventory Information records for each CoC associated with the project in the Project.csv file.&quot;,&quot;Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.&quot;,&quot;This Continuum project is missing from your ProjectCoC file. This may mean the project is either missing a Continuum of Care Information record which includes fields such as &#39;Geocode&#39;, &#39;Project ZIP code&#39;, and &#39;Project Street Address&#39;, or there is an existing Continuum of Care Information record for the project, but the record does not have the correct CoC Code.&quot;,&quot;This project is missing a Housing Type. Please check this project&#39;s setup in your HMIS and identify whether the project&#39;s Housing Type is Site-based – single site, Site-based – clustered / multiple sites, or Tenant-based – scattered site.&quot;,&quot;Per the HMIS CSV Format Specifications, all *identifiers* in the *target* file should have a record in the *source* file.&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Priority<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",

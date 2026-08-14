@@ -51,8 +51,14 @@
 
     ],
     "fileStructureAnalysis_columns_selected": null,
-    "fileStructureAnalysis_rows_all": 1,
-    "fileStructureAnalysis_rows_current": 1,
+    "fileStructureAnalysis_rows_all": [
+      1,
+      2
+    ],
+    "fileStructureAnalysis_rows_current": [
+      1,
+      2
+    ],
     "fileStructureAnalysis_rows_selected": null,
     "fileStructureAnalysis_search": "",
     "fileStructureAnalysis_state": {
