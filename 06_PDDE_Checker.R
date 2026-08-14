@@ -628,14 +628,16 @@ lt_seas_inv <- lt_seas_inv %>%
   fselect(PDDEcols) %>% 
   funique()
 
-specs_issues <- run_templatable_validations("PDDE", data_env = environment()) %>%
-  frename("ProjectID" = AnchorValue) %>%
-  join(
-    session$userData$Project0, 
-    on = "ProjectID"
-  ) %>%
-  fselect(PDDEcols) %>%
-  funique()
+specs_issues <- run_templatable_validations("PDDE", data_env = environment())
+if(fnrow(specs_issues) > 0)
+  specs_issues <- specs_issues %>%
+    frename("ProjectID" = AnchorValue) %>%
+    join(
+      session$userData$Project0, 
+      on = "ProjectID"
+    ) %>%
+    fselect(PDDEcols) %>%
+    funique()
 
 
 # Put it all together -----------------------------------------------------

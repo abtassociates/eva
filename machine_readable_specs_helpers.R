@@ -206,6 +206,9 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     return(rbindlist(csv_issues, fill = TRUE))
   })
   
+  if(fnrow(all_issues) == 0)
+    return(data.table())
+  
   # 4. Bind all CSV results into one master issues table
   final_issues <- rbindlist(all_issues, fill = TRUE) |>
     join(
