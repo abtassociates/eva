@@ -993,23 +993,35 @@ rm(income_subs)
 
 # Enrollment Active Outside Participating Dates ---------------------------
 
-enrollment_positions <- Enrollment %>%
-  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate) %>%
-  join(base_dq_data, on = "EnrollmentID", how = 'left')
-#browser()
-enrollment_after_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & HMISParticipationType == 1 & !is.na(HMISParticipationStatusEndDate) & HMISParticipationStatusEndDate >= session$userData$meta_HUDCSV_Export_Start) %>%
-  merge_check_info_dt(checkIDs = 111) %>%
-  fselect(vars_we_want)
+enrollment_positions <- EnrollmentOutside2 %>%
+  join(base_dq_data, on = "EnrollmentID", how = 'left') 
 
 enrollment_x_participating_start <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start" & HMISParticipationType == 1) %>%
   merge_check_info_dt(checkIDs = 112) %>%
   fselect(vars_we_want)
 
-enrollment_before_participating_period <- enrollment_positions %>%
-  fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & HMISParticipationType == 1) %>%
-  merge_check_info_dt(checkIDs = 113) %>%
+## Checks 111 and 113 are commented out since they are replaced with the "Enrollment During Non-Participating Period" check 144
+## we may end up using them again if, right now, we're only capturing 99% of scenarios, but there may be scenarios like HMIS 
+## Participating periods that intersect the report period AND enrollments that intersect the report period but NOT the HMIS Participating period.
+
+## this check has been retired and is not currently in use
+# enrollment_before_participating_period <- enrollment_positions %>%
+#   fsubset(EnrollmentvParticipating == "Enrollment Before Participating Period" & 
+#             ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 0))) %>%
+#   merge_check_info_dt(checkIDs = 113) %>%
+#   fselect(vars_we_want)
+
+## this check has been retired and is not currently in use
+# enrollment_after_participating_period <- enrollment_positions %>%
+#   fsubset(EnrollmentvParticipating == "Enrollment After Participating Period" & !is.na(HMISParticipationStatusEndDate) &
+#             ((n_hmis_periods == 1) | (n_hmis_periods > 1 & HMISParticipationType == 1))) %>%
+#   merge_check_info_dt(checkIDs = 111) %>%
+#   fselect(vars_we_want)
+
+enrollment_during_nonparticipating_period <- enrollment_positions %>% 
+  fsubset((EnrollmentvParticipating == "Inside" | is.na(EnrollmentvParticipating)) & HMISParticipationType != 1) %>% 
+  merge_check_info_dt(checkIDs = 144) %>%
   fselect(vars_we_want)
 
 enrollment_x_participating_end <- enrollment_positions %>%
@@ -1866,9 +1878,10 @@ dq_main <- rowbind(
   overlap_dt,
   duplicate_ees,
   enrollment_after_operating_period,
-  enrollment_after_participating_period,
+  #enrollment_after_participating_period,
   enrollment_before_operating_period,
-  enrollment_before_participating_period,
+  #enrollment_before_participating_period,
+  enrollment_during_nonparticipating_period,
   enrollment_x_operating_end,
   enrollment_x_operating_period,
   enrollment_x_operating_start,
