@@ -24,6 +24,16 @@ format_val <- function(val, unit_type = "clients") {
   }
 }
 
+format_table_val <- function(val, unit_type = "clients") {
+  if (allNA(val) || is.null(val) || length(val) == 0 || is.na(val)) {
+    return('<span data-order="-999999999">-</span>')
+  }
+  
+  disp_val <- format_val(val, unit_type = unit_type)
+  # DataTables reads `data-order` for numeric sorting while displaying `disp_val`
+  paste0('<span data-order="', val, '">', disp_val, '</span>')
+}
+
 # Helper to evaluate metric calculations dynamically
 eval_metric <- function(metric_name, metric_dataset) {
   def <- METRIC_DEFINITIONS[[metric_name]]
@@ -675,7 +685,7 @@ get_details_by_hh_type <- function(m_datasets, selected_project_type) {
           } else {
             val_to_fmt <- NA_real_
           }
-          format_val(val_to_fmt, unit_type = m_def$unit)
+          format_table_val(val_to_fmt, unit_type = m_def$unit)
         })
         
         as.list(c(Metric = paste0("Total Clients Served (", ag, "s)"), formatted_vals))
@@ -684,7 +694,7 @@ get_details_by_hh_type <- function(m_datasets, selected_project_type) {
       
     } else {
       # Standard handling for single-value scalar metrics
-      formatted_vals <- lapply(vals, format_val, unit_type = m_def$unit)
+      formatted_vals <- lapply(vals, format_table_val, unit_type = m_def$unit)
       return(as.list(c(Metric = m_name, formatted_vals)) |> qDT())
     }
   })
@@ -758,6 +768,7 @@ output$metrics_detail <- renderDT({
     rownames = FALSE,
     filter   = 'none',
     options  = list(dom = 't', pageLength = 20),
-    style    = "default"
+    style    = "default",
+    escape   = FALSE
   )
 })
