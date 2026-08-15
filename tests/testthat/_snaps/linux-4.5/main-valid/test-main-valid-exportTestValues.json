@@ -2897,6 +2897,7 @@
           "Length:74         "
         ],
         [
+<<<<<<< HEAD
           "Class :character  ",
           "1st Qu.:   23.0  ",
           "Class :character  "
@@ -2904,6 +2905,15 @@
         [
           "Mode  :character  ",
           "Median :  138.0  ",
+=======
+          "Error        :39  ",
+          "1st Qu.:   25  ",
+          "Class :character  "
+        ],
+        [
+          "Warning      :29  ",
+          "Median :  140  ",
+>>>>>>> dev
           "Mode  :character  "
         ],
         [
@@ -2924,20 +2934,34 @@
       ],
       "Organization Summary": [
         [
+<<<<<<< HEAD
           "Length:1028       ",
           "Length:1028       ",
           "Length:1028       ",
+=======
+          "Length:993        ",
+          "High Priority: 56  ",
+          "Length:993        ",
+>>>>>>> dev
           "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
+<<<<<<< HEAD
           "Class :character  ",
+=======
+          "Error        :444  ",
+>>>>>>> dev
           "Class :character  ",
           "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
+<<<<<<< HEAD
           "Mode  :character  ",
+=======
+          "Warning      :493  ",
+>>>>>>> dev
           "Mode  :character  ",
           "Median :   8.00  "
         ],
@@ -2945,7 +2969,11 @@
           null,
           null,
           null,
+<<<<<<< HEAD
           "Mean   :  56.05  "
+=======
+          "Mean   :  57.27  "
+>>>>>>> dev
         ],
         [
           null,
@@ -2967,12 +2995,20 @@
           "Length:74         "
         ],
         [
+<<<<<<< HEAD
           "Class :character  ",
+=======
+          "Error        :39  ",
+>>>>>>> dev
           "Class :character  ",
           "Class :character  "
         ],
         [
+<<<<<<< HEAD
           "Mode  :character  ",
+=======
+          "Warning      :29  ",
+>>>>>>> dev
           "Mode  :character  ",
           "Mode  :character  "
         ]
@@ -3053,6 +3089,7 @@
       ],
       "Errors": [
         [
+<<<<<<< HEAD
           "Length:12539      ",
           "Length:12539      ",
           "Length:12539      ",
@@ -3063,6 +3100,17 @@
           "Length:12539      ",
           "Min.   :2007-05-05  ",
           "Length:12539      "
+=======
+          "Length:11926      ",
+          "Length:11926      ",
+          "Length:11926      ",
+          "Length:11926      ",
+          "Length:11926      ",
+          "Length:11926      ",
+          "Length:11926      ",
+          "Length:11926      ",
+          "Min.   :2007-05-05  "
+>>>>>>> dev
         ],
         [
           "Class :character  ",
@@ -3109,8 +3157,12 @@
           null,
           null,
           null,
+<<<<<<< HEAD
           "3rd Qu.:2021-12-08  ",
           null
+=======
+          "3rd Qu.:2021-12-09  "
+>>>>>>> dev
         ],
         [
           null,
@@ -3127,6 +3179,7 @@
       ],
       "Warnings": [
         [
+<<<<<<< HEAD
           "Length:43874      ",
           "Length:43874      ",
           "Length:43874      ",
@@ -3137,6 +3190,17 @@
           "Length:43874      ",
           "Min.   :2005-04-14  ",
           "Length:43874      "
+=======
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Length:43862      ",
+          "Min.   :2005-04-14  "
+>>>>>>> dev
         ],
         [
           "Class :character  ",

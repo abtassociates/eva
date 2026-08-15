@@ -442,7 +442,8 @@ dq_mirai_dependencies <- c(
   "Funder",
   "IncomeBenefits",
   "Services",
-  "Event"
+  "Event",
+  "EnrollmentOutside2"
 )
 
 pdde_mirai_dependencies <- c(
