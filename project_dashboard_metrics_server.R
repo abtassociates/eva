@@ -642,7 +642,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   cls_records_dt <- session$userData$CurrentLivingSituation |>
     join(
       latest_enrollments |> fselect(EnrollmentID, ProjectID, HHTypeAtReportStart, ProjectType), 
-      on = "EnrollmentID"
+      on = "EnrollmentID",
+      how = "inner"
     )
   
   list(
