@@ -430,12 +430,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
 # ==========================================
 
 latest_enrollments <- reactive({
-  req(input$dateRangeCount)
+  req(input$dateRangeCount, input$currentProviderList)
   
   enrollment_w_project_type <- session$userData$Enrollment |> 
     fsubset(
-      EntryDate %between% input$dateRangeCount | 
-        ExitAdjust %between% input$dateRangeCount,
+      ProjectID == input$currentProviderList & (
+        EntryDate %between% input$dateRangeCount | 
+        ExitAdjust %between% input$dateRangeCount
+      ),
       PersonalID, EnrollmentID, HouseholdID, HHTypeAtReportStart, ProjectID, ProjectType, 
       EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust,
       AgeAtReportStart, LivingSituation, RelationshipToHoH, LengthOfStay
