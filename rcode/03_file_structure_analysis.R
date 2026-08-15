@@ -7,7 +7,7 @@
 logToConsole(session, "Running file structure analysis")
 
 # Invalid values -----------------------------
-source(here("machine_readable_specs_validation.R"), local=TRUE)
+source(here("rcode","03_fsa_specs_checks.R"), local=TRUE)
 
 # Integrity Enrollment ----------------------------------------------------
 if (nrow(Enrollment) == 0) {

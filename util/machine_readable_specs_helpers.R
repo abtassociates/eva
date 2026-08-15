@@ -402,3 +402,11 @@ humanize_rule <- function(rules, specs_rules_full, valid_values_df) {
     
   }, character(1), USE.NAMES = FALSE)
 }
+
+load_specs <- function() {
+  print("loading specs_prepped.rds file")
+  specs_prepped <- readRDS(SPECS_PREPPED_PATH)
+  
+  # Unpack all elements of specs_prepped directly into .GlobalEnv
+  list2env(specs_prepped, envir = .GlobalEnv)
+}

@@ -25,11 +25,11 @@ process_upload <- function(upload_filename, upload_filepath) {
       
     }
     
+    # 00 -------------------
     setProgress(message = "Processing...", value = .01)
     
     setProgress(detail = "Checking initial validity ", value = .05)
-
-    err <- source_trycatch("00_initially_valid_import.R")
+    err <- source_trycatch(here("rcode","00_initially_valid_import.R"))
     if(!is.null(err)) return(NULL)
 
     if(session$userData$initially_valid_import() == 0)
@@ -41,43 +41,34 @@ process_upload <- function(upload_filename, upload_filepath) {
       files = paste0(unique(cols_and_data_types$CSV), ".csv"),
       exdir = tempdir()
     )
-    
+    # 01 -------------------
     setProgress(detail = "Reading your files..", value = .2)
 
-    err <- source_trycatch("01_get_Export.R")
+    err <- source_trycatch(here("rcode","01_get_export.R"))
     if(!is.null(err)) return(NULL)
-    
-    err <- source_trycatch("02_export_dates.R")
+    # 02 -------------------
+    err <- source_trycatch(here("rcode","02_export_dates.R"))
     if(!is.null(err)) return(NULL)
-    
+    # 03 -------------------
     setProgress(detail = "Checking file structure", value = .35)
     
-    err <- source_trycatch("03_file_structure_analysis.R")
+    err <- source_trycatch(here("rcode","03_file_structure_analysis.R"))
     if(!is.null(err)) return(NULL)
     
     if(session$userData$valid_file() == 0)
       return(NULL)
-    
+    # 04 -------------------
     setProgress(detail = "Prepping initial data..", value = .4)
     
-    err <- source_trycatch("04_initial_data_prep.R")
+    err <- source_trycatch(here("rcode","04_initial_data_prep.R"))
     if(!is.null(err)) return(NULL)
-    
+    # 05 & 06 (MIRAI) -------------------
     setProgress(detail = "Assessing your data quality..", value = .7)
 
     dq_and_pdde_dependencies <- mget(unique(c(
       dq_mirai_dependencies, 
-      pdde_mirai_dependencies,
-      specs_rules[Source %in% c("DQ","PDDE")]$CSV
+      pdde_mirai_dependencies
     )))
-    
-    
-    dq_and_pdde_dependencies[["valid_values"]] <- valid_values
-    dq_and_pdde_dependencies[["csv_join_prerequisites"]] <- csv_join_prerequisites
-    dq_and_pdde_dependencies[["specs_rules"]] <- specs_rules
-    dq_and_pdde_dependencies[["reporting_info"]] <- reporting_info
-    dq_and_pdde_dependencies[["invalid_non_null_dynamic_lists_dt"]] <- invalid_non_null_dynamic_lists_dt
-    dq_and_pdde_dependencies[["null_unless_additional_reqs"]] <- null_unless_additional_reqs
     
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,
@@ -93,13 +84,11 @@ process_upload <- function(upload_filename, upload_filepath) {
     log_memory(session, "before launching mirai")
     
     dq_pdde_mirai <- mirai({
-      source("machine_readable_specs_helpers.R", local=TRUE)
-      
       logToConsole(session, "About to run dq_mirai")
-      source("05_DataQuality.R", local = TRUE)
-
+      source(here("rcode", "05_data_quality.R"), local = TRUE)
+      
       logToConsole(session, "About to run pdde_mirai")
-      source("06_PDDE_Checker.R", local = TRUE)
+      source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
       
       result <- list(
         dq_main = dq_main,
@@ -128,14 +117,14 @@ process_upload <- function(upload_filename, upload_filepath) {
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
       if(IN_DEV_MODE) browser()
     }
-    
+    # 07 -------------------
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
       logToConsole(session, "Only HP enrollments found - skipping System Performance")
       nav_hide(id = 'pageid', target = 'menuSysPerf', session = session)
     } else {
      
-      err <- source_trycatch("07_system_overview.R")
+      err <- source_trycatch(here("rcode", "07_system_performance.R"))
       if(!is.null(err)) {
         nav_hide(id = 'pageid', target = "menuSysPerf", session = session)
       } else {
@@ -210,7 +199,7 @@ process_upload <- function(upload_filename, upload_filepath) {
             $('#imported')
               .closest('.input-group-btn')
               .next()
-              .val('demo.zip');
+              .val('./util/demo.zip');
           "))
       }
       

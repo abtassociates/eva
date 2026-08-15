@@ -514,3 +514,5 @@ METADATA_PATH <- ifelse(
   here("metadata-analysis/metadata"), 
   glue::glue("/srv/shiny-efs/{basename(here())}/metadata-analysis/metadata")
 )
+
+SPECS_PREPPED_PATH <- here("public-resources", "eva_specs_prepped.rds")

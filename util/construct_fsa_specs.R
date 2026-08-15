@@ -1,23 +1,6 @@
-specs_prepped_path <- here("public-resources/eva_specs_prepped.rds")
-
-if(file.exists(specs_prepped_path)) {
-  print("loading specs_prepped.rds file")
-  specs_prepped <- readRDS(specs_prepped_path)
-  
-  specs_rules <- specs_prepped$specs_rules
-  reporting_info <- specs_prepped$reporting_info
-  valid_values <- specs_prepped$valid_values
-  cols_and_data_types <- specs_prepped$cols_and_data_types
-  csv_join_prerequisites <- specs_prepped$csv_join_prerequisites
-  invalid_non_null_dynamic_lists_dt <- specs_prepped$invalid_non_null_dynamic_lists_dt
-  null_unless_additional_reqs <- specs_prepped$null_unless_additional_reqs
-  
-  rm(specs_prepped)
-} else {
-
-source(here("machine_readable_specs_helpers.R"), local=TRUE)
-source(here("helper_functions.R"), local=TRUE)
-  
+source(here("util","hardcodes.R"))
+source(here("util","machine_readable_specs_helpers.R"))
+source(here("util","helper_functions.R"))
 validation_specs_bk <- "/media/sdrive/projects/CE_Data_Toolkit/FY26 HMIS-CSV-Machine-Readable-Specifications.xlsx"
 
 # Import Specs -----------------------
@@ -498,6 +481,5 @@ saveRDS(
     invalid_non_null_dynamic_lists_dt = invalid_non_null_dynamic_lists_dt,
     null_unless_additional_reqs = null_unless_additional_reqs
   ), 
-  specs_prepped_path
+  SPECS_PREPPED_PATH
 )
-}
