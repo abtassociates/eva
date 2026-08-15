@@ -134,7 +134,7 @@ METRIC_DEFINITIONS <- list(
   "Moved into Housing (HoHs)" = list(
     dt_key     = "moved_into_housing",
     unit       = "pct",
-    calc_func  = function(dt) if (fnrow(dt) > 0) fsum(dt$moved_into_housing) / fcount(dt$EnrollmentID) else NA_real_,
+    calc_func  = function(dt) if (fnrow(dt) > 0) fsum(dt$moved_into_housing) / fnobs(dt$EnrollmentID) else NA_real_,
     applies    = function(proj_type) proj_type %in% ph_project_types,
     show_KPI   = function(proj_type) FALSE
   ),
@@ -202,7 +202,7 @@ METRIC_DEFINITIONS <- list(
   "CE Assessed Households" = list(
     dt_key     = "ce_assessments",
     unit       = "assessments",
-    calc_func  = function(dt) fcount(dt$EnrollmentID),
+    calc_func  = function(dt) fnobs(dt$EnrollmentID),
     calc_nmiss = function(dt) fsum(dt$nmiss),
     applies    = function(proj_type) TRUE,
     show_KPI   = function(proj_type) proj_type == ce_project_type
@@ -211,7 +211,7 @@ METRIC_DEFINITIONS <- list(
   "Current Living Situation Records: Total" = list(
     dt_key     = "cls_records",
     unit       = "records",
-    calc_func  = function(dt) fcount(dt$CurrentLivingSitID),
+    calc_func  = function(dt) fnobs(dt$CurrentLivingSitID),
     applies    = function(proj_type) proj_type %in% project_types_w_cls,
     show_KPI   = function(proj_type) proj_type %in% setdiff(project_types_w_cls, es_nbn_project_type)
   )
