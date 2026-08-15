@@ -667,7 +667,6 @@ get_metric_specific_datasets <- function(latest_enrollments) {
 # ==========================================
 # 5. DETAIL TAB DATA TABLE GENERATION
 # ==========================================
-
 get_details_by_hh_type <- function(m_datasets, selected_project_type) {
   dt_list <- lapply(names(METRIC_DEFINITIONS), function(m_name) {
     m_def <- METRIC_DEFINITIONS[[m_name]]
@@ -693,7 +692,7 @@ get_details_by_hh_type <- function(m_datasets, selected_project_type) {
         
         as.list(c(Metric = paste0("Total Clients Served (", ag, "s)"), formatted_vals))
       })
-      return(rbindlist(rows, fill=TRUE))
+      return(rbindlist(rows, fill = TRUE))
       
     } else {
       # Standard handling for single-value scalar metrics
@@ -703,7 +702,7 @@ get_details_by_hh_type <- function(m_datasets, selected_project_type) {
   })
   
   dt_list <- dt_list[!sapply(dt_list, is.null)]
-  rbindlist(dt_list, fill=TRUE)
+  rbindlist(dt_list, fill = TRUE)
 }
 
 # ==========================================
