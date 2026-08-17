@@ -175,7 +175,7 @@ observeEvent(input$continue_live_btn, {
 toggle_demo <- function(in_demo_mode) {
   
   if(in_demo_mode == TRUE){
-    process_upload("demo.zip", here("demo.zip"))
+    process_upload("demo.zip", here("util","demo.zip"))
     removeModal()
     accordion_panel_open(id = 'accordion_home', values = 'home_demo_instructions')
   } else {
