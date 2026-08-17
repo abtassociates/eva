@@ -245,7 +245,7 @@ zipr(
   mode = "cherry-pick" # so the files are at the top directory
 )
 zipr(
-  zipfile = "demo.zip",
+  zipfile = here("util","demo.zip"),
   files = list.files(temp_demo_data_path, pattern = "*.csv", full.names = TRUE),
   mode = "cherry-pick" # so the files are at the top directory
 )
