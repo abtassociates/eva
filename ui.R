@@ -348,7 +348,7 @@ page_navbar(
       )
     ),
     
-    # Client counts tab ----------------
+    # Project Dashboard tab ----------------
     nav_panel(
       title = "Project Dashboard",
       value = "tabProjectDashboard",
@@ -414,6 +414,26 @@ page_navbar(
               title = headerSubTab("Detail"),
               DTOutput("clientCountData")
             ),
+          )
+        ),
+        
+        nav_panel(
+          title = headerTab("Metrics"),
+          
+          navset_card_underline(
+            id = "project_dashboard_metrics_subtabs",
+            
+            # SUMMARY SUBTAB
+            nav_panel(
+              title = headerSubTab("Summary"),
+              uiOutput("summary_value_boxes") # Dynamic UI container
+            ),
+            
+            # DETAIL SUBTAB
+            nav_panel(
+              title = headerSubTab("Detail"),
+              DTOutput("metrics_detail")
+            )
           )
         ),
         
