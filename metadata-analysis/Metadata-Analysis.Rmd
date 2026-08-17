@@ -351,7 +351,7 @@ staging_last6months %>%
        x = "Tab",
        y = "Count") +
   theme_minimal() +
-  theme(legend.position = "none") +
+  theme(legend.position = "none", axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1)) +
   guides(fill = guide_legend(ncol = 2))
 
 ```
