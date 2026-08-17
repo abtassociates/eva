@@ -71,7 +71,28 @@ process_upload <- function(upload_filename, upload_filepath) {
         validation = session$userData$validation
       )
     )
+
+    qs2_file <- file.path(
+      paste0(tempdir(), "/", session$token),
+      "dependencies.qs2"
+    )
+    dir.create(dirname(qs2_file), recursive = TRUE, showWarnings = FALSE)
+    
+    qs2::qs_save(
+      dq_and_pdde_dependencies,
+      qs2_file
+    )
+    
     dq_pdde_mirai <- mirai({
+      # Recreate the same named objects that .args
+      # makes available to the worker.
+      deps <- qs2::qs_read(dependency_file)
+      unlink(dependency_file)
+      
+      # Unpack into R datasets:
+      list2env(deps, envir = environment())
+      
+      
       logToConsole(session, "About to run dq_mirai")
       source(here("rcode", "05_data_quality.R"), local = TRUE)
       
@@ -85,9 +106,10 @@ process_upload <- function(upload_filename, upload_filepath) {
         pdde_main = pdde_main,
         long_stayers = long_stayers
       )
-    }, .args = dq_and_pdde_dependencies) %...>% {
+    }, .args =  list(dependency_file = qs2_file)
+    ) %...>% (function(dq_pdde_results) {
       # Store results of DQ and PDDE ------------------------------------------
-      dq_pdde_results <- .[]
+      # dq_pdde_results <- .[]
 
       logToConsole(session, "saving DQ and PDDE results to session")
       session$userData$pdde_main <- dq_pdde_results$pdde_main
@@ -96,7 +118,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
       session$userData$long_stayers <- dq_pdde_results$long_stayers
       session$userData$dq_pdde_mirai_complete(1)
-    } %...!% {
+    }) %...!% {
+      unlink(qs2_file)
+      
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
       if(IN_DEV_MODE) browser()
