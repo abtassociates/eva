@@ -208,10 +208,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(project_dashboard_subtabs = "<h4>Timeliness</h4>")
     app$wait_for_idle(timeout = 1e+06)
-    # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
-    # app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "client-count",
+      name = "project-performance",
       input = c(
         "currentProviderList",
         "dateRangeCount",

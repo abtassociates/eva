@@ -4,7 +4,9 @@ output$changelog <- renderDT({
     ~ Date,
     ~ Change,
     "08-06-2026",
-    "<b>Bug Fixes</b> <br>
+    "<b>New Features</b> <br>
+      - New Project Dashboard tab containing performance metrics for selected project <br>
+    <b>Bug Fixes</b> <br>
       - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
       - Move HouseholdType filter on <strong>Exits by Subpopulation</strong> page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)",
     "08-03-2026",
