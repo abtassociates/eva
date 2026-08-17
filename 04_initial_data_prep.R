@@ -93,14 +93,11 @@ EnrollmentStaging <- Enrollment %>%
        on = "EnrollmentID") %>%
   fmutate(ExitAdjust = fcoalesce(ExitDate, no_end_date),
          AgeAtEntry = age_years(DOB, EntryDate),
-         AgeAtReportStart = age_years(DOB, max(EntryDate, session$userData$meta_HUDCSV_Export_Start, session$userData$ReportStart, na.rm=TRUE)),
          DOB = NULL) %>%
   fgroup_by(ProjectID, HouseholdID) %>%
   fmutate(
     max_AgeAtEntry = fmax(AgeAtEntry),
     min_AgeAtEntry = fmin(AgeAtEntry),
-    max_AgeAtReportStart = fmax(AgeAtReportStart),
-    min_AgeAtReportStart = fmin(AgeAtReportStart),
     # DomesticViolenceCategory = fcase(
     #   DomesticViolenceSurvivor == 1 & CurrentlyFleeing == 1, "DVFleeing",
     #   DomesticViolenceSurvivor == 1, "DVNotFleeing",
@@ -127,15 +124,6 @@ EnrollmentStaging <- Enrollment %>%
             "UN"
           )
         )
-      )
-    ),
-    HHTypeAtReportStart = factor(
-      fcase(min_AgeAtReportStart < 18 & between(max_AgeAtReportStart, 18, 24), "PY",
-            min_AgeAtReportStart < 18 & max_AgeAtReportStart >= 18, "ACminusPY",
-            min_AgeAtReportStart >= 18 & between(max_AgeAtReportStart, 0, 24), "UY", 
-            min_AgeAtReportStart >= 18, "AOminusUY",
-            min_AgeAtReportStart >= 0 & max_AgeAtReportStart <= 17, "CO", 
-            default = "UN"
       ),
       levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
@@ -435,11 +423,8 @@ session$userData$Services <- Services
 session$userData$Exit <- Exit
 session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
-session$userData$CEParticipation <- CEParticipation
-session$userData$IncomeBenefits <- IncomeBenefits
 session$userData$Assessment <- Assessment
 session$userData$Event <- Event
-
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
