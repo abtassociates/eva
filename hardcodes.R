@@ -75,11 +75,11 @@ psh_oph_project_types <- c(psh_project_type, ph_other_project_types)
 
 ph_project_types <- c(psh_oph_project_types, rrh_project_type)
 
-lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 12, 13)
+lh_ph_hp_project_types <- c(0, 1, 2, 3, 4, 8, 9, 10, 12, 13)
 
 coc_funded_project_types <- c(2, 3, 13)
 
-project_types_w_beds <- c(0, 1, 2, 3, 8, 9, 10, 13)
+project_types_w_beds <- c(lh_residential_project_types, ph_project_types)
 
 non_res_project_types <- c(4, 6, 7, 11, 12, 14)
 
@@ -436,7 +436,8 @@ dq_mirai_dependencies <- c(
   "Funder",
   "IncomeBenefits",
   "Services",
-  "Event"
+  "Event",
+  "EnrollmentOutside2"
 )
 
 pdde_mirai_dependencies <- c(
