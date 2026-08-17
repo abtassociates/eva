@@ -1487,7 +1487,7 @@ page_navbar(
                     choices = c("All Types", "Not Dedicated", 
                                 "Chronically Homeless", "Veteran",
                                 "Youth"),
-                    selected = "All Bed Types",
+                    selected = "All Types",
                     options = pickerOptions(container = "body")
                   ),
                   #### Inventory Availability Type (bui_bed_avail_sys) ------------------
