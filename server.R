@@ -30,9 +30,10 @@ function(input, output, session) {
   
   # while these seem like they could be "globalized" they have output UI elements
   # and are therefore session based
-  source(here("glossary.R"), local = TRUE)
-  source(here("changelog.R"), local = TRUE)
-  source(here("demo_management.R"), local = TRUE)
+
+  source(here("rcode", "server_00_glossary.R"), local = TRUE)
+  source(here("rcode", "server_00_changelog.R"), local = TRUE)
+  source(here("rcode", "server_00_demo_management.R"), local = TRUE)
 
   logMetadata(session, "Session started")
   
@@ -64,17 +65,21 @@ function(input, output, session) {
   # this _supp renderUI needed to be associated with an output in order to make 
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
-  output$headerClientCounts_supp <- renderUI({ 
+  output$headerProjectDashboard_supp <- renderUI({ 
     req(session$userData$valid_file() == 1)
     organization <- session$userData$Project0 %>%
-      fsubset(ProjectName == input$currentProviderList) %>%
+      fsubset(ProjectID == input$currentProviderList) %>%
       pull(OrganizationName)
     
-    h4(organization, "|", input$currentProviderList)
+    project_name <- session$userData$Project0 %>%
+      fsubset(ProjectID == input$currentProviderList) %>%
+      pull(ProjectName)
+    
+    h4(organization, "|", project_name)
   })
   
-  output$headerClientCounts <- headerGeneric(session, "Project Dashboard Report",
-                                             htmlOutput("headerClientCounts_supp"))
+  output$headerProjectDashboard <- headerGeneric(session, "Project Dashboard Report",
+                                             htmlOutput("headerProjectDashboard_supp"))
   
   output$headerPDDE <- headerGeneric(session, "Project Descriptor Data Elements Checker")
   
@@ -128,29 +133,25 @@ function(input, output, session) {
     session$reload()
   })
   
-  source("upload_server.R", local=TRUE)
+  source(here("rcode", "server_01_upload.R"), local=TRUE)
   
-  source("client_counts_server.R", local = TRUE)
+  source(here("rcode", "server_03_file_structure_analysis.R"), local = TRUE)
   
-  source("fsa_server.R", local = TRUE)
+  source(here("rcode", "server_05_data_quality.R"), local = TRUE)
   
-  source("data_quality_server.R", local = TRUE)
+  source(here("rcode", "server_06_project_dashboard.R"), local = TRUE)
   
-  source("system_performance_functions.R", local = TRUE)
-  source("sys_export_server.R", local=TRUE)
-  source("system_overview_server.R", local = TRUE)
-  
-  source("system_inflow_outflow_server.R", local = TRUE)
-    
-  source("system_demographics_server.R", local = TRUE)
-
-  source("system_status_server.R", local = TRUE)
-  
-  source("system_exits_server.R", local = TRUE)
-  source("syse_types_server.R", local = TRUE)
-  source("syse_time_server.R", local = TRUE)
-  source("syse_subpop_server.R", local = TRUE)
-  source("syse_phd_server.R", local = TRUE)
+  source(here("rcode", "server_07.0_system_performance.R"), local = TRUE)
+  source(here("rcode", "server_07.0_system_performance_export.R"), local=TRUE)
+  source(here("rcode", "server_07.1_system_overview.R"), local = TRUE)
+  source(here("rcode", "server_07.1.1_system_status.R"), local = TRUE)
+  source(here("rcode", "server_07.1.2_system_inflow_outflow.R"), local = TRUE)
+  source(here("rcode", "server_07.1.3_system_composition.R"), local = TRUE)
+  source(here("rcode", "server_07.2_system_exits.R"), local = TRUE)
+  source(here("rcode", "server_07.2.1_syse_types.R"), local = TRUE)
+  source(here("rcode", "server_07.2.2_syse_time.R"), local = TRUE)
+  source(here("rcode", "server_07.2.3_syse_subpop.R"), local = TRUE)
+  source(here("rcode", "server_07.2.4_syse_phd.R"), local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
