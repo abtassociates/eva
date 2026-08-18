@@ -16,19 +16,16 @@ generate_shinytest2_app <- function(test_script_name) {
     width = 1920,
     height = 1080,
     options = list(
-      shiny.testmode = TRUE,
-      chrome = list(
-        args = c("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu")
-      )
+      shiny.testmode = TRUE
     ))
   
-  on.exit({
-    try(app$get_chromote_session()$close(), silent = TRUE)
-    try(app$stop(), silent = TRUE)
-    gc(full = TRUE)
-  }, add = TRUE)
-  
   return(app)
+}
+
+teardown_shinytest2_app <- function(app) {
+  try(app$get_chromote_session()$close(), silent = TRUE)
+  try(app$stop(), silent = TRUE)
+  gc(full = TRUE)
 }
 
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
@@ -36,6 +33,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
     print(paste0("Running ",test_script_name))
     
     app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     app$set_window_size(width = 1920, height = 1080)
     app$set_inputs(Go_to_upload = "click")
@@ -191,6 +189,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     testthat::local_edition(3)
     
     app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     print(paste0("About to click in ",test_script_name))
     
@@ -887,6 +886,7 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     is_gha <- Sys.info()["user"] == "runner"
     
     app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     print(paste0("About to click in ",test_script_name))
     
