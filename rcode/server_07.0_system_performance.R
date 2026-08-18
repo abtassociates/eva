@@ -37,122 +37,6 @@ get_adj_font_size <- function(font_size, isExport) {
   )
 }
 
-sys_export_summary_initial_df <- function(type = 'overview') {
-  
-  tabbox <- ifelse(type == 'overview', input$syso_tabbox, input$syse_tabbox)
-  
-  logMetadata(session, glue("Downloaded System {ttype} Tabular Data: {tabbox}{demotext}", 
-                            ttype=str_to_title(type),
-                            demotext = if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  
-  if(type == 'exits_time'){
-   
-    df <- data.frame(
-      Chart = c(
-        "Current Year Start Date",
-        "Current Year End Date",
-        "Previous Year Start Date",
-        "Previous Year End Date",
-        "Methodology Type",
-        "Household Type",
-        "Level of Detail",
-        "Project Type Group"
-      )
-    ) 
-  } else {
-  
-    df <- data.frame(
-      Chart = c(
-        "Start Date",
-        "End Date",
-        "Methodology Type",
-        "Household Type",
-        "Level of Detail",
-        "Project Type Group"
-      )
-    )
-  
-  }
-  
-  values <- switch(type,
-                   'overview' = c(
-                     strftime(session$userData$ReportStart, "%m/%d/%y"),
-                     strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, 
-                                    ifelse(input$syso_tabbox == '<h4>System Demographics',
-                                           ifelse('All Races/Ethnicities' %in% input$system_composition_selections, '1',
-                                                  ifelse('Grouped Races/Ethnicities' %in% input$system_composition_selections, '2', NA)),
-                                           input$syso_methodology_type)),
-                     getNameByValue(sys_hh_types, input$syso_hh_type),
-                     getNameByValue(sys_level_of_detail, input$syso_level_of_detail),
-                     getNameByValue(sys_project_types, input$syso_project_type)
-                   ),
-                   'exits' = c(
-                     strftime(session$userData$ReportStart, "%m/%d/%y"),
-                     strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, 
-                                    ifelse(input$syse_tabbox == '<h4>Exits to PH Demographics</h4>',
-                                           ifelse('All Races/Ethnicities' %in% input$syse_phd_selections, '1',
-                                                  ifelse('Grouped Races/Ethnicities' %in% input$syse_phd_selections, '2', NA)),
-                                           input$syse_methodology_type)),
-                     getNameByValue(sys_hh_types, input$syse_hh_type),
-                     getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
-                     getNameByValue(sys_project_types, input$syse_project_type)
-                   ),
-                   'exits_time' = c(
-                     strftime(session$userData$ReportStart, "%m/%d/%y"),
-                     strftime(session$userData$ReportEnd, "%m/%d/%y"),
-                     strftime(session$userData$ReportStart - years(1), "%m/%d/%y"),
-                     strftime(session$userData$ReportEnd - years(1), "%m/%d/%y"),
-                     getNameByValue(sys_methodology_types, input$syse_methodology_type),
-                     getNameByValue(sys_hh_types, input$syse_hh_type),
-                     getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
-                     getNameByValue(sys_project_types, input$syse_project_type)
-                   )
-  )
- 
-
-  df$Value <- values
-  # remove Methodology Type line if value was NA
-  df <- df[df$Value != 'NA, NA',]
-  return(df)
-}
-
-sys_export_filter_selections <- function(type = 'overview') {
-  
-  if(type == 'exits_subpop'){
-    selections <- tibble(
-      Chart = c('Subpopulation Age', 'Subpopulation Veteran Status', 'Subpopulation Race/Ethnicity')
-      )
-  } else {
-    selections <- tibble(
-      Chart = c('Age', 'Veteran Status', 'Race/Ethnicity')
-    )
-  }
- 
-  
-  values <- switch(type,
-      'overview' = c(
-          if(identical(sys_age_cats, input$syso_age)) {"All Ages"} else {paste(input$syso_age, collapse=", ")},
-          getNameByValue(sys_spec_pops_people, input$syso_spec_pops),
-          getNameByValue(sys_race_ethnicity_cats(input$syso_methodology_type), input$syso_race_ethnicity)
-        ),
-      'exits' = c(
-          ifelse(identical(sys_age_cats, input$syse_age), "All Ages",paste(input$syse_age, collapse=", ")),
-          getNameByValue(sys_spec_pops_people, input$syse_spec_pops),
-          getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input$syse_race_ethnicity)
-      ),
-      'exits_subpop' = c(
-        ifelse(identical(sys_age_cats, input$syse_subpop_age), "All Ages",paste(input$syse_subpop_age, collapse=", ")),
-        getNameByValue(sys_spec_pops_people, input$syse_subpop_spec_pops),
-        getNameByValue(sys_race_ethnicity_cats(input$syse_methodology_type), input[[glue('syse_subpop_race_ethnicity{input$syse_methodology_type}')]])
-      )
-  )
-  selections$Value <- values
-  
-  return(selections)
-}
-
 suppress_values <- function(.data, count_var, keep_orig_var = FALSE) {
   
   if(keep_orig_var){
@@ -209,12 +93,12 @@ remove_non_applicables <- function(.data, selection = input$system_composition_s
   }
 }
 
-toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
+toggle_sys_components <- function(prefix = 'syso', cond, init=FALSE) {
   # 1. toggles the filters (disabled for Composition)
   # 2. toggles subtabs and download button based if valid file has been uploaded
   # 3. moves download button to be in line with subtabs
   tabs <- switch(prefix,
-                 'sys' = c(
+                 'syso' = c(
                    "System Flow" = "inflow_outflow",
                    "Client System Status" = "status",
                    "System Demographics" = "comp"
@@ -227,8 +111,8 @@ toggle_sys_components <- function(prefix = 'sys', cond, init=FALSE) {
                  )
   )
   
-  prefix4 <- ifelse(prefix == 'sys', 'syso',prefix)
-  prefixnone <- ifelse(prefix == 'sys', '','syse_')
+  prefix4 <- ifelse(prefix == 'syso', 'syso',prefix)
+  prefixnone <- ifelse(prefix == 'syso', '','syse_')
   
   for (tab in tabs) {
     shinyjs::toggle(glue('{prefix}_{tab}_subtabs'), condition = cond)
