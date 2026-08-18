@@ -5,17 +5,37 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 
+generate_shinytest2_app <- function() {
+  app <- AppDriver$new(
+    variant = platform_variant(), 
+    name = test_script_name, 
+    seed = 12345,
+    screenshot_args = FALSE,
+    expect_values_screenshot_args = FALSE,
+    load_timeout = 5e+05,
+    width = 1920,
+    height = 1080,
+    options = list(
+      shiny.testmode = TRUE,
+      chrome = list(
+        args = c("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu")
+      )
+    ))
+  
+  on.exit({
+    try(app$get_chromote_session()$close(), silent = TRUE)
+    try(app$stop(), silent = TRUE)
+    gc(full = TRUE)
+  }, add = TRUE)
+  
+  return(app)
+}
+
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
     
-    app <- AppDriver$new(
-      variant = platform_variant(), 
-      name = test_script_name, 
-      seed = 12345,
-      screenshot_args = FALSE,
-      expect_values_screenshot_args = FALSE,
-      load_timeout = 5e+05)
+    app <- generate_shinytest2_app()
     
     app$set_window_size(width = 1920, height = 1080)
     app$set_inputs(Go_to_upload = "click")
@@ -170,19 +190,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
     
-    app <- shinytest2::AppDriver$new(
-      variant = platform_variant(),
-      name = test_script_name, 
-      screenshot_args = FALSE,
-      expect_values_screenshot_args = FALSE,
-      seed = 12345,
-      width = 1920,
-      height = 1080,
-      # shiny_args=list(host="172.19.46.18"),
-      load_timeout = 2e+05,
-      options = list(
-        shiny.testmode = TRUE
-      ))
+    app <- generate_shinytest2_app()
     
     print(paste0("About to click in ",test_script_name))
     
@@ -874,19 +882,7 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     testthat::local_edition(3)
     is_gha <- Sys.info()["user"] == "runner"
     
-    app <- AppDriver$new(
-      variant = platform_variant(),
-      name = test_script_name, 
-      screenshot_args = FALSE,
-      expect_values_screenshot_args = FALSE,
-      seed = 12345,
-      width = 1920,
-      height = 1080,
-      # shiny_args=list(host="172.19.46.18"),
-      load_timeout = 2e+05,
-      options = list(
-        shiny.testmode = TRUE
-      ))
+    app <- generate_shinytest2_app()
     
     print(paste0("About to click in ",test_script_name))
     
