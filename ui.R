@@ -439,14 +439,7 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
-          navset_underline(
-            id = "project_dashboard_tl_subtabs",
-            nav_panel(
-              title = headerSubTab("Record Entry"),
               uiOutput("timeliness_record_entry")
-            )
-          )
-          
         ),
         
         nav_spacer(),

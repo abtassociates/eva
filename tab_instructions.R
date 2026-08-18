@@ -360,7 +360,7 @@ tabProjectDashboard_instructions <- HTML("
                react and filter in that way.</p>
 
               <h4>Timeliness Record Entry</h4>
-               <p>The Record Entry tab of the Timeliness panel provides counts of different 
+               <p>The Timeliness panel provides counts of different 
               record types for a project along with timeliness metrics. Time for Record Entry 
               is calculated by comparing a record's Created Date against the:
                <ul>
