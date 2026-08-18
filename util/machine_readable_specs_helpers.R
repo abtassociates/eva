@@ -404,7 +404,7 @@ humanize_rule <- function(rules, specs_rules_full, valid_values_df) {
 }
 
 load_specs <- function() {
-  print("loading specs_prepped.rds file")
+  logToConsole("loading specs_prepped.rds file")
   specs_prepped <- readRDS(SPECS_PREPPED_PATH)
   
   # Unpack all elements of specs_prepped directly into .GlobalEnv
