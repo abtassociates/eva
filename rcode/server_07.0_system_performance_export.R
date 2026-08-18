@@ -156,7 +156,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
   })
 }
 
-source("server_07.0_system_performance_client_level_export.R", local=TRUE)
+source(here("rcode", "server_07.0_system_performance_client_level_export.R"), local=TRUE)
 
 register_sys_export_server("syso", input, output, session)
 register_sys_export_server("syse", input, output, session)
