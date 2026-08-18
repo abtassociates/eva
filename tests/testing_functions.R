@@ -5,7 +5,7 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 
-generate_shinytest2_app <- function() {
+generate_shinytest2_app <- function(test_script_name) {
   app <- AppDriver$new(
     variant = platform_variant(), 
     name = test_script_name, 
@@ -35,7 +35,7 @@ initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
     
-    app <- generate_shinytest2_app()
+    app <- generate_shinytest2_app(test_script_name)
     
     app$set_window_size(width = 1920, height = 1080)
     app$set_inputs(Go_to_upload = "click")
@@ -190,7 +190,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
     
-    app <- generate_shinytest2_app()
+    app <- generate_shinytest2_app(test_script_name)
     
     print(paste0("About to click in ",test_script_name))
     
@@ -886,7 +886,7 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     testthat::local_edition(3)
     is_gha <- Sys.info()["user"] == "runner"
     
-    app <- generate_shinytest2_app()
+    app <- generate_shinytest2_app(test_script_name)
     
     print(paste0("About to click in ",test_script_name))
     
