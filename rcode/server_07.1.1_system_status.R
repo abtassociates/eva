@@ -176,7 +176,7 @@ sys_status_export_info <- function(spd) {
   )
 }
 
-sys_status_data_download <- function(session, file) {
+sys_status_data_download <- function(file) {
   # create a list of the 3 excel tabs and export
   spd <- get_sankey_data() %>% 
     xtabs(freq ~ End + Begin, data=.) %>% 
