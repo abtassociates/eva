@@ -827,7 +827,7 @@ custom_sys_export_dropdown <- function(id_prefix) {
   
   # 3. Assemble the Dropdown structure
   tags$div(
-    id = "sys_export_btn",
+    id = paste0(id_prefix, "_export_btn"),
     class = "dropdown d-inline-block",
     style = "display: none",
     tags$button(
