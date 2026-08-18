@@ -140,7 +140,6 @@ function(input, output, session) {
   source(here("rcode", "server_05_data_quality.R"), local = TRUE)
   
   source(here("rcode", "server_06_project_dashboard.R"), local = TRUE)
-  source(here("rcode", "server_06_project_dashboard_metrics.R"), local = TRUE)
          
   source(here("rcode", "server_07.0_system_performance.R"), local = TRUE)
   source(here("rcode", "server_07.0_system_performance_export.R"), local=TRUE)
