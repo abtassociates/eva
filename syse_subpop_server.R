@@ -291,23 +291,11 @@ get_syse_compare_subpop_data <- function(output_type = 'table'){
   #   meets_vet_filter = ifelse('meets_vet_filter' %in% which_factors_changed, paste0(setdiff(c('Veteran','Non-Veteran'), input$syse_subpop_spec_pops), 's'), NA_character_)
   # )
   
-  if(output_type == 'chart'){
-    
-    rowbind(
-      count_subpop %>% fmutate(meets_hh_type = TRUE, meets_age_filter = TRUE, 
-                               meets_race_eth_filter = TRUE, meets_vet_filter = TRUE, group = 'subpop'),
-      count_everyone_else %>% fmutate(group = 'everyone_else')
-    )
-    
-    
-  } else if (output_type == 'table'){
-    
-    rowbind(
-      count_subpop %>% fmutate(meets_hh_type = TRUE, meets_age_filter = TRUE, 
-                               meets_race_eth_filter = TRUE, meets_vet_filter = TRUE, group = 'subpop'),
-      count_everyone_else %>% fmutate(group = 'everyone_else')
-    )
-  }
+  rowbind(
+    count_subpop %>% fmutate(meets_hh_type = TRUE, meets_age_filter = TRUE, 
+                             meets_race_eth_filter = TRUE, meets_vet_filter = TRUE, group = 'subpop'),
+    count_everyone_else %>% fmutate(group = 'everyone_else')
+  )
 }
 
 observeEvent(input$syse_subpop_age_selection, 
