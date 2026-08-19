@@ -1333,7 +1333,10 @@ nav_panel(
       )
     ),
     # FLOATING CONSOLIDATED DOWNLOADS (TOP RIGHT)
-    custom_sys_export_dropdown("syse")
+    div(
+      class = "export-container-floating",
+      custom_sys_export_dropdown("syse")
+    )
   ) # End syse_tabbox
 )
 ),
