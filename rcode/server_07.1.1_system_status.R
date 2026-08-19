@@ -202,7 +202,7 @@ sys_status_data_download <- function(file) {
     col_names = TRUE
   )
 
-  exportTestValues(sys_status_report = get_sankey_data())
+  exportTestValues(syso_status_report = get_sankey_data())
   
   logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))

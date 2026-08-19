@@ -916,7 +916,7 @@ nav_menu(
         title = headerTab("System Demographics"),
         
         navset_underline(
-          id = 'sys_comp_subtabs',
+          id = 'syso_comp_subtabs',
           selected = headerSubTab("Chart"),
           nav_panel(
             title = headerSubTab("Chart"),
@@ -948,7 +948,7 @@ nav_menu(
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_comp_subtabs_information
+            tab_syso_comp_subtabs_information
             
           )
         )

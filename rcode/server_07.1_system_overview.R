@@ -30,9 +30,9 @@ observeEvent(input$sys_status_subtabs, {
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
-observeEvent(input$sys_comp_subtabs, {
+observeEvent(input$syso_comp_subtabs, {
   req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$syso_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 

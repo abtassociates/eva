@@ -523,7 +523,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     # System Composition/Demographics
     syso_comp_inputs <- c(
       "pageid",
-      "sys_comp_subtabs",
+      "syso_comp_subtabs",
       sys_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 
       # include to make sure they aren't changing
@@ -562,7 +562,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = syso_comp_outputs
     )
     
-    app$set_inputs(sys_comp_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_comp_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-information",

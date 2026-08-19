@@ -105,7 +105,7 @@ output$syso_comp_summary_ui_chart <- renderPlot({
 }, height = function() {
   ifelse(!is.null(input$syso_composition_selections), 700, 100)
 }, width = function() {
-  input$sys_comp_subtabs
+  input$syso_comp_subtabs
   input$syso_tabbox
   input$pageid
   if (length(input$syso_composition_selections) == 1 |
