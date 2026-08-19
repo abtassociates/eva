@@ -122,7 +122,7 @@
 }
 
 /*otherwise, we get a 2nd scrollbar on sys overview page*/
-#sys_comp_summary_ui_chart {
+#syso_comp_summary_ui_chart {
   height:100% !important; 
 }
 
@@ -132,12 +132,12 @@
 
 /* vertical bar and spacing of sys demographic selections, 
 to group All + Grouped Race selections*/
-#system_composition_selections label.checkbox-inline {
+#syso_composition_selections label.checkbox-inline {
   padding-right: 10px;
 }
 
-#system_composition_selections label.checkbox-inline:nth-child(1),
-#system_composition_selections label.checkbox-inline:nth-child(3) {
+#syso_composition_selections label.checkbox-inline:nth-child(1),
+#syso_composition_selections label.checkbox-inline:nth-child(3) {
   border-right: 1px solid lightgray;
 }
 
@@ -216,11 +216,11 @@ next to Household Type, it forces this entire block to wrap to the next line.
                     
 
 /*center Sys Comp/Demographics chart*/
-#sys_comp_summary_ui_chart {
+#syso_comp_summary_ui_chart {
   display: flex;
 }
 
-#sys_comp_summary_ui_chart > img {
+#syso_comp_summary_ui_chart > img {
   margin: 0 auto;
 }
 
