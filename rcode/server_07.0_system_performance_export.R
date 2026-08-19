@@ -47,8 +47,8 @@ sys_export_summary_initial_df <- function(type = 'overview') {
            'overview' = c(
              getNameByValue(sys_methodology_types, 
                             ifelse(input$syso_tabbox == '<h4>System Demographics',
-                                   ifelse('All Races/Ethnicities' %in% input$system_composition_selections, '1',
-                                          ifelse('Grouped Races/Ethnicities' %in% input$system_composition_selections, '2', NA)),
+                                   ifelse('All Races/Ethnicities' %in% input$syso_composition_selections, '1',
+                                          ifelse('Grouped Races/Ethnicities' %in% input$syso_composition_selections, '2', NA)),
                                    input$syso_methodology_type))
            ),
            'exits' = c(
