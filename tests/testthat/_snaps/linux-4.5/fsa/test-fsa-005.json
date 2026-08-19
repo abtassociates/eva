@@ -137,7 +137,7 @@
     "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
     "project_dashboard_tl_subtabs": "<h5>Record Entry<\/h5>",
     "subpop_dest_type": "Permanent",
-    "sys_comp_subtabs": "<h5>Chart<\/h5>",
+    "syso_comp_subtabs": "<h5>Chart<\/h5>",
     "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
     "sys_status_subtabs": "<h5>Chart<\/h5>",
     "syse_age": [
@@ -153,6 +153,17 @@
       "75 and older",
       "Unknown"
     ],
+    "syse_export_all_data": true,
+    "syse_export_all_ppt": true,
+    "syse_export_client_xlsx": true,
+    "syse_export_phd_pptx": true,
+    "syse_export_phd_xlsx": true,
+    "syse_export_subpop_pptx": true,
+    "syse_export_subpop_xlsx": true,
+    "syse_export_type_pptx": true,
+    "syse_export_type_xlsx": true,
+    "syse_export_year_pptx": true,
+    "syse_export_year_xlsx": true,
     "syse_filters_left_full_screen": false,
     "syse_filters_right_full_screen": false,
     "syse_hh_type": "All",
@@ -204,6 +215,19 @@
       "Unknown"
     ],
     "syso_card_filters_right_full_screen": false,
+    "syso_composition_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ],
+    "syso_export_all_data": true,
+    "syso_export_all_ppt": true,
+    "syso_export_client_xlsx": true,
+    "syso_export_demo_pptx": true,
+    "syso_export_demo_xlsx": true,
+    "syso_export_flow_pptx": true,
+    "syso_export_flow_xlsx": true,
+    "syso_export_status_pptx": true,
+    "syso_export_status_xlsx": true,
     "syso_filters_left_full_screen": false,
     "syso_hh_type": "All",
     "syso_level_of_detail": "All",
@@ -212,10 +236,6 @@
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
     "syso_tabbox": "<h4>System Flow<\/h4>",
-    "system_composition_selections": [
-      "Age",
-      "All Races/Ethnicities"
-    ],
     "tabDQOrg_subtabs": "<h4>Warnings<\/h4>",
     "tabDQSystem_subtabs": "<h4>Warnings<\/h4>",
     "timeliness_metric": 3,
