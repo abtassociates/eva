@@ -66,11 +66,17 @@ sys_export_summary_initial_df <- function(type = 'overview') {
     )
   )
   
+  prefix <- fcase(
+    type == "overview", "syso",
+    grepl("exits", type), "syse",
+    default = "syso"
+  )
+  
   values <- c(
     values,
-    getNameByValue(sys_hh_types, input$syse_hh_type),
-    getNameByValue(sys_level_of_detail, input$syse_level_of_detail),
-    getNameByValue(sys_project_types, input$syse_project_type)
+    getNameByValue(sys_hh_types, input[[paste0(prefix, "_hh_type")]]),
+    getNameByValue(sys_level_of_detail, input[[paste0(prefix, "_level_of_detail")]]),
+    getNameByValue(sys_project_types, input[[paste0(prefix, "_project_type")]])
   )
   
   
@@ -437,6 +443,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
       dir.create(temp_dir)
       
       file_paths <- c()
+      
       for (report in reports) {
         message(paste0("Running ", report$name, " where func = ", report$gen))
         local_path <- file.path(temp_dir, paste0(report$name, report$ext))

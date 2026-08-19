@@ -110,5 +110,5 @@ output$syse_phd_chart_2d <- renderCachedPlot({
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 observeEvent(input$syse_phd_selections, {
-  limit_checkbox_selections("syse_phd_selections", input$system_composition_selections)
+  limit_checkbox_selections("syse_phd_selections", input$syse_phd_selection)
 }, ignoreNULL = FALSE)
