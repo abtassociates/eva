@@ -239,6 +239,10 @@ calc_by_hh_group <- function(metric_name, m_datasets) {
 
 # Dynamic Value Box Builder
 create_metric_value_box <- function(box_key, metric_dataset) {
+  
+  # theme for value boxes
+  vb_theme <- "text-primary"
+  
   switch(
     box_key,
     
@@ -258,7 +262,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       unknown_val <- get_age_count(m$val, "Unknown")
       
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Total Clients Served",
         value = tagList(
           div("Adults: ", format_val(adult_val, "clients")),
@@ -266,6 +270,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
           div("Unknown: ", format_val(unknown_val, "clients"))
         ),
         showcase = bs_icon("people"),
+        theme = vb_theme,
         id = "total_clients_box"
       )
     },
@@ -273,12 +278,13 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "total_households_served" = {
       m <- eval_metric("Total Households Served", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Total Households Served",
         value = tagList(
           div("Total Households: ", format_val(m$val, "households"))
         ),
         showcase = bs_icon("house"),
+        theme = vb_theme,
         id = "total_households_box"
       )
     },
@@ -287,13 +293,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m_avg <- eval_metric("Average Length of Stay in Residence (All Clients)", metric_dataset)
       m_med <- eval_metric("Median Length of Stay in Residence (All Clients)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Length of Stay in Residence (All Clients)",
         value = tagList(
           div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
           div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
         ),
         showcase = bs_icon("building-add"),
+        theme = vb_theme,
         id = "los_box"
       )
     },
@@ -302,13 +309,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m_avg <- eval_metric("Average Time to Housing Move-In (All Clients)", metric_dataset)
       m_med <- eval_metric("Median Time to Housing Move-In (All Clients)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Time to Housing Move-In (All Clients)",
         value = tagList(
           div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
           div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
         ),
         showcase = bs_icon("clock-history"),
+        theme = vb_theme,
         id = "movein_time_box"
       )
     },
@@ -317,13 +325,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m_avg <- eval_metric("Average Length of Participation (All Clients)", metric_dataset)
       m_med <- eval_metric("Median Length of Participation (All Clients)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Length of Participation (All Clients)",
         value = tagList(
           div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
           div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
         ),
         showcase = bs_icon("calendar-range"),
+        theme = vb_theme,
         id = "lop_box"
       )
     },
@@ -331,13 +340,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "entered_non_habitat" = {
       m <- eval_metric("Entered from Place Not Meant for Habitation (HoHs/Adults)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Entered from Place Not Meant for Habitation (HoHs/Adults)",
         value = tagList(
           div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
           div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("signpost-split"),
+        theme = vb_theme,
         id = "entered_non_habitat_box"
       )
     },
@@ -345,13 +355,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "entered_permanent" = {
       m <- eval_metric("Entered from Permanent Housing Situation (HoHs/Adults)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Entered from Permanent Housing Situation (HoHs/Adults)",
         value = tagList(
           div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
           div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("house-check"),
+        theme = vb_theme,
         id = "entered_permanent_box"
       )
     },
@@ -359,13 +370,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "zero_income" = {
       m <- eval_metric("Zero Income at Entry (HoHs/Adults)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Zero Income at Entry (HoHs/Adults)",
         value = tagList(
           div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
           div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("wallet2"),
+        theme = vb_theme,
         id = "zero_income_box"
       )
     },
@@ -373,13 +385,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "income_growth" = {
       m <- eval_metric("Income Growth from Entry to Exit (HoHs/Adults)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Income Growth from Entry to Exit (HoHs/Adults)",
         value = tagList(
           div("Percent of all exited HoHs/Adults: ", format_val(m$val, "pct")),
           div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("graph-up-arrow"),
+        theme = vb_theme,
         id = "income_growth_box"
       )
     },
@@ -387,13 +400,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "successful_exit" = {
       m <- eval_metric("Successful Exits (All Clients)", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Successful Exits (All Clients)",
         value = tagList(
           div("Percent of all exited clients: ", format_val(m$val, "pct")),
           div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("check-circle"),
+        theme = vb_theme,
         id = "successful_exits_box"
       )
     },
@@ -401,13 +415,14 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "ce_assessments" = {
       m <- eval_metric("CE Assessed Households", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "CE Assessed Households",
         value = tagList(
           div("Number of CE Assessments: ", format_val(m$val, "assessments")),
           div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("clipboard-check"),
+        theme = vb_theme,
         id = "ce_assessments_box"
       )
     },
@@ -415,10 +430,11 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "cls_records" = {
       m <- eval_metric("Current Living Situation Records: Total", metric_dataset)
       value_box(
-        class = "project_dashboard_valbox",
+        class = "project_dashboard_valbox border-primary",
         title = "Current Living Situation Records: Total",
         value = div("Total CLS Records: ", format_val(m$val, "records")),
         showcase = bs_icon("geo-alt"),
+        theme = vb_theme,
         id = "cls_records_box"
       )
     }
