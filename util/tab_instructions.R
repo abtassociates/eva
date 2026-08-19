@@ -803,7 +803,7 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                   </tr>
                                 </table>")
 
-tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
+tab_syso_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 <p>The System Demographics Chart shows the demographic 
                                 make-up of your homeless system and highlights 
                                 important trends among various demographic groups. 
