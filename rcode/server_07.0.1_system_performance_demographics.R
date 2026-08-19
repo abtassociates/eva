@@ -364,7 +364,7 @@ sys_comp_data_download <- function(file, type = 'syso') {
         isExport = FALSE
       )
     else
-      sys_phd_plot(
+      syse_phd_plot(
         methodology_type = methodology_type,
         selections = selections,
         isExport = FALSE
@@ -421,8 +421,7 @@ sys_comp_ppt_download <- function(file, type = 'syso') {
       isExport = TRUE
     )
   } else {
-    sys_phd_plot(
-      subtab = 'phd',
+    syse_phd_plot(
       methodology_type = methodology_type, 
       selections = selections, 
       isExport = TRUE

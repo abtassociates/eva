@@ -1,6 +1,6 @@
 
-sys_phd_plot_df <- reactiveVal()
-sys_phd_export <- reactiveVal()
+syse_phd_plot_df <- reactiveVal()
+syse_phd_export <- reactiveVal()
 
 
 sys_phd_selections_info <- reactive({
@@ -50,7 +50,8 @@ sys_phd_plot <- function(subtab = 'phd', methodology_type, selections, isExport 
     )
   
   # 4. Save export df
-  sys_phd_plot_df(total_prep$plot_df)
+  syse_phd_plot_df(total_prep$plot_df)
+  syse_phd_export(create_phd_export_df(plot_df_joined, plot_df_supp, selections))
   
   # 5. Render Heatmap
   build_demographic_heatmap(
@@ -78,7 +79,7 @@ output$syse_phd_chart_1d <- renderPlot({
     )
   )
   
-  sys_phd_plot(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+  syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
 }, height = 700, width = 500,
 alt = "A crosstab data table of the demographic make-up of the homeless system.")
@@ -96,7 +97,7 @@ output$syse_phd_chart_2d <- renderCachedPlot({
     )
   )
   
-  sys_phd_plot(subtab = 'phd', input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
+  syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
 }, cacheKeyExpr = {
   list(

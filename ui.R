@@ -933,7 +933,7 @@ nav_menu(
                                    category to display in the chart at a time."
               )),
               checkboxGroupInput(
-                "system_composition_selections",
+                "syso_composition_selections",
                 label = "",
                 choices = sys_heatmap_selection_choices,
                 selected = c("All Races/Ethnicities", "Age"),
@@ -942,8 +942,8 @@ nav_menu(
               width = 12
             ),
             br(),
-            uiOutput("sys_comp_summary_selections",inline = TRUE),
-            plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+            uiOutput("syso_comp_summary_selections",inline = TRUE),
+            plotOutput("syso_comp_summary_ui_chart") %>% withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Information"),

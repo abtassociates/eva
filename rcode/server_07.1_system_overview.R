@@ -49,7 +49,7 @@ observeEvent(input$syso_methodology_type, {
   grouped_re_lbl_new <- ifelse(input$syso_methodology_type == 1, "Grouped", "Hispanic-Focused")
   shinyjs::runjs(
     glue("
-      $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+      $('#syso_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
     ")
   )
 }, ignoreInit = TRUE)

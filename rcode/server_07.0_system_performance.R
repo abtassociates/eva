@@ -61,7 +61,7 @@ suppress_values <- function(.data, count_var, keep_orig_var = FALSE) {
 # Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed,
 # then suppress the next lowest value in that group
 suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
-  if(length(input$system_composition_selections) > 1) {
+  if(length(input$syso_composition_selections) > 1) {
     .data <- .data %>% fgroup_by(group_v)
   }
   
@@ -80,7 +80,7 @@ suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
   )
 }
 
-remove_non_applicables <- function(.data, selection = input$system_composition_selections) {
+remove_non_applicables <- function(.data, selection = input$syso_composition_selections) {
   # remove children when vets is selected - since Vets can't be children
   if("Veteran Status (Adult Only)" %in% selection) {
     .data %>% fsubset(!(AgeCategory %in% c("0 to 12", "13 to 17")))
