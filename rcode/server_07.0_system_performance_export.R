@@ -438,7 +438,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
         return()
       }
       
-      temp_dir <- file.path(tempdir(), paste0("shiny_export_", id_prefix))
+      temp_dir <- file.path(tempdir(), paste0("shiny_export_", session$token, "_", id_prefix))
       if (dir.exists(temp_dir)) unlink(temp_dir, recursive = TRUE)
       dir.create(temp_dir)
       
