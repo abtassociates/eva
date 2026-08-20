@@ -259,6 +259,33 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDetail <- NULL
   }
 
+  # METRICS
+  m_ds <- metric_datasets()
+  proj_table <- session$userData$Project0[OrganizationName %in% orgList]
+  
+  metrics_summary_list <- list()
+  metrics_detail_list  <- list()
+  
+  if (fnrow(proj_table) > 0) {
+    for (i in seq_len(fnrow(proj_table))) {
+      p_id   <- proj_table$ProjectID[i]
+      p_name <- proj_table$ProjectName[i]
+      p_type <- proj_table$ProjectType[i]
+      
+      # Summary Metrics Export Tab
+      summary_dt <- build_metrics_table(m_ds, p_id, p_name, p_type, is_summary_tab = TRUE, is_export = TRUE)
+      if (fnrow(summary_dt) > 0) metrics_summary_list[[length(metrics_summary_list) + 1]] <- summary_dt
+      
+      # Detail Metrics Export Tab (includes all 'Export Only' sub-metrics)
+      detail_dt  <- build_metrics_table(m_ds, p_id, p_name, p_type, is_summary_tab = FALSE, is_export = TRUE)
+      if (fnrow(detail_dt) > 0) metrics_detail_list[[length(metrics_detail_list) + 1]] <- detail_dt
+    }
+  }
+  
+  metricsSummaryExport <- if (length(metrics_summary_list) > 0) rbindlist(metrics_summary_list) else NULL
+  metricsDetailExport  <- if (length(metrics_detail_list) > 0)  rbindlist(metrics_detail_list)  else NULL
+  
+  # TIMELINESS
   if(!is.null(tl_df_project_start())){
     validationStart <- clean_timeliness_df(tl_df_project_start(), record_type = 'start')
   } else {
@@ -303,6 +330,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDateRange = validationDateRange %>% nice_names(),
     validationFullExportRange = validationFullExportRange %>% nice_names(),
     validationDetail = validationDetail %>% nice_names(),
+    metricsSummaryExport = metricsSummaryExport %>% nice_names(),
+    metricsDetailExport = metricsDetailExport %>% nice_names(),
     validationStart = validationStart,
     validationExit = validationExit
   )
@@ -312,6 +341,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     "ClientCounts - Date Range",
     "ClientCounts-Full Export Range",
     "ClientCounts - Detail",
+    "Metrics - Summary",
+    "Metrics - Detail",
     "Timeliness - Project Start",
     "Timeliness - Project Exit"
   )
