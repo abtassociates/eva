@@ -5,7 +5,7 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 
-generate_shinytest2_app <- function() {
+generate_shinytest2_app <- function(test_script_name) {
   app <- AppDriver$new(
     variant = platform_variant(), 
     name = test_script_name, 
@@ -16,26 +16,24 @@ generate_shinytest2_app <- function() {
     width = 1920,
     height = 1080,
     options = list(
-      shiny.testmode = TRUE,
-      chrome = list(
-        args = c("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu")
-      )
+      shiny.testmode = TRUE
     ))
   
-  on.exit({
-    try(app$get_chromote_session()$close(), silent = TRUE)
-    try(app$stop(), silent = TRUE)
-    gc(full = TRUE)
-  }, add = TRUE)
-  
   return(app)
+}
+
+teardown_shinytest2_app <- function(app) {
+  try(app$get_chromote_session()$close(), silent = TRUE)
+  try(app$stop(), silent = TRUE)
+  gc(full = TRUE)
 }
 
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
     
-    app <- generate_shinytest2_app()
+    app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     app$set_window_size(width = 1920, height = 1080)
     app$set_inputs(Go_to_upload = "click")
@@ -175,7 +173,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     "dq_main",
     "pdde_main",
     "period_data",
-    "sys_comp_df",
+    "syso_comp_df",
     "dq_overlaps"
   )
   # if(Sys.info()["sysname"] != "ubuntu")
@@ -190,7 +188,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
     
-    app <- generate_shinytest2_app()
+    app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     print(paste0("About to click in ",test_script_name))
     
@@ -522,53 +521,53 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     )
     
     # System Composition/Demographics
-    sys_comp_inputs <- c(
+    syso_comp_inputs <- c(
       "pageid",
-      "sys_comp_subtabs",
+      "syso_comp_subtabs",
       sys_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 
       # include to make sure they aren't changing
       sys_flow_filters, 
       sys_other_inputs,
-      "system_composition_selections"
+      "syso_composition_selections"
     )
     
-    sys_comp_outputs <- c(
+    syso_comp_outputs <- c(
       "headerSystemOverview",
-      "sys_comp_summary_selections",
-      "sys_comp_summary_ui_chart"
+      "syso_comp_summary_selections",
+      "syso_comp_summary_ui_chart"
     )
     
     app$set_inputs(syso_tabbox = "<h4>System Demographics</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-chart-default",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("All Races/Ethnicities"))
+    app$set_inputs(syso_composition_selections = c("All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+05)
     app$expect_values(
       name = "sys-comp-all-re",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
+    app$set_inputs(syso_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
       name = "sys-comp-all-re-veteran",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
     
-    app$set_inputs(sys_comp_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_comp_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-comp-information",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
 
     ## optionally run system exits tests
@@ -583,29 +582,21 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")
-    customDownload(app, "sys_inflow_outflow_download_btn", "System-Flow-Download.xlsx")
-    customDownload(app, "sys_inflow_outflow_download_btn_ppt", "System-Flow-Download-PPT.pptx")
-    customDownload(app, "sys_status_download_btn", "System-Status-Download.xlsx")
-    customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
-    customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
-    customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
-    if(!is_gha) {
-      customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
-    }
+    
+    app$set_inputs(pageid = "tabSystemOverview")
+    app$wait_for_idle(timeout = 2e+06)
+    app$click(selector = "#syso_export_btn button")
+    app$set_inputs(syso_export_client_xlsx = !is_gha, wait_ = FALSE) # doesn't cause reactive changes
+    app$wait_for_idle(timeout = 2e+06)
+    customDownload(app, "syso_export_act", "System-Overview-Full-Export.zip")
     
     if(run_system_exits){
-      customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
-      customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
-      customDownload(app, "syse_time_download_btn", "System-Exit-Time-Download.xlsx")
-      customDownload(app, "syse_time_download_btn_ppt", "System-Exit-Time-Download-PPT.pptx")
-      customDownload(app, "syse_subpop_download_btn", "System-Exit-Subpop-Download.xlsx")
-      customDownload(app, "syse_subpop_download_btn_ppt", "System-Exit-Subpop-Download-PPT.pptx")
-      customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
-      customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
-      
-      if(!is_gha) {
-        customDownload(app, "syse_client_level_download_btn", "System-Exits-Client-Level-Download.xlsx")
-      }
+      app$set_inputs(pageid = "tabSystemExits")
+      app$wait_for_idle(timeout = 2e+06)
+      app$click(selector = "#syse_export_btn button")
+      app$set_inputs(syse_export_client_xlsx = !is_gha, wait_ = FALSE)
+      app$wait_for_idle(timeout = 2e+06)
+      customDownload(app, "syse_export_act", "System-Exit-Full-Export.zip")
     }
    
     # export non-large/helper datasets
@@ -882,7 +873,8 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     testthat::local_edition(3)
     is_gha <- Sys.info()["user"] == "runner"
     
-    app <- generate_shinytest2_app()
+    app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     print(paste0("About to click in ",test_script_name))
     
@@ -898,18 +890,10 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     app <- system_exits_tests(app, test_script_name = test_script_name,
                               test_dataset = test_dataset) 
     
-    customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
-    customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
-    customDownload(app, "syse_time_download_btn", "System-Exit-Time-Download.xlsx")
-    customDownload(app, "syse_time_download_btn_ppt", "System-Exit-Time-Download-PPT.pptx")
-    customDownload(app, "syse_subpop_download_btn", "System-Exit-Subpop-Download.xlsx")
-    customDownload(app, "syse_subpop_download_btn_ppt", "System-Exit-Subpop-Download-PPT.pptx")
-    customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
-    customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
+    app$set_inputs(syse_export_client_xlsx = !is_gha, wait_ = FALSE)
+    app$wait_for_idle(timeout = 2e+06)
+    customDownload(app, "syse_export_act", "System-Exit-Full-Export.zip")
     
-    if(!is_gha) {
-      customDownload(app, "syse_client_level_download_btn", "System-Exits-Client-Level-Download.xlsx")
-    }
     #browser()
     # export non-large/helper datasets
     # all_export_names <- names(app$get_values(export=TRUE)$export)

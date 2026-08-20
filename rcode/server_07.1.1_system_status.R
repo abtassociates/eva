@@ -176,65 +176,57 @@ sys_status_export_info <- function(spd) {
   )
 }
 
-output$sys_status_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Status Report - "),
-  content = function(file) {
-    # create a list of the 3 excel tabs and export
-    spd <- get_sankey_data() %>% 
-      xtabs(freq ~ End + Begin, data=.) %>% 
-      addmargins(FUN = sum) %>% 
-      as.data.frame.matrix() %>%
-      `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
-      `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
-      cbind("Status at Period End" = rownames(.), .) %>%
-      select("Status at Period End", everything())
-    
-    tab_names <- list(
-      "System Status Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
-        bind_rows(sys_export_filter_selections(type = 'overview')) %>%
-        bind_rows(sys_status_export_info(get_sankey_data())) %>%
-        rename("System Status" = Value),
-      "System Status Detail" = spd
-    )
+sys_status_data_download <- function(file) {
+  # create a list of the 3 excel tabs and export
+  spd <- get_sankey_data() %>% 
+    xtabs(freq ~ End + Begin, data=.) %>% 
+    addmargins(FUN = sum) %>% 
+    as.data.frame.matrix() %>%
+    `rownames<-`(c(rownames(.)[-nrow(.)], "Total")) %>%
+    `colnames<-`(c(colnames(.)[-ncol(.)], "Total")) %>%
+    cbind("Status at Period End" = rownames(.), .) %>%
+    select("Status at Period End", everything())
+  
+  tab_names <- list(
+    "System Status Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
+      bind_rows(sys_export_filter_selections(type = 'overview')) %>%
+      bind_rows(sys_status_export_info(get_sankey_data())) %>%
+      rename("System Status" = Value),
+    "System Status Detail" = spd
+  )
 
-    write_xlsx(
-      tab_names,
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
-    )
+  write_xlsx(
+    tab_names,
+    path = file,
+    format_headers = FALSE,
+    col_names = TRUE
+  )
 
-    exportTestValues(sys_status_report = get_sankey_data())
-    
-    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  }
-)
+  exportTestValues(syso_status_report = get_sankey_data())
+  
+  logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}
 
-output$sys_status_download_btn_ppt <- downloadHandler(
-  filename = function() {
-    paste("System Status_", Sys.Date(), ".pptx", sep = "")
-  },
-  content = function(file) {
-    sys_perf_ppt_export(
-      file = file,
-      type = 'overview',
-      title_slide_title = "Client System Status",
-      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
-        filter(Chart != "Start Date" & Chart != "End Date") %>% 
-        bind_rows(sys_export_filter_selections(type = 'overview')) %>%
-        bind_rows(sys_status_export_info(get_sankey_data())),
-      plots = list(
-        "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
-      ),
-      summary_font_size = 21,
-      startDate = session$userData$ReportStart, 
-      endDate = session$userData$ReportEnd, 
-      sourceID = session$userData$Export$SourceID,
-      in_demo_mode = input$in_demo_mode
-    )
-  }
-)
+sys_status_ppt_download <- function(file) {
+  sys_perf_ppt_export(
+    file = file,
+    type = 'overview',
+    title_slide_title = "Client System Status",
+    summary_items = sys_export_summary_initial_df(type = 'overview') %>%
+      filter(Chart != "Start Date" & Chart != "End Date") %>% 
+      bind_rows(sys_export_filter_selections(type = 'overview')) %>%
+      bind_rows(sys_status_export_info(get_sankey_data())),
+    plots = list(
+      "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
+    ),
+    summary_font_size = 21,
+    startDate = session$userData$ReportStart, 
+    endDate = session$userData$ReportEnd, 
+    sourceID = session$userData$Export$SourceID,
+    in_demo_mode = input$in_demo_mode
+  )
+}
 
 
 # The universe is anyone who was Housed or Homeless at Period Start

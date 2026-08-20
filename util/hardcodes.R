@@ -507,3 +507,28 @@ METADATA_PATH <- ifelse(
   here("metadata-analysis/metadata"), 
   glue::glue("/srv/shiny-efs/{basename(here())}/metadata-analysis/metadata")
 )
+
+
+
+# System Performance Exports ----------
+syso_export_config <- list(
+  list(suffix = "client", name = "System Overview Client Level Export", gen = "populate_client_level_export",     ext = ".xlsx"),
+  list(suffix = "flow",   name = "System Flow",                         gen = "sys_inflow_outflow_ppt_download",  ext = ".pptx"),
+  list(suffix = "flow",   name = "System Flow",                         gen = "sys_inflow_outflow_data_download", ext = ".xlsx"),
+  list(suffix = "status", name = "System Status",                       gen = "sys_status_ppt_download",          ext = ".pptx"),
+  list(suffix = "status", name = "System Status",                       gen = "sys_status_data_download",         ext = ".xlsx"),
+  list(suffix = "demo",   name = "System Demographics",                 gen = "sys_comp_ppt_download",            ext = ".pptx"),
+  list(suffix = "demo",   name = "System Demographics",                 gen = "sys_comp_data_download",           ext = ".xlsx")
+)
+
+syse_export_config <- list(
+  list(suffix = "client", name = "System Exits Client Level Export",     gen = "populate_client_level_export",    ext = ".xlsx"),
+  list(suffix = "type",   name = "Exits by Type",                        gen = "syse_types_ppt_download",         ext = ".pptx"),
+  list(suffix = "type",   name = "Exits by Type",                        gen = "syse_types_data_download",        ext = ".xlsx"),
+  list(suffix = "year",   name = "Exits by Year",                        gen = "syse_time_ppt_download",          ext = ".pptx"),
+  list(suffix = "year",   name = "Exits by Year",                        gen = "syse_time_data_download",         ext = ".xlsx"),
+  list(suffix = "subpop", name = "Exits by Subpopulation",               gen = "syse_subpop_ppt_download",        ext = ".pptx"),
+  list(suffix = "subpop", name = "Exits by Subpopulation",               gen = "syse_subpop_data_download",       ext = ".xlsx"),
+  list(suffix = "phd",    name = "Exits to PH Demographics",             gen = "sys_comp_ppt_download",           ext = ".pptx"),
+  list(suffix = "phd",    name = "Exits to PH Demographics",             gen = "sys_comp_data_download",          ext = ".xlsx")
+)

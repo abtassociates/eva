@@ -886,9 +886,7 @@ nav_menu(
             br(),
             tab_sys_inflow_outflow_subtabs_information
           )
-        ),
-        downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
+        )
       ),
       
       ## System Status/Sankey ----------------
@@ -909,9 +907,7 @@ nav_menu(
             br(),
             tab_sys_status_subtabs_information
           )
-        ),
-        downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_status_download_btn_ppt", "Image Download"),
+        )
       ),
       
       ## System Demographics/Composition --------------
@@ -920,7 +916,7 @@ nav_menu(
         title = headerTab("System Demographics"),
         
         navset_underline(
-          id = 'sys_comp_subtabs',
+          id = 'syso_comp_subtabs',
           selected = headerSubTab("Chart"),
           nav_panel(
             title = headerSubTab("Chart"),
@@ -937,7 +933,7 @@ nav_menu(
                                    category to display in the chart at a time."
               )),
               checkboxGroupInput(
-                "system_composition_selections",
+                "syso_composition_selections",
                 label = "",
                 choices = sys_heatmap_selection_choices,
                 selected = c("All Races/Ethnicities", "Age"),
@@ -946,25 +942,24 @@ nav_menu(
               width = 12
             ),
             br(),
-            uiOutput("sys_comp_summary_selections",inline = TRUE),
-            plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+            uiOutput("syso_comp_summary_selections",inline = TRUE),
+            plotOutput("syso_comp_summary_ui_chart") %>% withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_comp_subtabs_information
+            tab_syso_comp_subtabs_information
             
           )
-        ),
-        downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_comp_download_btn_ppt", "Image Download")
+        )
+      ),
+      div(
+        class = "export-container-floating",
+        custom_sys_export_dropdown("syso")
       )
       
-      ),
-      downloadButton("client_level_download_btn", "Client Level Download")
-    
-    
-    ),
+    ) # End syso_tabbox
+  ),
 
 # System Exits tab --------------------------------------------------------
 nav_panel(
@@ -1100,9 +1095,7 @@ nav_panel(
           br(),
           tab_syse_types_subtabs_information
         )
-      ),
-      downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_types_download_btn_ppt", "Image Download")
+      )
     ),
     nav_panel(
       title = headerTab('Exits by Year'),
@@ -1129,9 +1122,7 @@ nav_panel(
           br(),
           tab_syse_time_chart_information
         )
-      ),
-      downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_time_download_btn_ppt", "Image Download")
+      )
     ),
     
     nav_panel(
@@ -1287,9 +1278,7 @@ nav_panel(
           br(),
           tab_syse_subpop_chart_information
         )
-      ),
-      downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+      )
     ),
     
     nav_panel(
@@ -1341,12 +1330,14 @@ nav_panel(
           br(),
           tab_syse_phd_subtabs_information
         )
-      ),
-      downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_phd_download_btn_ppt", "Image Download")
+      )
+    ),
+    # FLOATING CONSOLIDATED DOWNLOADS (TOP RIGHT)
+    div(
+      class = "export-container-floating",
+      custom_sys_export_dropdown("syse")
     )
-  ),
-  downloadButton("syse_client_level_download_btn", "Client Level Download")
+  ) # End syse_tabbox
 )
 ),
 # Resources menu -----------

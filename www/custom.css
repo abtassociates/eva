@@ -113,8 +113,7 @@
 
 /* make sure download buttons don't span full width*/
 .download-btn-container {
-  display: block;
-}
+  display: block;}
 
 /* Make card headers look like Accordion headers*/
 .bslib-card .card-header {
@@ -123,7 +122,7 @@
 }
 
 /*otherwise, we get a 2nd scrollbar on sys overview page*/
-#sys_comp_summary_ui_chart {
+#syso_comp_summary_ui_chart {
   height:100% !important; 
 }
 
@@ -133,12 +132,12 @@
 
 /* vertical bar and spacing of sys demographic selections, 
 to group All + Grouped Race selections*/
-#system_composition_selections label.checkbox-inline {
+#syso_composition_selections label.checkbox-inline {
   padding-right: 10px;
 }
 
-#system_composition_selections label.checkbox-inline:nth-child(1),
-#system_composition_selections label.checkbox-inline:nth-child(3) {
+#syso_composition_selections label.checkbox-inline:nth-child(1),
+#syso_composition_selections label.checkbox-inline:nth-child(3) {
   border-right: 1px solid lightgray;
 }
 
@@ -217,11 +216,11 @@ next to Household Type, it forces this entire block to wrap to the next line.
                     
 
 /*center Sys Comp/Demographics chart*/
-#sys_comp_summary_ui_chart {
+#syso_comp_summary_ui_chart {
   display: flex;
 }
 
-#sys_comp_summary_ui_chart > img {
+#syso_comp_summary_ui_chart > img {
   margin: 0 auto;
 }
 
@@ -383,4 +382,133 @@ SESSION TIMEOUT
   z-index:99999;
   text-align:center;
   padding:20px;
+}
+
+
+
+/**************
+EXPORT DROPDOWN
+***************/
+/* Styling for the floating export container */
+.export-container-floating {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 1050;
+}
+
+/* Dropdown Menu Box styling */
+.export-dropdown-menu {
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd !important;
+  margin-top: 5px !important;
+}
+
+
+
+.export-matrix-table {
+  width: 100%;
+  background-color: transparent !important;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+/* Ensure no nested or parent elements force a background fill */
+.export-matrix-table th, 
+.export-matrix-table td {
+  background-color: transparent !important;
+  background: none !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  vertical-align: middle !important;
+}
+
+/* Format left-hand report column to prevent wrapping text */
+.export-matrix-table td.col-report {
+  white-space: nowrap !important; /* Prevents text from wrapping to a second line */
+}
+
+.export-matrix-table th.col-report-header {
+  font-size: 0.9rem;
+}
+
+/* Align selection cells and header check boxes to the center */
+.export-matrix-table th.col-header-chk,
+.export-matrix-table td.col-cell-chk {
+  text-align: center !important;
+}
+
+/* Reset Shiny default input spacing specifically for matrix table cells */
+.export-matrix-table .shiny-input-container {
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Align inline label text neatly with master checkbox input */
+.export-matrix-table th.col-header-chk label {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #333333;
+  margin-bottom: 0 !important;
+  cursor: pointer;
+}
+/* Quick formatting to keep dropdown components aligned */
+.export-dropdown-menu .shiny-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Force clean vertical centering inside the export dropdown matrix */
+.export-dropdown-menu .shiny-input-container,
+.export-dropdown-menu .checkbox,
+.export-dropdown-menu .checkbox label {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: auto !important;
+}
+
+/* Reset Bootstrap's internal offsets on the checkbox input itself */
+.export-dropdown-menu .checkbox input[type="checkbox"] {
+  position: relative !important; /* Overrides absolute offsets */
+  margin: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  cursor: pointer;
+}
+
+/* Add a clean spacing gap between the checkbox and its label text (e.g., "PowerPoint") */
+.export-dropdown-menu .checkbox label span {
+  margin-left: 6px !important;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Ensure the row placeholder "-" matches the center alignment of the checkboxes */
+.export-dropdown-menu .text-muted {
+  line-height: 1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Standardized formatting for select/deselect action links */
+.export-link {
+  color: #333333 !important;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none !important;
+}
+
+.export-link:hover {
+  text-decoration: underline !important;
 }

@@ -1241,99 +1241,91 @@ sys_export_monthly_info <- function() {
 
 ## Sys Inflow/Outflow Download Handler ------
 # downloads all Inflow/Outflow chart data, including MbMs
-output$sys_inflow_outflow_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Flow Report - "),
-  content = function(file) {
-    logToConsole(session, "Inflow/Outflow data download")
+sys_inflow_outflow_data_download <- function(file) {
+  logToConsole(session, "Inflow/Outflow data download")
 
-    df <- sys_inflow_outflow_annual_chart_data() %>% 
-      ftransform(
-        Summary = fct_collapse(Summary, !!!collapse_details)
-      )
-    
-    if(session$userData$days_of_data < 1094) {
-      df <- df %>%
-        ftransform(
-          Detail = fct_recode(Detail, "Inflow Unspecified" = "First-Time Homeless")
-        )
-    }
-    
-    totals_df <- df %>% 
-      fgroup_by(Summary) %>% 
-      fsummarise(Detail = paste0("Total ", Summary[1]),
-                 N = fsum(N, na.rm = TRUE))
-
-    monthly_data <- sys_export_monthly_info()
-
-    write_xlsx(
-      list(
-        "System Flow Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
-          bind_rows(
-            sys_export_filter_selections(type = 'overview'),
-            sys_inflow_outflow_totals(),
-            monthly_data$monthly_averages
-          ) %>%
-          mutate(Value = replace_na(Value, 0)) %>%
-          rename("System Flow" = Value),
-        "System Flow Summary" = bind_rows(df, totals_df) %>%
-          roworder(Summary) %>%
-          fselect(
-            "Summary Category" = Summary,
-            "Detail Category" = Detail,
-            "Count" = N
-          ),
-        "System Flow Data Monthly" = monthly_data$monthly_counts
-      ),
-      path = file,
-      format_headers = FALSE,
-      col_names = TRUE
+  df <- sys_inflow_outflow_annual_chart_data() %>% 
+    ftransform(
+      Summary = fct_collapse(Summary, !!!collapse_details)
     )
-
-    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
-                       if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-    exportTestValues(sys_inflow_outflow_report = df)
+  
+  if(session$userData$days_of_data < 1094) {
+    df <- df %>%
+      ftransform(
+        Detail = fct_recode(Detail, "Inflow Unspecified" = "First-Time Homeless")
+      )
   }
-)
+  
+  totals_df <- df %>% 
+    fgroup_by(Summary) %>% 
+    fsummarise(Detail = paste0("Total ", Summary[1]),
+               N = fsum(N, na.rm = TRUE))
 
-# PowerPoint/Image Export -----------------------------------------------------
-output$sys_inflow_outflow_download_btn_ppt <- downloadHandler(
-  filename = function() {
-    paste("System Flow_", Sys.Date(), ".pptx", sep = "")
-  },
-  content = function(file) {
-    logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
-    monthly_data <- sys_export_monthly_info()
+  monthly_data <- sys_export_monthly_info()
 
-    sys_perf_ppt_export(
-      file = file,
-      type = 'overview',
-      title_slide_title = "System Flow",
-      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
-        filter(Chart != "Start Date" & Chart != "End Date") %>% 
+  write_xlsx(
+    list(
+      "System Flow Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
         bind_rows(
           sys_export_filter_selections(type = 'overview'),
           sys_inflow_outflow_totals(),
           monthly_data$monthly_averages
+        ) %>%
+        mutate(Value = replace_na(Value, 0)) %>%
+        rename("System Flow" = Value),
+      "System Flow Summary" = bind_rows(df, totals_df) %>%
+        roworder(Summary) %>%
+        fselect(
+          "Summary Category" = Summary,
+          "Detail Category" = Detail,
+          "Count" = N
         ),
-      plots = list(
-        "System Inflow/Outflow Summary" = get_sys_inflow_outflow_annual_plot(
-          "sys_inflow_outflow_summary_ui_chart",
-          isExport = TRUE
-        ),
-        "System Inflow/Outflow Detail" = get_sys_inflow_outflow_annual_plot(
-          "sys_inflow_outflow_detail_ui_chart",
-          isExport = TRUE
-        ),
-        "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
-        "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
-        "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
-        "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
+      "System Flow Data Monthly" = monthly_data$monthly_counts
+    ),
+    path = file,
+    format_headers = FALSE,
+    col_names = TRUE
+  )
+
+  logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                     if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  exportTestValues(sys_inflow_outflow_report = df)
+}
+
+# PowerPoint/Image Export -----------------------------------------------------
+sys_inflow_outflow_ppt_download  <- function(file) {
+  logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
+  monthly_data <- sys_export_monthly_info()
+
+  sys_perf_ppt_export(
+    file = file,
+    type = 'overview',
+    title_slide_title = "System Flow",
+    summary_items = sys_export_summary_initial_df(type = 'overview') %>%
+      filter(Chart != "Start Date" & Chart != "End Date") %>% 
+      bind_rows(
+        sys_export_filter_selections(type = 'overview'),
+        sys_inflow_outflow_totals(),
+        monthly_data$monthly_averages
       ),
-      summary_font_size = 19,
-      startDate = session$userData$ReportStart, 
-      endDate = session$userData$ReportEnd, 
-      sourceID = session$userData$Export$SourceID,
-      in_demo_mode = input$in_demo_mode
-    )
-  }
-)
+    plots = list(
+      "System Inflow/Outflow Summary" = get_sys_inflow_outflow_annual_plot(
+        "sys_inflow_outflow_summary_ui_chart",
+        isExport = TRUE
+      ),
+      "System Inflow/Outflow Detail" = get_sys_inflow_outflow_annual_plot(
+        "sys_inflow_outflow_detail_ui_chart",
+        isExport = TRUE
+      ),
+      "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
+      "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
+      "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
+      "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
+    ),
+    summary_font_size = 19,
+    startDate = session$userData$ReportStart, 
+    endDate = session$userData$ReportEnd, 
+    sourceID = session$userData$Export$SourceID,
+    in_demo_mode = input$in_demo_mode
+  )
+}
