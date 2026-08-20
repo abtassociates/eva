@@ -16,16 +16,16 @@ observeEvent(input$syso_tabbox, {
 }, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
 
 
-observeEvent(input$sys_inflow_outflow_subtabs, {
+observeEvent(input$syso_inflow_outflow_subtabs, {
   req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$syso_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
-observeEvent(input$sys_status_subtabs, {
+observeEvent(input$syso_status_subtabs, {
   req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$syso_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 

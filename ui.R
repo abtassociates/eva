@@ -797,11 +797,11 @@ nav_menu(
         title = headerTab('System Flow'),
         
         navset_underline(
-          id = "sys_inflow_outflow_subtabs",
+          id = "syso_inflow_outflow_subtabs",
           selected = headerSubTab("Summary Chart"),
           nav_panel(
             title = headerSubTab('Summary Chart'),
-            uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
+            uiOutput("syso_inflow_outflow_summary_filter_selections") %>%
               withSpinner(),
             plotOutput("sys_inflow_outflow_summary_ui_chart",
                        width = "70%",
@@ -810,16 +810,16 @@ nav_menu(
           ),
           nav_panel(
             title = headerSubTab('Detail Chart'),
-            uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
+            uiOutput("syso_inflow_outflow_detail_filter_selections") %>%
               withSpinner(),
-            plotOutput("sys_inflow_outflow_detail_ui_chart",
+            plotOutput("syso_inflow_outflow_detail_ui_chart",
                        width = "100%",
                        height = "500") %>%
               withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Month-by-Month Chart"), 
-            uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+            uiOutput("syso_inflow_outflow_monthly_filter_selections") %>%
              withSpinner(),
             radioGroupButtons(
               inputId = "mbm_status_filter",
@@ -832,20 +832,20 @@ nav_menu(
             ), 
             conditionalPanel(
               condition = "input.mbm_status_filter == 'Inactive'",
-              plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
+              plotOutput("syso_inactive_monthly_ui_chart", width = "100%", height = "500")
             ), 
             conditionalPanel(
               condition = "input.mbm_status_filter == 'First-Time Homeless'",
-              plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
+              plotOutput("syso_fth_monthly_ui_chart", width = "100%", height = "500")
             ),
             conditionalPanel(
               condition = "input.mbm_status_filter == 'All'",
-              plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+              plotOutput("syso_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
                 withSpinner()
             ),
             conditionalPanel(
               condition = "input.mbm_status_filter == 'All'",
-              DTOutput("sys_inflow_outflow_monthly_table") %>%
+              DTOutput("syso_inflow_outflow_monthly_table") %>%
                 withSpinner()
             )
           ),
@@ -884,7 +884,7 @@ nav_menu(
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_inflow_outflow_subtabs_information
+            tab_syso_inflow_outflow_subtabs_information
           )
         )
       ),
@@ -894,18 +894,18 @@ nav_menu(
         id = 'syso_systemstatus',
         title = headerTab("Client System Status"),
         navset_underline(
-          id = 'sys_status_subtabs',
+          id = 'syso_status_subtabs',
           selected = headerSubTab("Chart"),
           
           nav_panel(
             title = headerSubTab("Chart"),   
-            uiOutput("sankey_filter_selections") %>% withSpinner(),
-            plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
+            uiOutput("syso_status_filter_selections") %>% withSpinner(),
+            plotOutput("syso_status_ui_chart", width="70%") %>% withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_status_subtabs_information
+            tab_syso_status_subtabs_information
           )
         )
       ),

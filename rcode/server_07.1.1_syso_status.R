@@ -1,4 +1,4 @@
-output$sankey_filter_selections <- renderUI({ 
+output$syso_status_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
@@ -131,8 +131,8 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
-output$sankey_ui_chart <- renderPlot({
-  logToConsole(session, "in sankey_ui_chart")
+output$syso_status_ui_chart <- renderPlot({
+  logToConsole(session, "in syso_status_ui_chart")
   req(session$userData$valid_file() == 1)
 
   validate(

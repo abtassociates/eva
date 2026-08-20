@@ -161,15 +161,15 @@ get_inflow_outflow_monthly <- reactive({
 
 # Filter Selections UI -----------------------------------------------------------
 # (Reported above the chart)
-output$sys_inflow_outflow_detail_filter_selections <- renderUI({ 
+output$syso_inflow_outflow_detail_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
-output$sys_inflow_outflow_summary_filter_selections <- renderUI({
+output$syso_inflow_outflow_summary_filter_selections <- renderUI({
   req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
-output$sys_inflow_outflow_monthly_filter_selections <- renderUI({ 
+output$syso_inflow_outflow_monthly_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
@@ -598,7 +598,7 @@ renderInflowOutflowFullPlot(
 )
 ## Detail (Annual) -----------------------------------------
 renderInflowOutflowFullPlot(
-  chart_id = "sys_inflow_outflow_detail_ui_chart",
+  chart_id = "syso_inflow_outflow_detail_ui_chart",
   alt_text = "A waterfall bar chart of the homeless system's inflow and 
       outflow during the report period. The detailed view of this chart 
       shows inflow as three subcategories: first-time homeless, returned from 
@@ -758,13 +758,13 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   })
 }
 
-output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
+output$syso_inflow_outflow_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
   get_sys_inflow_outflow_monthly_plot()()
 })
 
 # Pure line chart (suppressed) -------
-# output$sys_inflow_outflow_monthly_ui_chart_line <- renderPlot({
+# output$syso_inflow_outflow_monthly_ui_chart_line <- renderPlot({
 #   plot_data <- sys_inflow_outflow_monthly_chart_data()
 #   
 #   # Get Average Info for Title Display
@@ -825,7 +825,7 @@ output$sys_inflow_outflow_monthly_ui_chart <- renderPlot({
 # })
 
 # Combined line + bar chart (suppressed) -------------
-# output$sys_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
+# output$syso_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
 #   plot_data <- sys_inflow_outflow_monthly_chart_data()
 #   
 #   # Get Average Info for Title Display
@@ -929,8 +929,8 @@ monthly_chart_data_wide_for_tables <- function() {
 }
 # The table is positioned directly under the chart
 # Making the month labels looks like both the chart's x-axis and the table's column headers
-get_sys_inflow_outflow_monthly_table <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_monthly_table")
+get_syso_inflow_outflow_monthly_table <- reactive({
+  logToConsole(session, "In syso_inflow_outflow_monthly_table")
 
   summary_data_wide <- monthly_chart_data_wide_for_tables()
   
@@ -1086,9 +1086,9 @@ get_sys_inflow_outflow_monthly_flextable <- function() {
     color(i = monthly_change_row, j = which.min(monthly_change_vals) + 1, color = "white")
 }
 
-output$sys_inflow_outflow_monthly_table <- renderDT({
+output$syso_inflow_outflow_monthly_table <- renderDT({
   monthly_chart_validation()
-  get_sys_inflow_outflow_monthly_table()
+  get_syso_inflow_outflow_monthly_table()
 })
 
 ### Inactive + FTH chart --------------------------------------
@@ -1134,12 +1134,12 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
-output$sys_inactive_monthly_ui_chart <- renderPlot({
+output$syso_inactive_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
   sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
 })
 
-output$sys_fth_monthly_ui_chart <- renderPlot({
+output$syso_fth_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
   sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
 })
@@ -1314,7 +1314,7 @@ sys_inflow_outflow_ppt_download  <- function(file) {
         isExport = TRUE
       ),
       "System Inflow/Outflow Detail" = get_sys_inflow_outflow_annual_plot(
-        "sys_inflow_outflow_detail_ui_chart",
+        "syso_inflow_outflow_detail_ui_chart",
         isExport = TRUE
       ),
       "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),

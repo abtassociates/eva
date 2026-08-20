@@ -248,12 +248,12 @@ next to Household Type, it forces this entire block to wrap to the next line.
 
 /* MbM*/
 /*reduce horizontal padding to better align datatable with chart*/
-#sys_inflow_outflow_monthly_table  table.dataTable tbody td {
+#syso_inflow_outflow_monthly_table  table.dataTable tbody td {
   padding: 8px 5px;
 }
 
 /* Inflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) {
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) {
     font-weight: bold;
     background-color: #CCC7C4;
     border: 2px solid black;
@@ -262,7 +262,7 @@ next to Household Type, it forces this entire block to wrap to the next line.
 }
 
 /* Outflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) {
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) {
   font-weight: bold;
   background-color: #CCC7C4;
   border: 2px solid black;
@@ -271,7 +271,7 @@ next to Household Type, it forces this entire block to wrap to the next line.
 }
 
 /* div within Inflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) > div {
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) > div {
   background-color: #CCC7C4;
   color: black;
   display: inline;
@@ -280,7 +280,7 @@ next to Household Type, it forces this entire block to wrap to the next line.
 }
 
 /* div within Outflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) > div {
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) > div {
   background-color: #CCC7C4;
   color: black;
   display: inline;

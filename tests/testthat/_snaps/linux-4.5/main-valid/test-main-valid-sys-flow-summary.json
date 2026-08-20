@@ -1,7 +1,7 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "sys_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
+    "syso_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -30,7 +30,7 @@
 
       ]
     },
-    "sys_inflow_outflow_summary_filter_selections": {
+    "syso_inflow_outflow_summary_filter_selections": {
       "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>",
       "deps": [
 
