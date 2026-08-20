@@ -282,13 +282,9 @@ sys_perf_ppt_export <- function(file,
                                 sourceID = session$userData$Export$SourceID,
                                 in_demo_mode = input$in_demo_mode) {
   
-  if(type == 'overview'){
-    logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
-                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
-  } else if (type == 'exits'){
-    logMetadata(session, paste0("Downloaded System Exits Powerpoint: ", title_slide_title,
-                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
-  }
+  logToConsole(session, paste0("In sys_perf_ppt_export, where type = ", type))
+  logMetadata(session, paste0("Downloaded System ", stringr::str_to_title(type), " Powerpoint: ", title_slide_title,
+                              if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
   
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   

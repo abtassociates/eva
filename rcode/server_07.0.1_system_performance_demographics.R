@@ -351,6 +351,8 @@ calc_margin_totals <- function(df, row_var, col_var, value_var = "n") {
 }
 
 sys_comp_data_download <- function(file, type = 'syso') {
+  logToConsole(session, paste0("In sys_comp_data_download, where type = ", type))
+  
   subtab <- ifelse(type == 'syso', 'comp', 'phd')
   methodology_type <- ifelse(type == 'syso', input$syso_methodology_type, input$syse_methodology_type)
   selections <- if(type == 'syso') input$syso_composition_selections else input$syse_phd_selections
@@ -402,6 +404,7 @@ limit_checkbox_selections <- function(input_id, selected_values) {
 }
 
 sys_comp_ppt_download <- function(file, type = 'syso') {
+  logToConsole(session, paste0("In sys_comp_ppt_download, where type = ", type))
   type <- ifelse(type == 'syso', 'overview', 'exits')
   
   selections <- if(type == 'overview') input$syso_composition_selections else input$syse_phd_selections
