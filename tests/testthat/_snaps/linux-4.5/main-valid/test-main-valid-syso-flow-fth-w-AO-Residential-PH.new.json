@@ -31,8 +31,8 @@
       ]
     },
     "syso_fth_monthly_ui_chart": {
-      "src": "[image data hash: 0131572c10773e624bd4023e215bca64]",
-      "width": 919,
+      "src": "[image data hash: ca29c087c8f1ed124a35e39688684782]",
+      "width": 1847,
       "height": 500,
       "alt": "Plot object",
       "coordmap": {
@@ -77,14 +77,14 @@
             },
             "range": {
               "left": 74.27397260273975,
-              "right": 919,
+              "right": 1847,
               "bottom": 481.068493150685,
               "top": 0
             }
           }
         ],
         "dims": {
-          "width": 919,
+          "width": 1847,
           "height": 500
         }
       }
