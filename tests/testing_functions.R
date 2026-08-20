@@ -366,14 +366,14 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     sys_inflow_outflow_inputs <- c(
       "pageid",
-      "sys_inflow_outflow_subtabs",
+      "syso_inflow_outflow_subtabs",
       sys_universe_filters,
       sys_flow_filters,
       sys_other_inputs
     )
     sys_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
-      "sys_inflow_outflow_summary_filter_selections",
+      "syso_inflow_outflow_summary_filter_selections",
       "sys_inflow_outflow_summary_ui_chart"
     )
     
@@ -387,10 +387,10 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     
     sys_inflow_outflow_detail_outputs <- c(
       "headerSystemOverview",
-      "sys_inflow_outflow_detail_filter_selections",
-      "sys_inflow_outflow_detail_ui_chart"
+      "syso_inflow_outflow_detail_filter_selections",
+      "syso_inflow_outflow_detail_ui_chart"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-detail",
@@ -431,7 +431,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 2e+06)
     
     # go back to summary tab
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-summary-w-AO-Residential-PH",
@@ -442,17 +442,17 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     # go Month-by-Month tab
     sys_inflow_outflow_mbm_outputs <- c(
       "headerSystemOverview",
-      "sys_inflow_outflow_monthly_filter_selections"
+      "syso_inflow_outflow_monthly_filter_selections"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-mbm-w-AO-Residential-PH",
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
-        "sys_inflow_outflow_monthly_ui_chart",
-        "sys_inflow_outflow_monthly_table"
+        "syso_inflow_outflow_monthly_ui_chart",
+        "syso_inflow_outflow_monthly_table"
       )
     )
     
@@ -464,7 +464,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
-        "sys_fth_monthly_ui_chart"
+        "syso_fth_monthly_ui_chart"
       )
     )
     
@@ -476,33 +476,33 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       input = sys_inflow_outflow_inputs,
       output = c(
         sys_inflow_outflow_mbm_outputs,
-        "sys_inactive_monthly_ui_chart"
+        "syso_inactive_monthly_ui_chart"
       )
     )
     
     # go to information
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-flow-information",
       input = c(
         "pageid",
-        "sys_inflow_outflow_subtabs"
+        "syso_inflow_outflow_subtabs"
       )
     )
     
     # System Status/Sankey
     sys_status_inputs <- c(
       "pageid",
-      "sys_status_subtabs",
+      "syso_status_subtabs",
       sys_universe_filters,
       sys_flow_filters,
       sys_other_inputs
     )
     sys_status_outputs <- c(
       "headerSystemOverview",
-      "sankey_filter_selections",
-      "sankey_ui_chart"
+      "syso_status_filter_selections",
+      "syso_status_ui_chart"
     )
     app$set_inputs(syso_tabbox = "<h4>Client System Status</h4>")
     app$wait_for_idle(timeout = 1e+06)
@@ -512,7 +512,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = sys_status_outputs
     )
     
-    app$set_inputs(sys_status_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_status_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "sys-status-information",
@@ -615,9 +615,10 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_hh_type = "All", syso_project_type = "All")
     handle_helper_data(app, test_script_name, "period_data")
     
-    print("saving shiny log")
-    if(Sys.getenv('RSTUDIO') == "1")
+    if(Sys.getenv('RSTUDIO') == "1") {
+      print("viewing shiny log")
       View(app$get_logs())
+    }
   })
 }
 
