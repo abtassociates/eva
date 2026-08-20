@@ -49,171 +49,379 @@ eval_metric <- function(metric_name, metric_dataset) {
 }
 
 # ==========================================
-# 2. MASTER METRIC DEFINITIONS
+# 2. MASTER METRIC DEFINITIONS (SUMMARY & DETAIL)
 # ==========================================
 
 METRIC_DEFINITIONS <- list(
+  # --- 1. CLIENTS & HOUSEHOLDS ---
   "Total Clients Served" = list(
-    dt_key     = "total_clients",
-    unit       = "clients",
-    calc_func  = function(dt) if(fnrow(dt) > 0) dt |> 
-      fgroup_by(AgeGroup) |> 
-      fsummarise(n_unique = fnunique(PersonalID)) else 0,
-    # calc_nmiss = function(dt) fsum(is.na(dt$PersonalID))
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% setdiff(all_project_types, ce_project_type)
+    dt_key         = "total_clients",
+    unit           = "clients",
+    calc_func      = function(dt) fnunique(dt$PersonalID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
   ),
-  
+  "  Adults Served (age 18 or over)" = list(
+    dt_key         = "total_clients",
+    unit           = "clients",
+    calc_func      = function(dt) fnunique(dt[AgeGroup == "Adult"]$PersonalID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Children Served (under age 18)" = list(
+    dt_key         = "total_clients",
+    unit           = "clients",
+    calc_func      = function(dt) fnunique(dt[AgeGroup == "Child"]$PersonalID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Clients Served with Unknown Age" = list(
+    dt_key         = "total_clients",
+    unit           = "clients",
+    calc_func      = function(dt) fnunique(dt[AgeGroup == "Unknown"]$PersonalID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Heads of Household and Adults Served (HoHs/Adults)" = list(
+    dt_key         = "total_clients",
+    unit           = "clients",
+    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
   "Total Households Served" = list(
-    dt_key     = "total_households_served",
-    unit       = "households",
-    calc_func  = function(dt) fnunique(dt$PersonalID),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% setdiff(all_project_types, ce_project_type)
+    dt_key         = "total_households_served",
+    unit           = "households",
+    calc_func      = function(dt) fnunique(dt$HouseholdID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "Average Household Size" = list(
+    dt_key         = "avg_hh_size",
+    unit           = "people",
+    calc_func      = function(dt) fmean(dt$hh_size),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "Households who Moved into Housing" = list(
+    dt_key         = "moved_into_housing",
+    unit           = "pct",
+    calc_func      = function(dt) if (fnrow(dt) > 0) fsum(dt$moved_into_housing) / fcount(dt$EnrollmentID) else NA_real_,
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = FALSE
+  ),
+  "  Households who Exited without Moving Into Housing" = list(
+    dt_key         = "moved_into_housing",
+    unit           = "households",
+    calc_func      = function(dt) fsum(!is.na(dt$ExitDate) & !dt$moved_into_housing),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
   ),
   
-  "Average Households Size" = list(
-    dt_key     = "avg_hh_size",
-    unit       = "people",
-    calc_func  = function(dt) fmean(dt$hh_size),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) FALSE
-  ),
-  
-  "Average Length of Participation (All Clients)" = list(
-    dt_key     = "length_of_participation",
-    unit       = "days",
-    calc_func  = function(dt) fmean(dt$length_of_participation),
-    # calc_nmiss = function(dt) fsum(is.na(dt$ExitDate))
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% non_res_project_types
-  ),
-  
-  "Median Length of Participation (All Clients)" = list(
-    dt_key     = "length_of_participation",
-    unit       = "days",
-    calc_func  = function(dt) fmedian(dt$length_of_participation),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% non_res_project_types
-  ),
-  
-  "Average Length of Stay in Residence (All Clients)" = list(
-    dt_key     = "los",
-    unit       = "days",
-    calc_func  = function(dt) fmean(dt$los_res),
-    # calc_nmiss = function(dt) fsum(is.na(dt$los_res)),
-    applies    = function(proj_type) proj_type %in% project_types_w_beds,
-    show_KPI   = function(proj_type) proj_type %in% project_types_w_beds
-  ),
-  
-  "Median Length of Stay in Residence (All Clients)" = list(
-    dt_key     = "los",
-    unit       = "days",
-    calc_func  = function(dt) fmedian(dt$los_res),
-    applies    = function(proj_type) proj_type %in% project_types_w_beds,
-    show_KPI   = function(proj_type) proj_type %in% project_types_w_beds
-  ),
-  
-  "Average Time to Housing Move-In (All Clients)" = list(
-    dt_key     = "time_to_movein",
-    unit       = "days",
-    calc_func  = function(dt) fmean(dt$time_to_move_in),
-    # calc_nmiss = function(dt) fsum(is.na(dt$MoveInDateAdjust)),
-    applies    = function(proj_type) proj_type %in% ph_project_types, 
-    show_KPI   = function(proj_type) proj_type %in% ph_project_types
-  ),
-  
-  "Median Time to Housing Move-In (All Clients)" = list(
-    dt_key     = "time_to_movein",
-    unit       = "days",
-    calc_func  = function(dt) fmedian(dt$time_to_move_in),
-    applies    = function(proj_type) proj_type %in% ph_project_types,
-    show_KPI   = function(proj_type) proj_type %in% ph_project_types
-  ),
-  
-  "Moved into Housing (HoHs)" = list(
-    dt_key     = "moved_into_housing",
-    unit       = "pct",
-    calc_func  = function(dt) if (fnrow(dt) > 0) fsum(dt$moved_into_housing) / fnobs(dt$EnrollmentID) else NA_real_,
-    applies    = function(proj_type) proj_type %in% ph_project_types,
-    show_KPI   = function(proj_type) FALSE
-  ),
-  
+  # --- 2. PRIOR LIVING SITUATIONS & INCOME ---
   "Entered from Place Not Meant for Habitation (HoHs/Adults)" = list(
-    dt_key     = "entered_non_habitat",
-    unit       = "pct",
-    calc_func  = function(dt) {
+    dt_key         = "entered_non_habitat",
+    unit           = "pct",
+    calc_func      = function(dt) {
       denom <- fsum(!dt$LivingSituation %in% exclude_vals)
       if (denom > 0) fsum(dt$entered_from_place_not_meant) / denom else NA_real_
     },
-    calc_nmiss = function(dt) fsum(dt$nmiss),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type))
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type)),
+    summary_metric = TRUE,
+    export_only    = FALSE
   ),
-  
   "Entered from Permanent Housing Situation (HoHs/Adults)" = list(
-    dt_key     = "entered_permanent",
-    unit       = "pct",
-    calc_func  = function(dt) {
+    dt_key         = "entered_permanent",
+    unit           = "pct",
+    calc_func      = function(dt) {
       denom <- fsum(!dt$LivingSituation %in% exclude_vals)
       if (denom > 0) fsum(dt$entered_from_ph) / denom else NA_real_
     },
-    calc_nmiss = function(dt) fsum(dt$nmiss),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% c(lh_residential_project_types, ce_project_type)
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% c(lh_residential_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
   ),
-  
   "Zero Income at Entry (HoHs/Adults)" = list(
-    dt_key     = "zero_income",
-    unit       = "pct",
-    calc_func  = function(dt) {
+    dt_key         = "zero_income",
+    unit           = "pct",
+    calc_func      = function(dt) {
       denom <- fsum(dt$IncomeFromAnySource %in% c(0, 1))
       if (denom > 0) fsum(dt$zero_income) / denom else NA_real_
     },
-    calc_nmiss = function(dt) fsum(dt$nmiss),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type == hp_project_type
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt == hp_project_type,
+    summary_metric = TRUE,
+    export_only    = FALSE
   ),
-  
   "Income Growth from Entry to Exit (HoHs/Adults)" = list(
-    dt_key     = "income_growth",
-    unit       = "pct",
-    calc_func  = function(dt) {
+    dt_key         = "income_growth",
+    unit           = "pct",
+    calc_func      = function(dt) {
       denom <- fsum(dt$IncomeFromAnySource %in% c(0, 1))
       if (denom > 0) fsum(dt$has_growth) / denom else NA_real_
     },
-    calc_nmiss = function(dt) fsum(dt$nmiss),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type %in% c(ph_project_types, hp_project_type)
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% c(ph_project_types, hp_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Excluded from Income Growth Metric Due to Unknown/Missing Income at Entry or Exit (HoHs/Adults)" = list(
+    dt_key         = "income_growth",
+    unit           = "clients",
+    calc_func      = function(dt) fsum(dt$nmiss),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
   ),
   
+  # --- 3. EXITS ---
   "Successful Exits (All Clients)" = list(
-    dt_key     = "successful_exit",
-    unit       = "pct",
-    calc_func  = function(dt) {
+    dt_key         = "successful_exit",
+    unit           = "pct",
+    calc_func      = function(dt) {
       denom <- fsum(dt$denom)
       if (denom > 0) fsum(dt$successful_exit) / denom else NA_real_
     },
-    calc_nmiss = function(dt) fsum(dt$nmiss),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) TRUE
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) TRUE,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Total Exits (Including Unknown/Missing Destinations)" = list(
+    dt_key         = "successful_exit",
+    unit           = "clients",
+    calc_func      = function(dt) fnrow(dt),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Excluded from Successful Exits Metric Due to Specific Exit Destination" = list(
+    dt_key         = "successful_exit",
+    unit           = "clients",
+    calc_func      = function(dt) fsum(dt$nmiss),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
   ),
   
-  "CE Assessed Households" = list(
-    dt_key     = "ce_assessments",
-    unit       = "assessments",
-    calc_func  = function(dt) fnobs(dt$EnrollmentID),
-    calc_nmiss = function(dt) fsum(dt$nmiss),
-    applies    = function(proj_type) TRUE,
-    show_KPI   = function(proj_type) proj_type == ce_project_type
+  # --- 4. LENGTH OF PARTICIPATION ---
+  "Average Length of Participation" = list(
+    dt_key         = "length_of_participation",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt$length_of_participation),
+    applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
+    show_KPI       = function(pt) pt %in% non_res_project_types,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Average Length of Participation - Leavers" = list(
+    dt_key         = "length_of_participation",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt[!is.na(ExitDate)]$length_of_participation),
+    applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Average Length of Participation - Stayers" = list(
+    dt_key         = "length_of_participation",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt[is.na(ExitDate)]$length_of_participation),
+    applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "Median Length of Participation" = list(
+    dt_key         = "length_of_participation",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt$length_of_participation),
+    applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
+    show_KPI       = function(pt) pt %in% non_res_project_types,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Median Length of Participation - Leavers" = list(
+    dt_key         = "length_of_participation",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt[!is.na(ExitDate)]$length_of_participation),
+    applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Median Length of Participation - Stayers" = list(
+    dt_key         = "length_of_participation",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt[is.na(ExitDate)]$length_of_participation),
+    applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
   ),
   
-  "Current Living Situation Records: Total" = list(
-    dt_key     = "cls_records",
-    unit       = "records",
-    calc_func  = function(dt) fnobs(dt$CurrentLivingSitID),
-    applies    = function(proj_type) proj_type %in% project_types_w_cls,
-    show_KPI   = function(proj_type) proj_type %in% setdiff(project_types_w_cls, es_nbn_project_type)
+  # --- 5. LENGTH OF STAY IN RESIDENCE ---
+  "Average Length of Stay in Residence (All Clients)" = list(
+    dt_key         = "los",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt$los_res),
+    applies        = function(pt) pt %in% project_types_w_beds,
+    show_KPI       = function(pt) pt %in% project_types_w_beds,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Average Length of Stay in Residence - Leavers (All Clients)" = list(
+    dt_key         = "los",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt[!is.na(ExitDate)]$los_res),
+    applies        = function(pt) pt %in% project_types_w_beds,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Average Length of Stay in Residence - Stayers (All Clients)" = list(
+    dt_key         = "los",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt[is.na(ExitDate)]$los_res),
+    applies        = function(pt) pt %in% project_types_w_beds,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "Median Length of Stay in Residence (All Clients)" = list(
+    dt_key         = "los",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt$los_res),
+    applies        = function(pt) pt %in% project_types_w_beds,
+    show_KPI       = function(pt) pt %in% project_types_w_beds,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Median Length of Stay in Residence - Leavers (All Clients)" = list(
+    dt_key         = "los",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt[!is.na(ExitDate)]$los_res),
+    applies        = function(pt) pt %in% project_types_w_beds,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Median Length of Stay in Residence - Stayers (All Clients)" = list(
+    dt_key         = "los",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt[is.na(ExitDate)]$los_res),
+    applies        = function(pt) pt %in% project_types_w_beds,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  
+  # --- 6. TIME TO HOUSING MOVE-IN ---
+  "Average Time to Housing Move-In (All Clients)" = list(
+    dt_key         = "time_to_movein",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt$time_to_move_in),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) pt %in% ph_project_types,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Average Time to Housing Move-In - Leavers (All Clients)" = list(
+    dt_key         = "time_to_movein",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt[!is.na(ExitDate)]$time_to_move_in),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Average Time to Housing Move-In - Stayers (All Clients)" = list(
+    dt_key         = "time_to_movein",
+    unit           = "days",
+    calc_func      = function(dt) fmean(dt[is.na(ExitDate)]$time_to_move_in),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "Median Time to Housing Move-In (All Clients)" = list(
+    dt_key         = "time_to_movein",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt$time_to_move_in),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) pt %in% ph_project_types,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Median Time to Housing Move-In - Leavers (All Clients)" = list(
+    dt_key         = "time_to_movein",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt[!is.na(ExitDate)]$time_to_move_in),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "  Median Time to Housing Move-In - Stayers (All Clients)" = list(
+    dt_key         = "time_to_movein",
+    unit           = "days",
+    calc_func      = function(dt) fmedian(dt[is.na(ExitDate)]$time_to_move_in),
+    applies        = function(pt) pt %in% ph_project_types,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  
+  # --- 7. CE ASSESSMENTS & CLS ---
+  "CE Assessed Households (HoHs)" = list(
+    dt_key         = "ce_assessments",
+    unit           = "assessments",
+    calc_func      = function(dt) fcount(dt$EnrollmentID),
+    applies        = function(pt) pt == ce_project_type,
+    show_KPI       = function(pt) pt == ce_project_type,
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Excluded CE Assessed Households Due to Issues with Assessment Dates or CE Participation Data (HoHs)" = list(
+    dt_key         = "ce_assessments",
+    unit           = "assessments",
+    calc_func      = function(dt) fsum(dt$nmiss),
+    applies        = function(pt) pt == ce_project_type,
+    show_KPI       = function(pt) FALSE,
+    summary_metric = FALSE,
+    export_only    = TRUE
+  ),
+  "Current Living Situation Records (HoHs/Adults)" = list(
+    dt_key         = "cls_records",
+    unit           = "records",
+    calc_func      = function(dt) fcount(dt$CurrentLivingSitID),
+    applies        = function(pt) pt %in% c(es_nbn_project_type, setdiff(non_res_project_types, hp_project_type)),
+    show_KPI       = function(pt) pt %in% setdiff(project_types_w_cls, es_nbn_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
   )
 )
 
@@ -243,27 +451,19 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     box_key,
     
     "total_clients" = {
-      m <- eval_metric("Total Clients Served", metric_dataset)
-      # Safe extraction helper function
-      get_age_count <- function(res_dt, target_group) {
-        if (is.data.frame(res_dt) && fnrow(res_dt) > 0) {
-          val <- res_dt[AgeGroup == target_group, n_unique]
-          if (length(val) > 0) return(val)
-        }
-        NA_real_
-      }
-      
-      adult_val   <- get_age_count(m$val, "Adult")
-      child_val   <- get_age_count(m$val, "Child")
-      unknown_val <- get_age_count(m$val, "Unknown")
+      m_tot <- eval_metric("Total Clients Served", metric_dataset)
+      m_ad  <- eval_metric("  Adults Served (age 18 or over)", metric_dataset)
+      m_ch  <- eval_metric("  Children Served (under age 18)", metric_dataset)
+      m_uk  <- eval_metric("  Clients Served with Unknown Age", metric_dataset)
       
       value_box(
         class = "project_dashboard_valbox",
         title = "Total Clients Served",
         value = tagList(
-          div("Adults: ", format_val(adult_val, "clients")),
-          div("Children: ", format_val(child_val, "clients")),
-          div("Unknown: ", format_val(unknown_val, "clients"))
+          div("Total: ", format_val(m_tot$val, "clients")),
+          div("Adults: ", format_val(m_ad$val, "clients")),
+          div("Children: ", format_val(m_ch$val, "clients")),
+          div("Unknown: ", format_val(m_uk$val, "clients"))
         ),
         showcase = bs_icon("people"),
         id = "total_clients_box"
@@ -399,7 +599,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     },
     
     "ce_assessments" = {
-      m <- eval_metric("CE Assessed Households", metric_dataset)
+      m <- eval_metric("CE Assessed Households (HoHs)", metric_dataset)
       value_box(
         class = "project_dashboard_valbox",
         title = "CE Assessed Households",
@@ -413,7 +613,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     },
     
     "cls_records" = {
-      m <- eval_metric("Current Living Situation Records: Total", metric_dataset)
+      m <- eval_metric("Current Living Situation Records (HoHs/Adults)", metric_dataset)
       value_box(
         class = "project_dashboard_valbox",
         title = "Current Living Situation Records: Total",
@@ -667,42 +867,50 @@ get_metric_specific_datasets <- function(latest_enrollments) {
 # ==========================================
 # 5. DETAIL TAB DATA TABLE GENERATION
 # ==========================================
-get_details_by_hh_type <- function(m_datasets, selected_project_type) {
-  dt_list <- lapply(names(METRIC_DEFINITIONS), function(m_name) {
+# Universal table builder for UI Data Table and Download tabs
+build_metrics_table <- function(m_datasets, project_id, project_name, project_type, is_summary_tab = FALSE, is_export = FALSE) {
+  
+  rows <- lapply(names(METRIC_DEFINITIONS), function(m_name) {
     m_def <- METRIC_DEFINITIONS[[m_name]]
     
-    # Filter by applicability
-    if (!m_def$applies(selected_project_type)) return(NULL)
+    # 1. Check project type applicability
+    if (!m_def$applies(project_type)) return(NULL)
     
-    vals <- calc_by_hh_group(m_name, m_datasets)
-    if (m_name == "Total Clients Served") {
-      age_groups <- c("Adult", "Child", "Unknown")
-      
-      rows <- lapply(age_groups, function(ag) {
-        formatted_vals <- lapply(vals, function(group_res) {
-          # Check if group_res is a valid data.frame returned by calc_func
-          if (is.data.frame(group_res) && fnrow(group_res) > 0) {
-            cnt <- group_res[AgeGroup == ag, n_unique]
-            val_to_fmt <- if (length(cnt) > 0 && !is.na(cnt)) cnt else 0
-          } else {
-            val_to_fmt <- NA_real_
-          }
-          format_table_val(val_to_fmt, unit_type = m_def$unit)
-        })
-        
-        as.list(c(Metric = paste0("Total Clients Served (", ag, "s)"), formatted_vals))
-      })
-      return(rbindlist(rows, fill = TRUE))
-      
+    # 2. Filter Summary vs Detail
+    if (is_summary_tab && !m_def$summary_metric) return(NULL)
+    
+    # 3. Filter UI view (Exclude 'Export Only' metrics when rendering in Shiny UI)
+    if (!is_export && m_def$export_only) return(NULL)
+    
+    # Calculate group values
+    sub_dt <- m_datasets[[m_def$dt_key]]
+    if (!is.null(sub_dt) && fnrow(sub_dt) > 0) {
+      p_dt <- sub_dt[ProjectID == project_id]
     } else {
-      # Standard handling for single-value scalar metrics
-      formatted_vals <- lapply(vals, format_table_val, unit_type = m_def$unit)
-      return(as.list(c(Metric = m_name, formatted_vals)) |> qDT())
+      p_dt <- data.table()
+    }
+    
+    formatted_vals <- lapply(groups, function(g) {
+      if (fnrow(p_dt) == 0) return("-")
+      grp_dt <- p_dt[HHTypeAtReportStart %in% g]
+      if (fnrow(grp_dt) == 0) return("-")
+      
+      val <- tryCatch(m_def$calc_func(grp_dt), error = function(e) NA_real_)
+      format_val(val, unit_type = m_def$unit)
+    })
+    
+    if (is_export) {
+      c(
+        list("Project Name" = project_name, "Project Type" = project_type(project_type), "Metric" = m_name),
+        formatted_vals
+      )
+    } else {
+      c(list("Metric" = m_name), formatted_vals)
     }
   })
   
-  dt_list <- dt_list[!sapply(dt_list, is.null)]
-  rbindlist(dt_list, fill = TRUE)
+  rows <- rows[!sapply(rows, is.null)]
+  if (length(rows) > 0) rbindlist(rows) else data.table()
 }
 
 # ==========================================
@@ -761,16 +969,26 @@ output$summary_value_boxes <- renderUI({
 output$metrics_detail <- renderDT({
   req(session$userData$valid_file() == 1, input$currentProviderList)
   
-  metric_datasets_for_project <- metric_datasets()[names(metric_datasets()) %in% applicable_dt_keys_for_project()]
+  p_id   <- input$currentProviderList
+  p_dt   <- session$userData$Project0[ProjectID == p_id]
+  p_name <- p_dt$ProjectName[1]
+  p_type <- p_dt$ProjectType[1]
   
-  dt_detail <- get_details_by_hh_type(metric_datasets_for_project, selected_proj_type())
+  dt_detail <- build_metrics_table(
+    m_datasets      = metric_datasets(),
+    project_id      = p_id,
+    project_name    = p_name,
+    project_type    = p_type,
+    is_summary_tab  = FALSE,
+    is_export       = FALSE
+  )
+  
   
   datatable(
     dt_detail,
     rownames = FALSE,
     filter   = 'none',
-    options  = list(dom = 't', pageLength = 20),
-    style    = "default",
-    escape   = FALSE
+    options  = list(dom = 't', pageLength = 50),
+    style    = "default"
   )
 })
