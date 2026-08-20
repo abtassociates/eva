@@ -425,7 +425,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
       if (length(reports) == 0) {
         return("no_selection.txt")
       } else if (length(reports) == 1) {
-        return(date_stamped_filename(paste0(reports[[1]]$name, reports[[1]]$ext)))
+        return(date_stamped_filename(reports[[1]]$name, ext = reports[[1]]$ext))
       } else {
         return(date_stamped_filename(paste0("Consolidated ", display_name, " Export - "), ext = ".zip"))
       }
