@@ -1147,16 +1147,13 @@ nav_panel(
               # ==========================================
               div(
                 id = "syse_subpop_hh_type_container",
-                div(class = "label", "Household Type"),
-                div(
-                  pickerInput(
-                    inputId = "syse_subpop_hh_type",
-                    label = NULL, 
-                    choices = sys_hh_types,
-                    selected = sys_hh_types[1],
-                    width = "100%",
-                    options = pickerOptions(container = "body")
-                  )
+                pickerInput(
+                  inputId = "syse_subpop_hh_type",
+                  label = NULL, 
+                  choices = sys_hh_types,
+                  selected = sys_hh_types[1],
+                  width = "100%",
+                  options = pickerOptions(container = "body")
                 )
               ),
               

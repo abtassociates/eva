@@ -194,11 +194,6 @@ to group All + Grouped Race selections*/
 .syse_subpop_other_container {
   margin-bottom: 0;
 }
-#syse_subpop_hh_type_container > .label {
-  margin-bottom: 0; 
-  white-space: nowrap;
-}
-
 /*flex: 1 1 700px; tells it to stretch, BUT if it can't maintain at least 700px
 next to Household Type, it forces this entire block to wrap to the next line.
 */
