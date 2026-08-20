@@ -347,31 +347,31 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     )
     
     # System Flow
-    sys_universe_filters <- c(
+    syso_universe_filters <- c(
       "syso_age",
       "syso_spec_pops",
       "syso_race_ethnicity"
     )
     
-    sys_flow_filters <- c(
+    syso_flow_filters <- c(
       "syso_hh_type",
       "syso_level_of_detail",
       "syso_methodology_type",
       "syso_project_type"
     )
     
-    sys_other_inputs <- c(
+    syso_other_inputs <- c(
       "syso_tabbox"
     )
     
-    sys_inflow_outflow_inputs <- c(
+    syso_inflow_outflow_inputs <- c(
       "pageid",
       "syso_inflow_outflow_subtabs",
       syso_universe_filters,
       syso_flow_filters,
       syso_other_inputs
     )
-    sys_inflow_outflow_summary_outputs <- c(
+    syso_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
       "syso_inflow_outflow_summary_filter_selections",
       "syso_inflow_outflow_summary_ui_chart"
@@ -385,7 +385,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
       output = syso_inflow_outflow_summary_outputs
     )
     
-    sys_inflow_outflow_detail_outputs <- c(
+    syso_inflow_outflow_detail_outputs <- c(
       "headerSystemOverview",
       "syso_inflow_outflow_detail_filter_selections",
       "syso_inflow_outflow_detail_ui_chart"
