@@ -188,7 +188,7 @@ all_filtered_syse_subpop <- reactive({
   
   get_subpop_exits <- function(enrl_data) {
     get_system_exits(
-      enrl_data, # Pass cached reactive data frame directly
+      enrl_data,
       session$userData$client_categories, 
       ctype = 'exits_types',
       reportStart = session$userData$ReportStart,
@@ -199,19 +199,24 @@ all_filtered_syse_subpop <- reactive({
       join(session$userData$enrollment_categories %>% fselect(PersonalID, EnrollmentID, HouseholdType))
   }
   
-  out_subpop <- get_subpop_exits(syse_enrollments_filtered()) %>% 
+  out_subpop <- get_subpop_exits(syse_enrollments_filtered()) |>
     fmutate(meets_ev_else = FALSE)
   
-  if (input$syse_hh_type != "All") {
+  if (input$syse_subpop_hh_type != "All") {
     out_oth_hh_types <- get_subpop_exits(syse_enrollments_filtered_no_hh()) %>%
+      join(
+        session$userData$enrollment_categories[, .(EnrollmentID, HouseholdType)], 
+        on = "EnrollmentID"
+      ) %>%
       fmutate( 
         meets_ev_else = 
-          (input$syse_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
-          (input$syse_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
-          (input$syse_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
-          (!(input$syse_hh_type %in% c("YYA","AO","AC")) & input$syse_hh_type != HouseholdType)
-      ) %>% 
-      fsubset(meets_ev_else)
+          (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
+          (input$syse_subpop_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
+          (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
+          (!(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType)
+      ) %>%
+      fsubset(meets_ev_else) %>%
+      fselect(-HouseholdType)
     
     rowbind(out_subpop, out_oth_hh_types)
   } else {

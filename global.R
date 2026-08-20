@@ -33,10 +33,8 @@ options(shiny.stacktraceon = TRUE)
 options(BRANDR_BRAND_YML = here::here("_brand.yml"))
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
 
-source(here("hardcodes.R")) # hard-coded variables and data frames
-source(here("helper_functions.R")) # functions used throughout the app
-source(here('tab_instructions.R')) # static HTML text elements
-source(here("eva_chart_colors.R"))
+# source files in /util that end with .R or .r
+for(f in dir("./util")[grepl(".R$|.r$", dir("./util"))]) { source(here("util", f)) }
 
 if(dir.exists(METADATA_PATH)) {
   capture.output("All good", file = stderr())
@@ -58,8 +56,10 @@ mirai::everywhere({
   options(shiny.fullstacktrace = TRUE)
   options(shiny.stacktraceon = TRUE)
   
-  source(here("hardcodes.R"))
-  source(here("helper_functions.R"))
+  # source non-ui R files in /util 
+  source(here("util","hardcodes.R"))
+  source(here("util","helper_functions.R"))
+  
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
 onStop(function() daemons(0))
