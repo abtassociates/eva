@@ -37,8 +37,8 @@
       ]
     },
     "syse_types_ui_chart": {
-      "src": "[image data hash: a370b3a2e9bb173061e4942b26662e53]",
-      "width": 1847,
+      "src": "[image data hash: 424825dc7767cc7e39f0b6157d1042bf]",
+      "width": 919,
       "height": 700,
       "alt": "Plot object",
       "coordmap": {
@@ -70,15 +70,15 @@
               "subgroup2": "subgroup2"
             },
             "range": {
-              "left": 515.1489726027398,
-              "right": 1331.85102739726,
+              "left": 51.14897260273976,
+              "right": 867.8510273972602,
               "bottom": 694.5205479452055,
               "top": 41.15890410958907
             }
           }
         ],
         "dims": {
-          "width": 1847,
+          "width": 919,
           "height": 700
         }
       }

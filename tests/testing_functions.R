@@ -367,22 +367,22 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     sys_inflow_outflow_inputs <- c(
       "pageid",
       "syso_inflow_outflow_subtabs",
-      sys_universe_filters,
-      sys_flow_filters,
-      sys_other_inputs
+      syso_universe_filters,
+      syso_flow_filters,
+      syso_other_inputs
     )
     sys_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
       "syso_inflow_outflow_summary_filter_selections",
-      "sys_inflow_outflow_summary_ui_chart"
+      "syso_inflow_outflow_summary_ui_chart"
     )
     
     app$set_inputs(pageid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-summary",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_summary_outputs
+      name = "syso-flow-summary",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_summary_outputs
     )
     
     sys_inflow_outflow_detail_outputs <- c(
@@ -393,9 +393,9 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-detail",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
 
     
@@ -403,18 +403,18 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_hh_type = "AO", syso_project_type = "LHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-flow-detail-w-AO-Residential",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail-w-AO-Residential",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
     
     # change universe filters
     app$set_inputs(syso_project_type = "PHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-flow-detail-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
     
     # change client filter to Hispanic/Latino. This should lead to < 11 people to check validation/redacting
@@ -422,9 +422,9 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_race_ethnicity = "LatinoAloneMethod1Detailed")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-flow-detail-w-AO-Residential-PH-hisp",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail-w-AO-Residential-PH-hisp",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
     
     app$set_inputs(syso_race_ethnicity = "All")
@@ -434,23 +434,23 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-summary-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_summary_outputs
+      name = "syso-flow-summary-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_summary_outputs
     )
     
     # go Month-by-Month tab
-    sys_inflow_outflow_mbm_outputs <- c(
+    syso_inflow_outflow_mbm_outputs <- c(
       "headerSystemOverview",
       "syso_inflow_outflow_monthly_filter_selections"
     )
     app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-mbm-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
+      name = "syso-flow-mbm-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
       output = c(
-        sys_inflow_outflow_mbm_outputs,
+        syso_inflow_outflow_mbm_outputs,
         "syso_inflow_outflow_monthly_ui_chart",
         "syso_inflow_outflow_monthly_table"
       )
@@ -460,10 +460,10 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(mbm_status_filter = "First-Time Homeless")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-fth-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
+      name = "syso-flow-fth-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
       output = c(
-        sys_inflow_outflow_mbm_outputs,
+        syso_inflow_outflow_mbm_outputs,
         "syso_fth_monthly_ui_chart"
       )
     )
@@ -472,10 +472,10 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(mbm_status_filter = "Inactive")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-inactive-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
+      name = "syso-flow-inactive-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
       output = c(
-        sys_inflow_outflow_mbm_outputs,
+        syso_inflow_outflow_mbm_outputs,
         "syso_inactive_monthly_ui_chart"
       )
     )
@@ -484,7 +484,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-information",
+      name = "syso-flow-information",
       input = c(
         "pageid",
         "syso_inflow_outflow_subtabs"
@@ -492,14 +492,14 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     )
     
     # System Status/Sankey
-    sys_status_inputs <- c(
+    syso_status_inputs <- c(
       "pageid",
       "syso_status_subtabs",
-      sys_universe_filters,
-      sys_flow_filters,
-      sys_other_inputs
+      syso_universe_filters,
+      syso_flow_filters,
+      syso_other_inputs
     )
-    sys_status_outputs <- c(
+    syso_status_outputs <- c(
       "headerSystemOverview",
       "syso_status_filter_selections",
       "syso_status_ui_chart"
@@ -507,28 +507,28 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_tabbox = "<h4>Client System Status</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-status-chart",
-      input = sys_status_inputs,
-      output = sys_status_outputs
+      name = "syso-status-chart",
+      input = syso_status_inputs,
+      output = syso_status_outputs
     )
     
     app$set_inputs(syso_status_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-status-information",
-      input = sys_status_inputs,
-      output = sys_status_outputs
+      name = "syso-status-information",
+      input = syso_status_inputs,
+      output = syso_status_outputs
     )
     
     # System Composition/Demographics
     syso_comp_inputs <- c(
       "pageid",
       "syso_comp_subtabs",
-      sys_universe_filters,
+      syso_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 
       # include to make sure they aren't changing
-      sys_flow_filters, 
-      sys_other_inputs,
+      syso_flow_filters, 
+      syso_other_inputs,
       "syso_composition_selections"
     )
     
@@ -541,7 +541,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_tabbox = "<h4>System Demographics</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-comp-chart-default",
+      name = "syso-comp-chart-default",
       input = syso_comp_inputs,
       output = syso_comp_outputs
     )
@@ -549,7 +549,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_composition_selections = c("All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+05)
     app$expect_values(
-      name = "sys-comp-all-re",
+      name = "syso-comp-all-re",
       input = syso_comp_inputs,
       output = syso_comp_outputs
     )
@@ -557,7 +557,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-comp-all-re-veteran",
+      name = "syso-comp-all-re-veteran",
       input = syso_comp_inputs,
       output = syso_comp_outputs
     )
@@ -565,7 +565,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_comp_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-comp-information",
+      name = "syso-comp-information",
       input = syso_comp_inputs,
       output = syso_comp_outputs
     )

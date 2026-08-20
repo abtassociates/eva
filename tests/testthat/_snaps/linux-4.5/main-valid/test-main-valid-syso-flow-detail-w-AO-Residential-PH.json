@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "syso_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -16,6 +15,7 @@
       "Unknown"
     ],
     "syso_hh_type": "AO",
+    "syso_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_level_of_detail": "All",
     "syso_methodology_type": "1",
     "syso_project_type": "PHRes",
@@ -37,7 +37,7 @@
       ]
     },
     "syso_inflow_outflow_detail_ui_chart": {
-      "src": "[image data hash: 79777998b8aa5d325406e4840ca44728]",
+      "src": "[image data hash: 611c80372c8bf22ca7265203d7350752]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n      outflow during the report period. The detailed view of this chart \n      shows inflow as three subcategories: first-time homeless, returned from \n      permanent, and re-engaged from non-permanent and outflow as three \n      subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -55,8 +55,8 @@
               "y": null
             },
             "domain": {
-              "left": 0.3225,
-              "right": 8.6275,
+              "left": 0.2174999999999999,
+              "right": 8.6325,
               "bottom": 0,
               "top": 1942
             },
@@ -72,7 +72,7 @@
             "range": {
               "left": 14.4,
               "right": 1098.6,
-              "bottom": 373.7707086614173,
+              "bottom": 379.6587086614173,
               "top": 127.4794520547945
             }
           }
