@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "syso_inflow_outflow_subtabs": "<h5>Month-by-Month Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -16,6 +15,7 @@
       "Unknown"
     ],
     "syso_hh_type": "AO",
+    "syso_inflow_outflow_subtabs": "<h5>Month-by-Month Chart<\/h5>",
     "syso_level_of_detail": "All",
     "syso_methodology_type": "1",
     "syso_project_type": "PHRes",

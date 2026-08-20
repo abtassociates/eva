@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "syso_status_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -21,6 +20,7 @@
     "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
+    "syso_status_subtabs": "<h5>Chart<\/h5>",
     "syso_tabbox": "<h4>Client System Status<\/h4>"
   },
   "output": {

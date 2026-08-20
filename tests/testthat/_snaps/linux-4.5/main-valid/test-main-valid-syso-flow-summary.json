@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "syso_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -16,6 +15,7 @@
       "Unknown"
     ],
     "syso_hh_type": "All",
+    "syso_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
     "syso_level_of_detail": "All",
     "syso_methodology_type": "1",
     "syso_project_type": "All",
@@ -35,53 +35,6 @@
       "deps": [
 
       ]
-    },
-    "sys_inflow_outflow_summary_ui_chart": {
-      "src": "[image data hash: f7140ab5f0aa0193ff20fde60cfa5d70]",
-      "width": 1113,
-      "height": 500,
-      "alt": "A waterfall bar chart of the homeless system's inflow and outflow during \n      the report period. The summary view of this chart includes four components: \n      Active at Start, Inflow, Outflow, and Active at End.",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
-
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": 0.5225,
-              "right": 4.4275,
-              "bottom": 0,
-              "top": 9449
-            },
-            "mapping": {
-              "y": null,
-              "xmin": "group.id - 0.25",
-              "xmax": "group.id + 0.25",
-              "ymin": "ystart",
-              "ymax": "yend",
-              "x": "group.id",
-              "fill": ".data[[\"PlotFillGroups\"]]"
-            },
-            "range": {
-              "left": 14.4,
-              "right": 1098.6,
-              "bottom": 393.2107086614173,
-              "top": 111.2794520547945
-            }
-          }
-        ],
-        "dims": {
-          "width": 1113,
-          "height": 500
-        }
-      }
     }
   }
 }
