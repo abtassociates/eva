@@ -27,7 +27,7 @@ library(readxl)
 library(ggnewscale) # used for applying pattern fills to sankey charts
 library(brandr) # used for extracting style info from brand.yml file
 
-options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
+options(shiny.maxRequestSize = 250 * 1024^2) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
 options(shiny.fullstacktrace = TRUE)
 options(shiny.stacktraceon = TRUE)
 options(BRANDR_BRAND_YML = here::here("_brand.yml"))
