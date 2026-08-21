@@ -616,7 +616,7 @@ tab_syso_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview
                                 interpret the chart. Depending on the data you uploaded, 
                                 some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                <table class='sys_info_table' id='syso_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
@@ -1040,7 +1040,7 @@ tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                 interpret the chart. Depending on the data you uploaded, 
                                 some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                <table class='sys_info_table' id='syse_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
