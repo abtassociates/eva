@@ -1347,80 +1347,6 @@
         "Max.": 138
       }
     },
-    "syso_inflow_outflow_report": {
-      "Detail": [
-        "Housed",
-        "Homeless",
-        "First-Time Homeless",
-        "Returned from Permanent",
-        "Re-engaged from Non-Permanent",
-        "Exited, Non-Permanent",
-        "Exited, Permanent",
-        "Inactive",
-        "Homeless",
-        "Housed"
-      ],
-      "Summary": [
-        "Active at Start",
-        "Active at Start",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Active at End",
-        "Active at End"
-      ],
-      "InflowOutflow": [
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Outflow"
-      ],
-      "PlotFillGroups": [
-        "Housed",
-        "Homeless",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Homeless",
-        "Housed"
-      ],
-      "N": [
-        575,
-        301,
-        970,
-        61,
-        35,
-        288,
-        663,
-        0,
-        344,
-        647
-      ],
-      "order": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10
-      ]
-    },
     "syse_client_level_export_details": {
       "PersonalID": [
         "10674",
@@ -409262,6 +409188,80 @@
         "3.8%",
         "0.3%",
         "100%"
+      ]
+    },
+    "syso_inflow_outflow_report": {
+      "Detail": [
+        "Housed",
+        "Homeless",
+        "First-Time Homeless",
+        "Returned from Permanent",
+        "Re-engaged from Non-Permanent",
+        "Exited, Non-Permanent",
+        "Exited, Permanent",
+        "Inactive",
+        "Homeless",
+        "Housed"
+      ],
+      "Summary": [
+        "Active at Start",
+        "Active at Start",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Active at End",
+        "Active at End"
+      ],
+      "InflowOutflow": [
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow"
+      ],
+      "PlotFillGroups": [
+        "Housed",
+        "Homeless",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Homeless",
+        "Housed"
+      ],
+      "N": [
+        575,
+        301,
+        970,
+        61,
+        35,
+        288,
+        663,
+        0,
+        344,
+        647
+      ],
+      "order": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
       ]
     },
     "syso_status_report": {
