@@ -174,24 +174,34 @@ get_syse_compare_subpop_data <- function(output_type = 'table') {
   
   which_factors_changed <- names(which(did_factors_change()))
   filt_vars <- c('meets_hh_type', 'meets_age_filter', 'meets_race_eth_filter', 'meets_vet_filter')
+  filt_unchanged <- setdiff(filt_vars, which_factors_changed)
   
-  count_subpop <- subpop() %>%
-    add_destination_type(as_factor = TRUE) %>%
-    count(`Destination Type`, .drop = FALSE, name = 'N') %>%
-    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total))
+  # 1. Combine data together
+  # Get counts by Destination Type and ONLY the active factors
+  all_data <- rowbind(
+    subpop() %>% add_destination_type(as_factor = TRUE),
+    everyone_else()
+  ) %>%
+    fcountv(cols = c("Destination Type", which_factors_changed), drop = FALSE)
   
-  count_everyone_else <- everyone_else() %>%
-    count(`Destination Type`, meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter, .drop = FALSE, name = 'N') %>%
-    fgroup_by(meets_hh_type, meets_age_filter, meets_race_eth_filter, meets_vet_filter) %>%
-    fmutate(total = fsum(N), wasRedacted = total < 10, pct = ifelse(wasRedacted * (output_type == "chart"), NA, N / total)) %>%
-    fungroup() %>%
-    dplyr::filter(if_all(setdiff(filt_vars, which_factors_changed), ~ .x == TRUE)) %>%
-    fsubset(((meets_hh_type == TRUE) + (meets_age_filter == TRUE) + (meets_race_eth_filter == TRUE) + (meets_vet_filter == TRUE)) < 4)
+  # 2. Identify subpopulation (where all active factors == TRUE)
+  is_subpop <- Reduce(`&`, lapply(all_data[which_factors_changed], \(x) x == TRUE))
   
-  rowbind(
-    count_subpop %>% fmutate(meets_hh_type = TRUE, meets_age_filter = TRUE, meets_race_eth_filter = TRUE, meets_vet_filter = TRUE, group = 'subpop'),
-    count_everyone_else %>% fmutate(group = 'everyone_else')
-  )
+  # 3. Add unchanged factor columns back as TRUE for downstream consistency
+  if (length(filt_unchanged) > 0) {
+    for (v in filt_unchanged) all_data[[v]] <- factor(TRUE, levels = c(TRUE, FALSE))
+  }
+  
+  # 4. Compute metrics
+  all_data %>%
+    fmutate(group = fifelse(is_subpop, "subpop", "everyone_else")) %>%
+    fgroup_by(which_factors_changed) %>%
+    fmutate(
+      total = fsum(N),
+      wasRedacted = total < 10, 
+      pct = fifelse(wasRedacted & output_type == "chart", NA, N / total)
+    ) %>%
+    fungroup()
 }
 
 # ==============================================================================
@@ -297,16 +307,22 @@ syse_subpop_export_summary <- reactive({
   which_changed <- names(which(did_factors_change()))
   labels <- get_subpop_labels(which_changed)
   
-  export_names <- c('Household Type' = 'meets_hh_type', 'Race/Ethnicity' = 'meets_race_eth_filter',
-                    'Age' = 'meets_age_filter', 'Veteran Status' = 'meets_vet_filter',
-                    'Suppression Flag' = 'wasRedacted', 'Count' = 'N',
-                    'Total System Exits' = 'total', 'Percent of Total System Exits' = 'pct')
+  export_names <- c(
+    'Household Type' = 'meets_hh_type', 
+    'Race/Ethnicity' = 'meets_race_eth_filter',
+    'Age' = 'meets_age_filter', 
+    'Veteran Status' = 'meets_vet_filter',
+    'Suppression Flag' = 'wasRedacted', 
+    'Count' = 'N',
+    'Total System Exits' = 'total', 
+    'Percent of Total System Exits' = 'pct'
+  )
   
   get_syse_compare_subpop_data(output_type = 'table') %>%
     apply_subpop_labels(which_changed, labels) %>%
     fmutate(pct = scales::percent(ifelse(is.nan(pct), 0, pct), accuracy = 0.1)) %>%
     get_vars(vars = c(which_changed, 'Destination Type', 'N', 'total', 'pct', 'wasRedacted')) %>%
-    arrange(pick(all_of(which_changed)), `Destination Type`) %>%
+    roworderv(cols = c(which_changed, 'Destination Type')) %>%
     rename(any_of(export_names))
 })
 
@@ -329,8 +345,12 @@ syse_subpop_export_detail <- reactive({
       frename(setNames(c("count", "pct"), paste0(c("count_", "pct_"), prefix)))
   }
   
-  full_join(summarize_dest(subpop(), "subpop"), summarize_dest(everyone_else(), "comparison"),
-            by = c('Destination Type', 'Destination Type Detail')) %>%
+  summarize_dest(subpop(), "subpop") %>%
+    join(
+      summarize_dest(everyone_else(), "comparison"),
+      on = c('Destination Type', 'Destination Type Detail'),
+      how = "full"
+    ) %>%
     list_all_destinations(fill_zero = TRUE, add_totals = TRUE) %>%
     fmutate(
       pct_comparison = scales::percent(pct_comparison, accuracy = 0.1, scale = 100),
