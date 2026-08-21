@@ -341,7 +341,7 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     'ce_event'  = list(df = validationCEEvent,  name = "CE Event")
   )
   for(e in names(timeliness_export_list)) {
-    export <- timeliness_export_list(e)
+    export <- timeliness_export_list[[e]]
     if(!is.null(export$df)){
       exportDFList[[length(exportDFList) + 1]] <- export$df
       names(exportDFList)[[length(exportDFList)]] <- paste0("Timeliness - ", export$name)
