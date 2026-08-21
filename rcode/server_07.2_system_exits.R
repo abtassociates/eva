@@ -204,10 +204,6 @@ all_filtered_syse_subpop <- reactive({
   
   if (input$syse_subpop_hh_type != "All") {
     out_oth_hh_types <- get_subpop_exits(syse_enrollments_filtered_no_hh()) %>%
-      join(
-        session$userData$enrollment_categories[, .(EnrollmentID, HouseholdType)], 
-        on = "EnrollmentID"
-      ) %>%
       fmutate( 
         meets_ev_else = 
           (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
@@ -215,8 +211,7 @@ all_filtered_syse_subpop <- reactive({
           (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
           (!(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType)
       ) %>%
-      fsubset(meets_ev_else) %>%
-      fselect(-HouseholdType)
+      fsubset(meets_ev_else)
     
     rowbind(out_subpop, out_oth_hh_types)
   } else {
