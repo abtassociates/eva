@@ -192,8 +192,8 @@ output$syso_inflow_outflow_monthly_filter_selections <- renderUI({
 # 10:                         Housed                   Active at End        Outflow         Housed    50    11
 # 11:                       Homeless                   Active at End        Outflow       Homeless   237    10
 
-sys_inflow_outflow_annual_chart_data <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_annual_chart_data")
+syso_inflow_outflow_annual_chart_data <- reactive({
+  logToConsole(session, "In syso_inflow_outflow_annual_chart_data")
 
   full_combinations <- data.frame(
     Detail = c(
@@ -264,8 +264,8 @@ sys_inflow_outflow_annual_chart_data <- reactive({
 ## Monthly ---------------------------------------
 ### MbM ---------------------------
 # Get records to be counted in MbM. Doing this step separately from the counts allows us to easily validate
-sys_inflow_outflow_monthly_chart_data <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_monthly_chart_data")
+syso_inflow_outflow_monthly_chart_data <- reactive({
+  logToConsole(session, "In syso_inflow_outflow_monthly_chart_data")
   monthly_data <- get_inflow_outflow_monthly() 
   
   if(nrow(monthly_data) == 0) return(monthly_data)
@@ -356,9 +356,9 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
 }
 
 ### Monthly_chart_data, wide format
-sys_monthly_chart_data_wide <- reactive({
-  logToConsole(session, "In sys_monthly_chart_data_wide")
-  monthly_counts_long <- sys_inflow_outflow_monthly_chart_data()
+syso_monthly_chart_data_wide <- reactive({
+  logToConsole(session, "In syso_monthly_chart_data_wide")
+  monthly_counts_long <- syso_inflow_outflow_monthly_chart_data()
   req(nrow(monthly_counts_long) > 0)
 
   summary_data <- pivot(
@@ -388,12 +388,12 @@ sys_monthly_chart_data_wide <- reactive({
 
 # Summary/Detail (Annual) Chart Prep ---------------------------------------
 # Function called in the renderPlot and exports
-get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
+get_syso_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   logToConsole(session, paste0("Getting sys inflow/outflow plot for ", id, ". For export? ", isExport))
   
-  df <- sys_inflow_outflow_annual_chart_data()
+  df <- syso_inflow_outflow_annual_chart_data()
   
-  if (id == "sys_inflow_outflow_summary_ui_chart") {
+  if (id == "syso_inflow_outflow_summary_ui_chart") {
     df <- df %>%
       # collapse the detailed levels of inflow/outflow
       fmutate(Summary = fct_collapse(Summary, !!!collapse_details)) %>%
@@ -440,7 +440,7 @@ get_sys_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   # s <- max(df$yend) + 20
   # num_segments <- 20
   # segment_size <- get_segment_size(s/num_segments)
-  total_change <- as.integer(sys_inflow_outflow_totals()[Chart == "Total Change", Value])
+  total_change <- as.integer(syso_inflow_outflow_totals()[Chart == "Total Change", Value])
 
   uniq_vals <- unique(df[[fill_var]])
   cat_order <- as.character(uniq_vals[order(uniq_vals)])
@@ -583,7 +583,7 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
           message = no_data_msg
         )
       )
-      get_sys_inflow_outflow_annual_plot(chart_id)
+      get_syso_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
     width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto")
@@ -591,7 +591,7 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
 }
 ## Summary (Annual) --------------------------------
 renderInflowOutflowFullPlot(
-  chart_id = "sys_inflow_outflow_summary_ui_chart",
+  chart_id = "syso_inflow_outflow_summary_ui_chart",
   alt_text = "A waterfall bar chart of the homeless system's inflow and outflow during 
       the report period. The summary view of this chart includes four components: 
       Active at Start, Inflow, Outflow, and Active at End."
@@ -609,11 +609,11 @@ renderInflowOutflowFullPlot(
 ## Monthly --------------------------------------------
 ### MbM Chart --------------------------------------
 # Bar - Active at Start + Inflow/Outflow
-get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
+get_syso_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   reactive({
-    logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
+    logToConsole(session, "In get_syso_inflow_outflow_monthly_plot")
 
-    plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+    plot_data <- syso_inflow_outflow_monthly_chart_data() %>%
       fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels)) %>%
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
@@ -760,12 +760,12 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
 
 output$syso_inflow_outflow_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
-  get_sys_inflow_outflow_monthly_plot()()
+  get_syso_inflow_outflow_monthly_plot()()
 })
 
 # Pure line chart (suppressed) -------
 # output$syso_inflow_outflow_monthly_ui_chart_line <- renderPlot({
-#   plot_data <- sys_inflow_outflow_monthly_chart_data()
+#   plot_data <- syso_inflow_outflow_monthly_chart_data()
 #   
 #   # Get Average Info for Title Display
 #   averages <- plot_data %>%
@@ -826,7 +826,7 @@ output$syso_inflow_outflow_monthly_ui_chart <- renderPlot({
 
 # Combined line + bar chart (suppressed) -------------
 # output$syso_inflow_outflow_monthly_ui_chart_combined <- renderPlot({
-#   plot_data <- sys_inflow_outflow_monthly_chart_data()
+#   plot_data <- syso_inflow_outflow_monthly_chart_data()
 #   
 #   # Get Average Info for Title Display
 #   averages <- plot_data %>%
@@ -919,7 +919,7 @@ output$syso_inflow_outflow_monthly_ui_chart <- renderPlot({
 
 ### Table --------------------------------------
 monthly_chart_data_wide_for_tables <- function() {
-  sys_monthly_chart_data_wide() %>%
+  syso_monthly_chart_data_wide() %>%
     fsubset(
       PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels, "Monthly Change") &
         !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
@@ -1041,8 +1041,8 @@ get_syso_inflow_outflow_monthly_table <- reactive({
   monthly_dt
 })
 
-get_sys_inflow_outflow_monthly_flextable <- function() {
-  logToConsole(session, "In get_sys_inflow_outflow_monthly_flextable")
+get_syso_inflow_outflow_monthly_flextable <- function() {
+  logToConsole(session, "In get_syso_inflow_outflow_monthly_flextable")
   d <- monthly_chart_data_wide_for_tables() %>% 
     fselect(-Detail, -Summary)
     
@@ -1092,10 +1092,10 @@ output$syso_inflow_outflow_monthly_table <- renderDT({
 })
 
 ### Inactive + FTH chart --------------------------------------
-sys_monthly_single_status_ui_chart <- function(varname, status) {
-  logToConsole(session, "In sys_monthly_single_status_ui_chart")
+syso_monthly_single_status_ui_chart <- function(varname, status) {
+  logToConsole(session, "In syso_monthly_single_status_ui_chart")
 
-  plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+  plot_data <- syso_inflow_outflow_monthly_chart_data() %>%
     fsubset(Detail == status)
   
   if(fsum(plot_data$Count) == 0) 
@@ -1136,12 +1136,12 @@ sys_monthly_single_status_ui_chart <- function(varname, status) {
 }
 output$syso_inactive_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
-  sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
+  syso_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
 })
 
 output$syso_fth_monthly_ui_chart <- renderPlot({
   monthly_chart_validation()
-  sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
+  syso_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
 })
 
 monthly_chart_validation <- function() {
@@ -1172,10 +1172,10 @@ monthly_chart_validation <- function() {
 }
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
-sys_inflow_outflow_totals <- reactive({
-  logToConsole(session, "In sys_inflow_outflow_totals")
+syso_inflow_outflow_totals <- reactive({
+  logToConsole(session, "In syso_inflow_outflow_totals")
   
-  df <- sys_inflow_outflow_annual_chart_data()
+  df <- syso_inflow_outflow_annual_chart_data()
   data.table(
     Chart = c(
       paste0(
@@ -1198,9 +1198,9 @@ sys_inflow_outflow_totals <- reactive({
 
 # Tabular/Excel Export --------------------------------------------------------
 ## Monthly Export function------
-sys_export_monthly_info <- function() {
-  logToConsole(session, "In sys_export_monthly_info")
-  monthly_counts_wide <- sys_monthly_chart_data_wide()
+syso_export_monthly_info <- function() {
+  logToConsole(session, "In syso_export_monthly_info")
+  monthly_counts_wide <- syso_monthly_chart_data_wide()
   
   month_cols <- names(monthly_counts_wide)[-1:-3]
 
@@ -1241,10 +1241,10 @@ sys_export_monthly_info <- function() {
 
 ## Sys Inflow/Outflow Download Handler ------
 # downloads all Inflow/Outflow chart data, including MbMs
-sys_inflow_outflow_data_download <- function(file) {
+syso_inflow_outflow_data_download <- function(file) {
   logToConsole(session, "Inflow/Outflow data download")
 
-  df <- sys_inflow_outflow_annual_chart_data() %>% 
+  df <- syso_inflow_outflow_annual_chart_data() %>% 
     ftransform(
       Summary = fct_collapse(Summary, !!!collapse_details)
     )
@@ -1261,14 +1261,14 @@ sys_inflow_outflow_data_download <- function(file) {
     fsummarise(Detail = paste0("Total ", Summary[1]),
                N = fsum(N, na.rm = TRUE))
 
-  monthly_data <- sys_export_monthly_info()
+  monthly_data <- syso_export_monthly_info()
 
   write_xlsx(
     list(
       "System Flow Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
         bind_rows(
           sys_export_filter_selections(type = 'overview'),
-          sys_inflow_outflow_totals(),
+          syso_inflow_outflow_totals(),
           monthly_data$monthly_averages
         ) %>%
         mutate(Value = replace_na(Value, 0)) %>%
@@ -1289,13 +1289,13 @@ sys_inflow_outflow_data_download <- function(file) {
 
   logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  exportTestValues(sys_inflow_outflow_report = df)
+  exportTestValues(syso_inflow_outflow_report = df)
 }
 
 # PowerPoint/Image Export -----------------------------------------------------
-sys_inflow_outflow_ppt_download  <- function(file) {
-  logToConsole(session, "In sys_inflow_outflow_download_btn_ppt")
-  monthly_data <- sys_export_monthly_info()
+syso_inflow_outflow_ppt_download  <- function(file) {
+  logToConsole(session, "In syso_inflow_outflow_download_btn_ppt")
+  monthly_data <- syso_export_monthly_info()
 
   sys_perf_ppt_export(
     file = file,
@@ -1305,22 +1305,22 @@ sys_inflow_outflow_ppt_download  <- function(file) {
       filter(Chart != "Start Date" & Chart != "End Date") %>% 
       bind_rows(
         sys_export_filter_selections(type = 'overview'),
-        sys_inflow_outflow_totals(),
+        syso_inflow_outflow_totals(),
         monthly_data$monthly_averages
       ),
     plots = list(
-      "System Inflow/Outflow Summary" = get_sys_inflow_outflow_annual_plot(
-        "sys_inflow_outflow_summary_ui_chart",
+      "System Inflow/Outflow Summary" = get_syso_inflow_outflow_annual_plot(
+        "syso_inflow_outflow_summary_ui_chart",
         isExport = TRUE
       ),
-      "System Inflow/Outflow Detail" = get_sys_inflow_outflow_annual_plot(
+      "System Inflow/Outflow Detail" = get_syso_inflow_outflow_annual_plot(
         "syso_inflow_outflow_detail_ui_chart",
         isExport = TRUE
       ),
-      "System Inflow/Outflow Monthly – All" = get_sys_inflow_outflow_monthly_plot(isExport = TRUE)(),
-      "System Inflow/Outflow Monthly – Table" = get_sys_inflow_outflow_monthly_flextable(),
-      "System Inflow/Outflow Monthly – First-Time Homeless" = sys_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
-      "System Inflow/Outflow Monthly – Inactive" = sys_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
+      "System Inflow/Outflow Monthly – All" = get_syso_inflow_outflow_monthly_plot(isExport = TRUE)(),
+      "System Inflow/Outflow Monthly – Table" = get_syso_inflow_outflow_monthly_flextable(),
+      "System Inflow/Outflow Monthly – First-Time Homeless" = syso_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless"),
+      "System Inflow/Outflow Monthly – Inactive" = syso_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
     ),
     summary_font_size = 19,
     startDate = session$userData$ReportStart, 

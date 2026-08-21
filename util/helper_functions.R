@@ -500,11 +500,11 @@ reset_postvalid_components <- function(session) {
   ))
   session$userData$pdde_main <- NULL
   
-  shinyjs::hide("sys_inflow_outflow_download_btn")
-  shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
+  shinyjs::hide("syso_inflow_outflow_download_btn")
+  shinyjs::hide("syso_inflow_outflow_download_btn_ppt")
   
-  shinyjs::hide("sys_status_download_btn")
-  shinyjs::hide("sys_status_download_btn_ppt")
+  shinyjs::hide("syso_status_download_btn")
+  shinyjs::hide("syso_status_download_btn_ppt")
   
   shinyjs::hide("sys_comp_download_btn")
   shinyjs::hide("sys_comp_download_btn_ppt")

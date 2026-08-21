@@ -174,7 +174,7 @@ populate_client_level_export <- function(type = 'syso', file){
         how = "wider"
       )
     
-    system_df_info <- sys_inflow_outflow_annual_chart_data() %>% 
+    system_df_info <- syso_inflow_outflow_annual_chart_data() %>% 
       fselect(Detail, N, Summary, InflowOutflow)
   } 
   

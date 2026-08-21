@@ -803,7 +803,7 @@ nav_menu(
             title = headerSubTab('Summary Chart'),
             uiOutput("syso_inflow_outflow_summary_filter_selections") %>%
               withSpinner(),
-            plotOutput("sys_inflow_outflow_summary_ui_chart",
+            plotOutput("syso_inflow_outflow_summary_ui_chart",
                        width = "70%",
                        height = "500") %>%
               withSpinner()

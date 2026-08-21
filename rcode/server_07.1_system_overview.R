@@ -75,11 +75,11 @@ observeEvent(
     )
 
     shinyjs::toggle(
-      "sys_inflow_outflow_download_btn", 
+      "syso_inflow_outflow_download_btn", 
       condition = num_people > 10
     )
     shinyjs::toggle(
-      "sys_inflow_outflow_download_btn_ppt", 
+      "syso_inflow_outflow_download_btn_ppt", 
       condition = num_people > 10
     )
   }
