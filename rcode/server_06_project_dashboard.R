@@ -345,8 +345,18 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     if(!is.null(export$df)){
       exportDFList[[length(exportDFList) + 1]] <- export$df
       names(exportDFList)[[length(exportDFList)]] <- paste0("Timeliness - ", export$name)
-      exportTestValues(
-        paste0("client_count_download_timeliness_", e) = summarize_df(export$df %>% nice_names_timeliness(record_type = e))
+      test_value_name <- paste0(
+        "client_count_download_timeliness_", e
+      )
+      
+      do.call(
+        exportTestValues,
+        setNames(
+          list(
+            summarize_df(export$df %>% nice_names_timeliness(record_type = e))
+          ),
+          test_value_name
+        )
       )
     }
   }
