@@ -239,15 +239,10 @@ observeEvent(input$syse_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  if(input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')){
-    shinyjs::hide('syse_spec_pops')
-    shinyjs::hide('syse_age')
-    shinyjs::hide('syse_race_ethnicity')
-  } else {
-    shinyjs::show('syse_spec_pops')
-    shinyjs::show('syse_age')
-    shinyjs::show('syse_race_ethnicity')
-  }
+  cond <- input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')
+  shinyjs::toggle('syse_spec_pops', condition = cond)
+  shinyjs::toggle('syse_age', condition = cond)
+  shinyjs::toggle('syse_race_ethnicity', condition = cond)
   
   # Household Type is not a filter for Exits by Subpopulation
   shinyjs::toggle("syse_hh_type", condition = input$syse_tabbox != '<h4>Exits by Subpopulation</h4>')
