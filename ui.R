@@ -1152,7 +1152,7 @@ nav_panel(
                 id = "syse_subpop_hh_type_container",
                 pickerInput(
                   inputId = "syse_subpop_hh_type",
-                  label = NULL, 
+                  label = Household Type, 
                   choices = sys_hh_types,
                   selected = sys_hh_types[1],
                   width = "100%",
