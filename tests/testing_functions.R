@@ -890,6 +890,10 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     app <- system_exits_tests(app, test_script_name = test_script_name,
                               test_dataset = test_dataset) 
     
+    app$set_inputs(pageid = "tabSystemExits")
+    app$wait_for_idle(timeout = 2e+06)
+    app$click(selector = "#syse_export_btn button")
+    
     app$set_inputs(syse_export_client_xlsx = !is_gha, wait_ = FALSE)
     app$wait_for_idle(timeout = 2e+06)
     customDownload(app, "syse_export_act", "System-Exit-Full-Export.zip")
