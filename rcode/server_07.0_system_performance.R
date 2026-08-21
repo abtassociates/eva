@@ -105,42 +105,10 @@ toggle_sys_components <- function(prefix = 'syso', cond, init=FALSE) {
                  )
   )
   
-  prefix4 <- ifelse(prefix == 'syso', 'syso',prefix)
-  prefixnone <- ifelse(prefix == 'syso', '','syse_')
-  
   for (tab in tabs) {
     shinyjs::toggle(glue('{prefix}_{tab}_subtabs'), condition = cond)
     shinyjs::toggle(selector = glue('#{prefix}_{tab}_subtabs + div.tab-content'), condition = cond)
-    
-    shinyjs::toggle(glue('{prefix}_{tab}_download_btn'), condition = cond)
-    shinyjs::toggle(glue('{prefix}_{tab}_download_btn_ppt'), condition = cond)
-    
-    # move download button to subtab row and only show if there's data
-    if(init) {
-      shinyjs::runjs(
-        glue("
-            document.getElementById('{prefix}_{tab}_subtabs')
-              .insertAdjacentHTML('beforeEnd', '<li class=\"sys_download_tab\" id=\"{prefix}_{tab}_download_tab\"></li>');
-            $('#{prefix}_{tab}_download_btn').appendTo('#{prefix}_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-            $('#{prefix}_{tab}_download_btn_ppt').appendTo('#{prefix}_{tab}_download_tab')
-              .toggle('{cond}' == 'TRUE');
-          ")
-      )
-    }
   }
-  
-    shinyjs::toggle(glue('{prefixnone}client_level_download_btn'), condition = cond)
-    if(init) {
-      shinyjs::runjs(glue("
-      document.getElementById('{prefix4}_tabbox')
-        .insertAdjacentHTML('beforeEnd', '<li class=\"sys_download_tab\" id=\"{prefixnone}client_level_download_tab\"></li>');
-      $('#{prefixnone}client_level_download_btn').appendTo('#{prefixnone}client_level_download_tab')
-        .toggle('{cond}' == 'TRUE');
-    "))
-    }
- 
-  
 }
 
 #### DISPLAY FILTER SELECTIONS ###
