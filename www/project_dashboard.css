@@ -1,0 +1,21 @@
+
+#dateRangeCount > div, #dateRangeCount > div > span > span {
+  height: 3rem;
+}
+
+#timeliness_metric {
+  height: 3rem;
+  max-width:220px;
+}
+
+#timeliness_metric-label {
+  min-width: 220px;
+}
+
+#notice {
+  border: 3px solid #FCB248;
+}
+
+#project_dashboard_tl_subtabs {
+  margin-bottom: 10px;
+}

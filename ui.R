@@ -1,5 +1,8 @@
 #source('tabSystemExits.R')
 
+css_files <- lapply(list.files(path = "www", pattern = "\\.css$"), function(f) {
+  includeCSS(here("www", f))
+})
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
@@ -14,7 +17,7 @@ page_navbar(
   header = tagList(
     ## css, idle management, and dimension management --------
     tags$head(
-      includeCSS(here("www/custom.css")),
+      !!!css_files,
       # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
