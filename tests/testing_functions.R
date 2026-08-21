@@ -170,7 +170,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
     
-    app <- AppDriver$new(
+    app <- shinytest2::AppDriver$new(
       variant = platform_variant(),
       name = test_script_name, 
       screenshot_args = FALSE,
@@ -792,7 +792,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   )
   
   ## System Exits by Subpopulation
-  syse_subpop_universe_filters <- c('syse_subpop_age','syse_subpop_spec_pops',
+  syse_subpop_universe_filters <- c('syse_subpop_hh_type', 'syse_subpop_age','syse_subpop_spec_pops',
                                     'syse_subpop_race_ethnicity1','syse_subpop_race_ethnicity2',
                                     'syse_subpop_age_selection','syse_subpop_vet_selection','syse_subpop_race_eth_selection')
   
@@ -800,7 +800,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
     "pageid",
     "syse_subpop_subtabs",
     syse_subpop_universe_filters,
-    syse_project_filters,
+    setdiff(syse_project_filters, "syse_hh_type"),
     syse_other_inputs
   )
   syse_subpop_outputs <- c(
@@ -811,7 +811,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   
   app$set_inputs(syse_tabbox = '<h4>Exits by Subpopulation</h4>')
   app$wait_for_idle(timeout = 1e+06)
-  app$set_inputs(syse_hh_type = "AO")
+  app$set_inputs(syse_subpop_hh_type = "AO")
   app$expect_values(
     name = "syse-subpop-chart-AO",
     input = syse_subpop_inputs,
@@ -828,7 +828,7 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
   )
   
   ## reset enrollment filters
-  app$set_inputs(syse_hh_type = "All", syse_spec_pops = "None")
+  app$set_inputs(syse_subpop_hh_type = "All", syse_spec_pops = "None")
   app$wait_for_idle(timeout = 2e+06)
   
   ## System Exit PH Demographics

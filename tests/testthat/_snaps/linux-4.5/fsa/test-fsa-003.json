@@ -182,6 +182,7 @@
       "Unknown"
     ],
     "syse_subpop_age_selection": false,
+    "syse_subpop_hh_type": "All",
     "syse_subpop_race_eth_selection": false,
     "syse_subpop_race_ethnicity1": "All",
     "syse_subpop_race_ethnicity2": "All",

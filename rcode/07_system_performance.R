@@ -1,0 +1,473 @@
+logToConsole(session, "Running system overview")
+
+# Age ---------------------------------------------------------------------
+EnrollmentAdjustAge <- qDT(EnrollmentAdjust) %>% 
+  fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1, AgeAtEntry))
+
+system_person_ages <- EnrollmentAdjustAge %>%
+  fgroup_by(PersonalID) %>%
+  fmutate(AgeAtEntry = fmax(AgeAtEntry, na.rm = TRUE)) %>%
+  fungroup() %>%
+  fmutate(
+    AgeCategory = factor(fcase(
+      AgeAtEntry < 0, "Unknown",
+      between(AgeAtEntry, 0, 12), "0 to 12",
+      between(AgeAtEntry, 13, 17), "13 to 17",
+      between(AgeAtEntry, 18, 21), "18 to 21",
+      between(AgeAtEntry, 22, 24), "22 to 24",
+      between(AgeAtEntry, 25, 34), "25 to 34",
+      between(AgeAtEntry, 35, 44), "35 to 44",
+      between(AgeAtEntry, 45, 54), "45 to 54",
+      between(AgeAtEntry, 55, 64), "55 to 64",
+      between(AgeAtEntry, 65, 74), "65 to 74",
+      AgeAtEntry >= 75, "75 and older",
+      default = "Unknown"),
+      levels = c(
+        "0 to 12",
+        "13 to 17",
+        "18 to 21",
+        "22 to 24",
+        "25 to 34",
+        "35 to 44",
+        "45 to 54",
+        "55 to 64",
+        "65 to 74",
+        "75 and older",
+        "Unknown"
+      ))
+  ) %>%
+  fselect(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)
+
+
+# Client-level flags ------------------------------------------------------
+# will help us categorize people for filtering
+session$userData$client_categories <- qDT(Client) %>%
+  join(system_person_ages, on = "PersonalID") %>%
+  fselect(c(
+    "PersonalID",
+    race_cols,
+    "VeteranStatus",
+    "AgeCategory"
+  )) %>%
+  fmutate(
+    VeteranStatus = fifelse(VeteranStatus == 1 &
+                              !is.na(VeteranStatus), 1, 0),
+    ## Race/Ethnicity
+    # flattening the values, eliminating nulls
+    AmIndAKNative = fifelse(AmIndAKNative == 1 & !is.na(AmIndAKNative), 1, 0),
+    Asian = fifelse(Asian == 1 & !is.na(Asian), 1, 0),
+    BlackAfAmerican = fifelse(BlackAfAmerican == 1 & !is.na(BlackAfAmerican), 1, 0),
+    NativeHIPacific = fifelse(NativeHIPacific == 1 & !is.na(NativeHIPacific), 1, 0),
+    White = fifelse(White == 1 & !is.na(White), 1, 0),
+    MidEastNAfrican = fifelse(MidEastNAfrican == 1 & !is.na(MidEastNAfrican), 1, 0),
+    HispanicLatinao = fifelse(HispanicLatinao == 1 & !is.na(HispanicLatinao), 1, 0),
+    # exclusive logic group 1
+    AmIndAKNativeAloneMethod1Detailed = 
+      fifelse(AmIndAKNative == 1 &
+                Asian +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                HispanicLatinao == 0, 1, 0),
+    AmIndAKNativeLatinoMethod1Detailed = 
+      fifelse(AmIndAKNative == 1 & HispanicLatinao == 1 &
+                Asian +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican == 0, 1, 0),
+    AsianAloneMethod1Detailed =
+      fifelse(Asian == 1 &
+                AmIndAKNative +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                HispanicLatinao == 0, 1, 0),
+    AsianLatinoMethod1Detailed =
+      fifelse(Asian == 1 & HispanicLatinao == 1 &
+                AmIndAKNative +
+                BlackAfAmerican +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican == 0, 1, 0),
+    BlackAfAmericanAloneMethod1Detailed =
+      fifelse(BlackAfAmerican == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                HispanicLatinao == 0, 1, 0),
+    BlackAfAmericanLatinoMethod1Detailed =
+      fifelse(BlackAfAmerican == 1 & HispanicLatinao == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican == 0, 1, 0),
+    LatinoAloneMethod1Detailed =
+      fifelse(HispanicLatinao == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                MidEastNAfrican +
+                BlackAfAmerican == 0, 1, 0),
+    MidEastNAfricanAloneMethod1Detailed =
+      fifelse(MidEastNAfrican == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                HispanicLatinao +
+                BlackAfAmerican == 0, 1, 0),
+    MidEastNAfricanLatinoMethod1Detailed =
+      fifelse(MidEastNAfrican == 1 & HispanicLatinao == 1 &
+                AmIndAKNative +
+                Asian +
+                NativeHIPacific +
+                White +
+                BlackAfAmerican == 0, 1, 0),
+    NativeHIPacificAloneMethod1Detailed =
+      fifelse(NativeHIPacific == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                White +
+                HispanicLatinao +
+                BlackAfAmerican == 0, 1, 0),
+    NativeHIPacificLatinoMethod1Detailed =
+      fifelse(NativeHIPacific == 1 & HispanicLatinao == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                White +
+                BlackAfAmerican == 0, 1, 0),
+    WhiteAloneMethod1Detailed =
+      fifelse(White == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                HispanicLatinao +
+                BlackAfAmerican == 0, 1, 0),
+    WhiteLatinoMethod1Detailed =
+      fifelse(White == 1 & HispanicLatinao == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                BlackAfAmerican == 0, 1, 0),
+    MultipleNotLatinoMethod1Detailed =
+      fifelse(HispanicLatinao == 0 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                White +
+                BlackAfAmerican > 1, 1, 0),
+    MultipleLatinoMethod1Detailed =
+      fifelse(HispanicLatinao == 1 &
+                AmIndAKNative +
+                Asian +
+                MidEastNAfrican +
+                NativeHIPacific +
+                White +
+                BlackAfAmerican > 1, 1, 0),
+    RaceEthnicityUnknown =
+      fifelse(
+        HispanicLatinao +
+          AmIndAKNative +
+          Asian +
+          MidEastNAfrican +
+          NativeHIPacific +
+          White +
+          BlackAfAmerican == 0,
+        1,
+        0
+      ),
+    # Data quality column to check for mutual exclusivity
+    DQMethod1DetailedRaceEth =
+      AmIndAKNativeAloneMethod1Detailed +
+      AmIndAKNativeLatinoMethod1Detailed +
+      AsianAloneMethod1Detailed +
+      AsianLatinoMethod1Detailed +
+      BlackAfAmericanAloneMethod1Detailed +
+      BlackAfAmericanLatinoMethod1Detailed +
+      LatinoAloneMethod1Detailed +
+      MidEastNAfricanAloneMethod1Detailed +
+      MidEastNAfricanLatinoMethod1Detailed +
+      NativeHIPacificAloneMethod1Detailed +
+      NativeHIPacificLatinoMethod1Detailed +
+      WhiteAloneMethod1Detailed +
+      WhiteLatinoMethod1Detailed +
+      MultipleNotLatinoMethod1Detailed +
+      MultipleLatinoMethod1Detailed +
+      RaceEthnicityUnknown, # all should equal 1
+    # exclusive logic group 2
+    BILPOCMethod1Summarized = fifelse(
+      AmIndAKNative +
+        Asian +
+        MidEastNAfrican +
+        NativeHIPacific +
+        HispanicLatinao +
+        BlackAfAmerican > 0, 1, 0
+    ),
+    WhiteMethod1Summarized = fifelse(
+      White == 1 &
+        AmIndAKNative +
+        Asian +
+        MidEastNAfrican +
+        NativeHIPacific +
+        HispanicLatinao +
+        BlackAfAmerican == 0, 1, 0
+    ),
+    # Data quality check for exclusive group 2
+    DQRaceEthMethod1Summarized =
+      BILPOCMethod1Summarized +
+      WhiteMethod1Summarized +
+      RaceEthnicityUnknown, # all rows should equal 1
+    # Method2 logic group 1
+    AmIndAKNativeMethod2Detailed = fifelse(AmIndAKNative == 1, 1, 0),
+    AsianMethod2Detailed = fifelse(Asian == 1, 1, 0),
+    BlackAfAmericanMethod2Detailed = fifelse(BlackAfAmerican == 1, 1, 0),
+    LatinoMethod2Detailed = fifelse(HispanicLatinao == 1, 1, 0),
+    MidEastNAfricanMethod2Detailed = fifelse(MidEastNAfrican == 1, 1, 0),
+    NativeHIPacificMethod2Detailed = fifelse(NativeHIPacific == 1, 1, 0),
+    WhiteMethod2Detailed = fifelse(White == 1, 1, 0),
+    # catches missings, any methodology any group
+    # RaceEthnicityNone = if_else(
+    #   AmIndAKNative +
+    #     Asian +
+    #     BlackAfAmerican +
+    #     NativeHIPacific +
+    #     White +
+    #     MidEastNAfrican +
+    #     HispanicLatinao == 0, 1, 0),
+    # Method2 logic group 2
+    BlackAfAmericanLatinoMethod2Summarized =
+      fifelse(BlackAfAmerican == 1 & HispanicLatinao == 1, 1, 0),
+    LatinoMethod2Summarized = fifelse(HispanicLatinao == 1, 1, 0),
+    LatinoAloneMethod2Summarized = fifelse(
+      HispanicLatinao == 1 &
+        AmIndAKNative +
+        Asian +
+        NativeHIPacific +
+        White +
+        MidEastNAfrican +
+        BlackAfAmerican == 0, 1, 0
+    )
+  )
+session$userData$client_categories[, (race_cols) := NULL]
+
+# Data prep ---------------------------------------------------------------
+
+# using EnrollmentAdjust because that df doesn't contain enrollments that fall
+# outside periods of operation/participation
+enrollment_prep <- EnrollmentAdjustAge %>%
+  fselect(EnrollmentID,
+         PersonalID,
+         ProjectID,
+         ProjectType,
+         HouseholdID,
+         HouseholdType,
+         EntryDate,
+         MoveInDateAdjust,
+         ExitDate,
+         ExitAdjust,
+         Destination,
+         AgeAtEntry,
+         RelationshipToHoH,
+         LivingSituation,
+         RentalSubsidyType,
+         LengthOfStay,
+         LOSUnderThreshold,
+         PreviousStreetESSH,
+         DateToStreetESSH,
+         TimesHomelessPastThreeYears,
+         MonthsHomelessPastThreeYears,
+         DisablingCondition
+         ) %>%
+  join(Project %>% 
+              fselect(ProjectID,
+                     ProjectName,
+                     OrganizationID,
+                     RRHSubType,
+                     ContinuumProject),
+            on = 'ProjectID', how = 'left') %>%
+  join(Organization %>%
+              fselect(OrganizationID, OrganizationName) %>%
+              funique(),
+            on = "OrganizationID", how = 'left') %>%
+
+  # left_join(HealthAndDV %>%
+  #             filter(DataCollectionStage == 1) %>%
+  #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
+  #           by = "EnrollmentID") %>%
+  join(system_person_ages, on = "PersonalID") %>%
+  fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
+  fselect(-ContinuumProject)
+
+if(fnrow(enrollment_prep) == 0)
+  stop("No valid Continuum records in enrollment_prep")
+
+# IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
+# check that
+# enrollment_prep %>%
+#   nrow() == EnrollmentAdjust %>% filter(ContinuumProject == 1) %>% nrow()
+# This aims to add demographic data that lives in various other tables added
+# to the enrollment data *without changing the granularity*
+
+# corrected hohs ----------------------------------------------------------
+
+# preps household data to match the way we need the app to 
+hh_adjustments <- enrollment_prep[, `:=`(
+  HoHAlready = fifelse(RelationshipToHoH == 1 & AgeAtEntry > 17, 1, 0)
+)][order(-HoHAlready, -AgeAtEntry, PersonalID), 
+   CorrectedHoH := fifelse(seq_len(.N) == 1, 1, 0),
+   by = .(HouseholdID, ProjectID)
+][
+  , .(EnrollmentID, CorrectedHoH)
+]
+
+# keeps original HoH unless the HoH is younger than 18 or if there are mult hohs
+# if they are younger than 18, or if there are mult hohs, it will take the
+# veteran in the hh. if there are none or multiple veterans, it will take the
+# oldest. if they're the same veteran status and age, it will name the person
+# with the first PersonalID.
+# if the hh looks like: 
+# age 8 (hoh), age 40 (non-veteran), age 38 (veteran) ->  age 38 (veteran)
+# age 16 (hoh), age 8, age 3 -> hoh stays age 16 (bc they're the oldest)
+# age 42 (hoh), age 52 (veteran), age 5 -> hoh stays age 42 (hoh) (trusting the
+# decisions of the case manager, maybe the 42 year old was the eligible person)
+# age 53 (hoh), age 46 (hoh), age 17 -> only the age 53 and not the age 46
+
+# adding corrected hoh ----------------------------------------------------
+enrollment_prep_hohs <- enrollment_prep %>%
+  join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
+  colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
+
+# (^ also same granularity as EnrollmentAdjust)
+rm(hh_adjustments)
+
+# Full Enrollment-level Data Prep ----------------------------------------------
+session$userData$report_dates <- get_report_dates()
+
+# **ProjectTypeWeight** helps determine eecr/lecr
+# **lh_prior_livingsituation** is used to define was_lh_at_start and was_lh_at_end
+# which are then used to select the EECR/LECR
+# throws out HP and enrollments outside Report window and 2 years prior
+# limits to only necessary columns
+
+# Get dataset of literally homeless CLS records. This will be used to:
+# 1. remove problematic enrollments
+# 2. categorize non-res enrollments/people as active_at_start, homeless_at_end, 
+# and unknown_at_end
+session$userData$lh_cls <- CurrentLivingSituation %>%
+  fsubset(
+    CurrentLivingSituation %in% homeless_livingsituation_incl_TH, 
+    EnrollmentID, InformationDate
+  ) %>%
+  funique()
+
+
+keep_enrl_in_range <- function(reportStart, reportEnd) {
+  enrollment_categories <- enrollment_prep_hohs %>% 
+    fsubset(
+      ProjectType != hp_project_type & 
+        EntryDate <= reportEnd & ExitAdjust >= (reportStart %m-% years(2))
+    ) %>%
+    fmutate(
+      during_period = EntryDate <= reportEnd & ExitAdjust >= reportStart
+    ) %>%
+    fgroup_by(PersonalID) %>%
+    fmutate(has_enrl_in_date_range = anyv(during_period, TRUE)) %>%
+    fungroup() %>%
+    fsubset(has_enrl_in_date_range) %>%
+    fmutate(
+      ProjectTypeWeight = fcase(
+        ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
+        ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
+        ProjectType %in% lh_residential_project_types, 60,
+        ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40,
+        ProjectType == ce_project_type, 30,
+        default = 20
+      ),
+      lh_prior_livingsituation = !is.na(LivingSituation) &
+        (LivingSituation %in% homeless_livingsituation_incl_TH |
+           (LivingSituation %in% institutional_livingsituation &
+              LOSUnderThreshold == 1 & PreviousStreetESSH == 1 &
+              !is.na(LOSUnderThreshold) & !is.na(PreviousStreetESSH)
+           )
+        ),
+     
+      lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
+        (ProjectType %in% non_res_project_types & lh_prior_livingsituation)
+    ) %>% 
+    fselect(
+      EnrollmentID,
+      PersonalID,
+      HouseholdID,
+      ProjectID,
+      EntryDate,
+      MoveInDateAdjust,
+      ExitDate,
+      ExitAdjust,
+      ProjectType,
+      MostRecentAgeAtEntry,
+      LivingSituation,
+      lh_prior_livingsituation,
+      LOSUnderThreshold,
+      PreviousStreetESSH,
+      Destination,
+      AgeAtEntry,
+      CorrectedHoH,
+      # DomesticViolenceCategory,
+      HouseholdType,
+      ProjectTypeWeight,
+      lh_at_entry
+    ) %>% 
+    setkeyv(cols = c("EnrollmentID", "PersonalID", "ProjectType"))
+  
+  
+  # Remove "problematic" enrollments ----------------------------------
+  # These are non-residential (other than SO) enrollments for which we have no LH evidence: 
+  # So any enrollment that is not lh_prior_livingsituation and has no LH CLS
+  problematic_nonres_enrollmentIDs <- base::setdiff(
+    (enrollment_categories %>% 
+       fsubset(ProjectType %in% non_res_nonlh_project_types & !lh_prior_livingsituation)
+    )$EnrollmentID,
+    unique(session$userData$lh_cls$EnrollmentID)
+  )
+  
+  enrollment_categories <- enrollment_categories %>%
+    fsubset(
+      !EnrollmentID %in% problematic_nonres_enrollmentIDs &
+        EntryDate < ExitAdjust #exclude impossible enrollments. EntryDate == ExitAdjust is possible but not useful
+    )
+  
+  # Set MoveInDateAdjust to no_end_date if NA. 
+  # This will allow us to just use MoveInDateAdjust without also checking for NA
+  # MoveInDateAdjust is used to determine if/when a person was Housed.
+  enrollment_categories <- enrollment_categories %>%
+    ftransform(MoveInDateAdjust = MoveInDateAdjust)
+  
+  return(enrollment_categories)
+}
+
+session$userData$enrollment_categories <- keep_enrl_in_range(session$userData$ReportStart, session$userData$ReportEnd)
+session$userData$report_dates <- get_report_dates()
+
+
+# Previous Year Enrollments -----------------------------------------------
+
+startDatePrev <- session$userData$ReportStart %m-% years(1)
+endDatePrev <- session$userData$ReportEnd %m-% years(1)
+session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
+
+session$userData$enrollment_categories_prev <- keep_enrl_in_range(startDatePrev, endDatePrev)
+session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
+
+set_user_data_lh_info()
