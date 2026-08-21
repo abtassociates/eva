@@ -248,32 +248,18 @@ observeEvent(input$syse_tabbox, {
   shinyjs::toggle("syse_hh_type", condition = input$syse_tabbox != '<h4>Exits by Subpopulation</h4>')
 })
 
-observeEvent(input$syse_types_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_types_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
+logSysExitSubtabMetadata <- function(t) {
+  observeEvent(input[[t]], {
+    req(session$userData$valid_file() == 1)
+    logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input[[t]],
+                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  }, ignoreNULL = TRUE, ignoreInit = TRUE)
+}
 
-
-observeEvent(input$syse_time_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_time_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-
-observeEvent(input$syse_subpop_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_subpop_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-observeEvent(input$syse_phd_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_phd_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
+logSysExitSubtabMetadata("syse_time_subtabs")
+logSysExitSubtabMetadata("syse_subpop_subtabs")
+logSysExitSubtabMetadata("syse_phd_subtabs")
+logSysExitSubtabMetadata("syse_time_subtabs")
 
 observeEvent(input$syse_methodology_type, {
   
