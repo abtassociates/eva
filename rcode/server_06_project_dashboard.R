@@ -260,30 +260,18 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
   }
 
   # METRICS
-  m_ds <- metric_datasets()
+  m_ds <- metric_datasets_all_proj()
   proj_table <- session$userData$Project0[OrganizationName %in% orgList]
   
-  metrics_summary_list <- list()
-  metrics_detail_list  <- list()
+  # Calculate all metrics across all projects in one vectorized call
+  metrics_exported <- build_metrics_tables_batch(
+    m_datasets  = m_ds,
+    proj_table  = proj_table,
+    is_export   = TRUE
+  )
   
-  if (fnrow(proj_table) > 0) {
-    for (i in seq_len(fnrow(proj_table))) {
-      p_id   <- proj_table$ProjectID[i]
-      p_name <- proj_table$ProjectName[i]
-      p_type <- proj_table$ProjectType[i]
-      
-      # Summary Metrics Export Tab
-      summary_dt <- build_metrics_table(m_ds, p_id, p_name, p_type, is_summary_tab = TRUE, is_export = TRUE)
-      if (fnrow(summary_dt) > 0) metrics_summary_list[[length(metrics_summary_list) + 1]] <- summary_dt
-      
-      # Detail Metrics Export Tab (includes all 'Export Only' sub-metrics)
-      detail_dt  <- build_metrics_table(m_ds, p_id, p_name, p_type, is_summary_tab = FALSE, is_export = TRUE)
-      if (fnrow(detail_dt) > 0) metrics_detail_list[[length(metrics_detail_list) + 1]] <- detail_dt
-    }
-  }
-  
-  metricsSummaryExport <- if (length(metrics_summary_list) > 0) rbindlist(metrics_summary_list) else NULL
-  metricsDetailExport  <- if (length(metrics_detail_list) > 0)  rbindlist(metrics_detail_list)  else NULL
+  metricsSummaryExport <- metrics_exported$summary
+  metricsDetailExport  <- metrics_exported$detail
   
   # TIMELINESS
   if(!is.null(tl_df_project_start())){
