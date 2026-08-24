@@ -221,8 +221,6 @@ observe({
       condition = length(syse_subpop_selections()) < 2 || id_map[[div_id]] %in% syse_subpop_selections()
     )
   }
-  
-  toggle_subpop_download_options()
 })
 
 output$syse_compare_subpop_filter_selections <- renderUI({
