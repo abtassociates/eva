@@ -383,10 +383,10 @@ rm(inc_ncb_hi_required_prep)
   # Also: https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
 base_font_px <- 14 # 14px = 14*0.75 pts/px = 10.5pts = 10.5 pts = 3.7mm
 base_font_pts <- base_font_px*0.75
-base_font_mm <- base_font_pts / .pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
+base_font_mm <- base_font_pts / ggplot2::.pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
 
 dq_axis_font <- 12 # 12 pts = 16px
-sys_chart_text_font <- 14 / .pt # 14 pts = 4.92mm = 18.67px
+sys_chart_text_font <- 14 / ggplot2::.pt # 14 pts = 4.92mm = 18.67px
 sys_chart_text_font_pts <- 14 # 14 pts = 4.92mm = 18.67px
 sys_axis_text_font <- 15 #15 pts = 22px
 sys_comp_axis_text_font <- 14 #14 pts = 22px
