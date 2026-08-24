@@ -125,8 +125,7 @@ files_to_ignore <- c(
   # "Disabilities"
 )
 
-column_priorities <- read_csv(here("public-resources/columns.csv"), 
-                                col_types = cols()) %>%
+column_priorities <- fread(here("public-resources/columns.csv")) %>%
   fsubset(!File %in% files_to_ignore)
 
 data_type_mapping <- list(
@@ -301,7 +300,7 @@ sys_grouping_detail <- c(
 )
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
+evachecks <- fread(file = here("public-resources/EvaChecks.csv"))
 
 if(collapse::any_duplicated(evachecks$ID)) {
   stop("EvaChecks has duplicate IDs!")
