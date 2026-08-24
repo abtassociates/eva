@@ -185,7 +185,8 @@ get_syse_compare_subpop_data <- function(output_type = 'table') {
     fcountv(cols = c("Destination Type", which_factors_changed), drop = FALSE)
   
   # 2. Identify subpopulation (where all active factors == TRUE)
-  is_subpop <- Reduce(`&`, lapply(all_data[which_factors_changed], \(x) x == TRUE))
+  # browser()
+  is_subpop <- Reduce(`&`, lapply(all_data[[which_factors_changed]], \(x) x == TRUE))
   
   # 3. Add unchanged factor columns back as TRUE for downstream consistency
   if (length(filt_unchanged) > 0) {
@@ -220,6 +221,8 @@ observe({
       condition = length(syse_subpop_selections()) < 2 || id_map[[div_id]] %in% syse_subpop_selections()
     )
   }
+  
+  toggle_subpop_download_options()
 })
 
 output$syse_compare_subpop_filter_selections <- renderUI({

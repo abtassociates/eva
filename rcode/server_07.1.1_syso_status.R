@@ -1,4 +1,4 @@
-output$sankey_filter_selections <- renderUI({ 
+output$syso_status_filter_selections <- renderUI({ 
   req(session$userData$valid_file() == 1)
   syso_detailBox() 
 })
@@ -131,8 +131,8 @@ render_sankey_plot <- function(plot_data, isExport = FALSE) {
       plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
     )
 }
-output$sankey_ui_chart <- renderPlot({
-  logToConsole(session, "in sankey_ui_chart")
+output$syso_status_ui_chart <- renderPlot({
+  logToConsole(session, "in syso_status_ui_chart")
   req(session$userData$valid_file() == 1)
 
   validate(
@@ -161,7 +161,7 @@ output$sankey_ui_chart <- renderPlot({
 alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
 width = ifelse(isTRUE(getOption("shiny.testmode")), 1113, "auto"))
 
-sys_status_export_info <- function(spd) {
+syso_status_export_info <- function(spd) {
   tibble(
     Chart = c(
       "Total People",
@@ -176,7 +176,7 @@ sys_status_export_info <- function(spd) {
   )
 }
 
-sys_status_data_download <- function(file) {
+syso_status_data_download <- function(file) {
   # create a list of the 3 excel tabs and export
   spd <- get_sankey_data() %>% 
     xtabs(freq ~ End + Begin, data=.) %>% 
@@ -190,7 +190,7 @@ sys_status_data_download <- function(file) {
   tab_names <- list(
     "System Status Metadata" = sys_export_summary_initial_df(type = 'overview') %>%
       bind_rows(sys_export_filter_selections(type = 'overview')) %>%
-      bind_rows(sys_status_export_info(get_sankey_data())) %>%
+      bind_rows(syso_status_export_info(get_sankey_data())) %>%
       rename("System Status" = Value),
     "System Status Detail" = spd
   )
@@ -208,7 +208,7 @@ sys_status_data_download <- function(file) {
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }
 
-sys_status_ppt_download <- function(file) {
+syso_status_ppt_download <- function(file) {
   sys_perf_ppt_export(
     file = file,
     type = 'overview',
@@ -216,7 +216,7 @@ sys_status_ppt_download <- function(file) {
     summary_items = sys_export_summary_initial_df(type = 'overview') %>%
       filter(Chart != "Start Date" & Chart != "End Date") %>% 
       bind_rows(sys_export_filter_selections(type = 'overview')) %>%
-      bind_rows(sys_status_export_info(get_sankey_data())),
+      bind_rows(syso_status_export_info(get_sankey_data())),
     plots = list(
       "Client System Status" = render_sankey_plot(get_sankey_data(), isExport=TRUE)
     ),
@@ -243,11 +243,11 @@ get_sankey_data <- reactive({
   ]
   
   shinyjs::toggle(
-    "sys_status_download_btn",
+    "syso_status_download_btn",
     condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
   )
   shinyjs::toggle(
-    "sys_status_download_btn_ppt",
+    "syso_status_download_btn_ppt",
     condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
   )
   

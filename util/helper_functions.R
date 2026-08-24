@@ -500,11 +500,11 @@ reset_postvalid_components <- function(session) {
   ))
   session$userData$pdde_main <- NULL
   
-  shinyjs::hide("sys_inflow_outflow_download_btn")
-  shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
+  shinyjs::hide("syso_inflow_outflow_download_btn")
+  shinyjs::hide("syso_inflow_outflow_download_btn_ppt")
   
-  shinyjs::hide("sys_status_download_btn")
-  shinyjs::hide("sys_status_download_btn_ppt")
+  shinyjs::hide("syso_status_download_btn")
+  shinyjs::hide("syso_status_download_btn_ppt")
   
   shinyjs::hide("sys_comp_download_btn")
   shinyjs::hide("sys_comp_download_btn_ppt")
@@ -804,6 +804,21 @@ custom_sys_export_dropdown <- function(id_prefix) {
     # Extract row display name
     row_label <- row_items[[1]]$name
     
+    # Check if this row is the Subpopulation row
+    is_subpop <- grepl("subpop", sfx, ignore.case = TRUE)
+    
+    # Info icon with hover tooltip (shown when disabled)
+    info_icon <- if (is_subpop) {
+      tags$span(
+        id = paste0(id_prefix, "_subpop_info_icon"),
+        title = "You must select one or more subpopulations on the Exits by Subpopulation tab",
+        style = "margin-left: 6px; cursor: help; color: #6c757d; display: none;",
+        icon("info-circle")
+      )
+    } else {
+      NULL
+    }
+    
     # Build check inputs or default placeholder if not present in configuration
     ppt_cell <- if (length(ppt_item) > 0) {
       checkboxInput(get_sys_export_id(id_prefix, ppt_item[[1]]), NULL, value = TRUE)
@@ -819,10 +834,15 @@ custom_sys_export_dropdown <- function(id_prefix) {
     
     tags$div(
       class = "row g-0 align-items-center py-1",
-      tags$div(class = "col-5 text-nowrap", row_label),
+      tags$div(
+        class = "col-5 text-nowrap d-flex align-items-center", 
+        tags$span(row_label),
+        info_icon
+      ),
       tags$div(class = "col-4 d-flex justify-content-center", ppt_cell),
       tags$div(class = "col-3 d-flex justify-content-center", xlsx_cell)
     )
+    
   })
   
   # 3. Assemble the Dropdown structure

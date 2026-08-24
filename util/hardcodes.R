@@ -513,10 +513,10 @@ METADATA_PATH <- ifelse(
 # System Performance Exports ----------
 syso_export_config <- list(
   list(suffix = "client", name = "System Overview Client Level Export", gen = "populate_client_level_export",     ext = ".xlsx"),
-  list(suffix = "flow",   name = "System Flow",                         gen = "sys_inflow_outflow_ppt_download",  ext = ".pptx"),
-  list(suffix = "flow",   name = "System Flow",                         gen = "sys_inflow_outflow_data_download", ext = ".xlsx"),
-  list(suffix = "status", name = "System Status",                       gen = "sys_status_ppt_download",          ext = ".pptx"),
-  list(suffix = "status", name = "System Status",                       gen = "sys_status_data_download",         ext = ".xlsx"),
+  list(suffix = "flow",   name = "System Flow",                         gen = "syso_inflow_outflow_ppt_download",  ext = ".pptx"),
+  list(suffix = "flow",   name = "System Flow",                         gen = "syso_inflow_outflow_data_download", ext = ".xlsx"),
+  list(suffix = "status", name = "System Status",                       gen = "syso_status_ppt_download",          ext = ".pptx"),
+  list(suffix = "status", name = "System Status",                       gen = "syso_status_data_download",         ext = ".xlsx"),
   list(suffix = "demo",   name = "System Demographics",                 gen = "sys_comp_ppt_download",            ext = ".pptx"),
   list(suffix = "demo",   name = "System Demographics",                 gen = "sys_comp_data_download",           ext = ".xlsx")
 )

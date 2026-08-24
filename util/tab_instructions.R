@@ -560,7 +560,7 @@ tabSystemOverview_instructions <-  HTML("<h4>System Overview</h4>
                 We recommend not sharing this Excel workbook with anyone who does not have permission to view client PII.</p>   
                ")
 
-tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview</h4>
+tab_syso_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow panel shows your homeless system's inflow and outflow during the period, 
                                 helping you assess the effectiveness of your homeless system. 
                                 The client universe for this panel is the number of clients identified as active in your system 
@@ -616,7 +616,7 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                 interpret the chart. Depending on the data you uploaded, 
                                 some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                <table class='sys_info_table' id='syso_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
@@ -710,7 +710,7 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                   </tr>
                                 </table>")
 
-tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
+tab_syso_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 <p>The Client System Status Chart shows the end-of-year 
                                 housing status of the clients that were active in 
                                 your homeless response system at the start of the 
@@ -749,7 +749,7 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 interpret the chart. Depending on the data you 
                                 uploaded, some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_status_info_table'>
+                                <table class='sys_info_table' id='syso_status_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
@@ -1040,7 +1040,7 @@ tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                 interpret the chart. Depending on the data you uploaded, 
                                 some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                <table class='sys_info_table' id='syse_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>

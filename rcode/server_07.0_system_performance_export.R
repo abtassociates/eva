@@ -282,13 +282,9 @@ sys_perf_ppt_export <- function(file,
                                 sourceID = session$userData$Export$SourceID,
                                 in_demo_mode = input$in_demo_mode) {
   
-  if(type == 'overview'){
-    logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
-                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
-  } else if (type == 'exits'){
-    logMetadata(session, paste0("Downloaded System Exits Powerpoint: ", title_slide_title,
-                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
-  }
+  logToConsole(session, paste0("In sys_perf_ppt_export, where type = ", type))
+  logMetadata(session, paste0("Downloaded System ", stringr::str_to_title(type), " Powerpoint: ", title_slide_title,
+                              if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
   
   #NEED TO UPDATE - if want to get more granular, need to detect with title slide
   
@@ -392,7 +388,6 @@ sys_perf_ppt_export <- function(file,
   return(print(ppt, target = file))
 }
 
-
 # Handle System Overview/System Exits exports
 register_sys_export_server <- function(id_prefix, input, output, session) {
   export_config <- get(paste0(id_prefix, "_export_config")) # found in hardcodes.R
@@ -425,7 +420,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
       if (length(reports) == 0) {
         return("no_selection.txt")
       } else if (length(reports) == 1) {
-        return(date_stamped_filename(paste0(reports[[1]]$name, reports[[1]]$ext)))
+        return(date_stamped_filename(reports[[1]]$name, ext = reports[[1]]$ext))
       } else {
         return(date_stamped_filename(paste0("Consolidated ", display_name, " Export - "), ext = ".zip"))
       }
@@ -438,7 +433,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
         return()
       }
       
-      temp_dir <- file.path(tempdir(), paste0("shiny_export_", id_prefix))
+      temp_dir <- file.path(tempdir(), paste0("shiny_export_", session$token, "_", id_prefix))
       if (dir.exists(temp_dir)) unlink(temp_dir, recursive = TRUE)
       dir.create(temp_dir)
       

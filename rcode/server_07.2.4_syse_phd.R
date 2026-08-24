@@ -64,6 +64,8 @@ create_phd_export_df <- function(plot_df_joined, plot_df_supp, selections) {
 }
 
 syse_phd_plot <- function(methodology_type, selections, isExport = FALSE) {
+  logToConsole(session, paste0("In syse_phd_plot, where methodology_type = ", methodology_type, " and selections = ", selections, collapse = ", "))
+  
   # 1. Prep Total Exits Universe
   raw_exits <- all_filtered_syse_demog()
   total_prep <- prepare_crosstab_data(raw_exits, selections, methodology_type, subtab = "exits")
