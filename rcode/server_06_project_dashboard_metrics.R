@@ -846,8 +846,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         fifelse(ProjectType == out_project_type, !Destination %in% c(24, 206, 329), !Destination %in% c(24, 206, 215, 225))
       ),
       nmiss = Destination %in% exclude_vals | 
-        (ProjectType == out_project_type & !Destination %in% c(24, 206, 329)) |
-        (ProjectType != out_project_type & !Destination %in% c(24, 206, 215, 225))
+        (ProjectType == out_project_type & Destination %in% c(24, 206, 329)) |
+        (ProjectType != out_project_type & Destination %in% c(24, 206, 215, 225))
     )
   
   income_growth_latest_enrl <- latest_enrollments |>
