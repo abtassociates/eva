@@ -45,7 +45,7 @@ if(dir.exists(METADATA_PATH)) {
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
 # Create DQ and PDDE script environment
-mirai::daemons(1, maxtasks = 1, output = TRUE, sync=TRUE)
+mirai::daemons(1, maxtasks = 1, output = TRUE)
 mirai::everywhere({
   library(data.table)
   library(tidyverse)
