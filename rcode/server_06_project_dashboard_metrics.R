@@ -94,7 +94,7 @@ METRIC_DEFINITIONS <- list(
   "  Heads of Household and Adults Served (HoHs/Adults)" = list(
     dt_key         = "total_clients",
     unit           = "clients",
-    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
+    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1]$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) FALSE,
     summary_metric = FALSE,
@@ -196,10 +196,10 @@ METRIC_DEFINITIONS <- list(
     dt_key         = "entered_non_habitat",
     unit           = "pct",
     calc_func      = function(dt) {
-      denom <- fsum(!dt$LivingSituation %in% exclude_vals)
+      denom <- fnrow(dt)
       if (denom > 0) fsum(dt$entered_from_place_not_meant) / denom else NA_real_
     },
-    calc_func_det  = function(dt) {fsum(dt$entered_from_place_not_meant)},
+    calc_func_det  = function(dt) fsum(dt$entered_from_place_not_meant),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) pt %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type)),
     summary_metric = TRUE,
@@ -209,10 +209,10 @@ METRIC_DEFINITIONS <- list(
     dt_key         = "entered_permanent",
     unit           = "pct",
     calc_func      = function(dt) {
-      denom <- fsum(!dt$LivingSituation %in% exclude_vals)
+      denom <- fnrow(dt)
       if (denom > 0) fsum(dt$entered_from_ph) / denom else NA_real_
     },
-    calc_func_det  = function(dt) {fsum(dt$entered_from_ph)},
+    calc_func_det  = function(dt) fsum(dt$entered_from_ph),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) pt %in% c(lh_residential_project_types, ce_project_type),
     summary_metric = TRUE,
@@ -225,7 +225,7 @@ METRIC_DEFINITIONS <- list(
       denom <- fsum(dt$IncomeFromAnySource %in% c(0, 1))
       if (denom > 0) fsum(dt$zero_income) / denom else NA_real_
     },
-    calc_func_det  = function(dt) {fsum(dt$zero_income)},
+    calc_func_det  = function(dt) fsum(dt$zero_income),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) pt == hp_project_type,
     summary_metric = TRUE,
@@ -235,10 +235,10 @@ METRIC_DEFINITIONS <- list(
     dt_key         = "income_growth",
     unit           = "pct",
     calc_func      = function(dt) {
-      denom <- fsum(dt$IncomeFromAnySource %in% c(0, 1))
+      denom <- fsum(dt$denom)
       if (denom > 0) fsum(dt$has_growth) / denom else NA_real_
     },
-    calc_func_det  = function(dt) {fsum(dt$has_growth)},
+    calc_func_det  = function(dt) fsum(dt$has_growth),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) pt %in% c(ph_project_types, hp_project_type),
     summary_metric = TRUE,
@@ -803,8 +803,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     ) |>
     fmutate(
       entered_from_place_not_meant = LivingSituation == 116L,
-      entered_from_ph = LivingSituation %in% perm_livingsituation,
-      nmiss = LivingSituation %in% exclude_vals
+      entered_from_ph = LivingSituation %in% perm_livingsituation
     )
   
   zero_income_dt <- session$userData$IncomeBenefits |>
@@ -872,6 +871,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         fungroup() |>
         fmutate(
           has_growth = as.integer(at_exit > at_entry),
+          denom =  IncomeFromAnySource %in% c(0, 1),
           nmiss = (IncomeFromAnySource %in% exclude_vals | (IncomeFromAnySource == 1 & is.na(val)))
         )
     } else {
