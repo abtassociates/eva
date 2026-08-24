@@ -75,8 +75,9 @@ ProjectSegments <- project_prep %>%
     )
   ) %>%
   fungroup() %>%
-  relocate(ProjectTimeID, .after = ProjectID) 
-rm(project_prep)
+  relocate(ProjectTimeID, .after = ProjectID) %>%
+  fsubset(is.na(HMISParticipationStatusEndDate) | HMISParticipationStatusEndDate > session$userData$meta_HUDCSV_Export_Start)
+
 # * Use Project0 for most things.
 # * Use ProjectSegments if your analysis uses specific participation data
 # * Use Project if you need something from the original data as it came in that's
@@ -189,7 +190,10 @@ EnrollmentOutside <- EnrollmentOutside %>%
       "Operating")
   )
 
-### Get First HMIS span for each Project (technically, the enrollment record) --------------
+EnrollmentOutside2 <- EnrollmentOutside %>%
+  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate)
+
+# Get First HMIS span for each Project (technically, the enrollment record)
 EnrollmentOutside <- EnrollmentOutside %>%
   roworder(ProjectTimeID) %>%
   collap( ~ ProjectID + EnrollmentID, ffirst) %>% 
