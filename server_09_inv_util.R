@@ -558,6 +558,19 @@ re_calc <- reactive({
   }
 })
 
+## if Units is selected, only allow HH Type of Adult-Child
+## and disable all other choices
+observeEvent(input$bui_inventory_level, {
+  if(input$bui_inventory_level == 'Units'){
+    updateRadioGroupButtons(session, inputId = 'bui_hh_type', selected = "Adult-Child",
+                            disabledChoices = c("All", "Adult-Only","Child-Only"))
+    
+  } else {
+    updateRadioGroupButtons(session, inputId = 'bui_hh_type', #selected = "Adult-Child",
+                            disabledChoices = NULL)
+  }
+})
+
 output$proj_bui_hh_plot <- renderPlot({
   validate(need(fnrow(re_calc()) > 0,no_data_msg))
            
