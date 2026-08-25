@@ -53,12 +53,14 @@ start_rss_monitor <- function(pid = Sys.getpid(), output_file, interval = 0.01) 
 
 stop_rss_monitor <- function(monitor_pid, output_file) {
   if (!is.na(monitor_pid)) {
+    print("stopping RSS monitor")
     system2("kill", c("-TERM", as.character(monitor_pid)), stdout = FALSE, stderr = FALSE)
     Sys.sleep(0.02)
   }
 }
 
 read_peak_rss_mb <- function(output_file) {
+  print("reading peak RSS")
   if (!file.exists(output_file)) return(NA_real_)
   x <- readLines(output_file, warn = FALSE)
   if (!length(x)) return(NA_real_)
@@ -106,59 +108,47 @@ describe_dependencies <- function(deps) {
     class          = vapply(deps, function(x) paste(class(x), collapse = ", "), character(1)),
     object_size_mb = vapply(deps, function(x) as.numeric(object.size(x)) / 1024^2, numeric(1)),
     stringsAsFactors = FALSE
-  )
+  ) |> roworder(-object_size_mb)
 }
 
 # ============================================================
 # UNIFIED WORKER DISPATCHER (ZERO-COPY IPC + ERROR TRACE)
 # ============================================================
-
 dispatch_mirai_worker <- function(prepared) {
+  print("dispatching mirai")
   mirai::mirai(
     {
       tryCatch({
         # --- 1. LOAD FROM DISK ---
         r_start <- Sys.time()
         
-        if (format == "qs2") {
-          deps <- qs2::qs_read(paths)
-        } else if (format == "arrow") {
-          # Read Arrow Feather files and restore original R classes
-          table_deps <- lapply(names(paths), function(nm) {
-            tbl <- arrow::read_feather(paths[[nm]])
-            orig_class <- table_classes[[nm]]
-            
-            # Ensure base data.frame if that's what it was originally
-            if (!("tbl_df" %in% orig_class) && is.data.frame(tbl)) {
-              tbl <- as.data.frame(tbl)
-            }
-            if ("data.table" %in% orig_class) {
-              tbl <- data.table::as.data.table(tbl)
-            }
-            tbl
-          })
-          names(table_deps) <- names(paths)
+        log_memory("worker start")
+      
+        deps <- qs2::qs_read(paths)
+        
+        log_memory("after qs_read")
           
-          # Combine tables with non-tabular session metadata
-          deps <- c(table_deps, non_tabular_meta)
-        }
         
         r_end <- Sys.time()
         
         # Populate environment with identical object names
         list2env(deps, envir = environment())
+        log_memory("after list2env")
+        
         
         # --- 2. EXECUTE DATA QUALITY & PDDE ---
         w_start <- Sys.time()
         logToConsole(session, "Benchmark: About to run dq_mirai")
         source(here::here("rcode", "05_data_quality.R"), local = TRUE)
+        log_memory("after 05_data_quality.R")
         
         logToConsole(session, "Benchmark: About to run pdde_mirai")
         source(here::here("rcode", "06_PDDE_checker.R"), local = TRUE)
         w_end <- Sys.time()
         
+        rss_val  <- log_memory("after 06_PDDE_checker.R")
+        
         # --- 3. RETURN METRICS ---
-        rss_val <- as.numeric(system2("ps", c("-o", "rss=", "-p", Sys.getpid()), stdout = TRUE)) / 1024
         
         list(
           success                  = TRUE,
@@ -172,6 +162,7 @@ dispatch_mirai_worker <- function(prepared) {
           benchmark_worker_rss_mb  = rss_val
         )
       }, error = function(e) {
+        print(e)
         list(
           success   = FALSE,
           error_msg = conditionMessage(e),
@@ -179,12 +170,7 @@ dispatch_mirai_worker <- function(prepared) {
         )
       })
     },
-    .args = list(
-      format           = prepared$format,
-      paths            = prepared$paths,
-      table_classes    = prepared$table_classes,
-      non_tabular_meta = prepared$non_tabular_meta
-    )
+    .args = list(paths = prepared$paths)
   )
 }
 
@@ -205,22 +191,35 @@ run_benchmark_engine <- function(approach_name, deps, write_fn, n_runs = BENCHMA
     monitor_pid  <- start_rss_monitor(output_file = monitor_file)
     
     # 1. Write / Serialize to Disk
+    log_memory("before preparing data")
+    
     write_start <- Sys.time()
     prepared_data <- write_fn(deps, i)
+    
     write_end   <- Sys.time()
     
     # 2. Dispatch Mirai Worker
+    log_memory("before mirai()")
     m <- dispatch_mirai_worker(prepared_data)
+    print(object.size(m) / 1024^2)
     submitted_time <- Sys.time()
+    log_memory("after mirai()")
+    
+    gc()
+    
+    log_memory("after gc()")
+    
+    # 4. Wait for Worker
+    print("collecting results...")
+    browser()
+    result <- m[]
+    end_time <- Sys.time()
+    log_memory("after collecting mirai results")
     
     # 3. Stop host monitoring
     stop_rss_monitor(monitor_pid, monitor_file)
     peak_shiny_rss_mb <- read_peak_rss_mb(monitor_file)
     unlink(c(monitor_file, paste0(monitor_file, ".pid")))
-    
-    # 4. Wait for Worker
-    result <- m[]
-    end_time <- Sys.time()
     
     if (mirai::is_error_value(result)) {
       stop(sprintf("[%s - Run %d] Worker failed: %s", approach_name, i, as.character(result)))
@@ -262,51 +261,17 @@ run_benchmark_engine <- function(approach_name, deps, write_fn, n_runs = BENCHMA
 
 benchmark_qs2 <- function(deps, n_runs = BENCHMARK_RUNS) {
   write_fn <- function(deps, run_idx) {
+    print("saving dependencies to qs")
+    
     file <- file.path(BENCHMARK_DIR, sprintf("deps_qs2_%d.qs2", run_idx))
     qs2::qs_save(deps, file)
     list(
-      format           = "qs2",
       paths            = file,
-      table_classes    = NULL,
-      non_tabular_meta = NULL,
       file_size_mb     = file.info(file)$size / 1024^2,
       cleanup_fn       = function() unlink(file)
     )
   }
   run_benchmark_engine("qs2", deps, write_fn, n_runs)
-}
-
-benchmark_arrow <- function(deps, n_runs = BENCHMARK_RUNS) {
-  # Distinguish tabular data from non-tabular metadata
-  is_df <- vapply(deps, is.data.frame, logical(1))
-  dataset_names <- names(deps)[is_df]
-  non_df_names  <- names(deps)[!is_df]
-  
-  table_classes <- lapply(deps[dataset_names], class)
-  
-  write_fn <- function(deps, run_idx) {
-    arrow_run_dir <- file.path(BENCHMARK_DIR, paste0("arrow_", run_idx))
-    dir.create(arrow_run_dir, recursive = TRUE, showWarnings = FALSE)
-    
-    files <- setNames(
-      file.path(arrow_run_dir, paste0(dataset_names, ".feather")),
-      dataset_names
-    )
-    
-    for (nm in dataset_names) {
-      arrow::write_feather(as.data.frame(deps[[nm]]), files[[nm]])
-    }
-    
-    list(
-      format           = "arrow",
-      paths            = files,
-      table_classes    = table_classes,
-      non_tabular_meta = deps[non_df_names],
-      file_size_mb     = sum(file.info(files)$size, na.rm = TRUE) / 1024^2,
-      cleanup_fn       = function() unlink(arrow_run_dir, recursive = TRUE)
-    )
-  }
-  run_benchmark_engine("arrow_full", deps, write_fn, n_runs)
 }
 
 # ============================================================
