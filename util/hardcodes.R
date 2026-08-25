@@ -300,7 +300,7 @@ sys_grouping_detail <- c(
 )
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- fread(file = here("public-resources/EvaChecks.csv"))
+evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
 if(collapse::any_duplicated(evachecks$ID)) {
   stop("EvaChecks has duplicate IDs!")
@@ -442,7 +442,8 @@ dq_mirai_dependencies <- c(
   "IncomeBenefits",
   "Services",
   "Event",
-  "EnrollmentOutside2"
+  "EnrollmentOutside2",
+  "Exit"
 )
 
 pdde_mirai_dependencies <- c(
