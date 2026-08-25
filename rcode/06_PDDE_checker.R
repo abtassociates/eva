@@ -629,31 +629,40 @@ lt_seas_inv <- lt_seas_inv %>%
   funique()
 
 # Put it all together -----------------------------------------------------
+# Define table names
+pdde_table_names <- c(
+  "subpopNotTotal",
+  "operating_end_missing",
+  "rrh_no_subtype",
+  "missing_CoC_Geography",
+  "missing_CoC_Address",
+  "missing_inventory_record",
+  "operating_end_precedes_inventory_end",
+  "overlapping_ce_participation",
+  "overlapping_hmis_participation",
+  "inventory_start_precedes_operating_start",
+  "active_inventory_w_no_enrollments",
+  "rrh_so_w_inventory",
+  "vsps_in_hmis",
+  "zero_utilization",
+  "ES_BedType_HousingType",
+  "nbn_nobns",
+  "Active_Inventory_per_COC",
+  "COC_Records_per_Inventory",
+  "more_units_than_beds_inventory",
+  "vsp_clients",
+  "project_no_coc",
+  "res_no_house_type",
+  "lt_seas_inv"
+)
 
-pdde_main <- rowbind(
-  subpopNotTotal,
-  operating_end_missing,
-  rrh_no_subtype,
-  missing_CoC_Geography,
-  missing_CoC_Address,
-  missing_inventory_record,
-  operating_end_precedes_inventory_end,
-  overlapping_ce_participation,
-  overlapping_hmis_participation,
-  inventory_start_precedes_operating_start,
-  active_inventory_w_no_enrollments,
-  rrh_so_w_inventory,
-  vsps_in_hmis,
-  zero_utilization,
-  ES_BedType_HousingType,
-  nbn_nobns,
-  Active_Inventory_per_COC,
-  COC_Records_per_Inventory,
-  more_units_than_beds_inventory,
-  vsp_clients,
-  project_no_coc,
-  res_no_house_type,
-  lt_seas_inv
-) %>%
+# 1. Rowbind using mget()
+pdde_main <- rowbind(l = mget(pdde_table_names)) %>%
   funique() %>%
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
+
+# 2. Delete all underlying datasets and the name vector
+rm(list = c(pdde_table_names, "pdde_table_names"))
+
+# 3. Free RAM
+gc()

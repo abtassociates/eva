@@ -94,7 +94,7 @@ DV <- HealthAndDV %>%
 base_dq_data <- base_dq_data %>%
   join(DV, on = "EnrollmentID", how = 'left')
 
-rm(DV)
+rm(DV, HealthAndDV)
 
 # Duplicate EEs -----------------------------------------------------------
 
@@ -994,7 +994,9 @@ rm(income_subs)
 # Enrollment Active Outside Participating Dates ---------------------------
 
 enrollment_positions <- EnrollmentOutside2 %>%
-  join(base_dq_data, on = "EnrollmentID", how = 'left') 
+  join(base_dq_data %>% fselect(vars_prep), on = "EnrollmentID", how = 'left')
+
+rm(EnrollmentOutside2)
 
 enrollment_x_participating_start <- enrollment_positions %>%
   fsubset(EnrollmentvParticipating == "Enrollment Crosses Participating Start" & HMISParticipationType == 1) %>%
@@ -1061,6 +1063,7 @@ enrollment_x_operating_period <- enrollment_positions %>%
   merge_check_info_dt(checkIDs = 120) %>%
   fselect(vars_we_want)
 
+rm(enrollment_positions)
 # Overlaps ----------------------------------------------------------------
 # Create an initial dataset of possible overlaps
 # and establish initial Enrollment intervals, based on project type
@@ -1854,88 +1857,89 @@ calculate_outstanding_referrals <- function(dq_data){
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
 # All together now --------------------------------------------------------
-dq_main <- rowbind(
-  approx_start_after_entry,
-  approx_start_v_living_situation_data,
-  conflicting_health_insurance_entry,
-  conflicting_health_insurance_exit,
-  conflicting_income_entry,
-  conflicting_income_exit,
-  conflicting_ncbs_entry,
-  dkr_client_veteran_discharge,
-  dkr_client_veteran_military_branch,
-  dkr_client_veteran_wars,
-  dkr_destination,
-  dkr_dob,
-  dkr_living_situation,
-  dkr_LoS,
-  dkr_months_times_homeless,
-  dkr_name,
-  dkr_race,
-  dkr_residence_prior,
-  dkr_ssn,
-  dkr_veteran,
-  overlap_dt,
-  duplicate_ees,
-  enrollment_after_operating_period,
-  #enrollment_after_participating_period,
-  enrollment_before_operating_period,
-  #enrollment_before_participating_period,
-  enrollment_during_nonparticipating_period,
-  enrollment_x_operating_end,
-  enrollment_x_operating_period,
-  enrollment_x_operating_start,
-  enrollment_x_participating_end,
-  enrollment_x_participating_period,
-  enrollment_x_participating_start,
-  exit_before_start,
-  future_ees,
-  future_exits,
-  hh_issues,
-  incorrect_dob,
-  over100_dob,
-  invalid_movein_date,
-  missing_approx_date_homeless,
-  missing_cls_subsidy,
-  # missing_destination,
-  missing_destination_subsidy,
-  dkr_disabilities,
-  missing_bn_entry,
-  bn_on_exit,
-  missing_dob,
-  # missing_dob_dataquality,
-  missing_enrollment_coc,
-  missing_health_insurance_entry,
-  missing_health_insurance_exit,
-  missing_income_entry,
-  missing_income_exit,
-  missing_living_situation,
-  missing_LoS,
-  missing_months_times_homeless,
-  # missing_name_dataquality,
-  missing_ncbs_entry,
-  missing_previous_street_ESSH,
-  missing_residence_prior,
-  missing_res_prior_subsidy,
-  # missing_ssn,
-  # missing_veteran_status,
-  no_months_can_be_determined,
-  no_months_v_living_situation_data,
-  ssvf_hp_screen,
-  ssvf_missing_percent_ami,
-  ssvf_missing_vamc,
-  Top2_movein,
-  top_percents_long_stayers,
-  veteran_incorrect_year_entered,
-  veteran_incorrect_year_separated,
-  veteran_missing_branch,
-  veteran_missing_discharge_status,
-  veteran_missing_wars,
-  veteran_missing_year_entered,
-  veteran_missing_year_separated
+# All together now --------------------------------------------------------
+
+dq_table_names <- c(
+  "approx_start_after_entry",
+  "approx_start_v_living_situation_data",
+  "conflicting_health_insurance_entry",
+  "conflicting_health_insurance_exit",
+  "conflicting_income_entry",
+  "conflicting_income_exit",
+  "conflicting_ncbs_entry",
+  "dkr_client_veteran_discharge",
+  "dkr_client_veteran_military_branch",
+  "dkr_client_veteran_wars",
+  "dkr_destination",
+  "dkr_dob",
+  "dkr_living_situation",
+  "dkr_LoS",
+  "dkr_months_times_homeless",
+  "dkr_name",
+  "dkr_race",
+  "dkr_residence_prior",
+  "dkr_ssn",
+  "dkr_veteran",
+  "overlap_dt",
+  "duplicate_ees",
+  "enrollment_after_operating_period",
+  "enrollment_before_operating_period",
+  "enrollment_during_nonparticipating_period",
+  "enrollment_x_operating_end",
+  "enrollment_x_operating_period",
+  "enrollment_x_operating_start",
+  "enrollment_x_participating_end",
+  "enrollment_x_participating_period",
+  "enrollment_x_participating_start",
+  "exit_before_start",
+  "future_ees",
+  "future_exits",
+  "hh_issues",
+  "incorrect_dob",
+  "over100_dob",
+  "invalid_movein_date",
+  "missing_approx_date_homeless",
+  "missing_cls_subsidy",
+  "missing_destination_subsidy",
+  "dkr_disabilities",
+  "missing_bn_entry",
+  "bn_on_exit",
+  "missing_dob",
+  "missing_enrollment_coc",
+  "missing_health_insurance_entry",
+  "missing_health_insurance_exit",
+  "missing_income_entry",
+  "missing_income_exit",
+  "missing_living_situation",
+  "missing_LoS",
+  "missing_months_times_homeless",
+  "missing_ncbs_entry",
+  "missing_previous_street_ESSH",
+  "missing_residence_prior",
+  "missing_res_prior_subsidy",
+  "no_months_can_be_determined",
+  "no_months_v_living_situation_data",
+  "ssvf_hp_screen",
+  "ssvf_missing_percent_ami",
+  "ssvf_missing_vamc",
+  "Top2_movein",
+  "top_percents_long_stayers",
+  "veteran_incorrect_year_entered",
+  "veteran_incorrect_year_separated",
+  "veteran_missing_branch",
+  "veteran_missing_discharge_status",
+  "veteran_missing_wars",
+  "veteran_missing_year_entered",
+  "veteran_missing_year_separated"
 )
 
-dq_main <- dq_main %>% 
+# 1. Rowbind using mget() to fetch the datasets from memory
+dq_main <- rowbind(l = mget(dq_table_names)) %>% 
   fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
-  funique() #%>% 
-  #qDF()
+  funique()
+
+# 2. Delete all underlying datasets and the name vector
+rm(list = c(dq_table_names, "dq_table_names"))
+
+# 3. Force garbage collection to instantly free RAM
+gc()
