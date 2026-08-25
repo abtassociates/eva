@@ -621,38 +621,6 @@ dkr_destination <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 59) %>%
   fselect(vars_we_want)
 
-missing_destination_subsidy <- base_dq_data %>%
-  fsubset(!is.na(ExitDate) &
-           Destination == 435 &
-           (is.na(DestinationSubsidyType) |
-           !DestinationSubsidyType %in% c(subsidy_types))) %>%
-  merge_check_info_dt(checkIDs = 121) %>%
-  fselect(vars_we_want)
-
-# Missing ResPrior Subsidy ------------------------------------------------
-
-missing_res_prior_subsidy <- base_dq_data %>%
-  join(Enrollment %>% fselect(EnrollmentID, RentalSubsidyType),
-            on = 'EnrollmentID', how = 'left') %>%
-  fsubset(LivingSituation == 435 &
-           (is.na(RentalSubsidyType) |
-           !RentalSubsidyType %in% c(subsidy_types))) %>%
-  merge_check_info_dt(checkIDs = 130) %>%
-  fselect(vars_we_want)
-
-
-# Missing CLS Subsidy -----------------------------------------------------
-
-missing_cls_subsidy <- base_dq_data %>%
-  join(CurrentLivingSituation %>%
-              fsubset(CurrentLivingSituation == 435 &
-                       (is.na(CLSSubsidyType) |
-                       !CLSSubsidyType %in% c(subsidy_types))) %>%
-              fselect(CurrentLivingSitID, EnrollmentID, CLSSubsidyType),
-            on = 'EnrollmentID', how = 'inner') %>%
-  merge_check_info_dt(checkIDs = 129) %>%
-  fselect(vars_we_want)
-
 # Missing PATH Data -------------------------------------------------------
 
 #* Length of Stay in Res Prior
@@ -1907,9 +1875,7 @@ dq_main <- rowbind(
   over100_dob,
   invalid_movein_date,
   missing_approx_date_homeless,
-  missing_cls_subsidy,
   # missing_destination,
-  missing_destination_subsidy,
   dkr_disabilities,
   missing_bn_entry,
   bn_on_exit,
@@ -1927,7 +1893,6 @@ dq_main <- rowbind(
   missing_ncbs_entry,
   missing_previous_street_ESSH,
   missing_residence_prior,
-  missing_res_prior_subsidy,
   # missing_ssn,
   # missing_veteran_status,
   no_months_can_be_determined,
