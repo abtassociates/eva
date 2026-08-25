@@ -158,9 +158,24 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
           str_len_limit = rule_row$str_len_limit,
           validation_notes = rule_row$validation_notes,
           readable_validation_notes = rule_row$readable_validation_notes,
-          key_template = fifelse(is.na(rule_row$`Key Fields`), "", gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)),
-          detail_template = stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template) %>%
-            stringi::stri_replace_all_fixed(., "{Value}", paste0("{", Name, "}"))
+          key_template = fifelse(
+            is.na(rule_row$`Key Fields`), 
+            if(target_source == "FSA" && !is.na(rule_row$AnchorID)) 
+              gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$AnchorID) 
+            else 
+              "",
+            gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)
+          ),
+          detail_template = stringi::stri_replace_all_fixed(
+            rule_row$`Detail Text`, 
+            fifelse(
+              key_template == "",
+              "Key Info: {Key Field Info}",
+              "{Key Field Info}"
+            ), 
+            key_template
+          ),
+          detail_template = stringi::stri_replace_all_fixed(detail_template, "{Value}", paste0("{", Name, "}"))
         )
       
       if(rule_row$Issue == "Null Unless") {
