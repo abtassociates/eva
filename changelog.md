@@ -4,15 +4,15 @@
 ## 2026-08-19
 
 ### Bug Fixes
-- Removed enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check
-- Added new DQ check "Enrollment During Non-Participation Period" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks "Enrollment After HMIS Participating Period" and "Enrollment Before HMIS Participating Period"
+ - Removed enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check
+ - Added new DQ check "Enrollment During Non-Participation Period" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks "Enrollment After HMIS Participating Period" and "Enrollment Before HMIS Participating Period"
  
 ### New Features
-- Added DQ Timeliness metrics for Coordinated Entry Assessment and Event records on the Project Dashboard Report
+ - Added DQ Timeliness metrics for Coordinated Entry Assessment and Event records on the Project Dashboard Report
  
 ### Miscellaneous
-- Moved HouseholdType filter on Exits by Subpopulation page to the chart selector section
-- Updated language in the System Performance Glossary
+ - Moved HouseholdType filter on Exits by Subpopulation page to the chart selector section
+ - Updated language in the System Performance Glossary
 
 ## 2026-08-06
 
@@ -25,7 +25,9 @@
 ### Bug Fixes 
  - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.
  - Updated Enrollment DQ Checks to only show warnings for actively HMIS participating enrollments. (Issues <a href='https://github.com/abtassociates/eva/issues/958' target='_blank'>#958</a> and <a href='https://github.com/abtassociates/eva/issues/1042' target='_blank'>#1042</a>) 
- - Instead of crashing, hide System Performance tab when: <ul> <li>No Continuum Project records (Issue <a href='https://github.com/abtassociates/eva/issues/1028' target='_blank'>#1028</a>)</li> <li>Only HP projects or enrollments outside reporting period</li> </ul> 
+ - Instead of crashing, hide System Performance tab when: 
+     - No Continuum Project records (Issue <a href='https://github.com/abtassociates/eva/issues/1028' target='_blank'>#1028</a>)
+     - Only HP projects or enrollments outside reporting period
  - Handle other System Performance empty dataset scenarios by showing 'No valid data message' in place of the charts (Issue <a href='https://github.com/abtassociates/eva/issues/1027' target='_blank'>#1027</a>) 
  - Fix Data Quality and System Performance plots and data tables to always use commas for formating large numbers. 
 
