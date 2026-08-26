@@ -146,11 +146,10 @@ dispatch_mirai_worker <- function(prepared) {
         source(here::here("rcode", "06_PDDE_checker.R"), local = TRUE)
         w_end <- Sys.time()
         
-        rss_val  <- log_memory("after 06_PDDE_checker.R")
-        
+        log_memory("after pdde")
         # --- 3. RETURN METRICS ---
         
-        list(
+        res <- list(
           success                  = TRUE,
           dq_main                  = dq_main,
           overlap_details          = overlap_details,
@@ -159,8 +158,17 @@ dispatch_mirai_worker <- function(prepared) {
           long_stayers             = long_stayers,
           benchmark_read_seconds   = as.numeric(difftime(r_end, r_start, units = "secs")),
           benchmark_worker_seconds = as.numeric(difftime(w_end, w_start, units = "secs")),
-          benchmark_worker_rss_mb  = rss_val
+          benchmark_worker_rss_mb  = get_rss()
         )
+        
+        log_memory("after res")
+        
+        rm(dq_main, overlap_details, outstanding_referrals, pdde_main, long_stayers)
+        
+        log_memory("after rm")
+        release_worker_memory()
+        
+        log_memory("after release_memory")
       }, error = function(e) {
         print(e)
         list(
@@ -200,21 +208,26 @@ run_benchmark_engine <- function(approach_name, deps, write_fn, n_runs = BENCHMA
     
     # 2. Dispatch Mirai Worker
     log_memory("before mirai()")
+    
     m <- dispatch_mirai_worker(prepared_data)
     print(object.size(m) / 1024^2)
     submitted_time <- Sys.time()
-    log_memory("after mirai()")
+    
+    # 4. Wait for Worker
+    print("collecting results...")
+    result <- m[]
+    
+    log_memory("after collecting mirai results")
     
     gc()
     
     log_memory("after gc()")
     
-    # 4. Wait for Worker
-    print("collecting results...")
-    browser()
-    result <- m[]
+    gc(full = TRUE)
+    
+    log_memory("after gc(full=TRUE)")
+    
     end_time <- Sys.time()
-    log_memory("after collecting mirai results")
     
     # 3. Stop host monitoring
     stop_rss_monitor(monitor_pid, monitor_file)
