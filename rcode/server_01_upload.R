@@ -70,8 +70,7 @@ process_upload <- function(upload_filename, upload_filepath) {
         Project0 = session$userData$Project0,
         meta_HUDCSV_Export_Date = session$userData$meta_HUDCSV_Export_Date,
         meta_HUDCSV_Export_Start = session$userData$meta_HUDCSV_Export_Start,
-        meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End,
-        validation = session$userData$validation
+        meta_HUDCSV_Export_End = session$userData$meta_HUDCSV_Export_End
       )
     )
 

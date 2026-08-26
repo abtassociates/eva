@@ -19,7 +19,22 @@ client_count_data_df <- reactive({
   ReportStart <- input$dateRangeCount[1]
   ReportEnd <- input$dateRangeCount[2]
   
-  session$userData$validation %>%
+  session$userData$Enrollment %>%
+    fselect(
+      PersonalID,
+      EnrollmentID,
+      HouseholdID,
+      RelationshipToHoH,
+      EntryDate,
+      MoveInDateAdjust,
+      ExitDate,
+      ProjectID,
+      ProjectType
+    ) %>%
+    join(
+      session$userData$Project0 |> fselect(ProjectID, ProjectName, OrganizationName), 
+      on = "ProjectID"
+    ) %>%
     fmutate(
       PersonalID = as.character(PersonalID),
       RelationshipToHoH = case_when(
@@ -173,7 +188,7 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
   validationDF <- client_count_data_df() %>% 
     fsubset(OrganizationName %in% orgList)
 
-  ### session$userData$validation DATE RANGE TAB ###
+  ### DATE RANGE TAB ###
   # counts for each status, by project, across the date range provided
   if(!is.null(validationDF) & fnrow(validationDF) > 0){
     pivot_att <- tryCatch(
@@ -434,7 +449,7 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
 # CLIENT COUNT DETAILS - APP ----------------------------------------------
 output$clientCountData <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(session$userData$validation) > 0)
+  req(nrow(client_count_data()) > 0)
   validate_date_range(input$dateRangeCount)
   
   

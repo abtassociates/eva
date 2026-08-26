@@ -303,64 +303,6 @@ Services <- Services %>%
   fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
 
-# Build validation df for app ---------------------------------------------
-# this contains Project and Org info together
-validationProject <- ProjectSegments %>%
-  fselect(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType
-  )
-
-validationEnrollment <- Enrollment %>% 
-  fselect(
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    ProjectID,
-    ProjectTimeID,
-    RelationshipToHoH,
-    EntryDate,
-    EntryDateTruncated,
-    MoveInDate,
-    ExitDate,
-    ExitDateTruncated,
-    MoveInDateAdjust,
-    ExitAdjust,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) 
-
-# to be used for more literal, data-quality-based analyses. contains enrollments
-# that do not intersect any period of HMIS participation or project operation
-
-#0.006122828 vs 0.0002565384  
-session$userData$validation <- validationProject %>%
-  join(validationEnrollment, on = c("ProjectTimeID", "ProjectID"), how='left', multiple=T) %>%
-  fselect(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType,
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    RelationshipToHoH,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) %>%
-  fsubset(!is.na(EntryDate))
-
 # Checking requirements by projectid --------------------------------------
 
 projects_funders_types <- Funder %>%

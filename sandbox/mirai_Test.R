@@ -86,20 +86,7 @@ build_dependencies <- function(session) {
       Project0                 = session$userData$Project0,
       meta_HUDCSV_Export_Date  = session$userData$meta_HUDCSV_Export_Date,
       meta_HUDCSV_Export_Start = session$userData$meta_HUDCSV_Export_Start,
-      meta_HUDCSV_Export_End   = session$userData$meta_HUDCSV_Export_End,
-      validation               = session$userData$validation %>%
-        fselect(c(
-          "EnrollmentID",
-          "HouseholdID",
-          "PersonalID",
-          "OrganizationName",
-          "ProjectID",
-          "ProjectName",
-          "ProjectType",
-          "EntryDate",
-          "MoveInDateAdjust",
-          "ExitDate"
-        ))
+      meta_HUDCSV_Export_End   = session$userData$meta_HUDCSV_Export_End
     )
   )
   deps

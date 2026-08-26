@@ -1707,7 +1707,7 @@ rm(dkr_client_veteran_info)
 calculate_long_stayers_local_settings_dt <- function(projecttype){
   # get non-exited enrollments for projecttype
   logToConsole(session, glue::glue("In calculate long stayers: projecttype = {projecttype}"))
-  non_exits <- session$userData$validation %>%
+  non_exits <- base_dq_data %>%
     fsubset(ProjectType == projecttype & 
               (ExitDate >= session$userData$meta_HUDCSV_Export_End | is.na(ExitDate))
     ) %>%
