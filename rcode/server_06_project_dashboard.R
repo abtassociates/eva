@@ -449,7 +449,7 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
 # CLIENT COUNT DETAILS - APP ----------------------------------------------
 output$clientCountData <- renderDT({
   req(session$userData$valid_file() == 1)
-  req(nrow(client_count_data()) > 0)
+  req(nrow(client_count_data_df()) > 0)
   validate_date_range(input$dateRangeCount)
   
   
