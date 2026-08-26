@@ -795,3 +795,18 @@ log_memory <- function(label) {
     get_rss()
   ))
 }
+
+release_worker_memory <- function() {
+  # 1. Run full R-level garbage collection
+  gc(full = TRUE)
+  
+  # 2. Tell Linux C-level allocator to return memory to the OS
+  if (Sys.info()[["sysname"]] == "Linux") {
+    tryCatch({
+      # Load glibc C standard library
+      libc <- dyn.load("libc.so.6")
+      # Call malloc_trim(0)
+      .C("malloc_trim", 0L)
+    }, error = function(e) NULL)
+  }
+}
