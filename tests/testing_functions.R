@@ -667,13 +667,14 @@ records_in_one_or_another <- function(old, new, datasetname) {
   only_in_old <- fsetdiff(old, new)
   if(nrow(only_in_old) > 0) {
     print(glue("Viewing records only in the old dataset for ", datasetname))
-    view(only_in_old)
+    View(only_in_old)
+    
   }
 
   only_in_new <- fsetdiff(new, old)
   if(nrow(only_in_new) > 0) {
     print(glue("Viewing records only in the new dataset for ", datasetname))
-    view(only_in_new)
+    View(only_in_new)
   }
 }
 # This is equivalent to snapshot_accept(), but for the helper csv files
