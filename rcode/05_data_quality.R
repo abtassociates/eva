@@ -1052,7 +1052,9 @@ enrollment_before_operating_period <- enrollment_positions %>%
   fselect(vars_we_want)
 
 enrollment_x_operating_end <- enrollment_positions %>%
-  fsubset(EnrollmentvOperating == "Enrollment Crosses Operating End") %>%
+  fsubset(EnrollmentvOperating == "Enrollment Crosses Operating End" & 
+            !is.na(OperatingEndDate) & 
+            OperatingEndDate <= session$userData$meta_HUDCSV_Export_End) %>%
   merge_check_info_dt(checkIDs = 119) %>%
   fselect(vars_we_want)
 

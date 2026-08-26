@@ -191,7 +191,8 @@ EnrollmentOutside <- EnrollmentOutside %>%
   )
 
 EnrollmentOutside2 <- EnrollmentOutside %>%
-  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate)
+  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, OperatingEndDate,
+          HMISParticipationType, HMISParticipationStatusEndDate)
 
 # Get First HMIS span for each Project (technically, the enrollment record)
 EnrollmentOutside <- EnrollmentOutside %>%
