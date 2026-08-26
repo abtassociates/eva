@@ -60,10 +60,11 @@ process_upload <- function(upload_filename, upload_filepath) {
     if(!is.null(err)) return(NULL)
     # 05 & 06 (MIRAI) -------------------
     setProgress(detail = "Assessing your data quality..", value = .7)
-    dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
-    dq_and_pdde_dependencies[["IncomeBenefits"]] <-dq_and_pdde_dependencies[["IncomeBenefits"]] %>%
-      fsubset(DataCollectionStage %in% c(1,3))
+    # source(here("sandbox/mirai_Test.R"), local=TRUE)
     
+    log_memory("before dependencies")
+    
+    dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,
       userData = list(

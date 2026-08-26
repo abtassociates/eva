@@ -345,6 +345,9 @@ activeInventory <- Inventory %>%
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 
+IncomeBenefits <- IncomeBenefits %>%
+  fsubset(DataCollectionStage %in% c(1,3))
+
 # Event (Used in DQ)
 Event <- Event %>% 
   fselect(

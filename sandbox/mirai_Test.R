@@ -76,9 +76,6 @@ build_dependencies <- function(session) {
   deps <- mget(
     unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)),
     envir = parent.env(environment())
-  )
-  deps[["IncomeBenefits"]] <- deps[["IncomeBenefits"]] %>%
-    fsubset(DataCollectionStage %in% c(1,3))
   
   deps[["session"]] <- list(
     token = session$token,
