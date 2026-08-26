@@ -114,6 +114,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       # Store results of DQ and PDDE ------------------------------------------
       # dq_pdde_results <- .[]
 
+      unlink(qs2_file)
       logToConsole(session, "saving DQ and PDDE results to session")
       session$userData$pdde_main <- dq_pdde_results$pdde_main
       session$userData$dq_main <- dq_pdde_results$dq_main
