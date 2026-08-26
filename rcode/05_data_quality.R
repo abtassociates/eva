@@ -866,67 +866,49 @@ future_exits <- base_dq_data %>%
 projects_require_income <- unique(projects_funders_types[inc == 1]$ProjectID)
 
 base_dq_data_inc <- base_dq_data %>%
-  join(IncomeBenefits, on = c("PersonalID", "EnrollmentID"), how = 'left', multiple=TRUE)
+  fsubset(
+    AgeAtEntry > 17 | is.na(AgeAtEntry),
+    c(vars_prep, "AgeAtEntry")
+  ) %>%
+  join(
+    IncomeBenefits %>% 
+      fsubset(
+        is.na(IncomeFromAnySource),
+        PersonalID, EnrollmentID, DataCollectionStage, TotalMonthlyIncome, IncomeFromAnySource, InsuranceFromAnySource
+      ),
+    on = c("PersonalID", "EnrollmentID"), 
+    how = 'left', 
+    multiple=TRUE
+  )
 
 missing_income_entry <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'AgeAtEntry',
-    'DataCollectionStage',
-    'TotalMonthlyIncome',
-    'IncomeFromAnySource'
+    'DataCollectionStage'
   ) %>%
-  fsubset(DataCollectionStage == 1 &
-           ProjectID %in% c(projects_require_income) &
-           (AgeAtEntry > 17 |
-              is.na(AgeAtEntry)) &
-           (is.na(IncomeFromAnySource))) %>%
+  fsubset(
+    DataCollectionStage == 1 &
+    ProjectID %in% projects_require_income
+  ) %>%
   merge_check_info_dt(checkIDs = 87) %>%
   fselect(vars_we_want)
 
 # if IncomeFromAnySource is yes then one of these should be a yes, and if it's a 
 # no, then all of them should be no
-smallIncome <- IncomeBenefits %>%
+inc_cols <- c(
+  "Earned", "Unemployment", "SSI", "SSDI", "VADisabilityService",
+  "VADisabilityNonService", "PrivateDisability", "WorkersComp",
+  "TANF", "GA", "SocSecRetirement", "Pension", "ChildSupport",
+  "Alimony", "OtherIncomeSource"
+)
+
+income_subs <- IncomeBenefits %>%
   fselect(
-    PersonalID,
-    EnrollmentID,
-    Earned,
-    Unemployment,
-    SSI,
-    SSDI,
-    VADisabilityService,
-    VADisabilityNonService,
-    PrivateDisability,
-    WorkersComp,
-    TANF,
-    GA,
-    SocSecRetirement,
-    Pension,
-    ChildSupport,
-    Alimony,
-    OtherIncomeSource,
-    DataCollectionStage
+    inc_cols,
+    "PersonalID", "EnrollmentID", "DataCollectionStage", "IncomeFromAnySource"
   ) %>%
-  fsubset(DataCollectionStage %in% c(1, 3))
-
-smallIncome[is.na(smallIncome)] <- 0
-
-smallIncome <- funique(smallIncome) %>% 
-  join(
-    funique(fselect(IncomeBenefits,"PersonalID",
-                    "EnrollmentID",
-                    "DataCollectionStage",
-                    "TotalMonthlyIncome",
-                    "IncomeFromAnySource")), 
-    how = 'full',
-    multiple = TRUE,
-    on = c("PersonalID",
-           "EnrollmentID",
-           "DataCollectionStage"))
-
-income_subs <- base_dq_data %>%
-  fselect(c("AgeAtEntry", vars_prep)) %>%
-  join(smallIncome, on = c("PersonalID", "EnrollmentID"), how='left', multiple = T) %>%
+  replace_na(value = 0, cols = inc_cols, set = TRUE) %>%
   fmutate(
     IncomeCount =
       Earned +
@@ -944,17 +926,30 @@ income_subs <- base_dq_data %>%
       ChildSupport +
       Alimony +
       OtherIncomeSource
-  )
+  ) %>%
+  fselect(
+    PersonalID, EnrollmentID, DataCollectionStage, IncomeFromAnySource, IncomeCount
+  ) %>%
+  funique() %>%
+  join(
+    base_dq_data %>%
+      fsubset(
+        ProjectID %in% projects_require_income &
+          (AgeAtEntry > 17 | is.na(AgeAtEntry)),
+        "AgeAtEntry", vars_prep
+      ),
+    on = c("PersonalID", "EnrollmentID"), 
+    how = "inner"
+  ) 
 
 conflicting_income_entry <- income_subs %>%
-  fsubset(DataCollectionStage == 1 &
-           ProjectID %in% c(projects_require_income) &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) & # revisit
-           ((IncomeFromAnySource == 1 &
-               IncomeCount == 0) |
-              (IncomeFromAnySource == 0 &
-                 IncomeCount > 0)
-           )) %>%
+  fsubset(
+    DataCollectionStage == 1 & # revisit
+    (
+      (IncomeFromAnySource == 1 & IncomeCount == 0) |
+      (IncomeFromAnySource == 0 & IncomeCount > 0)
+    )
+  ) %>%
   merge_check_info_dt(checkIDs = 88) %>%
   fselect(vars_we_want)
 
@@ -965,27 +960,25 @@ missing_income_exit <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'AgeAtEntry',
-    'DataCollectionStage',
-    'TotalMonthlyIncome',
-    'IncomeFromAnySource'
+    'DataCollectionStage'
   ) %>%
-  fsubset(DataCollectionStage == 3 &
-           ProjectID %in% c(projects_require_income) &
-           (AgeAtEntry > 17 |
-              is.na(AgeAtEntry)) &
-           (is.na(IncomeFromAnySource))) %>%
+  fsubset(
+    DataCollectionStage == 3 &
+    ProjectID %in% projects_require_income
+  ) %>%
   merge_check_info_dt(checkIDs = 89) %>%
   fselect(vars_we_want)
 
+rm(base_dq_data_inc)
+
 conflicting_income_exit <- income_subs %>%
-  fsubset(DataCollectionStage == 3 &
-           ProjectID %in% c(projects_require_income) &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
-           ((IncomeFromAnySource == 1 &
-               IncomeCount == 0) |
-              (IncomeFromAnySource == 0 &
-                 IncomeCount > 0)
-           )) %>%
+  fsubset(
+    DataCollectionStage == 3 &
+    (
+      (IncomeFromAnySource == 1 & IncomeCount == 0) |
+      (IncomeFromAnySource == 0 & IncomeCount > 0)
+    )
+  ) %>%
   merge_check_info_dt(checkIDs = 90) %>%
   fselect(vars_we_want)
 
@@ -1374,13 +1367,20 @@ invalid_movein_date <- base_dq_data %>%
 
 projects_require_hi <- unique(projects_funders_types[hi == 1]$ProjectID)
 
-missing_health_insurance <- base_dq_data_inc %>%
-  fselect(vars_prep,
-         'AgeAtEntry',
-         'DataCollectionStage',
-         'InsuranceFromAnySource') %>%
-  fsubset((is.na(InsuranceFromAnySource)) &
-           ProjectID %in% c(projects_require_hi))
+missing_health_insurance <- base_dq_data %>%
+  fsubset(
+    ProjectID %in% projects_require_hi, 
+    vars_prep, 'AgeAtEntry'
+  ) %>%
+  join(
+    IncomeBenefits %>% 
+      fsubset(
+        is.na(InsuranceFromAnySource),
+        EnrollmentID, DataCollectionStage
+      ),
+    on = "EnrollmentID",
+    how = "inner"
+  )
   
 missing_health_insurance_entry <- missing_health_insurance %>%
   fsubset(DataCollectionStage == 1) %>%
@@ -1392,41 +1392,53 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   merge_check_info_dt(checkIDs = 93) %>%
   fselect(vars_we_want)
 
-health_insurance_subs <- base_dq_data_inc %>%
+ins_cols <- c(
+  'Medicaid',
+  'Medicare',
+  'SCHIP',
+  'VHAServices',
+  'EmployerProvided',
+  'COBRA',
+  'PrivatePay',
+  'StateHealthIns',
+  'IndianHealthServices',
+  'OtherInsurance'
+)
+health_insurance_subs <- IncomeBenefits %>%
   fselect(
-    vars_prep,
+    'EnrollmentID',
     'DataCollectionStage',
     'InsuranceFromAnySource',
-    'Medicaid',
-    'Medicare',
-    'SCHIP',
-    'VHAServices',
-    'EmployerProvided',
-    'COBRA',
-    'PrivatePay',
-    'StateHealthIns',
-    'IndianHealthServices',
-    'OtherInsurance'
+    ins_cols
   ) %>%
+  replace_na(value = 0, cols = ins_cols, set = TRUE) %>%
   fmutate(
     SourceCount = Medicaid + SCHIP + VHAServices + EmployerProvided +
       COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
       OtherInsurance + Medicare
   ) %>%
-  fsubset((InsuranceFromAnySource == 1 &
-            SourceCount == 0) |
-           (InsuranceFromAnySource == 0 &
-              SourceCount > 0))
+  fsubset(
+    (InsuranceFromAnySource == 1 & SourceCount == 0) |
+    (InsuranceFromAnySource == 0 & SourceCount > 0),
+    EnrollmentID, DataCollectionStage
+  ) %>%
+  join(
+    base_dq_data %>% 
+      fsubset(
+        ProjectID %in% projects_require_hi,
+        vars_prep
+      ),
+    on = "EnrollmentID",
+    how = "inner"
+  )
 
 conflicting_health_insurance_entry <- health_insurance_subs %>%
-  fsubset(DataCollectionStage == 1 &
-           ProjectID %in% c(projects_require_hi)) %>%
+  fsubset(DataCollectionStage == 1) %>%
   merge_check_info_dt(checkIDs = 94) %>%
   fselect(vars_we_want)
 
 conflicting_health_insurance_exit <- health_insurance_subs %>%
-  fsubset(DataCollectionStage == 3 &
-           ProjectID %in% c(projects_require_hi)) %>%
+  fsubset(DataCollectionStage == 3) %>%
   merge_check_info_dt(checkIDs = 95) %>%
   fselect(vars_we_want)
 
@@ -1435,98 +1447,63 @@ rm(health_insurance_subs)
 # Missing NCBs at Entry ---------------------------------------------------
 
 projects_require_ncb <- unique(projects_funders_types[ncb == 1]$ProjectID)
+ncb_cols <- c("SNAP", "WIC", "TANFChildCare", "TANFTransportation", "OtherTANF", "OtherBenefitsSource")
 
-#just the different kinds of non-cash benefits, many to an enrollment
-ncb_subs <- IncomeBenefits %>%
-  fselect(
-    PersonalID,
-    EnrollmentID,
-    DataCollectionStage,
-    SNAP,
-    WIC,
-    TANFChildCare,
-    TANFTransportation,
-    OtherTANF,
-    OtherBenefitsSource
+ncb_staging <- IncomeBenefits %>%
+  fsubset(
+    DataCollectionStage == 1,
+    c("PersonalID", "EnrollmentID", "DataCollectionStage", "BenefitsFromAnySource", ncb_cols)
   ) %>%
-  funique()
-
-ncb_subs[is.na(ncb_subs)] <- 0
-
-# basic ncb data but adding BenefitsFromAnySource, an ee-level data element
-# BenefitsFromAnySource will repeat depending on its EEID & collection stage
-ncbs <- ncb_subs %>%
-  join(IncomeBenefits %>% fselect("PersonalID",
-                             "EnrollmentID",
-                             "DataCollectionStage",
-                             "BenefitsFromAnySource") %>%
-              funique(),
-            on = c("PersonalID",
-                   "EnrollmentID",
-                   "DataCollectionStage"),
-            how = 'full', 
-            multiple = TRUE,
-            validate = 'm:m')
-
-# if there are conflicting yes/no records or conflicting subs, this will catch
-# any that conflict with each other, which will prompt the user to correct the
-# record(s) that's incorrect
-
-ncb_staging <- base_dq_data %>%
-    join(ncbs, on = c("PersonalID", "EnrollmentID"), how='left') %>%
-    fsubset(
-      DataCollectionStage == 1 &
-        (AgeAtEntry > 17 |
-           is.na(AgeAtEntry))
-    ) %>%
-    fmutate(
-      BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
-        OtherTANF + OtherBenefitsSource
-    ) %>%
-    fselect(vars_prep,
-           "DataCollectionStage",
-           "BenefitsFromAnySource",
-           "BenefitCount") %>%
-    funique()
+  funique() %>%
+  replace_na(value = 0, cols = ncb_cols, set = TRUE) %>%
+  fmutate(
+    BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
+      OtherTANF + OtherBenefitsSource
+  ) %>%
+  fselect(
+    PersonalID, EnrollmentID, DataCollectionStage, BenefitsFromAnySource, BenefitCount
+  ) %>%
+  funique() %>%
+  join(
+    base_dq_data %>%
+      fsubset(
+        ProjectID %in% projects_require_ncb &
+          (AgeAtEntry > 17 | is.na(AgeAtEntry)),
+        "AgeAtEntry", vars_prep
+      ),
+    on = c("PersonalID", "EnrollmentID"), 
+    how = "inner"
+  ) 
 
 
 missing_ncbs_entry <- ncb_staging %>%
-  fsubset((is.na(BenefitsFromAnySource)) &
-           ProjectID %in% c(projects_require_ncb)
-  ) %>%
+  fsubset(is.na(BenefitsFromAnySource)) %>%
   merge_check_info_dt(checkIDs = 96) %>%
   fselect(vars_we_want)
 
-conflicting_ncbs_entry <- base_dq_data %>%
-  join(ncb_staging %>%
-              fselect("PersonalID",
-                     "EnrollmentID",
-                     "DataCollectionStage",
-                     "BenefitsFromAnySource",
-                     "BenefitCount"),
-            on = c("PersonalID",
-                   "EnrollmentID"), how = 'left', multiple = TRUE) %>%
-  fselect('AgeAtEntry',
-         vars_prep,
-         'DataCollectionStage',
-         'BenefitsFromAnySource',
-         'BenefitCount') %>%
-  fsubset(DataCollectionStage == 1 &
-           ProjectID %in% c(projects_require_ncb) &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
-           ((BenefitsFromAnySource == 1 &
-               BenefitCount == 0) |
-              (BenefitsFromAnySource == 0 &
-                 BenefitCount > 0)
-           )) %>%
+conflicting_ncbs_entry <- ncb_staging %>%
+  fsubset(
+    DataCollectionStage == 1 &
+    (
+      (BenefitsFromAnySource == 1 & BenefitCount == 0) |
+      (BenefitsFromAnySource == 0 & BenefitCount > 0)
+    )
+  ) %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
     
 # Missing bed night for NBN Enrollment Entry ---------------------------------------
 nbn_w_hmis_participation <- base_dq_data %>% 
   fsubset(ProjectType == es_nbn_project_type) %>%
-  join(HMISParticipation %>% fselect(ProjectID, HMISParticipationType), on = "ProjectID", how = 'left') %>%
-  fsubset(HMISParticipationType == 1 ) 
+  join(
+    HMISParticipation %>% 
+      fsubset(
+        HMISParticipationType == 1,
+        ProjectID, HMISParticipationType
+      ), 
+    on = "ProjectID", 
+    how = 'left'
+  )
 
 if(nrow(Services) > 0) {
 services_chk <- Services %>%
@@ -1693,6 +1670,8 @@ ssvf_hp_screen <- ssvf_base_dq_data %>%
 dkr_client_veteran_info <- ssvf_base_dq_data %>%
   fsubset(VeteranStatus == 1)
 
+rm(ssvf_base_dq_data)
+
 dkr_client_veteran_discharge <- dkr_client_veteran_info %>%
   fsubset(DischargeStatus %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 56) %>%
@@ -1715,6 +1694,9 @@ dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   fsubset(MilitaryBranch %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 58) %>%
   fselect(vars_we_want)
+
+rm(dkr_client_veteran_info)
+
 # Long Stayers -------------------------------------------------------------
 # The goal is here to flag "stays" that go beyond the local setting 
 # (that defines a "long" stay), and is set by the user
