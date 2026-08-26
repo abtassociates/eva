@@ -120,7 +120,7 @@ dispatch_mirai_worker <- function(prepared) {
         
         # Populate environment with identical object names
         list2env(deps, envir = environment())
-        rn(deps)
+        rm(deps)
         log_memory("after list2env")
         
         
@@ -155,6 +155,7 @@ dispatch_mirai_worker <- function(prepared) {
         release_worker_memory()
         
         log_memory("after release_memory")
+        res
       }, error = function(e) {
         print(e)
         list(

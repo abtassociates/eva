@@ -75,7 +75,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       )
     )
 
-    qs2_fileath <- file.path(
+    qs2_filepath <- file.path(
       paste0(tempdir(), "/", session$token),
       "dependencies.qs2"
     )
@@ -85,6 +85,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       dq_and_pdde_dependencies,
       qs2_filepath
     )
+    rm(dq_and_pdde_dependencies)
+    
+    log_memory("after qs save")
     
     dq_pdde_mirai <- mirai({
       # Recreate the same named objects that .args
@@ -102,13 +105,20 @@ process_upload <- function(upload_filename, upload_filepath) {
       logToConsole(session, "About to run pdde_mirai")
       source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
       
-      list(
+      res <- list(
         dq_main = dq_main,
         overlap_details = overlap_details,
         outstanding_referrals = outstanding_referrals,
         pdde_main = pdde_main,
         long_stayers = long_stayers
       )
+      
+      rm(list = setdiff(ls(all.names = TRUE), "res"))
+      
+      release_worker_memory()
+      
+      log_memory("after release mirai memory")
+      res
     }, .args =  list(dependency_filepath = qs2_filepath)
     ) %...>% (function(dq_pdde_results) {
       # Store results of DQ and PDDE ------------------------------------------
