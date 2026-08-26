@@ -5,8 +5,9 @@ output$changelog <- renderDT({
     ~ Change,
     "08-06-2026",
     "<b>Bug Fixes</b> <br>
-      - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
-      - Move HouseholdType filter on <strong>Exits by Subpopulation</strong> page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)",
+      - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)<br>
+      - Move HouseholdType filter on <strong>Exits by Subpopulation</strong> page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)<br>
+      - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
     "08-03-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
