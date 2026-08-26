@@ -49,8 +49,7 @@
       39,
       40,
       41,
-      42,
-      43
+      42
     ],
     "dq_org_guidance_summary_rows_current": [
       1,
@@ -233,9 +232,7 @@
       110,
       111,
       112,
-      113,
-      114,
-      115
+      113
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -597,7 +594,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 22ffde027d014ad91f13098152a14a03]",
+      "src": "[image data hash: dff6ad157a868dab96aac9709c96701d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -624,10 +621,10 @@
 
                 ],
                 "y": [
-                  "Conflicting Health Insurance yes/no at Exit",
                   "Oldest Household Member Under 12",
-                  "Conflicting Health Insurance yes/no at Entry",
                   "Missing Length of Stay",
+                  "Conflicting Health Insurance yes/no at Entry",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
@@ -674,7 +671,7 @@
       ]
     },
     "orgDQErrorByProject": {
-      "src": "[image data hash: 37bbe64ba305c1e91046a48ad5bdb37d]",
+      "src": "[image data hash: e4241f3a48bd38bf58fdb01d12016e27]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most General Errors.",
@@ -693,7 +690,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 102.3,
+              "right": 108.9,
               "bottom": 0.4,
               "top": 7.6,
               "discrete_limits": {
@@ -965,7 +962,7 @@
       ]
     },
     "orgDQWarningByProject": {
-      "src": "[image data hash: 07baba30a07569e4b97a2f84a49519bb]",
+      "src": "[image data hash: 6efcb91336620c585c07b4094ac614f1]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most Warnings.",
@@ -984,7 +981,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 243.1,
+              "right": 238.7,
               "bottom": 0.4,
               "top": 9.6,
               "discrete_limits": {
@@ -1046,32 +1043,32 @@
       "Type": {
         "High Priority": 3,
         "Error": 21,
-        "Warning": 19
+        "Warning": 18
       },
       "Issue": {
-        "Length": "43",
+        "Length": "42",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "43",
+        "Length": "42",
         "Class": "character",
         "Mode": "character"
       }
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "115",
+        "Length": "113",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
         "Error": 53,
-        "Warning": 57
+        "Warning": 55
       },
       "Issue": {
-        "Length": "115",
+        "Length": "113",
         "Class": "character",
         "Mode": "character"
       },
@@ -1079,8 +1076,8 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.704347826086957,
-        "3rd Qu.": 7,
+        "Mean": 8.858407079646017,
+        "3rd Qu.": 8,
         "Max.": 181
       }
     }
