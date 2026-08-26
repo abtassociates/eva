@@ -77,6 +77,9 @@ build_dependencies <- function(session) {
     unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)),
     envir = parent.env(environment())
   )
+  deps[["IncomeBenefits"]] <- deps[["IncomeBenefits"]] %>%
+    fsubset(DataCollectionStage %in% c(1,3))
+  
   deps[["session"]] <- list(
     token = session$token,
     userData = list(
@@ -125,7 +128,7 @@ dispatch_mirai_worker <- function(prepared) {
         log_memory("worker start")
       
         deps <- qs2::qs_read(paths)
-        
+        unlink(paths)
         log_memory("after qs_read")
           
         
@@ -133,6 +136,7 @@ dispatch_mirai_worker <- function(prepared) {
         
         # Populate environment with identical object names
         list2env(deps, envir = environment())
+        rn(deps)
         log_memory("after list2env")
         
         
@@ -161,9 +165,7 @@ dispatch_mirai_worker <- function(prepared) {
           benchmark_worker_rss_mb  = get_rss()
         )
         
-        log_memory("after res")
-        
-        rm(dq_main, overlap_details, outstanding_referrals, pdde_main, long_stayers)
+        rm(list = setdiff(ls(all.names = TRUE), "res"))
         
         log_memory("after rm")
         release_worker_memory()
@@ -242,6 +244,7 @@ run_benchmark_engine <- function(approach_name, deps, write_fn, n_runs = BENCHMA
                    approach_name, i, result$error_msg, result$traceback))
     }
     
+    browser()
     # 5. Record Row
     results[[i]] <- data.frame(
       approach                  = approach_name,
