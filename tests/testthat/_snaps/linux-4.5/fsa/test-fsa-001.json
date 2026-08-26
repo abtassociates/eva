@@ -512,7 +512,7 @@
         "No match in Enrollment.csv for EnrollmentID 741190. Key Info: IncomeBenefitsID 741190_3, InformationDate 2019-10-07",
         "No match in Client.csv for PersonalID 1086. Key Info: IncomeBenefitsID 741190_3, InformationDate 2019-10-07",
         "No match in ProjectCoC.csv for ProjectID 55. Key Info: InventoryID 2364, InventoryStartDate 2019-02-06",
-        "No match in Organization.csv for OrganizationID 6. Key Info: ",
+        "No match in Organization.csv for OrganizationID 6. Key Info: ProjectID 109",
         "No match in Enrollment.csv for EnrollmentID 782675. Key Info: ServicesID 4418624, DateProvided 2020-10-08",
         "No match in Client.csv for PersonalID 5966. Key Info: ServicesID 4418624, DateProvided 2020-10-08",
         "AffiliationID (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
