@@ -75,26 +75,26 @@ process_upload <- function(upload_filename, upload_filepath) {
       )
     )
 
-    qs2_file <- file.path(
+    qs2_fileath <- file.path(
       paste0(tempdir(), "/", session$token),
       "dependencies.qs2"
     )
-    dir.create(dirname(qs2_file), recursive = TRUE, showWarnings = FALSE)
+    dir.create(dirname(qs2_filepath), recursive = TRUE, showWarnings = FALSE)
     
     qs2::qs_save(
       dq_and_pdde_dependencies,
-      qs2_file
+      qs2_filepath
     )
     
     dq_pdde_mirai <- mirai({
       # Recreate the same named objects that .args
       # makes available to the worker.
-      deps <- qs2::qs_read(dependency_file)
-      unlink(dependency_file)
+      deps <- qs2::qs_read(dependency_filepath)
+      unlink(dependency_filepath)
       
       # Unpack into R datasets:
       list2env(deps, envir = environment())
-      
+      rm(deps)
       
       logToConsole(session, "About to run dq_mirai")
       source(here("rcode", "05_data_quality.R"), local = TRUE)
@@ -109,12 +109,12 @@ process_upload <- function(upload_filename, upload_filepath) {
         pdde_main = pdde_main,
         long_stayers = long_stayers
       )
-    }, .args =  list(dependency_file = qs2_file)
+    }, .args =  list(dependency_filepath = qs2_filepath)
     ) %...>% (function(dq_pdde_results) {
       # Store results of DQ and PDDE ------------------------------------------
       # dq_pdde_results <- .[]
 
-      unlink(qs2_file)
+      unlink(qs2_filepath)
       logToConsole(session, "saving DQ and PDDE results to session")
       session$userData$pdde_main <- dq_pdde_results$pdde_main
       session$userData$dq_main <- dq_pdde_results$dq_main
@@ -123,7 +123,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$long_stayers <- dq_pdde_results$long_stayers
       session$userData$dq_pdde_mirai_complete(1)
     }) %...!% {
-      unlink(qs2_file)
+      unlink(qs2_filepath)
       
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
