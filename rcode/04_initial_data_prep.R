@@ -348,6 +348,9 @@ activeInventory <- Inventory %>%
 IncomeBenefits <- IncomeBenefits %>%
   fsubset(DataCollectionStage %in% c(1,3))
 
+HealthAndDV <- HealthAndDV %>%
+  fsubset(DataCollectionStage %in% c(1,3))
+
 # Event (Used in DQ)
 Event <- Event %>% 
   fselect(
