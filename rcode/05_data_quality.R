@@ -234,8 +234,8 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
 hh_hoh_exit <- base_dq_data %>% 
   fgroup_by(HouseholdID) %>%
   fmutate(
-    nPeople = length(unique(PersonalID)), # GRPN()?
-    nExits = length(unique(ExitDate)),
+    nPeople = fnunique(PersonalID), 
+    nExits = fnunique(ExitDate),
     #earliestExitDate=fmin(ExitDate, na.rm=FALSE),
     lastExitDate=fmax(ExitDate, na.rm=FALSE)
   ) %>%
