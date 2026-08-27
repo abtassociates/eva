@@ -32,16 +32,21 @@ process_upload <- function(upload_filename, upload_filepath) {
       return(NULL)
     
     setProgress(detail = "Unzipping...", value = .10)
+    
     list_of_files <- unzip(
       zipfile = upload_filepath, 
       files = paste0(unique(cols_and_data_types$File), ".csv"),
       exdir = tempdir()
     )
+    
     # 01 -------------------
     setProgress(detail = "Reading your files..", value = .2)
 
+    log_memory("before extracting")
     err <- source_trycatch(here("rcode","01_get_export.R"))
     if(!is.null(err)) return(NULL)
+    log_memory("after extracting")
+    
     # 02 -------------------
     err <- source_trycatch(here("rcode","02_export_dates.R"))
     if(!is.null(err)) return(NULL)
@@ -58,11 +63,10 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     err <- source_trycatch(here("rcode","04_initial_data_prep.R"))
     if(!is.null(err)) return(NULL)
+    log_memory("after 04_initial_data_prep")
+    
     # 05 & 06 (MIRAI) -------------------
     setProgress(detail = "Assessing your data quality..", value = .7)
-    # source(here("sandbox/mirai_Test.R"), local=TRUE)
-    
-    log_memory("before dependencies")
     
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
     dq_and_pdde_dependencies[["session"]] <- list(
@@ -75,6 +79,15 @@ process_upload <- function(upload_filename, upload_filepath) {
       )
     )
 
+    deps_df_sizes <- data.frame(
+      object_size_mb = vapply(dq_and_pdde_dependencies, function(x) as.numeric(object.size(x)) / 1024^2, numeric(1)),
+      stringsAsFactors = FALSE
+    ) |> fselect(object_size_mb) |> fmutate(object_size_mb = round(object_size_mb, 1)) |> roworder(-object_size_mb)
+  
+    logToConsole(session, print(deps_df_sizes))
+    
+    logToConsole(session, paste0("Total dependency size: ", fsum(deps_df_sizes$object_size_mb), "MB"))
+                 
     qs2_filepath <- file.path(
       paste0(tempdir(), "/", session$token),
       "dependencies.qs2"
@@ -87,23 +100,27 @@ process_upload <- function(upload_filename, upload_filepath) {
     )
     rm(dq_and_pdde_dependencies)
     
-    log_memory("after qs save")
+    log_memory("before calling mirai")
     
     dq_pdde_mirai <- mirai({
       # Recreate the same named objects that .args
       # makes available to the worker.
+      log_memory("initial start")
       deps <- qs2::qs_read(dependency_filepath)
       unlink(dependency_filepath)
       
       # Unpack into R datasets:
       list2env(deps, envir = environment())
       rm(deps)
+      log_memory("after dependencies read in")
       
       logToConsole(session, "About to run dq_mirai")
       source(here("rcode", "05_data_quality.R"), local = TRUE)
+      log_memory("after 05_data_quality")
       
       logToConsole(session, "About to run pdde_mirai")
       source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
+      log_memory("after 06_PDDE_checker")
       
       res <- list(
         dq_main = dq_main,
@@ -132,6 +149,8 @@ process_upload <- function(upload_filename, upload_filepath) {
       session$userData$outstanding_referrals <- dq_pdde_results$outstanding_referrals
       session$userData$long_stayers <- dq_pdde_results$long_stayers
       session$userData$dq_pdde_mirai_complete(1)
+      
+      log_memory("after mirai returns results")
     }) %...!% {
       unlink(qs2_filepath)
       
@@ -139,6 +158,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
       if(IN_DEV_MODE) browser()
     }
+    
     # 07 -------------------
     ## if only project type is HP (12), skip System Overview script and hide Sys Perf tab
     if(all(EnrollmentAdjust$ProjectType == 12)){
@@ -264,6 +284,8 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     toggle_sys_components(prefix='sys', session$userData$valid_file() == 1)
     toggle_sys_components(prefix = 'syse', session$userData$valid_file() == 1)
+    
+    log_memory(paste0("Upload processing complete. Mirai still processing? ", mirai::unresolved(dq_pdde_mirai)))
   })
 }
 
