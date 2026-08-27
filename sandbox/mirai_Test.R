@@ -76,6 +76,7 @@ build_dependencies <- function(session) {
   deps <- mget(
     unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)),
     envir = parent.env(environment())
+  )
   
   deps[["session"]] <- list(
     token = session$token,
