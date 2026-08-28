@@ -7,7 +7,13 @@ output$changelog <- renderDT({
     "<b>Bug Fixes</b> <br>
       - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
       - Move HouseholdType filter on <strong>Exits by Subpopulation</strong> page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)<br>
-      - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.",
+      - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.<br>
+      - Handling character columns with problematic characters.<br>
+      - Handling nulls in Export.<br>
+    <b>Miscellaneous</b> <br>
+      - Added an Empty File initially-invalid check.<br>
+      - Some FSA, DQ, and PDDE checks superseded by new specs-driven checks.<br>
+      - Added detail to Impermissible Character issues in FSA export.",
     "08-03-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
