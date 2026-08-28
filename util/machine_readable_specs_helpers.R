@@ -11,7 +11,7 @@ record_type_list_lookup = c(
   "300" = "C2.2"
 )
 
-# Null Unless checks --------------
+# Dependent Field Data Collection Issue checks --------------
 clean_rule_for_null_unless <- function(Name, validation_notes) {
   stringi::stri_replace_all_fixed(
     gsub("^Null unless ", "", validation_notes),
@@ -70,7 +70,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     # Skip if the dataset is empty
     if (fnrow(dt) == 0) return(NULL)
     
-    # Apply prerequisite joins (e.g., bringing in Funder for Null Unless checks)
+    # Apply prerequisite joins (e.g., bringing in Funder for Dependent Field Data Collection Issue checks)
     dt <- join_prereqs(dt, csv_name, envir = data_env)
     
     # Get the specific rules for this CSV
@@ -99,7 +99,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       
       # For null-unless, add conditional funder+project type reqs
       # that is, we only run the check if the Funder and ProjectType match the specs
-      if(rule_row$Issue == "Null Unless") {
+      if(rule_row$Issue == "Dependent Field Data Collection Issue") {
         nu <- null_unless_additional_reqs |>
           fsubset(CSV == csv_name & Name == rule_row$Name & (!is.na(Funder) | !is.na(ProjectType)))
         
@@ -245,7 +245,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
     ) %>%
     fmutate(
       Priority = fcase(
-        DataTypeHighPriority == 1 & !(Name == "RaceNone" & Issue == "Invalid Value(s)"), "High Priority",
+        DataTypeHighPriority == 1 & !(Name == "RaceNone" & Issue == "Non-Null Dependency Logic Issue"), "High Priority",
         Priority == "Warning", "Warning", 
         default = "Error"
       )

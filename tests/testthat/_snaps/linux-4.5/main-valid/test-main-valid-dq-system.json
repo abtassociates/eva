@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: 68eac5b909ac64f93d9828ae80d16c2b]",
+      "src": "[image data hash: b6ba42003d71f82722119c314307a313]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -148,8 +148,8 @@
 
                 ],
                 "y": [
-                  "Null Unless",
-                  "Nulls not allowed",
+                  "Dependent Field Data Collection Issue",
+                  "Nulls Not Allowed",
                   "Not Null When",
                   "Duplicate Entries",
                   "Too Many Heads of Household",

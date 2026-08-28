@@ -547,11 +547,11 @@
     },
     "file_structure_analysis_main": {
       "Issue": [
-        "Invalid Value(s)",
-        "Invalid Value(s)",
-        "Invalid Value(s)",
-        "Invalid Value(s)",
-        "Invalid Value(s)",
+        "Non-Null Dependency Logic Issue",
+        "Non-Null Dependency Logic Issue",
+        "Non-Null Dependency Logic Issue",
+        "Non-Null Dependency Logic Issue",
+        "Non-Null Dependency Logic Issue",
         "Invalid Non-Null Value"
       ],
       "Priority": [
@@ -563,12 +563,12 @@
         "Error"
       ],
       "Guidance": [
-        "All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the Specifications for the column identified in the Detail and ensure all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications.",
-        "All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the Specifications for the column identified in the Detail and ensure all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications.",
-        "All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the Specifications for the column identified in the Detail and ensure all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications.",
-        "All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the Specifications for the column identified in the Detail and ensure all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications.",
-        "All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the Specifications for the column identified in the Detail and ensure all values in the export align with the associated values list found in 'Appendix B - Lists' of the Specifications.",
-        "The value entered in HMIS for this field is invalid. Please review the HMIS CSV Format Specifications for this field's associated value list"
+        "Per the HMIS CSV Format Specifications, certain fields have dependency logic that indicate the field must either be null or have a non-null value based on the value(s) in other related field(s). Please review the Specifications for the column identified in the Detail and ensure all values in the export align with dependency logic and the column's associated values list.",
+        "Per the HMIS CSV Format Specifications, certain fields have dependency logic that indicate the field must either be null or have a non-null value based on the value(s) in other related field(s). Please review the Specifications for the column identified in the Detail and ensure all values in the export align with dependency logic and the column's associated values list.",
+        "Per the HMIS CSV Format Specifications, certain fields have dependency logic that indicate the field must either be null or have a non-null value based on the value(s) in other related field(s). Please review the Specifications for the column identified in the Detail and ensure all values in the export align with dependency logic and the column's associated values list.",
+        "Per the HMIS CSV Format Specifications, certain fields have dependency logic that indicate the field must either be null or have a non-null value based on the value(s) in other related field(s). Please review the Specifications for the column identified in the Detail and ensure all values in the export align with dependency logic and the column's associated values list.",
+        "Per the HMIS CSV Format Specifications, certain fields have dependency logic that indicate the field must either be null or have a non-null value based on the value(s) in other related field(s). Please review the Specifications for the column identified in the Detail and ensure all values in the export align with dependency logic and the column's associated values list.",
+        "The value entered in HMIS for this field is invalid. All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the HMIS CSV Format Specifications for this column's associated value list."
       ],
       "Detail": [
         "RaceNone (in Client.csv) should be NA. Key Info: PersonalID 673817",

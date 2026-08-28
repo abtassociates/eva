@@ -4,12 +4,12 @@
 # - Check 2: Incorrect Data Type
 # - Check 3: Impermissible Characters
 # - Check 4-8 (evaluated in run_templatable_validaitons): 
-#     Value length exceeds character limit
-#     Nulls not allowed (based on the Null column not being Y)
+#     Value Length Exceeds Column Character Limit
+#     Nulls Not Allowed (based on the Null column not being Y)
 #     Invalid Non-Null Value
 #       the easy case to check is when there's a list of valid values
 #       there are special cases with more nuanced conditions
-#     Duplicate unique identifiers
+#     Duplicate Unique Identifier
 #     FSA-Foreign Key checks
 # These are all HP, except Affiliaton > ProjectID, Affiliation > ResdProjectID, and CEParticipation > ProjectID, which are errors)
 
