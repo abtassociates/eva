@@ -1,3 +1,4 @@
+# RUN THIS WHEN THE SPECS OR EVACHECKS OR COLUMN PRIORITIES CHANGE
 source(here("util","hardcodes.R"))
 source(here("util","machine_readable_specs_helpers.R"))
 source(here("util","helper_functions.R"))
