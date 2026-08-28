@@ -1,11 +1,3 @@
-library(here)
-library(lubridate)
-library(dplyr)
-library(collapse)
-library(data.table)
-library(readxl)
-library(tidyr)
-
 source(here("util","hardcodes.R"))
 source(here("util","machine_readable_specs_helpers.R"))
 source(here("util","helper_functions.R"))
@@ -161,12 +153,12 @@ valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na
 # Special cases: these are cases that could not be easily codified directly from the specs
 special_validation_rules <- list(
   Affiliation = list(
-    "Identifier does not match across files" = list(
+    "Identifier Does Not Match Across CSV Files" = list(
       ResProjectID = quote(.join == "dt")
     )
   ),
   CEParticipation = list(
-    "Invalid Value(s)" = list(
+    "Non-Null Dependency Logic Issue" = list(
       PreventionAssessment = quote((is.na(PreventionAssessment) & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & PreventionAssessment != 0)),
       CrisisAssessment     = quote((is.na(CrisisAssessment)     & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & CrisisAssessment != 0)),
       HousingAssessment    = quote((is.na(HousingAssessment)    & AccessPoint == 1) | (fcoalesce(AccessPoint, -1) != 1 & HousingAssessment != 0)),
@@ -174,7 +166,7 @@ special_validation_rules <- list(
     )
   ),
   Client = list(
-    "Invalid Value(s)" = list(
+    "Non-Null Dependency Logic Issue" = list(
       RaceNone = quote(
         !is.na(RaceNone) & 
           (rowSums(do.call(cbind, mget(intersect(race_cols, ls()))) == 1, na.rm = TRUE) > 0)
@@ -182,7 +174,7 @@ special_validation_rules <- list(
     )
   ),
   CurrentLivingSituation = list(
-    "Nulls not allowed" = list(
+    "Nulls Not Allowed" = list(
       VerifiedBy = quote(is.na(VerifiedBy) & ProjectType == 14)
     ),
     "Invalid Non-Null Value" = list(
@@ -214,7 +206,7 @@ special_validation_rules <- list(
       SessionCountAtExit = quote(SessionCountAtExit > 0),
       Destination = quote(Destination %in% c(336,335,37))
     ),
-    "Null Unless" = list(
+    "Dependent Field Data Collection Issue" = list(
       SessionCountAtExit = quote(CounselingReceived == 1)
     )
   ),
@@ -225,12 +217,12 @@ special_validation_rules <- list(
       SourceContactExtension = quote(!grepl("^[0-9]{1,5}$", SourceContactExtension)),
       SourceContactEmail     = quote(!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", SourceContactEmail))
     ),
-    "Nulls not allowed" = list(
+    "Nulls Not Allowed" = list(
       SourceName = quote(SourceType != 1 & is.na(SourceName))
     )
   ),
   Inventory = list(
-    "Identifier does not match across files" = list(
+    "Identifier Does Not Match Across CSV Files" = list(
       CoCCode = quote(
         ProjectType %in% project_types_w_beds & 
         ((ProjectType == rrh_project_type & RRHSubType == 2) | ProjectType != rrh_project_type) &
@@ -260,7 +252,7 @@ special_validation_rules <- list(
         )
       )
     ),
-    "Null Unless" = list(
+    "Dependent Field Data Collection Issue" = list(
       SubTypeProvided = quote(RecordType == 144 & TypeProvided %in% c(3, 4, 5))
     )
   )
@@ -370,8 +362,8 @@ csv_join_prerequisites <- list(
   )
 )
 
-# Funder- and Project-Type specific Null Unless Fields -------------------
-# These are fields for whose Null checks (as part of the Null Unless checks)
+# Funder- and Project-Type specific Dependent Field Data Collection Issue Fields -------------------
+# These are fields for whose Null checks (as part of the Dependent Field Data Collection Issue checks)
 # should only apply when Funder in c(13:19)
 null_unless_additional_reqs <-  readxl::read_xlsx(validation_specs_bk, sheet = "NullUnless - Additional Reqs") |>
   qDT() |>
@@ -392,16 +384,16 @@ specs_rules <- cols_and_data_types %>%
   # Initialize an empty list column to hold the parsed expressions
   fmutate(rule_expr = list(NULL))
 
-## 1. Null Unless  ------------
+## 1. Dependent Field Data Collection Issue  ------------
 library(glue)
 specs_rules[
-  Issue == "Null Unless",
+  Issue == "Dependent Field Data Collection Issue",
   validation_notes := str_split_i(validation_notes, "\r\n", 1)
 ][
-  Issue == "Null Unless",
+  Issue == "Dependent Field Data Collection Issue",
   codified_rule := Map(clean_rule_for_null_unless, Name, validation_notes)
 ][
-  Issue == "Null Unless",
+  Issue == "Dependent Field Data Collection Issue",
   `:=`(
     rule_expr = unlist(
       purrr::map2(Name, codified_rule, ~rlang::parse_expr(glue("null_unless({.x}, {.y}) | not_null_when({.x}, {.y})")))
@@ -410,9 +402,9 @@ specs_rules[
   )
 ]
 
-## 2. Value length exceeds character limit -----------
+## 2. Value Length Exceeds Column Character Limit -----------
 specs_rules[
-  Issue == "Value length exceeds character limit", 
+  Issue == "Value Length Exceeds Column Character Limit", 
   rule_expr := Map(function(col, limit) 
     rlang::parse_expr(glue::glue("vlengths({col}) > {limit}")),
     Name, 
@@ -420,9 +412,9 @@ specs_rules[
   )
 ]
 
-## 3. Nulls not allowed -----------
+## 3. Nulls Not Allowed -----------
 specs_rules[
-  Issue == "Nulls not allowed", 
+  Issue == "Nulls Not Allowed", 
   rule_expr := lapply(Name, function(col) 
     rlang::parse_expr(glue::glue("is.na({col})"))
   )
@@ -439,9 +431,9 @@ specs_rules[
   )
 ]
 
-## 5. Identifier does not match across files -----------
+## 5. Identifier Does Not Match Across CSV Files -----------
 specs_rules[
-  Issue == "Identifier does not match across files",
+  Issue == "Identifier Does Not Match Across CSV Files",
   `:=`(
     fk_id_col   = sub(".*Must match a ([^ ]+) in [^ ]+\\.csv.*", "\\1", validation_notes),
     foreign_tbl = sub(".*Must match a [^ ]+ in ([^ ]+)\\.csv.*", "\\1", validation_notes)
@@ -449,7 +441,7 @@ specs_rules[
 ]
 
 specs_rules[
-  Issue == "Identifier does not match across files", 
+  Issue == "Identifier Does Not Match Across CSV Files", 
   rule_expr := Map(function(c, fc, ft)
    rlang::parse_expr(glue::glue("!is.na({c}) & !({c} %in% get('{ft}')[['{fc}']])")), 
    Name, 
@@ -459,11 +451,11 @@ specs_rules[
 ]
 
 # ignore User ID
-specs_rules <- specs_rules[!(Issue == "Identifier does not match across files" & Name == "UserID")]
+specs_rules <- specs_rules[!(Issue == "Identifier Does Not Match Across CSV Files" & Name == "UserID")]
 
-## 6. Duplicate unique identifiers ---------
+## 6. Duplicate Unique Identifier ---------
 specs_rules[
-  Issue == "Duplicate unique identifiers", 
+  Issue == "Duplicate Unique Identifier", 
   rule_expr := lapply(Name, function(col)
     # Using all = TRUE ensures BOTH the original and the duplicate are flagged
     rlang::parse_expr(glue::glue("fduplicated({col}, all = TRUE)"))
