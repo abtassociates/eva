@@ -139,46 +139,59 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       )) |>
         na_omit()
       
+      # 1. Determine key info and resolve the templates beforehand
+      has_key_fields     <- !is.na(rule_row$`Key Fields`) && nzchar(trimws(rule_row$`Key Fields`))
+      is_fsa_with_anchor <- (target_source == "FSA") && !is.na(rule_row$AnchorID) && nzchar(trimws(rule_row$AnchorID))
       
+      if (has_key_fields) {
+        key_template <- stringi::stri_replace_all_regex(rule_row$`Key Fields`, "([A-Za-z0-9_.]+)", "$1 {$1}")
+        detail_template <- stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template)
+      } else if (is_fsa_with_anchor) {
+        # Format AnchorID as the key field: "AnchorID {AnchorID}"
+        key_template <- paste0(rule_row$AnchorID, " {", rule_row$AnchorID, "}")
+        detail_template <- stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "{Key Field Info}", key_template)
+      } else {
+        key_template <- ""
+        # Strip the entire "Key Info: {Key Field Info}" clause and trim excess whitespace
+        detail_template <- stringi::stri_replace_all_fixed(rule_row$`Detail Text`, "Key Info: {Key Field Info}", "")
+        detail_template <- trimws(detail_template)
+      }
+      
+      # Replace {Value} with {Column_Name}
+      detail_template <- stringi::stri_replace_all_fixed(detail_template, "{Value}", paste0("{", rule_row$Name, "}"))
+      
+      # Resolve List
+      resolved_list <- if (is.na(rule_row$List)) {
+        eval(
+          parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == (rule_row$Name), rule_text]), 
+          envir = invalid_dt
+        )
+      } else {
+        rule_row$List
+      }
+      
+      
+      # 2. Build the data table
       invalid_dt_full <- invalid_dt |>
         fselect(cols_to_select) |>
         funique() |>
         fmutate(
-          CSV = csv_name,
-          Name = rule_row$Name,      # Renaming 'Name' to 'Column' for the final output
-          List = if(is.na(rule_row$List))
-            eval(parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name]$rule_text), envir = invalid_dt)
-          else
-            rule_row$List,
-          Issue = rule_row$Issue,
-          Guidance = rule_row$Guidance,
-          Priority = rule_row$Priority,
-          foreign_tbl = rule_row$foreign_tbl,
-          AnchorID = rule_row$AnchorID,
-          str_len_limit = rule_row$str_len_limit,
-          validation_notes = rule_row$validation_notes,
+          CSV                       = csv_name,
+          Name                      = rule_row$Name,
+          List                      = resolved_list,
+          Issue                     = rule_row$Issue,
+          Guidance                  = rule_row$Guidance,
+          Priority                  = rule_row$Priority,
+          foreign_tbl               = rule_row$foreign_tbl,
+          AnchorID                  = rule_row$AnchorID,
+          str_len_limit             = rule_row$str_len_limit,
+          validation_notes          = rule_row$validation_notes,
           readable_validation_notes = rule_row$readable_validation_notes,
-          key_template = fifelse(
-            is.na(rule_row$`Key Fields`), 
-            if(target_source == "FSA" && !is.na(rule_row$AnchorID)) 
-              gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$AnchorID) 
-            else 
-              "",
-            gsub("([A-Za-z0-9_.]+)", "\\1 {\\1}", rule_row$`Key Fields`)
-          ),
-          detail_template = stringi::stri_replace_all_fixed(
-            rule_row$`Detail Text`, 
-            fifelse(
-              key_template == "",
-              "Key Info: {Key Field Info}",
-              "{Key Field Info}"
-            ), 
-            key_template
-          ),
-          detail_template = stringi::stri_replace_all_fixed(detail_template, "{Value}", paste0("{", Name, "}"))
+          key_template              = key_template,
+          detail_template           = detail_template
         )
       
-      if(rule_row$Issue == "Null Unless") {
+      if(rule_row$Issue == "Dependent Field Data Collection Issue") {
         cond <- paste0("(", rule_row$codified_rule, ") & is.na(", rule_row$Name, ")")
         invalid_dt_full <- invalid_dt_full |>
           # Handle Not Null When
