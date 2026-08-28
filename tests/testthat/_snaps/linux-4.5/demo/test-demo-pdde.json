@@ -102,6 +102,11 @@
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
+    "pdde_summary_table_search_columns": [
+      "",
+      "",
+      ""
+    ],
     "pdde_summary_table_state": {
       "start": 0,
       "length": 10,
@@ -297,11 +302,12 @@
     },
     "pdde_summary_table": {
       "x": {
-        "filter": "none",
+        "filter": "top",
         "vertical": false,
+        "filterHTML": "<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
         "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Priority<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
-          "dom": "t",
+          "dom": "ltpi",
           "columnDefs": [
             {
               "targets": 2,
@@ -329,9 +335,10 @@
           ],
           "autoWidth": false,
           "orderClasses": false,
+          "orderCellsTop": true,
           "ajax": {
             "type": "POST",
-            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = false;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
           },
           "serverSide": true,
           "processing": true
@@ -380,6 +387,34 @@
           "attachment": null,
           "package": null,
           "all_files": false
+        },
+        {
+          "name": "nouislider",
+          "version": "7.0.10",
+          "src": {
+            "href": "nouislider-7.0.10"
+          },
+          "meta": null,
+          "script": "jquery.nouislider.min.js",
+          "stylesheet": "jquery.nouislider.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "selectize",
+          "version": "0.12.0",
+          "src": {
+            "href": "selectize-0.12.0"
+          },
+          "meta": null,
+          "script": "selectize.min.js",
+          "stylesheet": "selectize.bootstrap3.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
         },
         {
           "name": "crosstalk",

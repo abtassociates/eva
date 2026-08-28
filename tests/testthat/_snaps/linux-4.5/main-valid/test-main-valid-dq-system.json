@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: c515f600873dcd9cbc5283aae5e368b0]",
+      "src": "[image data hash: 344a9c7ee6b4ad24daf86be8c229cc3c]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -73,7 +73,7 @@
                 "y": [
                   "Incomplete Living Situation Data",
                   "Conflicting Health Insurance yes/no at Entry",
-                  "Not Null When",
+                  "Dependent Field Data Collection Issue",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: b6ba42003d71f82722119c314307a313]",
+      "src": "[image data hash: ba29c373427107ee644bb86aaed2a401]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -142,15 +142,14 @@
               "left": 0,
               "right": 726,
               "bottom": 0.4,
-              "top": 6.6,
+              "top": 5.6,
               "discrete_limits": {
                 "x": [
 
                 ],
                 "y": [
-                  "Dependent Field Data Collection Issue",
                   "Nulls Not Allowed",
-                  "Not Null When",
+                  "Dependent Field Data Collection Issue",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
                   "Missing Relationship to Head of Household"
