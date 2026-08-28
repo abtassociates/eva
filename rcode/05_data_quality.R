@@ -1411,7 +1411,7 @@ health_insurance_subs <- base_dq_data_inc %>%
   ) %>%
   replace_na(value = 0, cols = hi_cols) %>%
   fmutate(
-    SourceCount = reduce(hi_cols, `+`, na.rm = TRUE)
+    SourceCount = Reduce(`+`, gv(., hi_cols))
   ) %>%
   fsubset((InsuranceFromAnySource == 1 &
             SourceCount == 0) |
