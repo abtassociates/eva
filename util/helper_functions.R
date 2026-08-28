@@ -795,19 +795,3 @@ intentional_stop <- function(session, message) {
     )
   )
 }
-
-
-# Memory tracking
-get_rss <- function() {
-  status <- readLines("/proc/self/status")
-  as.numeric(
-    sub("VmRSS:\\s+([0-9]+) kB", "\\1", status[grep("^VmRSS:", status)])
-  ) / 1024^2
-}
-log_memory <- function(session, label) {
-  logToConsole(session, sprintf(
-    "[MEMORY] %-40s %.2f GB",
-    label,
-    get_rss()
-  ))
-}
