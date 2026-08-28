@@ -65,6 +65,17 @@ output$downloadPDDEReport <- downloadHandler(
   }
 )
 
+dq_pdde_datatable <- function(dt) {
+  datatable(
+    dt, 
+    rownames = FALSE,
+    escape = FALSE,
+    filter = list(position = 'top', plain = TRUE),
+    options = list(dom = 'ltpi'),
+    style = "default"
+  )
+}
+
 # summary table
 output$pdde_summary_table <- renderDT({
   req(session$userData$dq_pdde_mirai_complete() == 1)
@@ -84,13 +95,7 @@ output$pdde_summary_table <- renderDT({
   
   exportTestValues(pdde_summary_table = summarize_df(a))
   
-  datatable(
-    a,
-    rownames = FALSE,
-    filter = 'none',
-    options = list(dom = 't'),
-    style = "default"
-  ) %>%
+  dq_pdde_datatable(a) %>%
     # Format Count to display with commas
     formatCurrency(columns = "Count", currency = "", digits = 0, mark = ",") 
 })
@@ -109,19 +114,12 @@ output$pdde_guidance_summary <- renderDT({
   
   guidance <- session$userData$pdde_main %>%
     fselect(Priority, Issue, Guidance) %>%
-    roworder(Priority, Issue) %>%
-    funique()
+    funique() %>%
+    roworder(Priority, Issue)
   
   exportTestValues(pdde_guidance_summary = summarize_df(guidance))
   
-  datatable(
-    guidance, 
-    rownames = FALSE,
-    escape = FALSE,
-    filter = list(position = 'top', plain = TRUE),
-    options = list(dom = 'ltpi'),
-    style = "default"
-  )
+  dq_pdde_datatable(guidance)
 })
 
 
@@ -155,13 +153,7 @@ output$dq_organization_summary_table <- renderDT({
   
   exportTestValues(dq_organization_summary_table = summarize_df(a))
   
-  datatable(
-    a,
-    rownames = FALSE,
-    filter = list(position = 'top', plain = TRUE),
-    options = list(dom = 'ltpi'),
-    style = "default"
-  ) %>%
+  dq_pdde_datatable(a) %>%
     # Format Count to display with commas
     formatCurrency(columns = "Clients", currency = "", digits = 0, mark = ",") 
 })
@@ -181,19 +173,12 @@ output$dq_org_guidance_summary <- renderDT({
   guidance <- session$userData$dq_main %>%
     fsubset(OrganizationName %in% c(input$orgList)) %>%
     fselect(Priority, Issue, Guidance) %>%
-    roworder(Priority, Issue) %>%
-    funique()
+    funique() %>%
+    roworder(Priority, Issue)
   
   exportTestValues(dq_org_guidance_summary = summarize_df(guidance))
   
-  datatable(
-    guidance, 
-    rownames = FALSE,
-    escape = FALSE,
-    filter = list(position = 'top', plain = TRUE),
-    options = list(dom = 'ltpi'),
-    style = "default"
-  )
+  dq_pdde_datatable(guidance)
 })
 
 # Download Org DQ Report --------------------------------------------------
