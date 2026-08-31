@@ -118,8 +118,9 @@ process_upload <- function(upload_filename, upload_filepath) {
       }
     }
     
+    # 08 ---------------------------
     setProgress(detail = "Preparing Inventory and Utilization Data", value = .95)
-    source("08_inv_util.R", local = TRUE) 
+    source(here("rcode", "08_inv_util.R"), local = TRUE) 
     
     setProgress(detail = "Done!", value = 1)
     

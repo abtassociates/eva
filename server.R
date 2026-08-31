@@ -157,7 +157,7 @@ function(input, output, session) {
   source(here("rcode", "server_07.2.3_syse_subpop.R"), local = TRUE)
   source(here("rcode", "server_07.2.4_syse_phd.R"), local = TRUE)
   
-  source("server_09_inv_util.R", local = TRUE)
+  source(here("rcode","server_08_inv_util.R"), local = TRUE)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
