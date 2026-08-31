@@ -24,6 +24,14 @@
 
 logToConsole(session, "Running initial data prep")
 
+# Only care about DataCollectionStages 1 and 3. 
+# filtering early to reduce memory usage: these are often large files
+IncomeBenefits <- IncomeBenefits %>%
+  fsubset(DataCollectionStage %in% c(1,3))
+
+HealthAndDV <- HealthAndDV %>%
+  fsubset(DataCollectionStage %in% c(1,3))
+
 # Project data ------------------------------------------------------------
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
@@ -344,12 +352,6 @@ activeInventory <- Inventory %>%
     fcoalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
-
-IncomeBenefits <- IncomeBenefits %>%
-  fsubset(DataCollectionStage %in% c(1,3))
-
-HealthAndDV <- HealthAndDV %>%
-  fsubset(DataCollectionStage %in% c(1,3))
 
 # Event (Used in DQ)
 Event <- Event %>% 
