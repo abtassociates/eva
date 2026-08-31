@@ -856,7 +856,6 @@ observeEvent(input$system_level_box, {
   req(session$userData$valid_file() == 1)
   logMetadata(session, paste0("Clicked on ", input$system_level_box,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-  print(input$system_level_box)
   if(grepl("Utilization", input$system_level_box )){
     disable(id = "bui_dedicated")
   }else{
@@ -1179,7 +1178,6 @@ output$sys_bui_sum_hh_util <- renderDT({
   req(session$userData$valid_file() == 1 )
   
   data <- summary_sys(pivot_var = "HouseholdType", util = TRUE) 
-  print(data)
   if(input$bui_period_filter_sys == "Points in Time"){
     data <- data %>% fgroup_by(PIT, label) %>% fmutate( 
       `Total Bed Utilization` = 100*fsum(Served)/fsum(HMIS_Beds),
