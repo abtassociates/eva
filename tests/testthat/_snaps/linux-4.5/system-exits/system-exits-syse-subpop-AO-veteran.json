@@ -1,6 +1,12 @@
 {
   "input": {
     "pageid": "tabSystemExits",
+<<<<<<< HEAD
+=======
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_project_type": "LHRes",
+>>>>>>> dev
     "syse_subpop_age": [
       "0 to 12",
       "13 to 17",
@@ -15,6 +21,7 @@
       "Unknown"
     ],
     "syse_subpop_age_selection": false,
+    "syse_subpop_hh_type": "AO",
     "syse_subpop_race_eth_selection": false,
     "syse_subpop_race_ethnicity1": "All",
     "syse_subpop_race_ethnicity2": "All",

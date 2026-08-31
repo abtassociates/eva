@@ -465,6 +465,10 @@
           "dom": "ltpi",
           "columnDefs": [
             {
+              "targets": 3,
+              "render": "function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatCurrency(data, \"\", 0, 3, \",\", \".\", true, null);\n  }"
+            },
+            {
               "className": "dt-right",
               "targets": 3
             },
@@ -506,6 +510,7 @@
         }
       },
       "evals": [
+        "options.columnDefs.0.render",
         "options.ajax.data"
       ],
       "jsHooks": [

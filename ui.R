@@ -14,7 +14,8 @@ page_navbar(
   header = tagList(
     ## css, idle management, and dimension management --------
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      includeCSS(here("www/custom.css")),
+      # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
       tags$script(HTML(
@@ -350,18 +351,18 @@ page_navbar(
     ## [Client counts] Project Dashboard tab ----------------
     nav_panel(
       title = "Project Dashboard",
-      value = "tabClientCount",
+      value = "tabProjectDashboard",
       card(
         card_title(
-          htmlOutput("headerClientCounts")
+          htmlOutput("headerProjectDashboard")
         )
       ),
       accordion(
-        id = 'accordion_client_count',
+        id = 'accordion_project_dashboard',
         open = FALSE,
         accordion_panel(
           title = "Instructions",
-          tabClientCount_instructions
+          tabProjectDashboard_instructions
         )
       ),
       br(),
@@ -388,7 +389,7 @@ page_navbar(
                                     container = 'body')
           ),
           conditionalPanel(
-            condition = "input.client_count_subtabs=='<h4>Timeliness</h4>'",
+            condition = "input.project_dashboard_subtabs=='<h4>Timeliness</h4>'",
             numericInput(inputId = 'timeliness_metric',
                          label = 'Timeliness: Max Record Entry Days',
                          value = 3,
@@ -398,13 +399,13 @@ page_navbar(
       ),
       
       navset_card_underline(
-        id = 'client_count_subtabs',
+        id = 'project_dashboard_subtabs',
         
         nav_panel(
           title = headerTab("Client Counts"),
           
-          navset_card_underline(
-            id = "client_count_cc_subtabs",
+          navset_underline(
+            id = "project_dashboard_cc_subtabs",
             nav_panel(
               title = headerSubTab("Summary"),
               DTOutput("clientCountSummary")
@@ -418,34 +419,11 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
-          navset_card_underline(
-            id = "client_count_ti_subtabs",
+          navset_underline(
+            id = "project_dashboard_tl_subtabs",
             nav_panel(
               title = headerSubTab("Record Entry"),
-              layout_column_wrap(
-                width = "250px",
-                fill = FALSE,
-                
-                value_box(
-                  title = "Median Days to Project Start Data Entry",
-                  value = textOutput("timeliness_vb1_val"),
-                  showcase = bs_icon("calendar-plus"),
-                  theme = "text-primary",
-                  class = "border-primary"
-                ),
-                value_box(
-                  title = "Median Days to Project Exit Data Entry",
-                  value = textOutput("timeliness_vb2_val"),
-                  showcase = bs_icon("calendar-minus"),
-                  theme = "text-primary",
-                  class = "border-primary"
-                ),
-                uiOutput("timeliness_vb3", fill = TRUE)
-                
-              ),
-              br(),
-              DTOutput("timelinessTable")
-              
+              uiOutput("timeliness_record_entry")
             )
           )
           
@@ -453,7 +431,7 @@ page_navbar(
         
         nav_spacer(),
         nav_item(
-          uiOutput("downloadClientCountsReportButton", inline = TRUE)
+          uiOutput("downloadProjectDashboardReportButton", inline = TRUE)
         )
       )
       # card(
@@ -730,89 +708,396 @@ page_navbar(
             col_widths=c(6,6),
             gap = 0,
             card(
-              id = 'syso_filters_left',
-              style='border-width:0;border-radius:0',
-              layout_columns(
-                col_widths = c(4,4,4,6,6),
-                fill = T,
-                
-                pickerInput(
-                  label = "Household Type",
-                  inputId = "syso_hh_type",
-                  choices = sys_hh_types,
-                  selected = sys_hh_types[1],
-                  options = pickerOptions(container = "body")
-                ),
-                pickerInput(
-                  label = "Level of Detail",
-                  inputId = "syso_level_of_detail",
-                  choices = sys_level_of_detail,
-                  selected = sys_level_of_detail[1],
-                  options = pickerOptions(container = "body")
-                ),
-                pickerInput(
-                  label = "Project Type Group",
-                  inputId = "syso_project_type",
-                  choices = sys_project_types,
-                  selected = sys_project_types[1],
-                  options = pickerOptions(container = "body")
-                ),
-                pickerInput(
-                  inputId = "syso_age",
-                  label = "Age",
-                  selected = sys_age_cats,
-                  choices = sys_age_cats,
-                  multiple = TRUE,
-                  options = pickerOptions(
-                    actionsBox = TRUE,
-                    selectedTextFormat = paste("count >", length(sys_age_cats)-1),
-                    countSelectedText = "All Ages",
-                    noneSelectedText = "All Ages",
-                    container = "body"
-                  )
-                ),
-                pickerInput(
-                  label = "Veteran Status",
-                  inputId = "syso_spec_pops",
-                  choices = sys_spec_pops_people,
-                  selected = sys_spec_pops_people[1],
-                  options = pickerOptions(container = "body")
-                )
-              )
+              strong("Select Demographic Crosstab Categories (up to 2)"),
+              p(str_glue(
+                "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+              )),
+              checkboxGroupInput(
+                "system_composition_selections",
+                label = "",
+                choices = sys_heatmap_selection_choices,
+                selected = c("All Races/Ethnicities", "Age"),
+                inline = TRUE
+              ),
+              width = 12
             ),
-            card(
-              id = 'syso_card_filters_right',
-              style="border-width:0;border-left-width: 1px; border-radius:0",
-              layout_columns(
-                col_widths = c(12,12),
-                pickerInput(
-                  label = "Race/Ethnicity Methodology Type",
-                  inputId = "syso_methodology_type",
-                  multiple = FALSE,
-                  selected = sys_methodology_types[1],
-                  choices = sys_methodology_types,
-                  options = pickerOptions(container = "body")
-                ),
-                pickerInput(
-                  label = "Race/Ethnicity",
-                  inputId = "syso_race_ethnicity",
-                  choices = sys_race_ethnicity_method1,
-                  selected = sys_race_ethnicity_method1,
-                  options = list(
-                    `dropdown-align-right` = TRUE,
-                    `dropup-auto` = FALSE,
-                    container = "body"
-                  )
-                )
-              )
-            )
+            br(),
+            uiOutput("sys_comp_summary_selections",inline = TRUE),
+            plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+          ),
+          nav_panel(
+            title = headerSubTab("Information"),
+            br(),
+            tab_sys_comp_subtabs_information
+            
           )
+        ),
+        downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
+        downloadButton("sys_comp_download_btn_ppt", "Image Download")
+      )
+      
+      ),
+      downloadButton("client_level_download_btn", "Client Level Download")
     
+    
+    ),
+
+# System Exits tab --------------------------------------------------------
+nav_panel(
+  title = "System Exits",
+  value = "tabSystemExits",
+  icon = icon('door-open'),
+  
+  card(
+    htmlOutput("headerSystemExit")
+  ),
+  accordion(
+    id = 'accordion_systemexits',
+    open = FALSE,
+    accordion_panel(
+      title = 'Instructions',
+      tabSystemExits_instructions
+    )
+  ),
+  br(),
+  ## Filters --------------
+  card(
+    card_header(headerCard('Filters')),
+    layout_columns(
+      col_widths=c(6,6),
+      gap = 0,
+      card(
+        id = 'syse_filters_left',
+        div(
+          pickerInput(
+            label = "Household Type",
+            inputId = "syse_hh_type",
+            choices = sys_hh_types,
+            selected = sys_hh_types[1],
+            width = "100%",
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            label = "Level of Detail",
+            inputId = "syse_level_of_detail",
+            choices = sys_level_of_detail,
+            selected = sys_level_of_detail[1],
+            width = "100%",
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            label = "Project Type Group",
+            inputId = "syse_project_type",
+            choices = sys_project_types,
+            selected = sys_project_types[1],
+            width = "100%",
+            options = pickerOptions(container = "body")
+          )
         ),
         
-        navset_card_underline(
-          id = 'syso_tabbox',
+        div(
+          pickerInput(
+            inputId = "syse_age",
+            label = "Age",
+            selected = sys_age_cats,
+            choices = sys_age_cats,
+            multiple = TRUE,
+            width = "100%",
+            options = pickerOptions(
+              actionsBox = TRUE,
+              selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+              countSelectedText = "All Ages",
+              noneSelectedText = "All Ages",
+              container = "body"
+            )
+          ),
+          pickerInput(
+            label = "Veteran Status",
+            inputId = "syse_spec_pops",
+            choices = sys_spec_pops_people,
+            selected = sys_spec_pops_people[1],
+            width = "100%",
+            options = pickerOptions(container = "body")
+          )
+        )
+      ),
+      card(
+        id = 'syse_filters_right',
+        layout_columns(
+          col_widths = c(12,12),
+          pickerInput(
+            label = "Race/Ethnicity Methodology Type",
+            inputId = "syse_methodology_type",
+            multiple = FALSE,
+            selected = sys_methodology_types[1],
+            choices = sys_methodology_types,
+            options = pickerOptions(container = "body")
+          ),
+          pickerInput(
+            label = "Race/Ethnicity",
+            inputId = "syse_race_ethnicity",
+            choices = sys_race_ethnicity_method1,
+            selected = sys_race_ethnicity_method1,
+            options = list(
+              `dropdown-align-right` = TRUE,
+              `dropup-auto` = FALSE,
+              container = "body"
+            )
+          )
+        )
+      )
+    )
+    
+  ),
+  
+  navset_card_underline(
+    id = 'syse_tabbox',
+    
+    nav_panel(
+      title = headerTab('Exits by Type'),
+      
+      navset_underline( 
+        id = "syse_types_subtabs",
+        selected = headerSubTab("Chart"),
+        
+        nav_panel(
+          title = headerSubTab("Chart"),
+          uiOutput("syse_types_filter_selections") %>%
+            withSpinner(),
           
+          plotOutput("syse_types_ui_chart",
+                     #width = "75%"
+                     height = "700px"
+          ) %>%
+            withSpinner()
+        ),
+        nav_panel(
+          title = headerSubTab("Information"),
+          br(),
+          tab_syse_types_subtabs_information
+        )
+      ),
+      downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
+      downloadButton("syse_types_download_btn_ppt", "Image Download")
+    ),
+    nav_panel(
+      title = headerTab('Exits by Year'),
+      navset_underline(
+        id = "syse_time_subtabs",
+        selected = headerSubTab('Chart'),
+        nav_panel(
+          title = headerSubTab('Chart'),
+          uiOutput("syse_compare_time_filter_selections") %>%
+            withSpinner(),
+          div(
+            style='margin-left:17px;',
+            plotOutput("syse_compare_time_chart",
+                       width = "92%",
+                       height = "500"
+            ) %>% withSpinner()
+          ),
+          
+          DTOutput("syse_compare_time_table") %>%
+            withSpinner()
+        ),
+        nav_panel(
+          title = headerSubTab('Information'),
+          br(),
+          tab_syse_time_chart_information
+        )
+      ),
+      downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
+      downloadButton("syse_time_download_btn_ppt", "Image Download")
+    ),
+    
+    nav_panel(
+      title = headerTab('Exits by Subpopulation'),
+      navset_underline(
+        id = "syse_subpop_subtabs",
+        selected = headerSubTab('Chart'),
+        nav_panel(
+          title = headerSubTab('Chart'),
+          card(
+            strong("Select Demographic Crosstab Categories (up to 2) and a Destination Type"),
+            HTML("<p>Select one demographic category to view totals within that group, or two categories to create a crosstab showing intersections between groups. To change your selection, uncheck a category before selecting a new one. You may also apply a Household Type filter, which functions as an additional grouping.</p>
+                        <br>
+                        <p>Select a destination type to determine which exit outcomes are displayed.</p>"
+            ),
+            br(),
+            div(
+              id = "syse_subpop_crosstab_selectors", 
+              
+              # ==========================================
+              # GROUP 1: Household Type
+              # ==========================================
+              div(
+                id = "syse_subpop_hh_type_container",
+                div(class = "label", "Household Type"),
+                div(
+                  pickerInput(
+                    inputId = "syse_subpop_hh_type",
+                    label = NULL, 
+                    choices = sys_hh_types,
+                    selected = sys_hh_types[1],
+                    width = "100%",
+                    options = pickerOptions(container = "body")
+                  )
+                )
+              ),
+              
+              # ==========================================
+              # GROUP 2: The Three Checkboxes
+              # ==========================================
+              layout_columns(
+                class = "syse_subpop_other_container",
+                col_widths = c(3,3,6),
+                # --- Column 1: Age ---
+                div(
+                  checkboxInput('syse_subpop_age_selection', 'Age'),
+                  div(
+                    id = 'age_picker',
+                    pickerInput(
+                      inputId = "syse_subpop_age",
+                      label = NULL,
+                      selected = sys_age_cats,
+                      choices = sys_age_cats,
+                      multiple = TRUE,
+                      options = pickerOptions(
+                        actionsBox = TRUE,
+                        selectedTextFormat = paste("count >", length(sys_age_cats)-1),
+                        countSelectedText = "",
+                        noneSelectedText = "None Selected",
+                        container = "body"
+                      )
+                    )
+                  )
+                ),
+                
+                # --- Column 2: Veteran Status ---
+                div(
+                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
+                  div(
+                    id = 'vet_picker',
+                    pickerInput(
+                      label = NULL,
+                      inputId = "syse_subpop_spec_pops",
+                      choices = setNames(
+                        sys_spec_pops_people,
+                        nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                      ),
+                      selected = "None Selected",
+                      options = pickerOptions(container = "body")
+                    )
+                  )
+                ),
+                
+                # --- Column 3: Race/Ethnicity ---
+                div(
+                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
+                  div(
+                    id = 'race_eth_picker',
+                    conditionalPanel(
+                      condition = 'input.syse_methodology_type == 1',
+                      pickerInput(
+                        label = NULL,
+                        inputId = "syse_subpop_race_ethnicity1",
+                        choices = setNames(
+                          sys_race_ethnicity_method1,
+                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
+                        ),
+                        selected = "None Selected",
+                        options = list(
+                          `dropdown-align-right` = TRUE,
+                          `dropup-auto` = FALSE,
+                          container = "body",
+                          noneSelectedText = "-"
+                        )
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = 'input.syse_methodology_type == 2',
+                      pickerInput(
+                        label = NULL,
+                        inputId = "syse_subpop_race_ethnicity2",
+                        choices = setNames(
+                          sys_race_ethnicity_method2,
+                          c("None Selected", names(sys_race_ethnicity_method2)[-1])
+                        ),
+                        selected = "None Selected",
+                        options = list(
+                          `dropdown-align-right` = TRUE,
+                          `dropup-auto` = FALSE,
+                          container = "body",
+                          noneSelectedText = "-"
+                        )
+                      )
+                    )
+                  )
+              ) # End of Group 2
+            ),
+            br(),
+            radioGroupButtons(
+              inputId = "subpop_dest_type",
+              label = "Destination Type",
+              choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
+              #Inactive
+              selected = "Permanent",
+              individual = TRUE
+            ), 
+            width = 12
+          ),
+          br(),
+          uiOutput("syse_compare_subpop_filter_selections") %>%
+            withSpinner(),
+          div(
+            style='margin-left:17px;',
+            plotOutput("syse_compare_subpop_chart",
+                       width = "92%",
+                       height = "500")
+          ),
+          
+        ),
+        nav_panel(
+          title = headerSubTab('Information'),
+          br(),
+          tab_syse_subpop_chart_information
+        )
+      ),
+      downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
+      downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+    ),
+        ),
+        nav_panel(
+          title = headerSubTab("Chart"),
+          card(
+            strong("Select Demographic Crosstab Categories (up to 2)"),
+            p(str_glue(
+              "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+            )),
+            checkboxGroupInput(
+              "syse_phd_selections",
+              label = "",
+              choices = sys_heatmap_selection_choices,
+              selected = c("All Races/Ethnicities", "Age"),
+              inline = TRUE
+            ),
+            width = 12
+          ),
+          br(),
           ### System Flow -------------
           nav_panel(
             id = 'syso_inflowoutflow',
