@@ -288,22 +288,6 @@ Enrollment <- Enrollment %>%
 
 rm(HHMoveIn)
 
-# Only contains EEs within Operating and Participating Dates --------------
-# to be used for system data analysis purposes. has been culled of enrollments
-# that fall outside of participation/operation date ranges.
-
-EnrollmentAdjust <- Enrollment %>%
-  fsubset(
-    !EnrollmentvParticipating %in% c(
-      "Enrollment After Participating Period",
-      "Enrollment Before Participating Period"
-    ) &
-      !EnrollmentvOperating %in% c(
-        "Enrollment After Operating Period",
-        "Enrollment Before Operating Period"
-      )
-  )
-
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
