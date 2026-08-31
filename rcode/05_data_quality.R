@@ -236,8 +236,8 @@ hh_hoh_exit <- base_dq_data %>%
   fmutate(
     nPeople = fnunique(PersonalID), 
     nExits = fnunique(ExitDate),
-    #earliestExitDate=fmin(ExitDate, na.rm=FALSE),
-    lastExitDate=fmax(ExitDate, na.rm=FALSE)
+    #earliestExitDate=fmin(ExitDate, na.rm=TRUE),
+    lastExitDate=fmax(ExitDate, na.rm=TRUE)
   ) %>%
   fungroup() %>% # get HOH of households with more than one person and exit date
   fsubset(RelationshipToHoH == 1 &  nPeople > 1 & nExits > 1 & 
