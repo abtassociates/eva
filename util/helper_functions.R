@@ -456,7 +456,7 @@ nice_names_timeliness <- function(df, record_type){
 
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
-  data <- read_csv(paste0(directory, "data/", filename)
+  data <- readr::read_csv(paste0(directory, "data/", filename)
                    ,col_types = get_expected_rclasses(csvFile)
                    ,na = ""
   )
@@ -794,4 +794,48 @@ intentional_stop <- function(session, message) {
       class = c("intentional_stop", "error", "condition")
     )
   )
+}
+
+add_response_val_detail <- function(df, ...) {
+  # 1. Capture all unquoted column names passed via ...
+  col_names <- sapply(as.list(substitute(list(...))[-1]), deparse)
+  
+  if (length(col_names) == 0) return(df)
+  
+  # Helper to resolve text for a single column
+  get_text_for_col <- function(col_name) {
+    target_list <- cols_and_data_types[Name == col_name, List][1]
+    lookup_dt   <- valid_values_df[List == target_list]
+    
+    val_vec     <- as.character(df[[col_name]])
+    lookup_vals <- as.character(lookup_dt$Value)
+    
+    matched_text <- lookup_dt$Text[match(val_vec, lookup_vals)]
+    
+    # Fallback to code if text not found, or NA if input is NA
+    fifelse(!is.na(matched_text) & matched_text != "", 
+            matched_text, 
+            fifelse(!is.na(val_vec), paste0("[Code: ", val_vec, "]"), NA_character_))
+  }
+  
+  # 2. Get decoded text for each variable
+  all_texts <- lapply(col_names, get_text_for_col)
+  
+  # 3. Format the detail string
+  if (length(col_names) == 1) {
+    # Single variable format: "Response value: Client doesn't know"
+    details <- paste0("Response value: ", all_texts[[1]])
+  } else {
+    # Multiple variables format: "Response value: Var1: Client doesn't know | Var2: No"
+    formatted_cols <- mapply(function(name, vals) {
+      paste0(name, " (", vals, ")")
+    }, col_names, all_texts, SIMPLIFY = FALSE)
+    
+    # Combine columns row-wise with " | " separator
+    combined <- do.call(paste, c(formatted_cols, sep = ", "))
+    details  <- paste0("Response values: ", combined)
+  }
+  
+  # 4. Attach to df
+  df %>% fmutate(Detail = details)
 }

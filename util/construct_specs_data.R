@@ -109,7 +109,8 @@ valid_values_df <- readxl::read_excel(validation_specs_bk, sheet = "CSV Lists FY
         List
       )
     )
-  )
+  ) %>%
+  qDT()
 
 # Convert to a named list, where the names are the unique values of `List` and the values are the vector of `Value`s.
 valid_values <- split(valid_values_df$Value, valid_values_df$List)
@@ -476,7 +477,7 @@ saveRDS(
   list(
     specs_rules = specs_rules, 
     reporting_info = reporting_info, 
-    valid_values = valid_values,
+    valid_values_df = valid_values_df,
     cols_and_data_types = cols_and_data_types,
     csv_join_prerequisites = csv_join_prerequisites,
     invalid_non_null_dynamic_lists_dt = invalid_non_null_dynamic_lists_dt,
