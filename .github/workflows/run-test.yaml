@@ -52,8 +52,6 @@ jobs:
             libwebp-dev
   
       - uses: r-lib/actions/setup-renv@v2
-        with:
-          cache-version: 2 # bump cache key to ensure clean slate
   
       - name: Restore dependencies from source
         shell: Rscript {0}
