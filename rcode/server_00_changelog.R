@@ -61,7 +61,10 @@ output$changelog <- renderDT({
   datatable(changelog_dt, rownames = F, escape = F, 
             options = list(dom = 'tip', 
                            # group table by date of changes
-                           rowGroup = list(dataSrc=0)
+                           rowGroup = list(dataSrc=0),
+                           columnDefs = list(
+                             list(targets = 0, visible = FALSE)
+                           )
                            ), 
             style = 'default',selection='none', filter='top', extensions = 'RowGroup')
   
