@@ -18,22 +18,25 @@ jobs:
     name: shiny-test-automation
 
     env:
-      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      RENV_CONFIG_INSTALL_BUILD: "qs2,RcppParallel"
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: "true"
       RENV_CONFIG_INSTALL_TRANSACTIONAL: "false"
+      TESTTHAT_MAX_FAILS: "Inf"
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-r@v2
+        id: setup-r
         with:
           r-version: 'renv'
           use-public-rspm: false          
 
+      # Prevent ABI mismatches: GHA's Ubuntu runner comes with system Intel TBB headers
+      # (/usr/include/tbb). Purging them ensures g++ compiles qs2 exclusively against 
+      # RcppParallel's bundled oneTBB headers, avoiding '_ZTIN3tbb4taskE' undefined symbol errors.
+      # qs2 was using GitHub's TBB
       - name: Purge system TBB headers
-        run: |
-          sudo apt-get purge -y 'libtbb*' || true
-          sudo rm -rf /usr/include/tbb /usr/local/include/tbb /usr/include/oneapi
+        run: sudo rm -rf /usr/include/tbb /usr/local/include/tbb
 
       - name: Install system dependencies
         if: runner.os != 'Windows'
@@ -51,27 +54,16 @@ jobs:
             libwebp-dev
 
       - uses: r-lib/actions/setup-renv@v2
-        with:
-          cache-version: "v4-source-cran"
-          
-      - name: remove max fails
-        run: |
-          testthat::set_max_fails(Inf)
-        shell: Rscript {0}
       
       - uses: rstudio/shinytest2/actions/test-app@v1
         with:
           app-dir: "."
           upload-snapshots: true
           
-      - name: Get R version
-        id: r-version
-        run: echo "R_VERSION=$(Rscript --vanilla -e 'cat(R.version$major, R.version$minor, sep=".")')" >> $GITHUB_ENV
-        shell: bash
-  
+      # 4. Upload artifacts on failure (safely captures installed R version)
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-${{ env.R_VERSION }}-tests
+          name: ${{ runner.os }}-R-${{ steps.setup-r.outputs.installed-r-version }}-tests
           path: tests
