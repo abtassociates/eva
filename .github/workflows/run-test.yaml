@@ -27,32 +27,18 @@ jobs:
         with:
           r-version: 'renv'
 
-      # - name: install needed system libs
-      #   if: runner.os != 'Windows'
-      #   shell: bash
-      #   run: |
-      #    sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
-  
-      - name: Purge system TBB packages
+      - name: install needed system libs
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
-          sudo apt-get purge -y 'libtbb*' || true
-          sudo rm -rf /usr/include/tbb /usr/local/include/tbb
+         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libcurl4-openssl-dev \
-            libharfbuzz-dev \
-            libfribidi-dev \
-            libfreetype6-dev \
-            libpng-dev \
-            libtiff5-dev \
-            libjpeg-dev \
-            libwebp-dev
-  
       - uses: r-lib/actions/setup-renv@v2
-  
+        with:
+          cache-version: 3  # Increment this number to force a fresh cache
+        env:
+          RENV_CONFIG_INSTALL_BINARY: "false"
+
       - name: remove max fails
         run: |
           testthat::set_max_fails(Inf)
