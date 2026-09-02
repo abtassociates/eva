@@ -27,17 +27,43 @@ jobs:
         with:
           r-version: 'renv'
 
-      - name: install needed system libs
-        if: runner.os != 'Windows'
-        shell: bash
+      # - name: install needed system libs
+      #   if: runner.os != 'Windows'
+      #   shell: bash
+      #   run: |
+      #    sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
+  
+      - name: Purge system TBB packages
         run: |
-         sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
-              
-      - name: Restore renv dependencies from source
-        run: Rscript -e 'renv::restore(rebuild = TRUE)'
+          sudo apt-get purge -y 'libtbb*' || true
+          sudo rm -rf /usr/include/tbb /usr/local/include/tbb
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev \
+            libharfbuzz-dev \
+            libfribidi-dev \
+            libfreetype6-dev \
+            libpng-dev \
+            libtiff5-dev \
+            libjpeg-dev \
+            libwebp-dev
   
       - uses: r-lib/actions/setup-renv@v2
-      
+        with:
+          cache-version: 2 # bump cache key to ensure clean slate
+  
+      - name: Restore dependencies from source
+        shell: Rscript {0}
+        run: |
+          # Set repository to canonical source CRAN
+          options(repos = c(CRAN = "https://cloud.r-project.org"))
+          # Re-install RcppParallel and qs2 from source to ensure header/library parity
+          renv::install(c("RcppParallel@6.2.0", "qs2@0.2.2"), type = "source", rebuild = TRUE)
+          renv::restore()
+          
       - name: remove max fails
         run: |
           testthat::set_max_fails(Inf)
