@@ -53,15 +53,6 @@ jobs:
   
       - uses: r-lib/actions/setup-renv@v2
   
-      - name: Restore dependencies from source
-        shell: Rscript {0}
-        run: |
-          # Set repository to canonical source CRAN
-          options(repos = c(CRAN = "https://cloud.r-project.org"))
-          # Re-install RcppParallel and qs2 from source to ensure header/library parity
-          renv::install(c("RcppParallel@6.2.0", "qs2@0.2.2"), type = "source", rebuild = TRUE)
-          renv::restore()
-          
       - name: remove max fails
         run: |
           testthat::set_max_fails(Inf)
