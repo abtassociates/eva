@@ -33,6 +33,9 @@ jobs:
         run: |
          sudo apt install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libwebp-dev
               
+      - name: Restore renv dependencies from source
+        run: Rscript -e 'renv::restore(rebuild = TRUE)'
+  
       - uses: r-lib/actions/setup-renv@v2
       
       - name: remove max fails
