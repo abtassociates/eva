@@ -69,6 +69,13 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
     suppress_values("n") %>%
     suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
+  validate(
+    need(
+      fsum(plot_df$n) > 0,
+      message = all_data_suppressed_msg
+    )
+  )
+  
   return(
     ggplot(plot_df  %>% fmutate(n= ifelse(is.na(n) & wasRedacted, 0, n)), aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
@@ -237,10 +244,11 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
   validate(
     need(
       fsum(plot_df$n) > 0,
-      message = no_data_msg
+      message = all_data_suppressed_msg
     )
   )
-  g <- ggplot(plot_df %>% fmutate(n = NA), aes(.data[[selections[1]]], .data[[selections[2]]])) +
+  
+  g <- ggplot(plot_df %>% fmutate(n = ifelse(is.na(n) & wasRedacted, 0, n)), aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
     geom_tile(
       color = '#f0f0f0',
