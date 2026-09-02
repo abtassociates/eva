@@ -19,7 +19,8 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      
+      RENV_CONFIG_INSTALL_BUILD: "qs2,RcppParallel"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -35,10 +36,8 @@ jobs:
 
       - uses: r-lib/actions/setup-renv@v2
         with:
-          cache-version: 3  # Increment this number to force a fresh cache
-        env:
-          RENV_CONFIG_INSTALL_BINARY: "false"
-
+          cache-version: 4  # Increment this number to force a fresh cache
+          
       - name: remove max fails
         run: |
           testthat::set_max_fails(Inf)
