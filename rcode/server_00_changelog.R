@@ -27,29 +27,28 @@ convert_changelog_to_tbl <- function(md_fname){
                        ),
                        text = chg_text)
   
-  chg_df2 <- chg_df |> 
-    filter(type != 'blank') |> 
-    mutate(sec_h2 = ifelse(type == 'h2', str_remove(text,'## ') , NA), 
-           sec_h3 = ifelse(type == 'h3', str_remove(text,'### '), NA)) |> 
-    fill(sec_h2,sec_h3, .direction = 'down') |> 
-    mutate(sec_h3 = ifelse(type == 'h2', NA, sec_h3)) |> 
+  chg_df2 <- chg_df %>%
+    fsubset(type != 'blank') %>% 
+    fmutate(sec_h2 = ifelse(type == 'h2', str_remove(text,'## ') , NA), 
+           sec_h3 = ifelse(type == 'h3', str_remove(text,'### '), NA)) %>% 
+    fill(sec_h2,sec_h3, .direction = 'down') %>% 
+    fmutate(sec_h3 = ifelse(type == 'h2', NA, sec_h3)) %>% 
     ## collapse entries with multiple bullet points into one string, with line breaks
-    group_by(sec_h2,sec_h3, type) |> 
-    mutate(value = ifelse(type %in% c('item','sub_item'), paste0(text, collapse='<br>'), NA)) |> 
-    ungroup()
-  
+    fgroup_by(sec_h2,sec_h3, type) %>% 
+    fmutate(value = ifelse(type %in% c('item','sub_item'), paste0(text, collapse='<br>'), NA)) %>% 
+    fungroup()
   chg_df3 <- chg_df2 %>% 
     ## filter out non-relevant headings and clean up final columns
-    filter(!is.na(sec_h2), !is.na(value),!is.na(sec_h3), value!="NA") %>% 
-    group_by(sec_h2,sec_h3,type) |> 
-    summarize(first_text=first(value)) |> 
-    ungroup() |> 
-    select(-type) |> 
-    select(Date = sec_h2, Category = sec_h3, Changes = first_text) |> 
-    mutate(Date = as.Date(Date), 
+    fsubset(!is.na(sec_h2) & !is.na(value) & !is.na(sec_h3) & value!="NA") %>% 
+    fgroup_by(sec_h2,sec_h3,type) %>% 
+    fsummarize(first_text=first(value)) %>% 
+    fungroup() %>% 
+    fselect(-type) %>% 
+    fselect(Date = sec_h2, Category = sec_h3, Changes = first_text) %>% 
+    fmutate(Date = as.Date(Date), 
            Category = as.factor(str_trim(Category)),
-           Changes = str_squish(Changes)) |> 
-    arrange(desc(Date))
+           Changes = str_squish(Changes)) %>% 
+    roworder(-Date)
   
   return(chg_df3)  
 }

@@ -6,7 +6,7 @@
 ### Bug Fixes
  - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
  - Move HouseholdType filter on Exits by Subpopulation page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)
- - Added new DQ check \"Enrollment During Non-Participation Period\" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks \"Enrollment After HMIS Participating Period\" and \"Enrollment Before HMIS Participating Period\"
+ - Added new DQ check "Enrollment During Non-Participation Period" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks "Enrollment After HMIS Participating Period" and "Enrollment Before HMIS Participating Period"
  
 ### New Features
  - Added DQ Timeliness metrics for Coordinated Entry Assessment and Event records on the Project Dashboard Report
