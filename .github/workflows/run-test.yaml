@@ -20,6 +20,7 @@ jobs:
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RENV_CONFIG_INSTALL_BUILD: "qs2,RcppParallel"
+      RENV_CONFIG_INSTALL_TRANSACTIONAL: "false"
 
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +28,11 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'renv'
+
+      - name: Purge system TBB headers
+        run: |
+          sudo apt-get purge -y 'libtbb*' || true
+          sudo rm -rf /usr/include/tbb /usr/local/include/tbb /usr/include/oneapi
 
       - name: install needed system libs
         if: runner.os != 'Windows'
@@ -36,7 +42,7 @@ jobs:
 
       - uses: r-lib/actions/setup-renv@v2
         with:
-          cache-version: 4  # Increment this number to force a fresh cache
+          cache-version: "v2-source-build"
           
       - name: remove max fails
         run: |
