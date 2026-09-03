@@ -709,7 +709,8 @@ latest_enrollments_all_proj <- reactive({
   
   if (fnrow(enrollment_w_project_type) > 0) {
     enrollment_w_project_type |>
-      fgroup_by(ProjectID, PersonalID, EntryDate) |>
+      roworder(ProjectID, PersonalID, EntryDate) |>
+      fgroup_by(ProjectID, PersonalID) |>
       fslice(how = "last") |>
       fungroup()
   } else {
