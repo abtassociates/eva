@@ -937,13 +937,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
 }
 
 # ==========================================
-# 5. DETAIL TAB DATA TABLE GENERATION
+# 5. DETAIL TAB DATA TABLE GENERATION + DOWNLOADS
 # ==========================================
-# Universal table builder for UI Data Table and Download tabs
-# ==============================================================================
-# FAST BATCH METRIC BUILDER FOR MULTIPLE / ALL PROJECTS
-# ==============================================================================
-
 build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE) {
   if (fnrow(proj_table) == 0) {
     return(list(summary = data.table(), detail = data.table()))
