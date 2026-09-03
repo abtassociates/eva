@@ -3,6 +3,9 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "09-17-2026",
+    "<b>Bug Fixes</b> <br>
+      - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
     "09-03-2026",
     "<b>Bug Fixes</b> <br>
       - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>) <br>
