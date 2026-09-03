@@ -3,6 +3,17 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
+    "08-19-2026",
+    "<b>Bug Fixes</b> <br>
+      - Removed enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check <br>
+      - Added new DQ check \"Enrollment During Non-Participation Period\" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks \"Enrollment After HMIS Participating Period\" and \"Enrollment Before HMIS Participating Period\" <br>
+ 
+     <b>New Features</b> <br>
+     - Added DQ Timeliness metrics for Coordinated Entry Assessment and Event records on the Project Dashboard Report <br>
+ 
+     <b>Miscellaneous</b> <br>
+     - Moved HouseholdType filter on Exits by Subpopulation page to the chart selector section <br>
+    - Updated language in the System Performance Glossary <br>",
     "08-06-2026",
     "<b>New Features</b> <br>
       - New Project Dashboard tab containing performance metrics for selected project <br>
