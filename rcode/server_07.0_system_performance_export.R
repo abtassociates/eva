@@ -388,15 +388,16 @@ sys_perf_ppt_export <- function(file,
   return(print(ppt, target = file))
 }
 
-# Handle System Overview/System Exits exports
 register_sys_export_server <- function(id_prefix, input, output, session) {
   export_config <- get(paste0(id_prefix, "_export_config")) # found in hardcodes.R
   display_name  <- if (id_prefix == "syso") "System Overview" else "System Exits"
   output_id     <- paste0(id_prefix, "_export_act")
   
   # Reactive flags to break feedback loops between master and sub-checkboxes
-  updating_ppt  <- reactiveVal(FALSE)
-  updating_data <- reactiveVal(FALSE)
+  updating <- reactiveValues(
+    xlsx = FALSE,
+    pptx = FALSE
+  )
   
   # 1. Evaluate active selections
   selected_reports <- reactive({
@@ -459,93 +460,55 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
     }
   )
   
-  # Keep output bindings active when dropdown is closed
-  # outputOptions(output, output_id, suspendWhenHidden = FALSE)
-  
-  
-  # 3. POWERPOINT COLUMN OBSERVERS (Bidirectional)
-  
-  # Downward Cascade: Master -> Sub-checkboxes
-  observeEvent(input[[paste0(id_prefix, "_export_all_ppt")]], {
-    # If the master changed because of a sub-checkbox update, reset the flag and exit
-    if (updating_ppt()) {
-      updating_ppt(FALSE)
-      return()
-    }
+  get_sub_checkbox_ids <- function(ext) {
+    ext_items <- Filter(\(item) item$ext == paste0(".", ext), export_config)
+    sub_ids <- vapply(ext_items, \(item) get_sys_export_id(id_prefix, item), character(1))
+    return(sub_ids)
+  }
+  # Handle System Overview/System Exits exports
+  master_to_sub_cascade <- function(ext) {
+    master_id <- paste0(id_prefix, "_export_all_", ext)
+    sub_ids <- get_sub_checkbox_ids(ext)
     
-    val <- input[[paste0(id_prefix, "_export_all_ppt")]]
-    for (item in export_config) {
-      if (item$ext == ".pptx") {
-        input_id <- get_sys_export_id(id_prefix, item)
-        updateCheckboxInput(session, input_id, value = val)
+    observeEvent(input[[master_id]], {
+      req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
+      
+      # If the master changed because of a sub-checkbox update, reset the flag and exit
+      if (updating[[ext]]) {
+        updating[[ext]] <- FALSE
+        return()
       }
-    }
-  })
-  
-  # Upward Sync: Sub-checkboxes -> Master
-  observe({
-    ppt_vals <- sapply(export_config, function(item) {
-      if (item$ext == ".pptx") {
-        input_id <- get_sys_export_id(id_prefix, item)
-        input[[input_id]]
-      } else {
-        NULL
+      
+      for(id in sub_ids) {
+        updateCheckboxInput(session, id, value = input[[master_id]])
       }
     })
-    ppt_vals <- unlist(Filter(Negate(is.null), ppt_vals))
+  }
+  
+  sub_to_master_cascade <- function(ext) {
+    master_id   <- paste0(id_prefix, "_export_all_", ext)
+    sub_ids <- get_sub_checkbox_ids(ext)
     
-    if (length(ppt_vals) > 0) {
-      all_checked <- all(ppt_vals)
-      master_id   <- paste0(id_prefix, "_export_all_ppt")
+    observeEvent(lapply(sub_ids, \(id) input[[id]]), {
+      req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
+      
+      all_checked <- all(vapply(sub_ids, \(id) isTRUE(input[[id]]), logical(1)))
       
       if (!is.null(input[[master_id]]) && isTRUE(input[[master_id]]) != all_checked) {
-        updating_ppt(TRUE) # Raise flag before programmatic update
+        updating[[ext]] <- TRUE # Raise flag before programmatic update
         updateCheckboxInput(session, master_id, value = all_checked)
-      }
-    }
-  })
-  
-  
-  # 4. DATA COLUMN OBSERVERS (Bidirectional)
-  
-  # Downward Cascade: Master -> Sub-checkboxes
-  observeEvent(input[[paste0(id_prefix, "_export_all_data")]], {
-    if (updating_data()) {
-      updating_data(FALSE)
-      return()
-    }
-    
-    val <- input[[paste0(id_prefix, "_export_all_data")]]
-    for (item in export_config) {
-      if (item$ext == ".xlsx") {
-        input_id <- get_sys_export_id(id_prefix, item)
-        updateCheckboxInput(session, input_id, value = val)
-      }
-    }
-  })
-  
-  # Upward Sync: Sub-checkboxes -> Master
-  observe({
-    data_vals <- sapply(export_config, function(item) {
-      if (item$ext == ".xlsx") {
-        input_id <- get_sys_export_id(id_prefix, item)
-        input[[input_id]]
-      } else {
-        NULL
       }
     })
-    data_vals <- unlist(Filter(Negate(is.null), data_vals))
-    
-    if (length(data_vals) > 0) {
-      all_checked <- all(data_vals)
-      master_id   <- paste0(id_prefix, "_export_all_data")
-      
-      if (!is.null(input[[master_id]]) && isTRUE(input[[master_id]]) != all_checked) {
-        updating_data(TRUE) # Raise flag before programmatic update
-        updateCheckboxInput(session, master_id, value = all_checked)
-      }
-    }
-  })
+  }
+  
+  # Toggle sub-checkboxes when master is checked
+  master_to_sub_cascade("pptx")
+  master_to_sub_cascade("xlsx")
+  
+  # Toggle master based on sub-checkboxes
+  sub_to_master_cascade("pptx")
+  sub_to_master_cascade("xlsx")
+  
 }
 
 source(here("rcode", "server_07.0_system_performance_client_level_export.R"), local=TRUE)
