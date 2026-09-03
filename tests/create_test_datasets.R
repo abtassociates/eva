@@ -5,8 +5,11 @@ library(tidyverse)
 library(zip)
 library(here)
 library(collapse)
+library(data.table)
 source(here("util","hardcodes.R"), local = TRUE)
 source(here("util","helper_functions.R"), local = TRUE)
+source(here("util","machine_readable_specs_helpers.R"), local = TRUE)
+load_specs()
 
 # unzip main test data to temp directory. 
 # this will allow us to overwrite individual csv files
@@ -32,14 +35,15 @@ names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(names(csv_files), importFile, upload_filepath = here("tests/FY26-test-good.zip"))
 names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
+# AS 2/10/26: Commenting this out because with the new machine-readable specs, we're checking these files, too
 # remove unused files
-original_data <- original_data[!names(original_data) %in% c("Affiliation",
-                                                            "AssessmentResults",
-                                                            "AssessmentQuestions",
-                                                            "Disabilities")]
+# original_data <- original_data[!names(original_data) %in% c("Affiliation",
+#                                                             "AssessmentResults",
+#                                                             "AssessmentQuestions",
+#                                                             "Disabilities")]
 # store a reduced-size dataset (1 row per csv file)
 # we don't need so much data for initially valid import checks
-reduced_data <- lapply(original_data, function(x) if(nrow(x)) x[1, ])
+reduced_data <- lapply(original_data, function(x) x[1, ])
 
 dir.create(here("tests/temp/reduced"), showWarnings = FALSE)
 
@@ -95,45 +99,57 @@ gz1 <- gzfile(here("tests/temp/FY26-test-wrong-file-type.gz"), "w")
 write.csv(data.frame(), gz1)
 Sys.sleep(1)
 close(gz1)
+
 ############### VALID FILES #################
+# Initial Fixes to pass machine-readable specs
+if("TcellCount" %in% names(original_data$Disabilities))
+  original_data$Disabilities <- original_data$Disabilities |>
+    frename(
+      TCellCount = TcellCount,
+      TCellSource = TcellSource
+    )
+
+original_data$Disabilities <- original_data$Disabilities |>
+  fsubset(EnrollmentID != "696923") # fixes non-matching enrollment issue
+
+original_data$Enrollment <- original_data$Enrollment |>
+  colorder(DateCreated, DateUpdated, UserID, DateDeleted, ExportID, pos="end") # fixes MentalHealthConsultation being out-of-order
+
+original_data$Client <- original_data$Client |>
+  colorder(DOBDataQuality, Sex, pos="after") # fixes Sex being out-of-order
+
+original_data$Inventory <- original_data$Inventory |>
+  fsubset(!InventoryID %in% c("4627", "4626"))
+
+original_data$Services <- original_data$Services |>
+  fmutate(
+    SubTypeProvided = fifelse(
+      ServicesID %in% c("4701489","4619566","4616611","4594911","4630274","4271320","4265356","4352817","4352818","4593821","4593825","4481912","4668968","4593619","4702917","4702916","4619563","4618136","4641247","4629927","4649143","4627720","4656719","4658078","4658077","4708744","4710028","4737855"),
+      1,
+      fifelse(
+        ServicesID %in% c("4458004","4653986", "4654974", "4668954","4707540"),
+        11,
+        SubTypeProvided
+      )
+    )
+  )
+  
 # FSA ---------------------------------------------------
-reduced_data_fsa <- lapply(original_data, function(x) if(nrow(x)) x[ifelse(nrow(x) >= 6, 6, 1)])
+reduced_data_fsa <- lapply(original_data, function(x) x[ifelse(nrow(x) >= 6, 6, 1)])
 source(here("tests/update_test_good_fsa.R"), local = TRUE)
 
 dir.create(here("tests/temp/reduced_fsa"), showWarnings = FALSE)
 lapply(names(reduced_data_fsa), function(fname) {
-    write.csv(reduced_data_fsa[[fname]],
-              paste0(here("tests/temp/reduced_fsa//"),
-                     fname, ".csv"),
-              row.names = FALSE, na="")
+  write.csv(reduced_data_fsa[[fname]],
+            paste0(here("tests/temp/reduced_fsa//"),
+                   fname, ".csv"),
+            row.names = FALSE, na="")
   Sys.sleep(1)
 })
 Sys.sleep(1)
-save_new_zip("FY26-test-fsa-test.zip", "reduced_fsa")
+save_new_zip("FY26-test-fsa.zip", "reduced_fsa")
 
 # DQ AND PDDE ---------------------------------------------------
-# convert to data.frame and fix column types
-original_data_fixed_cols <- mapply(function(df, df_name) {
-  existing_cols <- intersect(cols_and_data_types$Column, names(df))
-  
-  as.data.frame(df) %>%
-    mutate(across(all_of(existing_cols), 
-                  .fns = ~ {
-                    dtype <- cols_and_data_types$DataType[
-                      cols_and_data_types$Column == cur_column() &
-                        cols_and_data_types$File == df_name
-                    ]
-                    switch(dtype,
-                           "character" = as.character(.),
-                           "numeric" = as.numeric(.),
-                           "integer" = as.integer(.),
-                           "factor" = as.factor(.),
-                           "logical" = as.logical(.),
-                           "date" = as.Date(.),
-                           .)
-                  }))
-}, original_data, names(original_data), SIMPLIFY = FALSE)
-
 source(here("tests/update_test_good_dq.R"), local = TRUE)
 
 # overwrite the original csv files in temp
@@ -142,7 +158,7 @@ mapply(function(df, df_name) {
             file= file(csv_files[[df_name]], encoding = if(df_name == "Project") "Windows-1252" else "UTF-8"),
             row.names = FALSE,
             na = "")
-}, original_data_fixed_cols, names(original_data_fixed_cols), SIMPLIFY = FALSE)
+}, original_data, names(original_data), SIMPLIFY = FALSE)
 
 save_new_zip("FY26-test-main-valid.zip", "")
 

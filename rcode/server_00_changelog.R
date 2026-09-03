@@ -54,7 +54,6 @@ convert_changelog_to_tbl <- function(md_fname){
 }
 
 output$changelog <- renderDT({
-  
   changelog_dt <- convert_changelog_to_tbl('changelog.md') %>%
     fmutate(Date = format(Date, '%m-%d-%Y'))
 

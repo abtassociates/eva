@@ -33,7 +33,7 @@ vars_prep <- c(
 
 vars_we_want <- c(vars_prep,
                   "Issue",
-                  "Type",
+                  "Priority",
                   "Guidance")
 
 # Clients to Check --------------------------------------------------------
@@ -130,7 +130,8 @@ missing_dob <- base_dq_data %>%
 dkr_dob <- base_dq_data %>%
   fsubset(DOBDataQuality %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 60) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(DOBDataQuality) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 incorrect_dob <- base_dq_data %>%
   fsubset(AgeAtEntry < 0) %>%
@@ -150,12 +151,14 @@ over100_dob <- base_dq_data %>%
 dkr_ssn <- base_dq_data %>%
   fsubset(SSNDataQuality %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 67) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(SSNDataQuality) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 dkr_race <- base_dq_data %>%
   fsubset(RaceNone %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 63) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(RaceNone) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 # missing_veteran_status <- base_dq_data %>%
 #   filter(
@@ -171,7 +174,8 @@ dkr_veteran <- base_dq_data %>%
     VeteranStatus %in% c(dkr_dnc)
   ) %>%
   merge_check_info_dt(checkIDs = 66) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(VeteranStatus) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 # Missing Client Location -------------------------------------------------
 
@@ -224,15 +228,15 @@ hh_too_many_hohs <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 3) %>%
   fselect(vars_we_want)
 
-
 hh_missing_rel_to_hoh <- base_dq_data %>%
   fsubset(RelationshipToHoH == 99) %>%
   join(hh_no_hoh, on = "HouseholdID", how = 'anti') %>%
   merge_check_info_dt(checkIDs = 4) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(RelationshipToHoH) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 hh_issues <- 
-  rowbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
+  rowbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh, fill=TRUE)
 
 rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
@@ -297,7 +301,8 @@ dkr_residence_prior <- base_dq_data %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LivingSituation %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 64) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(LivingSituation) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 missing_LoS <- base_dq_data %>%
   fselect(
@@ -321,7 +326,8 @@ dkr_LoS <- base_dq_data %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            LengthOfStay %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 73) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(LengthOfStay) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 missing_months_times_homeless <- base_dq_data %>%
   fselect(
@@ -362,7 +368,8 @@ dkr_months_times_homeless <- base_dq_data %>%
            )
   ) %>%
   merge_check_info_dt(checkIDs = 61) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(MonthsHomelessPastThreeYears, TimesHomelessPastThreeYears) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 invalid_months_times_homeless <- base_dq_data %>%
   fselect(
@@ -477,7 +484,9 @@ dkr_living_situation <- base_dq_data %>%
            )
   ) %>%
   merge_check_info_dt(checkIDs = 68) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(LivingSituation) %>%
+  fselect(c(vars_we_want, "Detail"))
+
 
 # DisablingCondition at Entry
 dkr_disabilities <- base_dq_data %>%
@@ -485,7 +494,9 @@ dkr_disabilities <- base_dq_data %>%
          'DisablingCondition') %>%
   fsubset(DisablingCondition %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 32) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(DisablingCondition) %>%
+  fselect(c(vars_we_want, "Detail"))
+
 
 # smallDisabilities <- Disabilities %>%
 #   filter(DataCollectionStage == 1 &
@@ -619,39 +630,8 @@ exit_before_start <- base_dq_data %>%
 dkr_destination <- base_dq_data %>%
   fsubset(Destination %in% c(dkr_dnc, 30)) %>%
   merge_check_info_dt(checkIDs = 59) %>%
-  fselect(vars_we_want)
-
-missing_destination_subsidy <- base_dq_data %>%
-  fsubset(!is.na(ExitDate) &
-           Destination == 435 &
-           (is.na(DestinationSubsidyType) |
-           !DestinationSubsidyType %in% c(subsidy_types))) %>%
-  merge_check_info_dt(checkIDs = 121) %>%
-  fselect(vars_we_want)
-
-# Missing ResPrior Subsidy ------------------------------------------------
-
-missing_res_prior_subsidy <- base_dq_data %>%
-  join(Enrollment %>% fselect(EnrollmentID, RentalSubsidyType),
-            on = 'EnrollmentID', how = 'left') %>%
-  fsubset(LivingSituation == 435 &
-           (is.na(RentalSubsidyType) |
-           !RentalSubsidyType %in% c(subsidy_types))) %>%
-  merge_check_info_dt(checkIDs = 130) %>%
-  fselect(vars_we_want)
-
-
-# Missing CLS Subsidy -----------------------------------------------------
-
-missing_cls_subsidy <- base_dq_data %>%
-  join(CurrentLivingSituation %>%
-              fsubset(CurrentLivingSituation == 435 &
-                       (is.na(CLSSubsidyType) |
-                       !CLSSubsidyType %in% c(subsidy_types))) %>%
-              fselect(CurrentLivingSitID, EnrollmentID, CLSSubsidyType),
-            on = 'EnrollmentID', how = 'inner') %>%
-  merge_check_info_dt(checkIDs = 129) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(Destination) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 # Missing PATH Data -------------------------------------------------------
 
@@ -1251,7 +1231,7 @@ if(nrow(overlap_staging) > 0){
     "EnrollmentID",
     "PreviousEnrollmentID",
     "Issue",
-    "Type",
+    "Priority",
     "Guidance"
   )
   if(nrow(Services) > 0) {
@@ -1696,7 +1676,8 @@ dkr_client_veteran_info <- ssvf_base_dq_data %>%
 dkr_client_veteran_discharge <- dkr_client_veteran_info %>%
   fsubset(DischargeStatus %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 56) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(DischargeStatus) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 dkr_client_veteran_wars <- dkr_client_veteran_info %>%
   fsubset(WorldWarII %in% c(dkr_dnc) |
@@ -1709,12 +1690,15 @@ dkr_client_veteran_wars <- dkr_client_veteran_info %>%
         OtherTheater  %in% c(dkr_dnc)
   ) %>%
   merge_check_info_dt(checkIDs = 57) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(WorldWarII, KoreanWar, VietnamWar, DesertStorm, AfghanistanOEF, IraqOIF, IraqOND, OtherTheater) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 dkr_client_veteran_military_branch <- dkr_client_veteran_info %>%
   fsubset(MilitaryBranch %in% c(dkr_dnc)) %>%
   merge_check_info_dt(checkIDs = 58) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(MilitaryBranch) %>%
+  fselect(c(vars_we_want, "Detail"))
+
 # Long Stayers -------------------------------------------------------------
 # The goal is here to flag "stays" that go beyond the local setting 
 # (that defines a "long" stay), and is set by the user
@@ -1856,6 +1840,17 @@ calculate_outstanding_referrals <- function(dq_data){
 ## CE ------
 outstanding_referrals <- calculate_outstanding_referrals(base_dq_data)
 
+## Specs Issues....
+specs_issues <- run_templatable_validations("DQ", data_env = environment())
+if(fnrow(specs_issues) > 0)
+  specs_issues <- specs_issues %>%
+    frename("EnrollmentID" = AnchorValue) %>%
+    join(
+      base_dq_data %>% fselect(vars_prep), 
+      on = "EnrollmentID"
+    ) %>%
+    fselect(c(vars_we_want, "Detail"))
+
 # All together now --------------------------------------------------------
 dq_main <- rowbind(
   approx_start_after_entry,
@@ -1899,9 +1894,7 @@ dq_main <- rowbind(
   over100_dob,
   invalid_movein_date,
   missing_approx_date_homeless,
-  missing_cls_subsidy,
   # missing_destination,
-  missing_destination_subsidy,
   dkr_disabilities,
   missing_bn_entry,
   bn_on_exit,
@@ -1919,11 +1912,11 @@ dq_main <- rowbind(
   missing_ncbs_entry,
   missing_previous_street_ESSH,
   missing_residence_prior,
-  missing_res_prior_subsidy,
   # missing_ssn,
   # missing_veteran_status,
   no_months_can_be_determined,
   no_months_v_living_situation_data,
+  specs_issues,
   ssvf_hp_screen,
   ssvf_missing_percent_ami,
   ssvf_missing_vamc,
@@ -1935,10 +1928,9 @@ dq_main <- rowbind(
   veteran_missing_discharge_status,
   veteran_missing_wars,
   veteran_missing_year_entered,
-  veteran_missing_year_separated
-)
-
-dq_main <- dq_main %>% 
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
-  funique() #%>% 
+  veteran_missing_year_separated,
+  fill = TRUE
+) %>% 
+  funique() %>%
+  fmutate(Priority = factor(Priority, levels = issue_priorities))
   #qDF()

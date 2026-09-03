@@ -3,8 +3,16 @@
 ## 2026-09-17
 
 ### Bug Fixes
-  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
+  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
+  - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
+  - Handling character columns with problematic characters.
+  - Handling nulls in Export.
 
+### Miscellaneous
+  - Added an Empty File initially-invalid check.
+  - Some FSA, DQ, and PDDE checks superseded by new specs-driven checks.
+  - Added detail to Impermissible Character issues in FSA export.
+      
 ## 2026-09-03
 
 ### Bug Fixes
