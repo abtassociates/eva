@@ -5,6 +5,11 @@
 ### Bug Fixes
   - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
 
+### New Features
+  - Adjust default Local Settings to be more project-type-specific
+  - Connect Local Settings to System Performance
+  - Make Local Settings a slide-out panel vs. a separate tab
+
 ## 2026-09-03
 
 ### Bug Fixes
