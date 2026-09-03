@@ -168,7 +168,7 @@ Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, 
       paste0("Enrollment After ", comparisonWord," Period"),
     ExitAdjust < ComparisonStart,
       paste0("Enrollment Before ", comparisonWord, " Period"),
-    EntryDate > ComparisonStart & ExitAdjust > ComparisonEnd,
+    EntryDate > ComparisonStart & ExitAdjust > ComparisonEnd & !is.na(ComparisonEnd) & ComparisonEnd >= session$userData$meta_HUDCSV_Export_Start,
       paste0("Enrollment Crosses ", comparisonWord, " End"),
     EntryDate < ComparisonStart & ExitAdjust > ComparisonEnd,
       paste0("Enrollment Crosses ", comparisonWord, " Period"),
@@ -192,7 +192,7 @@ EnrollmentOutside <- EnrollmentOutside %>%
 
 EnrollmentOutside2 <- EnrollmentOutside %>%
   fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, OperatingEndDate,
-          HMISParticipationType, HMISParticipationStatusEndDate)
+          HMISParticipationType)
 
 # Get First HMIS span for each Project (technically, the enrollment record)
 EnrollmentOutside <- EnrollmentOutside %>%
