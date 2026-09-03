@@ -95,7 +95,7 @@ METRIC_DEFINITIONS <- list(
   "  Heads of Household and Adults Served (HoHs/Adults)" = list(
     dt_key         = "total_clients",
     unit           = "clients",
-    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1]$PersonalID),
+    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) FALSE,
     summary_metric = FALSE,
