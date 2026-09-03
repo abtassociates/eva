@@ -231,25 +231,10 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 4) %>%
   fselect(vars_we_want)
 
-hh_hoh_exit <- base_dq_data %>% 
-  fgroup_by(HouseholdID) %>%
-  fmutate(
-    nPeople = fnunique(PersonalID), 
-    nExits = fnunique(ExitDate),
-    #earliestExitDate=fmin(ExitDate, na.rm=TRUE),
-    lastExitDate=fmax(ExitDate, na.rm=TRUE)
-  ) %>%
-  fungroup() %>% # get HOH of households with more than one person and exit date
-  fsubset(RelationshipToHoH == 1 &  nPeople > 1 & nExits > 1 & 
-            ExitDate != lastExitDate) %>%  # and check their exit is on the last date
-  merge_check_info_dt(checkIDs = 145) %>%
-  fselect(vars_we_want)
-
 hh_issues <- 
-  rowbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh,
-          hh_hoh_exit)
+  rowbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
-rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh, hh_hoh_exit)
+rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
 
 # Missing Data at Entry ---------------------------------------------------
 # Living Situation,  Length of Stay, LoSUnderThreshold, PreviousStreetESSH,

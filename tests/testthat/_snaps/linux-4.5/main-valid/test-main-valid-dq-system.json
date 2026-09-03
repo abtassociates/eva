@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: 2df113c2a55800d2ec3876e87f6feea0]",
+      "src": "[image data hash: fdc307e31c12218c349c35b42f4d07de]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -142,13 +142,12 @@
               "left": 0,
               "right": 726,
               "bottom": 0.4,
-              "top": 4.6,
+              "top": 3.6,
               "discrete_limits": {
                 "x": [
 
                 ],
                 "y": [
-                  "Head of Household Exited Before Other Household Members",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
                   "Missing Relationship to Head of Household"
@@ -160,8 +159,8 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 281.9631849315071,
-              "right": 1634.520547945205,
+              "left": 252.494434931507,
+              "right": 1634.520547945206,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
