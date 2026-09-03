@@ -4,6 +4,7 @@
 
 ### Bug Fixes
   - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
+  - Updated 'Enrollment Crosses Operating End' error to only flag for enrollments associated with projects that have an Operating End Date that is within the export dates.
 
 ## 2026-09-03
 
