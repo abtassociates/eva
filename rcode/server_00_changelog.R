@@ -3,26 +3,34 @@ output$changelog <- renderDT({
   changelog_dt <- tribble(
     ~ Date,
     ~ Change,
-    "NEXT-2026",
+    "09-17-2026",
     "<b>Bug Fixes</b> <br>
+      - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.  <br>
       - Updated 'Enrollment Crosses Operating End' error to only flag for enrollments associated with projects that have an Operating End Date that is within the export dates. (Issue <a href='https://github.com/abtassociates/eva/issues/1060' target='_blank'>#1060</a>)",
-    "09-03-2026", 
+    "09-03-2026",
     "<b>Bug Fixes</b> <br>
       - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>) <br>
-      - Move HouseholdType filter on <strong>Exits by Subpopulation</strong> page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>)",
+      - Move HouseholdType filter on Exits by Subpopulation page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.) <br>
+      - Added new DQ check \"Enrollment During Non-Participation Period\" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks \"Enrollment After HMIS Participating Period\" and \"Enrollment Before HMIS Participating Period\" <br>
+ 
+     <b>New Features</b> <br>
+     - Added DQ Timeliness metrics for Coordinated Entry Assessment and Event records on the Project Dashboard Report <br>
+
+     <b>Miscellaneous</b> <br>
+     - Updated language in the System Performance Glossary <br>",
     "08-03-2026",
     "<b>Bug Fixes</b> <br>
       - Fixed System Exits Client-level Download functionality. It was causing an error when writing the output to an Excel file.<br>
-      - Updated Enrollment DQ Checks to only show warnings for actively HMIS participating enrollments. (Issues <a href='https://github.com/abtassociates/eva/issues/958' target='_blank'>#958</a> and <a href='https://github.com/abtassociates/eva/issues/1042' target='_blank'>#1042</a>)
+      - Updated Enrollment DQ Checks to only show warnings for actively HMIS participating enrollments. (Issues <a href='https://github.com/abtassociates/eva/issues/958' target='_blank'>#958</a> and <a href='https://github.com/abtassociates/eva/issues/1042' target='_blank'>#1042</a>) <br>
       - Instead of crashing, hide System Performance tab when:
         <ul>
         <li>No Continuum Project records (Issue <a href='https://github.com/abtassociates/eva/issues/1028' target='_blank'>#1028</a>)</li>
         <li>Only HP projects or enrollments outside reporting period</li>
         </ul>
       - Handle other System Performance empty dataset scenarios by showing 'No valid data message' in place of the charts (Issue <a href='https://github.com/abtassociates/eva/issues/1027' target='_blank'>#1027</a>)
-      - Fix Data Quality and System Performance plots and data tables to always use commas for formating large numbers.
+      - Fix Data Quality and System Performance plots and data tables to always use commas for formating large numbers. <br>
     <b>Miscellaneous</b> <br>
-      - Handle empty Destinations scenario causing crash in GHA (assumed to be edge case scenario)
+      - Handle empty Destinations scenario causing crash in GHA (assumed to be edge case scenario) <br>
       - Revised Client-level Download Instructions, Data Dictionary, and file formatting.
     ",
     "06-12-2026",
