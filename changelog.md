@@ -1,5 +1,9 @@
 
 # Eva Changelog
+## 2026-09-17
+
+### Bug Fixes
+  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
 
 ## 2026-09-03
 
