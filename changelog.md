@@ -3,7 +3,8 @@
 ## 2026-09-17
 
 ### Bug Fixes
-  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
+  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
+  - New Project Dashboard tab containing performance metrics for selected project
 
 ## 2026-09-03
 
