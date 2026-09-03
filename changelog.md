@@ -3,14 +3,14 @@
 ## 2026-09-17
 
 ### Bug Fixes
-  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.",
-  - Updated 'Enrollment Crosses Operating End' error to only flag for enrollments associated with projects that have an Operating End Date that is within the export dates.
+ - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
+ - Updated 'Enrollment Crosses Operating End' error to only flag for enrollments associated with projects that have an Operating End Date that is within the export dates.
 
 ## 2026-09-03
 
 ### Bug Fixes
  - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
- - Move HouseholdType filter on Exits by Subpopulation page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)
+ - Move HouseholdType filter on Exits by Subpopulation page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>)
  - Added new DQ check "Enrollment During Non-Participation Period" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks "Enrollment After HMIS Participating Period" and "Enrollment Before HMIS Participating Period"
  
 ### New Features
