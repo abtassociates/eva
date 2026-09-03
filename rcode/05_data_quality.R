@@ -1404,26 +1404,29 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   merge_check_info_dt(checkIDs = 93) %>%
   fselect(vars_we_want)
 
+hi_cols <- c(
+  "Medicaid",
+  "SCHIP",
+  "VHAServices",
+  "EmployerProvided",
+  "COBRA",
+  "PrivatePay",
+  "StateHealthIns",
+  "IndianHealthServices",
+  "OtherInsurance",
+  "Medicare"
+)
+
 health_insurance_subs <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'DataCollectionStage',
     'InsuranceFromAnySource',
-    'Medicaid',
-    'Medicare',
-    'SCHIP',
-    'VHAServices',
-    'EmployerProvided',
-    'COBRA',
-    'PrivatePay',
-    'StateHealthIns',
-    'IndianHealthServices',
-    'OtherInsurance'
+    hi_cols
   ) %>%
+  replace_na(value = 0, cols = hi_cols) %>%
   fmutate(
-    SourceCount = Medicaid + SCHIP + VHAServices + EmployerProvided +
-      COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
-      OtherInsurance + Medicare
+    SourceCount = Reduce(`+`, gv(., hi_cols))
   ) %>%
   fsubset((InsuranceFromAnySource == 1 &
             SourceCount == 0) |

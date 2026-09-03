@@ -599,7 +599,7 @@
       ]
     },
     "orgDQErrorByIssue": {
-      "src": "[image data hash: 22ffde027d014ad91f13098152a14a03]",
+      "src": "[image data hash: dff6ad157a868dab96aac9709c96701d]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the organization.",
@@ -626,10 +626,10 @@
 
                 ],
                 "y": [
-                  "Conflicting Health Insurance yes/no at Exit",
                   "Oldest Household Member Under 12",
-                  "Conflicting Health Insurance yes/no at Entry",
                   "Missing Length of Stay",
+                  "Conflicting Health Insurance yes/no at Entry",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Invalid Move-In Date",
@@ -676,7 +676,7 @@
       ]
     },
     "orgDQErrorByProject": {
-      "src": "[image data hash: 37bbe64ba305c1e91046a48ad5bdb37d]",
+      "src": "[image data hash: e4241f3a48bd38bf58fdb01d12016e27]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the organization's projects with the most General Errors.",
@@ -695,7 +695,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 102.3,
+              "right": 108.9,
               "bottom": 0.4,
               "top": 7.6,
               "discrete_limits": {
@@ -1083,8 +1083,13 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
+<<<<<<< HEAD
         "Mean": 8.637931034482758,
         "3rd Qu.": 7,
+=======
+        "Mean": 8.756521739130434,
+        "3rd Qu.": 7.5,
+>>>>>>> dev
         "Max.": 181
       }
     }
