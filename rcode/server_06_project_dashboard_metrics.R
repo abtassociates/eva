@@ -47,10 +47,11 @@ eval_metric_kpi <- function(metric_name, metric_dataset) {
 # ==========================================
 
 get_leavers <- function(dt) {
-  dt |> fsubset(ExitAdjust %between% list(session$userData$ReportStart, session$userData$ReportEnd))
+  dt |> fsubset(ExitAdjust %between% input$dateRangeCount)
 }
 get_stayers <- function(dt) {
-  dt |> fsubset(EntryDate <= session$userData$ReportEnd & ExitAdjust > session$userData$ReportEnd)
+  reportEnd <- input$dateRangeCount[2]
+  dt |> fsubset(EntryDate <= reportEnd & ExitAdjust > reportEnd)
 }
 
 METRIC_DEFINITIONS <- list(
