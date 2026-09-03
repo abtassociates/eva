@@ -47,10 +47,11 @@ eval_metric_kpi <- function(metric_name, metric_dataset) {
 # ==========================================
 
 get_leavers <- function(dt) {
-  dt |> fsubset(ExitAdjust %between% list(session$userData$ReportStart, session$userData$ReportEnd))
+  dt |> fsubset(ExitAdjust %between% input$dateRangeCount)
 }
 get_stayers <- function(dt) {
-  dt |> fsubset(EntryDate <= session$userData$ReportEnd & ExitAdjust > session$userData$ReportEnd)
+  reportEnd <- input$dateRangeCount[2]
+  dt |> fsubset(EntryDate <= reportEnd & ExitAdjust > reportEnd)
 }
 
 METRIC_DEFINITIONS <- list(
@@ -94,7 +95,7 @@ METRIC_DEFINITIONS <- list(
   "  Heads of Household and Adults Served (HoHs/Adults)" = list(
     dt_key         = "total_clients",
     unit           = "clients",
-    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1]$PersonalID),
+    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) FALSE,
     summary_metric = FALSE,
@@ -708,7 +709,8 @@ latest_enrollments_all_proj <- reactive({
   
   if (fnrow(enrollment_w_project_type) > 0) {
     enrollment_w_project_type |>
-      fgroup_by(ProjectID, PersonalID, EntryDate) |>
+      roworder(ProjectID, PersonalID, EntryDate) |>
+      fgroup_by(ProjectID, PersonalID) |>
       fslice(how = "last") |>
       fungroup()
   } else {
@@ -935,13 +937,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
 }
 
 # ==========================================
-# 5. DETAIL TAB DATA TABLE GENERATION
+# 5. DETAIL TAB DATA TABLE GENERATION + DOWNLOADS
 # ==========================================
-# Universal table builder for UI Data Table and Download tabs
-# ==============================================================================
-# FAST BATCH METRIC BUILDER FOR MULTIPLE / ALL PROJECTS
-# ==============================================================================
-
 build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE) {
   if (fnrow(proj_table) == 0) {
     return(list(summary = data.table(), detail = data.table()))
