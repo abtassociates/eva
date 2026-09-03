@@ -1321,18 +1321,27 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   fselect(vars_we_want)
 
 hi_cols <- c(
-  'Medicaid',
-  'Medicare',
-  'SCHIP',
-  'VHAServices',
-  'EmployerProvided',
-  'COBRA',
-  'PrivatePay',
-  'StateHealthIns',
-  'IndianHealthServices',
-  'OtherInsurance'
+  "Medicaid",
+  "SCHIP",
+  "VHAServices",
+  "EmployerProvided",
+  "COBRA",
+  "PrivatePay",
+  "StateHealthIns",
+  "IndianHealthServices",
+  "OtherInsurance",
+  "Medicare"
 )
-health_insurance_subs <- IncomeBenefits %>%
+
+health_insurance_subs <- base_dq_data %>%
+  join(
+    IncomeBenefits %>% 
+      fsubset(InsuranceFromAnySource %in% c(0, 1)) %>%
+      fselect("EnrollmentID", "DataCollectionStage", "InsuranceFromAnySource", hi_cols),
+    on = "EnrollmentID",
+    how = "left",
+    multiple = T
+  ) %>%
   fselect(
     'EnrollmentID',
     'DataCollectionStage',
@@ -1341,9 +1350,7 @@ health_insurance_subs <- IncomeBenefits %>%
   ) %>%
   replace_na(value = 0, cols = hi_cols, set = TRUE) %>%
   fmutate(
-    SourceCount = Medicaid + SCHIP + VHAServices + EmployerProvided +
-      COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
-      OtherInsurance + Medicare
+    SourceCount = Reduce(`+`, gv(., hi_cols))
   ) %>%
   fsubset(
     (InsuranceFromAnySource == 1 & SourceCount == 0) |

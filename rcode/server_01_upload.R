@@ -114,28 +114,35 @@ process_upload <- function(upload_filename, upload_filepath) {
       rm(deps)
       log_memory("after dependencies read in")
       
-      logToConsole(session, "About to run dq_mirai")
-      source(here("rcode", "05_data_quality.R"), local = TRUE)
-      log_memory("after 05_data_quality")
-      
-      logToConsole(session, "About to run pdde_mirai")
-      source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
-      log_memory("after 06_PDDE_checker")
-      
-      res <- list(
-        dq_main = dq_main,
-        overlap_details = overlap_details,
-        outstanding_referrals = outstanding_referrals,
-        pdde_main = pdde_main,
-        long_stayers = long_stayers
-      )
-      
-      rm(list = setdiff(ls(all.names = TRUE), "res"))
-      
-      release_worker_memory()
-      
-      log_memory("after release mirai memory")
-      res
+      withCallingHandlers({
+        logToConsole(session, "About to run dq_mirai")
+        source(here("rcode", "05_data_quality.R"), local = TRUE)
+        log_memory("after 05_data_quality")
+        
+        logToConsole(session, "About to run pdde_mirai")
+        source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
+        log_memory("after 06_PDDE_checker")
+        
+        res <- list(
+          dq_main = dq_main,
+          overlap_details = overlap_details,
+          outstanding_referrals = outstanding_referrals,
+          pdde_main = pdde_main,
+          long_stayers = long_stayers
+        )
+        
+        rm(list = setdiff(ls(all.names = TRUE), "res"))
+        
+        release_worker_memory()
+        
+        log_memory("after release mirai memory")
+        res
+      }, 
+      # Capture the traceback before the stack unwinds
+      error = function(e) {
+        msg <- format_mirai_traceback(e)
+        stop(msg, call. = FALSE)
+      })
     }, .args =  list(dependency_filepath = qs2_filepath)
     ) %...>% (function(dq_pdde_results) {
       # Store results of DQ and PDDE ------------------------------------------
