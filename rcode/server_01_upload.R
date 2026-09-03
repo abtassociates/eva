@@ -72,19 +72,26 @@ process_upload <- function(upload_filename, upload_filepath) {
       )
     )
     dq_pdde_mirai <- mirai({
-      logToConsole(session, "About to run dq_mirai")
-      source(here("rcode", "05_data_quality.R"), local = TRUE)
-      
-      logToConsole(session, "About to run pdde_mirai")
-      source(here("rcode", "06_PDDE_checker.R"), local = TRUE)
-      
-      list(
-        dq_main = dq_main,
-        overlap_details = overlap_details,
-        outstanding_referrals = outstanding_referrals,
-        pdde_main = pdde_main,
-        long_stayers = long_stayers
-      )
+      withCallingHandlers({
+        logToConsole(session, "About to run dq_mirai")
+        source(here("rcode", "05_data_quality.R"), local = TRUE, keep.source = TRUE)
+        
+        logToConsole(session, "About to run pdde_mirai")
+        source(here("rcode", "06_PDDE_checker.R"), local = TRUE, keep.source = TRUE)
+        
+        list(
+          dq_main = dq_main,
+          overlap_details = overlap_details,
+          outstanding_referrals = outstanding_referrals,
+          pdde_main = pdde_main,
+          long_stayers = long_stayers
+        )
+      }, 
+      # Capture the traceback before the stack unwinds
+      error = function(e) {
+        msg <- format_mirai_traceback(e)
+        stop(msg, call. = FALSE)
+      })
     }, .args = dq_and_pdde_dependencies) %...>% {
       # Store results of DQ and PDDE ------------------------------------------
       dq_pdde_results <- .[]

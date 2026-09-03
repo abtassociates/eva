@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 5b115e13cc70276873cefcdba8aa3d98]",
+      "src": "[image data hash: af5621902b3c9380546809c92805ccaf]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -71,8 +71,8 @@
 
                 ],
                 "y": [
-                  "Missing Months or Times Homeless",
                   "Incomplete Living Situation Data",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
