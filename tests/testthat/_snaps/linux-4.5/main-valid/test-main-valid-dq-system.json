@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 4951c4ce9be9e412dad69eccfab4fc05]",
+      "src": "[image data hash: af5621902b3c9380546809c92805ccaf]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -71,15 +71,15 @@
 
                 ],
                 "y": [
-                  "Missing Months or Times Homeless",
                   "Incomplete Living Situation Data",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
                   "Conflicting Non-cash Benefits yes/no at Entry",
                   "Missing Residence Prior",
-                  "Missing Length of Stay",
                   "Bed night entered on Project Exit Date",
+                  "Missing Length of Stay",
                   "No bed night on Entry Date"
                 ]
               }

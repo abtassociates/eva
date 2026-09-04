@@ -151,6 +151,71 @@ to group All + Grouped Race selections*/
   border-right: 1px solid lightgray;
 }
 
+#syse_filters_left {
+  border-width:0;
+  border-radius:0;
+}
+
+#syse_filters_left > .card-body > div {
+  display: flex; 
+  gap: 15px; 
+  margin-bottom: 0;
+}
+
+#syse_filters_right {
+  border-width:0;
+  border-left-width: 1px; 
+  border-radius:0;
+        
+}
+#syse_subpop_crosstab_selectors {
+  display: flex; 
+  flex-wrap: wrap; 
+  align-items: center; 
+  gap: 15px;
+}
+              
+/*remove bottom margin*/
+#syse_subpop_crosstab_selectors .form-group, 
+#syse_subpop_crosstab_selectors .shiny-input-container, 
+#syse_subpop_crosstab_selectors .checkbox, 
+#syse_subpop_crosstab_selectors .form-check {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
+#syse_subpop_hh_type_container {
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  border-right: 2px solid #ccc; 
+  padding-right: 15px;
+}
+
+.syse_subpop_other_container {
+  margin-bottom: 0;
+}
+#syse_subpop_hh_type_container > .label {
+  margin-bottom: 0; 
+  white-space: nowrap;
+}
+
+/*flex: 1 1 700px; tells it to stretch, BUT if it can't maintain at least 700px
+next to Household Type, it forces this entire block to wrap to the next line.
+*/
+#syse_subpop_crosstab_selectors > div:nth-child(2) {
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 15px;
+}
+
+#syse_subpop_crosstab_selectors > div:nth-child(2) > div { 
+  display: flex; 
+  align-items: center; 
+  gap: 5px;
+}
+                    
+
 /*center Sys Comp/Demographics chart*/
 #sys_comp_summary_ui_chart {
   display: flex;
@@ -271,6 +336,10 @@ body.idle-timeout-occurred #ss-connect-dialog {
   border: 3px solid #FCB248;
 }
 
+#project_dashboard_tl_subtabs {
+  margin-bottom: 10px;
+}
+
 #age_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
     cursor: not-allowed;
     background-color: var(--brand-med_grey2);
@@ -294,11 +363,7 @@ body.idle-timeout-occurred #ss-connect-dialog {
     background-color: var(--brand-med_grey2);
 }
 
-#race_eth_picker > div:nth-child(1) > div {
-  width:100%;
-}
-
-#race_eth_picker > div:nth-child(2) > div {
+#race_eth_picker > div > div {
   width:100%;
 }
 
