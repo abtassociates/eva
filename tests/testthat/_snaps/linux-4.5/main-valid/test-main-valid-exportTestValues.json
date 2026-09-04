@@ -682,41 +682,41 @@
       ],
       "Organization Summary": [
         [
-          "High Priority: 3  ",
-          "Min.   :  1.0  ",
-          "Length:45         "
+          "High Priority: 4  ",
+          "Min.   :  1.00  ",
+          "Length:46         "
         ],
         [
           "Error        :21  ",
-          "1st Qu.:  3.0  ",
+          "1st Qu.:  2.25  ",
           "Class :character  "
         ],
         [
           "Warning      :21  ",
-          "Median : 10.0  ",
+          "Median :  9.00  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   : 23.6  ",
+          "Mean   : 23.11  ",
           null
         ],
         [
           null,
-          "3rd Qu.: 22.0  ",
+          "3rd Qu.: 21.75  ",
           null
         ],
         [
           null,
-          "Max.   :251.0  ",
+          "Max.   :251.00  ",
           null
         ]
       ],
       "Project Summary": [
         [
-          "Length:119        ",
-          "High Priority: 5  ",
-          "Length:119        ",
+          "Length:120        ",
+          "High Priority: 6  ",
+          "Length:120        ",
           "Min.   :  1.000  "
         ],
         [
@@ -735,13 +735,13 @@
           null,
           null,
           null,
-          "Mean   :  8.924  "
+          "Mean   :  8.858  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  7.500  "
+          "3rd Qu.:  7.250  "
         ],
         [
           null,
@@ -752,9 +752,9 @@
       ],
       "Guidance": [
         [
-          "High Priority: 3  ",
-          "Length:45         ",
-          "Length:45         "
+          "High Priority: 4  ",
+          "Length:46         ",
+          "Length:46         "
         ],
         [
           "Error        :21  ",
@@ -769,15 +769,15 @@
       ],
       "High Priority": [
         [
-          "Length:15         ",
-          "Length:15         ",
-          "Length:15         ",
-          "Length:15         ",
-          "Length:15         ",
-          "Length:15         ",
-          "Length:15         ",
-          "Length:15         ",
-          "Min.   :2021-08-27  "
+          "Length:16         ",
+          "Length:16         ",
+          "Length:16         ",
+          "Length:16         ",
+          "Length:16         ",
+          "Length:16         ",
+          "Length:16         ",
+          "Length:16         ",
+          "Min.   :2021-03-09  "
         ],
         [
           "Class :character  ",
@@ -788,7 +788,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2022-07-01  "
+          "1st Qu.:2022-06-26  "
         ],
         [
           "Mode  :character  ",
@@ -810,7 +810,7 @@
           null,
           null,
           null,
-          "Mean   :2022-06-04  "
+          "Mean   :2022-05-07  "
         ],
         [
           null,
@@ -1861,41 +1861,41 @@
       ],
       "System Summary": [
         [
-          "High Priority: 3  ",
-          "Min.   :    1.0  ",
-          "Length:71         "
+          "High Priority: 4  ",
+          "Min.   :    1  ",
+          "Length:72         "
         ],
         [
           "Error        :39  ",
-          "1st Qu.:   25.0  ",
+          "1st Qu.:   27  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-          "Median :  140.0  ",
+          "Median :  138  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  803.2  ",
+          "Mean   :  793  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  574.0  ",
+          "3rd Qu.:  553  ",
           null
         ],
         [
           null,
-          "Max.   :11744.0  ",
+          "Max.   :11744  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-          "Length:994        ",
-          "High Priority: 56  ",
-          "Length:994        ",
+          "Length:1009       ",
+          "High Priority: 71  ",
+          "Length:1009       ",
           "Min.   :   1.00  "
         ],
         [
@@ -1914,13 +1914,13 @@
           null,
           null,
           null,
-          "Mean   :  57.37  "
+          "Mean   :  56.58  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  25.00  "
+          "3rd Qu.:  24.00  "
         ],
         [
           null,
@@ -1931,9 +1931,9 @@
       ],
       "Guidance": [
         [
-          "High Priority: 3  ",
-          "Length:71         ",
-          "Length:71         "
+          "High Priority: 4  ",
+          "Length:72         ",
+          "Length:72         "
         ],
         [
           "Error        :39  ",
@@ -1948,14 +1948,14 @@
       ],
       "High Priority": [
         [
-          "Length:1082       ",
-          "Length:1082       ",
-          "Length:1082       ",
-          "Length:1082       ",
-          "Length:1082       ",
-          "Length:1082       ",
-          "Length:1082       ",
-          "Length:1082       ",
+          "Length:1147       ",
+          "Length:1147       ",
+          "Length:1147       ",
+          "Length:1147       ",
+          "Length:1147       ",
+          "Length:1147       ",
+          "Length:1147       ",
+          "Length:1147       ",
           "Min.   :2016-09-15  "
         ],
         [
@@ -1967,7 +1967,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-08-18  "
+          "1st Qu.:2020-08-17  "
         ],
         [
           "Mode  :character  ",
@@ -1978,7 +1978,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-01-25  "
+          "Median :2021-01-26  "
         ],
         [
           null,
@@ -1989,7 +1989,7 @@
           null,
           null,
           null,
-          "Mean   :2021-04-23  "
+          "Mean   :2021-04-19  "
         ],
         [
           null,
@@ -2000,7 +2000,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-04-12  "
+          "3rd Qu.:2022-03-28  "
         ],
         [
           null,
