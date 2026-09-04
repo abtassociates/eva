@@ -178,7 +178,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         fmutate(
           CSV                       = csv_name,
           Name                      = rule_row$Name,
-          List                      = resolved_list,
+          List                      = if(is.null(resolved_list)) NA else resolved_list,
           Issue                     = rule_row$Issue,
           Guidance                  = rule_row$Guidance,
           Priority                  = rule_row$Priority,
@@ -199,6 +199,27 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
             detail_template = fifelse(
               eval(parse(text = cond), envir = invalid_dt),
               stringi::stri_replace_all_fixed(detail_template, "Since {Name} has been collected in HMIS, please ensure that {readable_validation_notes} in HMIS.", "{Name} is missing in HMIS even though {readable_validation_notes}."),
+              detail_template
+            )
+          )
+      }
+      
+      if(rule_row$Issue == "Invalid Non-Null Value") {
+        invalid_dt_full <- invalid_dt_full |>
+          fmutate(
+            List = fifelse(
+              Issue == "Invalid Non-Null Value",
+              fcase(
+                CSV == "Exit" & Name == "Destination", paste0("336,335,37"),
+                CSV == "Enrollment" & Name == "CurrentLivingSituation", paste0("312,313,327,422,423,426,30,24"),
+                CSV == "Enrollment" & Name == "LivingSituation", paste0("312,313,327,422,423,426,30,17,24,37"),
+                default = List
+              ),
+              List
+            ),
+            detail_template = fifelse(
+              Issue == "Invalid Non-Null Value" & is.na(List), 
+              stringi::stri_replace_all_fixed(detail_template, " not found in list {List}", ""),
               detail_template
             )
           )

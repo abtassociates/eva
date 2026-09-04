@@ -146,7 +146,6 @@ valid_list_lookup <- cols_and_data_types$Name
 names(valid_list_lookup) <- cols_and_data_types$`DE#`
 valid_list_lookup <- valid_list_lookup[!is.na(names(valid_list_lookup)) & !is.na(valid_list_lookup)]
 
-# Special Cases: Value-Not-in-List  -----
 # Special cases: these are cases that could not be easily codified directly from the specs
 special_validation_rules <- list(
   Affiliation = list(
@@ -181,45 +180,46 @@ special_validation_rules <- list(
       VerifiedBy = quote(is.na(VerifiedBy) & ProjectType == 14)
     ),
     "Invalid Non-Null Value" = list(
-      CurrentLivingSituation = quote(CurrentLivingSituation %in% c(312,313,327,422,423,426,30,24))
+      CurrentLivingSituation = quote(!CurrentLivingSituation %in% c(312,313,327,422,423,426,30,24,NA))
     )
   ),
   Disabilities = list(
     "Invalid Non-Null Value" = list(
       DisabilityResponse = quote(
-        (DisabilityType == 10 & !DisabilityResponse %in% valid_values[["4.10.2"]]) |
-        (DisabilityType != 10 & !DisabilityResponse %in% valid_values[["1.8"]])
+        (DisabilityType == 10 & !DisabilityResponse %in% c(valid_values[["4.10.2"]], NA)) |
+        (DisabilityType != 10 & !DisabilityResponse %in% c(valid_values[["1.8"]], NA))
       )
     )
   ),
   Enrollment = list(
     "Invalid Non-Null Value" = list(
       # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
-      EnrollmentCoC = quote(!grepl("^[A-Za-z]{2}-[0-9]{3}$", EnrollmentCoC) | (ContinuumProject == 1 & .join == "dt")),
-      LivingSituation = quote(LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37))
+      EnrollmentCoC = quote(!is.na(EnrollmentCoC) & !stringi::stri_detect_regex(EnrollmentCoC, "^[A-Za-z]{2}-[0-9]{3}$")),
+      LivingSituation = quote(!is.na(LivingSituation) & !LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37,NA))
     )
   ),
   Exit = list(
     "Invalid Non-Null Value" = list(
       SubsidyInformation = quote(
-        (HousingAssessment == 1 & !SubsidyInformation %in% c(1,2,3,4)) |
-          (HousingAssessment == 2 & !SubsidyInformation %in% c(11,12))
+        (HousingAssessment == 1 & !SubsidyInformation %in% c(1,2,3,4,NA)) |
+          (HousingAssessment == 2 & !SubsidyInformation %in% c(11,12,NA))
       ),
-      SessionsInPlan     = quote(SessionsInPlan < 0),
-      SessionCountAtExit = quote(SessionCountAtExit > 0),
-      Destination = quote(Destination %in% c(336,335,37))
+      SessionsInPlan     = quote(!is.na(SessionsInPlan) & (SessionsInPlan <= 0 | SessionsInPlan %% 1 != 0)),
+      SessionCountAtExit = quote(!is.na(SessionCountAtExit) & (SessionCountAtExit <= 0 | SessionCountAtExit %% 1 != 0)),
+      Destination = quote(!Destination %in% c(336,335,37, NA))
     ),
     "Dependent Field Data Collection Issue" = list(
       SessionCountAtExit = quote(CounselingReceived == 1)
     )
   ),
   Export = list(
-    "Invalid Non-Null Value" = list(
-      SourceID               = quote(SourceType == 1 & !grepl("^[A-Za-z]{2}-[0-9]{3}$", SourceID)),
-      SourceContactPhone     = quote(!grepl("^[2-9][0-9]{2}[2-9][0-9]{2}[0-9]{4}$", SourceContactPhone)),
-      SourceContactExtension = quote(!grepl("^[0-9]{1,5}$", SourceContactExtension)),
-      SourceContactEmail     = quote(!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", SourceContactEmail))
-    ),
+    # AS 9/4/26: Commenting out because many first-time vendors will put more placeholder info for these fields
+    # "Invalid Non-Null Value" = list(
+      # SourceID               = quote(SourceType == 1 & !is.na(SourceID) & !grepl("^[A-Za-z]{2}-[0-9]{3}[xN]$", SourceID)),
+      # SourceContactPhone     = quote(!is.na(SourceContactPhone) & !grepl("^[2-9][0-9]{2}[2-9][0-9]{2}[0-9]{4}$", SourceContactPhone)),
+      # SourceContactExtension = quote(!is.na(SourceContactExtension) & !grepl("^[0-9]{1,5}$", SourceContactExtension)),
+      # SourceContactEmail     = quote(!is.na(SourceContactEmail) & !grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", SourceContactEmail))
+    # ),
     "Nulls Not Allowed" = list(
       SourceName = quote(SourceType != 1 & is.na(SourceName))
     )
@@ -235,9 +235,9 @@ special_validation_rules <- list(
   ),
   ProjectCoC = list(
     "Invalid Non-Null Value" = list(
-      ZIP      = quote(!grepl("^[0-9]{5}$", ZIP)),
-      Geocode  = quote(!grepl("^[0-9]{6}$", Geocode)),
-      State    = quote(!grepl("^[a-zA-Z]{2}$", State))
+      ZIP      = quote(!is.na(ZIP) & !grepl("^[0-9]{5}$", ZIP)),
+      Geocode  = quote(!is.na(Geocode) & !grepl("^[0-9]{6}$", Geocode)),
+      State    = quote(!is.na(State) & !grepl("^[a-zA-Z]{2}$", State))
     )
   ),
   Services = list(
