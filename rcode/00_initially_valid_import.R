@@ -55,18 +55,18 @@ is_hashed <- function() {
   # read Client file
   session$userData$Client <- importFile(upload_filepath, "Client")
   
-  # decide if the export is hashed
-  
   return(  
     # TRUE
     session$userData$Export$HashStatus == 4 &
-      # if Client.csv has data, 
       ifelse(fnrow(session$userData$Client) > 0, 
-        # test the FirstName column
-        min(nchar(session$userData$Client$FirstName), na.rm = TRUE) ==
-        max(nchar(session$userData$Client$FirstName), na.rm = TRUE),
-        # otherwise (nrow == 0), return TRUE 
-        TRUE) 
+         all(
+           session$userData$Client$FirstName |> na_rm() |> vlengths() == 64L,
+           session$userData$Client$MiddleName |> na_rm() |> vlengths() == 64L,
+           session$userData$Client$LastName |> na_rm() |> vlengths() == 64L,
+           session$userData$Client$SSN  |> na_rm() |> vlengths() == 68L
+         ),
+        TRUE
+      ) 
   )
 }
 

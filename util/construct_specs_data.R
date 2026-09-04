@@ -127,11 +127,6 @@ cols_and_data_types <- cols_and_data_types %>%
     Name = gsub("\u00A0", "", Name),
     Name = ifelse(Name == "SSN[1]", "SSN", ifelse(Name == "Geocode[1]", "Geocode", Name)),
     valid_values = valid_values[List],
-    Type = fifelse(
-      Name %in% c("FirstName","MiddleName","LastName","NameSuffix","SSN"), 
-      "S64", # see additional notes for these columns
-      Type
-    ), 
     is_str = substr(Type, 1, 1) == "S" & Type != "S",
     str_len_limit = fifelse(is_str, as.numeric(sub("S", "",Type)), NA),
     nulls_allowed = Null == "Y" & !is.na(Null),
@@ -173,6 +168,12 @@ special_validation_rules <- list(
         !is.na(RaceNone) & 
           (rowSums(do.call(cbind, mget(intersect(race_cols, ls()))) == 1, na.rm = TRUE) > 0)
       )
+    ),
+    "Value Length Exceeds Column Character Limit" = list(
+      FirstName = quote(all(vlengths(FirstName) > fifelse(HashStatus == 4, 64, str_len_limit))),
+      MiddleName = quote(all(vlengths(MiddleName) > fifelse(HashStatus == 4, 64, str_len_limit))),
+      LastName = quote(all(vlengths(LastName) > fifelse(HashStatus == 4, 64, str_len_limit))),
+      SSN  = quote(all(vlengths(SSN) > fifelse(HashStatus == 4, 68, str_len_limit)))
     )
   ),
   CurrentLivingSituation = list(
