@@ -14,11 +14,11 @@ library(zip)
 
 source(here("global.R"))
 
-source(here("helper_functions.R"))
+source(here("util", "helper_functions.R"))
 
 # Hard codes --------------------------------------------------------------
 
-source(here("hardcodes.R"))
+source(here("util", "hardcodes.R"))
 
 # Unzip ICF-good  --------------------------------------------------------------
 upload_filepath <- here("tests/FY26-test-good.zip")
@@ -76,6 +76,17 @@ for (file in unique(cols_and_data_types$CSV)) {
   }
   
   if(file == "Client") {
+    random_hash <- function(n = 1, length = 64) {
+      vapply(
+        seq_len(n),
+        function(x) {
+          paste0(sample(c(0:9, letters[1:6]), length, replace = TRUE), collapse = "")
+        },
+        character(1)
+      )
+    }
+    
+    nrows <- fnrow(df)
     df <- df %>% 
       # Add NbN overlap data
       bind_rows(
@@ -99,7 +110,17 @@ for (file in unique(cols_and_data_types$CSV)) {
         )
       ) %>%
       # Add FSA issue - invalid date format
-      mutate(DateUpdated = format(DateUpdated, "%d-%m-%y"))
+      fmutate(DateUpdated = format(DateUpdated, "%d-%m-%y")) %>%
+      # Make sure Name and SSN fields are correctly formatted (i.e. look like hashed)
+      fmutate(
+        FirstName  = random_hash(nrows + 1),
+        MiddleName = random_hash(nrows + 1),
+        LastName   = random_hash(nrows + 1),
+        SSN = paste0(
+          random_hash(nrows + 1),
+          sprintf("%04d", sample(0:9999, nrows + 1, replace = TRUE))
+        )
+      )
       
   } else if(file == "Disabilities") {
     # Get rid of all the many disabilities records. Right now, a person can have  

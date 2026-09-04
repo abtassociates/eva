@@ -35,6 +35,28 @@ names(csv_files) <- tools::file_path_sans_ext(basename(csv_files))
 original_data <- lapply(names(csv_files), importFile, upload_filepath = here("tests/FY26-test-good.zip"))
 names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
+# Make sure we pass the Hash Checks
+random_hash <- function(n = 1, length = 64) {
+  vapply(
+    seq_len(n),
+    function(x) {
+      paste0(sample(c(0:9, letters[1:6]), length, replace = TRUE), collapse = "")
+    },
+    character(1)
+  )
+}
+nrows <- fnrow(original_data$Client)
+original_data$Client <- original_data$Client |>
+  fmutate(
+    FirstName  = random_hash(nrows),
+    MiddleName = random_hash(nrows),
+    LastName   = random_hash(nrows),
+    SSN = paste0(
+      random_hash(nrows),
+      sprintf("%04d", sample(0:9999, nrows, replace = TRUE))
+    )
+  ) 
+
 # AS 2/10/26: Commenting this out because with the new machine-readable specs, we're checking these files, too
 # remove unused files
 # original_data <- original_data[!names(original_data) %in% c("Affiliation",
