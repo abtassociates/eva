@@ -15,6 +15,7 @@ page_navbar(
     ## css, idle management, and dimension management --------
     tags$head(
       includeCSS(here("www/custom.css")),
+      includeCSS(here("www/local_settings.css")),
       # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
@@ -50,6 +51,119 @@ page_navbar(
       ),
       overlayColour = '#F5F5F5',
       refresh = ""
+    ),
+    card(
+      id = "help_sidebar",
+      
+      # The floating button attached to the outside
+      actionLink(
+        "toggle_help", 
+        label = icon("gear")
+      ),
+      
+      # Inner container that handles the scrolling padding
+      div(
+        id = "help_sidebar_content",
+        tagList(
+          h2(
+            stringr::str_to_title("Local Settings"),
+            div(
+              style = "position: absolute; top: 10px; right: 20px;",
+              actionButton("close_help", "X", class = "btn-danger btn-sm")
+            )
+          ),
+          hr()
+        ),
+        accordion(
+          id = 'accordion_local_settings',
+          open = FALSE,
+          accordion_panel(
+            title = "Instructions",
+            tabLocalSettings_instructions
+          ),
+          accordion_panel(
+            title = "Outstanding Referrals",
+            tabLocalSettings_outstanding_referrals,
+            numericInput(
+              inputId = "CEOutstandingReferrals",
+              label = "Max Days:",
+              value = 14,
+              min = 0,
+              max = 365,
+              step = 7,
+              width = "200px"
+            )
+          ),
+          accordion_panel(
+            title = "Long Stayers",
+            
+            tabLocalSettings_long_stayers,
+            
+            layout_columns(
+              col_widths = c(6,6,6,6,6,6),
+              numericInput(
+                inputId = "ESNbNLongStayers",
+                label = "Emergency Shelter (NbN only!):",
+                value = 15,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "OUTLongStayers",
+                label = "Street Outreach:",
+                value = 60,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "OtherLongStayers",
+                label = "Other:",
+                value = 60,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "ServicesOnlyLongStayers",
+                label = "Services Only:",
+                value = 60,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "DayShelterLongStayers",
+                label = "Day Shelter:",
+                value = 60,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              ),
+              numericInput(
+                inputId = "CELongStayers",
+                label = "Coordinated Entry:",
+                value = 90,
+                min = 0,
+                max = 3650,
+                step = 5,
+                width = "200px"
+              )
+            )
+          ) # end accordion panel
+        )
+      ),
+      div(
+        id = "help_sidebar_footer",
+        actionButton("update_dq", "Update DQ"),
+        actionButton("update_sys_perf", "Update System Performance")
+      )
     )
   ), 
   
@@ -152,101 +266,101 @@ page_navbar(
     # )
   ),
   # Local settings tab ----------------
-  nav_panel(
-    title = "Local Settings",
-    value = "tabLocalSettings",
-    icon = icon("gear"),
-    card(
-        htmlOutput("headerLocalSettings")
-    ),
-    accordion(
-      id = 'accordion_local_settings',
-      open = FALSE,
-      accordion_panel(
-        title = "Instructions",
-        tabLocalSettings_instructions
-      ),
-      accordion_panel(
-        title = "Outstanding Referrals",
-        tabLocalSettings_outstanding_referrals,
-        numericInput(
-          inputId = "CEOutstandingReferrals",
-          label = "Max Days:",
-          value = 14,
-          min = 0,
-          max = 365,
-          step = 7,
-          width = "200px"
-        )
-      ),
-      accordion_panel(
-        title = "Long Stayers",
-        
-        tabLocalSettings_long_stayers,
-        
-        card(class = "border border-0 shadow-none",
-          layout_columns(
-            col_widths = c(6,6,6,6,6,6),
-            numericInput(
-              inputId = "ESNbNLongStayers",
-              label = "Emergency Shelter (NbN only!):",
-              value = 90,
-              min = 0,
-              max = 3650,
-              step = 5,
-              width = "200px"
-            ),
-            numericInput(
-              inputId = "OUTLongStayers",
-              label = "Street Outreach:",
-              value = 90,
-              min = 0,
-              max = 3650,
-              step = 5,
-              width = "200px"
-            ),
-            numericInput(
-              inputId = "OtherLongStayers",
-              label = "Other:",
-              value = 90,
-              min = 0,
-              max = 3650,
-              step = 5,
-              width = "200px"
-            ),
-            
-            numericInput(
-              inputId = "ServicesOnlyLongStayers",
-              label = "Services Only:",
-              value = 90,
-              min = 0,
-              max = 3650,
-              step = 5,
-              width = "200px"
-            ),
-            numericInput(
-              inputId = "DayShelterLongStayers",
-              label = "Day Shelter:",
-              value = 90,
-              min = 0,
-              max = 3650,
-              step = 5,
-              width = "200px"
-            ),
-            numericInput(
-              inputId = "CELongStayers",
-              label = "Coordinated Entry:",
-              value = 90,
-              min = 0,
-              max = 3650,
-              step = 5,
-              width = "200px"
-            )
-          )
-        )
-      )
-    )
-  ),
+  # nav_panel(
+  #   title = "Local Settings",
+  #   value = "tabLocalSettings",
+  #   icon = icon("gear"),
+  #   card(
+  #       htmlOutput("headerLocalSettings")
+  #   ),
+  #   accordion(
+  #     id = 'accordion_local_settings',
+  #     open = FALSE,
+  #     accordion_panel(
+  #       title = "Instructions",
+  #       tabLocalSettings_instructions
+  #     ),
+  #     accordion_panel(
+  #       title = "Outstanding Referrals",
+  #       tabLocalSettings_outstanding_referrals,
+  #       numericInput(
+  #         inputId = "CEOutstandingReferrals",
+  #         label = "Max Days:",
+  #         value = 14,
+  #         min = 0,
+  #         max = 365,
+  #         step = 7,
+  #         width = "200px"
+  #       )
+  #     ),
+  #     accordion_panel(
+  #       title = "Long Stayers",
+  #       
+  #       tabLocalSettings_long_stayers,
+  #       
+  #       card(class = "border border-0 shadow-none",
+  #         layout_columns(
+  #           col_widths = c(6,6,6,6,6,6),
+  #           numericInput(
+  #             inputId = "ESNbNLongStayers",
+  #             label = "Emergency Shelter (NbN only!):",
+  #             value = 15,
+  #             min = 0,
+  #             max = 3650,
+  #             step = 5,
+  #             width = "200px"
+  #           ),
+  #           numericInput(
+  #             inputId = "OUTLongStayers",
+  #             label = "Street Outreach:",
+  #             value = 60,
+  #             min = 0,
+  #             max = 3650,
+  #             step = 5,
+  #             width = "200px"
+  #           ),
+  #           numericInput(
+  #             inputId = "OtherLongStayers",
+  #             label = "Other:",
+  #             value = 60,
+  #             min = 0,
+  #             max = 3650,
+  #             step = 5,
+  #             width = "200px"
+  #           ),
+  #           
+  #           numericInput(
+  #             inputId = "ServicesOnlyLongStayers",
+  #             label = "Services Only:",
+  #             value = 60,
+  #             min = 0,
+  #             max = 3650,
+  #             step = 5,
+  #             width = "200px"
+  #           ),
+  #           numericInput(
+  #             inputId = "DayShelterLongStayers",
+  #             label = "Day Shelter:",
+  #             value = 60,
+  #             min = 0,
+  #             max = 3650,
+  #             step = 5,
+  #             width = "200px"
+  #           ),
+  #           numericInput(
+  #             inputId = "CELongStayers",
+  #             label = "Coordinated Entry:",
+  #             value = 90,
+  #             min = 0,
+  #             max = 3650,
+  #             step = 5,
+  #             width = "200px"
+  #           )
+  #         )
+  #       )
+  #     )
+  #   )
+  # ),
 
   # Data Quality tab ----------------------
   nav_menu(

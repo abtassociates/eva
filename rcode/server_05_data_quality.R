@@ -261,44 +261,22 @@ dq_full <- reactive({
 
   logToConsole(session, "in dq_full")
   
-  if(!is.null(session$userData$long_stayers) &&
-                     ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
-    long_stayers_tc <- tryCatch(
-      long_stayers <- session$userData$long_stayers %>%
-        fmutate(
-          too_many_days = case_match(
-            ProjectType,
-            es_nbn_project_type ~ input$ESNbNLongStayers,
-            out_project_type ~ input$OUTLongStayers,
-            sso_project_type ~ input$ServicesOnlyLongStayers,
-            other_project_project_type ~ input$OtherLongStayers,
-            day_project_type ~ input$DayShelterLongStayers,
-            ce_project_type ~ input$CELongStayers
-          )
-        ) %>% 
-        fsubset(DaysSinceLastKnown > too_many_days) %>%
-        fselect(vars_we_want) %>%
-        fmutate(Type = factor(Type, levels = issue_levels)),
-     error = function(e){e}
-    )
+  if(!is.null(session$userData$long_stayers)) {
+    
     
     if(inherits(long_stayers_tc, 'simpleError')){
       logToConsole(session, paste0('Error in long_stayers_tc... colnames: ', paste0(names(session$userData$long_stayers), collapse=',')))
 
       long_stayers <- data.table()
     } else {
-      long_stayers <- long_stayers_tc
+      long_stayers <- long_stayers_tc()
     }
   } else {
     long_stayers <- data.table()
   }
   
   if(!is.null(session$userData$outstanding_referrals) > 0) {
-    outstanding_referrals <- session$userData$outstanding_referrals %>%
-      fsubset(input$CEOutstandingReferrals < Days) %>%
-      merge_check_info(checkIDs = 100) %>%
-      fselect(vars_we_want) %>%
-      fmutate(Type = factor(Type, levels = issue_levels))
+    outstanding_referrals <- outstanding_referrals_tc()
   } else {
     outstanding_referrals <- data.table()
   }

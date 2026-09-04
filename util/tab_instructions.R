@@ -218,9 +218,9 @@ tabLocalSettings_instructions <-  HTML("
               <p>To make Eva data quality analysis more useful at the local level, 
               you can adjust the local settings to better analyze your data in a 
               way that is meaningful to your CoC. To edit these, click to expand 
-              the relevant box below. If you do not edit them, the Data Quality 
-              and Client Counts pages will use the defaults listed. Please 
-              note, these local settings do not impact the System Performance Overview page.</p>
+              the relevant box below. If you do not edit them, the Project Dashboard,
+              Data Quality, and System Performance pages will use the defaults 
+              listed.</p>
               
               <p>These defaults do not imply any HUD recommendations. Please read 
               the description in the Local Settings tab for more information.</p>

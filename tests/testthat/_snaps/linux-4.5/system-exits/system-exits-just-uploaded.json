@@ -2,12 +2,12 @@
   "input": {
     "CELongStayers": 90,
     "CEOutstandingReferrals": 14,
-    "DayShelterLongStayers": 90,
-    "ESNbNLongStayers": 90,
+    "DayShelterLongStayers": 60,
+    "ESNbNLongStayers": 15,
     "Go_to_upload": 1,
-    "OUTLongStayers": 90,
-    "OtherLongStayers": 90,
-    "ServicesOnlyLongStayers": 90,
+    "OUTLongStayers": 60,
+    "OtherLongStayers": 60,
+    "ServicesOnlyLongStayers": 60,
     "accordion_dqexport": null,
     "accordion_dqorg": null,
     "accordion_dqsystem": null,
@@ -18,6 +18,7 @@
     "accordion_systemexits": null,
     "accordion_systemoverview": null,
     "accordion_upload": null,
+    "close_help": 0,
     "currentProviderList": "486",
     "dateRangeCount": [
       "2019-10-01",
@@ -129,6 +130,7 @@
     "g_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
     "g_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
     "glossary_card_full_screen": false,
+    "help_sidebar_full_screen": false,
     "hp_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
     "hp_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
     "imported": {
@@ -237,6 +239,9 @@
     "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
     "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
     "timeliness_metric": 3,
+    "toggle_help": 0,
+    "update_dq": 0,
+    "update_sys_perf": 0,
     "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
     "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
   },
