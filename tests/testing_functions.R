@@ -5,17 +5,35 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 
+generate_shinytest2_app <- function(test_script_name) {
+  app <- AppDriver$new(
+    variant = platform_variant(), 
+    name = test_script_name, 
+    seed = 12345,
+    screenshot_args = FALSE,
+    expect_values_screenshot_args = FALSE,
+    load_timeout = 5e+05,
+    width = 1920,
+    height = 1080,
+    options = list(
+      shiny.testmode = TRUE
+    ))
+  
+  return(app)
+}
+
+teardown_shinytest2_app <- function(app) {
+  try(app$get_chromote_session()$close(), silent = TRUE)
+  try(app$stop(), silent = TRUE)
+  gc(full = TRUE)
+}
+
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
     
-    app <- AppDriver$new(
-      variant = platform_variant(), 
-      name = test_script_name, 
-      seed = 12345,
-      screenshot_args = FALSE,
-      expect_values_screenshot_args = FALSE,
-      load_timeout = 5e+05)
+    app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     app$set_window_size(width = 1920, height = 1080)
     app$set_inputs(Go_to_upload = "click")
@@ -155,7 +173,7 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     "dq_main",
     "pdde_main",
     "period_data",
-    "sys_comp_df",
+    "syso_comp_df",
     "dq_overlaps"
   )
   # if(Sys.info()["sysname"] != "ubuntu")
@@ -170,19 +188,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     print(paste0("Running ",test_script_name))
     testthat::local_edition(3)
     
-    app <- shinytest2::AppDriver$new(
-      variant = platform_variant(),
-      name = test_script_name, 
-      screenshot_args = FALSE,
-      expect_values_screenshot_args = FALSE,
-      seed = 12345,
-      width = 1920,
-      height = 1080,
-      # shiny_args=list(host="172.19.46.18"),
-      load_timeout = 2e+05,
-      options = list(
-        shiny.testmode = TRUE
-      ))
+    app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     print(paste0("About to click in ",test_script_name))
     
@@ -340,55 +347,55 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     )
     
     # System Flow
-    sys_universe_filters <- c(
+    syso_universe_filters <- c(
       "syso_age",
       "syso_spec_pops",
       "syso_race_ethnicity"
     )
     
-    sys_flow_filters <- c(
+    syso_flow_filters <- c(
       "syso_hh_type",
       "syso_level_of_detail",
       "syso_methodology_type",
       "syso_project_type"
     )
     
-    sys_other_inputs <- c(
+    syso_other_inputs <- c(
       "syso_tabbox"
     )
     
-    sys_inflow_outflow_inputs <- c(
+    syso_inflow_outflow_inputs <- c(
       "pageid",
-      "sys_inflow_outflow_subtabs",
-      sys_universe_filters,
-      sys_flow_filters,
-      sys_other_inputs
+      "syso_inflow_outflow_subtabs",
+      syso_universe_filters,
+      syso_flow_filters,
+      syso_other_inputs
     )
-    sys_inflow_outflow_summary_outputs <- c(
+    syso_inflow_outflow_summary_outputs <- c(
       "headerSystemOverview",
-      "sys_inflow_outflow_summary_filter_selections",
-      "sys_inflow_outflow_summary_ui_chart"
+      "syso_inflow_outflow_summary_filter_selections",
+      "syso_inflow_outflow_summary_ui_chart"
     )
     
     app$set_inputs(pageid = "tabSystemOverview")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-summary",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_summary_outputs
+      name = "syso-flow-summary",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_summary_outputs
     )
     
-    sys_inflow_outflow_detail_outputs <- c(
+    syso_inflow_outflow_detail_outputs <- c(
       "headerSystemOverview",
-      "sys_inflow_outflow_detail_filter_selections",
-      "sys_inflow_outflow_detail_ui_chart"
+      "syso_inflow_outflow_detail_filter_selections",
+      "syso_inflow_outflow_detail_ui_chart"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Detail Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-detail",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
 
     
@@ -396,18 +403,18 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_hh_type = "AO", syso_project_type = "LHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-flow-detail-w-AO-Residential",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail-w-AO-Residential",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
     
     # change universe filters
     app$set_inputs(syso_project_type = "PHRes")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-flow-detail-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
     
     # change client filter to Hispanic/Latino. This should lead to < 11 people to check validation/redacting
@@ -415,37 +422,37 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_race_ethnicity = "LatinoAloneMethod1Detailed")
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-flow-detail-w-AO-Residential-PH-hisp",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_detail_outputs
+      name = "syso-flow-detail-w-AO-Residential-PH-hisp",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_detail_outputs
     )
     
     app$set_inputs(syso_race_ethnicity = "All")
     app$wait_for_idle(timeout = 2e+06)
     
     # go back to summary tab
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Summary Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-summary-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
-      output = sys_inflow_outflow_summary_outputs
+      name = "syso-flow-summary-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
+      output = syso_inflow_outflow_summary_outputs
     )
     
     # go Month-by-Month tab
-    sys_inflow_outflow_mbm_outputs <- c(
+    syso_inflow_outflow_mbm_outputs <- c(
       "headerSystemOverview",
-      "sys_inflow_outflow_monthly_filter_selections"
+      "syso_inflow_outflow_monthly_filter_selections"
     )
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Month-by-Month Chart</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-mbm-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
+      name = "syso-flow-mbm-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
       output = c(
-        sys_inflow_outflow_mbm_outputs,
-        "sys_inflow_outflow_monthly_ui_chart",
-        "sys_inflow_outflow_monthly_table"
+        syso_inflow_outflow_mbm_outputs,
+        "syso_inflow_outflow_monthly_ui_chart",
+        "syso_inflow_outflow_monthly_table"
       )
     )
     
@@ -453,11 +460,11 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(mbm_status_filter = "First-Time Homeless")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-fth-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
+      name = "syso-flow-fth-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
       output = c(
-        sys_inflow_outflow_mbm_outputs,
-        "sys_fth_monthly_ui_chart"
+        syso_inflow_outflow_mbm_outputs,
+        "syso_fth_monthly_ui_chart"
       )
     )
     
@@ -465,102 +472,102 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(mbm_status_filter = "Inactive")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-inactive-w-AO-Residential-PH",
-      input = sys_inflow_outflow_inputs,
+      name = "syso-flow-inactive-w-AO-Residential-PH",
+      input = syso_inflow_outflow_inputs,
       output = c(
-        sys_inflow_outflow_mbm_outputs,
-        "sys_inactive_monthly_ui_chart"
+        syso_inflow_outflow_mbm_outputs,
+        "syso_inactive_monthly_ui_chart"
       )
     )
     
     # go to information
-    app$set_inputs(sys_inflow_outflow_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_inflow_outflow_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-flow-information",
+      name = "syso-flow-information",
       input = c(
         "pageid",
-        "sys_inflow_outflow_subtabs"
+        "syso_inflow_outflow_subtabs"
       )
     )
     
     # System Status/Sankey
-    sys_status_inputs <- c(
+    syso_status_inputs <- c(
       "pageid",
-      "sys_status_subtabs",
-      sys_universe_filters,
-      sys_flow_filters,
-      sys_other_inputs
+      "syso_status_subtabs",
+      syso_universe_filters,
+      syso_flow_filters,
+      syso_other_inputs
     )
-    sys_status_outputs <- c(
+    syso_status_outputs <- c(
       "headerSystemOverview",
-      "sankey_filter_selections",
-      "sankey_ui_chart"
+      "syso_status_filter_selections",
+      "syso_status_ui_chart"
     )
     app$set_inputs(syso_tabbox = "<h4>Client System Status</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-status-chart",
-      input = sys_status_inputs,
-      output = sys_status_outputs
+      name = "syso-status-chart",
+      input = syso_status_inputs,
+      output = syso_status_outputs
     )
     
-    app$set_inputs(sys_status_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_status_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-status-information",
-      input = sys_status_inputs,
-      output = sys_status_outputs
+      name = "syso-status-information",
+      input = syso_status_inputs,
+      output = syso_status_outputs
     )
     
     # System Composition/Demographics
-    sys_comp_inputs <- c(
+    syso_comp_inputs <- c(
       "pageid",
-      "sys_comp_subtabs",
-      sys_universe_filters,
+      "syso_comp_subtabs",
+      syso_universe_filters,
       # even though sys_flow_filters are hidden for System Demographics, 
       # include to make sure they aren't changing
-      sys_flow_filters, 
-      sys_other_inputs,
-      "system_composition_selections"
+      syso_flow_filters, 
+      syso_other_inputs,
+      "syso_composition_selections"
     )
     
-    sys_comp_outputs <- c(
+    syso_comp_outputs <- c(
       "headerSystemOverview",
-      "sys_comp_summary_selections",
-      "sys_comp_summary_ui_chart"
+      "syso_comp_summary_selections",
+      "syso_comp_summary_ui_chart"
     )
     
     app$set_inputs(syso_tabbox = "<h4>System Demographics</h4>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-comp-chart-default",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      name = "syso-comp-chart-default",
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("All Races/Ethnicities"))
+    app$set_inputs(syso_composition_selections = c("All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+05)
     app$expect_values(
-      name = "sys-comp-all-re",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      name = "syso-comp-all-re",
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
     
-    app$set_inputs(system_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
+    app$set_inputs(syso_composition_selections = c("Veteran Status (Adult Only)", "All Races/Ethnicities"))
     app$wait_for_idle(timeout = 2e+06)
     app$expect_values(
-      name = "sys-comp-all-re-veteran",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      name = "syso-comp-all-re-veteran",
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
     
-    app$set_inputs(sys_comp_subtabs = "<h5>Information</h5>")
+    app$set_inputs(syso_comp_subtabs = "<h5>Information</h5>")
     app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
-      name = "sys-comp-information",
-      input = sys_comp_inputs,
-      output = sys_comp_outputs
+      name = "syso-comp-information",
+      input = syso_comp_inputs,
+      output = syso_comp_outputs
     )
 
     ## optionally run system exits tests
@@ -575,29 +582,21 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     customDownload(app, "downloadPDDEReport", "PDDE-Download.xlsx")
     customDownload(app, "downloadSystemDQReport", "System-DQ-Download.xlsx")
     customDownload(app, "downloadOrgDQReport", "Org-DQ-Download.xlsx")
-    customDownload(app, "sys_inflow_outflow_download_btn", "System-Flow-Download.xlsx")
-    customDownload(app, "sys_inflow_outflow_download_btn_ppt", "System-Flow-Download-PPT.pptx")
-    customDownload(app, "sys_status_download_btn", "System-Status-Download.xlsx")
-    customDownload(app, "sys_status_download_btn_ppt", "System-Status-Download-PPT.pptx")
-    customDownload(app, "sys_comp_download_btn", "System-Composition-Download.xlsx")
-    customDownload(app, "sys_comp_download_btn_ppt", "System-Composition-Download-PPT.pptx")
-    if(!is_gha) {
-      customDownload(app, "client_level_download_btn", "Client-Level-Download.xlsx")
-    }
+    
+    app$set_inputs(pageid = "tabSystemOverview")
+    app$wait_for_idle(timeout = 2e+06)
+    app$click(selector = "#syso_export_btn button")
+    app$set_inputs(syso_export_client_xlsx = !is_gha, wait_ = FALSE) # doesn't cause reactive changes
+    app$wait_for_idle(timeout = 2e+06)
+    customDownload(app, "syso_export_act", "System-Overview-Full-Export.zip")
     
     if(run_system_exits){
-      customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
-      customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
-      customDownload(app, "syse_time_download_btn", "System-Exit-Time-Download.xlsx")
-      customDownload(app, "syse_time_download_btn_ppt", "System-Exit-Time-Download-PPT.pptx")
-      customDownload(app, "syse_subpop_download_btn", "System-Exit-Subpop-Download.xlsx")
-      customDownload(app, "syse_subpop_download_btn_ppt", "System-Exit-Subpop-Download-PPT.pptx")
-      customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
-      customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
-      
-      if(!is_gha) {
-        customDownload(app, "syse_client_level_download_btn", "System-Exits-Client-Level-Download.xlsx")
-      }
+      app$set_inputs(pageid = "tabSystemExits")
+      app$wait_for_idle(timeout = 2e+06)
+      app$click(selector = "#syse_export_btn button")
+      app$set_inputs(syse_export_client_xlsx = !is_gha, wait_ = FALSE)
+      app$wait_for_idle(timeout = 2e+06)
+      customDownload(app, "syse_export_act", "System-Exit-Full-Export.zip")
     }
    
     # export non-large/helper datasets
@@ -616,9 +615,10 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$set_inputs(syso_hh_type = "All", syso_project_type = "All")
     handle_helper_data(app, test_script_name, "period_data")
     
-    print("saving shiny log")
-    if(Sys.getenv('RSTUDIO') == "1")
+    if(Sys.getenv('RSTUDIO') == "1") {
+      print("viewing shiny log")
       View(app$get_logs())
+    }
   })
 }
 
@@ -818,7 +818,6 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
     output = syse_subpop_outputs
   )
   
-  app$set_inputs(syse_subpop_vet_selection = TRUE)
   app$set_inputs(syse_subpop_spec_pops = "Veteran")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(
@@ -874,19 +873,8 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     testthat::local_edition(3)
     is_gha <- Sys.info()["user"] == "runner"
     
-    app <- AppDriver$new(
-      variant = platform_variant(),
-      name = test_script_name, 
-      screenshot_args = FALSE,
-      expect_values_screenshot_args = FALSE,
-      seed = 12345,
-      width = 1920,
-      height = 1080,
-      # shiny_args=list(host="172.19.46.18"),
-      load_timeout = 2e+05,
-      options = list(
-        shiny.testmode = TRUE
-      ))
+    app <- generate_shinytest2_app(test_script_name)
+    on.exit(teardown_shinytest2_app(app), add = TRUE)
     
     print(paste0("About to click in ",test_script_name))
     
@@ -902,18 +890,14 @@ system_exits_test_script <- function(test_script_name = "system-exits", test_dat
     app <- system_exits_tests(app, test_script_name = test_script_name,
                               test_dataset = test_dataset) 
     
-    customDownload(app, "syse_types_download_btn", "System-Exit-Types-Download.xlsx")
-    customDownload(app, "syse_types_download_btn_ppt", "System-Exit-Types-Download-PPT.pptx")
-    customDownload(app, "syse_time_download_btn", "System-Exit-Time-Download.xlsx")
-    customDownload(app, "syse_time_download_btn_ppt", "System-Exit-Time-Download-PPT.pptx")
-    customDownload(app, "syse_subpop_download_btn", "System-Exit-Subpop-Download.xlsx")
-    customDownload(app, "syse_subpop_download_btn_ppt", "System-Exit-Subpop-Download-PPT.pptx")
-    customDownload(app, "syse_phd_download_btn", "System-Exit-Demographics-Download.xlsx")
-    customDownload(app, "syse_phd_download_btn_ppt", "System-Exit-Demographics-Download-PPT.pptx")
+    app$set_inputs(pageid = "tabSystemExits")
+    app$wait_for_idle(timeout = 2e+06)
+    app$click(selector = "#syse_export_btn button")
     
-    if(!is_gha) {
-      customDownload(app, "syse_client_level_download_btn", "System-Exits-Client-Level-Download.xlsx")
-    }
+    app$set_inputs(syse_export_client_xlsx = !is_gha, wait_ = FALSE)
+    app$wait_for_idle(timeout = 2e+06)
+    customDownload(app, "syse_export_act", "System-Exit-Full-Export.zip")
+    
     #browser()
     # export non-large/helper datasets
     # all_export_names <- names(app$get_values(export=TRUE)$export)

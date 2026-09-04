@@ -185,47 +185,34 @@ all_filtered_syse_demog <- reactive({
 all_filtered_syse_subpop <- reactive({
   logToConsole(session, "in all_filtered_syse_subpop")
   req(!is.null(input$imported$name) | isTRUE(input$in_demo_mode))
- 
-  get_subpop_exits <- function(filter_hh_type) {
-    enrl_filtered <- get_enrollments_filtered(
-      enrollment_cats      = session$userData$enrollment_categories,
-      client_cats          = session$userData$client_categories,
-      syse_hh_type         = input$syse_subpop_hh_type, # Dynamic input access
-      syse_level_of_detail = input$syse_level_of_detail,
-      syse_project_type    = input$syse_project_type,
-      filter_hh_type       = filter_hh_type
-    )
-    
+  
+  get_subpop_exits <- function(enrl_data) {
     get_system_exits(
-      enrl_filtered,
+      enrl_data,
       session$userData$client_categories, 
       ctype = 'exits_types',
       reportStart = session$userData$ReportStart,
       reportEnd = session$userData$ReportEnd,
       append_client_info = TRUE,
       client_categories = session$userData$client_categories
-    ) 
+    ) %>% 
+      join(session$userData$enrollment_categories %>% fselect(PersonalID, EnrollmentID, HouseholdType))
   }
   
-  out_subpop <- get_subpop_exits(filter_hh_type = TRUE) |>
+  out_subpop <- get_subpop_exits(syse_enrollments_filtered()) |>
     fmutate(meets_ev_else = FALSE)
   
   if (input$syse_subpop_hh_type != "All") {
-    out_oth_hh_types <- get_subpop_exits(filter_hh_type = FALSE) %>%
-      join(
-        session$userData$enrollment_categories[, .(EnrollmentID, HouseholdType)], 
-        on = "EnrollmentID"
-      ) %>%
+    out_oth_hh_types <- get_subpop_exits(syse_enrollments_filtered_no_hh()) %>%
       fmutate( 
         meets_ev_else = 
           (input$syse_subpop_hh_type == "YYA" & !(HouseholdType %in% c("PY", "UY","CO"))) |
           (input$syse_subpop_hh_type == "AO" & !(HouseholdType %in% c("AOminusUY","UY"))) |
           (input$syse_subpop_hh_type == "AC" & !(HouseholdType %in% c("ACminusPY","PY"))) |
           (!(input$syse_subpop_hh_type %in% c("YYA","AO","AC")) & input$syse_subpop_hh_type != HouseholdType)
-      ) %>% 
-      fsubset(meets_ev_else) %>%
-      fselect(-HouseholdType)
-
+      ) %>%
+      fsubset(meets_ev_else)
+    
     rowbind(out_subpop, out_oth_hh_types)
   } else {
     out_subpop
@@ -247,46 +234,27 @@ observeEvent(input$syse_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  if(input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')){
-    shinyjs::hide('syse_spec_pops')
-    shinyjs::hide('syse_age')
-    shinyjs::hide('syse_race_ethnicity')
-  } else {
-    shinyjs::show('syse_spec_pops')
-    shinyjs::show('syse_age')
-    shinyjs::show('syse_race_ethnicity')
-  }
+  cond <- input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')
+  shinyjs::toggle('syse_spec_pops', condition = cond)
+  shinyjs::toggle('syse_age', condition = cond)
+  shinyjs::toggle('syse_race_ethnicity', condition = cond)
   
   # Household Type is not a filter for Exits by Subpopulation
   shinyjs::toggle("syse_hh_type", condition = input$syse_tabbox != '<h4>Exits by Subpopulation</h4>')
 })
 
-observeEvent(input$syse_types_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_types_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
+logSysExitSubtabMetadata <- function(t) {
+  observeEvent(input[[t]], {
+    req(session$userData$valid_file() == 1)
+    logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input[[t]],
+                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+  }, ignoreNULL = TRUE, ignoreInit = TRUE)
+}
 
-
-observeEvent(input$syse_time_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_time_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-
-observeEvent(input$syse_subpop_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_subpop_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
-observeEvent(input$syse_phd_subtabs, {
-  req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syse_tabbox, " - ", input$syse_phd_subtabs,
-                              if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-}, ignoreNULL = TRUE, ignoreInit = TRUE)
-
+logSysExitSubtabMetadata("syse_time_subtabs")
+logSysExitSubtabMetadata("syse_subpop_subtabs")
+logSysExitSubtabMetadata("syse_phd_subtabs")
+logSysExitSubtabMetadata("syse_time_subtabs")
 
 observeEvent(input$syse_methodology_type, {
   

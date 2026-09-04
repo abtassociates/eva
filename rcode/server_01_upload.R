@@ -233,6 +233,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     toggle_sys_components(prefix='sys', session$userData$valid_file() == 1)
     toggle_sys_components(prefix = 'syse', session$userData$valid_file() == 1)
+    shinyjs::toggle("sys_export_btn", session$userData$valid_file() == 1)
   })
 }
 

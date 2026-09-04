@@ -16,23 +16,23 @@ observeEvent(input$syso_tabbox, {
 }, ignoreNULL = TRUE, ignoreInit = TRUE) #confirm if need to have ignore init?
 
 
-observeEvent(input$sys_inflow_outflow_subtabs, {
+observeEvent(input$syso_inflow_outflow_subtabs, {
   req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_inflow_outflow_subtabs,
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$syso_inflow_outflow_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
-observeEvent(input$sys_status_subtabs, {
+observeEvent(input$syso_status_subtabs, {
   req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_status_subtabs,
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$syso_status_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
 
-observeEvent(input$sys_comp_subtabs, {
+observeEvent(input$syso_comp_subtabs, {
   req(session$userData$valid_file() == 1)
-  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$sys_comp_subtabs,
+  logMetadata(session, paste0("Clicked on ", input$syso_tabbox, " - ", input$syso_comp_subtabs,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
 }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
@@ -49,7 +49,7 @@ observeEvent(input$syso_methodology_type, {
   grouped_re_lbl_new <- ifelse(input$syso_methodology_type == 1, "Grouped", "Hispanic-Focused")
   shinyjs::runjs(
     glue("
-      $('#system_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
+      $('#syso_composition_selections input[value=\"Grouped Races/Ethnicities\"] + span').text('{grouped_re_lbl_new} Races/Ethnicities');
     ")
   )
 }, ignoreInit = TRUE)
@@ -75,11 +75,11 @@ observeEvent(
     )
 
     shinyjs::toggle(
-      "sys_inflow_outflow_download_btn", 
+      "syso_inflow_outflow_download_btn", 
       condition = num_people > 10
     )
     shinyjs::toggle(
-      "sys_inflow_outflow_download_btn_ppt", 
+      "syso_inflow_outflow_download_btn_ppt", 
       condition = num_people > 10
     )
   }

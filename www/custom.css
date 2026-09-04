@@ -1,34 +1,4 @@
 
-/** DEMO MODE **/
-#demo_banner {
-  text-align:center;
-  background-color: var(--bs-warning); /* Orange background */
-  color: black;
-  margin-top:-1px;
-  /* may need to adjust for larger screens */
-  margin-left:-12px;
-  margin-right:-12px;
-}
-
-/*Shifting demo switch all the way to the right*/
-#demo_wrapper .shiny-input-container {
-  display: inline;
-}
-#demo_wrapper .bslib-input-switch{
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Adjust spacing between switch and label */
-}
-
-#in_demo_mode {
-  border-color: white;
-  font-size: 1.8em;
-  margin: 0;
-}
-
-#in_demo_mode:checked {
-  background-color: var(--bs-warning);
-}
 
 .accordion .accordion-heading { 
   font-size: 24px;
@@ -113,8 +83,7 @@
 
 /* make sure download buttons don't span full width*/
 .download-btn-container {
-  display: block;
-}
+  display: block;}
 
 /* Make card headers look like Accordion headers*/
 .bslib-card .card-header {
@@ -122,254 +91,14 @@
   font-size: 1rem;
 }
 
-/*otherwise, we get a 2nd scrollbar on sys overview page*/
-#sys_comp_summary_ui_chart {
-  height:100% !important; 
-}
-
-#syse_phd_chart {
-  height:100% !important; 
-}
-
-/* vertical bar and spacing of sys demographic selections, 
-to group All + Grouped Race selections*/
-#system_composition_selections label.checkbox-inline {
-  padding-right: 10px;
-}
-
-#system_composition_selections label.checkbox-inline:nth-child(1),
-#system_composition_selections label.checkbox-inline:nth-child(3) {
-  border-right: 1px solid lightgray;
-}
-
-#syse_phd_selections label.checkbox-inline {
-  padding-right: 10px;
-}
-
-#syse_phd_selections label.checkbox-inline:nth-child(1),
-#syse_phd_selections label.checkbox-inline:nth-child(3) {
-  border-right: 1px solid lightgray;
-}
-
-#syse_filters_left {
-  border-width:0;
-  border-radius:0;
-}
-
-#syse_filters_left > .card-body > div {
-  display: flex; 
-  gap: 15px; 
-  margin-bottom: 0;
-}
-
-#syse_filters_right {
-  border-width:0;
-  border-left-width: 1px; 
-  border-radius:0;
-        
-}
-#syse_subpop_crosstab_selectors {
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  gap: 15px;
-}
-              
-/*remove bottom margin*/
-#syse_subpop_crosstab_selectors .form-group, 
-#syse_subpop_crosstab_selectors .shiny-input-container, 
-#syse_subpop_crosstab_selectors .checkbox, 
-#syse_subpop_crosstab_selectors .form-check {
-  margin-bottom: 0 !important;
-  margin-top: 0 !important;
-}
-
-#syse_subpop_hh_type_container {
-  display: flex; 
-  align-items: center; 
-  gap: 10px; 
-  border-right: 2px solid #ccc; 
-  padding-right: 15px;
-}
-
-.syse_subpop_other_container {
-  margin-bottom: 0;
-}
-#syse_subpop_hh_type_container > .label {
-  margin-bottom: 0; 
-  white-space: nowrap;
-}
-
-/*flex: 1 1 700px; tells it to stretch, BUT if it can't maintain at least 700px
-next to Household Type, it forces this entire block to wrap to the next line.
-*/
-#syse_subpop_crosstab_selectors > div:nth-child(2) {
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 15px;
-}
-
-#syse_subpop_crosstab_selectors > div:nth-child(2) > div { 
-  display: flex; 
-  align-items: center; 
-  gap: 5px;
-}
-                    
-
-/*center Sys Comp/Demographics chart*/
-#sys_comp_summary_ui_chart {
-  display: flex;
-}
-
-#sys_comp_summary_ui_chart > img {
-  margin: 0 auto;
-}
-
-/*center Sys Exits PHD chart*/
-#syse_phd_chart {
-  display: flex;
-}
-
-#syse_phd_chart > img {
-  margin: 0 auto;
-}
-
-#dateRangeCount > div, #dateRangeCount > div > span > span {
-  height: 3rem;
-}
-
-#timeliness_metric {
-  height: 3rem;
-  max-width:220px;
-}
-
-#timeliness_metric-label {
-  min-width: 220px;
-}
-
-/* MbM*/
-/*reduce horizontal padding to better align datatable with chart*/
-#sys_inflow_outflow_monthly_table  table.dataTable tbody td {
-  padding: 8px 5px;
-}
-
-/* Inflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) {
-    font-weight: bold;
-    background-color: #CCC7C4;
-    border: 2px solid black;
-    background-image: linear-gradient(black 1px, transparent 1px), linear-gradient(to right, black 1px, transparent 1px);
-    background-size: 10px 10px;
-}
-
-/* Outflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) {
-  font-weight: bold;
-  background-color: #CCC7C4;
-  border: 2px solid black;
-  background-image: repeating-linear-gradient(45deg, black 0, black 1px, transparent 0, transparent 50%);
-  background-size: 10px 10px;
-}
-
-/* div within Inflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) > div {
-  background-color: #CCC7C4;
-  color: black;
-  display: inline;
-  font-weight: bold;
-  border-color: black;
-}
-
-/* div within Outflow cell in MbM DT table */
-#sys_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) > div {
-  background-color: #CCC7C4;
-  color: black;
-  display: inline;
-  font-weight: bold;
-}
-
-/* || CHART INFORMATION TABLES */
-.sys_info_table {
-  border: 1px solid black;
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-.sys_info_table th, 
-.sys_info_table td {
-  border: 1px solid black;
-  padding: 15px;
-}
-
-.sys_info_table th {
-  text-align: left;
-}
-
-.sys_info_table td {
-  vertical-align: top;
-}
-
-#modal_demo_tour .modal-body {
-  padding-bottom: 0.5rem;
-}
-
-#modal_demo_tour .modal-footer {
- padding: 0.5rem;
-}
-
-.treejs .treejs-node__checked > .treejs-checkbox:before {
-  background-color: #16697A !important;
-  border-color: #16697A !important;
-}
-
-.treejs .treejs-node__halfchecked > .treejs-checkbox:before {
-  background-color: #16697A !important;
-  border-color: #16697A !important;
-}
-
+/***********
+SESSION TIMEOUT
+************/
 /*Hide "Eva has crashed..." pop-up when timeout occurs*/
 body.idle-timeout-occurred #ss-connect-dialog {
   display: none !important;
 }
 
-#notice {
-  border: 3px solid #FCB248;
-}
-
-#project_dashboard_tl_subtabs {
-  margin-bottom: 10px;
-}
-
-#age_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
-    cursor: not-allowed;
-    background-color: var(--brand-med_grey2);
-}
-
-#age_picker > div {
-  width: 100%;
-}
-
-#vet_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
-    cursor: not-allowed;
-    background-color: var(--brand-med_grey2);
-}
-
-#vet_picker > div {
- width: 100%; 
-}
-
-#race_eth_picker > div > div > .bootstrap-select.disabled, .bootstrap-select>.disabled {
-    cursor: not-allowed;
-    background-color: var(--brand-med_grey2);
-}
-
-#race_eth_picker > div > div {
-  width:100%;
-}
-
-/***********
-SESSION TIMEOUT
-************/
 #timeout-overlay {
   display:none;
   position:fixed;
@@ -384,3 +113,4 @@ SESSION TIMEOUT
   text-align:center;
   padding:20px;
 }
+

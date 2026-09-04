@@ -334,36 +334,31 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
 
-  if(!is.null(validationCLS)){
-    exportDFList[[length(exportDFList) + 1]] <- validationCLS
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CLS"
-    exportTestValues(
-      client_count_download_timeliness_cls = summarize_df(validationCLS %>% nice_names_timeliness(record_type = 'cls'))
-    )
-  }
-  
-  if(!is.null(validationNbN)){
-    exportDFList[[length(exportDFList) + 1]] <- validationNbN
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - Bed-Night Dates"
-    exportTestValues(
-      client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
-    )
-  }
-  
-  if(!is.null(validationCEAssess)){
-    exportDFList[[length(exportDFList) + 1]] <- validationCEAssess
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CE Assessment"
-    exportTestValues(
-      client_count_download_timeliness_ce_assess = summarize_df(validationCEAssess %>% nice_names_timeliness(record_type = 'ce_assess'))
-    )
-  }
-  
-  if(!is.null(validationCEEvent)){
-    exportDFList[[length(exportDFList) + 1]] <- validationCEEvent
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CE Event"
-    exportTestValues(
-      client_count_download_timeliness_ce_event = summarize_df(validationCEEvent %>% nice_names_timeliness(record_type = 'ce_event'))
-    )
+  timeliness_export_list <- list(
+    'cls'       = list(df = validationCLS,      name = "CLS"),
+    'nbn'       = list(df = validationNbN,      name = "Bed-Night Dates"),
+    'ce_assess' = list(df = validationCEAssess, name = "CE Assessment"),
+    'ce_event'  = list(df = validationCEEvent,  name = "CE Event")
+  )
+  for(e in names(timeliness_export_list)) {
+    export <- timeliness_export_list[[e]]
+    if(!is.null(export$df)){
+      exportDFList[[length(exportDFList) + 1]] <- export$df
+      names(exportDFList)[[length(exportDFList)]] <- paste0("Timeliness - ", export$name)
+      test_value_name <- paste0(
+        "client_count_download_timeliness_", e
+      )
+      
+      do.call(
+        exportTestValues,
+        setNames(
+          list(
+            summarize_df(export$df %>% nice_names_timeliness(record_type = e))
+          ),
+          test_value_name
+        )
+      )
+    }
   }
   logToConsole(session, "returning from get_project_dashboard_download_info")
   

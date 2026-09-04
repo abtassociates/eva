@@ -1,5 +1,8 @@
 #source('tabSystemExits.R')
 
+css_files <- lapply(list.files(path = "www", pattern = "\\.css$"), function(f) {
+  includeCSS(here("www", f))
+})
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
@@ -14,7 +17,7 @@ page_navbar(
   header = tagList(
     ## css, idle management, and dimension management --------
     tags$head(
-      includeCSS(here("www/custom.css")),
+      !!!css_files,
       # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
@@ -797,29 +800,29 @@ nav_menu(
         title = headerTab('System Flow'),
         
         navset_underline(
-          id = "sys_inflow_outflow_subtabs",
+          id = "syso_inflow_outflow_subtabs",
           selected = headerSubTab("Summary Chart"),
           nav_panel(
             title = headerSubTab('Summary Chart'),
-            uiOutput("sys_inflow_outflow_summary_filter_selections") %>%
+            uiOutput("syso_inflow_outflow_summary_filter_selections") %>%
               withSpinner(),
-            plotOutput("sys_inflow_outflow_summary_ui_chart",
+            plotOutput("syso_inflow_outflow_summary_ui_chart",
                        width = "70%",
                        height = "500") %>%
               withSpinner()
           ),
           nav_panel(
             title = headerSubTab('Detail Chart'),
-            uiOutput("sys_inflow_outflow_detail_filter_selections") %>%
+            uiOutput("syso_inflow_outflow_detail_filter_selections") %>%
               withSpinner(),
-            plotOutput("sys_inflow_outflow_detail_ui_chart",
+            plotOutput("syso_inflow_outflow_detail_ui_chart",
                        width = "100%",
                        height = "500") %>%
               withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Month-by-Month Chart"), 
-            uiOutput("sys_inflow_outflow_monthly_filter_selections") %>%
+            uiOutput("syso_inflow_outflow_monthly_filter_selections") %>%
              withSpinner(),
             radioGroupButtons(
               inputId = "mbm_status_filter",
@@ -832,20 +835,20 @@ nav_menu(
             ), 
             conditionalPanel(
               condition = "input.mbm_status_filter == 'Inactive'",
-              plotOutput("sys_inactive_monthly_ui_chart", width = "100%", height = "500")
+              plotOutput("syso_inactive_monthly_ui_chart", width = "100%", height = "500")
             ), 
             conditionalPanel(
               condition = "input.mbm_status_filter == 'First-Time Homeless'",
-              plotOutput("sys_fth_monthly_ui_chart", width = "100%", height = "500")
+              plotOutput("syso_fth_monthly_ui_chart", width = "100%", height = "500")
             ),
             conditionalPanel(
               condition = "input.mbm_status_filter == 'All'",
-              plotOutput("sys_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
+              plotOutput("syso_inflow_outflow_monthly_ui_chart", width = "100%", height = "500") %>%
                 withSpinner()
             ),
             conditionalPanel(
               condition = "input.mbm_status_filter == 'All'",
-              DTOutput("sys_inflow_outflow_monthly_table") %>%
+              DTOutput("syso_inflow_outflow_monthly_table") %>%
                 withSpinner()
             )
           ),
@@ -884,11 +887,9 @@ nav_menu(
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_inflow_outflow_subtabs_information
+            tab_syso_inflow_outflow_subtabs_information
           )
-        ),
-        downloadButton("sys_inflow_outflow_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_inflow_outflow_download_btn_ppt", "Image Download")
+        )
       ),
       
       ## System Status/Sankey ----------------
@@ -896,22 +897,20 @@ nav_menu(
         id = 'syso_systemstatus',
         title = headerTab("Client System Status"),
         navset_underline(
-          id = 'sys_status_subtabs',
+          id = 'syso_status_subtabs',
           selected = headerSubTab("Chart"),
           
           nav_panel(
             title = headerSubTab("Chart"),   
-            uiOutput("sankey_filter_selections") %>% withSpinner(),
-            plotOutput("sankey_ui_chart", width="70%") %>% withSpinner()
+            uiOutput("syso_status_filter_selections") %>% withSpinner(),
+            plotOutput("syso_status_ui_chart", width="70%") %>% withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_status_subtabs_information
+            tab_syso_status_subtabs_information
           )
-        ),
-        downloadButton("sys_status_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_status_download_btn_ppt", "Image Download"),
+        )
       ),
       
       ## System Demographics/Composition --------------
@@ -920,7 +919,7 @@ nav_menu(
         title = headerTab("System Demographics"),
         
         navset_underline(
-          id = 'sys_comp_subtabs',
+          id = 'syso_comp_subtabs',
           selected = headerSubTab("Chart"),
           nav_panel(
             title = headerSubTab("Chart"),
@@ -937,7 +936,7 @@ nav_menu(
                                    category to display in the chart at a time."
               )),
               checkboxGroupInput(
-                "system_composition_selections",
+                "syso_composition_selections",
                 label = "",
                 choices = sys_heatmap_selection_choices,
                 selected = c("All Races/Ethnicities", "Age"),
@@ -946,25 +945,24 @@ nav_menu(
               width = 12
             ),
             br(),
-            uiOutput("sys_comp_summary_selections",inline = TRUE),
-            plotOutput("sys_comp_summary_ui_chart") %>% withSpinner()
+            uiOutput("syso_comp_summary_selections",inline = TRUE),
+            plotOutput("syso_comp_summary_ui_chart") %>% withSpinner()
           ),
           nav_panel(
             title = headerSubTab("Information"),
             br(),
-            tab_sys_comp_subtabs_information
+            tab_syso_comp_subtabs_information
             
           )
-        ),
-        downloadButton("sys_comp_download_btn", "Data Download", style='margin-right:2px'),
-        downloadButton("sys_comp_download_btn_ppt", "Image Download")
+        )
+      ),
+      div(
+        class = "export-container-floating",
+        custom_sys_export_dropdown("syso")
       )
       
-      ),
-      downloadButton("client_level_download_btn", "Client Level Download")
-    
-    
-    ),
+    ) # End syso_tabbox
+  ),
 
 # System Exits tab --------------------------------------------------------
 nav_panel(
@@ -1100,9 +1098,7 @@ nav_panel(
           br(),
           tab_syse_types_subtabs_information
         )
-      ),
-      downloadButton("syse_types_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_types_download_btn_ppt", "Image Download")
+      )
     ),
     nav_panel(
       title = headerTab('Exits by Year'),
@@ -1129,9 +1125,7 @@ nav_panel(
           br(),
           tab_syse_time_chart_information
         )
-      ),
-      downloadButton("syse_time_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_time_download_btn_ppt", "Image Download")
+      )
     ),
     
     nav_panel(
@@ -1156,116 +1150,82 @@ nav_panel(
               # ==========================================
               div(
                 id = "syse_subpop_hh_type_container",
-                div(class = "label", "Household Type"),
-                div(
-                  pickerInput(
-                    inputId = "syse_subpop_hh_type",
-                    label = NULL, 
-                    choices = sys_hh_types,
-                    selected = sys_hh_types[1],
-                    width = "100%",
-                    options = pickerOptions(container = "body")
-                  )
+                pickerInput(
+                  inputId = "syse_subpop_hh_type",
+                  label = "Household Type", 
+                  choices = sys_hh_types,
+                  selected = sys_hh_types[1],
+                  width = "100%",
+                  options = pickerOptions(container = "body")
                 )
               ),
               
               # ==========================================
-              # GROUP 2: The Three Checkboxes
+              # GROUP 2: Demographic Dropdowns
               # ==========================================
               layout_columns(
                 class = "syse_subpop_other_container",
-                col_widths = c(3,3,6),
+                col_widths = c(3, 3, 6),
+                
                 # --- Column 1: Age ---
                 div(
-                  checkboxInput('syse_subpop_age_selection', 'Age'),
-                  div(
-                    id = 'age_picker',
-                    pickerInput(
-                      inputId = "syse_subpop_age",
-                      label = NULL,
-                      selected = sys_age_cats,
-                      choices = sys_age_cats,
-                      multiple = TRUE,
-                      options = pickerOptions(
-                        actionsBox = TRUE,
-                        selectedTextFormat = paste("count >", length(sys_age_cats)-1),
-                        countSelectedText = "",
-                        noneSelectedText = "None Selected",
-                        container = "body"
-                      )
+                  id = 'age_picker',
+                  pickerInput(
+                    inputId = "syse_subpop_age",
+                    label = "Age",
+                    choices = sys_age_cats,
+                    selected = sys_age_cats,
+                    multiple = TRUE,
+                    options = pickerOptions(
+                      actionsBox = TRUE,
+                      selectedTextFormat = paste("count >", length(sys_age_cats) - 1),
+                      countSelectedText = "All Ages",
+                      noneSelectedText = "None Selected",
+                      container = "body"
                     )
                   )
                 ),
                 
                 # --- Column 2: Veteran Status ---
                 div(
-                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
-                  div(
-                    id = 'vet_picker',
-                    pickerInput(
-                      label = NULL,
-                      inputId = "syse_subpop_spec_pops",
-                      choices = setNames(
-                        sys_spec_pops_people,
-                        nm = c("None Selected", names(sys_spec_pops_people[-1]))
-                      ),
-                      selected = "None Selected",
-                      options = pickerOptions(container = "body")
-                    )
+                  id = 'vet_picker',
+                  pickerInput(
+                    inputId = "syse_subpop_spec_pops",
+                    label = "Veteran Status (Adult Only)",
+                    choices = setNames(
+                      sys_spec_pops_people,
+                      nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                    ),
+                    selected = sys_spec_pops_people[1],
+                    options = pickerOptions(container = "body")
                   )
                 ),
                 
                 # --- Column 3: Race/Ethnicity ---
                 div(
-                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
-                  div(
-                    id = 'race_eth_picker',
-                    conditionalPanel(
-                      condition = 'input.syse_methodology_type == 1',
-                      pickerInput(
-                        label = NULL,
-                        inputId = "syse_subpop_race_ethnicity1",
-                        choices = setNames(
-                          sys_race_ethnicity_method1,
-                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
-                        ),
-                        selected = "None Selected",
-                        options = list(
-                          `dropdown-align-right` = TRUE,
-                          `dropup-auto` = FALSE,
-                          container = "body",
-                          noneSelectedText = "-"
-                        )
-                      )
+                  id = 'race_eth_picker',
+                  pickerInput(
+                    inputId = "syse_subpop_race_ethnicity",
+                    label = "Race/Ethnicity",
+                    choices = setNames(
+                      sys_race_ethnicity_method1,
+                      nm = c("None Selected", names(sys_race_ethnicity_method1[-1]))
                     ),
-                    conditionalPanel(
-                      condition = 'input.syse_methodology_type == 2',
-                      pickerInput(
-                        label = NULL,
-                        inputId = "syse_subpop_race_ethnicity2",
-                        choices = setNames(
-                          sys_race_ethnicity_method2,
-                          c("None Selected", names(sys_race_ethnicity_method2)[-1])
-                        ),
-                        selected = "None Selected",
-                        options = list(
-                          `dropdown-align-right` = TRUE,
-                          `dropup-auto` = FALSE,
-                          container = "body",
-                          noneSelectedText = "-"
-                        )
-                      )
+                    selected = sys_race_ethnicity_method1[1],
+                    options = pickerOptions(
+                      `dropdown-align-right` = TRUE,
+                      `dropup-auto` = FALSE,
+                      container = "body"
                     )
                   )
                 )
-              ) # End of Group 2
+              )
             ),
             br(),
             radioGroupButtons(
               inputId = "subpop_dest_type",
               label = "Destination Type",
-              choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
-              #Inactive
+              choices = c("Permanent", "Homeless", "Institutional", "Temporary", "Other/Unknown"),
               selected = "Permanent",
               individual = TRUE
             ), 
@@ -1275,21 +1235,18 @@ nav_panel(
           uiOutput("syse_compare_subpop_filter_selections") %>%
             withSpinner(),
           div(
-            style='margin-left:17px;',
+            style = 'margin-left:17px;',
             plotOutput("syse_compare_subpop_chart",
                        width = "92%",
                        height = "500")
-          ),
-          
+          )
         ),
         nav_panel(
           title = headerSubTab('Information'),
           br(),
           tab_syse_subpop_chart_information
         )
-      ),
-      downloadButton("syse_subpop_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_subpop_download_btn_ppt", "Image Download")
+      )
     ),
     
     nav_panel(
@@ -1341,12 +1298,14 @@ nav_panel(
           br(),
           tab_syse_phd_subtabs_information
         )
-      ),
-      downloadButton("syse_phd_download_btn", "Data Download", style='margin-right:2px'),
-      downloadButton("syse_phd_download_btn_ppt", "Image Download")
+      )
+    ),
+    # FLOATING CONSOLIDATED DOWNLOADS (TOP RIGHT)
+    div(
+      class = "export-container-floating",
+      custom_sys_export_dropdown("syse")
     )
-  ),
-  downloadButton("syse_client_level_download_btn", "Client Level Download")
+  ) # End syse_tabbox
 )
 ),
 # Resources menu -----------
