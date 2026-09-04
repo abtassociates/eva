@@ -2,6 +2,9 @@
 # Eva Changelog
 ## 2026-09-17
 
+### New Features
+ - New comprehensive System Performance export interface.
+
 ### Bug Fixes
  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
  - Added new DQ check to flag HoHs that are exited earlier than other household members in an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)

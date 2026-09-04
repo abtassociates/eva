@@ -391,72 +391,68 @@ output$syse_compare_time_table <- renderDT({
   )
 })
 
-output$syse_time_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Year Report - "),
-                                                 content = function(file) {
-                                                   logToConsole(session, "System Exits by Year data download")
-                                                   
-                                                   sheets <- list(
-                                                     "SystemExitsByYear Metadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
-                                                       rowbind(
-                                                         sys_export_filter_selections(type = 'exits')
-                                                       ) %>% 
-                                                       rowbind(
-                                                         data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
-                                                                    Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
-                                                                                                    nrow(everyone() %>% fsubset(period == 'Previous Year')))
-                                                                    )
-                                                         )
-                                                       ) %>% 
-                                                       frename("System Exits by Year" = Value),
-                                                     "YearComparisonData" = syse_time_export()
-                                                     
-                                                   )
-                                                   
-                                                   write_xlsx(
-                                                     sheets,     
-                                                     path = file,
-                                                     format_headers = FALSE,
-                                                     col_names = TRUE
-                                                   )       
-                                                   
-                                                   logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-                                                                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-                                                 })
+syse_time_data_download <- function(file) {
+   logToConsole(session, "System Exits by Year data download")
+   
+   sheets <- list(
+     "SystemExitsByYear Metadata" = sys_export_summary_initial_df(type = 'exits_time') %>%
+       rowbind(
+         sys_export_filter_selections(type = 'exits')
+       ) %>% 
+       rowbind(
+         data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                    Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                    nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                    )
+         )
+       ) %>% 
+       frename("System Exits by Year" = Value),
+     "YearComparisonData" = syse_time_export()
+     
+   )
+   
+   write_xlsx(
+     sheets,     
+     path = file,
+     format_headers = FALSE,
+     col_names = TRUE
+   )       
+   
+   logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
+}
 
 
-output$syse_time_download_btn_ppt <- downloadHandler(filename = function(){
-  paste("System Exits by Year_", Sys.Date(), ".pptx", sep = "")
-},
-content = function(file) {
-  logToConsole(session, "In syse_time_download_btn_ppt")
+syse_time_ppt_download <- function(file) {
+  logToConsole(session, "In syse_time_ppt_download")
   
-  sys_perf_ppt_export(file = file, 
-                      type = 'exits_comparison',
-                      title_slide_title = "System Exits by Year",
-                      summary_items = list(
-                        "Summary" = sys_export_summary_initial_df(type = 'exits_time') %>%
-                          rowbind(
-                            sys_export_filter_selections(type = 'exits')
-                          ) %>% 
-                          rowbind(
-                            data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
-                                       Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
-                                                                       nrow(everyone() %>% fsubset(period == 'Previous Year')))
-                                       )
-                            )
-                          ) 
-                      ),
-                      plots = list(
-                        "System Exits by Year - Chart" = get_syse_compare_time_chart(isExport = TRUE),
-                        "System Exits by Year - Table" = get_syse_compare_time_flextable(
-                          get_syse_compare_time_data(output_type = 'table')
-                        )
-                      ),
-                      summary_font_size = 19,
-                      startDate = session$userData$ReportStart, 
-                      endDate = session$userData$ReportEnd, 
-                      sourceID = session$userData$Export$SourceID,
-                      in_demo_mode = input$in_demo_mode
+  sys_perf_ppt_export(
+    file = file, 
+    type = 'exits_comparison',
+    title_slide_title = "System Exits by Year",
+    summary_items = list(
+      "Summary" = sys_export_summary_initial_df(type = 'exits_time') %>%
+        rowbind(
+          sys_export_filter_selections(type = 'exits')
+        ) %>% 
+        rowbind(
+          data.table(Chart = c('Total Current Year System Exits', 'Total Previous Year System Exits'),
+                     Value = scales::label_comma()(c(nrow(everyone() %>% fsubset(period == 'Current Year')),
+                                                     nrow(everyone() %>% fsubset(period == 'Previous Year')))
+                     )
+          )
+        ) 
+    ),
+    plots = list(
+      "System Exits by Year - Chart" = get_syse_compare_time_chart(isExport = TRUE),
+      "System Exits by Year - Table" = get_syse_compare_time_flextable(
+        get_syse_compare_time_data(output_type = 'table')
+      )
+    ),
+    summary_font_size = 19,
+    startDate = session$userData$ReportStart, 
+    endDate = session$userData$ReportEnd, 
+    sourceID = session$userData$Export$SourceID,
+    in_demo_mode = input$in_demo_mode
   )
-  
-})
+}

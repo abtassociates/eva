@@ -337,6 +337,24 @@ observeEvent(input$syse_subpop_vet_selection,
                }                 
              })
 
+observeEvent(input$syse_subpop_hh_type, {
+  toggle_subpop_download_options()
+})
+toggle_subpop_download_options <- function() {
+  # Disable/Enable rows in Export Interface
+  # If they haven't selected anything, they should not be able to export this chart/data
+  has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
+  
+  # 1. Enable / Disable checkboxes
+  # 2. If disabled, uncheck them so they are not included in the export
+  for(id in c("syse_export_subpop_pptx","syse_export_subpop_xlsx")) {
+    shinyjs::toggleState(id, condition = has_subpops)
+    if(!has_subpops) updateCheckboxInput(session, id, value = FALSE)
+  }
+  
+  # 3. Show info icon when disabled, hide when enabled
+  shinyjs::toggle("syse_subpop_info_icon", condition = !has_subpops)
+}
 
 observeEvent(syse_subpop_selections(),{
   
@@ -351,6 +369,8 @@ observeEvent(syse_subpop_selections(),{
     shinyjs::enable(id='syse_subpop_race_eth_selection')
     shinyjs::enable(id='syse_subpop_vet_selection')
   }
+  
+  toggle_subpop_download_options()
 })
 
 output$syse_compare_subpop_filter_selections <-renderUI({ 
@@ -520,62 +540,70 @@ output$syse_compare_subpop_chart <- renderPlot({
                             dest_type = input$subpop_dest_type)
 })
 
-output$syse_subpop_download_btn <- downloadHandler(filename = date_stamped_filename("System Exits by Subpopulation Report - "),
-                                                   content = function(file) {
-                                                     logToConsole(session, "System Exits by Subpopulation data download")
-                                                     
-                                                     sheets <- list(
-                                                       "SystemExitsBySubpop Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
-                                                         rowbind(
-                                                           sys_export_filter_selections(type = 'exits_subpop'),
-                                                           data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                                                      Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else())))
-                                                           )
-                                                         ) %>% 
-                                                         frename("System Exits by Subpopulation" = Value),
-                                                       "SubpopulationComparisonSummary" = syse_subpop_export_summary(),
-                                                       "SubpopulationExitDetail" = syse_subpop_export_detail()
-                                                     )
-                                                     
-                                                     write_xlsx(
-                                                       sheets,     
-                                                       path = file,
-                                                       format_headers = FALSE,
-                                                       col_names = TRUE
-                                                     )   
-                                                     
-                                                     logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
-                                                                                 if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
-                                                   })
-
-output$syse_subpop_download_btn_ppt <- downloadHandler(filename = function(){
-  paste("System Exits by Subpopulation_", Sys.Date(), ".pptx", sep = "")
-},
-content = function(file) {
-  sys_perf_ppt_export(file = file,
-                      type = 'exits_comparison',
-                      title_slide_title = "System Exits by Subpopulation",
-                      summary_items = list(
-                        "Summary" = sys_export_summary_initial_df(type = 'exits') %>%
-                          rowbind(
-                            sys_export_filter_selections(type = 'exits_subpop'),
-                            data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
-                                       Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else())))
-                            )
-                          )
-                      ),
-                      plots = list(
-                        "System Exits by Subpopulation - Permanent" =  syse_compare_subpop_chart(dest_type = 'Permanent',isExport = TRUE),
-                        "System Exits by Subpopulation - Homeless" =  syse_compare_subpop_chart(dest_type = 'Homeless', isExport = TRUE),
-                        "System Exits by Subpopulation - Institutional" =  syse_compare_subpop_chart(dest_type = 'Institutional',isExport = TRUE),
-                        "System Exits by Subpopulation - Temporary" =  syse_compare_subpop_chart(dest_type = 'Temporary',isExport = TRUE),
-                        "System Exits by Subpopulation - Other/Unknown" =  syse_compare_subpop_chart(dest_type = 'Other/Unknown',isExport = TRUE)
-                      ),
-                      summary_font_size = 19,
-                      startDate = session$userData$ReportStart,
-                      endDate = session$userData$ReportEnd,
-                      sourceID = session$userData$Export$SourceID,
-                      in_demo_mode = input$in_demo_mode
+syse_subpop_data_download <- function(file) {
+  logToConsole(session, "System Exits by Subpopulation data download")
+  
+  sheets <- list(
+    "SystemExitsBySubpop Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
+      rowbind(
+        sys_export_filter_selections(type = 'exits_subpop'),
+        data.table(
+          Chart = c(
+            'Total System Exits for Subpopulation',
+            'Total System Exits for Everyone Else'
+          ),
+          Value = scales::label_comma()(c(nrow(subpop(
+          )), nrow(everyone_else(
+          ))))
+        )
+      ) %>%
+      frename("System Exits by Subpopulation" = Value),
+    "SubpopulationComparisonSummary" = syse_subpop_export_summary(),
+    "SubpopulationExitDetail" = syse_subpop_export_detail()
   )
   
-})
+  write_xlsx(
+    sheets,
+    path = file,
+    format_headers = FALSE,
+    col_names = TRUE
+  )
+  
+  logMetadata(
+    session,
+    paste0(
+      "Downloaded System Exits Tabular Data: ",
+      input$syse_tabbox,
+      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")
+    )
+  )
+}
+
+syse_subpop_ppt_download <- function(file) {
+  sys_perf_ppt_export(
+    file = file,
+    type = 'exits_comparison',
+    title_slide_title = "System Exits by Subpopulation",
+    summary_items = list(
+      "Summary" = sys_export_summary_initial_df(type = 'exits') %>%
+        rowbind(
+          sys_export_filter_selections(type = 'exits_subpop'),
+          data.table(Chart = c('Total System Exits for Subpopulation', 'Total System Exits for Everyone Else'),
+                     Value = scales::label_comma()(c(nrow(subpop()),nrow(everyone_else())))
+          )
+        )
+    ),
+    plots = list(
+      "System Exits by Subpopulation - Permanent" =  syse_compare_subpop_chart(dest_type = 'Permanent',isExport = TRUE),
+      "System Exits by Subpopulation - Homeless" =  syse_compare_subpop_chart(dest_type = 'Homeless', isExport = TRUE),
+      "System Exits by Subpopulation - Institutional" =  syse_compare_subpop_chart(dest_type = 'Institutional',isExport = TRUE),
+      "System Exits by Subpopulation - Temporary" =  syse_compare_subpop_chart(dest_type = 'Temporary',isExport = TRUE),
+      "System Exits by Subpopulation - Other/Unknown" =  syse_compare_subpop_chart(dest_type = 'Other/Unknown',isExport = TRUE)
+    ),
+    summary_font_size = 19,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    sourceID = session$userData$Export$SourceID,
+    in_demo_mode = input$in_demo_mode
+  )
+}
