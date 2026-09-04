@@ -797,3 +797,64 @@ intentional_stop <- function(session, message) {
     )
   )
 }
+
+# Format mirai traceback
+format_mirai_traceback <- function(err) {
+  calls <- sys.calls()
+  
+  # 1. Find where the sourced script was executed
+  # Look for the last source() call in the stack
+  start_idx <- 1
+  for (i in rev(seq_along(calls))) {
+    cl_str <- deparse(calls[[i]][[1]])
+    if (any(grepl("^source$|^base::source$", cl_str))) {
+      # The actual code executed inside the file starts 3 frames after source()
+      # (skipping withVisible and eval wrappers)
+      start_idx <- min(i + 3, length(calls))
+      break
+    }
+  }
+  
+  # 2. Trim error handler boilerplates at the end of the stack
+  end_idx <- length(calls)
+  for (i in seq(length(calls), start_idx)) {
+    cl_str <- paste(deparse(calls[[i]][[1]]), collapse = " ")
+    if (grepl("format_mirai_traceback|\\.handleSimpleError|h\\(", cl_str)) {
+      end_idx <- i - 1
+    } else {
+      break
+    }
+  }
+  
+  relevant_calls <- calls[start_idx:end_idx]
+  lines <- character()
+  
+  for (cl in relevant_calls) {
+    src <- attr(cl, "srcref")
+    
+    if (!is.null(src)) {
+      srcfile <- basename(attr(src, "srcfile")$filename)
+      line_num <- src[1]
+      # Extract verbatim formatted text from file
+      code_str <- paste(as.character(src), collapse = "\n    ")
+      lines <- c(lines, sprintf("--> [%s:%d]\n    %s", srcfile, line_num, code_str))
+    } else {
+      # For package functions (like reduce(), +, etc.)
+      code_str <- paste(deparse(cl, width.cutoff = 80), collapse = "\n    ")
+      lines <- c(lines, sprintf("--> (call)\n    %s", code_str))
+    }
+  }
+  
+  # Deduplicate consecutive pipe frames
+  lines <- lines[c(TRUE, lines[-1] != lines[-length(lines)])]
+  
+  paste(
+    sprintf("\n[ERROR]: %s\n", conditionMessage(err)),
+    "----------------------------------------------------------------",
+    "Source Traceback (Failure in Target Script):",
+    "----------------------------------------------------------------",
+    paste(lines, collapse = "\n\n"),
+    "----------------------------------------------------------------\n",
+    sep = "\n"
+  )
+}

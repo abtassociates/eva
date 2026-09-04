@@ -231,10 +231,25 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 4) %>%
   fselect(vars_we_want)
 
-hh_issues <- 
-  rowbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
+hh_hoh_exit <- base_dq_data %>% 
+  fgroup_by(HouseholdID) %>%
+  fmutate(
+    nPeople = fnunique(PersonalID), 
+    nExits = fnunique(ExitDate),
+    #earliestExitDate=fmin(ExitDate, na.rm=TRUE),
+    lastExitDate=fmax(ExitDate, na.rm=TRUE)
+  ) %>%
+  fungroup() %>% # get HOH of households with more than one person and exit date
+  fsubset(RelationshipToHoH == 1 &  nPeople > 1 & nExits > 1 & 
+            ExitDate != lastExitDate) %>%  # and check their exit is on the last date
+  merge_check_info_dt(checkIDs = 145) %>%
+  fselect(vars_we_want)
 
-rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh)
+hh_issues <- 
+  rowbind(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh,
+          hh_hoh_exit)
+
+rm(hh_too_many_hohs, hh_no_hoh, hh_children_only, hh_missing_rel_to_hoh, hh_hoh_exit)
 
 # Missing Data at Entry ---------------------------------------------------
 # Living Situation,  Length of Stay, LoSUnderThreshold, PreviousStreetESSH,
@@ -1389,26 +1404,29 @@ missing_health_insurance_exit <- missing_health_insurance %>%
   merge_check_info_dt(checkIDs = 93) %>%
   fselect(vars_we_want)
 
+hi_cols <- c(
+  "Medicaid",
+  "SCHIP",
+  "VHAServices",
+  "EmployerProvided",
+  "COBRA",
+  "PrivatePay",
+  "StateHealthIns",
+  "IndianHealthServices",
+  "OtherInsurance",
+  "Medicare"
+)
+
 health_insurance_subs <- base_dq_data_inc %>%
   fselect(
     vars_prep,
     'DataCollectionStage',
     'InsuranceFromAnySource',
-    'Medicaid',
-    'Medicare',
-    'SCHIP',
-    'VHAServices',
-    'EmployerProvided',
-    'COBRA',
-    'PrivatePay',
-    'StateHealthIns',
-    'IndianHealthServices',
-    'OtherInsurance'
+    hi_cols
   ) %>%
+  replace_na(value = 0, cols = hi_cols) %>%
   fmutate(
-    SourceCount = Medicaid + SCHIP + VHAServices + EmployerProvided +
-      COBRA + PrivatePay + StateHealthIns + IndianHealthServices +
-      OtherInsurance + Medicare
+    SourceCount = Reduce(`+`, gv(., hi_cols))
   ) %>%
   fsubset((InsuranceFromAnySource == 1 &
             SourceCount == 0) |
