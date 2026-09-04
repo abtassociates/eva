@@ -1462,78 +1462,48 @@ ncb_subs <- IncomeBenefits %>%
     TANFChildCare,
     TANFTransportation,
     OtherTANF,
-    OtherBenefitsSource
+    OtherBenefitsSource,
+    BenefitsFromAnySource
   ) %>%
-  funique()
-
-ncb_subs[is.na(ncb_subs)] <- 0
-
-# basic ncb data but adding BenefitsFromAnySource, an ee-level data element
-# BenefitsFromAnySource will repeat depending on its EEID & collection stage
-ncbs <- ncb_subs %>%
-  join(IncomeBenefits %>% fselect("PersonalID",
-                             "EnrollmentID",
-                             "DataCollectionStage",
-                             "BenefitsFromAnySource") %>%
-              funique(),
-            on = c("PersonalID",
-                   "EnrollmentID",
-                   "DataCollectionStage"),
-            how = 'full', 
-            multiple = TRUE,
-            validate = 'm:m')
+  funique() %>%
+  replace_NA(
+    value = 0,
+    cols = c("SNAP", "WIC", "TANFChildCare", "TANFTransportation", "OtherTANF", "OtherBenefitsSource")
+  )
 
 # if there are conflicting yes/no records or conflicting subs, this will catch
 # any that conflict with each other, which will prompt the user to correct the
 # record(s) that's incorrect
 
 ncb_staging <- base_dq_data %>%
-    join(ncbs, on = c("PersonalID", "EnrollmentID"), how='left') %>%
-    fsubset(
-      DataCollectionStage == 1 &
-        (AgeAtEntry > 17 |
-           is.na(AgeAtEntry))
-    ) %>%
-    fmutate(
-      BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
-        OtherTANF + OtherBenefitsSource
-    ) %>%
-    fselect(vars_prep,
-           "DataCollectionStage",
-           "BenefitsFromAnySource",
-           "BenefitCount") %>%
-    funique()
+  join(ncb_subs, on = c("PersonalID", "EnrollmentID"), how='left') %>%
+  fsubset(
+    DataCollectionStage == 1 &
+      (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
+      ProjectID %in% projects_require_ncb
+  ) %>%
+  fmutate(
+    BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
+      OtherTANF + OtherBenefitsSource
+  ) %>%
+  fselect("AgeAtEntry",
+          vars_prep,
+          "DataCollectionStage",
+          "BenefitsFromAnySource",
+          "BenefitCount") %>%
+  funique()
 
 
 missing_ncbs_entry <- ncb_staging %>%
-  fsubset((is.na(BenefitsFromAnySource)) &
-           ProjectID %in% c(projects_require_ncb)
-  ) %>%
+  fsubset(is.na(BenefitsFromAnySource)) %>%
   merge_check_info_dt(checkIDs = 96) %>%
   fselect(vars_we_want)
 
-conflicting_ncbs_entry <- base_dq_data %>%
-  join(ncb_staging %>%
-              fselect("PersonalID",
-                     "EnrollmentID",
-                     "DataCollectionStage",
-                     "BenefitsFromAnySource",
-                     "BenefitCount"),
-            on = c("PersonalID",
-                   "EnrollmentID"), how = 'left', multiple = TRUE) %>%
-  fselect('AgeAtEntry',
-         vars_prep,
-         'DataCollectionStage',
-         'BenefitsFromAnySource',
-         'BenefitCount') %>%
-  fsubset(DataCollectionStage == 1 &
-           ProjectID %in% c(projects_require_ncb) &
-           (AgeAtEntry > 17 | is.na(AgeAtEntry)) &
-           ((BenefitsFromAnySource == 1 &
-               BenefitCount == 0) |
-              (BenefitsFromAnySource == 0 &
-                 BenefitCount > 0)
-           )) %>%
+conflicting_ncbs_entry <- ncb_staging %>%
+  fsubset(
+    (BenefitsFromAnySource == 1 & BenefitCount == 0) |
+    (BenefitsFromAnySource == 0 & BenefitCount > 0)
+  ) %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
     
