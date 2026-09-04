@@ -3,10 +3,11 @@
 ## 2026-09-17
 
 ### Bug Fixes
-  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
-  - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
-  - Handling character columns with problematic characters.
-  - Handling nulls in Export.
+ - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
+ - Added new DQ check to flag HoHs that are exited earlier than other household members in an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)
+ - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
+ - Handling character columns with problematic characters.
+ - Handling nulls in Export.
 
 ### Miscellaneous
   - Added an Empty File initially-invalid check.
@@ -17,7 +18,7 @@
 
 ### Bug Fixes
  - Remove enrollments with no Bed Nights for 'Bed night entered on Project Exit Date' check (Issue <a href='https://github.com/abtassociates/eva/issues/1031' target='_blank'>#1031</a>)
- - Move HouseholdType filter on Exits by Subpopulation page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>.)
+ - Move HouseholdType filter on Exits by Subpopulation page to the chart selector section (Issue <a href='https://github.com/abtassociates/eva/issues/1023' target='_blank'>#1023</a>)
  - Added new DQ check "Enrollment During Non-Participation Period" with updated code that handles multiple HMIS Participation records with more nuance and retired DQ checks "Enrollment After HMIS Participating Period" and "Enrollment Before HMIS Participating Period"
  
 ### New Features
