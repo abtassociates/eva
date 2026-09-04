@@ -259,6 +259,21 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDetail <- NULL
   }
 
+  # METRICS
+  m_ds <- metric_datasets_all_proj()
+  proj_table <- session$userData$Project0[OrganizationName %in% orgList]
+  
+  # Calculate all metrics across all projects in one vectorized call
+  metrics_exported <- build_metrics_tables_batch(
+    m_datasets  = m_ds,
+    proj_table  = proj_table,
+    is_export   = TRUE
+  )
+  
+  metricsSummaryExport <- metrics_exported$summary
+  metricsDetailExport  <- metrics_exported$detail
+  
+  # TIMELINESS
   if(!is.null(tl_df_project_start())){
     validationStart <- clean_timeliness_df(tl_df_project_start(), record_type = 'start')
   } else {
@@ -303,6 +318,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDateRange = validationDateRange %>% nice_names(),
     validationFullExportRange = validationFullExportRange %>% nice_names(),
     validationDetail = validationDetail %>% nice_names(),
+    metricsSummaryExport = metricsSummaryExport %>% nice_names(),
+    metricsDetailExport = metricsDetailExport %>% nice_names(),
     validationStart = validationStart,
     validationExit = validationExit
   )
@@ -312,6 +329,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     "ClientCounts - Date Range",
     "ClientCounts-Full Export Range",
     "ClientCounts - Detail",
+    "Metrics - Summary",
+    "Metrics - Detail",
     "Timeliness - Project Start",
     "Timeliness - Project Exit"
   )
