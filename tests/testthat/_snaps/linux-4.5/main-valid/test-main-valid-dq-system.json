@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: ba29c373427107ee644bb86aaed2a401]",
+      "src": "[image data hash: 17df4e77986983d3d093931a95dbfbb2]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -148,7 +148,7 @@
 
                 ],
                 "y": [
-                  "Nulls Not Allowed",
+                  "Head of Household Exited Before Other Household Members",
                   "Dependent Field Data Collection Issue",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
@@ -161,8 +161,8 @@
               "y": "reorder(Issue, countVar)"
             },
             "range": {
-              "left": 252.494434931507,
-              "right": 1634.520547945206,
+              "left": 281.9631849315071,
+              "right": 1634.520547945205,
               "bottom": 377.7808219178082,
               "top": 5.479452054794522
             }
