@@ -479,14 +479,17 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
         return()
       }
       
+      has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
       for(id in sub_ids) {
+        if(grepl("syse_export_subpop_", id) && !has_subpops) next
+        
         updateCheckboxInput(session, id, value = input[[master_id]])
       }
     })
   }
   
   sub_to_master_cascade <- function(ext) {
-    master_id   <- paste0(id_prefix, "_export_all_", ext)
+    master_id <- paste0(id_prefix, "_export_all_", ext)
     sub_ids <- get_sub_checkbox_ids(ext)
     
     observeEvent(lapply(sub_ids, \(id) input[[id]]), {
