@@ -5,8 +5,8 @@ library(tidyverse)
 library(zip)
 library(here)
 library(collapse)
-source(here("hardcodes.R"), local = TRUE)
-source(here("helper_functions.R"), local = TRUE)
+source(here("util","hardcodes.R"), local = TRUE)
+source(here("util","helper_functions.R"), local = TRUE)
 
 # unzip main test data to temp directory. 
 # this will allow us to overwrite individual csv files
