@@ -180,7 +180,7 @@ special_validation_rules <- list(
       VerifiedBy = quote(is.na(VerifiedBy) & ProjectType == 14)
     ),
     "Invalid Non-Null Value" = list(
-      CurrentLivingSituation = quote(!CurrentLivingSituation %in% c(312,313,327,422,423,426,30,24,NA))
+      CurrentLivingSituation = quote(!CurrentLivingSituation %in% c(valid_values[["3.12.1"]], NA) | CurrentLivingSituation %in% c(312,313,327,422,423,426,30,24))
     )
   ),
   Disabilities = list(
@@ -195,7 +195,7 @@ special_validation_rules <- list(
     "Invalid Non-Null Value" = list(
       # VAMCStation   = quote(!VAMCStation %in% valid_values[["V6.1"]]),
       EnrollmentCoC = quote(!is.na(EnrollmentCoC) & !stringi::stri_detect_regex(EnrollmentCoC, "^[A-Za-z]{2}-[0-9]{3}$")),
-      LivingSituation = quote(!is.na(LivingSituation) & !LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37,NA))
+      LivingSituation = quote(!LivingSituation %in% c(valid_values[["3.12.1"]], NA) | LivingSituation %in% c(312,313,327,422,423,426,30,17,24,37))
     )
   ),
   Exit = list(
@@ -206,7 +206,7 @@ special_validation_rules <- list(
       ),
       SessionsInPlan     = quote(!is.na(SessionsInPlan) & (SessionsInPlan <= 0 | SessionsInPlan %% 1 != 0)),
       SessionCountAtExit = quote(!is.na(SessionCountAtExit) & (SessionCountAtExit <= 0 | SessionCountAtExit %% 1 != 0)),
-      Destination = quote(!Destination %in% c(336,335,37, NA))
+      Destination = quote(!Destination %in% c(valid_values[["3.12.1"]], NA) | Destination %in% c(336,335,37))
     ),
     "Dependent Field Data Collection Issue" = list(
       SessionCountAtExit = quote(CounselingReceived == 1)
