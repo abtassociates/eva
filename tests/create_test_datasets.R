@@ -36,6 +36,7 @@ original_data <- lapply(names(csv_files), importFile, upload_filepath = here("te
 names(original_data) <- tools::file_path_sans_ext(basename(csv_files))
 
 # Make sure we pass the Hash Checks
+set.seed(12345)
 random_hash <- function(n = 1, length = 64) {
   vapply(
     seq_len(n),

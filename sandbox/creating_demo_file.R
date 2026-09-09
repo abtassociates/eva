@@ -76,6 +76,7 @@ for (file in unique(cols_and_data_types$CSV)) {
   }
   
   if(file == "Client") {
+    set.seed(12345)
     random_hash <- function(n = 1, length = 64) {
       vapply(
         seq_len(n),
