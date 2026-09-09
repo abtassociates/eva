@@ -1,51 +1,70 @@
 bracket_regex <- "[\\[\\]<>\\{}]"
 
 # Function to detect non-UTF-8 characters and brackets
-detect_bracket_characters <- function(dt, file) {
+detect_bracket_characters <- function(dt, file, cols_to_check, key_info) {
   # Vectorized detection for non-UTF-8 and bracket issues
   # Identify character columns only
-  char_cols <- names(dt)[sapply(dt, is.character)]
-  if (length(char_cols) == 0) next
-  
-  results <- lapply(char_cols, function(col) {
-    bracket_rows <- which(grepl(bracket_regex, dt[[col]], perl=TRUE))
-    if (length(bracket_rows) == 0) return(NULL)
-    
+  lapply(cols_to_check, function(col) {
+    bracket_rows <- stringi::stri_detect_regex(dt[[col]], bracket_regex)
+    bracket_values <- fsubset(dt[[col]], bracket_rows)
     data.table(
-      File = file,
-      Location = paste0("column ", col, ", row ", bracket_rows),
-      Text = dt[[col]][bracket_rows]
+      CSV = file,
+      Column = col,
+      Detail = paste0("Text with impermissible characters: ", bracket_values, glue_data(dt[bracket_rows], key_info))
     )
-  })
-  
-  rbindlist(results, use.names = TRUE, fill = TRUE)
+  }) |> rowbind()
 }
 
 bracket_files_detail <- function() {
-  file_list <- unique(cols_and_data_types$File)
+  impermissible_problems <- session$userData$file_structure_analysis_main() |> 
+    fsubset(Issue == "Impermissible Characters", CSV, Column, Issue) |>
+    funique() |>
+    join(
+      specs_rules |> fselect(CSV, "Column" = Name, Issue, `Key Fields`),
+      on = c("CSV", "Column", "Issue")
+    )
+  
+  file_list <- funique(impermissible_problems$CSV)
+  
   withProgress(
-    message = "Downloading Impermissible Character Export...", {
-    results <- lapply(file_list, function(file) {
-      dt <- importFile(upload_filepath = input$imported$datapath, csvFile = file)  # Load file
-      incProgress(1 / length(file_list))
-      detect_bracket_characters(dt, file)
-    })
-    
-    rbindlist(results, use.names = TRUE, fill = TRUE)
-  })
+    message = "Downloading Impermissible Character Export...",
+    lapply(file_list, function(file) {
+      cols_to_keep <- funique(na.omit(unlist(
+        lapply(impermissible_problems[CSV == file, .(Column, `Key Fields`)], as.character), 
+        use.names = FALSE
+      )))
+      idx <- whichv(impermissible_problems$CSV, file)
+      cols_to_check <- as.character(impermissible_problems$Column[idx])
+      key_fields    <- as.character(impermissible_problems$`Key Fields`[idx])
+      key_info <- fifelse(is.na(key_fields), "", gsub("([A-Za-z0-9_.]+)", ". Key Info: \\1 {\\1}", key_fields))
+      
+      path <- utils::unzip(
+        zipfile = input$imported$datapath, 
+        files=paste0(file, ".csv"), 
+        exdir=dirname(tempfile())
+      )
+      
+      dt <- fread(path, select = union(cols_to_check, key_fields))
+      
+      incProgress(1 / fnrow(impermissible_problems))
+      detect_bracket_characters(dt, file, cols_to_check, key_info)
+    }) |> rowbind()
+  )
 }
 
 # File Structure Analysis Summary -----------------------------------------
 # update_fsa <- function() {
 output$fileStructureAnalysis <- renderDT({
   req(session$userData$initially_valid_import() == 1)
-  req(!is.null(session$userData$file_structure_analysis_main()))
   
-  a <- session$userData$file_structure_analysis_main() %>%
-    group_by(Type, Issue) %>%
-    summarise(Count = n()) %>%
-    ungroup() %>%
-    arrange(Type, desc(Count))
+  a <- session$userData$file_structure_analysis_main()
+  req(!is.null(a))
+  
+  if(fnrow(a) > 0)
+    a <- a %>%
+      fgroup_by(Priority, Issue) %>%
+      fsummarise(Count = fnrow(.)) %>%
+      roworder(Priority, -Count)
   
   datatable(
     a,
@@ -73,7 +92,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
   content = function(file) {
     write_xlsx(
       session$userData$file_structure_analysis_main() %>%
-        arrange(Type, Issue) %>%
+        roworder(Priority, Issue) %>%
         nice_names(),
       path = file
     )
@@ -87,7 +106,7 @@ output$downloadFileStructureAnalysis <- downloadHandler(
 
 output$downloadImpermissibleCharacterDetailBtn <- renderUI({
   # browser()
-  req("Impermissible characters" %in% c(session$userData$file_structure_analysis_main()$Issue))
+  req("Impermissible Characters" %in% session$userData$file_structure_analysis_main()$Issue)
   tagList(
     actionButton("showDownloadImpermissibleButton",
                  "Download Impermissible Character Detail", 

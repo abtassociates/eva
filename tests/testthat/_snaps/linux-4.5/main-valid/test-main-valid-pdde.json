@@ -25,7 +25,9 @@
       14,
       15,
       16,
-      17
+      17,
+      18,
+      19
     ],
     "pdde_guidance_summary_rows_current": [
       1,
@@ -112,7 +114,9 @@
       14,
       15,
       16,
-      17
+      17,
+      18,
+      19
     ],
     "pdde_summary_table_rows_current": [
       1,
@@ -128,6 +132,11 @@
     ],
     "pdde_summary_table_rows_selected": null,
     "pdde_summary_table_search": "",
+    "pdde_summary_table_search_columns": [
+      "",
+      "",
+      ""
+    ],
     "pdde_summary_table_state": {
       "start": 0,
       "length": 10,
@@ -203,13 +212,13 @@
       "x": {
         "filter": "top",
         "vertical": false,
-        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n  <\/td>\n<\/tr>",
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Missing Geography Information&quot;,&quot;Missing Address&quot;,&quot;No Inventory Records&quot;,&quot;Operating End precedes Inventory End&quot;,&quot;Overlapping HMIS Participation Records&quot;,&quot;Inventory Start Precedes Operating Start&quot;,&quot;No Enrollments within Active Inventory&quot;,&quot;RRH-SO has active bed inventory&quot;,&quot;VSP participating in HMIS&quot;,&quot;Zero Utilization&quot;,&quot;Bed Type incompatible with Housing Type&quot;,&quot;Project CoC missing bed inventory&quot;,&quot;Incorrect CoC in bed inventory&quot;,&quot;Client-level data in VSP organization&quot;,&quot;Project Missing in ProjectCoC file&quot;,&quot;Residential Project Missing Housing Type&quot;,&quot;Long-Term Seasonal Inventory&quot;,&quot;Identifier Does Not Match Across CSV Files&quot;,&quot;Nulls Not Allowed&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Please ensure geography information for projects is complete.&quot;,&quot;Residential projects should have inventory data. Please enter inventory in HMIS for the project. If this project operates in more than one CoC, there must be separate Bed and Unit Inventory Information records for each CoC associated with the project in the Project.csv file.&quot;,&quot;Inventory records should end whenever a project stops operating. Please correct either the inventory dates or the Project Operating End Date.&quot;,&quot;This project has more than one HMIS Participation record that covers the same time period. Please be sure you are ending any records that are no longer accurate before creating a new record.&quot;,&quot;Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.&quot;,&quot;This project has no enrollments that intersect with its inventory.&quot;,&quot;You have designated this project as Rapid Rehousing, subtype Services Only. The FY2026 Data Standards Manual says this kind of project \\&quot;provides services only and does not provide ongoing rental assistance or support any inventory for participants.\\&quot; If the project fits this description, please be sure there are no active inventory records associated with the project.&quot;,&quot;This project is set as HMIS Participating, but the Organization it belongs to is set to Victim Service Provider = Yes. The Violence Against Women Act (VAWA) prohibits Victim Service Providers (VSPs) from entering data into HMIS and other shared databases. HUD has created this [decision tree](https://www.hudexchange.info/resource/5743/hmis-when-to-use-a-comparable-database/) to help communities and providers determine if they should enter data into HMIS or a comparable database.&quot;,&quot;Any participating project with active year-round or seasonal beds should have one or more active clients during the reporting period.&quot;,&quot;ES projects must record a Bed Type that is logically consistent with Housing Type at the project level. Facility-based beds align to the Housing Type of site-based and voucher-based beds align to the Housing Type of tenant-based.&quot;,&quot;Residential projects that operate in more than one CoC must have bed inventory for each CoC they serve. Please be sure there is an active inventory record for each CoC the project serves and the Project CoCs are accurate.&quot;,&quot;Any CoC represented in a project&#39;s active bed inventory records must also be listed as a CoC associated with the Project. Please be sure that all CoCs served are listed.&quot;,&quot;Regardless of HMIS Participation Status, projects under Organizations marked as Victim Service Providers should not have client data in HMIS.&quot;,&quot;This Continuum project is missing from your ProjectCoC file. This may mean the project is either missing a Continuum of Care Information record which includes fields such as &#39;Geocode&#39;, &#39;Project ZIP code&#39;, and &#39;Project Street Address&#39;, or there is an existing Continuum of Care Information record for the project, but the record does not have the correct CoC Code.&quot;,&quot;This project is missing a Housing Type. Please check this project&#39;s setup in your HMIS and identify whether the project&#39;s Housing Type is Site-based – single site, Site-based – clustered / multiple sites, or Tenant-based – scattered site.&quot;,&quot;This project has at least one Seasonal inventory record that either does not have an inventory end date or has inventory start and end dates that indicate the inventory was available for a year or longer. Seasonal beds are not available year-round, but instead are available on a planned basis, with set start and end dates, during an anticipated period of higher demand. Please check the dates of the inventory record ID(s) in the Detail column to ensure they align with this inventory&#39;s seasonal availability.&quot;,&quot;Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.&quot;,&quot;Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Priority<\/th>\n      <th>Issue<\/th>\n      <th>Guidance<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
           "dom": "ltpi",
           "columnDefs": [
             {
-              "name": "Type",
+              "name": "Priority",
               "targets": 0
             },
             {
@@ -323,11 +332,12 @@
     },
     "pdde_summary_table": {
       "x": {
-        "filter": "none",
+        "filter": "top",
         "vertical": false,
-        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Type<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "filterHTML": "<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Missing Geography Information&quot;,&quot;Missing Address&quot;,&quot;No Inventory Records&quot;,&quot;Operating End precedes Inventory End&quot;,&quot;Overlapping HMIS Participation Records&quot;,&quot;Inventory Start Precedes Operating Start&quot;,&quot;No Enrollments within Active Inventory&quot;,&quot;RRH-SO has active bed inventory&quot;,&quot;VSP participating in HMIS&quot;,&quot;Zero Utilization&quot;,&quot;Bed Type incompatible with Housing Type&quot;,&quot;Project CoC missing bed inventory&quot;,&quot;Incorrect CoC in bed inventory&quot;,&quot;Client-level data in VSP organization&quot;,&quot;Project Missing in ProjectCoC file&quot;,&quot;Residential Project Missing Housing Type&quot;,&quot;Long-Term Seasonal Inventory&quot;,&quot;Identifier Does Not Match Across CSV Files&quot;,&quot;Nulls Not Allowed&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;High Priority&quot;,&quot;Error&quot;,&quot;Warning&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" style=\"width: 100%;\"/>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"137\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>",
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Issue<\/th>\n      <th>Priority<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
         "options": {
-          "dom": "t",
+          "dom": "ltpi",
           "columnDefs": [
             {
               "targets": 2,
@@ -342,7 +352,7 @@
               "targets": 0
             },
             {
-              "name": "Type",
+              "name": "Priority",
               "targets": 1
             },
             {
@@ -355,9 +365,10 @@
           ],
           "autoWidth": false,
           "orderClasses": false,
+          "orderCellsTop": true,
           "ajax": {
             "type": "POST",
-            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = false;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
           },
           "serverSide": true,
           "processing": true
@@ -406,6 +417,34 @@
           "attachment": null,
           "package": null,
           "all_files": false
+        },
+        {
+          "name": "nouislider",
+          "version": "7.0.10",
+          "src": {
+            "href": "nouislider-7.0.10"
+          },
+          "meta": null,
+          "script": "jquery.nouislider.min.js",
+          "stylesheet": "jquery.nouislider.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "selectize",
+          "version": "0.12.0",
+          "src": {
+            "href": "selectize-0.12.0"
+          },
+          "meta": null,
+          "script": "selectize.min.js",
+          "stylesheet": "selectize.bootstrap3.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
         },
         {
           "name": "crosstalk",

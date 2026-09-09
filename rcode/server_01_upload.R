@@ -6,9 +6,13 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     # run script inside tryCatch block, create modal if script fails
     source_trycatch <- function(script_name){
-      src_att <- tryCatch(source(script_name, local = parent.env(environment())), 
+      src_att <- if(!IN_DEV_MODE) {
+        tryCatch(source(script_name, local = parent.env(environment())), 
                           error = function(e) {e})
-
+      } else {
+        source(script_name, local = parent.env(environment()))
+      }
+      
       if(inherits(src_att, 'simpleError')){
         logToConsole(session, src_att)
         logToConsole(session, paste0("Error occured in ", script_name))
@@ -34,7 +38,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     setProgress(detail = "Unzipping...", value = .10)
     list_of_files <- unzip(
       zipfile = upload_filepath, 
-      files = paste0(unique(cols_and_data_types$File), ".csv"),
+      files = paste0(unique(cols_and_data_types$CSV), ".csv"),
       exdir = tempdir()
     )
     # 01 -------------------
@@ -60,6 +64,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     if(!is.null(err)) return(NULL)
     # 05 & 06 (MIRAI) -------------------
     setProgress(detail = "Assessing your data quality..", value = .7)
+
     dq_and_pdde_dependencies <- mget(unique(c(dq_mirai_dependencies, pdde_mirai_dependencies)))
     dq_and_pdde_dependencies[["session"]] <- list(
       token = session$token,

@@ -118,18 +118,23 @@ dkr_dnc <- c(8, 9, 99)
 dkr <- c(8, 9)
 
 # Expected upload schema (files, columns, and data types) ------------------
-cols_and_data_types <- read_csv(here("public-resources/columns.csv"), 
-                                col_types = cols()) %>%
-  fsubset(!(File %in% c("Affiliation",
-                       "AssessmentResults",
-                       "AssessmentQuestions",
-                       "Disabilities")))
+files_to_ignore <- c(
+  # "Affiliation",
+  "AssessmentResults",
+  "AssessmentQuestions" #,
+  # "Disabilities"
+)
+
+column_priorities <- fread(here("public-resources/columns.csv")) %>%
+  fsubset(!File %in% files_to_ignore)
 
 data_type_mapping <- list(
-  character = "character",
-  numeric = "numeric",
-  date = "Date",
-  datetime = "POSIXct"
+  "S" = list("RClass" = "character", "readable" = "string"),
+  "T" = list("RClass" = "POSIXct", "readable" = "datetime"),
+  "D" = list("RClass" = "Date", "readable" = "date"),
+  "I" = list("RClass" = "integer", "readable" = "integer"),
+  "M+" = list("RClass" = "numeric", "readable" = "decimal"),
+  "M" = list("RClass" = "numeric", "readable" = "decimal")
 )
 
 # Allowed Subsidy Types ---------------------------------------------------
@@ -137,9 +142,9 @@ data_type_mapping <- list(
 subsidy_types <- c(419, 420, 428, 431, 433, 434, 436, 437, 438, 439, 440)
 
 # Issue types and levels --------------------------------------------------
-issue_levels <- c("High Priority", "Error", "Warning")
+issue_priorities <- c("High Priority", "Error", "Warning")
 
-issue_display_cols <- c("Issue", "Type", "Guidance", "Detail")
+issue_display_cols <- c("Issue", "Priority", "Guidance", "Detail")
 
 # System Overview - Filters -----------------------------------------------
 
@@ -295,7 +300,7 @@ sys_grouping_detail <- c(
 )
 
 # EvaChecks data (contains issue, type, guidance for each check) ----------
-evachecks <- read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
+evachecks <- readr::read_csv(here("public-resources/EvaChecks.csv"), show_col_types = FALSE)
 
 if(collapse::any_duplicated(evachecks$ID)) {
   stop("EvaChecks has duplicate IDs!")
@@ -378,10 +383,10 @@ rm(inc_ncb_hi_required_prep)
   # Also: https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
 base_font_px <- 14 # 14px = 14*0.75 pts/px = 10.5pts = 10.5 pts = 3.7mm
 base_font_pts <- base_font_px*0.75
-base_font_mm <- base_font_pts / .pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
+base_font_mm <- base_font_pts / ggplot2::.pt # .pt is the constant to convert pt to mm (1pt = 3.5mm)
 
 dq_axis_font <- 12 # 12 pts = 16px
-sys_chart_text_font <- 14 / .pt # 14 pts = 4.92mm = 18.67px
+sys_chart_text_font <- 14 / ggplot2::.pt # 14 pts = 4.92mm = 18.67px
 sys_chart_text_font_pts <- 14 # 14 pts = 4.92mm = 18.67px
 sys_axis_text_font <- 15 #15 pts = 22px
 sys_comp_axis_text_font <- 14 #14 pts = 22px
@@ -437,7 +442,8 @@ dq_mirai_dependencies <- c(
   "IncomeBenefits",
   "Services",
   "Event",
-  "EnrollmentOutside2"
+  "EnrollmentOutside2",
+  "Exit"
 )
 
 pdde_mirai_dependencies <- c(
@@ -446,7 +452,8 @@ pdde_mirai_dependencies <- c(
   "ProjectCoC",
   "activeInventory",
   "HMISParticipation",
-  "CEParticipation"
+  "CEParticipation",
+  "Project"
 )
 
 enrollment_cols <- c(
@@ -507,3 +514,5 @@ METADATA_PATH <- ifelse(
   here("metadata-analysis/metadata"), 
   glue::glue("/srv/shiny-efs/{basename(here())}/metadata-analysis/metadata")
 )
+
+SPECS_PREPPED_PATH <- here("public-resources", "eva_specs_prepped.rds")

@@ -178,14 +178,32 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     )
   filename <- paste0(tempdir(), "/", basename(filename))
   
-  colTypes <- get_col_types(upload_filepath, csvFile)
+  expected_rclasses <- get_expected_rclasses(csvFile)
+  
+  # interpret the data in their original encoding, so they display nicely
+  # The resulting characters are almost always UTF-8 characters
+  # While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
+  # So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
+  # as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
+  # But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
+  guessed_enc <- readr::guess_encoding(filename)$encoding[1]
+  fread_enc <- ifelse(guessed_enc %in% c(NA, "UTF-8", "ASCII"), "UTF-8", "Latin-1")
   
   # import data
   data <- data.table::fread(
     filename,
-    colClasses = unlist(unname(colTypes)),
-    na.strings="NA"
+    colClasses = unlist(unname(expected_rclasses)),
+    na.strings="NA",
+    encoding = fread_enc
   )
+  
+  # Tag all character columns as UTF-8
+  # Strings are tagged with a certain encoding metadata that is critical for some
+  # data.table functions (e.g. `roworder`)
+  char_cols <- char_vars(data, return = "names")
+  if (length(char_cols) > 0)
+    settransformv(data, char_cols, enc2utf8)
+  
   
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
   data[, (names(data)) := lapply(.SD, function(x) {
@@ -195,7 +213,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   }), .SDcols = names(data)]
 
   for(col in names(data)) {
-    if(is.character(data[[col]]) && colTypes[[col]] == "numeric") {
+    if(is.character(data[[col]]) && expected_rclasses[[col]] == "numeric") {
       current_col_values <- data[[col]]
       original_nas <- is.na(current_col_values)
       temp_numeric_values <- suppressWarnings(as.numeric(current_col_values))
@@ -221,21 +239,22 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
       fsubset(is.na(DateDeleted))
   }
   
-  attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
-  data <- convert_data_to_utf8(data)
-  
   # remove the csv
   file.remove(filename)
   return(data)
 }
 
-get_col_types <- function(upload_filepath, file) {
-  # returns the datatypes as a named list, using data.table::fread column types,
-  # based on the order of the columns in the imported file, rather than the expected order
-  # get the column data types expected for the given file
-  col_types <- cols_and_data_types %>%
-    fsubset(File == file) %>%
-    fmutate(DataType = data_type_mapping[as.character(DataType)])
+get_expected_rclasses <- function(file) {
+  # returns the expected rclasses of the columns in the file as named list, 
+  # using data.table::fread column types,
+  expected_rclasses <- cols_and_data_types %>%
+    fsubset(CSV == file) %>%
+    fmutate(
+      type_for_lookup = fifelse(grepl("S", Type), "S", Type),
+      DataType = sapply(type_for_lookup, function(t) {
+        data_type_mapping[[t]][["RClass"]]
+      })
+    )
   
   cols_in_file <- colnames(read.table(
     paste0(tempdir(), "/", file, ".csv"),
@@ -244,14 +263,14 @@ get_col_types <- function(upload_filepath, file) {
     sep = ",", 
     comment.char = ""))
   
-  # get the data types for those columns
-  data_types <- sapply(cols_in_file, function(col_name) {
-    ifelse(col_name %in% col_types$Column,
-           col_types$DataType[col_types$Column == col_name],
+  # get the rclasses for those columns that are actually in the file
+  rclasses <- sapply(cols_in_file, function(col_name) {
+    ifelse(col_name %in% expected_rclasses$Name,
+           expected_rclasses$DataType[expected_rclasses$Name == col_name],
            "character")
   })
 
-  return(data_types)
+  return(rclasses)
 }
 
 logMetadata <- function(session, detail) {
@@ -318,6 +337,20 @@ logSessionData <- function(session) {
     ImplementationID = if(is.null(session$userData$Export$ImplementationID)) NA else session$userData$Export$ImplementationID
   )
   
+  export_fields_to_store <- c(
+    "CoC" = "SourceID",
+    "ExportID" = "ExportID",
+    "SourceContactFirst" = "SourceContactFirst",
+    "SourceContactLast" = "SourceContactLast",
+    "SourceContactEmail" = "SourceContactEmail",
+    "SoftwareName" = "SoftwareName",
+    "ImplementationID" = "ImplementationID"
+  )
+    
+  for(v in names(export_fields_to_store)) {
+    d[v] <- if(v %in% names(session$userData$Export)) session$userData$Export[[v]] else NA
+  }
+  
   # put the export info in the log
   capture.output(d, file = stderr())
   
@@ -343,8 +376,8 @@ logToConsoleFull <- function(session, msg) {
   d <- data.frame(
     SessionToken = session$token,
     Datestamp = Sys.time(),
-    CoC = session$userData$Export$SourceID,
-    ExportID = session$userData$Export$ExportID,
+    CoC = if(!is.null(session$userData$Export$SourceID)) session$userData$Export$SourceID else NA,
+    ExportID = if(!is.null(session$userData$Export$ExportID)) session$userData$Export$ExportID else NA,
     Msg = msg
   )
   capture.output(d, file = stderr())
@@ -423,8 +456,8 @@ nice_names_timeliness <- function(df, record_type){
 
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
-  data <- read_csv(paste0(directory, "data/", filename)
-                   ,col_types = get_col_types(csvFile)
+  data <- readr::read_csv(paste0(directory, "data/", filename)
+                   ,col_types = get_expected_rclasses(csvFile)
                    ,na = ""
   )
   return(data)
@@ -584,41 +617,6 @@ replace_char_at <- function(string, position, replacement) {
   )
 }
 
-# interpret the data in their original encoding, so they display nicely
-# The resulting characters are almost always UTF-8 characters
-# While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
-# So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
-# as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
-# But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
-convert_data_to_utf8 <- function(data) {
-  file_encoding <- attr(data, "encoding")
-  if(file_encoding %in% c("UTF-8","ASCII")) return(data)
-  
-  # Fix encoding in all character columns in place
-  for (col in names(data)) {
-    if (is.character(data[[col]])) {
-      # Original column before conversion
-      original_col <- data[[col]]
-      
-      # Interpret characters in a non-UTF-8 encoded file correctly
-      # E.g. ‰ in a UTF-8 file, will come in as ‰ and should not be 
-      if(is.na(file_encoding)) file_encoding <- "ISO-8559-1"
-
-      tryCatch({
-        converted_col <- iconv(original_col, from = file_encoding, to = "UTF-8")  
-        # Identify changes by comparing original and converted values
-        if (length(which(original_col != converted_col)) > 0) {
-          data[[col]] <- converted_col
-        }
-      }, error = function(e) {
-        print("Conversion failed! Unknown encoding!")
-      })      
-    }
-  }
-  
- return(data)
-}
-
 # Debugging Inflow/Outflow-----------------
 # This function pulls in all enrollments and columns for a given set of "bad" records
 # so we can see their "full picture"
@@ -725,6 +723,26 @@ show_trycatch_popup <- function(script_name){
   )
 }
 
+
+# This function converts the English in the provided text into code
+# Used in, e.g., machine-readable-specs processing
+clean_text <- function(text) {
+  text %>%
+    # Replace "=" with "==" (but not "==", "!=", "<=", ">=")
+    stringi::stri_replace_all_regex("(?<![=!<>])=(?!=)", "==") %>%
+    # Replace "in" with "%in%"
+    stringi::stri_replace_all_regex("\\bin\\b", "%in%") %>%
+    # Replace AND/and/And with &
+    stringi::stri_replace_all_regex("\\b(?:AND|and|And)\\b", "&") %>%
+    # Replace OR/or/Or with |
+    stringi::stri_replace_all_regex("\\b(?:OR|or|Or)\\b", "|") %>%
+    # Replace "is not null" with !is.na(...)
+    stringi::stri_replace_all_regex("(\\w+)\\s+is not null", "!is.na($1)") %>%
+    # Replace "is null" with is.na(...)
+    stringi::stri_replace_all_regex("(\\w+)\\s+is null", "is.na($1)") %>%
+    # Replace "between" with %between%
+    stringi::stri_replace_all_regex("\\bbetween\\b", "%between%")
+}
 # Get snapshot of System Overview stuff
 # key datasets (session$userData$enrollment_categories and period_data), when in dev mode
 # are saved along the way in an RDS file in user's sandbox folder
@@ -767,7 +785,6 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
   }
 }
 
-
 # Helper function for intentionally stopping script execution early.
 intentional_stop <- function(session, message) {
   logToConsole(session, message)
@@ -777,6 +794,50 @@ intentional_stop <- function(session, message) {
       class = c("intentional_stop", "error", "condition")
     )
   )
+}
+
+add_response_val_detail <- function(df, ...) {
+  # 1. Capture all unquoted column names passed via ...
+  col_names <- sapply(as.list(substitute(list(...))[-1]), deparse)
+  
+  if (length(col_names) == 0) return(df)
+  
+  # Helper to resolve text for a single column
+  get_text_for_col <- function(col_name) {
+    target_list <- cols_and_data_types[Name == col_name, List][1]
+    lookup_dt   <- valid_values_df[List == target_list]
+    
+    val_vec     <- as.character(df[[col_name]])
+    lookup_vals <- as.character(lookup_dt$Value)
+    
+    matched_text <- lookup_dt$Text[match(val_vec, lookup_vals)]
+    
+    # Fallback to code if text not found, or NA if input is NA
+    fifelse(!is.na(matched_text) & matched_text != "", 
+            matched_text, 
+            fifelse(!is.na(val_vec), paste0("[Code: ", val_vec, "]"), NA_character_))
+  }
+  
+  # 2. Get decoded text for each variable
+  all_texts <- lapply(col_names, get_text_for_col)
+  
+  # 3. Format the detail string
+  if (length(col_names) == 1) {
+    # Single variable format: "Response value: Client doesn't know"
+    details <- paste0("Response value: ", all_texts[[1]])
+  } else {
+    # Multiple variables format: "Response value: Var1: Client doesn't know | Var2: No"
+    formatted_cols <- mapply(function(name, vals) {
+      paste0(name, " (", vals, ")")
+    }, col_names, all_texts, SIMPLIFY = FALSE)
+    
+    # Combine columns row-wise with " | " separator
+    combined <- do.call(paste, c(formatted_cols, sep = ", "))
+    details  <- paste0("Response values: ", combined)
+  }
+  
+  # 4. Attach to df
+  df %>% fmutate(Detail = details)
 }
 
 # Format mirai traceback
