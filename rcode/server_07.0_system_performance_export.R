@@ -225,13 +225,23 @@ populate_client_level_export <- function(type = 'overview', file){
       PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
     )
   if(nrow(session$userData$lh_info) > 0) {
+    top_5_enrollments_by_num_lh_dates <- session$userData$lh_info |>
+      fsubset(!is.na(lh_date)) |>
+      fgroup_by(EnrollmentID, ProjectType) |>
+      fsummarise(n_lh_dates = fnrow(lh_date)) |>
+      fungroup() |>
+      roworder(-n_lh_dates) |>
+      head(5)
+    logToConsole(session, "[DEBUG] Top 5 enrollments in Adjusted Non-Res Enrl by Num LH Dates") 
+    logToConsole(session, top_5_enrollments_by_num_lh_dates)
+    
     adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
       join(
         session$userData$lh_info %>% 
+          fsubset(!is.na(lh_date)) %>%
           fgroup_by(EnrollmentID) %>% 
           fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
-          fungroup() %>%
-          fsubset(lh_dates != "NA"),
+          fungroup()
         on = "EnrollmentID"
       )
   }
