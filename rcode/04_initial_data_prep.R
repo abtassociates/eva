@@ -24,18 +24,33 @@
 
 logToConsole(session, "Running initial data prep")
 
-# Project data ------------------------------------------------------------
-
+# project_prep (Project left join Organization) --------------------
 # breaking out Projects into their participating times, adjusting ProjectIDs
-
 project_prep <- Project %>%
   join(
     Organization %>%
       fselect(OrganizationID, OrganizationName, VictimServiceProvider),
     how = "left",
     on = "OrganizationID"
-  )
+  ) 
 
+# Project0 (unique project_prep) ------------------
+
+session$userData$Project0 <- project_prep %>%
+  fselect(ProjectID,
+          ProjectName,
+          OrganizationID,
+          OrganizationName,
+          OperatingStartDate,
+          OperatingEndDate,
+          ProjectType,
+          RRHSubType,
+          HousingType,
+          VictimServiceProvider,
+          ContinuumProject) %>%
+  funique() 
+
+# ProjectSegments (project_prep left join HMISParticipation) ------------------------
 ProjectSegments <- project_prep %>%
   join(
     HMISParticipation %>%
@@ -68,29 +83,13 @@ ProjectSegments <- project_prep %>%
 # * Use Project if you need something from the original data as it came in that's
 #     not in Project0 or ProjectSegments
 
-session$userData$Project0 <- project_prep %>%
-  fselect(ProjectID,
-         ProjectName,
-         OrganizationID,
-         OrganizationName,
-         OperatingStartDate,
-         OperatingEndDate,
-         ProjectType,
-         RRHSubType,
-         HousingType,
-         VictimServiceProvider,
-         ContinuumProject) %>%
-  funique()
-
-rm(project_prep)
-
 # Enrollment --------------------------------------------------------------
-# Truncating Enrollments based on Operating/Participating -----------------
+## EnrollmentStaging (Enrollment left join Client left join Exit) -----------------
 EnrollmentStaging <- Enrollment %>%
   join(Client %>% fselect(PersonalID, DOB), 
-       on = "PersonalID") %>%
+       on = "PersonalID") %>% # left join by default
   join(Exit %>% fselect(EnrollmentID, Destination, DestinationSubsidyType, ExitDate),
-       on = "EnrollmentID") %>%
+       on = "EnrollmentID") %>% # left join by default
   fmutate(ExitAdjust = fcoalesce(ExitDate, no_end_date),
          AgeAtEntry = age_years(DOB, EntryDate),
          DOB = NULL) %>%
@@ -130,7 +129,7 @@ EnrollmentStaging <- Enrollment %>%
   ) %>%
   fungroup()
 
-# Truncating Enrollments based on Operating/Participating -----------------
+## EnrollmentOutside (EnrollmentStaging left join ProjectSegments) -----------------
 # This also brings in Project-level info, e.g. ProjectType to the Enrollment dataset
 EnrollmentOutside <- qDT(EnrollmentStaging) %>%
   fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust) %>%
@@ -159,6 +158,7 @@ EnrollmentOutside <- qDT(EnrollmentStaging) %>%
 # z <- x[y, on = .(id)]
 # print(z)
 
+### Calculate EnrollmentvParticipating and EnrollmentvOperating ------------------------
 Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, comparisonWord) {
   fcase(
     (EntryDate >= ComparisonStart & ExitAdjust <= ComparisonEnd) |
@@ -199,13 +199,15 @@ EnrollmentOutside <- EnrollmentOutside %>%
   collap( ~ ProjectID + EnrollmentID, ffirst) %>% 
   fselect(-EntryDate, -ExitAdjust)
 
+## Enrollment (EnrollmentStaging left join EnrollmentOutside) -------------------------
+
 Enrollment <- EnrollmentStaging %>%
   join(
     EnrollmentOutside,
     on = "EnrollmentID",
     how = "left"
   ) %>%
-  fmutate(
+  fmutate( ## calculate EntryDateTruncated & ExitDateTruncated
     EntryDateTruncated = fifelse(
       EnrollmentvOperating %in% c("Enrollment Crosses Operating Start",
                                   "Enrollment Crosses Operating Period") |
@@ -225,7 +227,7 @@ Enrollment <- EnrollmentStaging %>%
   ) %>%
   relocate(Destination:ExitDateTruncated, .before = RelationshipToHoH)
 
-# Adjust Move-In Date -----------------------------------------------------------
+## Adjust Move-In Date -----------------------------------------------------------
 # Move-In Date is only collected for HoH. So we need to compute an adjusted 
 # household move-In Date (HMID) for all members, using the HoH's earliest move-in date
 # Note households are tied to the Project. There may mistakenly be multiple HoH, so take earliest
@@ -277,13 +279,16 @@ Enrollment <- Enrollment %>%
       )
     )
   )
-
 rm(HHMoveIn)
 
-# Only contains EEs within Operating and Participating Dates --------------
+## Store to userData ----------------------
+
+session$userData$Enrollment <- Enrollment 
+
+# EnrollmentAdjust --------------------------------------------------------
+# Only contains EEs within Operating and Participating Dates
 # to be used for system data analysis purposes. has been culled of enrollments
 # that fall outside of participation/operation date ranges.
-
 EnrollmentAdjust <- Enrollment %>%
   fsubset(
     !EnrollmentvParticipating %in% c(
@@ -296,14 +301,16 @@ EnrollmentAdjust <- Enrollment %>%
       )
   )
 
-# Only BedNight Services --------------------------------------------------
-
+# Services --------------------------------------------------
+# filter to Only BedNights
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
   fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
+session$userData$Services <- Services 
 
-# Build validation df for app ---------------------------------------------
+# validation  ---------------------------------------------
+# Build validation df for app 
 # this contains Project and Org info together
 validationProject <- ProjectSegments %>%
   fselect(
@@ -361,7 +368,8 @@ session$userData$validation <- validationProject %>%
   ) %>%
   fsubset(!is.na(EntryDate))
 
-# Checking requirements by projectid --------------------------------------
+# project_funders_types ---------------------------------------
+# Checking requirements by projectid 
 
 projects_funders_types <- Funder %>%
   join(Project %>%
@@ -381,9 +389,10 @@ projects_funders_types <- Funder %>%
             hi = fmax(hi, na.rm = TRUE),
             dv = fmax(dv, na.rm = TRUE)) %>%
   fungroup() %>%
-  qDT()
+  qDT() 
 
-# Active Inventory -------------------------------------------------------------
+
+# activeInventory -------------------------------------------------------------
 activeInventory <- Inventory %>%
   join(
     session$userData$Project0 %>%
@@ -401,9 +410,9 @@ activeInventory <- Inventory %>%
   fsubset(
     fcoalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
-  )
+  ) 
 
-# Event (Used in DQ)
+# Event (Used in DQ) ------------------------------------
 Event <- Event %>% 
   fselect(
     EnrollmentID,
@@ -418,13 +427,15 @@ Event <- Event %>%
     ReferralResult,
     ResultDate
   )
-
-session$userData$Services <- Services
-session$userData$Exit <- Exit
-session$userData$Enrollment <- Enrollment
-session$userData$CurrentLivingSituation <- CurrentLivingSituation
-session$userData$Assessment <- Assessment
 session$userData$Event <- Event
+
+# Exit --------------------------
+session$userData$Exit <- Exit 
+# CurrentLivingSituation -------------------------------
+session$userData$CurrentLivingSituation <- CurrentLivingSituation 
+# Assessment -------------------------
+session$userData$Assessment <- Assessment
+
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |

@@ -164,7 +164,7 @@ parseDate <- function(datevar) {
   return(newDatevar)
 }
 
-importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
+importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000, session) {
   if(isTRUE(str_sub(upload_filepath, -4, -1) != ".zip")) {
     capture.output("User tried uploading a non-zip file!") 
   }
@@ -223,6 +223,9 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   attr(data, "encoding") <- guess_encoding(filename)$encoding[1]
   data <- convert_data_to_utf8(data)
+  
+  # truncate strings exceeding the maximum excel limit
+  data <- xlsx_char_trunc(data, log_loc = paste(csvFile, "(importFile)"), session = session)
   
   # remove the csv
   file.remove(filename)
@@ -767,6 +770,22 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
   }
 }
 
+# truncate columns of dataframes being exported to xlsx
+xlsx_char_trunc <- function(df, max_nchar = 32767, log_loc = "", session){
+  # checking if any columns need to be truncated
+  df_chars <- char_vars(df)
+  if(length(df_chars) == 0) return(df)
+  
+  trunc_flags <- df_chars |> map_lgl(~any(stringi::stri_length(.x) > max_nchar, na.rm = TRUE))
+  if (!any(trunc_flags)) return(df)
+  
+  truncated_list <- modify_at(df_chars, which(trunc_flags), ~stringi::stri_sub(.x, 1, max_nchar))
+  df_final <- ftransform(df, truncated_list)
+  
+  logToConsole(session, paste("truncating", log_loc, "column(s) :", paste(names(which(trunc_flags)), collapse = ", "),
+                              "that exceed the maximum number of characters", max_nchar))
+  return(df)
+}
 
 # Helper function for intentionally stopping script execution early.
 intentional_stop <- function(session, message) {

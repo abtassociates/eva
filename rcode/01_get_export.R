@@ -11,5 +11,5 @@ list_of_problems <- list()
 for (file in unique(cols_and_data_types$File)) {
   #import the csv and save it as a data frame
   logToConsole(session, paste0("importing ", file))
-  assign(file, importFile(upload_filepath=NULL, csvFile=file))
+  assign(file, importFile(upload_filepath=NULL, csvFile=file, session = session))
 }

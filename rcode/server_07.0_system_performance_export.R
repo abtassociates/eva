@@ -225,24 +225,43 @@ populate_client_level_export <- function(type = 'overview', file){
       PersonalID, EnrollmentID, ProjectType, EntryDate_orig, ExitAdjust_orig, EntryDate, ExitAdjust, lh_prior_livingsituation
     )
   if(nrow(session$userData$lh_info) > 0) {
+    top_5_enrollments_by_num_lh_dates <- session$userData$lh_info |>
+      fsubset(!is.na(lh_date)) |>
+      fgroup_by(EnrollmentID, ProjectType) |>
+      fsummarise(n_lh_dates = fnrow(lh_date)) |>
+      fungroup() |>
+      roworder(-n_lh_dates) |>
+      head(5)
+    logToConsole(session, "[DEBUG] Top 5 enrollments in Adjusted Non-Res Enrl by Num LH Dates") 
+    logToConsole(session, top_5_enrollments_by_num_lh_dates)
+    
     adjusted_non_res_enrl <- adjusted_non_res_enrl %>%
       join(
         session$userData$lh_info %>% 
+          fsubset(!is.na(lh_date)) %>%
           fgroup_by(EnrollmentID) %>% 
           fsummarise(lh_dates = paste(lh_date, collapse = ",")) %>% 
-          fungroup() %>%
-          fsubset(lh_dates != "NA"),
+          fungroup()
         on = "EnrollmentID"
       )
   }
+
     # officer load the excel file with all its formatting
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
-    wb <- sheet_write_data(wb, filter_selections, "Metadata")
-    wb <- sheet_write_data(wb, client_level_details, "Client Details")
-    wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
-    wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
-    
+    wb <- sheet_write_data(wb, xlsx_char_trunc(filter_selections, 
+                                               log_loc = "Metadata (client_level_export_server)",
+                                               session = session) , "Metadata")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(client_level_details, 
+                                               log_loc = "Client Details (client_level_export_server)",
+                                               session = session), "Client Details")
+    wb <- sheet_write_data(wb,  xlsx_char_trunc(monthly_statuses, 
+                                                log_loc = "Monthly Statuses (client_level_export_server)",
+                                                session = session) ,  "Monthly Statuses")
+    wb <- sheet_write_data(wb,   xlsx_char_trunc(adjusted_non_res_enrl, 
+                                                 log_loc = "Adjusted Enrollments (client_level_export_server)",
+                                                 session = session), "Adjusted Enrollments")
+
   } else if(type == 'exits'){
     
     # User's filter selections - metadata tab
@@ -276,8 +295,12 @@ populate_client_level_export <- function(type = 'overview', file){
     # All sheets exist in the desired order with view set to start on 'Instructions' 
     wb <- officer::read_xlsx(here("www/CLE Instructions and Data Dictionary.xlsx"))
     
-    wb <- sheet_write_data(wb, filter_selections, "Metadata")
-    wb <- sheet_write_data(wb, client_level_details, "Client Details")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(filter_selections, 
+                                               log_loc = "Exits Metadata (client_level_export_server)",
+                                               session = session), "Metadata")
+    wb <- sheet_write_data(wb, xlsx_char_trunc(client_level_details, 
+                                               log_loc = "Exits Client Details (client_level_export_server)",
+                                               session = session), "Client Details")
     
     # drop the other sheets and instrunctions
     wb <- sheet_remove(wb, "Monthly Statuses")
