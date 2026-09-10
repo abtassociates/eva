@@ -160,20 +160,36 @@ EnrollmentOutside <- qDT(EnrollmentStaging) %>%
 # print(z)
 
 Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, comparisonWord) {
+  
+  stopifnot(EntryDate <= ExitAdjust)
+  stopifnot(ComparisonStart <= ComparisonEnd)
+  
+  Entry <- fcase(EntryDate < session$userData$meta_HUDCSV_Export_Start, # Entry before Export Start
+                 session$userData$meta_HUDCSV_Export_Start, # use the Export Start,
+                 TRUE, EntryDate) # otherwise use EntryDate
+  Exit <- fcase(ExitAdjust > session$userData$meta_HUDCSV_Export_End, # Exit after Export End
+                 session$userData$meta_HUDCSV_Export_End, # use the Export End,
+                 TRUE, ExitAdjust) # otherwise use ExitAdjust
+  
   fcase(
-    (EntryDate >= ComparisonStart & ExitAdjust <= ComparisonEnd) |
-    (EntryDate >= ComparisonStart & ComparisonEnd > Sys.Date()),
+    (Entry >= ComparisonStart) & # Enters on or after Start and
+    (Exit <= ComparisonEnd | # (Exits on or before End or
+       ComparisonEnd > Sys.Date() | # Ends in Future or
+       is.na(Exit) | is.na(ComparisonEnd)), # Exit or End is NA )
       "Inside",
-    EntryDate > ComparisonEnd,
-      paste0("Enrollment After ", comparisonWord," Period"),
-    ExitAdjust < ComparisonStart,
-      paste0("Enrollment Before ", comparisonWord, " Period"),
-    EntryDate > ComparisonStart & ExitAdjust > ComparisonEnd & !is.na(ComparisonEnd) & ComparisonEnd >= session$userData$meta_HUDCSV_Export_Start,
-      paste0("Enrollment Crosses ", comparisonWord, " End"),
-    EntryDate < ComparisonStart & ExitAdjust > ComparisonEnd,
-      paste0("Enrollment Crosses ", comparisonWord, " Period"),
-    EntryDate < ComparisonStart & ExitAdjust > ComparisonStart,
-      paste0("Enrollment Crosses ", comparisonWord, " Start")
+    Entry > ComparisonEnd, # Enters after End
+      paste("Enrollment After", comparisonWord,"Period"),
+    Exit < ComparisonStart, # Exits before Start 
+      paste("Enrollment Before", comparisonWord, "Period"),
+    Entry >= ComparisonStart & Exit > ComparisonEnd, # Enters on or after Start & Exits after End 
+      paste("Enrollment Crosses", comparisonWord, "End"),
+    Entry < ComparisonStart & Exit > ComparisonEnd,  # Enters before Start & Exits after End
+      paste("Enrollment Crosses", comparisonWord, "Period"),
+    Entry < ComparisonStart & # Enters before Start &
+      (Exit <= ComparisonEnd | # (Exits on or before End or
+         ComparisonEnd > Sys.Date() | # Ends in Future or
+         is.na(Exit) | is.na(ComparisonEnd)), # Exit or End is NA )
+      paste("Enrollment Crosses", comparisonWord, "Start")
   )
 }
 
