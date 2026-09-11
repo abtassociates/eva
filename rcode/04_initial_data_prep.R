@@ -162,16 +162,22 @@ EnrollmentOutside <- qDT(EnrollmentStaging) %>%
 Enrollmentvs <- function(EntryDate, ExitAdjust, ComparisonStart, ComparisonEnd, comparisonWord) {
   
   stopifnot(EntryDate <= ExitAdjust)
-  stopifnot(ComparisonStart <= ComparisonEnd)
+  stopifnot(ComparisonStart <= ComparisonEnd | is.na(ComparisonEnd))
   
   Entry <- fcase(EntryDate < session$userData$meta_HUDCSV_Export_Start, # Entry before Export Start
                  session$userData$meta_HUDCSV_Export_Start, # use the Export Start,
-                 TRUE, EntryDate) # otherwise use EntryDate
+                 default = EntryDate) # otherwise use EntryDate
   Exit <- fcase(ExitAdjust > session$userData$meta_HUDCSV_Export_End, # Exit after Export End
                  session$userData$meta_HUDCSV_Export_End, # use the Export End,
-                 TRUE, ExitAdjust) # otherwise use ExitAdjust
+                 default = ExitAdjust) # otherwise use ExitAdjust
   
   fcase(
+    ComparisonStart < session$userData$meta_HUDCSV_Export_Start | 
+      ComparisonStart > session$userData$meta_HUDCSV_Export_End,
+    "ComparisonStart outside Export Window",
+    ComparisonEnd < session$userData$meta_HUDCSV_Export_Start | 
+      ComparisonEnd > session$userData$meta_HUDCSV_Export_End,
+    "ComparisonEnd outside Export Window",
     (Entry >= ComparisonStart) & # Enters on or after Start and
     (Exit <= ComparisonEnd | # (Exits on or before End or
        ComparisonEnd > Sys.Date() | # Ends in Future or
