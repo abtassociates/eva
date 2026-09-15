@@ -439,6 +439,23 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
+          navset_underline(
+            id = "project_dashboard_tl_subtabs",
+            nav_panel(
+              title = headerSubTab("Summary"),
+              uiOutput("summary_value_boxes") # Dynamic UI container
+            ),
+            
+            # DETAIL SUBTAB
+            nav_panel(
+              title = headerSubTab("Detail"),
+              DTOutput("metrics_detail")
+            )
+          )
+        ),
+        
+        nav_panel(
+          title = headerTab("Timeliness"),
               uiOutput("timeliness_record_entry")
         ),
         
