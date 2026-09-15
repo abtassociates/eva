@@ -1167,28 +1167,28 @@ nav_panel(
               # ==========================================
               # GROUP 1: Household Type
               # ==========================================
-              div(
-                id = "syse_subpop_hh_type_container",
-                div(class = "label", "Household Type"),
-                div(
-                  pickerInput(
-                    inputId = "syse_subpop_hh_type",
-                    label = NULL, 
-                    choices = sys_hh_types,
-                    selected = sys_hh_types[1],
-                    width = "100%",
-                    options = pickerOptions(container = "body")
-                  )
-                )
-              ),
               
               # ==========================================
               # GROUP 2: The Three Checkboxes
               # ==========================================
               layout_columns(
                 class = "syse_subpop_other_container",
-                col_widths = c(3,3,6),
+                col_widths = c(3,2,2,5),
                 # --- Column 1: Age ---
+                div(
+                  id = "syse_subpop_hh_type_container",
+                  div(class = "label", "Household Type"),
+                  div(
+                    pickerInput(
+                      inputId = "syse_subpop_hh_type",
+                      label = NULL, 
+                      choices = sys_hh_types,
+                      selected = sys_hh_types[1],
+                      width = "100%",
+                      options = pickerOptions(container = "body")
+                    )
+                  )
+                ),
                 div(
                   checkboxInput('syse_subpop_age_selection', 'Age'),
                   div(
