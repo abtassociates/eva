@@ -236,6 +236,18 @@ get_active_inventory_no_enrollments <- function() {
 }
 active_inventory_w_no_enrollments <- get_active_inventory_no_enrollments()
 
+# Active Inventory with No Beds/Units ---------------
+active_inventory_w_no_beds <- activeInventory %>% fsubset(BedInventory == 0) %>%
+  merge_check_info_dt(checkIDs = 146) %>%
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>% unique() # get unique rows afterwards to get one row per project
+ 
+active_inventory_w_no_units <- activeInventory %>% fsubset(UnitInventory == 0) %>%
+  merge_check_info_dt(checkIDs = 147) %>%
+  fmutate(Detail = "") %>%
+  fselect(PDDEcols) %>% unique() # get unique rows afterwards to get one row per project
+
+
 # RRH project w no SubType ------------------------------------------------
 
 rrh_no_subtype <- session$userData$Project0 %>%
@@ -642,6 +654,8 @@ pdde_main <- rowbind(
   overlapping_hmis_participation,
   inventory_start_precedes_operating_start,
   active_inventory_w_no_enrollments,
+  active_inventory_w_no_beds,
+  active_inventory_w_no_units,
   rrh_so_w_inventory,
   vsps_in_hmis,
   zero_utilization,
