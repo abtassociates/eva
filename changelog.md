@@ -1,5 +1,9 @@
 
 # Eva Changelog
+## 2026-09-24
+### Bug Fixes
+ - Added new PDDE checks for projects with at least one inventory record where beds or units have a value of 0. (Issue <a href='https://github.com/abtassociates/eva/issues/1075' target ='_blank'>#1075</a>)
+
 ## 2026-09-17
 
 ### Bug Fixes
