@@ -684,26 +684,26 @@
         [
           "High Priority: 4  ",
           "Min.   :  1.00  ",
-          "Length:46         "
+          "Length:45         "
         ],
         [
           "Error        :21  ",
-          "1st Qu.:  2.25  ",
+          "1st Qu.:  2.00  ",
           "Class :character  "
         ],
         [
-          "Warning      :21  ",
-          "Median :  9.00  ",
+          "Warning      :20  ",
+          "Median : 10.00  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   : 23.11  ",
+          "Mean   : 23.49  ",
           null
         ],
         [
           null,
-          "3rd Qu.: 21.75  ",
+          "3rd Qu.: 22.00  ",
           null
         ],
         [
@@ -714,9 +714,9 @@
       ],
       "Project Summary": [
         [
-          "Length:120        ",
+          "Length:118        ",
           "High Priority: 6  ",
-          "Length:120        ",
+          "Length:118        ",
           "Min.   :  1.000  "
         ],
         [
@@ -735,13 +735,13 @@
           null,
           null,
           null,
-          "Mean   :  8.858  "
+          "Mean   :  8.958  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  7.250  "
+          "3rd Qu.:  7.750  "
         ],
         [
           null,
@@ -753,8 +753,8 @@
       "Guidance": [
         [
           "High Priority: 4  ",
-          "Length:46         ",
-          "Length:46         "
+          "Length:45         ",
+          "Length:45         "
         ],
         [
           "Error        :21  ",
@@ -1862,41 +1862,41 @@
       "System Summary": [
         [
           "High Priority: 4  ",
-          "Min.   :    1  ",
-          "Length:72         "
+          "Min.   :    1.0  ",
+          "Length:71         "
         ],
         [
           "Error        :39  ",
-          "1st Qu.:   27  ",
+          "1st Qu.:   25.0  ",
           "Class :character  "
         ],
         [
-          "Warning      :29  ",
-          "Median :  138  ",
+          "Warning      :28  ",
+          "Median :  152.0  ",
           "Mode  :character  "
         ],
         [
           null,
-          "Mean   :  793  ",
+          "Mean   : 1291.8  ",
           null
         ],
         [
           null,
-          "3rd Qu.:  553  ",
+          "3rd Qu.:  640.5  ",
           null
         ],
         [
           null,
-          "Max.   :11744  ",
+          "Max.   :19157.0  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-          "Length:1009       ",
+          "Length:996        ",
           "High Priority: 71  ",
-          "Length:1009       ",
-          "Min.   :   1.00  "
+          "Length:996        ",
+          "Min.   :    1.00  "
         ],
         [
           "Class :character  ",
@@ -1914,13 +1914,13 @@
           null,
           null,
           null,
-          "Mean   :  56.58  "
+          "Mean   :   92.09  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  24.00  "
+          "3rd Qu.:   26.00  "
         ],
         [
           null,
@@ -1932,8 +1932,8 @@
       "Guidance": [
         [
           "High Priority: 4  ",
-          "Length:72         ",
-          "Length:72         "
+          "Length:71         ",
+          "Length:71         "
         ],
         [
           "Error        :39  ",
