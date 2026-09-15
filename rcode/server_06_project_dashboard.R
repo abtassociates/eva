@@ -693,9 +693,14 @@ output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
   
   if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectID){
-    tl_df_project_start() %>%  
-      fsubset(ProjectID == input$currentProviderList) %>% 
-      pull(mdn)
+    val <- tl_df_project_start() %>%  
+      fsubset(ProjectID == input$currentProviderList) 
+    
+    if(val$n_records == 0 | is.na(val$mdn)){
+      validate('No Entries During Range')
+    } else {
+      val$mdn
+    }
   } else {
     '-'
   }
@@ -706,9 +711,15 @@ output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
   
   if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectID){
-    tl_df_project_exit() %>% 
-      fsubset(ProjectID == input$currentProviderList) %>% 
-      pull(mdn)
+    
+    val <- tl_df_project_exit() %>% 
+      fsubset(ProjectID == input$currentProviderList)
+    
+    if(val$n_records == 0 | is.na(val$mdn)){
+      validate('No Exits During Range')
+    } else {
+      val$mdn
+    }
   } else {
     '-'
   }
