@@ -200,7 +200,7 @@ zip_files <- utils::unzip(zipfile = upload_filepath, list = TRUE)$Name %>% str_r
 
 # Run validations in order; short-circuiting (&&) stops at the first failure
 is_valid <- validate_file_type(upload_filepath) &&
-  validate_zip_structure(zip_files, expected_files) &&
+  validate_zip_structure(zip_files) &&
   validate_missing_files(zip_files, expected_files) &&
   validate_export_rows() &&
   validate_version() &&
