@@ -797,11 +797,11 @@ output$timelinessTable <- renderDT({
   )
   
   # 2. Bed Night: Displayed only for Emergency Shelter - Night-by-Night projects
-  #    If it matches the type but has no records, we omit the column
+  #    - Always display for ES-NbN projects, even if 0 records
   dat$nbn <- pull_time_cols(
     cond = cc_project_type() == es_nbn_project_type, 
     df = tl_df_nbn(), 
-    set_zero = FALSE
+    set_zero = TRUE
   )
   
   # 3. Current Living Situation (CLS):
