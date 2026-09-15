@@ -6,22 +6,33 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     # run script inside tryCatch block, create modal if script fails
     source_trycatch <- function(script_name){
-      src_att <- if(!IN_DEV_MODE) {
-        tryCatch(source(script_name, local = parent.env(environment())), 
-                          error = function(e) {e})
-      } else {
-        source(script_name, local = parent.env(environment()))
+      src_att <- tryCatch(
+        source(script_name, local = parent.frame()), 
+        error = function(e) e
+      )
+      
+      # 1. Check for intentional stops
+      if (inherits(src_att, "intentional_stop")) {
+        logToConsole(session, paste0("Intentional stop occurred: ", src_att$message))
+        return("err") # Signal caller to exit
       }
       
-      if(inherits(src_att, 'simpleError')){
+      # 2. Check for unexpected crashes/errors
+      if (inherits(src_att, "error")) {
         logToConsole(session, src_att)
-        logToConsole(session, paste0("Error occured in ", script_name))
-        if(src_att$message != "No valid Continuum records in enrollment_prep")
+        logToConsole(session, paste0("Error occurred in ", script_name))
+        
+        if (src_att$message != "No valid Continuum records in enrollment_prep") {
           show_trycatch_popup(script_name)
+        }
+        
+        # If in dev mode, re-throw after logging so you see traceback in console
+        if (IN_DEV_MODE) stop(src_att)
+        
         return("err")
-      } else if("intentional_stop" %in% class(src_att)) {
-        logToConsole(session, paste0("Intentional stop occurred: ", src_att$message))
       }
+      
+      return(NULL)
       
     }
     
