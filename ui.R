@@ -1,5 +1,5 @@
 #source('tabSystemExits.R')
-
+options(shiny.maxRequestSize = 250 * 1024^2)
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
