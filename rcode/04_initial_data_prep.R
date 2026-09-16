@@ -124,7 +124,8 @@ EnrollmentStaging <- Enrollment %>%
             "UN"
           )
         )
-      )
+      ), 
+    levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   fungroup()
@@ -424,7 +425,6 @@ session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
 session$userData$Assessment <- Assessment
 session$userData$Event <- Event
-
 # desk_time_providers <- validation() %>%
 #   dplyr::filter(
 #     (entered_between(., today() - years(1), today()) |
