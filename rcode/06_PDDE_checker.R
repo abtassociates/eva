@@ -240,12 +240,12 @@ active_inventory_w_no_enrollments <- get_active_inventory_no_enrollments()
 active_inventory_w_no_beds <- activeInventory %>% fsubset(BedInventory == 0) %>%
   merge_check_info_dt(checkIDs = 146) %>%
   fmutate(Detail = "") %>%
-  fselect(PDDEcols) %>% unique() # get unique rows afterwards to get one row per project
+  fselect(PDDEcols) %>% funique() # get unique rows afterwards to get one row per project
  
 active_inventory_w_no_units <- activeInventory %>% fsubset(UnitInventory == 0) %>%
   merge_check_info_dt(checkIDs = 147) %>%
   fmutate(Detail = "") %>%
-  fselect(PDDEcols) %>% unique() # get unique rows afterwards to get one row per project
+  fselect(PDDEcols) %>% funique() # get unique rows afterwards to get one row per project
 
 
 # RRH project w no SubType ------------------------------------------------
