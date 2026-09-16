@@ -14,6 +14,7 @@
   - Some FSA, DQ, and PDDE checks superseded by new specs-driven checks.
   - Added detail to Impermissible Character issues in FSA export.
   - Added Malformed CSV check to catch improper quoting and missing delimiters
+  - Added Detail text to DQ reports that indicate the response values for incomplete or unknown data.
       
 ## 2026-09-03
 
