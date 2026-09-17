@@ -5,6 +5,8 @@
 ### Bug Fixes
  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
  - Added new DQ check to flag HoHs that are exited earlier than other household members in an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)
+ - Updated the Data Entry Timeliness Metrics tables for ES - NbN projects to ensure the table displays the "Number of Bed Night Records" column even if there are no bed night records
+ - Fixed "Median" Timeliness KPI cards to display "No Entries/Exits During Range" instead of N/A when there are no enrollment entry or exit records
 
 ## 2026-09-03
 

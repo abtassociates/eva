@@ -274,6 +274,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDetail <- NULL
   }
 
+  
+  # TIMELINESS
   if(!is.null(tl_df_project_start())){
     validationStart <- clean_timeliness_df(tl_df_project_start(), record_type = 'start')
   } else {
@@ -689,9 +691,14 @@ output$timeliness_vb1_val <- renderText({
   req(session$userData$valid_file() == 1)
   
   if(!is.null(tl_df_project_start()) && input$currentProviderList %in% tl_df_project_start()$ProjectID){
-    tl_df_project_start() %>%  
-      fsubset(ProjectID == input$currentProviderList) %>% 
-      pull(mdn)
+    val <- tl_df_project_start() %>%  
+      fsubset(ProjectID == input$currentProviderList) 
+    
+    if(val$n_records == 0 | is.na(val$mdn)){
+      validate('No Entries During Range')
+    } else {
+      val$mdn
+    }
   } else {
     '-'
   }
@@ -702,9 +709,15 @@ output$timeliness_vb2_val <- renderText({
   req(session$userData$valid_file() == 1)
   
   if(!is.null(tl_df_project_exit()) && input$currentProviderList %in% tl_df_project_exit()$ProjectID){
-    tl_df_project_exit() %>% 
-      fsubset(ProjectID == input$currentProviderList) %>% 
-      pull(mdn)
+    
+    val <- tl_df_project_exit() %>% 
+      fsubset(ProjectID == input$currentProviderList)
+    
+    if(val$n_records == 0 | is.na(val$mdn)){
+      validate('No Exits During Range')
+    } else {
+      val$mdn
+    }
   } else {
     '-'
   }
@@ -793,11 +806,11 @@ output$timelinessTable <- renderDT({
   )
   
   # 2. Bed Night: Displayed only for Emergency Shelter - Night-by-Night projects
-  #    If it matches the type but has no records, we omit the column
+  #    - Always display for ES-NbN projects, even if 0 records
   dat$nbn <- pull_time_cols(
     cond = cc_project_type() == es_nbn_project_type, 
     df = tl_df_nbn(), 
-    set_zero = FALSE
+    set_zero = TRUE
   )
   
   # 3. Current Living Situation (CLS):
