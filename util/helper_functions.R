@@ -193,7 +193,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   data <- data.table::fread(
     filename,
     colClasses = unlist(unname(expected_rclasses)),
-    na.strings="NA",
+    na.strings=c("NA",'""'),
     encoding = fread_enc
   )
   
