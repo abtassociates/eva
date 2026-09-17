@@ -980,7 +980,8 @@ check_rules <- list(
   list(id = 116, cond = quote(EnrollmentvOperating == "Enrollment After Operating Period")),
   list(id = 117, cond = quote(EnrollmentvOperating == "Enrollment Crosses Operating Start")),
   list(id = 118, cond = quote(EnrollmentvOperating == "Enrollment Before Operating Period")),
-  list(id = 119, cond = quote(EnrollmentvOperating == "Enrollment Crosses Operating End")),
+  list(id = 119, cond = quote(EnrollmentvOperating == "Enrollment Crosses Operating End" & !is.na(OperatingEndDate) & 
+            OperatingEndDate <= session$userData$meta_HUDCSV_Export_End)),
   list(id = 120, cond = quote(EnrollmentvOperating == "Enrollment Crosses Operating Period"))
 )
 
