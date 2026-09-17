@@ -190,12 +190,29 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   fread_enc <- ifelse(guessed_enc %in% c(NA, "UTF-8", "ASCII"), "UTF-8", "Latin-1")
   
   # import data
-  data <- data.table::fread(
-    filename,
-    colClasses = unlist(unname(expected_rclasses)),
-    na.strings=c("NA",'""'),
-    encoding = fread_enc
+  data <- tryCatch(
+    {
+      data.table::fread(
+        filename,
+        colClasses = unlist(unname(expected_rclasses)),
+        na.strings = c("NA",'""'),
+        encoding = fread_enc
+      )
+    },
+    error = function(e) {
+      # If fread crashes due to malformed quoting/delimiters:
+      if (grepl("colClasses|quoting|fields", e$message, ignore.case = TRUE)) {
+        warning(glue::glue("Malformed file: {csvFile}.csv: {e$message}"))
+        return(NULL)
+      } else {
+        warning(glue::glue("Another import error for {csvFile}.csv: {e$message}"))
+        return(NULL)
+      }
+      
+    }
   )
+  
+  if (is.null(data)) return(NULL)
   
   # Tag all character columns as UTF-8
   # Strings are tagged with a certain encoding metadata that is critical for some
