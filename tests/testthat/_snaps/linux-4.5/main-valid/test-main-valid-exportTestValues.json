@@ -682,7 +682,6 @@
       ],
       "Organization Summary": [
         [
-<<<<<<< HEAD
           "High Priority: 4  ",
           "Min.   :  1.00  ",
           "Length:46         "
@@ -690,47 +689,26 @@
         [
           "Error        :21  ",
           "1st Qu.:  2.25  ",
-=======
-          "High Priority: 3  ",
-          "Min.   :  1.0  ",
-          "Length:45         "
-        ],
-        [
-          "Error        :21  ",
-          "1st Qu.:  3.0  ",
->>>>>>> dev
           "Class :character  "
         ],
         [
           "Warning      :21  ",
-<<<<<<< HEAD
           "Median :  9.00  ",
-=======
-          "Median : 10.0  ",
->>>>>>> dev
           "Mode  :character  "
         ],
         [
           null,
-<<<<<<< HEAD
-          "Mean   : 22.98  ",
-=======
-          "Mean   : 23.6  ",
->>>>>>> dev
+          "Mean   : 23.11  ",
           null
         ],
         [
           null,
-<<<<<<< HEAD
           "3rd Qu.: 21.75  ",
-=======
-          "3rd Qu.: 22.0  ",
->>>>>>> dev
           null
         ],
         [
           null,
-          "Max.   :251.0  ",
+          "Max.   :251.00  ",
           null
         ]
       ],
@@ -757,17 +735,13 @@
           null,
           null,
           null,
-<<<<<<< HEAD
-          "Mean   :  8.808  "
-=======
-          "Mean   :  8.924  "
->>>>>>> dev
+          "Mean   :  8.858  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  7.500  "
+          "3rd Qu.:  7.250  "
         ],
         [
           null,
@@ -1887,69 +1861,41 @@
       ],
       "System Summary": [
         [
-<<<<<<< HEAD
           "High Priority: 4  ",
-          "Min.   :    1.0  ",
+          "Min.   :    1  ",
           "Length:72         "
         ],
         [
           "Error        :39  ",
-          "1st Qu.:   27.0  ",
-=======
-          "High Priority: 3  ",
-          "Min.   :    1.0  ",
-          "Length:71         "
-        ],
-        [
-          "Error        :39  ",
-          "1st Qu.:   25.0  ",
->>>>>>> dev
+          "1st Qu.:   27  ",
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-<<<<<<< HEAD
-          "Median :  138.0  ",
-=======
-          "Median :  140.0  ",
->>>>>>> dev
+          "Median :  138  ",
           "Mode  :character  "
         ],
         [
           null,
-<<<<<<< HEAD
-          "Mean   :  790.8  ",
-=======
-          "Mean   :  803.2  ",
->>>>>>> dev
+          "Mean   :  793  ",
           null
         ],
         [
           null,
-<<<<<<< HEAD
-          "3rd Qu.:  526.5  ",
-=======
-          "3rd Qu.:  574.0  ",
->>>>>>> dev
+          "3rd Qu.:  553  ",
           null
         ],
         [
           null,
-          "Max.   :11744.0  ",
+          "Max.   :11744  ",
           null
         ]
       ],
       "Organization Summary": [
         [
-<<<<<<< HEAD
-          "Length:1008       ",
+          "Length:1009       ",
           "High Priority: 71  ",
-          "Length:1008       ",
-=======
-          "Length:994        ",
-          "High Priority: 56  ",
-          "Length:994        ",
->>>>>>> dev
+          "Length:1009       ",
           "Min.   :   1.00  "
         ],
         [
@@ -1968,11 +1914,7 @@
           null,
           null,
           null,
-<<<<<<< HEAD
-          "Mean   :  56.48  "
-=======
-          "Mean   :  57.37  "
->>>>>>> dev
+          "Mean   :  56.58  "
         ],
         [
           null,
