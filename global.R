@@ -59,6 +59,9 @@ mirai::everywhere({
   # source non-ui R files in /util 
   source(here("util","hardcodes.R"))
   source(here("util","helper_functions.R"))
+  source(here("util","machine_readable_specs_helpers.R"))
+  
+  load_specs()
   
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
@@ -79,3 +82,5 @@ bslib_eva_theme <- bs_theme(
   "modal-content-bg" = "white",
   font_scale = 0.875 # units are rem, 1rem = 16px
 )
+
+load_specs()

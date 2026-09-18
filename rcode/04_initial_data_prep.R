@@ -132,8 +132,8 @@ EnrollmentStaging <- Enrollment %>%
             "UN"
           )
         )
-      ), 
-    levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+      ),
+      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   fungroup()

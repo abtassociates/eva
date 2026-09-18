@@ -8,7 +8,7 @@ PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
              "Issue",
-             "Type",
+             "Priority",
              "Guidance",
              "Detail")
 
@@ -627,6 +627,18 @@ lt_seas_inv <- lt_seas_inv %>%
   merge_check_info_dt(checkIDs = 37) %>%
   fselect(PDDEcols) %>% 
   funique()
+
+specs_issues <- run_templatable_validations("PDDE", data_env = environment())
+if(fnrow(specs_issues) > 0)
+  specs_issues <- specs_issues %>%
+    frename("ProjectID" = AnchorValue) %>%
+    join(
+      session$userData$Project0, 
+      on = "ProjectID"
+    ) %>%
+    fselect(PDDEcols) %>%
+    funique()
+
 
 # Put it all together -----------------------------------------------------
 # Define table names
