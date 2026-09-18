@@ -9,6 +9,11 @@
  - Updated the Data Entry Timeliness Metrics tables for ES - NbN projects to ensure the table displays the "Number of Bed Night Records" column even if there are no bed night records
  - Fixed "Median" Timeliness KPI cards to display "No Entries/Exits During Range" instead of N/A when there are no enrollment entry or exit records
 
+### New Features
+  - Adjust default Local Settings to be more project-type-specific
+  - Connect Local Settings to System Performance
+  - Make Local Settings a slide-out panel vs. a separate tab
+
 ## 2026-09-03
 
 ### Bug Fixes
