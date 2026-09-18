@@ -351,7 +351,7 @@ page_navbar(
       )
     ),
     
-    # Client counts tab ----------------
+    # Project Dashboard tab ----------------
     nav_panel(
       title = "Project Dashboard",
       value = "tabProjectDashboard",
@@ -422,14 +422,7 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
-          navset_underline(
-            id = "project_dashboard_tl_subtabs",
-            nav_panel(
-              title = headerSubTab("Record Entry"),
               uiOutput("timeliness_record_entry")
-            )
-          )
-          
         ),
         
         nav_spacer(),
@@ -1146,28 +1139,28 @@ nav_panel(
               id = "syse_subpop_crosstab_selectors", 
               
               # ==========================================
-              # GROUP 1: Household Type
-              # ==========================================
-              div(
-                id = "syse_subpop_hh_type_container",
-                pickerInput(
-                  inputId = "syse_subpop_hh_type",
-                  label = "Household Type", 
-                  choices = sys_hh_types,
-                  selected = sys_hh_types[1],
-                  width = "100%",
-                  options = pickerOptions(container = "body")
-                )
-              ),
-              
-              # ==========================================
-              # GROUP 2: Demographic Dropdowns
+              # The 4 Subpop Selectors
               # ==========================================
               layout_columns(
                 class = "syse_subpop_other_container",
-                col_widths = c(3, 3, 6),
+                col_widths = c(3,2,2,5),
                 
-                # --- Column 1: Age ---
+                # --- Column 1: Household Type ---
+                div(
+                  id = "syse_subpop_hh_type_container",
+                  div(class = "label", "Household Type"),
+                  div(
+                    pickerInput(
+                      inputId = "syse_subpop_hh_type",
+                      label = NULL, 
+                      choices = sys_hh_types,
+                      selected = sys_hh_types[1],
+                      width = "100%",
+                      options = pickerOptions(container = "body")
+                    )
+                  )
+                ),
+                # --- Column 2: Age ---
                 div(
                   id = 'age_picker',
                   pickerInput(
@@ -1186,7 +1179,7 @@ nav_panel(
                   )
                 ),
                 
-                # --- Column 2: Veteran Status ---
+                # --- Column 3: Veteran Status ---
                 div(
                   id = 'vet_picker',
                   pickerInput(
@@ -1201,7 +1194,7 @@ nav_panel(
                   )
                 ),
                 
-                # --- Column 3: Race/Ethnicity ---
+                # --- Column 4: Race/Ethnicity ---
                 div(
                   id = 'race_eth_picker',
                   pickerInput(
@@ -1219,7 +1212,7 @@ nav_panel(
                     )
                   )
                 )
-              )
+              ) # End of subpop selectors
             ),
             br(),
             radioGroupButtons(

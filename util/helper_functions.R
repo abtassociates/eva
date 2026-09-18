@@ -880,6 +880,37 @@ custom_sys_export_dropdown <- function(id_prefix) {
     )
   )
 }
+
+# Memory tracking
+get_rss <- function() {
+  status <- readLines("/proc/self/status")
+  as.numeric(
+    sub("VmRSS:\\s+([0-9]+) kB", "\\1", status[grep("^VmRSS:", status)])
+  ) / 1024^2
+}
+log_memory <- function(label) {
+  message(sprintf(
+    "[MEMORY] %-40s %.2f GB",
+    label,
+    get_rss()
+  ))
+}
+
+release_worker_memory <- function() {
+  # 1. Run full R-level garbage collection
+  gc(full = TRUE)
+  
+  # 2. Tell Linux C-level allocator to return memory to the OS
+  if (Sys.info()[["sysname"]] == "Linux") {
+    tryCatch({
+      # Load glibc C standard library
+      libc <- dyn.load("libc.so.6")
+      # Call malloc_trim(0)
+      .C("malloc_trim", 0L)
+    }, error = function(e) NULL)
+  }
+}
+
 # Format mirai traceback
 format_mirai_traceback <- function(err) {
   calls <- sys.calls()
