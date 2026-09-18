@@ -682,63 +682,41 @@
       ],
       "Organization Summary": [
         [
-<<<<<<< HEAD
           "High Priority: 4  ",
           "Min.   :  1.00  ",
           "Length:46         "
         ],
         [
           "Error        :21  ",
-          "1st Qu.:  2.25  ",
-=======
-          "High Priority: 3  ",
-          "Min.   :  1.0  ",
-          "Length:45         "
-        ],
-        [
-          "Error        :21  ",
-          "1st Qu.:  3.0  ",
->>>>>>> dev
+          "1st Qu.:  3.25  ",
           "Class :character  "
         ],
         [
           "Warning      :21  ",
-<<<<<<< HEAD
           "Median :  9.00  ",
-=======
-          "Median : 10.0  ",
->>>>>>> dev
           "Mode  :character  "
         ],
         [
           null,
-<<<<<<< HEAD
-          "Mean   : 22.98  ",
-=======
-          "Mean   : 23.6  ",
->>>>>>> dev
+          "Mean   : 23.20  ",
           null
         ],
         [
           null,
-<<<<<<< HEAD
           "3rd Qu.: 21.75  ",
-=======
-          "3rd Qu.: 22.0  ",
->>>>>>> dev
           null
         ],
         [
           null,
-          "Max.   :251.0  ",
+          "Max.   :251.00  ",
           null
         ]
       ],
       "Project Summary": [
         [
-          "Length:120        ",
-          "High Priority: 6  ",
-          "Length:120        ",
+          "Length:122        ",
+          "High Priority: 8  ",
+          "Length:122        ",
           "Min.   :  1.000  "
         ],
         [
@@ -757,17 +735,13 @@
           null,
           null,
           null,
-<<<<<<< HEAD
-          "Mean   :  8.808  "
-=======
-          "Mean   :  8.924  "
->>>>>>> dev
+          "Mean   :  8.746  "
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:  7.500  "
+          "3rd Qu.:  7.000  "
         ],
         [
           null,
@@ -795,14 +769,14 @@
       ],
       "High Priority": [
         [
-          "Length:16         ",
-          "Length:16         ",
-          "Length:16         ",
-          "Length:16         ",
-          "Length:16         ",
-          "Length:16         ",
-          "Length:16         ",
-          "Length:16         ",
+          "Length:20         ",
+          "Length:20         ",
+          "Length:20         ",
+          "Length:20         ",
+          "Length:20         ",
+          "Length:20         ",
+          "Length:20         ",
+          "Length:20         ",
           "Min.   :2021-03-09  "
         ],
         [
@@ -814,7 +788,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2022-06-26  "
+          "1st Qu.:2021-09-24  "
         ],
         [
           "Mode  :character  ",
@@ -836,7 +810,7 @@
           null,
           null,
           null,
-          "Mean   :2022-05-07  "
+          "Mean   :2022-03-19  "
         ],
         [
           null,
@@ -847,7 +821,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-08-02  "
+          "3rd Qu.:2022-07-09  "
         ],
         [
           null,
@@ -1887,7 +1861,6 @@
       ],
       "System Summary": [
         [
-<<<<<<< HEAD
           "High Priority: 4  ",
           "Min.   :    1.0  ",
           "Length:72         "
@@ -1895,42 +1868,21 @@
         [
           "Error        :39  ",
           "1st Qu.:   27.0  ",
-=======
-          "High Priority: 3  ",
-          "Min.   :    1.0  ",
-          "Length:71         "
-        ],
-        [
-          "Error        :39  ",
-          "1st Qu.:   25.0  ",
->>>>>>> dev
           "Class :character  "
         ],
         [
           "Warning      :29  ",
-<<<<<<< HEAD
-          "Median :  138.0  ",
-=======
-          "Median :  140.0  ",
->>>>>>> dev
+          "Median :  143.5  ",
           "Mode  :character  "
         ],
         [
           null,
-<<<<<<< HEAD
-          "Mean   :  790.8  ",
-=======
-          "Mean   :  803.2  ",
->>>>>>> dev
+          "Mean   :  797.1  ",
           null
         ],
         [
           null,
-<<<<<<< HEAD
-          "3rd Qu.:  526.5  ",
-=======
-          "3rd Qu.:  574.0  ",
->>>>>>> dev
+          "3rd Qu.:  553.0  ",
           null
         ],
         [
@@ -1941,15 +1893,9 @@
       ],
       "Organization Summary": [
         [
-<<<<<<< HEAD
-          "Length:1008       ",
-          "High Priority: 71  ",
-          "Length:1008       ",
-=======
-          "Length:994        ",
-          "High Priority: 56  ",
-          "Length:994        ",
->>>>>>> dev
+          "Length:1015       ",
+          "High Priority: 77  ",
+          "Length:1015       ",
           "Min.   :   1.00  "
         ],
         [
@@ -1968,11 +1914,7 @@
           null,
           null,
           null,
-<<<<<<< HEAD
-          "Mean   :  56.48  "
-=======
-          "Mean   :  57.37  "
->>>>>>> dev
+          "Mean   :  56.54  "
         ],
         [
           null,
@@ -2006,14 +1948,14 @@
       ],
       "High Priority": [
         [
-          "Length:1147       ",
-          "Length:1147       ",
-          "Length:1147       ",
-          "Length:1147       ",
-          "Length:1147       ",
-          "Length:1147       ",
-          "Length:1147       ",
-          "Length:1147       ",
+          "Length:1447       ",
+          "Length:1447       ",
+          "Length:1447       ",
+          "Length:1447       ",
+          "Length:1447       ",
+          "Length:1447       ",
+          "Length:1447       ",
+          "Length:1447       ",
           "Min.   :2016-09-15  "
         ],
         [
@@ -2025,7 +1967,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-08-17  "
+          "1st Qu.:2020-08-25  "
         ],
         [
           "Mode  :character  ",
@@ -2036,7 +1978,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-01-26  "
+          "Median :2021-03-12  "
         ],
         [
           null,
@@ -2047,7 +1989,7 @@
           null,
           null,
           null,
-          "Mean   :2021-04-19  "
+          "Mean   :2021-05-02  "
         ],
         [
           null,
@@ -2058,7 +2000,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-03-28  "
+          "3rd Qu.:2022-04-04  "
         ],
         [
           null,
