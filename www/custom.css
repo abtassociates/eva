@@ -184,11 +184,8 @@ to group All + Grouped Race selections*/
 }
 
 #syse_subpop_hh_type_container {
-  display: flex; 
   align-items: center; 
   gap: 10px; 
-  border-right: 2px solid #ccc; 
-  padding-right: 15px;
 }
 
 .syse_subpop_other_container {
