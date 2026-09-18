@@ -132,8 +132,8 @@ EnrollmentStaging <- Enrollment %>%
             "UN"
           )
         )
-      ),
-      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+      ), 
+    levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   fungroup()
@@ -199,7 +199,8 @@ EnrollmentOutside <- EnrollmentOutside %>%
   )
 
 EnrollmentOutside2 <- EnrollmentOutside %>%
-  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate)
+  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, OperatingEndDate,
+          HMISParticipationType, HMISParticipationStatusEndDate)
 
 # Get First HMIS span for each Project (technically, the enrollment record)
 EnrollmentOutside <- EnrollmentOutside %>%
