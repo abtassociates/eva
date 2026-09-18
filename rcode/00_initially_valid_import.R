@@ -83,7 +83,8 @@ if(tolower(tools::file_ext(upload_filepath)) != "zip") {
   logMetadata(session, "Unsuccessful upload - zip file not .zip")
 } else {
   zipContents <- utils::unzip(zipfile = upload_filepath, list = TRUE)
-    
+  logToConsole(session, paste0("Unzipped file size: ", round(fsum(zipContents$Length) / 1024^2, 1), "MB"))
+  
   zipFiles <- zipContents$Name %>% str_replace(".csv", "")
     
   # expected files
