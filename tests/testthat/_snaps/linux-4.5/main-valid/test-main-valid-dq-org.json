@@ -234,15 +234,9 @@
       111,
       112,
       113,
-<<<<<<< HEAD
       114,
       115,
-      116,
-      117,
-      118
-=======
-      114
->>>>>>> dev
+      116
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -1070,11 +1064,7 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-<<<<<<< HEAD
-        "Length": "118",
-=======
-        "Length": "114",
->>>>>>> dev
+        "Length": "116",
         "Class": "character",
         "Mode": "character"
       },
@@ -1084,11 +1074,7 @@
         "Warning": 55
       },
       "Issue": {
-<<<<<<< HEAD
-        "Length": "118",
-=======
-        "Length": "114",
->>>>>>> dev
+        "Length": "116",
         "Class": "character",
         "Mode": "character"
       },
@@ -1096,13 +1082,8 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-<<<<<<< HEAD
-        "Mean": 8.576271186440678,
-        "3rd Qu.": 7,
-=======
-        "Mean": 8.789473684210526,
-        "3rd Qu.": 7.75,
->>>>>>> dev
+        "Mean": 8.672413793103448,
+        "3rd Qu.": 7.25,
         "Max.": 181
       }
     }
