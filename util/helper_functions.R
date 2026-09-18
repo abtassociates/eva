@@ -867,9 +867,9 @@ custom_sys_export_dropdown <- function(id_prefix) {
         class = "row g-0 align-items-center pb-2 mb-2 border-bottom fw-bold",
         tags$div(class = "col-5", style = "font-size: 0.9rem;", "Report"),
         tags$div(class = "col-4 d-flex justify-content-center", 
-                 checkboxInput(paste0(id_prefix, "_export_all_ppt"), "PowerPoint", value = TRUE)),
+                 checkboxInput(paste0(id_prefix, "_export_all_pptx"), "PowerPoint", value = TRUE)),
         tags$div(class = "col-3 d-flex justify-content-center", 
-                 checkboxInput(paste0(id_prefix, "_export_all_data"), "Data", value = TRUE))
+                 checkboxInput(paste0(id_prefix, "_export_all_xlsx"), "Data", value = TRUE))
       ),
       
       # Dynamically generated rows

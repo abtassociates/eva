@@ -205,21 +205,46 @@ get_syse_compare_subpop_data <- function(output_type = 'table') {
     fungroup()
 }
 
-# ==============================================================================
-# UI Observers & Renderers
-# ==============================================================================
-id_map <- list(
-  "age_picker" = "Age",
-  "vet_picker" = "Veteran Status (Adult Only)",
-  "race_eth_picker" = "Race/Ethnicity"
-)
-observe({
-  req(syse_subpop_selections())
-  for(div_id in names(id_map)) {
-    shinyjs::toggleState(
-      id = div_id,
-      condition = length(syse_subpop_selections()) < 2 || id_map[[div_id]] %in% syse_subpop_selections()
-    )
+observeEvent(input$syse_subpop_age_selection,
+             {
+               if(isTruthy(input$syse_subpop_age_selection)){
+                 shinyjs::enable(id = 'age_picker')
+               } else {
+                 shinyjs::disable(id = 'age_picker')
+               }                 
+             })
+
+observeEvent(input$syse_subpop_race_eth_selection,
+             {
+               if(isTruthy(input$syse_subpop_race_eth_selection)){
+                 shinyjs::enable(id = 'race_eth_picker')
+               } else {
+                 shinyjs::disable(id = 'race_eth_picker')
+               }                 
+             }, ignoreInit=F)
+
+observeEvent(input$syse_subpop_vet_selection,
+             {
+               if(isTruthy(input$syse_subpop_vet_selection)){
+                 shinyjs::enable(id = 'vet_picker')
+               } else {
+                 shinyjs::disable(id = 'vet_picker')
+               }                 
+             })
+
+observeEvent(input$syse_subpop_hh_type, {
+  toggle_subpop_download_options()
+})
+toggle_subpop_download_options <- function() {
+  # Disable/Enable rows in Export Interface
+  # If they haven't selected anything, they should not be able to export this chart/data
+  has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
+  
+  # 1. Enable / Disable checkboxes
+  # 2. If disabled, uncheck them so they are not included in the export
+  for(id in c("syse_export_subpop_pptx","syse_export_subpop_xlsx")) {
+    shinyjs::toggleState(id, condition = has_subpops)
+    if(!has_subpops) updateCheckboxInput(session, id, value = FALSE)
   }
 })
 

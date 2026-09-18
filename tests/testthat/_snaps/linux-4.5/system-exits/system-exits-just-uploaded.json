@@ -168,8 +168,8 @@
       "75 and older",
       "Unknown"
     ],
-    "syse_export_all_data": true,
-    "syse_export_all_ppt": true,
+    "syse_export_all_pptx": true,
+    "syse_export_all_xlsx": true,
     "syse_export_client_xlsx": true,
     "syse_export_phd_pptx": true,
     "syse_export_phd_xlsx": true,
@@ -231,8 +231,8 @@
       "Age",
       "All Races/Ethnicities"
     ],
-    "syso_export_all_data": true,
-    "syso_export_all_ppt": true,
+    "syso_export_all_pptx": true,
+    "syso_export_all_xlsx": true,
     "syso_export_client_xlsx": true,
     "syso_export_demo_pptx": true,
     "syso_export_demo_xlsx": true,
