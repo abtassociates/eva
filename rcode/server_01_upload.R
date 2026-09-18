@@ -284,7 +284,8 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     toggle_sys_components(prefix = 'syso', session$userData$valid_file() == 1)
     toggle_sys_components(prefix = 'syse', session$userData$valid_file() == 1)
-    shinyjs::toggle("sys_export_btn", session$userData$valid_file() == 1)
+    shinyjs::toggle("syse_export_btn", session$userData$valid_file() == 1)
+    shinyjs::toggle("syso_export_btn", session$userData$valid_file() == 1)
     
     log_memory(paste0("Upload processing complete. Mirai still processing? ", mirai::unresolved(dq_pdde_mirai)))
   })
