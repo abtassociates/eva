@@ -1,5 +1,5 @@
 #source('tabSystemExits.R')
-
+options(shiny.maxRequestSize = 250 * 1024^2)
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
@@ -462,7 +462,7 @@ page_navbar(
       )
     ),
     
-    # Client counts tab ----------------
+    # Project Dashboard tab ----------------
     nav_panel(
       title = "Project Dashboard",
       value = "tabProjectDashboard",
@@ -533,14 +533,7 @@ page_navbar(
         
         nav_panel(
           title = headerTab("Timeliness"),
-          navset_underline(
-            id = "project_dashboard_tl_subtabs",
-            nav_panel(
-              title = headerSubTab("Record Entry"),
               uiOutput("timeliness_record_entry")
-            )
-          )
-          
         ),
         
         nav_spacer(),
@@ -1266,30 +1259,28 @@ nav_panel(
               id = "syse_subpop_crosstab_selectors", 
               
               # ==========================================
-              # GROUP 1: Household Type
-              # ==========================================
-              div(
-                id = "syse_subpop_hh_type_container",
-                div(class = "label", "Household Type"),
-                div(
-                  pickerInput(
-                    inputId = "syse_subpop_hh_type",
-                    label = NULL, 
-                    choices = sys_hh_types,
-                    selected = sys_hh_types[1],
-                    width = "100%",
-                    options = pickerOptions(container = "body")
-                  )
-                )
-              ),
-              
-              # ==========================================
-              # GROUP 2: The Three Checkboxes
+              # The 4 Subpop Selectors
               # ==========================================
               layout_columns(
                 class = "syse_subpop_other_container",
-                col_widths = c(3,3,6),
-                # --- Column 1: Age ---
+                col_widths = c(3,2,2,5),
+                
+                # --- Column 1: Household Type ---
+                div(
+                  id = "syse_subpop_hh_type_container",
+                  div(class = "label", "Household Type"),
+                  div(
+                    pickerInput(
+                      inputId = "syse_subpop_hh_type",
+                      label = NULL, 
+                      choices = sys_hh_types,
+                      selected = sys_hh_types[1],
+                      width = "100%",
+                      options = pickerOptions(container = "body")
+                    )
+                  )
+                ),
+                # --- Column 2: Age ---
                 div(
                   checkboxInput('syse_subpop_age_selection', 'Age'),
                   div(
@@ -1311,7 +1302,7 @@ nav_panel(
                   )
                 ),
                 
-                # --- Column 2: Veteran Status ---
+                # --- Column 3: Veteran Status ---
                 div(
                   checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
                   div(
@@ -1329,7 +1320,7 @@ nav_panel(
                   )
                 ),
                 
-                # --- Column 3: Race/Ethnicity ---
+                # --- Column 4: Race/Ethnicity ---
                 div(
                   checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
                   div(
@@ -1372,7 +1363,7 @@ nav_panel(
                     )
                   )
                 )
-              ) # End of Group 2
+              ) # End of subpop selectors
             ),
             br(),
             radioGroupButtons(

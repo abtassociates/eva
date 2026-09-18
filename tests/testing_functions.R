@@ -206,8 +206,6 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$wait_for_idle(timeout = 1e+06)
     app$set_inputs(project_dashboard_subtabs = "<h4>Timeliness</h4>")
     app$wait_for_idle(timeout = 1e+06)
-    # app$set_inputs(client_count_ti_subtabs = "<h5>Record Entry</h5>")
-    # app$wait_for_idle(timeout = 1e+06)
     app$expect_values(
       name = "client-count",
       input = c(
@@ -667,13 +665,14 @@ records_in_one_or_another <- function(old, new, datasetname) {
   only_in_old <- fsetdiff(old, new)
   if(nrow(only_in_old) > 0) {
     print(glue("Viewing records only in the old dataset for ", datasetname))
-    view(only_in_old)
+    View(only_in_old)
+    
   }
 
   only_in_new <- fsetdiff(new, old)
   if(nrow(only_in_new) > 0) {
     print(glue("Viewing records only in the new dataset for ", datasetname))
-    view(only_in_new)
+    View(only_in_new)
   }
 }
 # This is equivalent to snapshot_accept(), but for the helper csv files
