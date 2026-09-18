@@ -477,13 +477,27 @@ enrollment_categories <- enrollment_categories %>%
 # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
 # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
 session$userData$lh_info <- enrollment_categories %>%
-  join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
-  join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  join(
+    lh_cls %>% frename(InformationDate = lh_date),
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
+  join(
+    Services %>% 
+      fselect(EnrollmentID, lh_date_s = DateProvided) %>%
+      funique(), 
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
   fmutate(
     lh_date = fcoalesce(lh_date, lh_date_s),
     non_exit_lh_in_report = 
       ((EntryDate + days_lh_valid) %between% list(session$userData$ReportStart, session$userData$ReportEnd) & lh_prior_livingsituation) |
       (lh_date + days_lh_valid) %between% list(session$userData$ReportStart, session$userData$ReportEnd)
+  ) %>%
+  fsubset(
+    ((lh_date + days_lh_valid) >= (session$userData$ReportStart %m-% years(2)) &
+      lh_date <= session$userData$ReportEnd) | is.na(lh_date)
   ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(exit_is_only_lh = !any(non_exit_lh_in_report, na.rm=TRUE)) %>%
@@ -686,13 +700,27 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
 # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
 # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
 session$userData$lh_info_prev <- enrollment_categories_prev %>%
-  join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
-  join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  join(
+    lh_cls %>% frename(InformationDate = lh_date),
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
+  join(
+    Services %>% 
+      fselect(EnrollmentID, lh_date_s = DateProvided) %>%
+      funique(), 
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
   fmutate(
     lh_date = fcoalesce(lh_date, lh_date_s),
     non_exit_lh_in_report = 
       ((EntryDate + days_lh_valid) %between% list(startDatePrev, endDatePrev) & lh_prior_livingsituation) |
       (lh_date + days_lh_valid) %between% list(startDatePrev, endDatePrev)
+  ) %>%
+  fsubset(
+    ((lh_date + days_lh_valid) >= (startDatePrev %m-% years(2)) & lh_date <= endDatePrev) | 
+      is.na(lh_date)
   ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(exit_is_only_lh = !any(non_exit_lh_in_report, na.rm=TRUE)) %>%

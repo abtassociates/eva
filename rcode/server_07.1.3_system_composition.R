@@ -503,7 +503,7 @@ get_people_universe_filtered <- reactive({
       ProjectType %in% c(ph_project_types, lh_project_types_nonbn) | # defintiionally active the whole time
       EntryDate + days_lh_valid >= session$userData$ReportStart | # (active) entry in period
       (!Destination %in% other_livingsituation & !is.na(Destination)) |  # active exit
-      lh_date >= session$userData$ReportStart | lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
+      lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
     )) %>%
     fselect(PersonalID) %>%
     funique()
