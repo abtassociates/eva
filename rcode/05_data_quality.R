@@ -94,7 +94,7 @@ DV <- HealthAndDV %>%
 base_dq_data <- base_dq_data %>%
   join(DV, on = "EnrollmentID", how = 'left')
 
-rm(DV)
+rm(DV, HealthAndDV)
 
 # Duplicate EEs -----------------------------------------------------------
 
@@ -306,19 +306,6 @@ missing_residence_prior <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 30) %>%
   fselect(vars_we_want)
 
-dkr_residence_prior <- base_dq_data %>%
-  fselect(
-    vars_prep,
-    'AgeAtEntry',
-    'RelationshipToHoH',
-    'LivingSituation'
-  ) %>%
-  fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
-           LivingSituation %in% c(dkr_dnc)) %>%
-  merge_check_info_dt(checkIDs = 64) %>%
-  add_response_val_detail(LivingSituation) %>%
-  fselect(c(vars_we_want, "Detail"))
-
 missing_LoS <- base_dq_data %>%
   fselect(
     vars_prep,
@@ -494,9 +481,7 @@ dkr_living_situation <- base_dq_data %>%
   ) %>%
   fsubset((RelationshipToHoH == 1 | AgeAtEntry > 17) &
            EntryDate > hc_prior_living_situation_required &
-           (
-               LivingSituation %in% c(dkr_dnc)
-           )
+          LivingSituation %in% dkr_dnc
   ) %>%
   merge_check_info_dt(checkIDs = 68) %>%
   add_response_val_detail(LivingSituation) %>%
@@ -647,6 +632,37 @@ dkr_destination <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 59) %>%
   add_response_val_detail(Destination) %>%
   fselect(c(vars_we_want, "Detail"))
+missing_destination_subsidy <- base_dq_data %>%
+  fsubset(!is.na(ExitDate) &
+           Destination == 435 &
+           (is.na(DestinationSubsidyType) |
+           !DestinationSubsidyType %in% c(subsidy_types))) %>%
+  merge_check_info_dt(checkIDs = 121) %>%
+  fselect(vars_we_want)
+
+# Missing ResPrior Subsidy ------------------------------------------------
+
+missing_res_prior_subsidy <- base_dq_data %>%
+  join(Enrollment %>% fselect(EnrollmentID, RentalSubsidyType),
+            on = 'EnrollmentID', how = 'left') %>%
+  fsubset(LivingSituation == 435 &
+           (is.na(RentalSubsidyType) |
+           !RentalSubsidyType %in% c(subsidy_types))) %>%
+  merge_check_info_dt(checkIDs = 130) %>%
+  fselect(vars_we_want)
+
+
+# Missing CLS Subsidy -----------------------------------------------------
+
+missing_cls_subsidy <- base_dq_data %>%
+  join(CurrentLivingSituation %>%
+              fsubset(CurrentLivingSituation == 435 &
+                       (is.na(CLSSubsidyType) |
+                       !CLSSubsidyType %in% c(subsidy_types))) %>%
+              fselect(CurrentLivingSitID, EnrollmentID, CLSSubsidyType),
+            on = 'EnrollmentID', how = 'inner') %>%
+  merge_check_info_dt(checkIDs = 129) %>%
+  fselect(vars_we_want)
 
 # Missing PATH Data -------------------------------------------------------
 

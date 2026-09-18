@@ -61,7 +61,7 @@ function(input, output, session) {
 
   output$headerLocalSettings <- headerGeneric(session, "Edit Local Settings")
 
-  # the reason we split the Client Count header into two is for shinytest reasons
+  # the reason we split the Project Performance header into two is for shinytest reasons
   # this _supp renderUI needed to be associated with an output in order to make 
   # the HTML <div> id the same each time. Without associating with an output, 
   # the id changed each time and the shinytest would catch the difference and fail
