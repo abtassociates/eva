@@ -879,6 +879,7 @@ missing_inc_data <- IncomeBenefits %>%
         vars_prep
       ),
     on = c("PersonalID", "EnrollmentID")
+    how = "inner"
   ) %>%
   fselect(
     vars_prep,
