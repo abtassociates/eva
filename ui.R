@@ -1,5 +1,8 @@
 #source('tabSystemExits.R')
-options(shiny.maxRequestSize = 250 * 1024^2)
+
+css_files <- lapply(list.files(path = "www", pattern = "\\.css$"), function(f) {
+  includeCSS(here("www", f))
+})
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
@@ -14,7 +17,7 @@ page_navbar(
   header = tagList(
     ## css, idle management, and dimension management --------
     tags$head(
-      includeCSS(here("www/custom.css")),
+      !!!css_files,
       # tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
       tags$html(lang="en"), #Added as WAVE fix but not considered ideal
       tags$script(src = "js/disconnect.js"),
@@ -1159,84 +1162,53 @@ nav_panel(
                 ),
                 # --- Column 2: Age ---
                 div(
-                  checkboxInput('syse_subpop_age_selection', 'Age'),
-                  div(
-                    id = 'age_picker',
-                    pickerInput(
-                      inputId = "syse_subpop_age",
-                      label = NULL,
-                      selected = sys_age_cats,
-                      choices = sys_age_cats,
-                      multiple = TRUE,
-                      options = pickerOptions(
-                        actionsBox = TRUE,
-                        selectedTextFormat = paste("count >", length(sys_age_cats)-1),
-                        countSelectedText = "",
-                        noneSelectedText = "None Selected",
-                        container = "body"
-                      )
+                  id = 'age_picker',
+                  pickerInput(
+                    inputId = "syse_subpop_age",
+                    label = "Age",
+                    choices = sys_age_cats,
+                    selected = sys_age_cats,
+                    multiple = TRUE,
+                    options = pickerOptions(
+                      actionsBox = TRUE,
+                      selectedTextFormat = paste("count >", length(sys_age_cats) - 1),
+                      countSelectedText = "All Ages",
+                      noneSelectedText = "None Selected",
+                      container = "body"
                     )
                   )
                 ),
                 
                 # --- Column 3: Veteran Status ---
                 div(
-                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
-                  div(
-                    id = 'vet_picker',
-                    pickerInput(
-                      label = NULL,
-                      inputId = "syse_subpop_spec_pops",
-                      choices = setNames(
-                        sys_spec_pops_people,
-                        nm = c("None Selected", names(sys_spec_pops_people[-1]))
-                      ),
-                      selected = "None Selected",
-                      options = pickerOptions(container = "body")
-                    )
+                  id = 'vet_picker',
+                  pickerInput(
+                    inputId = "syse_subpop_spec_pops",
+                    label = "Veteran Status (Adult Only)",
+                    choices = setNames(
+                      sys_spec_pops_people,
+                      nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                    ),
+                    selected = sys_spec_pops_people[1],
+                    options = pickerOptions(container = "body")
                   )
                 ),
                 
                 # --- Column 4: Race/Ethnicity ---
                 div(
-                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
-                  div(
-                    id = 'race_eth_picker',
-                    conditionalPanel(
-                      condition = 'input.syse_methodology_type == 1',
-                      pickerInput(
-                        label = NULL,
-                        inputId = "syse_subpop_race_ethnicity1",
-                        choices = setNames(
-                          sys_race_ethnicity_method1,
-                          c("None Selected", names(sys_race_ethnicity_method1)[-1])
-                        ),
-                        selected = "None Selected",
-                        options = list(
-                          `dropdown-align-right` = TRUE,
-                          `dropup-auto` = FALSE,
-                          container = "body",
-                          noneSelectedText = "-"
-                        )
-                      )
+                  id = 'race_eth_picker',
+                  pickerInput(
+                    inputId = "syse_subpop_race_ethnicity",
+                    label = "Race/Ethnicity",
+                    choices = setNames(
+                      sys_race_ethnicity_method1,
+                      nm = c("None Selected", names(sys_race_ethnicity_method1[-1]))
                     ),
-                    conditionalPanel(
-                      condition = 'input.syse_methodology_type == 2',
-                      pickerInput(
-                        label = NULL,
-                        inputId = "syse_subpop_race_ethnicity2",
-                        choices = setNames(
-                          sys_race_ethnicity_method2,
-                          c("None Selected", names(sys_race_ethnicity_method2)[-1])
-                        ),
-                        selected = "None Selected",
-                        options = list(
-                          `dropdown-align-right` = TRUE,
-                          `dropup-auto` = FALSE,
-                          container = "body",
-                          noneSelectedText = "-"
-                        )
-                      )
+                    selected = sys_race_ethnicity_method1[1],
+                    options = pickerOptions(
+                      `dropdown-align-right` = TRUE,
+                      `dropup-auto` = FALSE,
+                      container = "body"
                     )
                   )
                 )
@@ -1246,8 +1218,7 @@ nav_panel(
             radioGroupButtons(
               inputId = "subpop_dest_type",
               label = "Destination Type",
-              choices = c("Permanent", "Homeless", "Institutional","Temporary","Other/Unknown"),
-              #Inactive
+              choices = c("Permanent", "Homeless", "Institutional", "Temporary", "Other/Unknown"),
               selected = "Permanent",
               individual = TRUE
             ), 
@@ -1257,12 +1228,11 @@ nav_panel(
           uiOutput("syse_compare_subpop_filter_selections") %>%
             withSpinner(),
           div(
-            style='margin-left:17px;',
+            style = 'margin-left:17px;',
             plotOutput("syse_compare_subpop_chart",
                        width = "92%",
                        height = "500")
-          ),
-          
+          )
         ),
         nav_panel(
           title = headerSubTab('Information'),

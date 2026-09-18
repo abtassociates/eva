@@ -5,7 +5,6 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 
-
 generate_shinytest2_app <- function(test_script_name) {
   app <- AppDriver$new(
     variant = platform_variant(), 
@@ -28,6 +27,7 @@ teardown_shinytest2_app <- function(app) {
   try(app$stop(), silent = TRUE)
   gc(full = TRUE)
 }
+
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
@@ -817,7 +817,6 @@ system_exits_tests <- function(app, test_script_name = "system-exits", test_data
     output = syse_subpop_outputs
   )
   
-  app$set_inputs(syse_subpop_vet_selection = TRUE)
   app$set_inputs(syse_subpop_spec_pops = "Veteran")
   app$wait_for_idle(timeout = 1e+06)
   app$expect_values(

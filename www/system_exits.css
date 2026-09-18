@@ -1,0 +1,30 @@
+
+#syse_filters_left {
+  border-width:0;
+  border-radius:0;
+}
+
+#syse_filters_left > .card-body > div {
+  display: flex; 
+  gap: 15px; 
+  margin-bottom: 0;
+}
+
+#syse_filters_right {
+  border-width:0;
+  border-left-width: 1px; 
+  border-radius:0;
+        
+}
+
+
+
+.treejs .treejs-node__checked > .treejs-checkbox:before {
+  background-color: #16697A !important;
+  border-color: #16697A !important;
+}
+
+.treejs .treejs-node__halfchecked > .treejs-checkbox:before {
+  background-color: #16697A !important;
+  border-color: #16697A !important;
+}

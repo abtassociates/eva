@@ -17,14 +17,9 @@
       "75 and older",
       "Unknown"
     ],
-    "syse_subpop_age_selection": false,
     "syse_subpop_hh_type": "AO",
-    "syse_subpop_race_eth_selection": false,
-    "syse_subpop_race_ethnicity1": "All",
-    "syse_subpop_race_ethnicity2": "All",
     "syse_subpop_spec_pops": "None",
     "syse_subpop_subtabs": "<h5>Chart<\/h5>",
-    "syse_subpop_vet_selection": false,
     "syse_tabbox": "<h4>Exits by Subpopulation<\/h4>"
   },
   "output": {

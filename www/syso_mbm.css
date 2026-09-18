@@ -1,0 +1,41 @@
+
+/* MbM*/
+/*reduce horizontal padding to better align datatable with chart*/
+#syso_inflow_outflow_monthly_table  table.dataTable tbody td {
+  padding: 8px 5px;
+}
+
+/* Inflow cell in MbM DT table */
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) {
+    font-weight: bold;
+    background-color: #CCC7C4;
+    border: 2px solid black;
+    background-image: linear-gradient(black 1px, transparent 1px), linear-gradient(to right, black 1px, transparent 1px);
+    background-size: 10px 10px;
+}
+
+/* Outflow cell in MbM DT table */
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) {
+  font-weight: bold;
+  background-color: #CCC7C4;
+  border: 2px solid black;
+  background-image: repeating-linear-gradient(45deg, black 0, black 1px, transparent 0, transparent 50%);
+  background-size: 10px 10px;
+}
+
+/* div within Inflow cell in MbM DT table */
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(2) > td:nth-child(1) > div {
+  background-color: #CCC7C4;
+  color: black;
+  display: inline;
+  font-weight: bold;
+  border-color: black;
+}
+
+/* div within Outflow cell in MbM DT table */
+#syso_inflow_outflow_monthly_table > div > table > tbody > tr:nth-child(3) > td:nth-child(1) > div {
+  background-color: #CCC7C4;
+  color: black;
+  display: inline;
+  font-weight: bold;
+}
