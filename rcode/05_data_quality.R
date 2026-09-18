@@ -878,7 +878,7 @@ missing_inc_data <- IncomeBenefits %>%
           AgeAtEntry > 17 | is.na(AgeAtEntry),
         vars_prep
       ),
-    on = c("PersonalID", "EnrollmentID")
+    on = c("EnrollmentID"),
     how = "inner"
   ) %>%
   fselect(
