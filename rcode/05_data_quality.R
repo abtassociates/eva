@@ -1435,11 +1435,8 @@ missing_ncbs_entry <- ncb_staging %>%
 
 conflicting_ncbs_entry <- ncb_staging %>%
   fsubset(
-    DataCollectionStage == 1 &
-    (
-      (BenefitsFromAnySource == 1 & BenefitCount == 0) |
-      (BenefitsFromAnySource == 0 & BenefitCount > 0)
-    )
+    (BenefitsFromAnySource == 1 & BenefitCount == 0) |
+    (BenefitsFromAnySource == 0 & BenefitCount > 0)
   ) %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
