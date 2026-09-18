@@ -274,7 +274,7 @@ observeEvent(input$syse_methodology_type, {
 },
 ignoreInit = TRUE)
 
-toggle_sys_components(prefix='syse', FALSE, init=TRUE) # initially hide them
+toggle_sys_components(prefix = 'syse', FALSE, init=TRUE) # initially hide them
 
 # Then, create your specific reactives:
 syse_enrollments_filtered <- create_filtered_enrollments_reactive("syse")
