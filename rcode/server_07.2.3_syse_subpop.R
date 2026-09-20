@@ -246,7 +246,7 @@ toggle_subpop_download_options <- function() {
     shinyjs::toggleState(id, condition = has_subpops)
     if(!has_subpops) updateCheckboxInput(session, id, value = FALSE)
   }
-})
+}
 
 output$syse_compare_subpop_filter_selections <- renderUI({
   req(session$userData$valid_file() == 1 & did_factors_change())
