@@ -10,7 +10,7 @@ detect_bracket_characters <- function(dt, file, cols_to_check, key_info) {
     data.table(
       CSV = file,
       Column = col,
-      Detail = paste0("Text with impermissible characters: ", bracket_values, glue_data(dt[bracket_rows], key_info))
+      Detail = paste0("Text with impermissible characters: ", bracket_values, glue::glue_data(dt[bracket_rows], key_info))
     )
   }) |> rowbind()
 }

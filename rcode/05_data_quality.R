@@ -1883,8 +1883,8 @@ dq_table_names <- c(
 )
 
 # 1. Rowbind using mget() to fetch the datasets from memory
-dq_main <- rowbind(l = mget(dq_table_names)) %>% 
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning"))) %>% 
+dq_main <- rowbind(l = mget(dq_table_names), fill=TRUE) %>% 
+  fmutate(Type = factor(Priority, levels = c("High Priority", "Error", "Warning"))) %>% 
   funique()
 
 # 2. Delete all underlying datasets and the name vector

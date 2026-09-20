@@ -250,7 +250,7 @@ if(fnrow(specs_validation_issues) > 0) {
       detail_template = stringi::stri_replace_all_fixed(detail_template, "{Key Field Info}", key_template)
     )
   
-  specs_validation_issues[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
+  specs_validation_issues[, Detail := as.character(glue::glue_data(.SD, detail_template[1L])), by = detail_template]
 
   specs_validation_issues <- specs_validation_issues %>%
     fselect(c("CSV", "Column" = "Name", issue_display_cols, "AnchorID"))

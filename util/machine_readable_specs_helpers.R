@@ -226,7 +226,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       }
       
       # Perform glue by-group to actually pipe the necessary values in to the Detail
-      invalid_dt_full[, Detail := as.character(glue_data(.SD, detail_template[1L])), by = detail_template]
+      invalid_dt_full[, Detail := as.character(glue::glue_data(.SD, detail_template[1L])), by = detail_template]
       invalid_dt_full[, AnchorValue := if (is.na(AnchorID[1L]) || AnchorID[1L] == "") NA
                  else as.character(get(AnchorID[1L])),
                  by = AnchorID]
