@@ -1162,53 +1162,62 @@ nav_panel(
                 ),
                 # --- Column 2: Age ---
                 div(
-                  id = 'age_picker',
-                  pickerInput(
-                    inputId = "syse_subpop_age",
-                    label = "Age",
-                    choices = sys_age_cats,
-                    selected = sys_age_cats,
-                    multiple = TRUE,
-                    options = pickerOptions(
-                      actionsBox = TRUE,
-                      selectedTextFormat = paste("count >", length(sys_age_cats) - 1),
-                      countSelectedText = "All Ages",
-                      noneSelectedText = "None Selected",
-                      container = "body"
+                  checkboxInput('syse_subpop_age_selection', 'Age'),
+                  div(
+                    id = 'age_picker',
+                    pickerInput(
+                      inputId = "syse_subpop_age",
+                      label = NULL,
+                      choices = sys_age_cats,
+                      selected = sys_age_cats,
+                      multiple = TRUE,
+                      options = pickerOptions(
+                        actionsBox = TRUE,
+                        selectedTextFormat = paste("count >", length(sys_age_cats) - 1),
+                        countSelectedText = "All Ages",
+                        noneSelectedText = "None Selected",
+                        container = "body"
+                      )
                     )
                   )
                 ),
                 
                 # --- Column 3: Veteran Status ---
                 div(
-                  id = 'vet_picker',
-                  pickerInput(
-                    inputId = "syse_subpop_spec_pops",
-                    label = "Veteran Status (Adult Only)",
-                    choices = setNames(
-                      sys_spec_pops_people,
-                      nm = c("None Selected", names(sys_spec_pops_people[-1]))
-                    ),
-                    selected = sys_spec_pops_people[1],
-                    options = pickerOptions(container = "body")
+                  checkboxInput('syse_subpop_vet_selection', 'Veteran Status (Adult Only)'),
+                  div(
+                    id = 'vet_picker',
+                    pickerInput(
+                      inputId = "syse_subpop_spec_pops",
+                      label = NULL,
+                      choices = setNames(
+                        sys_spec_pops_people,
+                        nm = c("None Selected", names(sys_spec_pops_people[-1]))
+                      ),
+                      selected = sys_spec_pops_people[1],
+                      options = pickerOptions(container = "body")
+                    )
                   )
                 ),
                 
                 # --- Column 4: Race/Ethnicity ---
                 div(
-                  id = 'race_eth_picker',
-                  pickerInput(
-                    inputId = "syse_subpop_race_ethnicity",
-                    label = "Race/Ethnicity",
-                    choices = setNames(
-                      sys_race_ethnicity_method1,
-                      nm = c("None Selected", names(sys_race_ethnicity_method1[-1]))
-                    ),
-                    selected = sys_race_ethnicity_method1[1],
-                    options = pickerOptions(
-                      `dropdown-align-right` = TRUE,
-                      `dropup-auto` = FALSE,
-                      container = "body"
+                  checkboxInput('syse_subpop_race_eth_selection', 'Race/Ethnicity'),
+                  div(
+                    id = 'race_eth_picker',
+                    pickerInput(
+                      inputId = "syse_subpop_race_ethnicity",
+                      label = NULL,
+                      choices = setNames(
+                        sys_race_ethnicity_method1,
+                        nm = c("None Selected", names(sys_race_ethnicity_method1[-1]))
+                      ),
+                      selected = sys_race_ethnicity_method1[1],
+                      options = pickerOptions(
+                        `dropdown-align-right` = TRUE,
+                        `dropup-auto` = FALSE,
+                        container = "body"
+                      )
                     )
                   )
                 )
