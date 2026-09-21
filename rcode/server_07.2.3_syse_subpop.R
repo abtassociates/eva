@@ -216,7 +216,7 @@ observeEvent(input$syse_subpop_race_eth_selection, {
 
 observeEvent(input$syse_subpop_vet_selection, {
   shinyjs::toggleState(id = "vet_picker", isTruthy(input$syse_subpop_vet_selection))             
-}ignoreInit=F)
+}, ignoreInit=F)
 
 observeEvent(input$syse_subpop_hh_type, {
   toggle_subpop_download_options()
