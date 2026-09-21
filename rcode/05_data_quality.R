@@ -237,12 +237,12 @@ hh_hoh_exit <- base_dq_data %>%
     nPeople = fnunique(PersonalID), 
     nExits = fnunique(ExitDate),
     #earliestExitDate=fmin(ExitDate, na.rm=TRUE),
-    lastExitDate=fmax(ExitDate, na.rm=TRUE)
+    lastExitDate=fmax(ExitAdjust, na.rm = TRUE)
   ) %>%
   fungroup() %>% # get HOH of households with more than one person and exit date
-  fsubset(RelationshipToHoH == 1 &  nPeople > 1 & nExits > 1 & 
-            ExitDate != lastExitDate) %>%  # and check their exit is on the last date
-  merge_check_info_dt(checkIDs = 145) %>%
+  fsubset(RelationshipToHoH == 1 &  nPeople > 1 & 
+            nExits > 1 & ExitAdjust != lastExitDate) %>%  # and check their exit is on the last date
+  merge_check_info_dt(checkIDs = 145)  %>%
   fselect(vars_we_want)
 
 hh_issues <- 

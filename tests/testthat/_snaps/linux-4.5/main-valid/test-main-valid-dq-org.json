@@ -234,7 +234,9 @@
       111,
       112,
       113,
-      114
+      114,
+      115,
+      116
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -747,7 +749,7 @@
       ]
     },
     "orgDQHighPriorityByIssue": {
-      "src": "[image data hash: 034fb9cdc319b959952966e6cab1aa93]",
+      "src": "[image data hash: 24c81c0c1af7d532f0cfe6a5134383a3]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -774,9 +776,9 @@
 
                 ],
                 "y": [
-                  "Head of Household Exited Before Other Household Members",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
+                  "Head of Household Exited Before Other Household Members",
                   "Missing Relationship to Head of Household"
                 ]
               }
@@ -818,7 +820,7 @@
       ]
     },
     "orgDQHighPriorityByProject": {
-      "src": "[image data hash: d9fbfc87791557d8352618c58eb5dde6]",
+      "src": "[image data hash: c0671c0f173b6aaf73d08c9109d1422d]",
       "width": 1640,
       "height": 400,
       "alt": "Plot object",
@@ -846,8 +848,8 @@
                 ],
                 "y": [
                   "Organization A - HP",
-                  "Organization A - RRH - 2",
                   "Organization A - SO",
+                  "Organization A - RRH - 2",
                   "Organization A - HP - 2"
                 ]
               }
@@ -1062,17 +1064,17 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "114",
+        "Length": "116",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
-        "High Priority": 6,
+        "High Priority": 8,
         "Error": 53,
         "Warning": 55
       },
       "Issue": {
-        "Length": "114",
+        "Length": "116",
         "Class": "character",
         "Mode": "character"
       },
@@ -1080,8 +1082,8 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.789473684210526,
-        "3rd Qu.": 7.75,
+        "Mean": 8.672413793103448,
+        "3rd Qu.": 7.25,
         "Max.": 181
       }
     }
