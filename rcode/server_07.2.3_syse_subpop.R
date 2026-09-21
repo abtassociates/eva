@@ -205,32 +205,18 @@ get_syse_compare_subpop_data <- function(output_type = 'table') {
     fungroup()
 }
 
-observeEvent(input$syse_subpop_age_selection,
-             {
-               if(isTruthy(input$syse_subpop_age_selection)){
-                 shinyjs::enable(id = 'age_picker')
-               } else {
-                 shinyjs::disable(id = 'age_picker')
-               }                 
-             })
+observeEvent(input$syse_subpop_age_selection, {
+  # enables/disables the container div for the Age dropdown
+  shinyjs::toggleState(id = "age_picker", isTruthy(input$syse_subpop_age_selection))
+}, ignoreInit=F)
 
-observeEvent(input$syse_subpop_race_eth_selection,
-             {
-               if(isTruthy(input$syse_subpop_race_eth_selection)){
-                 shinyjs::enable(id = 'race_eth_picker')
-               } else {
-                 shinyjs::disable(id = 'race_eth_picker')
-               }                 
-             }, ignoreInit=F)
+observeEvent(input$syse_subpop_race_eth_selection, {
+  shinyjs::toggleState(id = "race_eth_picker", isTruthy(input$syse_subpop_race_eth_selection))
+}, ignoreInit=F)
 
-observeEvent(input$syse_subpop_vet_selection,
-             {
-               if(isTruthy(input$syse_subpop_vet_selection)){
-                 shinyjs::enable(id = 'vet_picker')
-               } else {
-                 shinyjs::disable(id = 'vet_picker')
-               }                 
-             })
+observeEvent(input$syse_subpop_vet_selection, {
+  shinyjs::toggleState(id = "vet_picker", isTruthy(input$syse_subpop_vet_selection))             
+}ignoreInit=F)
 
 observeEvent(input$syse_subpop_hh_type, {
   toggle_subpop_download_options()
