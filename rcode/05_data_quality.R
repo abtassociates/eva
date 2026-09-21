@@ -1409,8 +1409,7 @@ ncb_staging <- IncomeBenefits %>%
   funique() %>%
   replace_na(value = 0, cols = ncb_cols, set = TRUE) %>%
   fmutate(
-    BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
-      OtherTANF + OtherBenefitsSource
+    BenefitCount = Reduce(`+`, gv(., ncb_cols))
   ) %>%
   fselect(
     PersonalID, EnrollmentID, DataCollectionStage, BenefitsFromAnySource, BenefitCount
