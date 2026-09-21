@@ -14,10 +14,13 @@ sys_comp_selections_summary <- function() {
 }
 
 
-sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isExport = FALSE) {
+sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, people_univ = NULL, isExport = FALSE) {
   var_cols <- get_var_cols(methodology_type)
   
-  comp_df <- get_people_universe_filtered() %>%
+  if(is.null(people_univ)){
+    peopl_univ <- get_people_universe_filtered() 
+  } 
+  comp_df <- people_unv %>%
     remove_non_applicables(selection = selection) %>%
     fselect("PersonalID", unname(var_cols[[selection]]))
   
@@ -39,7 +42,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
   # hide download buttons if not enough data
   toggle_download_buttons(subtab,plot_df)
   
-  if(subtab == 'comp'){
+  if(subtab == 'comp' | subtab == 'unsh'){
     type <- 'overview'
   } else if (subtab == 'phd'){
     type <- 'exits'
@@ -58,7 +61,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
     labels = selection_cats1_labels,
     ordered = TRUE)
   
-  if(subtab == 'comp'){
+  if(subtab == 'comp' | subtab == 'unsh'){
     sys_comp_plot_df(plot_df)
   } else if(subtab == 'phd'){
     sys_phd_plot_df(plot_df)
@@ -128,7 +131,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
   )
 }
 
-sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, isExport = FALSE) {
+sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, people_univ = NULL, isExport = FALSE) {
   # race/ethnicity, if selected, should always be on the row
   var_cols <- get_var_cols(methodology_type)
   
@@ -137,7 +140,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
   }
   
   # get dataset underlying the freqs we will produce below
-  comp_df <- get_people_universe_filtered() %>%
+  comp_df <- people_univ %>%
     remove_non_applicables(selection = selections) %>%
     fselect(
       "PersonalID", 
@@ -163,7 +166,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
   
   toggle_download_buttons(subtab, plot_df)
   
-  if(subtab == 'comp'){
+  if(subtab == 'comp' | subtab == 'unsh'){
     type <- 'overview'
   } else if (subtab == 'phd'){
     type <- 'exits'
@@ -222,7 +225,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
   
   # save before supressing the values
   # this will be used for the download/export
-  if(subtab == 'comp'){
+  if(subtab == 'comp' | subtab == 'unsh'){
     sys_comp_plot_df(plot_df)
   } else {
     sys_phd_plot_df(plot_df)
