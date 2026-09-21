@@ -1877,11 +1877,7 @@
         ],
         [
           null,
-<<<<<<< HEAD
-          "Mean   : 1296.1  ",
-=======
-          "Mean   :  808.2  ",
->>>>>>> dev
+          "Mean   :  812.5  ",
           null
         ],
         [
@@ -1897,17 +1893,10 @@
       ],
       "Organization Summary": [
         [
-<<<<<<< HEAD
-          "Length:1002       ",
+          "Length:1000       ",
           "High Priority: 77  ",
-          "Length:1002       ",
-          "Min.   :    1.00  "
-=======
-          "Length:994        ",
-          "High Priority: 71  ",
-          "Length:994        ",
+          "Length:1000       ",
           "Min.   :   1.00  "
->>>>>>> dev
         ],
         [
           "Class :character  ",
@@ -1925,11 +1914,7 @@
           null,
           null,
           null,
-<<<<<<< HEAD
-          "Mean   :   91.84  "
-=======
-          "Mean   :  57.73  "
->>>>>>> dev
+          "Mean   :  57.69  "
         ],
         [
           null,
