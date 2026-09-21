@@ -1215,14 +1215,12 @@ nav_panel(
               headers = c('Unsheltered Distribution',
                           'Unsheltered PIT',
                           'Unsheltered Inflow-Outflow',
-                          'Unsheltered CLS/DQ',
                           'Unsheltered Demographics'),
-              subtabids = c('dist', 'pit','flow','clsdq','demog'),
+              subtabids = c('dist', 'pit','flow','demog'),
               contentList = list(
                 'dist'  = c('header', 'plot'),
                 'pit'   = c('header', 'plot'),
                 'flow'  = c('header', 'plot'),
-                'clsdq' = c('header', 'plot'),
                 'demog' = c('header', 'plot')
               )
     )
