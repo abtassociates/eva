@@ -470,7 +470,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
     master_id <- paste0(id_prefix, "_export_all_", ext)
     sub_ids <- get_sub_checkbox_ids(ext)
     
-    observeEvent(input[[master_id]], {
+    observeEvent(c(input[[master_id]], syse_subpop_selections()), {
       req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
       
       # If the master changed because of a sub-checkbox update, reset the flag and exit
@@ -481,9 +481,10 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
       
       has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
       for(id in sub_ids) {
-        if(grepl("syse_export_subpop_", id) && !has_subpops) next
-        
-        updateCheckboxInput(session, id, value = input[[master_id]])
+        if(grepl("syse_export_subpop_", id) && !has_subpops)
+          updateCheckboxInput(session, id, value = FALSE)
+        else
+          updateCheckboxInput(session, id, value = input[[master_id]])
       }
     })
   }
