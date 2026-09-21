@@ -1409,8 +1409,7 @@ ncb_staging <- IncomeBenefits %>%
   funique() %>%
   replace_na(value = 0, cols = ncb_cols, set = TRUE) %>%
   fmutate(
-    BenefitCount = SNAP + WIC + TANFChildCare + TANFTransportation +
-      OtherTANF + OtherBenefitsSource
+    BenefitCount = Reduce(`+`, gv(., ncb_cols))
   ) %>%
   fselect(
     PersonalID, EnrollmentID, DataCollectionStage, BenefitsFromAnySource, BenefitCount
@@ -1435,11 +1434,8 @@ missing_ncbs_entry <- ncb_staging %>%
 
 conflicting_ncbs_entry <- ncb_staging %>%
   fsubset(
-    DataCollectionStage == 1 &
-    (
-      (BenefitsFromAnySource == 1 & BenefitCount == 0) |
-      (BenefitsFromAnySource == 0 & BenefitCount > 0)
-    )
+    (BenefitsFromAnySource == 1 & BenefitCount == 0) |
+    (BenefitsFromAnySource == 0 & BenefitCount > 0)
   ) %>%
   merge_check_info_dt(checkIDs = 97) %>%
   fselect(vars_we_want)
