@@ -1,5 +1,12 @@
 
 # Eva Changelog
+## 2026-10-01
+
+### Bug Fixes
+ - Avoid Excel System export crashes due to too many concatenated Literally Homeless dates (Issues <a href='https://github.com/abtassociates/eva/issues/1078' target ='_blank'>#1078</a>, <a href='https://github.com/abtassociates/eva/issues/1039' target ='_blank'>#1039</a>, and <a href='https://github.com/abtassociates/eva/issues/1032' target ='_blank'>#1032</a>)
+ - Fixed potential issue due to mishandling of nulls in System Exits by Time
+ - Added validation for amount of data in System Overview Demographics chart. Avoids error when not enough data
+
 ## 2026-09-17
 
 ### Bug Fixes
