@@ -851,7 +851,7 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
     if(IN_DEV_MODE & !isTRUE(getOption("shiny.testmode"))) {
       bad_records <- get_all_enrollments_for_debugging(bad_records, inflows_and_outflows_clean) %>% 
         fselect(inflow_debug_cols)
-      view(bad_records)
+      View(bad_records)
       browser()
     }
   }
@@ -875,8 +875,8 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
         ) %>%
         fungroup()
       
-      if(nrow(somethings_wrongs[has_inflow_wrong == TRUE]) > 0) view(somethings_wrongs[has_inflow_wrong == TRUE] %>% fselect(inflow_debug_cols, "has_continuous_at_start"))
-      if(nrow(somethings_wrongs[has_outflow_wrong == TRUE]) > 0) view(somethings_wrongs[has_outflow_wrong == TRUE] %>% fselect(outflow_debug_cols, "has_continuous_at_end"))
+      if(nrow(somethings_wrongs[has_inflow_wrong == TRUE]) > 0) View(somethings_wrongs[has_inflow_wrong == TRUE] %>% fselect(inflow_debug_cols, "has_continuous_at_start"))
+      if(nrow(somethings_wrongs[has_outflow_wrong == TRUE]) > 0) View(somethings_wrongs[has_outflow_wrong == TRUE] %>% fselect(outflow_debug_cols, "has_continuous_at_end"))
       browser()
     }
     # e.g. PersonalID 623725 in Nov and 601540 in Dec
@@ -945,7 +945,7 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
           fsubset(!has_something_wrong)
         
         if(nrow(bad_first_inflow_records) > 0) {
-          view(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
+          View(bad_first_inflow_records %>% fselect(c(inflow_debug_cols, "has_continuous_at_start")))
           browser()
         }
       }
@@ -970,7 +970,7 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
           fsubset(!has_something_wrong)
         
         if(nrow(bad_last_outflow_records) > 0) {
-          view(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
+          View(bad_last_outflow_records %>% fselect(c(outflow_debug_cols, "has_continuous_at_end")))
           browser()
         }
       }
@@ -995,7 +995,7 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
         inflows_and_outflows_clean,
         multiple = TRUE
       )
-      view(bad_ashomeless)
+      View(bad_ashomeless)
       browser()
     }
   }
@@ -1028,7 +1028,7 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
           PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_dates, InflowTypeDetail, OutflowTypeDetail
         )
       if(nrow(bad_return_after_nonexit) > 0) {
-        view(bad_return_after_nonexit)
+        View(bad_return_after_nonexit)
         browser()
       }
       
@@ -1063,7 +1063,7 @@ inflow_outflow_qc_checks <- function(inflows_and_outflows_clean) {
           PersonalID, period, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, lh_dates, InflowTypeDetail, OutflowTypeDetail
         )
       if(nrow(bad_nonreturn_after_exit) > 0) {
-        view(bad_nonreturn_after_exit)
+        View(bad_nonreturn_after_exit)
         browser()
       }
       
