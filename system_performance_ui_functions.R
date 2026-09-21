@@ -144,11 +144,6 @@ set_filter_choices <- function(hh_type = sys_hh_types,
 }
 
 
-evaFilterPanel(
-  fprefix = 'unsh',
-  flabels = set_filter_labels('project_type'= "Unsheltered Project Type"), 
-  fchoices = set_filter_choices("project_type" = unsh_project_types)
-)
 
 
 # tabBox ------------------------------------------------------------------
@@ -161,19 +156,53 @@ evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', l
      
     tl <- tagList()
     #browser()
-    if('header' %in% contentList[[i]]){
+    if('header' %in% contentList[[i]] | subtabids[i] != 'demog'){
       tl <- tagAppendChild(tl,
                            uiOutput(outputId = glue("{prefix}_{subtabids[i]}_filter_selections")) %>%
                              withSpinner())
     }
    
     if('plot' %in% contentList[[i]]){
-      tl <- tagAppendChild(
-        tl,
-        plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")
-        ) %>%
-          withSpinner()
-      )
+      
+      if('demog' %in% subtabids[i]){
+        tl <- tagAppendChildren(
+          tl,
+          card(
+            strong("Select Demographic Crosstab Categories (up to 2)"),
+            p(str_glue(
+              "For a simple count of totals within a demographic 
+                                   category, select only one category. To see the 
+                                   intersection of two demographic categories, select 
+                                   both categories to create a crosstab chart. To 
+                                   change your crosstab selection, uncheck at least 
+                                   one of your previous selections before selecting 
+                                   new categories. Note that you can only select one Race/Ethnicity 
+                                   category to display in the chart at a time."
+            )),
+            checkboxGroupInput(
+              glue("{prefix}_{subtabids[i]}_selections"),
+              label = "",
+              choices = sys_heatmap_selection_choices,
+              selected = c("All Races/Ethnicities", "Age"),
+              inline = TRUE
+            ),
+            width = 12
+          ),
+          br(),
+          plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")) %>%
+            withSpinner()
+        )
+       
+      } else {
+        tl <- tagAppendChild(
+          tl,
+          plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")
+          ) %>%
+            withSpinner()
+        )
+      }
+      
+   
     } 
     
     if('table' %in% contentList[[i]]){
