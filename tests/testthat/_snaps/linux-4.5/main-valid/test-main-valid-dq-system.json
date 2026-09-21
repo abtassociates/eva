@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 00af85303b9c422d5c5d64925998a106]",
+      "src": "[image data hash: af5621902b3c9380546809c92805ccaf]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -63,7 +63,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 13080.1,
+              "right": 2334.2,
               "bottom": 0.4,
               "top": 10.6,
               "discrete_limits": {
@@ -71,6 +71,8 @@
 
                 ],
                 "y": [
+                  "Incomplete Living Situation Data",
+                  "Conflicting Health Insurance yes/no at Exit",
                   "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",
@@ -78,9 +80,7 @@
                   "Missing Residence Prior",
                   "Bed night entered on Project Exit Date",
                   "Missing Length of Stay",
-                  "No bed night on Entry Date",
-                  "Missing Income at Exit",
-                  "Missing Income at Entry"
+                  "No bed night on Entry Date"
                 ]
               }
             },

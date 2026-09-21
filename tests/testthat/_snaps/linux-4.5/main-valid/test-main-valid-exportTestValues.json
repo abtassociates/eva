@@ -1877,56 +1877,71 @@
         ],
         [
           null,
+<<<<<<< HEAD
           "Mean   : 1296.1  ",
+=======
+          "Mean   :  808.2  ",
+>>>>>>> dev
           null
         ],
         [
           null,
-          "3rd Qu.:  640.5  ",
+          "3rd Qu.:  574.0  ",
           null
         ],
         [
           null,
-          "Max.   :19157.0  ",
+          "Max.   :11744.0  ",
           null
         ]
       ],
       "Organization Summary": [
         [
+<<<<<<< HEAD
           "Length:1002       ",
           "High Priority: 77  ",
           "Length:1002       ",
           "Min.   :    1.00  "
+=======
+          "Length:994        ",
+          "High Priority: 71  ",
+          "Length:994        ",
+          "Min.   :   1.00  "
+>>>>>>> dev
         ],
         [
           "Class :character  ",
-          "Error        :452  ",
+          "Error        :450  ",
           "Class :character  ",
-          "1st Qu.:    3.00  "
+          "1st Qu.:   3.00  "
         ],
         [
           "Mode  :character  ",
           "Warning      :473  ",
           "Mode  :character  ",
-          "Median :    9.00  "
+          "Median :   9.00  "
         ],
         [
           null,
           null,
           null,
+<<<<<<< HEAD
           "Mean   :   91.84  "
+=======
+          "Mean   :  57.73  "
+>>>>>>> dev
         ],
         [
           null,
           null,
           null,
-          "3rd Qu.:   26.00  "
+          "3rd Qu.:  26.00  "
         ],
         [
           null,
           null,
           null,
-          "Max.   :18758.00  "
+          "Max.   :5367.00  "
         ]
       ],
       "Guidance": [
@@ -2016,14 +2031,14 @@
       ],
       "Errors": [
         [
-          "Length:46845      ",
-          "Length:46845      ",
-          "Length:46845      ",
-          "Length:46845      ",
-          "Length:46845      ",
-          "Length:46845      ",
-          "Length:46845      ",
-          "Length:46845      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
           "Min.   :2007-05-05  "
         ],
         [
@@ -2080,17 +2095,6 @@
           null,
           null,
           "Max.   :2022-09-26  "
-        ],
-        [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          "NA's   :34336  "
         ]
       ],
       "Warnings": [
