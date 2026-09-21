@@ -1815,7 +1815,6 @@ if(fnrow(specs_issues) > 0)
     fselect(c(vars_we_want, "Detail"))
 
 # All together now --------------------------------------------------------
-# All together now --------------------------------------------------------
 
 dq_table_names <- c(
   "approx_start_after_entry",
@@ -1879,12 +1878,13 @@ dq_table_names <- c(
   "veteran_missing_discharge_status",
   "veteran_missing_wars",
   "veteran_missing_year_entered",
-  "veteran_missing_year_separated"
+  "veteran_missing_year_separated",
+  "specs_issues"
 )
 
 # 1. Rowbind using mget() to fetch the datasets from memory
 dq_main <- rowbind(l = mget(dq_table_names), fill=TRUE) %>% 
-  fmutate(Type = factor(Priority, levels = c("High Priority", "Error", "Warning"))) %>% 
+  fmutate(Priority = factor(Priority, levels = c("High Priority", "Error", "Warning"))) %>% 
   funique()
 
 # 2. Delete all underlying datasets and the name vector
