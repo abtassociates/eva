@@ -262,7 +262,7 @@ dq_full <- reactive({
           )
         ) %>% 
         fsubset(DaysSinceLastKnown > too_many_days) %>%
-        fselect(vars_we_want), 
+        fselect(c("Detail", vars_we_want)), 
       error = function(e){e}
     )
     
@@ -281,15 +281,16 @@ dq_full <- reactive({
     outstanding_referrals <- session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
-      fselect(vars_we_want)
+      fselect(c("Detail", vars_we_want))
   } else {
     outstanding_referrals <- data.table()
   }
   
-  bind_rows(
+  collapse::rowbind(
     session$userData$dq_main,
     long_stayers,
-    outstanding_referrals
+    outstanding_referrals,
+    fill = TRUE
   )
 })
 

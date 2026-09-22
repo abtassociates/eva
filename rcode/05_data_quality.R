@@ -1727,10 +1727,17 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
         ))
       ) %>%
       merge_check_info_dt(
-        fcase(
+        checkID = fcase(
           projecttype %in% c(out_project_type, sso_project_type, ce_project_type), 103,
           projecttype == es_nbn_project_type, 142,
           projecttype %in% c(other_project_project_type, day_project_type), 102
+        )
+      ) %>%
+      fmutate(
+        Detail = fcase(
+          projecttype %in% c(out_project_type, sso_project_type, ce_project_type), glue::glue("Key Info: {CurrentLivingSitID}, {InformationDate}"),
+          projecttype == es_nbn_project_type, glue::glue("Key Info: {ServicesID}, {DateProvided}"),
+          default = NA
         )
       )
   )
