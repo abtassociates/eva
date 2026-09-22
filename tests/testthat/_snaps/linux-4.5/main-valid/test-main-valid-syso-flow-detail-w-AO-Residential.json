@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "sys_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -16,9 +15,10 @@
       "Unknown"
     ],
     "syso_hh_type": "AO",
+    "syso_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_level_of_detail": "All",
     "syso_methodology_type": "1",
-    "syso_project_type": "PHRes",
+    "syso_project_type": "LHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
     "syso_tabbox": "<h4>System Flow<\/h4>"
@@ -30,14 +30,14 @@
 
       ]
     },
-    "sys_inflow_outflow_detail_filter_selections": {
-      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>",
+    "syso_inflow_outflow_detail_filter_selections": {
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Homeless Projects <br>",
       "deps": [
 
       ]
     },
-    "sys_inflow_outflow_detail_ui_chart": {
-      "src": "[image data hash: 79777998b8aa5d325406e4840ca44728]",
+    "syso_inflow_outflow_detail_ui_chart": {
+      "src": "[image data hash: 705ac15f319683040817af490bb406ca]",
       "width": 1113,
       "height": 500,
       "alt": "A waterfall bar chart of the homeless system's inflow and \n      outflow during the report period. The detailed view of this chart \n      shows inflow as three subcategories: first-time homeless, returned from \n      permanent, and re-engaged from non-permanent and outflow as three \n      subcategories: exited non-permanent, exited permanent, and inactive.",
@@ -58,7 +58,7 @@
               "left": 0.3225,
               "right": 8.6275,
               "bottom": 0,
-              "top": 1942
+              "top": 3510
             },
             "mapping": {
               "y": null,
