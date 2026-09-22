@@ -13,7 +13,7 @@ syso_get_people_universe_filtered <- reactive({
       ProjectType %in% c(ph_project_types, lh_project_types_nonbn) | # defintiionally active the whole time
         EntryDate + days_lh_valid >= session$userData$ReportStart | # (active) entry in period
         (!Destination %in% other_livingsituation & !is.na(Destination)) |  # active exit
-        lh_date >= session$userData$ReportStart | lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
+        lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
     )) %>%
     fselect(PersonalID) %>%
     funique()
@@ -49,6 +49,13 @@ syso_comp_plot <- function(methodology_type, selections, isExport = FALSE) {
   for (s in selections) {
     plot_df_supp <- plot_df_supp %>% suppress_next_val_if_one_suppressed_in_group(s, "n")
   }
+  
+  validate(
+    need(
+      fsum(plot_df_supp$n) > 0,
+      message = all_data_suppressed_msg
+    )
+  )
   
   # 5. Render Unified Heatmap
   build_demographic_heatmap(
