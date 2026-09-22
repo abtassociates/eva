@@ -1296,14 +1296,14 @@
         1,
         1,
         1,
-        2,
         3,
-        12,
+        3,
+        11,
         6,
         1,
         13,
         3,
-        137,
+        138,
         4,
         1,
         2,
@@ -1342,9 +1342,9 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 12.23529411764706,
+        "Mean": 12.29411764705882,
         "3rd Qu.": 6,
-        "Max.": 137
+        "Max.": 138
       }
     },
     "syse_client_level_export_details": {
@@ -409341,7 +409341,7 @@
         ],
         [
           null,
-          "Mean   :  808.1  ",
+          "Mean   :  808.2  ",
           null
         ],
         [
@@ -409357,14 +409357,14 @@
       ],
       "Organization Summary": [
         [
-          "Length:993        ",
+          "Length:994        ",
           "High Priority: 71  ",
-          "Length:993        ",
+          "Length:994        ",
           "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
-          "Error        :449  ",
+          "Error        :450  ",
           "Class :character  ",
           "1st Qu.:   3.00  "
         ],
@@ -409378,7 +409378,7 @@
           null,
           null,
           null,
-          "Mean   :  57.78  "
+          "Mean   :  57.73  "
         ],
         [
           null,
@@ -409480,14 +409480,14 @@
       ],
       "Errors": [
         [
-          "Length:12501      ",
-          "Length:12501      ",
-          "Length:12501      ",
-          "Length:12501      ",
-          "Length:12501      ",
-          "Length:12501      ",
-          "Length:12501      ",
-          "Length:12501      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
+          "Length:12509      ",
           "Min.   :2007-05-05  "
         ],
         [
