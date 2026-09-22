@@ -1,9 +1,11 @@
 
 # Eva Changelog
-## 2026-09-17
+## 2026-10-01
 
 ### New Features
  - New comprehensive System Performance export interface.
+
+## 2026-09-17
 
 ### Bug Fixes
  - Fix undercounting of Conflicting Health Insurance DQ checks for records with NA health insurance sources.
