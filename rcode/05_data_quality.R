@@ -1780,7 +1780,7 @@ if(all(sapply(list(ESNbN, Outreach, ServicesOnly, Other, DayShelter, Coordinated
         DayShelter,
         CoordinatedEntry
       ),
-      fill = TRUE
+      fill = TRUE,
       return = "data.table"
     )
   )
