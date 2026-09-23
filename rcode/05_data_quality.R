@@ -1693,54 +1693,70 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
   # data with last-known dates
   # we're going to later compute the LAST Known Date to determine when we last heard from them
   # this starts the clock of how long their stay is.
-  data_w_dates <- if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
-    # This will be merged back into non_exits
-    CurrentLivingSituation %>% fselect(EnrollmentID, KnownDate = InformationDate)
-  } else if(projecttype == es_nbn_project_type) {
-    # This will be merged back into non_exits
-    Services %>% fselect(EnrollmentID, KnownDate = DateProvided)
-  } else {
-    # If a different project type, we'll just use their EntryDate as the KnownDate
-    non_exits
-  }
-  
-  # calculate last-known date (differs by project type)
-  non_exits_w_lastknown_date <- if(projecttype %in% c(other_project_project_type, day_project_type)) {
-    # LastKnown = KnownDate (not fmax) because it's per enrollment, and EntryDate (now KnownDate) is at Enrollment level
-    data_w_dates %>%
+  if(projecttype %in% c(other_project_project_type, day_project_type)) {
+    non_exits_w_lastknown_date <- non_exits %>%
       fmutate(LastKnown = EntryDate)
   } else {
-    join(non_exits, data_w_dates, on = "EnrollmentID", how="left", multiple=TRUE) %>%
+    if(projecttype %in% c(out_project_type, sso_project_type, ce_project_type)) {
+      # This will be merged back into non_exits
+      data_w_dates <- CurrentLivingSituation %>% 
+        fselect(UniqueID = CurrentLivingSitID, EnrollmentID, KnownDate = InformationDate)
+      UniqueIDName <- "CurrentLivingSitID"
+      KeyDateName <- "InformationDate"
+      RecordType <- "CLS"
+    } else if(projecttype == es_nbn_project_type) {
+      # This will be merged back into non_exits
+      data_w_dates <- Services %>% 
+        fselect(UniqueID = ServicesID, EnrollmentID, KnownDate = DateProvided)
+      UniqueIDName <- "ServicesID"
+      KeyDateName <- "DateProvided"
+      RecordType <- "Bed Nights"
+    }
+    
+    non_exits_w_lastknown_date <- join(
+      non_exits, 
+      data_w_dates, 
+      on = "EnrollmentID", 
+      how="left", 
+      multiple=TRUE
+    ) %>%
       fgroup_by(EnrollmentID) %>%
       # Take EntryDate if there's no Information or DateProvided
-      fmutate(LastKnown = fcoalesce(fmax(KnownDate), EntryDate)) %>%
+      fmutate(
+        LastKnown = fcoalesce(fmax(KnownDate), EntryDate)
+      ) %>%
+      fungroup() %>%
       funique(cols = c("EnrollmentID", "LastKnown")) %>%
-      fselect(-KnownDate)
-  }
-  
-  # calculate days since last known
-  return(
-    qDT(non_exits_w_lastknown_date) %>%
+      fselect(-KnownDate) %>%
       fmutate(
-        DaysSinceLastKnown = as.numeric(difftime(
-          as.Date(session$userData$meta_HUDCSV_Export_Date), LastKnown, units = "days"
-        ))
-      ) %>%
-      merge_check_info_dt(
-        checkID = fcase(
-          projecttype %in% c(out_project_type, sso_project_type, ce_project_type), 103,
-          projecttype == es_nbn_project_type, 142,
-          projecttype %in% c(other_project_project_type, day_project_type), 102
-        )
-      ) %>%
-      fmutate(
-        Detail = fcase(
-          projecttype %in% c(out_project_type, sso_project_type, ce_project_type), glue::glue("Key Info: {CurrentLivingSitID}, {InformationDate}"),
-          projecttype == es_nbn_project_type, glue::glue("Key Info: {ServicesID}, {DateProvided}"),
-          default = NA
+        Detail = fifelse(
+          is.na(UniqueID),
+          paste0("No ", RecordType, " records"),
+          paste0("Key Info: ", UniqueIDName, " ", UniqueID, ", ", KeyDateName, " ", LastKnown)
         )
       )
-  )
+  }
+  
+  w_check_info <- non_exits_w_lastknown_date %>%
+    fmutate(
+      # calculate days since last known
+      DaysSinceLastKnown = as.numeric(difftime(
+        as.Date(session$userData$meta_HUDCSV_Export_Date), LastKnown, units = "days"
+      )),
+      LastKnown = NULL
+    ) %>%
+    merge_check_info_dt(
+      checkID = fcase(
+        projecttype %in% c(out_project_type, sso_project_type, ce_project_type), 103,
+        projecttype == es_nbn_project_type, 142,
+        projecttype %in% c(other_project_project_type, day_project_type), 102
+      )
+    )
+  
+  if(projecttype %in% c(es_nbn_project_type, out_project_type, sso_project_type, ce_project_type))
+    w_check_info <- w_check_info %>% fselect(-UniqueID)
+  
+  return(w_check_info)
 }
 
 ## ES NbN --------------------
@@ -1768,6 +1784,7 @@ if(all(sapply(list(ESNbN, Outreach, ServicesOnly, Other, DayShelter, Coordinated
         DayShelter,
         CoordinatedEntry
       ),
+      fill = TRUE
       return = "data.table"
     )
   )
@@ -1800,7 +1817,8 @@ calculate_outstanding_referrals <- function(dq_data){
         Event == 15, "Referral to Other PH project/unit/resource opening",
         Event == 17, "Referral to Emergency Housing Voucher (EHV)",
         Event == 18, "Referral to a Housing Stability Voucher"
-      )
+      ),
+      Detail = paste0("Key Info: EventID ", EventID, ", EventDate ", EventDate)
     ) %>%
     fsubset(Event %in% c(10:15, 17:18) &
              is.na(ResultDate))
