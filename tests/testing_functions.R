@@ -677,7 +677,6 @@ records_in_one_or_another <- function(old, new, datasetname) {
   if(nrow(only_in_old) > 0) {
     print(glue("Viewing records only in the old dataset for ", datasetname))
     View(only_in_old)
-    
   }
 
   only_in_new <- fsetdiff(new, old)
