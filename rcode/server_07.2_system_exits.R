@@ -234,7 +234,7 @@ observeEvent(input$syse_tabbox, {
   logMetadata(session, paste0("Clicked on ", input$syse_tabbox,
                               if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   
-  cond <- input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')
+  cond <- !input$syse_tabbox %in% c('<h4>Exits to PH Demographics</h4>','<h4>Exits by Subpopulation</h4>')
   shinyjs::toggle('syse_spec_pops', condition = cond)
   shinyjs::toggle('syse_age', condition = cond)
   shinyjs::toggle('syse_race_ethnicity', condition = cond)
