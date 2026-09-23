@@ -515,6 +515,18 @@ METRIC_DEFINITIONS <- list(
 
 # Dynamic Value Box Builder
 create_metric_value_box <- function(box_key, metric_dataset) {
+  
+  metric_val_box <- function(title, value, showcase, id) {
+    value_box(
+      class = "project_dashboard_valbox border-primary",
+      title = title,
+      value = value,
+      showcase = showcase,
+      id = id,
+      theme = "text-primary"
+    )
+  }
+  
   switch(
     box_key,
     
@@ -524,8 +536,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m_ch  <- eval_metric_kpi("  Children Served (under age 18)", metric_dataset)
       m_uk  <- eval_metric_kpi("  Clients Served with Unknown Age", metric_dataset)
       
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Total Clients Served",
         value = tagList(
           div("Total: ", format_val(m_tot$val, "clients")),
@@ -540,8 +551,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "total_households_served" = {
       m <- eval_metric_kpi("Total Households Served", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Total Households Served",
         value = tagList(
           div("Total Households: ", format_val(m$val, "households"))
@@ -554,8 +564,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "los" = {
       m_avg <- eval_metric_kpi("Average Length of Stay in Residence (All Clients)", metric_dataset)
       m_med <- eval_metric_kpi("Median Length of Stay in Residence (All Clients)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Length of Stay in Residence (All Clients)",
         value = tagList(
           div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
@@ -569,8 +578,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "movein_time" = {
       m_avg <- eval_metric_kpi("Average Time to Housing Move-In (All Clients)", metric_dataset)
       m_med <- eval_metric_kpi("Median Time to Housing Move-In (All Clients)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Time to Housing Move-In (All Clients)",
         value = tagList(
           div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
@@ -584,8 +592,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "lop" = {
       m_avg <- eval_metric_kpi("Average Length of Participation (All Clients)", metric_dataset)
       m_med <- eval_metric_kpi("Median Length of Participation (All Clients)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Length of Participation (All Clients)",
         value = tagList(
           div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
@@ -598,8 +605,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "entered_non_habitat" = {
       m <- eval_metric_kpi("Entered from Place Not Meant for Habitation (HoHs/Adults)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Entered from Place Not Meant for Habitation (HoHs/Adults)",
         value = tagList(
           div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
@@ -612,8 +618,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "entered_permanent" = {
       m <- eval_metric_kpi("Entered from Permanent Housing Situation (HoHs/Adults)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Entered from Permanent Housing Situation (HoHs/Adults)",
         value = tagList(
           div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
@@ -626,8 +631,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "zero_income" = {
       m <- eval_metric_kpi("Zero Income at Entry (HoHs/Adults)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Zero Income at Entry (HoHs/Adults)",
         value = tagList(
           div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
@@ -640,8 +644,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "income_growth" = {
       m <- eval_metric_kpi("Income Growth from Entry to Exit (HoHs/Adults)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Income Growth from Entry to Exit (HoHs/Adults)",
         value = tagList(
           div("Percent of all exited HoHs/Adults: ", format_val(m$val, "pct")),
@@ -654,8 +657,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "successful_exit" = {
       m <- eval_metric_kpi("Successful Exits (All Clients)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Successful Exits (All Clients)",
         value = tagList(
           div("Percent of all exited clients: ", format_val(m$val, "pct")),
@@ -668,8 +670,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "ce_assessments" = {
       m <- eval_metric_kpi("CE Assessed Households (HoHs)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "CE Assessed Households",
         value = tagList(
           div("Number of CE Assessments: ", format_val(m$val, "assessments")),
@@ -682,8 +683,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "cls_records" = {
       m <- eval_metric_kpi("Current Living Situation Records (HoHs/Adults)", metric_dataset)
-      value_box(
-        class = "project_dashboard_valbox",
+      metric_val_box(
         title = "Current Living Situation Records: Total",
         value = div("Total CLS Records: ", format_val(m$val, "records")),
         showcase = bs_icon("geo-alt"),
