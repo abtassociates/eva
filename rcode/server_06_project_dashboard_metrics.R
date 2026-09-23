@@ -18,10 +18,14 @@ format_val <- function(val, unit_type = "clients") {
   
   if (is.null(val) || length(val) == 0) return("-")
   
-  if (unit_type %in% c("days", "clients", "assessments", "households", "people", "records", "enrollments")) {
+  if (unit_type %in% c("days", "assessments", "people", "records", "enrollments")) {
     paste0(comma(val, accuracy = ifelse(val %% 1 == 0, 1, 0.1)), " ", unit_type)
+  } else if(unit_type %in% c("clients","households")) {
+    paste0(comma(val, accuracy = ifelse(val %% 1 == 0, 1, 0.1)))
   } else if (unit_type == "pct") {
-    percent(val, accuracy = 0.1)
+    if(val == 0) "0%"
+    else if(val == 100) "100%"
+    else percent(val, accuracy = 0.1)
   } else {
     as.character(val)
   }
@@ -35,7 +39,7 @@ eval_metric_kpi <- function(metric_name, metric_dataset) {
     return(list(val = NA_real_, nmiss = NA_real_))
   }
   
-  val   <- def$calc_func(metric_dataset)
+  val <- def$calc_func(metric_dataset)
   
   nmiss <- if (!is.null(def$calc_nmiss)) def$calc_nmiss(metric_dataset) else NA_real_
   
@@ -56,7 +60,7 @@ get_stayers <- function(dt) {
 
 METRIC_DEFINITIONS <- list(
   # --- 1. CLIENTS & HOUSEHOLDS ---
-  "Total Clients Served" = list(
+  "Clients Served" = list(
     dt_key         = "total_clients",
     unit           = "clients",
     calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
@@ -119,7 +123,7 @@ METRIC_DEFINITIONS <- list(
     summary_metric = FALSE,
     export_only    = TRUE
   ),
-  "Total Households Served" = list(
+  "Households Served" = list(
     dt_key         = "total_households_served",
     unit           = "households",
     calc_func      = function(dt) fnunique(dt$HouseholdID),
@@ -154,6 +158,42 @@ METRIC_DEFINITIONS <- list(
     show_KPI       = function(pt) FALSE,
     summary_metric = FALSE,
     export_only    = TRUE
+  ),
+  "  Adult Only Households Served" = list(
+    dt_key         = "total_households_served",
+    unit           = "households",
+    calc_func      = function(dt) fnunique(dt[HHGroup == "Adult Only"]$HouseholdID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Adult-Child Households Served" = list(
+    dt_key         = "total_households_served",
+    unit           = "households",
+    calc_func      = function(dt) fnunique(dt[HHGroup == "Adult-Child"]$HouseholdID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Child Only Households Served" = list(
+    dt_key         = "total_households_served",
+    unit           = "households",
+    calc_func      = function(dt) fnunique(dt[HHGroup == "Child Only"]$HouseholdID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
+  ),
+  "  Unknown Households Served" = list(
+    dt_key         = "total_households_served",
+    unit           = "households",
+    calc_func      = function(dt) fnunique(dt[HHGroup == "Unknown"]$HouseholdID),
+    applies        = function(pt) TRUE,
+    show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
+    summary_metric = TRUE,
+    export_only    = FALSE
   ),
   "Households who Moved into Housing" = list(
     dt_key         = "moved_into_housing",
@@ -514,30 +554,29 @@ METRIC_DEFINITIONS <- list(
 # }
 
 # Dynamic Value Box Builder
+metric_val_box <- function(title, value, showcase, id) {
+  value_box(
+    class = "project_dashboard_valbox border-primary",
+    title = title,
+    value = value,
+    showcase = showcase,
+    id = id,
+    theme = "text-primary"
+  )
+}
+
 create_metric_value_box <- function(box_key, metric_dataset) {
-  
-  metric_val_box <- function(title, value, showcase, id) {
-    value_box(
-      class = "project_dashboard_valbox border-primary",
-      title = title,
-      value = value,
-      showcase = showcase,
-      id = id,
-      theme = "text-primary"
-    )
-  }
-  
   switch(
     box_key,
     
     "total_clients" = {
-      m_tot <- eval_metric_kpi("Total Clients Served", metric_dataset)
+      m_tot <- eval_metric_kpi("Clients Served", metric_dataset)
       m_ad  <- eval_metric_kpi("  Adults Served (age 18 or over)", metric_dataset)
       m_ch  <- eval_metric_kpi("  Children Served (under age 18)", metric_dataset)
       m_uk  <- eval_metric_kpi("  Clients Served with Unknown Age", metric_dataset)
       
       metric_val_box(
-        title = "Total Clients Served",
+        title = "Clients Served",
         value = tagList(
           div("Total: ", format_val(m_tot$val, "clients")),
           div("Adults: ", format_val(m_ad$val, "clients")),
@@ -550,11 +589,20 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     },
     
     "total_households_served" = {
-      m <- eval_metric_kpi("Total Households Served", metric_dataset)
+      m_tot <- eval_metric_kpi("Households Served", metric_dataset)
+      m_ao <- eval_metric_kpi("  Adult Only Households Served", metric_dataset)
+      m_ac <- eval_metric_kpi("  Adult-Child Households Served", metric_dataset)
+      m_co <- eval_metric_kpi("  Child Only Households Served", metric_dataset)
+      m_un <- eval_metric_kpi("  Unknown Households Served", metric_dataset)
+      
       metric_val_box(
-        title = "Total Households Served",
+        title = "Households Served",
         value = tagList(
-          div("Total Households: ", format_val(m$val, "households"))
+          div("Total: ", format_val(m_tot$val, "households")),
+          div("Adult Only: ", format_val(m_ao$val, "households")),
+          div("Adult-Child: ", format_val(m_ac$val, "households")),
+          div("Child Only: ", format_val(m_co$val, "households")),
+          div("Unknown: ", format_val(m_un$val, "households"))
         ),
         showcase = bs_icon("house"),
         id = "total_households_box"
@@ -608,8 +656,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Entered from Place Not Meant for Habitation (HoHs/Adults)",
         value = tagList(
-          div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
-          div("Excluded: ", format_val(m$nmiss, "enrollments"))
+          div(format_val(m$val, "pct"), " of all HoHs/Adults")
+          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("signpost-split"),
         id = "entered_non_habitat_box"
@@ -621,8 +669,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Entered from Permanent Housing Situation (HoHs/Adults)",
         value = tagList(
-          div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
-          div("Excluded: ", format_val(m$nmiss, "enrollments"))
+          div(format_val(m$val, "pct"), " of all HoHs/Adults")
+          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("house-check"),
         id = "entered_permanent_box"
@@ -634,8 +682,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Zero Income at Entry (HoHs/Adults)",
         value = tagList(
-          div("Percent of all HoHs/Adults: ", format_val(m$val, "pct")),
-          div("Excluded: ", format_val(m$nmiss, "enrollments"))
+          div(format_val(m$val, "pct"), " of all HoHs/Adults: ")
+          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("wallet2"),
         id = "zero_income_box"
@@ -647,8 +695,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Income Growth from Entry to Exit (HoHs/Adults)",
         value = tagList(
-          div("Percent of all exited HoHs/Adults: ", format_val(m$val, "pct")),
-          div("Excluded: ", format_val(m$nmiss, "enrollments"))
+          div(format_val(m$val, "pct"), " of all exited HoHs/Adults")
+          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("graph-up-arrow"),
         id = "income_growth_box"
@@ -660,8 +708,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Successful Exits (All Clients)",
         value = tagList(
-          div("Percent of all exited clients: ", format_val(m$val, "pct")),
-          div("Excluded: ", format_val(m$nmiss, "enrollments"))
+          div(format_val(m$val, "pct"), "of all exited clients")
+          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("check-circle"),
         id = "successful_exits_box"
@@ -673,8 +721,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "CE Assessed Households",
         value = tagList(
-          div("Number of CE Assessments: ", format_val(m$val, "assessments")),
-          div("Excluded: ", format_val(m$nmiss, "enrollments"))
+          div(format_val(m$val, "assessments"), " CE Assessments"),
+          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("clipboard-check"),
         id = "ce_assessments_box"
@@ -685,7 +733,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("Current Living Situation Records (HoHs/Adults)", metric_dataset)
       metric_val_box(
         title = "Current Living Situation Records: Total",
-        value = div("Total CLS Records: ", format_val(m$val, "records")),
+        value = div(format_val(m$val, "records"), " CLS Records"),
         showcase = bs_icon("geo-alt"),
         id = "cls_records_box"
       )
@@ -736,7 +784,15 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     )
   
   total_households_served_dt <- latest_enrollments |>
-    fsubset(RelationshipToHoH == 1)
+    fsubset(RelationshipToHoH == 1) %>%
+    fmutate(
+      HHGroup = fcase(
+        HHTypeAtReportStart %in% groups["Adult-Only Households"], "Adult Only",
+        HHTypeAtReportStart %in% groups["Adult-Child Households"], "Adult-Child",
+        HHTypeAtReportStart %in% groups["Child Only Households"], "Child Only",
+        default = "Unknown"
+      )
+    )
   
   avg_hh_size_dt <- latest_enrollments |>
     fgroup_by(ProjectID, HouseholdID) |>
