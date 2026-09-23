@@ -261,7 +261,11 @@ build_demographic_heatmap <- function(plot_df,
           data = total_df,
           aes(label = ifelse(wasRedacted, "***", format(.data[[val_col]], big.mark = ','))),
           size = font_size,
-          color = "black"
+          color = ifelse(
+            total_df$N > fmean(total_df$N) & !total_df$wasRedacted,
+            'white', 
+            'black'
+          ),
         )
     }
     
