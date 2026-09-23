@@ -752,7 +752,7 @@
       ]
     },
     "orgDQHighPriorityByIssue": {
-      "src": "[image data hash: a1c619f2526e256efc869b68557436f1]",
+      "src": "[image data hash: 7b9f06e268935ef5b01ecafec109a069]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -779,8 +779,8 @@
 
                 ],
                 "y": [
-                  "Dependent Field Data Collection Issue",
                   "Head of Household Exited Before Other Household Members",
+                  "Dependent Field Data Collection Issue",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
                   "Missing Relationship to Head of Household"

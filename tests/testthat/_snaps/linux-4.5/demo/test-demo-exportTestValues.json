@@ -640,89 +640,120 @@
       ],
       "Organization Summary": [
         [
-          "Length:53         ",
+          "High Priority: 5  ",
           "Min.   :  1.00  ",
-          "Length:53         "
+          "Dependent Field Data Collection Issue                       : 2  "
         ],
         [
-          "Class :character  ",
+          "Error        :26  ",
           "1st Qu.:  2.00  ",
-          "Class :character  "
+          "Homelessness Start Date Later Than Entry                    : 1  "
         ],
         [
-          "Mode  :character  ",
+          "Warning      :22  ",
           "Median :  7.00  ",
-          "Mode  :character  "
+          "Homelessness Start Date conflicts with Living Situation data: 1  "
         ],
         [
           null,
           "Mean   : 20.74  ",
-          null
+          "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
           null,
           "3rd Qu.: 20.00  ",
-          null
+          "Conflicting Health Insurance yes/no at Exit                 : 1  "
         ],
         [
           null,
           "Max.   :251.00  ",
-          null
+          "Conflicting Income yes/no at Entry                          : 1  "
+        ],
+        [
+          null,
+          null,
+          "(Other)                                                     :46  "
         ]
       ],
       "Project Summary": [
         [
           "Length:131        ",
-          "Length:131        ",
-          "Length:131        ",
+          "High Priority: 9  ",
+          "Invalid Homelessness Start Date/Number of Months Homeless: 7  ",
           "Min.   :  1.000  "
         ],
         [
           "Class :character  ",
-          "Class :character  ",
-          "Class :character  ",
+          "Error        :62  ",
+          "Unknown Destination                                      : 6  ",
           "1st Qu.:  1.000  "
         ],
         [
           "Mode  :character  ",
-          "Mode  :character  ",
-          "Mode  :character  ",
+          "Warning      :60  ",
+          "Unknown SSN                                              : 6  ",
           "Median :  4.000  "
         ],
         [
           null,
           null,
-          null,
+          "Missing Length of Stay                                   : 6  ",
           "Mean   :  8.389  "
         ],
         [
           null,
           null,
-          null,
+          "Conflicting Health Insurance yes/no at Entry             : 5  ",
           "3rd Qu.:  7.000  "
         ],
         [
           null,
           null,
-          null,
+          "Missing Residence Prior                                  : 5  ",
           "Max.   :181.000  "
+        ],
+        [
+          null,
+          null,
+          "(Other)                                                  :96  ",
+          null
         ]
       ],
       "Guidance": [
         [
-          "Length:53         ",
-          "Length:53         ",
-          "Length:53         "
+          "High Priority: 5  ",
+          "Dependent Field Data Collection Issue                       : 2  ",
+          "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.                                                                                                                                                                                                                                               :10  "
         ],
         [
-          "Class :character  ",
-          "Class :character  ",
-          "Class :character  "
+          "Error        :26  ",
+          "Homelessness Start Date Later Than Entry                    : 1  ",
+          "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data into HMIS.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  :10  "
         ],
         [
-          "Mode  :character  ",
-          "Mode  :character  ",
-          "Mode  :character  "
+          "Warning      :22  ",
+          "Homelessness Start Date conflicts with Living Situation data: 1  ",
+          "There is a discrepancy between the data element indicating that the client is receiving income and the data elements regarding the income sources. Please verify this client's income to correct this error.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         : 2  "
+        ],
+        [
+          null,
+          "Conflicting Health Insurance yes/no at Entry                : 1  ",
+          "This enrollment overlaps with another enrollment that would indicate a household spent the same night in multiple inventory beds. Please review the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for more information.                                                                                                                                                                                                                                                                                                                                                                                                                                        : 2  "
+        ],
+        [
+          null,
+          "Conflicting Health Insurance yes/no at Exit                 : 1  ",
+          "Certain HMIS data elements are considered \"dependent fields,\" and data collection for these fields is based on specific responses to other related data elements known as \"parent fields.\" In some cases, a dependent field is expected to be blank in HMIS unless a specific response option is selected for a parent field. In other cases, a dependent field is flagged for being blank when it shouldn't be based on the selected response option in the parent field. The Detail column will identify the dependent and parent fields and the relevant dependency logic. Please refer to the HMIS Data Dictionary for more information on dependent fields and response options.: 2  "
+        ],
+        [
+          null,
+          "Conflicting Income yes/no at Entry                          : 1  ",
+          "This client has an Approximate Date Homelessness Started in their enrollment that is after their Project Start Date. The information at Project Start should reflect the client's situation at the point of Project Start, so this date may have been incorrectly entered.                                                                                                                                                                                                                                                                                                                                                                                                           : 1  "
+        ],
+        [
+          null,
+          "(Other)                                                     :46  ",
+          "(Other)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              :26  "
         ]
       ],
       "High Priority": [
@@ -731,7 +762,7 @@
           "Length:22         ",
           "Length:22         ",
           "Length:22         ",
-          "Length:22         ",
+          "Duplicate Entries                                      :8  ",
           "Length:22         ",
           "Length:22         ",
           "Length:22         ",
@@ -743,7 +774,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Class :character  ",
+          "Missing Relationship to Head of Household              :7  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -755,7 +786,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Mode  :character  ",
+          "Too Many Heads of Household                            :5  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -767,7 +798,7 @@
           null,
           null,
           null,
-          null,
+          "Head of Household Exited Before Other Household Members:1  ",
           null,
           null,
           null,
@@ -779,7 +810,7 @@
           null,
           null,
           null,
-          null,
+          "Dependent Field Data Collection Issue                  :1  ",
           null,
           null,
           null,
@@ -791,11 +822,23 @@
           null,
           null,
           null,
-          null,
+          "Homelessness Start Date Later Than Entry               :0  ",
           null,
           null,
           null,
           "Max.   :2022-08-23  ",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "(Other)                                                :0  ",
+          null,
+          null,
+          null,
+          null,
           null
         ]
       ],
@@ -805,7 +848,7 @@
           "Length:283        ",
           "Length:283        ",
           "Length:283        ",
-          "Length:283        ",
+          "Incomplete Living Situation Data  : 41  ",
           "Length:283        ",
           "Length:283        ",
           "Length:283        ",
@@ -817,7 +860,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Class :character  ",
+          "Missing Months or Times Homeless  : 26  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -829,7 +872,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Mode  :character  ",
+          "Conflicting Income yes/no at Exit : 23  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -841,7 +884,7 @@
           null,
           null,
           null,
-          null,
+          "Invalid Move-In Date              : 22  ",
           null,
           null,
           null,
@@ -853,7 +896,7 @@
           null,
           null,
           null,
-          null,
+          "Conflicting Income yes/no at Entry: 18  ",
           null,
           null,
           null,
@@ -865,11 +908,23 @@
           null,
           null,
           null,
-          null,
+          "Missing Length of Stay            : 18  ",
           null,
           null,
           null,
           "Max.   :2022-09-20  ",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "(Other)                           :135  ",
+          null,
+          null,
+          null,
+          null,
           null
         ]
       ],
@@ -879,7 +934,7 @@
           "Length:794        ",
           "Length:794        ",
           "Length:794        ",
-          "Length:794        ",
+          "Unknown SSN                                                 :251  ",
           "Length:794        ",
           "Length:794        ",
           "Length:794        ",
@@ -891,7 +946,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Class :character  ",
+          "Invalid Homelessness Start Date/Number of Months Homeless   :169  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -903,7 +958,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Mode  :character  ",
+          "Unknown Destination                                         :102  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -915,7 +970,7 @@
           null,
           null,
           null,
-          null,
+          "Days since Most Recent CLS Exceeds Local Settings           : 51  ",
           null,
           null,
           null,
@@ -927,7 +982,7 @@
           null,
           null,
           null,
-          null,
+          "Homelessness Start Date conflicts with Living Situation data: 40  ",
           null,
           null,
           null,
@@ -939,11 +994,23 @@
           null,
           null,
           null,
-          null,
+          "Future Entry Date                                           : 38  ",
           null,
           null,
           null,
           "Max.   :2022-09-21  ",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "(Other)                                                     :143  ",
+          null,
+          null,
+          null,
+          null,
           null
         ]
       ],
@@ -1801,89 +1868,120 @@
       ],
       "System Summary": [
         [
-          "Length:62         ",
+          "High Priority: 5  ",
           "Min.   :  1.00  ",
-          "Length:62         "
+          "Dependent Field Data Collection Issue                       : 2  "
         ],
         [
-          "Class :character  ",
+          "Error        :34  ",
           "1st Qu.:  4.25  ",
-          "Class :character  "
+          "Homelessness Start Date Later Than Entry                    : 1  "
         ],
         [
-          "Mode  :character  ",
+          "Warning      :23  ",
           "Median : 12.00  ",
-          "Mode  :character  "
+          "Homelessness Start Date conflicts with Living Situation data: 1  "
         ],
         [
           null,
           "Mean   : 45.13  ",
-          null
+          "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
           null,
           "3rd Qu.: 30.75  ",
-          null
+          "Conflicting Health Insurance yes/no at Exit                 : 1  "
         ],
         [
           null,
           "Max.   :891.00  ",
-          null
+          "Conflicting Income yes/no at Entry                          : 1  "
+        ],
+        [
+          null,
+          null,
+          "(Other)                                                     :55  "
         ]
       ],
       "Organization Summary": [
         [
           "Length:136        ",
-          "Length:136        ",
-          "Length:136        ",
+          "High Priority:12  ",
+          "Dependent Field Data Collection Issue                       :  5  ",
           "Min.   :  1.00  "
         ],
         [
           "Class :character  ",
-          "Class :character  ",
-          "Class :character  ",
+          "Error        :69  ",
+          "Homelessness Start Date conflicts with Living Situation data:  3  ",
           "1st Qu.:  2.00  "
         ],
         [
           "Mode  :character  ",
-          "Mode  :character  ",
-          "Mode  :character  ",
+          "Warning      :55  ",
+          "Conflicting Health Insurance yes/no at Entry                :  3  ",
           "Median :  4.00  "
         ],
         [
           null,
           null,
-          null,
+          "Conflicting Income yes/no at Entry                          :  3  ",
           "Mean   : 20.57  "
         ],
         [
           null,
           null,
-          null,
+          "Conflicting Income yes/no at Exit                           :  3  ",
           "3rd Qu.: 16.00  "
         ],
         [
           null,
           null,
-          null,
+          "Conflicting Non-cash Benefits yes/no at Entry               :  3  ",
           "Max.   :469.00  "
+        ],
+        [
+          null,
+          null,
+          "(Other)                                                     :116  ",
+          null
         ]
       ],
       "Guidance": [
         [
-          "Length:62         ",
-          "Length:62         ",
-          "Length:62         "
+          "High Priority: 5  ",
+          "Dependent Field Data Collection Issue                       : 2  ",
+          "This data element is required to be collected at Project Start. Please go to the client's assessment at Project Start to enter this data into HMIS.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  :15  "
         ],
         [
-          "Class :character  ",
-          "Class :character  ",
-          "Class :character  "
+          "Error        :34  ",
+          "Homelessness Start Date Later Than Entry                    : 1  ",
+          "This record is being flagged because it is incomplete. Some clients may decline or be unable to provide the answer to one or more questions during an assessment. Please review the HMIS Data Manual, pages 12-13, for further guidance on data completeness. If possible to complete this data, please update the record. Note that high levels of incomplete data for a given element may indicate the need for additional training.                                                                                                                                                                                                                                               :10  "
         ],
         [
-          "Mode  :character  ",
-          "Mode  :character  ",
-          "Mode  :character  "
+          "Warning      :23  ",
+          "Homelessness Start Date conflicts with Living Situation data: 1  ",
+          "This enrollment overlaps with another enrollment that would indicate a household spent the same night in multiple inventory beds. Please review the HMIS Dual Enrollments and HIC Duplicate Inventory Training Resource for more information.                                                                                                                                                                                                                                                                                                                                                                                                                                        : 3  "
+        ],
+        [
+          null,
+          "Conflicting Health Insurance yes/no at Entry                : 1  ",
+          "There is a discrepancy between the data element indicating that the client is receiving income and the data elements regarding the income sources. Please verify this client's income to correct this error.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         : 2  "
+        ],
+        [
+          null,
+          "Conflicting Health Insurance yes/no at Exit                 : 1  ",
+          "This data element is required to be collected at Project Exit. Please go to the client's assessment at Project Exit to enter this data into HMIS.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    : 2  "
+        ],
+        [
+          null,
+          "Conflicting Income yes/no at Entry                          : 1  ",
+          "Certain HMIS data elements are considered \"dependent fields,\" and data collection for these fields is based on specific responses to other related data elements known as \"parent fields.\" In some cases, a dependent field is expected to be blank in HMIS unless a specific response option is selected for a parent field. In other cases, a dependent field is flagged for being blank when it shouldn't be based on the selected response option in the parent field. The Detail column will identify the dependent and parent fields and the relevant dependency logic. Please refer to the HMIS Data Dictionary for more information on dependent fields and response options.: 2  "
+        ],
+        [
+          null,
+          "(Other)                                                     :55  ",
+          "(Other)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              :28  "
         ]
       ],
       "High Priority": [
@@ -1892,7 +1990,7 @@
           "Length:48         ",
           "Length:48         ",
           "Length:48         ",
-          "Length:48         ",
+          "Duplicate Entries                                      :12  ",
           "Length:48         ",
           "Length:48         ",
           "Length:48         ",
@@ -1904,7 +2002,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Class :character  ",
+          "Too Many Heads of Household                            :12  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -1916,7 +2014,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Mode  :character  ",
+          "Missing Relationship to Head of Household              :10  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -1928,7 +2026,7 @@
           null,
           null,
           null,
-          null,
+          "Head of Household Exited Before Other Household Members: 9  ",
           null,
           null,
           null,
@@ -1940,7 +2038,7 @@
           null,
           null,
           null,
-          null,
+          "Dependent Field Data Collection Issue                  : 5  ",
           null,
           null,
           null,
@@ -1952,11 +2050,23 @@
           null,
           null,
           null,
-          null,
+          "Homelessness Start Date Later Than Entry               : 0  ",
           null,
           null,
           null,
           "Max.   :2022-09-13  ",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "(Other)                                                : 0  ",
+          null,
+          null,
+          null,
+          null,
           null
         ]
       ],
@@ -1966,7 +2076,7 @@
           "Length:859        ",
           "Length:859        ",
           "Length:859        ",
-          "Length:859        ",
+          "Incomplete Living Situation Data             :105  ",
           "Length:859        ",
           "Length:859        ",
           "Length:859        ",
@@ -1978,7 +2088,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Class :character  ",
+          "Conflicting Non-cash Benefits yes/no at Entry: 98  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -1990,7 +2100,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Mode  :character  ",
+          "Conflicting Income yes/no at Exit            : 94  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -2002,7 +2112,7 @@
           null,
           null,
           null,
-          null,
+          "Conflicting Income yes/no at Entry           : 90  ",
           null,
           null,
           null,
@@ -2014,7 +2124,7 @@
           null,
           null,
           null,
-          null,
+          "Conflicting Health Insurance yes/no at Entry : 76  ",
           null,
           null,
           null,
@@ -2026,11 +2136,23 @@
           null,
           null,
           null,
-          null,
+          "Conflicting Health Insurance yes/no at Exit  : 69  ",
           null,
           null,
           null,
           "Max.   :2022-09-20  ",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "(Other)                                      :327  ",
+          null,
+          null,
+          null,
+          null,
           null
         ]
       ],
@@ -2040,7 +2162,7 @@
           "Length:1891       ",
           "Length:1891       ",
           "Length:1891       ",
-          "Length:1891       ",
+          "Unknown SSN                                                 :891  ",
           "Length:1891       ",
           "Length:1891       ",
           "Length:1891       ",
@@ -2052,7 +2174,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Class :character  ",
+          "Unknown Destination                                         :282  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
@@ -2064,7 +2186,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Mode  :character  ",
+          "Invalid Homelessness Start Date/Number of Months Homeless   :262  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -2076,7 +2198,7 @@
           null,
           null,
           null,
-          null,
+          "Days since Most Recent CLS Exceeds Local Settings           :126  ",
           null,
           null,
           null,
@@ -2088,7 +2210,7 @@
           null,
           null,
           null,
-          null,
+          "Homelessness Start Date conflicts with Living Situation data: 68  ",
           null,
           null,
           null,
@@ -2100,11 +2222,23 @@
           null,
           null,
           null,
-          null,
+          "Incomplete or Unknown Name                                  : 46  ",
           null,
           null,
           null,
           "Max.   :2022-09-22  ",
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "(Other)                                                     :216  ",
+          null,
+          null,
+          null,
+          null,
           null
         ]
       ],
