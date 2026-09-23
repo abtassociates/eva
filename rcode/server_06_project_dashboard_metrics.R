@@ -1004,11 +1004,12 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
       next
     
     metric_dt <- data.table(
-      ProjectID      = applicable_projs$ProjectID,
-      "Project Name" = applicable_projs$ProjectName,
-      "Project Type" = if (exists("project_type", mode = "function")) project_type(applicable_projs$ProjectType) else applicable_projs$ProjectType,
-      "Metric"       = m_name,
-      summary_metric = m_def$summary_metric
+      "Organization Name" = applicable_projs$OrganizationName,
+      "Project ID"        = applicable_projs$ProjectID,
+      "Project Name"      = applicable_projs$ProjectName,
+      "Project Type"      = if (exists("project_type", mode = "function")) project_type(applicable_projs$ProjectType) else applicable_projs$ProjectType,
+      "Metric"            = m_name,
+      summary_metric      = m_def$summary_metric
     )
     
     for (g_name in names(groups)) {
@@ -1022,22 +1023,18 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
     return(list(summary = data.table(), detail = data.table()))
   }
   
-  combined_dt <- rbindlist(all_rows, fill = TRUE)
+  combined_dt <- rowbind(all_rows, fill = TRUE) %>%
+    fmutate(Metric_Order = match(Metric, names(METRIC_DEFINITIONS))) %>%
+    roworder(`Project ID`, Metric_Order)
   
-  # Ensure deterministic sort order: ProjectID first, then Metric definition order
-  combined_dt[, Metric_Order := match(Metric, names(METRIC_DEFINITIONS))]
-  setorder(combined_dt, ProjectID, Metric_Order)
+  cols_to_remove <- c("Metric_Order", "summary_metric")
+  
+  if (!is_export)
+    cols_to_remove <- c(cols_to_remove, "Project Name", "Project Type", "Organization Name", "Project ID")
   
   # Split into Summary and Detail without re-computing
-  cols_to_remove <- c("ProjectID", "Metric_Order", "summary_metric")
-  
   summary_dt <- combined_dt[summary_metric == TRUE, .SD, .SDcols = !cols_to_remove]
   detail_dt  <- combined_dt[, .SD, .SDcols = !cols_to_remove]
-  
-  if (!is_export) {
-    summary_dt[, c("Project Name", "Project Type") := NULL]
-    detail_dt[, c("Project Name", "Project Type") := NULL]
-  }
   
   list(summary = summary_dt, detail = detail_dt)
 }
