@@ -1,0 +1,40 @@
+/** DEMO MODE **/
+#demo_banner {
+  text-align:center;
+  background-color: var(--bs-warning); /* Orange background */
+  color: black;
+  margin-top:-1px;
+  /* may need to adjust for larger screens */
+  margin-left:-12px;
+  margin-right:-12px;
+}
+
+/*Shifting demo switch all the way to the right*/
+#demo_wrapper .shiny-input-container {
+  display: inline;
+}
+#demo_wrapper .bslib-input-switch{
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Adjust spacing between switch and label */
+}
+
+#in_demo_mode {
+  border-color: white;
+  font-size: 1.8em;
+  margin: 0;
+}
+
+#in_demo_mode:checked {
+  background-color: var(--bs-warning);
+}
+
+
+
+#modal_demo_tour .modal-body {
+  padding-bottom: 0.5rem;
+}
+
+#modal_demo_tour .modal-footer {
+ padding: 0.5rem;
+}
