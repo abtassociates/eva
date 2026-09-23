@@ -163,7 +163,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
       # Resolve List
       resolved_list <- if (is.na(rule_row$List)) {
         eval(
-          parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == (rule_row$Name), rule_text]), 
+          parse(text = invalid_non_null_dynamic_lists_dt[CSV == csv_name & Name == rule_row$Name, rule_text]), 
           envir = invalid_dt
         )
       } else {
@@ -178,7 +178,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
         fmutate(
           CSV                       = csv_name,
           Name                      = rule_row$Name,
-          List                      = if(is.null(resolved_list)) NA else resolved_list,
+          List                      = if(is.null(resolved_list)) NA_character_  else as.character(resolved_list),
           Issue                     = rule_row$Issue,
           Guidance                  = rule_row$Guidance,
           Priority                  = rule_row$Priority,
@@ -213,7 +213,7 @@ run_templatable_validations <- function(target_source, data_env = parent.frame()
                 CSV == "Exit" & Name == "Destination", paste0("336,335,37"),
                 CSV == "Enrollment" & Name == "CurrentLivingSituation", paste0("312,313,327,422,423,426,30,24"),
                 CSV == "Enrollment" & Name == "LivingSituation", paste0("312,313,327,422,423,426,30,17,24,37"),
-                default = List
+                default = as.character(List)
               ),
               List
             ),
