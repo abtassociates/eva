@@ -420,7 +420,7 @@ page_navbar(
         nav_panel(
           title = headerTab("Metrics"),
           
-          navset_card_underline(
+          navset_underline(
             id = "project_dashboard_metrics_subtabs",
             
             # SUMMARY SUBTAB
