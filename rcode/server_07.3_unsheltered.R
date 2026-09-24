@@ -1,3 +1,9 @@
+unsh_colors <- c(
+  "Sheltered" = get_brand_color('dark_grey'),
+  "Unsheltered" = get_brand_color('coral'),
+  'Both' = get_brand_color('light_grey')
+)
+
 # Client-level flags, filtered ----------------------------------------------------
 unsh_client_categories_filtered <- reactive({
   
@@ -57,11 +63,6 @@ output$unsh_dist_chart <- renderPlot({
   validate(need(nr > 0, no_data_msg))
   validate(need(nr > 10, suppression_msg))
   
-  tree_colors <- c(
-    "Sheltered" = get_brand_color('dark_grey'),
-    "Unsheltered" = get_brand_color('coral'),
-    'Both' = get_brand_color('light_grey')
-  )
   border_color <- 'black'
   
   ## client level counts and %ages of HomelessnessType
@@ -86,7 +87,7 @@ output$unsh_dist_chart <- renderPlot({
       geom_treemap_text(layout='squarified', start='bottomright',color = "black",  place = "bottomleft", grow = FALSE, reflow = TRUE) +
       #geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE) +
       scale_color_identity() +
-      scale_fill_manual(values = tree_colors) +
+      scale_fill_manual(values = unsh_colors) +
       theme_minimal() +
       coord_fixed(ratio =0.8) +
       theme(
