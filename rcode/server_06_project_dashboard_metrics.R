@@ -682,7 +682,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Zero Income at Entry (HoHs/Adults)",
         value = tagList(
-          div(format_val(m$val, "pct"), " of all HoHs/Adults: ")
+          div(format_val(m$val, "pct"), " of all HoHs/Adults")
           # div("Excluded: ", format_val(m$nmiss, "enrollments"))
         ),
         showcase = bs_icon("wallet2"),
