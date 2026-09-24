@@ -590,19 +590,19 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "total_households_served" = {
       m_tot <- eval_metric_kpi("Households Served", metric_dataset)
-      m_ao <- eval_metric_kpi("  Adult Only Households Served", metric_dataset)
-      m_ac <- eval_metric_kpi("  Adult-Child Households Served", metric_dataset)
-      m_co <- eval_metric_kpi("  Child Only Households Served", metric_dataset)
-      m_un <- eval_metric_kpi("  Unknown Households Served", metric_dataset)
+      m_ao <- fnunique(metric_dataset[HHGroup == "Adult Only"]$HouseholdID)
+      m_ac <- fnunique(metric_dataset[HHGroup == "Adult-Child"]$HouseholdID)
+      m_co <- fnunique(metric_dataset[HHGroup == "Child Only"]$HouseholdID)
+      m_un <- fnunique(metric_dataset[HHGroup == "Unknown"]$HouseholdID)
       
       metric_val_box(
         title = "Households Served",
         value = tagList(
           div("Total: ", format_val(m_tot$val, "households")),
-          div("Adult Only: ", format_val(m_ao$val, "households")),
-          div("Adult-Child: ", format_val(m_ac$val, "households")),
-          div("Child Only: ", format_val(m_co$val, "households")),
-          div("Unknown: ", format_val(m_un$val, "households"))
+          div("Adult Only: ", format_val(m_ao, "households")),
+          div("Adult-Child: ", format_val(m_ac, "households")),
+          div("Child Only: ", format_val(m_co, "households")),
+          div("Unknown: ", format_val(m_un, "households"))
         ),
         showcase = bs_icon("house"),
         id = "total_households_box"
