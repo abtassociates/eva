@@ -623,7 +623,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       )
     },
     
-    "movein_time" = {
+    "time_to_movein" = {
       m_avg <- eval_metric_kpi("Average Time to Housing Move-In (All Clients)", metric_dataset)
       m_med <- eval_metric_kpi("Median Time to Housing Move-In (All Clients)", metric_dataset)
       metric_val_box(
@@ -633,11 +633,11 @@ create_metric_value_box <- function(box_key, metric_dataset) {
           div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
         ),
         showcase = bs_icon("clock-history"),
-        id = "movein_time_box"
+        id = "time_to_movein_box"
       )
     },
     
-    "lop" = {
+    "length_of_participation" = {
       m_avg <- eval_metric_kpi("Average Length of Participation (All Clients)", metric_dataset)
       m_med <- eval_metric_kpi("Median Length of Participation (All Clients)", metric_dataset)
       metric_val_box(
@@ -647,7 +647,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
           div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
         ),
         showcase = bs_icon("calendar-range"),
-        id = "lop_box"
+        id = "length_of_participation_box"
       )
     },
     
