@@ -978,13 +978,14 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
     if(!is_export && m_def$export_only)
       next
     
+    ptype <- if (exists("project_type", mode = "function")) project_type(applicable_projs$ProjectType) else applicable_projs$ProjectType
     metric_dt <- data.table(
       "Organization Name" = applicable_projs$OrganizationName,
       "Project ID"        = applicable_projs$ProjectID,
       "Project Name"      = applicable_projs$ProjectName,
-      "Project Type"      = if (exists("project_type", mode = "function")) project_type(applicable_projs$ProjectType) else applicable_projs$ProjectType,
+      "Project Type"      = ptype,
       "Metric"            = m_name,
-      show_kpi            = m_def$show_kpi(proj_table$ProjectType)
+      show_KPI            = m_def$show_KPI(ptype)
     )
     
     for (g_name in names(groups)) {
@@ -1002,13 +1003,13 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
     fmutate(Metric_Order = match(Metric, names(METRIC_DEFINITIONS))) %>%
     roworder(`Project ID`, Metric_Order)
   
-  cols_to_remove <- c("Metric_Order", "show_kpi")
+  cols_to_remove <- c("Metric_Order", "show_KPI")
   
   if (!is_export)
     cols_to_remove <- c(cols_to_remove, "Project Name", "Project Type", "Organization Name", "Project ID")
   
   # Split into Summary and Detail without re-computing
-  summary_dt <- combined_dt[show_kpi == TRUE, .SD, .SDcols = !cols_to_remove]
+  summary_dt <- combined_dt[show_KPI == TRUE, .SD, .SDcols = !cols_to_remove]
   detail_dt  <- combined_dt[, .SD, .SDcols = !cols_to_remove]
   
   list(summary = summary_dt, detail = detail_dt)
