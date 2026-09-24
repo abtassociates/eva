@@ -787,9 +787,9 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     fsubset(RelationshipToHoH == 1) %>%
     fmutate(
       HHGroup = fcase(
-        HHTypeAtReportStart %in% groups["Adult-Only Households"], "Adult Only",
-        HHTypeAtReportStart %in% groups["Adult-Child Households"], "Adult-Child",
-        HHTypeAtReportStart %in% groups["Child Only Households"], "Child Only",
+        HHTypeAtReportStart %in% groups[["Adult-Only Households"]], "Adult Only",
+        HHTypeAtReportStart %in% groups[["Adult-Child Households"]], "Adult-Child",
+        HHTypeAtReportStart %in% groups[["Child Only Households"]], "Child Only",
         default = "Unknown"
       )
     )
