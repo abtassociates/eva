@@ -162,7 +162,18 @@ evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', l
                              withSpinner())
     }
    
-    if('plot' %in% contentList[[i]]){
+    if('plot' %in% contentList[[i]] & 'table' %in% contentList[[i]]){
+      tl <- tagAppendChild(
+        tl,
+        div(id=glue('{prefix}_{subtabids[i]}_vertical_div'),
+        verticalLayout(
+          plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")) %>% withSpinner(),
+          br(),
+          DTOutput(outputId = glue("{prefix}_{subtabids[i]}_table")) %>% withSpinner()
+        )
+      )
+      )
+    } else if('plot' %in% contentList[[i]]){
       
       if('demog' %in% subtabids[i]){
         tl <- tagAppendChildren(
@@ -203,9 +214,7 @@ evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', l
       }
       
    
-    } 
-    
-    if('table' %in% contentList[[i]]){
+    } else if('table' %in% contentList[[i]]){
       tl <- tagAppendChild(
         tl,
         tagList(

@@ -384,3 +384,8 @@ SESSION TIMEOUT
   text-align:center;
   padding:20px;
 }
+
+#unsh_pit_vertical_div {
+  width: 80%;
+  margin-left: 10%;
+}
