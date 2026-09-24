@@ -1,3 +1,9 @@
+library(here)
+library(lubridate)
+library(collapse)
+library(tidyr)
+library(data.table)
+
 # RUN THIS WHEN THE SPECS OR EVACHECKS OR COLUMN PRIORITIES CHANGE
 source(here("util","hardcodes.R"))
 source(here("util","machine_readable_specs_helpers.R"))
@@ -13,7 +19,6 @@ raw[1, ] <- t(tidyr::fill(data.frame(t(raw[1, ])), everything()))
 header <- paste(raw[1,], raw[2,], sep = "_") |>
   gsub("NA_|_NA", "", x = _)
 
-library(collapse)
 cols_and_data_types <- raw[-(1:2),] |> 
   setNames(header) |>
   qDT()
