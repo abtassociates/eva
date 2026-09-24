@@ -24,9 +24,44 @@ unsh_client_categories_filtered <- reactive({
   ]
 })
 
-
+unsh_enrollments_filtered <- reactive({
+  
+  hh_val <- input$unsh_hh_type
+  lod_val <- input$unsh_level_of_detail
+  pt_val <- input$unsh_project_type
+  vet_val <- input$unsh_spec_pops
+  join(session$userData$enrollment_categories,
+       session$userData$client_categories |> fselect(PersonalID, VeteranStatus),
+       on='PersonalID', how='left'
+      ) |> 
+    fsubset(
+      # Household type filter
+        (hh_val == "All" |
+           (hh_val == "YYA" & HouseholdType %in% c("PY", "UY")) |
+           (hh_val == "YYA" & HouseholdType == "CO" & VeteranStatus != 1) | 
+           (hh_val == "AO" & HouseholdType %in% c("AOminusUY","UY")) | 
+           (hh_val == "AC" & HouseholdType %in% c("ACminusPY","PY")) | 
+           hh_val == HouseholdType)
+        &
+        
+        # Level of detail filter
+        (lod_val == "All" |
+           (lod_val == "HoHsAndAdults" &
+              (MostRecentAgeAtEntry >= 18 | CorrectedHoH == 1)) |
+           (lod_val == "HoHsOnly" &
+              CorrectedHoH == 1)) #&
+        
+        # Project type filter (wrapped in parentheses to preserve logical order of operations)
+        # (pt_val == "All" |
+        #    (pt_val %in% c("LHRes", "AllRes") & ProjectType %in% lh_residential_project_types) |
+        #    (pt_val %in% c("PHRes", "AllRes") & ProjectType %in% ph_project_types) |
+        #    (pt_val == "SO" & ProjectType == sso_project_type) |
+        #    (pt_val == "AllNonRes" & ProjectType %in% non_res_project_types))
+    ) |>
+    fselect(-VeteranStatus)
+})
 # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
-unsh_enrollments_filtered <- create_filtered_enrollments_reactive("unsh")
+
 
 unsh_level_of_detail_text <- reactive({
   case_when(
@@ -34,6 +69,15 @@ unsh_level_of_detail_text <- reactive({
     input$unsh_level_of_detail == "HoHsOnly" ~ "Heads of Household",
     TRUE ~
       getNameByValue(sys_level_of_detail, input$unsh_level_of_detail)
+  )
+})
+
+unsh_client_enrl_filt <- reactive({
+  join( 
+    unsh_client_categories_filtered(),
+    unsh_enrollments_filtered(),
+    on = "PersonalID",
+    how = "inner"
   )
 })
 
@@ -56,9 +100,8 @@ output$unsh_dist_filter_selections <-renderUI({
 
 
 output$unsh_dist_chart <- renderPlot({
-  #browser()
   
-  nr <- nrow(unsh_enrollments_filtered())
+  nr <- nrow(unsh_client_enrl_filt())
   
   validate(need(nr > 0, no_data_msg))
   validate(need(nr > 10, suppression_msg))
@@ -66,14 +109,14 @@ output$unsh_dist_chart <- renderPlot({
   border_color <- 'black'
   
   ## client level counts and %ages of HomelessnessType
-  tree_unsh_data <- unsh_client_categories_filtered() %>% 
+  tree_unsh_data <-  unsh_client_enrl_filt() %>% 
     fsubset(!is.na(HomelessnessType) & HomelessnessType != 'PH Only') %>% 
     fcount(HomelessnessType, name='Count') %>% 
     fmutate(Percent = Count/fsum(Count),
           label = str_c(HomelessnessType, ': ', scales::label_comma()(Count),
                         ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
           ))
- 
+  
   #if(show_legend == FALSE){
     ggplot(tree_unsh_data, aes(area = Count, fill = HomelessnessType,
                                 label = label, subgroup = border_color) )+
@@ -113,15 +156,11 @@ output$unsh_demog_chart <- renderPlot({
       no_valid_data_msg
     )
   )
-  #browser()
+  
   demog_unsh_data <- unsh_client_categories_filtered() %>% 
     ## universe for this chart is clients with Unsheltered or Both enrollments
     fsubset(!is.na(HomelessnessType) & !(HomelessnessType %in% c('Sheltered','PH Only'))) #%>% 
-    #fcount(HomelessnessType, name='Count') %>% 
-    # fmutate(Percent = Count/fsum(Count),
-    #         label = str_c(HomelessnessType, ': ', scales::label_comma()(Count),
-    #                       ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
-    #         ))
+   
   if(length(input$unsh_demog_selections) == 1) {
     sys_comp_plot_1var(subtab = 'unsh', 
                        methodology_type = input$unsh_methodology_type, 
