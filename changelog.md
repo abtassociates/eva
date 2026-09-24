@@ -1,5 +1,20 @@
 
 # Eva Changelog
+## 2026-10-01
+
+### Bug Fixes
+ - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
+ - Handling character columns with "problematic" characters.
+ - Handling nulls in Export.
+
+### Miscellaneous
+  - Added an Empty File initially-invalid check.
+  - Some FSA, DQ, and PDDE checks superseded by new specs-driven checks.
+  - Added detail to Impermissible Character issues in FSA export.
+  - Added Malformed CSV check to catch improper quoting and missing delimiters
+  - Added Detail text to DQ reports that indicate the response values for incomplete or unknown data.
+      
+     
 ## 2026-09-17
 
 ### Bug Fixes
@@ -8,6 +23,7 @@
  - Updated 'Enrollment Crosses Operating End' error to only flag for enrollments associated with projects that have an Operating End Date that is within the export dates. (Issue <a href='https://github.com/abtassociates/eva/issues/1060' target ='_blank'>#1060</a>)
  - Updated the Data Entry Timeliness Metrics tables for ES - NbN projects to ensure the table displays the "Number of Bed Night Records" column even if there are no bed night records
  - Fixed "Median" Timeliness KPI cards to display "No Entries/Exits During Range" instead of N/A when there are no enrollment entry or exit records
+
 
 ## 2026-09-03
 

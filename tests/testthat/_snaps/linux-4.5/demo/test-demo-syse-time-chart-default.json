@@ -1,0 +1,40 @@
+{
+  "input": {
+    "pageid": "tabSystemExits",
+    "syse_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_hh_type": "All",
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_project_type": "LHRes",
+    "syse_race_ethnicity": "All",
+    "syse_spec_pops": "None",
+    "syse_tabbox": "<h4>Exits by Year<\/h4>",
+    "syse_time_subtabs": "<h5>Chart<\/h5>"
+  },
+  "output": {
+    "headerSystemExit": {
+      "html": "<h2>System Exits<\/h2>\n<h4>\n  <strong>Date Range of Current File: <\/strong>\n  10-01-2019 to 09-30-2022\n<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "syse_compare_time_filter_selections": {
+      "html": "<strong>Current Year Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<strong>Previous Year Date Range: <\/strong>\n10-01-2020\n to \n09-30-2021\n<br/>\n<strong>Project Type Group:<\/strong> - Residential: Homeless Projects <br>",
+      "deps": [
+
+      ]
+    }
+  }
+}

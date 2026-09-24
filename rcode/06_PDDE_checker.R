@@ -8,7 +8,7 @@ PDDEcols = c("OrganizationName",
              "ProjectID",
              "ProjectName",
              "Issue",
-             "Type",
+             "Priority",
              "Guidance",
              "Detail")
 
@@ -628,6 +628,18 @@ lt_seas_inv <- lt_seas_inv %>%
   fselect(PDDEcols) %>% 
   funique()
 
+specs_issues <- run_templatable_validations("PDDE", data_env = environment())
+if(fnrow(specs_issues) > 0)
+  specs_issues <- specs_issues %>%
+    frename("ProjectID" = AnchorValue) %>%
+    join(
+      session$userData$Project0, 
+      on = "ProjectID"
+    ) %>%
+    fselect(PDDEcols) %>%
+    funique()
+
+
 # Put it all together -----------------------------------------------------
 # Define table names
 pdde_table_names <- c(
@@ -653,13 +665,14 @@ pdde_table_names <- c(
   "vsp_clients",
   "project_no_coc",
   "res_no_house_type",
-  "lt_seas_inv"
+  "lt_seas_inv",
+  "specs_issues"
 )
 
 # 1. Rowbind using mget()
-pdde_main <- rowbind(l = mget(pdde_table_names)) %>%
+pdde_main <- rowbind(l = mget(pdde_table_names), fill=TRUE) %>%
   funique() %>%
-  fmutate(Type = factor(Type, levels = c("High Priority", "Error", "Warning")))
+  fmutate(Priority = factor(Priority, levels = c("High Priority", "Error", "Warning")))
 
 # 2. Delete all underlying datasets and the name vector
 rm(list = c(pdde_table_names, "pdde_table_names"))

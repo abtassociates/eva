@@ -13,12 +13,12 @@ reduced_data_fsa$Assessment$AssessmentType <- "a string"
 reduced_data_fsa$Client$ExtraCol <- 1
 
 # incorrect/missing column, error (check 82)
-reduced_data_fsa$Client <- reduced_data_fsa$Client %>% select(-DateCreated)
+reduced_data_fsa$Client <- reduced_data_fsa$Client %>% fselect(-DateCreated)
 
 # incorrect/missing column, high-priority (check 12)
-reduced_data_fsa$Client <- reduced_data_fsa$Client %>% select(-BlackAfAmerican)
+reduced_data_fsa$Client <- reduced_data_fsa$Client %>% fselect(-BlackAfAmerican)
 
 # incorrect/misspelled column (check 12)
-reduced_data_fsa$Client <- reduced_data_fsa$Client %>% rename(VeeteranStatuss = VeteranStatus)
+reduced_data_fsa$Client <- reduced_data_fsa$Client %>% frename(VeeteranStatuss = VeteranStatus)
 
 ## add more checks here

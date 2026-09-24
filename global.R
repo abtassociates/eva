@@ -34,7 +34,10 @@ options(BRANDR_BRAND_YML = here::here("_brand.yml"))
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
 
 # source files in /util that end with .R or .r
-for(f in dir("./util")[grepl(".R$|.r$", dir("./util"))]) { source(here("util", f)) }
+# except for Construct FSA Specs, since that relies on an external xlsx file 
+utils_to_load <- dir("./util")[grepl(".R$|.r$", dir("./util"))]
+utils_to_load <- setdiff(utils_to_load, "construct_specs_data.R")
+for(f in utils_to_load) { source(here("util", f)) }
 
 if(dir.exists(METADATA_PATH)) {
   capture.output("All good", file = stderr())
@@ -59,6 +62,9 @@ mirai::everywhere({
   # source non-ui R files in /util 
   source(here("util","hardcodes.R"))
   source(here("util","helper_functions.R"))
+  source(here("util","machine_readable_specs_helpers.R"))
+  
+  load_specs()
   
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
@@ -79,3 +85,5 @@ bslib_eva_theme <- bs_theme(
   "modal-content-bg" = "white",
   font_scale = 0.875 # units are rem, 1rem = 16px
 )
+
+load_specs()
