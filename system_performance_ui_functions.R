@@ -210,7 +210,7 @@ evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', l
         tl,
         tagList(
         br(),
-        DTOutput(outputId = glue("{prefix}_{subtabsids[i]}_table"))
+        DTOutput(outputId = glue("{prefix}_{subtabids[i]}_table"))
         )
       )
     }

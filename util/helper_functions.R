@@ -839,3 +839,15 @@ format_mirai_traceback <- function(err) {
     sep = "\n"
   )
 }
+
+last_wednesday <- function(year, month) {
+  # Get the last day of the month
+  last_day <- ceiling_date(ymd(paste(year, month, "01", sep = "-")), "month") - days(1)
+  # Find the weekday of the last day (1 = Sunday, 7 = Saturday)
+  weekday <- wday(last_day)
+  # Calculate the difference to the last Wednesday (4 = Wednesday)
+  diff <- ifelse(weekday >= 4, weekday - 4, weekday + 3)
+  # Subtract the difference to get the last Wednesday
+  last_day - days(diff)
+}
+
