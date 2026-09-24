@@ -1219,7 +1219,7 @@ nav_panel(
               subtabids = c('dist', 'pit','flow','demog'),
               contentList = list(
                 'dist'  = c('header', 'plot'),
-                'pit'   = c('header', 'plot'),
+                'pit'   = c('header', 'plot','table'),
                 'flow'  = c('header', 'plot'),
                 'demog' = c('header', 'plot')
               )

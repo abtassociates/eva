@@ -62,6 +62,37 @@ unsh_enrollments_filtered <- reactive({
 })
 # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
 
+unsh_pit_dates <- reactive({
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  
+  q1_PIT <- as.Date(fifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
+                             last_wednesday(y_last,1), # use last wednesday of this january
+                             last_wednesday(y_last-1,1))) # else use last wednesday of last january
+  q2_PIT <- as.Date(fifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
+                             last_wednesday(y_last,4), # use last wednesday of this april
+                             last_wednesday(y_last-1,4))) # else use last wednesday of last april
+  q3_PIT <- as.Date(fifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
+                             last_wednesday(y_last,7), # use last wednesday of this july
+                             last_wednesday(y_last-1,7))) # else use last wednesday of last july
+  q4_PIT <- as.Date(fifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
+                             last_wednesday(y_last,10), # use last wednesday of this october
+                             last_wednesday(y_last-1,10))) # else use last wednesday of last october
+  
+  c(q1_PIT, q2_PIT, q3_PIT, q4_PIT)
+})
+
+unsh_pit_df <- reactive({
+  
+  unsh_client_enrl_filt()  |> 
+    fmutate(EntryDate = as.Date(EntryDate), ExitAdjust = as.Date(ExitAdjust),
+            active_at_pit1 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[1], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit2 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[2], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit3 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[3], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit4 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[4], EntryDate, ExitAdjust, NAbounds=FALSE))
+            ) 
+  
+})
 
 unsh_level_of_detail_text <- reactive({
   case_when(
@@ -190,6 +221,113 @@ output$unsh_demog_chart <- renderPlot({
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
 output$unsh_demog_filter_selections <-renderUI({ 
+  
+  req(session$userData$valid_file() == 1 )
+  
+  sys_detailBox(
+    detail_type = 'unsh',
+    methodology_type = input$unsh_methodology_type,
+    cur_project_types = input$unsh_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$unsh_age,
+    spec_pops = input$unsh_spec_pops,
+    race_eth = input$unsh_race_ethnicity
+  )
+  
+})
+unsh_pit_counts <- reactive({
+  
+  # If the client is active in both a sheltered and unsheltered 
+  # enrollment on a given PIT date, precedence is given to the active 
+  # sheltered enrollment (i.e., the client is counted as "Sheltered")
+  
+  # If a client is active in a sheltered enrollment and inactive in an 
+  # unsheltered enrollment on a given PIT date, the client should be 
+  # counted under "Sheltered"
+  
+  # If a client is active in an unsheltered enrollment and inactive in an 
+  # ES – NbN enrollment on a given PIT date, the client should be 
+  # counted under "Unsheltered"
+  
+  mult_active_enrls <- unsh_enrollments_filtered() |>
+    fmutate(EntryDate = as.Date(EntryDate), ExitAdjust = as.Date(ExitAdjust),
+            active_at_pit1 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[1], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit2 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[2], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit3 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[3], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit4 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[4], EntryDate, ExitAdjust, NAbounds=FALSE))
+    ) |>
+    fselect(PersonalID, EnrollmentID, EntryDate, ExitAdjust, sheltered, unsheltered, active_at_pit1, active_at_pit2, active_at_pit3, active_at_pit4) |> 
+    fgroup_by(PersonalID) |> 
+    fsummarize(n_active_pit1 = fsum(active_at_pit1),n_active_pit2 = fsum(active_at_pit2),
+               n_active_pit3 = fsum(active_at_pit3),n_active_pit4 = fsum(active_at_pit4))
+  
+  edge_case1 <- mult_active_enrls |> 
+    join(unsh_client_categories_filtered() |> 
+           fselect(PersonalID, HomelessnessType), how='left') |> 
+    fsubset(((n_active_pit1 > 1) | (n_active_pit2 > 1) | (n_active_pit3 > 1) | (n_active_pit4>1)) & HomelessnessType == 'Both')
+  
+  
+  edge_case1_mixed <- unsh_enrollments_filtered() |> 
+    fsubset(PersonalID %in% edge_case1$PersonalID) |> 
+    roworder(PersonalID) |>  
+    fmutate(EntryDate = as.Date(EntryDate), ExitAdjust = as.Date(ExitAdjust),
+            active_at_pit1 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[1], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit2 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[2], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit3 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[3], EntryDate, ExitAdjust, NAbounds=FALSE)),
+            active_at_pit4 = ifelse(is.na(ExitAdjust), TRUE, data.table::between(unsh_pit_dates()[4], EntryDate, ExitAdjust, NAbounds=FALSE))
+    ) |> 
+    fgroup_by(PersonalID) |> 
+    fsummarize(mixed_enrl1 = fsum(active_at_pit1)>1, mixed_enrl2 = fsum(active_at_pit2)>1, 
+               mixed_enrl3 = fsum(active_at_pit3)>1, mixed_enrl4 = fsum(active_at_pit4)>1)
+  
+  ## need to account for homelessnesstype changing at each pit date before counting
+  unsh_pit_df() |> 
+    fsubset(!(ProjectType %in% ph_project_types)) |> 
+    fmutate(sheltered_yn = fcase(
+      PersonalID %in% edge_case1_mixed$PersonalID, 'Sheltered',
+      sheltered & !unsheltered,'Sheltered',
+      !sheltered & unsheltered, 'Unsheltered',
+      sheltered & unsheltered, 'Both'
+    )) |> 
+    fgroup_by(sheltered_yn) |> 
+    fsummarize(n_pit1 = fsum(active_at_pit1, na.rm=T),
+               n_pit2 = fsum(active_at_pit2, na.rm=T),
+               n_pit3 = fsum(active_at_pit3, na.rm=T),
+               n_pit4 = fsum(active_at_pit4, na.rm=T)) 
+  
+})
+
+output$unsh_pit_table <- renderDT({
+  req(session$userData$valid_file() == 1)
+
+  datatable(unsh_pit_counts(), options = list(dom='t', ordering = FALSE), style='default',
+            colnames = c('', format(unsh_pit_dates(),'%m/%d/%Y')),
+            filter = 'none', selection='none', rownames = FALSE)
+  
+})
+
+
+output$unsh_pit_chart <- renderPlot({
+  req(session$userData$valid_file() == 1)
+  
+  unsh_pit_counts() |> pivot(values=2:5,how='longer') |> 
+    ggplot(aes(x=variable, fill=factor(sheltered_yn),y=value)) +
+    geom_bar(stat='identity', position='dodge') +
+    scale_fill_manual(values=unsh_colors) +
+    scale_y_continuous(limits=c(0, NA), expand = expansion(mult=c(0,0.1),add=0)) +
+    labs(y = '') +
+    theme_minimal() +
+    theme(legend.position = 'none', 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          axis.title.x = element_blank(),
+          axis.text.y = element_text(size = sys_axis_text_font))
+  
+})
+
+
+output$unsh_pit_filter_selections <-renderUI({ 
   
   req(session$userData$valid_file() == 1 )
   
