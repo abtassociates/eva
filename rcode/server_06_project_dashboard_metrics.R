@@ -18,9 +18,9 @@ format_val <- function(val, unit_type = "clients") {
   
   if (is.null(val) || length(val) == 0) return("-")
   
-  if (unit_type %in% c("days", "assessments", "people", "records", "enrollments")) {
+  if (unit_type %in% c("days", "assessments", "people", "enrollments")) {
     paste0(comma(val, accuracy = ifelse(val %% 1 == 0, 1, 0.1)), " ", unit_type)
-  } else if(unit_type %in% c("clients","households")) {
+  } else if(unit_type %in% c("clients","households", "records")) {
     paste0(comma(val, accuracy = ifelse(val %% 1 == 0, 1, 0.1)))
   } else if (unit_type == "pct") {
     if(val == 0) "0%"
@@ -652,8 +652,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     "cls_records" = {
       m <- eval_metric_kpi("Current Living Situation Records (HoHs/Adults)", metric_dataset)
       metric_val_box(
-        title = "Current Living Situation Records: Total",
-        value = div(format_val(m$val, "records"), " CLS Records"),
+        title = "Current Living Situation",
+        value = div("Total: ", format_val(m$val, "records")),
         showcase = bs_icon("geo-alt"),
         id = "cls_records_box"
       )
