@@ -270,7 +270,7 @@ METRIC_DEFINITIONS <- list(
   ),
   
   # --- 4. LENGTH OF PARTICIPATION ---
-  "Average Length of Participation" = list(
+  "Average Length of Participation (All Clients)" = list(
     dt_key         = "length_of_participation",
     unit           = "days",
     calc_func      = function(dt) fmean(dt$length_of_participation),
@@ -294,7 +294,7 @@ METRIC_DEFINITIONS <- list(
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
   ),
-  "Median Length of Participation" = list(
+  "Median Length of Participation (All Clients)" = list(
     dt_key         = "length_of_participation",
     unit           = "days",
     calc_func      = function(dt) fmedian(dt$length_of_participation),
