@@ -381,3 +381,11 @@ SESSION TIMEOUT
   text-align:center;
   padding:20px;
 }
+
+/****************
+Project metrics dashboard
+****************/
+/*Add space between subtabs and KPI cards*/
+#project_dashboard_metrics_subtabs {
+  margin-bottom: 10px;
+}
