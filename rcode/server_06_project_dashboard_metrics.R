@@ -752,7 +752,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         default = NA
       )
     ) |>
-    fselect(EnrollmentID, ProjectID, HHTypeAtReportStart, los_res)
+    fselect(EnrollmentID, ProjectID, ExitDate, HHTypeAtReportStart, los_res)
   
   time_to_movein_dt <- latest_enrollments |> 
     fsubset(
