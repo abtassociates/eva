@@ -1259,6 +1259,8 @@
         "Project Missing in ProjectCoC file",
         "Residential Project Missing Housing Type",
         "Incorrect CoC in bed inventory",
+        "Inventory Record(s) with Zero Beds",
+        "Inventory Record(s) with Zero Units",
         "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
@@ -1283,6 +1285,8 @@
         "Error",
         "Error",
         "Error",
+        "Error",
+        "Error",
         "Warning",
         "Warning",
         "Warning",
@@ -1297,6 +1301,8 @@
         1,
         1,
         3,
+        25,
+        132,
         3,
         11,
         6,
@@ -1313,37 +1319,37 @@
     "pdde_guidance_summary": {
       "Type": {
         "High Priority": 5,
-        "Error": 6,
+        "Error": 8,
         "Warning": 6
       },
       "Issue": {
-        "Length": "17",
+        "Length": "19",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "17",
+        "Length": "19",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "17",
+        "Length": "19",
         "Class": "character",
         "Mode": "character"
       },
       "Type": {
         "High Priority": 5,
-        "Error": 6,
+        "Error": 8,
         "Warning": 6
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 1,
+        "1st Qu.": 1.5,
         "Median": 3,
-        "Mean": 12.29411764705882,
-        "3rd Qu.": 6,
+        "Mean": 19.26315789473684,
+        "3rd Qu.": 12,
         "Max.": 138
       }
     },
