@@ -141,6 +141,8 @@ original_data$Enrollment <- original_data$Enrollment |>
 original_data$Client <- original_data$Client |>
   colorder(DOBDataQuality, Sex, pos="after") # fixes Sex being out-of-order
 
+# Avoids the following HP FSA errors that prevent further processing
+# - No match in ProjectCoC.csv for ProjectID 1745. Key Info: InventoryID 4627/4626, InventoryStartDate 2022-05-31
 original_data$Inventory <- original_data$Inventory |>
   fsubset(!InventoryID %in% c("4627", "4626"))
 
