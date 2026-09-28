@@ -985,7 +985,7 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
       "Project Name"      = applicable_projs$ProjectName,
       "Project Type"      = ptype,
       "Metric"            = m_name,
-      show_KPI            = m_def$show_KPI(ptype)
+      is_summary          = !isFALSE(body(m_def$show_KPI)) # if the show_kpi function is simply FALSE, then the metric should not be included in the summary
     )
     
     for (g_name in names(groups)) {
@@ -1003,13 +1003,13 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
     fmutate(Metric_Order = match(Metric, names(METRIC_DEFINITIONS))) %>%
     roworder(`Project ID`, Metric_Order)
   
-  cols_to_remove <- c("Metric_Order", "show_KPI")
+  cols_to_remove <- c("Metric_Order", "is_summary")
   
   if (!is_export)
     cols_to_remove <- c(cols_to_remove, "Project Name", "Project Type", "Organization Name", "Project ID")
   
   # Split into Summary and Detail without re-computing
-  summary_dt <- combined_dt[show_KPI == TRUE, .SD, .SDcols = !cols_to_remove]
+  summary_dt <- combined_dt[is_summary == TRUE, .SD, .SDcols = !cols_to_remove]
   detail_dt  <- combined_dt[, .SD, .SDcols = !cols_to_remove]
   
   list(summary = summary_dt, detail = detail_dt)
