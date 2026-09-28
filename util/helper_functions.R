@@ -756,7 +756,9 @@ calc_pct_diff <- function(val1, val2, format = 'char'){
 
 # % change: used for time charts
 calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='char'){
-  if(count_prev == 0){
+  if(length(count_prev) == 0) {
+    ifelse(format=='char', '-', NA)
+  } else if(count_prev == 0){
     ifelse(format=='char', '-', NA)
   } else {
     pct_change <- (count_current - count_prev) / count_prev

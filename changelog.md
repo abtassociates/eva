@@ -4,6 +4,10 @@
 
 ### Bug Fixes
  - Updated "Head of Household Exited Before Other Household Members" check to account for cases where the HoH is the only exited household member for an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)
+ - Avoid Excel System export crashes due to too many concatenated Literally Homeless dates (Issues <a href='https://github.com/abtassociates/eva/issues/1078' target ='_blank'>#1078</a>, <a href='https://github.com/abtassociates/eva/issues/1039' target ='_blank'>#1039</a>, and <a href='https://github.com/abtassociates/eva/issues/1032' target ='_blank'>#1032</a>)
+ - Fixed potential issue due to mishandling of nulls in System Exits by Time
+ - Added validation for amount of data in System Overview Demographics chart. Avoids error when not enough data
+ - Added new PDDE checks for projects with at least one inventory record where beds or units have a value of 0. (Issue <a href='https://github.com/abtassociates/eva/issues/1075' target ='_blank'>#1075</a>)
 
 ## 2026-09-17
 
