@@ -119,7 +119,7 @@ METRIC_DEFINITIONS <- list(
   "Households Served" = list(
     dt_key         = "total_households_served",
     unit           = "households",
-    calc_func      = function(dt) fnunique(dt$HouseholdID),
+    calc_func      = function(dt) fnunique(dt$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
     export_only    = FALSE
@@ -127,7 +127,7 @@ METRIC_DEFINITIONS <- list(
   "  Households Served - Leavers" = list(
     dt_key         = "total_households_served",
     unit           = "households",
-    calc_func      = function(dt) fnunique(get_leavers(dt)$HouseholdID),
+    calc_func      = function(dt) fnunique(get_leavers(dt)$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -135,7 +135,7 @@ METRIC_DEFINITIONS <- list(
   "  Households Served - Stayers" = list(
     dt_key         = "total_clients",
     unit           = "households",
-    calc_func      = function(dt) fnunique(get_stayers(dt)$HouseholdID),
+    calc_func      = function(dt) fnunique(get_stayers(dt)$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -510,10 +510,10 @@ create_metric_value_box <- function(box_key, metric_dataset) {
     
     "total_households_served" = {
       m_tot <- eval_metric_kpi("Households Served", metric_dataset)
-      m_ao <- fnunique(metric_dataset[HHGroup == "Adult Only"]$HouseholdID)
-      m_ac <- fnunique(metric_dataset[HHGroup == "Adult-Child"]$HouseholdID)
-      m_co <- fnunique(metric_dataset[HHGroup == "Child Only"]$HouseholdID)
-      m_un <- fnunique(metric_dataset[HHGroup == "Unknown"]$HouseholdID)
+      m_ao <- fnunique(metric_dataset[HHGroup == "Adult Only"]$PersonalID)
+      m_ac <- fnunique(metric_dataset[HHGroup == "Adult-Child"]$PersonalID)
+      m_co <- fnunique(metric_dataset[HHGroup == "Child Only"]$PersonalID)
+      m_un <- fnunique(metric_dataset[HHGroup == "Unknown"]$PersonalID)
       
       metric_val_box(
         title = "Households Served",
@@ -712,7 +712,9 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         HHTypeAtReportStart %in% groups[["Child Only Households"]], "Child Only",
         default = "Unknown"
       )
-    )
+    ) |>
+    fselect(PersonalID, ProjectID, HHGroup, EntryDate, ExitAdjust) |>
+    funique()
   
   avg_hh_size_dt <- latest_enrollments |>
     fgroup_by(ProjectID, HouseholdID) |>
@@ -723,8 +725,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   
   length_of_participation_dt <- latest_enrollments |> 
     fmutate(
-      end_date = fifelse(is.na(ExitDate), session$userData$ReportEnd, ExitDate),
-      length_of_participation = as.integer(end_date - EntryDate)
+      end_date = pmin(pmax(ExitAdjust, session$userData$ReportEnd), session$userData$ReportEnd),
+      length_of_participation = as.integer(difftime(end_date, EntryDate, unit="days"))
     ) |>
     fselect(-end_date)
   
