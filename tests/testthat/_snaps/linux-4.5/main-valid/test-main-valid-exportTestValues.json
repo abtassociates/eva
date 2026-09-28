@@ -2306,6 +2306,8 @@
         "Missing Address",
         "No Inventory Records",
         "Operating End precedes Inventory End",
+        "Inventory Record(s) with Zero Beds",
+        "Inventory Record(s) with Zero Units",
         "RRH-SO has active bed inventory",
         "VSP participating in HMIS",
         "Incorrect CoC in bed inventory",
@@ -2332,6 +2334,8 @@
         "Error",
         "Error",
         "Error",
+        "Error",
+        "Error",
         "Warning",
         "Warning",
         "Warning",
@@ -2348,6 +2352,8 @@
         3,
         12,
         6,
+        25,
+        131,
         1,
         13,
         2,
@@ -2364,7 +2370,7 @@
     "pdde_guidance_summary": {
       "Priority": {
         "High Priority": 5,
-        "Error": 8,
+        "Error": 10,
         "Warning": 6
       },
       "Issue": {
@@ -2375,6 +2381,8 @@
         "Overlapping HMIS Participation Records": 1,
         "Inventory Start Precedes Operating Start": 1,
         "No Enrollments within Active Inventory": 1,
+        "Inventory Record(s) with Zero Beds": 1,
+        "Inventory Record(s) with Zero Units": 1,
         "RRH-SO has active bed inventory": 1,
         "VSP participating in HMIS": 1,
         "Zero Utilization": 1,
@@ -2395,6 +2403,8 @@
         "This project has more than one HMIS Participation record that covers the same time period. Please be sure you are ending any records that are no longer accurate before creating a new record.": 1,
         "Inventory records may begin prior to a Project Operating Start Date, but sometimes this can indicate an incorrect date in either the Project Operating Start or the Inventory Start Date. Please review and if any dates are incorrect, update the record.": 1,
         "This project has no enrollments that intersect with its inventory.": 1,
+        "This project has at least one inventory record where the number of beds is 0. Projects that only have units and no fixed number of beds can estimate the number of beds based on average household size using a multiplier factor (e.g., a project with 30 family units and an average family size of 3 would record 90 beds).": 1,
+        "This project has at least one inventory record where the number of units is 0. Projects that do not have a fixed number of units (e.g., a congregate shelter project) may record the bed inventory, the number of residential facilities operated by the project, or the number of rooms available as the unit inventory.": 1,
         "You have designated this project as Rapid Rehousing, subtype Services Only. The FY2026 Data Standards Manual says this kind of project \"provides services only and does not provide ongoing rental assistance or support any inventory for participants.\" If the project fits this description, please be sure there are no active inventory records associated with the project.": 1,
         "This project is set as HMIS Participating, but the Organization it belongs to is set to Victim Service Provider = Yes. The Violence Against Women Act (VAWA) prohibits Victim Service Providers (VSPs) from entering data into HMIS and other shared databases. HUD has created this [decision tree](https://www.hudexchange.info/resource/5743/hmis-when-to-use-a-comparable-database/) to help communities and providers determine if they should enter data into HMIS or a comparable database.": 1,
         "Any participating project with active year-round or seasonal beds should have one or more active clients during the reporting period.": 1,
@@ -2418,6 +2428,8 @@
         "Overlapping HMIS Participation Records": 1,
         "Inventory Start Precedes Operating Start": 1,
         "No Enrollments within Active Inventory": 1,
+        "Inventory Record(s) with Zero Beds": 1,
+        "Inventory Record(s) with Zero Units": 1,
         "RRH-SO has active bed inventory": 1,
         "VSP participating in HMIS": 1,
         "Zero Utilization": 1,
@@ -2433,15 +2445,15 @@
       },
       "Priority": {
         "High Priority": 5,
-        "Error": 8,
+        "Error": 10,
         "Warning": 6
       },
       "Count": {
         "Min.": 1,
-        "1st Qu.": 1.5,
+        "1st Qu.": 2,
         "Median": 3,
-        "Mean": 11.52631578947368,
-        "3rd Qu.": 7.5,
+        "Mean": 17.85714285714286,
+        "3rd Qu.": 12,
         "Max.": 137
       }
     },
