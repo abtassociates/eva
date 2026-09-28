@@ -281,7 +281,7 @@ METRIC_DEFINITIONS <- list(
   "  Average Length of Participation - Leavers" = list(
     dt_key         = "length_of_participation",
     unit           = "days",
-    calc_func      = function(dt) fmean(dt[!is.na(ExitDate)]$length_of_participation),
+    calc_func      = function(dt) fmean(get_leavers(dt)$length_of_participation),
     applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -289,7 +289,7 @@ METRIC_DEFINITIONS <- list(
   "  Average Length of Participation - Stayers" = list(
     dt_key         = "length_of_participation",
     unit           = "days",
-    calc_func      = function(dt) fmean(dt[is.na(ExitDate)]$length_of_participation),
+    calc_func      = function(dt) fmean(get_stayers(dt)$length_of_participation),
     applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -335,7 +335,7 @@ METRIC_DEFINITIONS <- list(
   "  Average Length of Stay in Residence - Leavers (All Clients)" = list(
     dt_key         = "los",
     unit           = "days",
-    calc_func      = function(dt) fmean(dt[!is.na(ExitDate)]$los_res),
+    calc_func      = function(dt) fmean(get_leavers(dt)$los_res),
     applies        = function(pt) pt %in% project_types_w_beds,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -343,7 +343,7 @@ METRIC_DEFINITIONS <- list(
   "  Average Length of Stay in Residence - Stayers (All Clients)" = list(
     dt_key         = "los",
     unit           = "days",
-    calc_func      = function(dt) fmean(dt[is.na(ExitDate)]$los_res),
+    calc_func      = function(dt) fmean(get_stayers(dt)$los_res),
     applies        = function(pt) pt %in% project_types_w_beds,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -359,7 +359,7 @@ METRIC_DEFINITIONS <- list(
   "  Median Length of Stay in Residence - Leavers (All Clients)" = list(
     dt_key         = "los",
     unit           = "days",
-    calc_func      = function(dt) fmedian(dt[!is.na(ExitDate)]$los_res),
+    calc_func      = function(dt) fmedian(get_leavers(dt)$los_res),
     applies        = function(pt) pt %in% project_types_w_beds,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -367,7 +367,7 @@ METRIC_DEFINITIONS <- list(
   "  Median Length of Stay in Residence - Stayers (All Clients)" = list(
     dt_key         = "los",
     unit           = "days",
-    calc_func      = function(dt) fmedian(dt[is.na(ExitDate)]$los_res),
+    calc_func      = function(dt) fmedian(get_stayers(dt)$los_res),
     applies        = function(pt) pt %in% project_types_w_beds,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -385,7 +385,7 @@ METRIC_DEFINITIONS <- list(
   "  Average Time to Housing Move-In - Leavers (All Clients)" = list(
     dt_key         = "time_to_movein",
     unit           = "days",
-    calc_func      = function(dt) fmean(dt[!is.na(ExitDate)]$time_to_move_in),
+    calc_func      = function(dt) fmean(get_leavers(dt)$time_to_move_in),
     applies        = function(pt) pt %in% ph_project_types,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -393,7 +393,7 @@ METRIC_DEFINITIONS <- list(
   "  Average Time to Housing Move-In - Stayers (All Clients)" = list(
     dt_key         = "time_to_movein",
     unit           = "days",
-    calc_func      = function(dt) fmean(dt[is.na(ExitDate)]$time_to_move_in),
+    calc_func      = function(dt) fmean(get_stayers(dt)$time_to_move_in),
     applies        = function(pt) pt %in% ph_project_types,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -409,7 +409,7 @@ METRIC_DEFINITIONS <- list(
   "  Median Time to Housing Move-In - Leavers (All Clients)" = list(
     dt_key         = "time_to_movein",
     unit           = "days",
-    calc_func      = function(dt) fmedian(dt[!is.na(ExitDate)]$time_to_move_in),
+    calc_func      = function(dt) fmedian(get_leavers(dt)$time_to_move_in),
     applies        = function(pt) pt %in% ph_project_types,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -417,7 +417,7 @@ METRIC_DEFINITIONS <- list(
   "  Median Time to Housing Move-In - Stayers (All Clients)" = list(
     dt_key         = "time_to_movein",
     unit           = "days",
-    calc_func      = function(dt) fmedian(dt[is.na(ExitDate)]$time_to_move_in),
+    calc_func      = function(dt) fmedian(get_stayers(dt)$time_to_move_in),
     applies        = function(pt) pt %in% ph_project_types,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -731,7 +731,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   los_dt <- latest_enrollments |>
     fsubset(
       ProjectType %in% project_types_w_beds, 
-      EnrollmentID, ProjectID, ProjectType, EntryDate, MoveInDateAdjust, ExitDate, HHTypeAtReportStart
+      EnrollmentID, ProjectID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, HHTypeAtReportStart
     ) |>
     join(
       session$userData$Services |>
@@ -752,13 +752,13 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         default = NA
       )
     ) |>
-    fselect(EnrollmentID, ProjectID, ExitDate, HHTypeAtReportStart, los_res)
+    fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust, HHTypeAtReportStart, los_res)
   
   time_to_movein_dt <- latest_enrollments |> 
     fsubset(
       ProjectType %in% ph_project_types & 
         !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd,
-      EnrollmentID, ProjectID, EntryDate, MoveInDateAdjust, HHTypeAtReportStart
+      EnrollmentID, ProjectID, EntryDate, MoveInDateAdjust, ExitAdjust, HHTypeAtReportStart
     ) |>
     fmutate(
       time_to_move_in = as.integer(difftime(MoveInDateAdjust, EntryDate, units = "days"))
