@@ -746,11 +746,12 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         ProjectType %in% lh_project_types_nonbn, EntryDate,
         ProjectType %in% ph_project_types, MoveInDateAdjust
       ),
+      end_date = pmin(pmax(ExitAdjust, session$userData$ReportEnd), session$userData$ReportEnd),
       los_res = fcase(
         ProjectType == es_nbn_project_type, 
         num_bednights,
         ProjectType %in% c(lh_project_types_nonbn, ph_project_types), 
-        as.integer(difftime(pmax(ExitDate, session$userData$ReportEnd, na.rm=TRUE), start, unit = "days")),
+        as.integer(difftime(end_date, start, unit = "days")),
         default = NA
       )
     ) |>
