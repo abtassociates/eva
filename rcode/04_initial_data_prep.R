@@ -24,6 +24,14 @@
 
 logToConsole(session, "Running initial data prep")
 
+# Only care about DataCollectionStages 1 and 3. 
+# filtering early to reduce memory usage: these are often large files
+IncomeBenefits <- IncomeBenefits %>%
+  fsubset(DataCollectionStage %in% c(1,3))
+
+HealthAndDV <- HealthAndDV %>%
+  fsubset(DataCollectionStage %in% c(1,3))
+
 # Project data ------------------------------------------------------------
 
 # breaking out Projects into their participating times, adjusting ProjectIDs
@@ -107,26 +115,28 @@ EnrollmentStaging <- Enrollment %>%
     #   default = "NotDV"
     # ),
     HouseholdType = factor(
-      
-      fcase(min_AgeAtEntry < 18 & between(max_AgeAtEntry, 18, 24), "PY",
-            min_AgeAtEntry < 18 & max_AgeAtEntry >= 18, "ACminusPY",
-            min_AgeAtEntry >= 18 & between(max_AgeAtEntry, 0, 24), "UY", 
-            min_AgeAtEntry >= 18, "AOminusUY",
-            min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17, "CO", 
-            default = "UN"
-      ),
-      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
-    ),
-    HHTypeAtReportStart = factor(
-      
-      fcase(min_AgeAtReportStart < 18 & between(max_AgeAtReportStart, 18, 24), "PY",
-            min_AgeAtReportStart < 18 & max_AgeAtReportStart >= 18, "ACminusPY",
-            min_AgeAtReportStart >= 18 & between(max_AgeAtReportStart, 0, 24), "UY", 
-            min_AgeAtReportStart >= 18, "AOminusUY",
-            min_AgeAtReportStart >= 0 & max_AgeAtReportStart <= 17, "CO", 
-            default = "UN"
-      ),
-      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+      fifelse(
+        any(between(AgeAtEntry, 0, 17)) & max_AgeAtEntry >= 18,
+        fifelse(
+          between(max_AgeAtEntry, 0, 24),
+          "PY",
+          "ACminusPY"
+        ),
+        fifelse(
+          min_AgeAtEntry >= 18,
+          fifelse(
+            between(max_AgeAtEntry, 0, 24),
+            "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
+            "AOminusUY"
+          ),
+          fifelse(
+            min_AgeAtEntry >= 0 & max_AgeAtEntry <= 17,
+            "CO", 
+            "UN"
+          )
+        )
+      ), 
+    levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   fungroup()
@@ -192,7 +202,8 @@ EnrollmentOutside <- EnrollmentOutside %>%
   )
 
 EnrollmentOutside2 <- EnrollmentOutside %>%
-  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, HMISParticipationType, HMISParticipationStatusEndDate)
+  fselect(EnrollmentID, EnrollmentvOperating, EnrollmentvParticipating, OperatingEndDate,
+          HMISParticipationType, HMISParticipationStatusEndDate)
 
 # Get First HMIS span for each Project (technically, the enrollment record)
 EnrollmentOutside <- EnrollmentOutside %>%
@@ -281,86 +292,12 @@ Enrollment <- Enrollment %>%
 
 rm(HHMoveIn)
 
-# Only contains EEs within Operating and Participating Dates --------------
-# to be used for system data analysis purposes. has been culled of enrollments
-# that fall outside of participation/operation date ranges.
-
-EnrollmentAdjust <- Enrollment %>%
-  fsubset(
-    !EnrollmentvParticipating %in% c(
-      "Enrollment After Participating Period",
-      "Enrollment Before Participating Period"
-    ) &
-      !EnrollmentvOperating %in% c(
-        "Enrollment After Operating Period",
-        "Enrollment Before Operating Period"
-      )
-  )
-
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
   fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
-
-# Build validation df for app ---------------------------------------------
-# this contains Project and Org info together
-validationProject <- ProjectSegments %>%
-  fselect(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType
-  )
-
-validationEnrollment <- Enrollment %>% 
-  fselect(
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    ProjectID,
-    ProjectTimeID,
-    RelationshipToHoH,
-    EntryDate,
-    EntryDateTruncated,
-    MoveInDate,
-    ExitDate,
-    ExitDateTruncated,
-    MoveInDateAdjust,
-    ExitAdjust,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) 
-
-# to be used for more literal, data-quality-based analyses. contains enrollments
-# that do not intersect any period of HMIS participation or project operation
-
-#0.006122828 vs 0.0002565384  
-session$userData$validation <- validationProject %>%
-  join(validationEnrollment, on = c("ProjectTimeID", "ProjectID"), how='left', multiple=T) %>%
-  fselect(
-    ProjectID,
-    ProjectTimeID,
-    OrganizationName,
-    ProjectName,
-    ProjectType,
-    EnrollmentID,
-    PersonalID,
-    HouseholdID,
-    RelationshipToHoH,
-    EntryDate,
-    MoveInDateAdjust,
-    ExitDate,
-    LivingSituation,
-    Destination,
-    DestinationSubsidyType,
-    DateCreated
-  ) %>%
-  fsubset(!is.na(EntryDate))
 
 # Checking requirements by projectid --------------------------------------
 
