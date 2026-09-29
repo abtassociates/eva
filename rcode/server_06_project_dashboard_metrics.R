@@ -705,24 +705,24 @@ get_metric_specific_datasets <- function(latest_enrollments) {
     ) |>
     fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust, HHTypeAtReportStart, los_res)
   
-  time_to_movein_dt <- latest_enrollments |> 
-    fsubset(
-      ProjectType %in% ph_project_types & 
-        !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd
-    ) |>
+  move_in_dt <- latest_enrollments |>
+    fsubset(ProjectType %in% ph_project_types) |>
+    fmutate(
+      moved_into_housing = !is.na(MoveInDateAdjust) & MoveInDateAdjust <= input$dateRangeCount[2]
+    )
+  
+  moved_into_housing_dt <- move_in_dt |>
+    fsubset(RelationshipToHoH == 1) |>
+    fselect(EnrollmentID, ProjectID, moved_into_housing, EntryDate, ExitAdjust, HHTypeAtReportStart)
+  
+  time_to_movein_dt <- move_in_dt |> 
+    fsubset(moved_into_housing == TRUE) |>
     fmutate(
       time_to_move_in = as.integer(difftime(MoveInDateAdjust, EntryDate, units = "days"))
     ) |>
     fselect(EnrollmentID, ProjectID, EntryDate, time_to_move_in, ExitAdjust, HHTypeAtReportStart)
   
-  moved_into_housing_dt <- latest_enrollments |>
-    fsubset(
-      ProjectType %in% ph_project_types & RelationshipToHoH == 1
-    ) |>
-    fmutate(
-      moved_into_housing = !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd
-    ) |>
-    fselect(EnrollmentID, ProjectID, moved_into_housing, EntryDate, ExitAdjust, HHTypeAtReportStart)
+  rm(move_in_dt)
   
   entered_from_dt <- latest_enrollments |>
     fsubset(
