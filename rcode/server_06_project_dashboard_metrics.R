@@ -33,17 +33,12 @@ format_val <- function(val, unit_type = "clients") {
 
 # Helper to evaluate metric calculations dynamically
 eval_metric_kpi <- function(metric_name, metric_dataset) {
-  def <- METRIC_DEFINITIONS[[metric_name]]
-  
   if (is.null(metric_dataset) || fnrow(metric_dataset) == 0) {
-    return(list(val = NA_real_, nmiss = NA_real_))
+    return(NA_real_)
+  } else {
+    m_def <- METRIC_DEFINITIONS[[metric_name]]
+    return(m_def$calc_func(metric_dataset))
   }
-  
-  val <- def$calc_func(metric_dataset)
-  
-  nmiss <- if (!is.null(def$calc_nmiss)) def$calc_nmiss(metric_dataset) else NA_real_
-  
-  list(val = val, nmiss = nmiss)
 }
 
 # ==========================================
@@ -95,7 +90,7 @@ METRIC_DEFINITIONS <- list(
   "  Heads of Household and Adults Served (HoHs/Adults)" = list(
     dt_key         = "total_clients",
     unit           = "clients",
-    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
+    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeGroup == "Adult"]$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -305,9 +300,7 @@ METRIC_DEFINITIONS <- list(
   "  Median Length of Participation - Leavers" = list(
     dt_key         = "length_of_participation",
     unit           = "days",
-    calc_func      = function(dt) fmedian(
-      get_leavers(dt)$length_of_participation
-    ),
+    calc_func      = function(dt) fmedian(get_leavers(dt)$length_of_participation),
     applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -315,9 +308,7 @@ METRIC_DEFINITIONS <- list(
   "  Median Length of Participation - Stayers" = list(
     dt_key         = "length_of_participation",
     unit           = "days",
-    calc_func      = function(dt) fmedian(
-      get_stayers(dt)$length_of_participation
-    ),
+    calc_func      = function(dt) fmedian(get_stayers(dt)$length_of_participation),
     applies        = function(pt) pt %in% c(non_res_project_types, ph_project_types),
     show_KPI       = function(pt) FALSE,
     export_only    = TRUE
@@ -427,7 +418,7 @@ METRIC_DEFINITIONS <- list(
   "CE Assessed Households (HoHs)" = list(
     dt_key         = "ce_assessments",
     unit           = "assessments",
-    calc_func      = function(dt) fnunique(dt$EnrollmentID),
+    calc_func      = function(dt) fnrow(dt),
     applies        = function(pt) pt == ce_project_type,
     show_KPI       = function(pt) pt == ce_project_type,
     export_only    = FALSE
@@ -443,35 +434,12 @@ METRIC_DEFINITIONS <- list(
   "Current Living Situation Records (HoHs/Adults)" = list(
     dt_key         = "cls_records",
     unit           = "records",
-    calc_func      = function(dt) fnunique(dt$CurrentLivingSitID),
+    calc_func      = function(dt) fnrow(dt),
     applies        = function(pt) pt %in% c(es_nbn_project_type, setdiff(non_res_project_types, hp_project_type)),
     show_KPI       = function(pt) pt %in% setdiff(project_types_w_cls, es_nbn_project_type),
     export_only    = FALSE
   )
 )
-
-# # Generic calculation function for Household Grouping (Table details)
-# calc_by_hh_group <- function(metric_name, m_datasets, calc_type) {
-#   def <- METRIC_DEFINITIONS[[metric_name]]
-#   sub_dt <- m_datasets[[def$dt_key]]
-#   
-#   vals <- lapply(groups, function(g) {
-#     if (is.null(sub_dt) || fnrow(sub_dt) == 0) return(NA_real_)
-#     grp_dt <- sub_dt[HHTypeAtReportStart %in% g]
-#     if (fnrow(grp_dt) == 0) return(NA_real_)
-#     
-#     if(calc_type == "detail")
-#       def$calc_func_det(grp_dt)
-#     else
-#       def$calc_func(grp_dt)
-#   })
-#   
-#   if (!is.null(def$calc_nmiss)) {
-#     vals["Total Missing"] <- if (!is.null(sub_dt) && fnrow(sub_dt) > 0) def$calc_nmiss(sub_dt) else NA_real_
-#   }
-#   
-#   vals
-# }
 
 # Dynamic Value Box Builder
 metric_val_box <- function(title, value, showcase, id) {
@@ -498,10 +466,10 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Clients Served",
         value = tagList(
-          div("Total: ", format_val(m_tot$val, "clients")),
-          div("Adults: ", format_val(m_ad$val, "clients")),
-          div("Children: ", format_val(m_ch$val, "clients")),
-          div("Unknown: ", format_val(m_uk$val, "clients"))
+          div("Total: ", format_val(m_tot, "clients")),
+          div("Adults: ", format_val(m_ad, "clients")),
+          div("Children: ", format_val(m_ch, "clients")),
+          div("Unknown: ", format_val(m_uk, "clients"))
         ),
         showcase = bs_icon("people"),
         id = "total_clients_box"
@@ -518,7 +486,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Households Served",
         value = tagList(
-          div("Total: ", format_val(m_tot$val, "households")),
+          div("Total: ", format_val(m_tot, "households")),
           div("Adult Only: ", format_val(m_ao, "households")),
           div("Adult-Child: ", format_val(m_ac, "households")),
           div("Child Only: ", format_val(m_co, "households")),
@@ -535,8 +503,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Length of Stay in Residence (All Clients)",
         value = tagList(
-          div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
-          div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
+          div("Average: ", format_val(fcoalesce(m_avg, 0), "days")),
+          div("Median: ", format_val(fcoalesce(m_med, 0), "days"))
         ),
         showcase = bs_icon("building-add"),
         id = "los_box"
@@ -549,8 +517,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Time to Housing Move-In (All Clients)",
         value = tagList(
-          div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
-          div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
+          div("Average: ", format_val(fcoalesce(m_avg, 0), "days")),
+          div("Median: ", format_val(fcoalesce(m_med, 0), "days"))
         ),
         showcase = bs_icon("clock-history"),
         id = "time_to_movein_box"
@@ -563,8 +531,8 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       metric_val_box(
         title = "Length of Participation (All Clients)",
         value = tagList(
-          div("Average: ", format_val(fcoalesce(m_avg$val, 0), "days")),
-          div("Median: ", format_val(fcoalesce(m_med$val, 0), "days"))
+          div("Average: ", format_val(fcoalesce(m_avg, 0), "days")),
+          div("Median: ", format_val(fcoalesce(m_med, 0), "days"))
         ),
         showcase = bs_icon("calendar-range"),
         id = "length_of_participation_box"
@@ -575,10 +543,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("Entered from Place Not Meant for Habitation (HoHs/Adults)", metric_dataset)
       metric_val_box(
         title = "Entered from Place Not Meant for Habitation (HoHs/Adults)",
-        value = tagList(
-          div(format_val(m$val, "pct"), " of all HoHs/Adults")
-          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
-        ),
+        value = div(format_val(m, "pct"), " of all HoHs/Adults"),
         showcase = bs_icon("signpost-split"),
         id = "entered_non_habitat_box"
       )
@@ -588,10 +553,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("Entered from Permanent Housing Situation (HoHs/Adults)", metric_dataset)
       metric_val_box(
         title = "Entered from Permanent Housing Situation (HoHs/Adults)",
-        value = tagList(
-          div(format_val(m$val, "pct"), " of all HoHs/Adults")
-          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
-        ),
+        value = div(format_val(m, "pct"), " of all HoHs/Adults"),
         showcase = bs_icon("house-check"),
         id = "entered_permanent_box"
       )
@@ -601,10 +563,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("Zero Income at Entry (HoHs/Adults)", metric_dataset)
       metric_val_box(
         title = "Zero Income at Entry (HoHs/Adults)",
-        value = tagList(
-          div(format_val(m$val, "pct"), " of all HoHs/Adults")
-          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
-        ),
+        value = div(format_val(m, "pct"), " of all HoHs/Adults"),
         showcase = bs_icon("wallet2"),
         id = "zero_income_box"
       )
@@ -614,10 +573,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("Income Growth from Entry to Exit (HoHs/Adults)", metric_dataset)
       metric_val_box(
         title = "Income Growth from Entry to Exit (HoHs/Adults)",
-        value = tagList(
-          div(format_val(m$val, "pct"), " of all exited HoHs/Adults")
-          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
-        ),
+        value = div(format_val(m, "pct"), " of all exited HoHs/Adults"),
         showcase = bs_icon("graph-up-arrow"),
         id = "income_growth_box"
       )
@@ -627,10 +583,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("Successful Exits (All Clients)", metric_dataset)
       metric_val_box(
         title = "Successful Exits (All Clients)",
-        value = tagList(
-          div(format_val(m$val, "pct"), "of all exited clients")
-          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
-        ),
+        value = div(format_val(m, "pct"), "of all exited clients"),
         showcase = bs_icon("check-circle"),
         id = "successful_exits_box"
       )
@@ -640,10 +593,7 @@ create_metric_value_box <- function(box_key, metric_dataset) {
       m <- eval_metric_kpi("CE Assessed Households (HoHs)", metric_dataset)
       metric_val_box(
         title = "CE Assessed Households",
-        value = tagList(
-          div(format_val(m$val, "assessments"), " CE Assessments"),
-          # div("Excluded: ", format_val(m$nmiss, "enrollments"))
-        ),
+        value = div(format_val(m, "assessments"), " CE Assessments"),
         showcase = bs_icon("clipboard-check"),
         id = "ce_assessments_box"
       )
@@ -672,7 +622,7 @@ latest_enrollments_all_proj <- reactive({
               ExitAdjust %between% input$dateRangeCount,
       PersonalID, EnrollmentID, HouseholdID, HHTypeAtReportStart, ProjectID, ProjectType, 
       EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust,
-      AgeAtReportStart, LivingSituation, RelationshipToHoH, LengthOfStay
+      AgeAtReportStart, LivingSituation, RelationshipToHoH
     )
   
   if (fnrow(enrollment_w_project_type) > 0) {
@@ -701,7 +651,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         AgeAtReportStart <= 17, "Child",
         default = "Unknown"
       )
-    )
+    ) |>
+    fselect(EnrollmentID, PersonalID, ProjectID, RelationshipToHoH, AgeGroup, EntryDate, ExitAdjust, HHTypeAtReportStart)
   
   total_households_served_dt <- latest_enrollments |>
     fsubset(RelationshipToHoH == 1) %>%
@@ -713,28 +664,25 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         default = "Unknown"
       )
     ) |>
-    fselect(PersonalID, ProjectID, HHGroup, EntryDate, ExitAdjust) |>
-    funique()
+    fselect(PersonalID, ProjectID, HHGroup, EntryDate, ExitAdjust, HHTypeAtReportStart)
   
   avg_hh_size_dt <- latest_enrollments |>
     fgroup_by(ProjectID, HouseholdID) |>
-    fmutate(hh_size = GRPN()) |>
-    fungroup() |>
-    fselect(ProjectID, HouseholdID, hh_size, HHTypeAtReportStart) |>
-    funique()
+    fsummarize(
+      hh_size = GRPN(), 
+      HHTypeAtReportStart = ffirst(HHTypeAtReportStart) # already at household level
+    ) |>
+    fselect(ProjectID, hh_size, HHTypeAtReportStart)
   
   length_of_participation_dt <- latest_enrollments |> 
     fmutate(
       end_date = pmin(pmax(ExitAdjust, session$userData$ReportEnd), session$userData$ReportEnd),
       length_of_participation = as.integer(difftime(end_date, EntryDate, unit="days"))
     ) |>
-    fselect(-end_date)
+    fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust, HHTypeAtReportStart)
   
   los_dt <- latest_enrollments |>
-    fsubset(
-      ProjectType %in% project_types_w_beds, 
-      EnrollmentID, ProjectID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, HHTypeAtReportStart
-    ) |>
+    fsubset(ProjectType %in% project_types_w_beds) |>
     join(
       session$userData$Services |>
         fgroup_by(EnrollmentID) |>
@@ -760,32 +708,32 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   time_to_movein_dt <- latest_enrollments |> 
     fsubset(
       ProjectType %in% ph_project_types & 
-        !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd,
-      EnrollmentID, ProjectID, EntryDate, MoveInDateAdjust, ExitAdjust, HHTypeAtReportStart
+        !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd
     ) |>
     fmutate(
       time_to_move_in = as.integer(difftime(MoveInDateAdjust, EntryDate, units = "days"))
-    )
+    ) |>
+    fselect(EnrollmentID, ProjectID, EntryDate, time_to_move_in, ExitAdjust, HHTypeAtReportStart)
   
   moved_into_housing_dt <- latest_enrollments |>
     fsubset(
-      ProjectType %in% ph_project_types & RelationshipToHoH == 1, 
-      EnrollmentID, ProjectID, MoveInDateAdjust, HHTypeAtReportStart
+      ProjectType %in% ph_project_types & RelationshipToHoH == 1
     ) |>
     fmutate(
       moved_into_housing = !is.na(MoveInDateAdjust) & MoveInDateAdjust <= session$userData$ReportEnd
-    )
+    ) |>
+    fselect(EnrollmentID, ProjectID, moved_into_housing, EntryDate, ExitAdjust, HHTypeAtReportStart)
   
   entered_from_dt <- latest_enrollments |>
     fsubset(
       ProjectType %in% c(lh_residential_project_types, setdiff(non_res_project_types, hp_project_type)) &
-        (RelationshipToHoH == 1 | AgeAtReportStart > 17), 
-      EnrollmentID, ProjectID, LivingSituation, HHTypeAtReportStart
+        (RelationshipToHoH == 1 | AgeAtReportStart > 17)
     ) |>
     fmutate(
       entered_from_place_not_meant = LivingSituation == 116L,
       entered_from_ph = LivingSituation %in% perm_livingsituation
-    )
+    ) |>
+    fselect(EnrollmentID, ProjectID, entered_from_place_not_meant, entered_from_ph, HHTypeAtReportStart)
   
   zero_income_dt <- session$userData$IncomeBenefits |>
     fsubset(
@@ -802,8 +750,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
       how = "inner"
     ) |>
     fmutate(
-      zero_income = IncomeFromAnySource == 0,
-      nmiss = IncomeFromAnySource %in% exclude_vals
+      zero_income = IncomeFromAnySource == 0
     )
   
   successful_exit_dt <- session$userData$Exit |>
@@ -854,7 +801,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
           has_growth = as.integer(at_exit > at_entry),
           denom =  IncomeFromAnySource %in% c(0, 1),
           nmiss = (IncomeFromAnySource %in% exclude_vals | (IncomeFromAnySource == 1 & is.na(val)))
-        )
+        ) |>
+        fselect(EnrollmentID, ProjectID, has_growth, denom, nmiss, HHTypeAtReportStart)
     } else {
       data.table()
     }
@@ -871,7 +819,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
       latest_enrollments |> 
         fsubset(
           RelationshipToHoH == 1,
-          EnrollmentID, ProjectID, ProjectType, HouseholdID, HHTypeAtReportStart
+          EnrollmentID, ProjectID, ProjectType, HHTypeAtReportStart
         ),
       on = "ProjectID",
       how = "inner",
@@ -886,13 +834,15 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         !AssessmentDate %inrange% list(CEParticipationStatusStartDate, CEParticipationStatusEndDate) |
         .join == "CEParticipation"
     ) |>
-    fselect(EnrollmentID, ProjectID, ProjectType, HouseholdID, HHTypeAtReportStart, AssessmentDate, nmiss) |>
-    funique() |>
-    fsubset(ProjectType == ce_project_type | AssessmentDate %in% input$dateRangeCount)
+    fsubset(
+      ProjectType == ce_project_type | AssessmentDate %in% input$dateRangeCount,
+      EnrollmentID, ProjectID, HHTypeAtReportStart, nmiss
+    )
   
   cls_records_dt <- session$userData$CurrentLivingSituation |>
+    fselect(EnrollmentID) |>
     join(
-      latest_enrollments |> fselect(EnrollmentID, ProjectID, HHTypeAtReportStart, ProjectType), 
+      latest_enrollments |> fselect(EnrollmentID, ProjectID, HHTypeAtReportStart), 
       on = "EnrollmentID",
       how = "inner"
     )
