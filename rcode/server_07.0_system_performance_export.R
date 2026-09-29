@@ -465,12 +465,13 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
     sub_ids <- vapply(ext_items, \(item) get_sys_export_id(id_prefix, item), character(1))
     return(sub_ids)
   }
+  
   # Handle System Overview/System Exits exports
   master_to_sub_cascade <- function(ext) {
     master_id <- paste0(id_prefix, "_export_all_", ext)
     sub_ids <- get_sub_checkbox_ids(ext)
     
-    observeEvent(c(input[[master_id]], syse_subpop_selections()), {
+    observeEvent(c(input[[master_id]], syse_subpop_selections(), input$syse_subpop_hh_type), {
       req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
       
       # If the master changed because of a sub-checkbox update, reset the flag and exit
