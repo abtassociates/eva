@@ -1,12 +1,9 @@
 {
   "input": {
     "pageid": "tabSystemExits",
-<<<<<<< HEAD
-=======
     "syse_level_of_detail": "All",
     "syse_methodology_type": "1",
     "syse_project_type": "LHRes",
->>>>>>> dev
     "syse_subpop_age": [
       "0 to 12",
       "13 to 17",
@@ -38,11 +35,9 @@
       ]
     },
     "syse_compare_subpop_filter_selections": {
-      "message": "",
-      "call": "NULL",
-      "type": [
-        "shiny.silent.error",
-        "validation"
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Subpopulation Selections<\/b> <br>",
+      "deps": [
+
       ]
     }
   }
