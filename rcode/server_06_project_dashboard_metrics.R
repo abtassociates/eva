@@ -676,7 +676,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   
   length_of_participation_dt <- latest_enrollments |> 
     fmutate(
-      end_date = pmin(pmax(ExitAdjust, session$userData$ReportEnd), session$userData$ReportEnd),
+      end_date = pmin(pmax(ExitAdjust, input$dateRangeCount[2]), input$dateRangeCount[2]),
       length_of_participation = as.integer(difftime(end_date, EntryDate, unit="days"))
     ) |>
     fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust, HHTypeAtReportStart)
@@ -694,7 +694,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
         ProjectType %in% lh_project_types_nonbn, EntryDate,
         ProjectType %in% ph_project_types, MoveInDateAdjust
       ),
-      end_date = pmin(pmax(ExitAdjust, session$userData$ReportEnd), session$userData$ReportEnd),
+      end_date = pmin(pmax(ExitAdjust, input$dateRangeCount[2]), input$dateRangeCount[2]),
       los_res = fcase(
         ProjectType == es_nbn_project_type, 
         num_bednights,
