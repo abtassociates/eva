@@ -10,8 +10,12 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   )
   nr <- nrow(tree_exits_data())
   
-  validate(need(nr > 0, no_data_msg))
-  validate(need(nr > 10, suppression_msg))
+  has_data <- nr > 0
+  enough_data <- nr > 10
+  
+  sys_chart_validations$syse$chart_validations$type <- has_data && enough_data
+  validate(need(has_data, no_data_msg))
+  validate(need(enough_data, suppression_msg))
   
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 
@@ -77,13 +81,7 @@ output$syse_types_filter_selections <- renderUI({
 })
 
 output$syse_types_ui_chart <- renderPlot({
-  
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
+  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
   
   get_syse_types_chart("Destination Type", input$syse_dest_type_filter)
 })

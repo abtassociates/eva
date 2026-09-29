@@ -302,8 +302,11 @@ prepare_crosstab_data <- function(df, selections, methodology_type, subtab = 'co
     funique()
   
   # 3. Validate minimum thresholds
-  validate(need(nrow(clean_df) > 0, message = no_data_msg))
-  validate(need(nrow(clean_df) > 10, message = suppression_msg))
+  has_data <- fnrow(clean_df) > 0
+  enough_data <- fnrow(clean_df) > 10
+  sys_chart_validations$syso$demo <- has_data && enough_data
+  validate(need(has_data, message = no_data_msg))
+  validate(need(enough_data, message = suppression_msg))
   
   # 4. Generate frequency table (1D vs 2D)
   plot_df <- if (length(selections) == 1) {

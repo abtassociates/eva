@@ -417,12 +417,14 @@ get_syso_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   
   total_clients <- df[InflowOutflow == "Inflow", sum(N)]
 
-  validate(
-    need(
-      total_clients > 10,
-      message = suppression_msg
-    )
-  )
+  enough_data <- total_clients > 10
+  isolate({
+    if (!identical(sys_chart_validations$syso$flow, enough_data)) {
+      sys_chart_validations$syso$flow <- enough_data
+    }
+  })
+  
+  validate(need(enough_data, message = suppression_msg))
 
   # Order: Housed (start), Homeless (start), Inflow, Outflow, Homeless (end), Housed
   df <- df %>%
@@ -569,20 +571,20 @@ get_syso_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
 renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
   output[[chart_id]] <- renderPlot({
       req(session$userData$valid_file() == 1)
+      logToConsole(session, "rendering inflow outflow plot")
       
-      validate(
-        need(
-          fnrow(session$userData$enrollment_categories) > 0,
-          no_valid_data_msg
-        )
-      )
+      has_data       <- fnrow(get_inflow_outflow_full()) > 0
+      # If early validation fails, mark as FALSE and exit
+      if (!sys_has_enrollment_categories() || !has_data) {
+        isolate({
+          if (!identical(sys_chart_validations$syso$flow, FALSE)) {
+            sys_chart_validations$syso$flow <- FALSE
+          }
+        })
+        validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
+        validate(need(has_data, message = no_data_msg))
+      }
       
-      validate(
-        need(
-          nrow(get_inflow_outflow_full()) > 0,
-          message = no_data_msg
-        )
-      )
       get_syso_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
@@ -1147,28 +1149,15 @@ output$syso_fth_monthly_ui_chart <- renderPlot({
 monthly_chart_validation <- function() {
   logToConsole(session, "In monthly_chart_validation")
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
+  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
   
-  num_people <- length(unique(get_inflow_outflow_monthly()$PersonalID))
+  num_people <- length(fnunique(get_inflow_outflow_monthly()$PersonalID))
   
-  validate(
-    need(
-      num_people > 0,
-      message = no_data_msg
-    )
-  )
+  has_data <- num_people > 0
+  enough_data <- num_people > 10
   
-  validate(
-    need(
-      num_people > 10,
-      message = suppression_msg
-    )
-  )
+  validate(need(has_data, message = no_data_msg))
+  validate(need(enough_data, message = suppression_msg))
 }
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
