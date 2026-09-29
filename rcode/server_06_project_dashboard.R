@@ -20,6 +20,7 @@ client_count_data_df <- reactive({
   ReportEnd <- input$dateRangeCount[2]
   
   session$userData$Enrollment %>%
+    fsubset(EntryDate <= ReportEnd & ExitAdjust >= ReportStart) %>%
     fselect(
       PersonalID,
       EnrollmentID,
@@ -37,13 +38,13 @@ client_count_data_df <- reactive({
     ) %>%
     fmutate(
       PersonalID = as.character(PersonalID),
-      RelationshipToHoH = case_when(
-        RelationshipToHoH == 1 ~ "Head of Household",
-        RelationshipToHoH == 2 ~ "Child",
-        RelationshipToHoH == 3 ~ "Spouse or Partner",
-        RelationshipToHoH == 4 ~ "Other relative",
-        RelationshipToHoH == 5 ~ "Unrelated household member",
-        RelationshipToHoH == 99 ~ "Data not collected (please correct)"
+      RelationshipToHoH = fcase(
+        RelationshipToHoH == 1, "Head of Household",
+        RelationshipToHoH == 2, "Child",
+        RelationshipToHoH == 3, "Spouse or Partner",
+        RelationshipToHoH == 4, "Other relative",
+        RelationshipToHoH == 5, "Unrelated household member",
+        RelationshipToHoH == 99, "Data not collected (please correct)"
       ),
       Status = factor(
         fcase(
@@ -78,9 +79,7 @@ client_count_data_df <- reactive({
       OrganizationName,
       ProjectType,
       days
-    ) %>%
-    fsubset(EntryDate <= ReportEnd &
-             (is.na(ExitDate) | ExitDate >= ReportStart))
+    )
 })
 
 ##### SUMMARY STUFF ######
