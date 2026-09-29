@@ -618,8 +618,8 @@ latest_enrollments_all_proj <- reactive({
   req(input$dateRangeCount)
   
   enrollment_w_project_type <- session$userData$Enrollment |> 
-    fsubset(EntryDate %between% input$dateRangeCount | 
-              ExitAdjust %between% input$dateRangeCount,
+    fsubset(
+      EntryDate <= input$dateRangeCount[2] | ExitAdjust >= input$dateRangeCount[1],
       PersonalID, EnrollmentID, HouseholdID, HHTypeAtReportStart, ProjectID, ProjectType, 
       EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust,
       AgeAtReportStart, LivingSituation, RelationshipToHoH
