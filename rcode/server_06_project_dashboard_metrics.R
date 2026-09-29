@@ -647,8 +647,8 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   total_clients_dt <- latest_enrollments |>
     fmutate(
       AgeGroup = fcase(
-        AgeAtReportStart > 17, "Adult",
-        AgeAtReportStart <= 17, "Child",
+        AgeAtReportStart >= 18, "Adult",
+        AgeAtReportStart < 18, "Child",
         default = "Unknown"
       )
     ) |>
