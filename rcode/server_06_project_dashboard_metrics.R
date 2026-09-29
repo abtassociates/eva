@@ -63,7 +63,7 @@ METRIC_DEFINITIONS <- list(
   "Clients Served" = list(
     dt_key         = "total_clients",
     unit           = "clients",
-    calc_func      = function(dt) fnunique(dt[RelationshipToHoH == 1 | AgeAtReportStart > 17]$PersonalID),
+    calc_func      = function(dt) fnunique(dt$PersonalID),
     applies        = function(pt) TRUE,
     show_KPI       = function(pt) pt %in% setdiff(all_project_types, ce_project_type),
     export_only    = FALSE
