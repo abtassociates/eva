@@ -17,7 +17,8 @@ enrollment_prep <- Enrollment %>%
   ) %>%
   fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1L, AgeAtEntry)) %>%
   fselect(
-    EnrollmentID, PersonalID, ProjectID, ProjectType, HouseholdID, HouseholdType,
+    EnrollmentID, PersonalID, ProjectID, ProjectType, 
+    HouseholdID, HouseholdType, HHTypeAtReportStart,
     EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust, Destination, AgeAtEntry,
     RelationshipToHoH, LivingSituation, RentalSubsidyType, LengthOfStay,
     LOSUnderThreshold, PreviousStreetESSH, DateToStreetESSH,

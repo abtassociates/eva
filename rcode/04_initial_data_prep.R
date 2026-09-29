@@ -137,6 +137,30 @@ EnrollmentStaging <- Enrollment %>%
         )
       ), 
     levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+    ),
+    HHTypeAtReportStart = factor(
+      fifelse(
+        any(between(AgeAtReportStart, 0, 17)) & max_AgeAtReportStart >= 18,
+        fifelse(
+          between(max_AgeAtReportStart, 0, 24),
+          "PY",
+          "ACminusPY"
+        ),
+        fifelse(
+          min_AgeAtReportStart >= 18,
+          fifelse(
+            between(max_AgeAtReportStart, 0, 24),
+            "UY", # UY = Unaccompanied Youth. YYA = PY + UY + CO
+            "AOminusUY"
+          ),
+          fifelse(
+            min_AgeAtReportStart >= 0 & max_AgeAtReportStart <= 17,
+            "CO", 
+            "UN"
+          )
+        )
+      ), 
+      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   fungroup()

@@ -2,7 +2,7 @@
 logToConsole(session, "building HMIS Participation Datasets")
 ## Create Data for HMIS Participation ------------------------------------------
 # Fix Household Type in Enrollment Adjust
-EnrollmentAdjust_BUI <- EnrollmentAdjust %>% 
+EnrollmentAdjust_BUI <- enrollment_prep %>%
   fmutate("HouseholdType" = fcase(HHTypeAtReportStart == "PY", 3,
                                   HHTypeAtReportStart == "ACminusPY",3,
                                   HHTypeAtReportStart == "UY", 1,
