@@ -50,12 +50,9 @@ syso_comp_plot <- function(methodology_type, selections, isExport = FALSE) {
     plot_df_supp <- plot_df_supp %>% suppress_next_val_if_one_suppressed_in_group(s, "n")
   }
   
-  validate(
-    need(
-      fsum(plot_df_supp$n) > 0,
-      message = all_data_suppressed_msg
-    )
-  )
+  enough_data <- fsum(plot_df_supp$n) > 0
+  sys_chart_validations$syso$demo <- enough_data
+  validate(need(enough_data, message = all_data_suppressed_msg))
   
   # 5. Render Unified Heatmap
   build_demographic_heatmap(
@@ -96,12 +93,7 @@ output$syso_comp_summary_ui_chart <- renderPlot({
       between(length(input$syso_composition_selections), 1, 2)
   )
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
+  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
   
   syso_comp_plot(
     methodology_type = input$syso_methodology_type, 

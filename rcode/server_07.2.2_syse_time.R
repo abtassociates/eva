@@ -2,22 +2,12 @@
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
+  valid_data_prev <- fnrow(session$userData$enrollment_categories_prev) > 0
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories_prev) > 0,
-      no_valid_data_msg
-    )
-  )
+  validate(need(sys_has_enrollment_categories() && valid_data_prev, no_valid_data_msg))
   
   cond <- interval(startDate, endDate) >= days(729)
-  
+  sys_chart_validations$syse$chart_validations$year <- cond
   ## whether to show validate message or not
   if(show){
     validate(
@@ -35,8 +25,14 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 
 get_syse_compare_time_data <- function(output_type = 'table'){
   
-  validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
+  has_data <- fnrow(all_filtered_syse_time()) > 0
+  enough_data <- fnrow(all_filtered_syse_time()) > 10
+  
+  sys_chart_validations$syse$chart_validations$year <- has_data && enough_data
+  validate(
+    need(has_data, no_data_msg),
+    need(enough_data, suppression_msg)
+  )
   
   prev_year <- everyone() %>% 
     fsubset(period == 'Previous Year')

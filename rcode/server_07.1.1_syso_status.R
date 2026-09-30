@@ -135,27 +135,20 @@ output$syso_status_ui_chart <- renderPlot({
   logToConsole(session, "in syso_status_ui_chart")
   req(session$userData$valid_file() == 1)
 
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
+  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
   
   plot_data <- get_sankey_data()
+
+  has_data <- sum(plot_data$freq) > 0
+  enough_data <- sum(plot_data$freq) > 10
+  
+  sys_chart_validations$syso$status <- has_data && enough_data  
   
   validate(
-    need(
-      sum(plot_data$freq) > 0,
-      message = no_data_msg
-    )
+    need(has_data, message = no_data_msg),
+    need(enough_data, message = suppression_msg)
   )
-  validate(
-    need(
-      sum(plot_data$freq) > 10,
-      message = suppression_msg
-    )
-  )
+  
   render_sankey_plot(plot_data)
 },
 alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -251,12 +244,9 @@ get_sankey_data <- reactive({
     condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
   )
   
-  validate(
-    need(
-      nrow(plot_df) > 0,
-      message = no_data_msg
-    )
-  )
+  has_data <- nrow(plot_df) > 0
+  sys_chart_validations$syso$status <- has_data
+  validate(need(has_data, message = no_data_msg))
 
   plot_df %>%
     fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 

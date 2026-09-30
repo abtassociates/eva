@@ -57,12 +57,21 @@ subpop_metadata_summary <- function() {
 
 subpop_chart_validation <- function(show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
-  validate(need(fnrow(session$userData$enrollment_categories) > 0, no_valid_data_msg))
+
+  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
   
-  cond <- any(did_factors_change())
-  if (show) {
-    validate(need(cond, "Please select a household type or one or more demographic filters to generate the subpopulation chart."))
-  } else if (req) {
+  cond <- any(did_factors_change()) 
+  sys_chart_validations$syse$chart_validations$subpop <- cond
+  ## whether to show validate message or not
+  if(show){
+    validate(
+      need(
+        cond,#"All Ages",
+        message = "Please select a household type or one or more demographic filters to generate the subpopulation chart."
+      )
+    )
+  } else if (req){
+    ##  just hide but do not show a duplicate validate message
     req(cond)
   } else {
     return(cond)
@@ -165,11 +174,13 @@ subpop <- reactive({ comps()$subpop })
 everyone_else <- reactive({ comps()$everyone_else %>% add_destination_type() })
 
 get_syse_compare_subpop_data <- function(output_type = 'table') {
+  has_data <- fnrow(subpop()) > 0 && fnrow(everyone_else()) > 0
+  enough_data <- fnrow(subpop()) > 10 && fnrow(everyone_else()) > 10
+  
+  sys_chart_validations$syse$chart_validations$subpop <- has_data && enough_data
   validate(
-    need(nrow(subpop()) > 0, no_data_msg),
-    need(nrow(subpop()) > 10, suppression_msg),
-    need(nrow(everyone_else()) > 0, no_data_msg),
-    need(nrow(everyone_else()) > 10, suppression_msg)
+    need(has_data, no_data_msg),
+    need(enough_data, suppression_msg)
   )
   
   which_factors_changed <- names(which(did_factors_change()))
