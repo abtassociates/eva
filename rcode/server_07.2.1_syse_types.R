@@ -14,8 +14,10 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   enough_data <- nr > 10
   
   sys_chart_validations$syse$chart_validations$type <- has_data && enough_data
-  validate(need(has_data, no_data_msg))
-  validate(need(enough_data, suppression_msg))
+  validate(
+    need(has_data, no_data_msg),
+    need(enough_data, suppression_msg)
+  )
   
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 

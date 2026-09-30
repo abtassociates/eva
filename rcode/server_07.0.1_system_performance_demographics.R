@@ -204,7 +204,7 @@ build_demographic_heatmap <- function(plot_df,
   g <- ggplot(plot_df, aes(x = if (is_2d) .data[[x_var]] else "", y = .data[[y_var]])) +
     geom_tile(
       color = '#f0f0f0', lwd = 0.5, linetype = 1,
-      aes(fill = fill_val) # <--- fill_val used here
+      aes(fill = fill_val)
     ) +
     scale_fill_gradient2(
       low = colors$low, mid = colors$mid, high = colors$high,
@@ -213,7 +213,8 @@ build_demographic_heatmap <- function(plot_df,
     geom_text(
       aes(
         label = label_text,
-        color = ifelse(fill_val > mean(fill_val, na.rm = TRUE) & !wasRedacted, 'white', 'black')
+        color = ifelse(fill_val > fmean(fill_val) & !wasRedacted, 'white', 'black'),
+        na.rm=TRUE
       ),
       size = font_size
     ) +
@@ -255,13 +256,31 @@ build_demographic_heatmap <- function(plot_df,
       val_col <- if ("N" %in% names(total_df)) "N" else "n"
       plot_obj +
         ggnewscale::new_scale("fill") +
-        geom_tile(data = total_df, aes(fill = .data[[val_col]]), color = "white", lwd = 0.5) +
-        scale_fill_gradient(low = get_brand_color('light_grey'), high = get_brand_color('dark_grey'), na.value = 'white') +
+        # Row totals
+        geom_tile(
+          data = total_df, 
+          color = "white", 
+          lwd = 0.5,
+          linetype = 1,
+          aes(fill = .data[[val_col]])
+        ) +
+        
+        scale_fill_gradient(
+          low = get_brand_color('light_grey'), 
+          high = get_brand_color('dark_grey'), 
+          na.value = 'white'
+        ) +
+        
         geom_text(
-          data = total_df,
-          aes(label = ifelse(wasRedacted, "***", format(.data[[val_col]], big.mark = ','))),
+          aes(label = ifelse(wasRedacted, "***", format(.data[[val_col]], big.mark = ',', scientific = FALSE, trim = TRUE))),
           size = font_size,
-          color = "black"
+          color = ifelse(
+            total_df$N > fmean(total_df$N) & !total_df$wasRedacted,
+            'white', 
+            'black'
+          ),
+          na.rm = TRUE,
+          data = total_df
         )
     }
     
@@ -305,8 +324,10 @@ prepare_crosstab_data <- function(df, selections, methodology_type, subtab = 'co
   has_data <- fnrow(clean_df) > 0
   enough_data <- fnrow(clean_df) > 10
   sys_chart_validations$syso$demo <- has_data && enough_data
-  validate(need(has_data, message = no_data_msg))
-  validate(need(enough_data, message = suppression_msg))
+  validate(
+    need(has_data, message = no_data_msg),
+    need(enough_data, message = suppression_msg)
+  )
   
   # 4. Generate frequency table (1D vs 2D)
   plot_df <- if (length(selections) == 1) {

@@ -581,8 +581,10 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
             sys_chart_validations$syso$flow <- FALSE
           }
         })
-        validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
-        validate(need(has_data, message = no_data_msg))
+        validate(
+          need(sys_has_enrollment_categories(), no_valid_data_msg),
+          need(has_data, message = no_data_msg)
+        )
       }
       
       get_syso_inflow_outflow_annual_plot(chart_id)
@@ -1156,8 +1158,10 @@ monthly_chart_validation <- function() {
   has_data <- num_people > 0
   enough_data <- num_people > 10
   
-  validate(need(has_data, message = no_data_msg))
-  validate(need(enough_data, message = suppression_msg))
+  validate(
+    need(has_data, message = no_data_msg),
+    need(enough_data, message = suppression_msg)
+  )
 }
 
 # Info to include in Inflow/Outflow Exports -----------------------------------

@@ -29,8 +29,10 @@ get_syse_compare_time_data <- function(output_type = 'table'){
   enough_data <- fnrow(all_filtered_syse_time()) > 10
   
   sys_chart_validations$syse$chart_validations$year <- has_data && enough_data
-  validate(need(has_data, no_data_msg))
-  validate(need(enough_data, suppression_msg))
+  validate(
+    need(has_data, no_data_msg),
+    need(enough_data, suppression_msg)
+  )
   
   prev_year <- everyone() %>% 
     fsubset(period == 'Previous Year')

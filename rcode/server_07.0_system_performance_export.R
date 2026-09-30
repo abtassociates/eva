@@ -88,15 +88,12 @@ sys_export_summary_initial_df <- function(type = 'overview') {
 
 sys_export_filter_selections <- function(type = 'overview') {
   
-  if(type == 'exits_subpop'){
-    selections <- tibble(
-      Chart = c('Subpopulation Age', 'Subpopulation Veteran Status', 'Subpopulation Race/Ethnicity')
-    )
-  } else {
-    selections <- tibble(
-      Chart = c('Age', 'Veteran Status', 'Race/Ethnicity')
-    )
-  }
+  selections <- tibble(
+    Chart = if(type == 'exits_subpop')
+      c('Subpopulation Age', 'Subpopulation Veteran Status', 'Subpopulation Race/Ethnicity')
+    else
+      c('Age', 'Veteran Status', 'Race/Ethnicity')
+  )
   
   values <- switch(type,
                    'overview' = c(

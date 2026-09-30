@@ -144,8 +144,10 @@ output$syso_status_ui_chart <- renderPlot({
   
   sys_chart_validations$syso$status <- has_data && enough_data  
   
-  validate(need(has_data, message = no_data_msg))
-  validate(need(enough_data, message = suppression_msg))
+  validate(
+    need(has_data, message = no_data_msg),
+    need(enough_data, message = suppression_msg)
+  )
   
   render_sankey_plot(plot_data)
 },
