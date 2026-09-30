@@ -1151,7 +1151,7 @@ monthly_chart_validation <- function() {
   
   validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
   
-  num_people <- length(fnunique(get_inflow_outflow_monthly()$PersonalID))
+  num_people <- fnunique(get_inflow_outflow_monthly()$PersonalID)
   
   has_data <- num_people > 0
   enough_data <- num_people > 10
