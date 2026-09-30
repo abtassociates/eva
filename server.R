@@ -143,6 +143,7 @@ function(input, output, session) {
 
   source(here("rcode", "server_07.0_system_performance.R"), local = TRUE)
   source(here("rcode", "server_07.0_system_performance_export.R"), local=TRUE)
+  source(here("rcode", "server_07.0_system_performance_validations.R"), local=TRUE)
   source(here("rcode", "server_07.0.1_system_performance_demographics.R"), local=TRUE)
   source(here("rcode", "server_07.1_system_overview.R"), local = TRUE)
   source(here("rcode", "server_07.1.1_syso_status.R"), local = TRUE)

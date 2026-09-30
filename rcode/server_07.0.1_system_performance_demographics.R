@@ -305,7 +305,7 @@ build_demographic_heatmap <- function(plot_df,
     )
 }
 
-prepare_crosstab_data <- function(df, selections, methodology_type, subtab = 'comp') {
+prepare_crosstab_data <- function(clean_df, selections, methodology_type, subtab = 'comp') {
   # 1. Enforce Race/Ethnicity ordering (2D)
   if (length(selections) == 2 && selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {
     selections <- c(selections[2], selections[1])
@@ -314,20 +314,6 @@ prepare_crosstab_data <- function(df, selections, methodology_type, subtab = 'co
   # 2. Extract dynamic variable columns & filter applicables
   var_cols <- get_var_cols(methodology_type)
   sel_cols <- unname(unlist(var_cols[selections]))
-  
-  clean_df <- df %>% 
-    remove_non_applicables(selection = selections) %>% 
-    fselect(c("PersonalID", sel_cols)) %>% 
-    funique()
-  
-  # 3. Validate minimum thresholds
-  has_data <- fnrow(clean_df) > 0
-  enough_data <- fnrow(clean_df) > 10
-  sys_chart_validations$syso$demo <- has_data && enough_data
-  validate(
-    need(has_data, message = no_data_msg),
-    need(enough_data, message = suppression_msg)
-  )
   
   # 4. Generate frequency table (1D vs 2D)
   plot_df <- if (length(selections) == 1) {
@@ -472,4 +458,13 @@ sys_comp_ppt_download <- function(file, type = 'syso') {
     sourceID = session$userData$Export$SourceID,
     in_demo_mode = input$in_demo_mode
   )
+}
+
+clean_comp_data <- function(data, methodology_type, selections) {
+  var_cols <- get_var_cols(methodology_type)
+  sel_cols <- unname(unlist(var_cols[selections]))
+  
+  data %>%
+    fselect(c("PersonalID", sel_cols)) %>% 
+    funique()
 }

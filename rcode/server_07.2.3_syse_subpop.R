@@ -58,10 +58,8 @@ subpop_metadata_summary <- function() {
 subpop_chart_validation <- function(show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
 
-  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
-  
   cond <- any(did_factors_change()) 
-  sys_chart_validations$syse$chart_validations$subpop <- cond
+  
   ## whether to show validate message or not
   if(show){
     validate(
@@ -174,15 +172,6 @@ subpop <- reactive({ comps()$subpop })
 everyone_else <- reactive({ comps()$everyone_else %>% add_destination_type() })
 
 get_syse_compare_subpop_data <- function(output_type = 'table') {
-  has_data <- fnrow(subpop()) > 0 && fnrow(everyone_else()) > 0
-  enough_data <- fnrow(subpop()) > 10 && fnrow(everyone_else()) > 10
-  
-  sys_chart_validations$syse$chart_validations$subpop <- has_data && enough_data
-  validate(
-    need(has_data, no_data_msg),
-    need(enough_data, suppression_msg)
-  )
-  
   which_factors_changed <- names(which(did_factors_change()))
   filt_vars <- c('meets_hh_type', 'meets_age_filter', 'meets_race_eth_filter', 'meets_vet_filter')
   filt_unchanged <- setdiff(filt_vars, which_factors_changed)
@@ -228,22 +217,6 @@ observeEvent(input$syse_subpop_race_eth_selection, {
 observeEvent(input$syse_subpop_vet_selection, {
   shinyjs::toggleState(id = "vet_picker", isTruthy(input$syse_subpop_vet_selection))             
 }, ignoreInit=F)
-
-observeEvent(input$syse_subpop_hh_type, {
-  toggle_subpop_download_options()
-})
-toggle_subpop_download_options <- function() {
-  # Disable/Enable rows in Export Interface
-  # If they haven't selected anything, they should not be able to export this chart/data
-  has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
-  
-  # 1. Enable / Disable checkboxes
-  # 2. If disabled, uncheck them so they are not included in the export
-  for(id in c("syse_export_subpop_pptx","syse_export_subpop_xlsx")) {
-    shinyjs::toggleState(id, condition = has_subpops)
-    if(!has_subpops) updateCheckboxInput(session, id, value = FALSE)
-  }
-}
 
 output$syse_compare_subpop_filter_selections <- renderUI({
   req(session$userData$valid_file() == 1 & did_factors_change())
@@ -322,6 +295,7 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
 }
 
 output$syse_compare_subpop_chart <- renderPlot({
+  validate_chart(syse_chart_validation_subpop())
   subpop_chart_validation(show = TRUE, req = FALSE)
   syse_compare_subpop_chart(dest_type = input$subpop_dest_type)
 })
