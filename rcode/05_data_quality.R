@@ -231,17 +231,13 @@ hh_missing_rel_to_hoh <- base_dq_data %>%
   merge_check_info_dt(checkIDs = 4) %>%
   fselect(vars_we_want)
 
+# If any exit is after the HoH's exit
+# This should capture multi-person households where anyone exited after or didn't exit at all, but the HoH did
 hh_hoh_exit <- base_dq_data %>% 
   fgroup_by(HouseholdID) %>%
-  fmutate(
-    nPeople = fnunique(PersonalID), 
-    nExits = fnunique(ExitDate),
-    #earliestExitDate=fmin(ExitDate, na.rm=TRUE),
-    lastExitDate=fmax(ExitAdjust, na.rm = TRUE)
-  ) %>%
-  fungroup() %>% # get HOH of households with more than one person and exit date
-  fsubset(RelationshipToHoH == 1 &  nPeople > 1 & 
-            nExits > 1 & ExitAdjust != lastExitDate) %>%  # and check their exit is on the last date
+  fmutate(lastExitDate = fmax(ExitAdjust)) %>%
+  fungroup() %>%
+  fsubset(RelationshipToHoH == 1 &  ExitAdjust < lastExitDate) %>% 
   merge_check_info_dt(checkIDs = 145)  %>%
   fselect(vars_we_want)
 
