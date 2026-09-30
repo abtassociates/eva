@@ -1299,6 +1299,8 @@
         "Missing Geography Information",
         "Project Missing in ProjectCoC file",
         "Residential Project Missing Housing Type",
+        "Inventory Record(s) with Zero Beds",
+        "Inventory Record(s) with Zero Units",
         "Missing Address",
         "Missing RRH SubType",
         "No Inventory Records",
@@ -1311,12 +1313,16 @@
         "Error",
         "Error",
         "Error",
+        "Error",
+        "Error",
         "Warning"
       ],
       "Count": [
         2,
         1,
         1,
+        4,
+        14,
         1,
         1,
         2,
@@ -1326,38 +1332,38 @@
     "pdde_guidance_summary": {
       "Priority": {
         "High Priority": 3,
-        "Error": 3,
+        "Error": 5,
         "Warning": 1
       },
       "Issue": {
-        "Length": "7",
+        "Length": "9",
         "Class": "character",
         "Mode": "character"
       },
       "Guidance": {
-        "Length": "7",
+        "Length": "9",
         "Class": "character",
         "Mode": "character"
       }
     },
     "pdde_summary_table": {
       "Issue": {
-        "Length": "7",
+        "Length": "9",
         "Class": "character",
         "Mode": "character"
       },
       "Priority": {
         "High Priority": 3,
-        "Error": 3,
+        "Error": 5,
         "Warning": 1
       },
       "Count": {
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 1,
-        "Mean": 1.285714285714286,
-        "3rd Qu.": 1.5,
-        "Max.": 2
+        "Mean": 3,
+        "3rd Qu.": 2,
+        "Max.": 14
       }
     },
     "sys_comp_report_num_df": {
