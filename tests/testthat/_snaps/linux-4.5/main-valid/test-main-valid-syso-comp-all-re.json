@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "sys_comp_subtabs": "<h5>Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -15,14 +14,15 @@
       "75 and older",
       "Unknown"
     ],
+    "syso_comp_subtabs": "<h5>Chart<\/h5>",
+    "syso_composition_selections": "All Races/Ethnicities",
     "syso_hh_type": "AO",
     "syso_level_of_detail": "All",
     "syso_methodology_type": "1",
     "syso_project_type": "PHRes",
     "syso_race_ethnicity": "All",
     "syso_spec_pops": "None",
-    "syso_tabbox": "<h4>System Demographics<\/h4>",
-    "system_composition_selections": "All Races/Ethnicities"
+    "syso_tabbox": "<h4>System Demographics<\/h4>"
   },
   "output": {
     "headerSystemOverview": {
@@ -31,14 +31,14 @@
 
       ]
     },
-    "sys_comp_summary_selections": {
+    "syso_comp_summary_selections": {
       "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Race/Ethnicity Methodology Type:<\/b> Method 1 <br>\n<strong>Project Type Group:<\/strong> - Residential: Permanent Housing Projects <br>\n<strong>Selections<\/strong>: All Races/Ethnicities <br>",
       "deps": [
 
       ]
     },
-    "sys_comp_summary_ui_chart": {
-      "src": "[image data hash: f0e5778ef4c0105b7f2aa0ee6f652671]",
+    "syso_comp_summary_ui_chart": {
+      "src": "[image data hash: c80291b4490b2d10115813b5f40fbb89]",
       "width": 500,
       "height": 700,
       "alt": "A crosstab data table of the demographic make-up of the homeless system.",
@@ -83,8 +83,8 @@
               }
             },
             "mapping": {
-              "fill": "n",
-              "x": "\"\"",
+              "fill": "fill_val",
+              "x": "if (is_2d) .data[[\"\"]] else \"\"",
               "y": ".data[[\"All Races/Ethnicities\"]]"
             },
             "range": {
