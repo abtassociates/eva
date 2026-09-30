@@ -35,7 +35,7 @@ process_upload <- function(upload_filename, upload_filepath) {
     
     list_of_files <- unzip(
       zipfile = upload_filepath, 
-      files = paste0(unique(cols_and_data_types$File), ".csv"),
+      files = paste0(funique(cols_and_data_types$CSV), ".csv"),
       exdir = tempdir()
     )
     
