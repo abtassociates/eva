@@ -115,7 +115,8 @@ duplicate_ees <- base_dq_data %>%
 dkr_name <- base_dq_data %>%
   fsubset(NameDataQuality %in% c(dkr_dnc, 2)) %>%
   merge_check_info_dt(checkIDs = 78) %>%
-  fselect(vars_we_want)
+  add_response_val_detail(NameDataQuality) %>%
+  fselect(c(vars_we_want, "Detail"))
 
 missing_dob <- base_dq_data %>%
   fsubset(is.na(DOB) & DOBDataQuality %in% c(1, 2)) %>%
