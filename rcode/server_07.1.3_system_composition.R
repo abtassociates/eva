@@ -153,6 +153,15 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     ) %>%
     funique()
   
+  shinyjs::toggle(
+    "sys_comp_download_btn",
+    condition = nrow(comp_df) > 10
+  )
+  shinyjs::toggle(
+    "sys_comp_download_btn_ppt",
+    condition = nrow(comp_df) > 10
+  )
+  
   validate(
     need(
       nrow(comp_df) > 0,
