@@ -10,6 +10,15 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   )
   nr <- nrow(tree_exits_data())
   
+  shinyjs::toggle(
+    "syse_types_download_btn",
+    condition = nr > 10
+  )
+  shinyjs::toggle(
+    "syse_types_download_btn_ppt",
+    condition = nr > 10
+  )
+  
   validate(need(nr > 0, no_data_msg))
   validate(need(nr > 10, suppression_msg))
   
