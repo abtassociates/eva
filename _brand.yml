@@ -36,6 +36,9 @@ color:
     light_purple: '#D6D1E6'
     very_light_purple: '#EBE9F1'
     light_coral: '#D1AB98'
+    dark_red: '#582015'
+    light_brown: '#E8D9D1'
+    light_green2: '#C1DDD7'
     # app background color
     grey_bg: '#ecf0f5'
   # theme colors  

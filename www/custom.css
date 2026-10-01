@@ -381,3 +381,11 @@ SESSION TIMEOUT
   text-align:center;
   padding:20px;
 }
+
+#proj_bui_hh_plot {
+  margin-right: 6.6%;
+}
+
+#bui_hh_type > div > label.btn.radiobtn.btn-outline-primary.disabled {
+    background-color: gray;
+}
