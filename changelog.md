@@ -4,10 +4,22 @@
 
 ### Bug Fixes
  - Updated "Head of Household Exited Before Other Household Members" check to account for cases where the HoH is the only exited household member for an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)
+ - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
+ - Handling character columns with "problematic" characters.
+ - Handling nulls in Export.
  - Avoid Excel System export crashes due to too many concatenated Literally Homeless dates (Issues <a href='https://github.com/abtassociates/eva/issues/1078' target ='_blank'>#1078</a>, <a href='https://github.com/abtassociates/eva/issues/1039' target ='_blank'>#1039</a>, and <a href='https://github.com/abtassociates/eva/issues/1032' target ='_blank'>#1032</a>)
  - Fixed potential issue due to mishandling of nulls in System Exits by Time
  - Added validation for amount of data in System Overview Demographics chart. Avoids error when not enough data
  - Added new PDDE checks for projects with at least one inventory record where beds or units have a value of 0. (Issue <a href='https://github.com/abtassociates/eva/issues/1075' target ='_blank'>#1075</a>)
+
+
+### Miscellaneous
+  - Added an Empty File initially-invalid check.
+  - Some FSA, DQ, and PDDE checks superseded by new specs-driven checks.
+  - Added detail to Impermissible Character issues in FSA export.
+  - Added Malformed CSV check to catch improper quoting and missing delimiters
+  - Added Detail text to DQ reports that indicate the response values for incomplete or unknown data.
+      
 
 ## 2026-09-17
 
@@ -17,6 +29,7 @@
  - Updated 'Enrollment Crosses Operating End' error to only flag for enrollments associated with projects that have an Operating End Date that is within the export dates. (Issue <a href='https://github.com/abtassociates/eva/issues/1060' target ='_blank'>#1060</a>)
  - Updated the Data Entry Timeliness Metrics tables for ES - NbN projects to ensure the table displays the "Number of Bed Night Records" column even if there are no bed night records
  - Fixed "Median" Timeliness KPI cards to display "No Entries/Exits During Range" instead of N/A when there are no enrollment entry or exit records
+
 
 ## 2026-09-03
 
