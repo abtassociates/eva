@@ -186,14 +186,33 @@ get_syse_compare_subpop_data <- function(output_type = 'table') {
 
 observeEvent(input$syse_subpop_age_selection, {
   # enables/disables the container div for the Age dropdown
+  if(!input$syse_subpop_age_selection)
+    updatePickerInput(session, inputId = "syse_subpop_age", selected = sys_age_cats)
+  
   shinyjs::toggleState(id = "age_picker", isTruthy(input$syse_subpop_age_selection))
 }, ignoreInit=F)
 
 observeEvent(input$syse_subpop_race_eth_selection, {
+  if(!input$syse_subpop_race_eth_selection) {
+    raw_choices <- if (input$syse_methodology_type == 1) {
+      sys_race_ethnicity_method1
+    } else {
+      sys_race_ethnicity_method2
+    }
+    
+    updatePickerInput(
+      session = session,
+      inputId = "syse_subpop_race_ethnicity",
+      selected = raw_choices[1]
+    )
+  }
   shinyjs::toggleState(id = "race_eth_picker", isTruthy(input$syse_subpop_race_eth_selection))
 }, ignoreInit=F)
 
 observeEvent(input$syse_subpop_vet_selection, {
+  if(!input$syse_subpop_vet_selection)
+    updatePickerInput(session, inputId = "syse_subpop_spec_pops", selected = sys_spec_pops_people[1])
+  
   shinyjs::toggleState(id = "vet_picker", isTruthy(input$syse_subpop_vet_selection))             
 }, ignoreInit=F)
 
