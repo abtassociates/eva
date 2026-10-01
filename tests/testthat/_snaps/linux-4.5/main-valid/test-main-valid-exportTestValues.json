@@ -1643,32 +1643,32 @@
       "Organization Summary": [
         [
           "High Priority: 5  ",
-          "Min.   :  1.0  ",
+          "Min.   :  1.00  ",
           "Dependent Field Data Collection Issue                       : 2  "
         ],
         [
           "Error        :21  ",
-          "1st Qu.:  2.0  ",
+          "1st Qu.:  2.50  ",
           "Homelessness Start Date Later Than Entry                    : 1  "
         ],
         [
           "Warning      :20  ",
-          "Median :  9.0  ",
+          "Median :  9.00  ",
           "Homelessness Start Date conflicts with Living Situation data: 1  "
         ],
         [
           "NA's         : 1  ",
-          "Mean   : 22.7  ",
+          "Mean   : 22.79  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
           null,
-          "3rd Qu.: 21.5  ",
+          "3rd Qu.: 21.50  ",
           "Conflicting Health Insurance yes/no at Exit                 : 1  "
         ],
         [
           null,
-          "Max.   :251.0  ",
+          "Max.   :251.00  ",
           "(Other)                                                     :40  "
         ],
         [
@@ -1679,8 +1679,8 @@
       ],
       "Project Summary": [
         [
-          "Length:121        ",
-          "High Priority: 7  ",
+          "Length:123        ",
+          "High Priority: 9  ",
           "Invalid Homelessness Start Date/Number of Months Homeless: 7  ",
           "Min.   :  1.000  "
         ],
@@ -1700,7 +1700,7 @@
           null,
           "NA's         : 1  ",
           "Conflicting Health Insurance yes/no at Entry             : 5  ",
-          "Mean   :  8.818  "
+          "Mean   :  8.707  "
         ],
         [
           null,
@@ -1711,7 +1711,7 @@
         [
           null,
           null,
-          "(Other)                                                  :91  ",
+          "(Other)                                                  :93  ",
           "Max.   :181.000  "
         ],
         [
@@ -1760,27 +1760,27 @@
       ],
       "High Priority": [
         [
-          "Length:17         ",
-          "Length:17         ",
-          "Length:17         ",
-          "Length:17         ",
+          "Length:21         ",
+          "Length:21         ",
+          "Length:21         ",
+          "Length:21         ",
           "Missing Relationship to Head of Household              :7  ",
-          "Length:17         ",
-          "Length:17         ",
-          "Length:17         ",
+          "Length:21         ",
+          "Length:21         ",
+          "Length:21         ",
           "Min.   :2021-03-09  ",
-          "Length:17         "
+          "Length:21         "
         ],
         [
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Duplicate Entries                                      :4  ",
+          "Head of Household Exited Before Other Household Members:5  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2022-06-13  ",
+          "1st Qu.:2021-09-08  ",
           "Class :character  "
         ],
         [
@@ -1788,7 +1788,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Too Many Heads of Household                            :4  ",
+          "Duplicate Entries                                      :4  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
@@ -1800,11 +1800,11 @@
           null,
           null,
           null,
-          "Head of Household Exited Before Other Household Members:1  ",
+          "Too Many Heads of Household                            :4  ",
           null,
           null,
           null,
-          "Mean   :2022-04-14  ",
+          "Mean   :2022-03-03  ",
           null
         ],
         [
@@ -1816,7 +1816,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-08-02  ",
+          "3rd Qu.:2022-07-01  ",
           null
         ],
         [
@@ -2982,12 +2982,12 @@
         ],
         [
           "Warning      :28  ",
-          "Median :  152.0  ",
+          "Median :  185.0  ",
           "Homelessness Start Date conflicts with Living Situation data: 1  "
         ],
         [
           "NA's         : 1  ",
-          "Mean   :  818.7  ",
+          "Mean   :  823.0  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
@@ -3008,8 +3008,8 @@
       ],
       "Organization Summary": [
         [
-          "Length:1025       ",
-          "High Priority: 84  ",
+          "Length:1031       ",
+          "High Priority: 90  ",
           "Dependent Field Data Collection Issue: 33  ",
           "Min.   :   1.00  "
         ],
@@ -3023,13 +3023,13 @@
           "Mode  :character  ",
           "Warning      :473  ",
           "Incomplete or Unknown Name           : 26  ",
-          "Median :   9.00  "
+          "Median :   8.00  "
         ],
         [
           null,
           "NA's         :  7  ",
           "Unknown SSN                          : 26  ",
-          "Mean   :  56.71  "
+          "Mean   :  56.67  "
         ],
         [
           null,
@@ -3040,7 +3040,7 @@
         [
           null,
           null,
-          "(Other)                              :881  ",
+          "(Other)                              :887  ",
           "Max.   :5367.00  "
         ],
         [
@@ -3089,27 +3089,27 @@
       ],
       "High Priority": [
         [
-          "Length:1270       ",
-          "Length:1270       ",
-          "Length:1270       ",
-          "Length:1270       ",
+          "Length:1570       ",
+          "Length:1570       ",
+          "Length:1570       ",
+          "Length:1570       ",
           "Missing Relationship to Head of Household              :660  ",
-          "Length:1270       ",
-          "Length:1270       ",
-          "Length:1270       ",
+          "Length:1570       ",
+          "Length:1570       ",
+          "Length:1570       ",
           "Min.   :2016-09-15  ",
-          "Length:1270       "
+          "Length:1570       "
         ],
         [
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Too Many Heads of Household                            :286  ",
+          "Head of Household Exited Before Other Household Members:365  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-08-20  ",
+          "1st Qu.:2020-08-26  ",
           "Class :character  "
         ],
         [
@@ -3117,12 +3117,24 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Duplicate Entries                                      :136  ",
+          "Too Many Heads of Household                            :286  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-22  ",
+          "Median :2021-04-06  ",
           "Mode  :character  "
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          "Duplicate Entries                                      :136  ",
+          null,
+          null,
+          null,
+          "Mean   :2021-05-07  ",
+          null
         ],
         [
           null,
@@ -3133,19 +3145,7 @@
           null,
           null,
           null,
-          "Mean   :2021-04-27  ",
-          null
-        ],
-        [
-          null,
-          null,
-          null,
-          null,
-          "Head of Household Exited Before Other Household Members: 65  ",
-          null,
-          null,
-          null,
-          "3rd Qu.:2022-04-02  ",
+          "3rd Qu.:2022-04-05  ",
           null
         ],
         [

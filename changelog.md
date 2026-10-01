@@ -3,6 +3,7 @@
 ## 2026-10-01
 
 ### Bug Fixes
+ - Updated "Head of Household Exited Before Other Household Members" check to account for cases where the HoH is the only exited household member for an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)
  - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
  - Handling character columns with "problematic" characters.
  - Handling nulls in Export.

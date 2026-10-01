@@ -239,7 +239,9 @@
       114,
       115,
       116,
-      117
+      117,
+      118,
+      119
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -752,7 +754,7 @@
       ]
     },
     "orgDQHighPriorityByIssue": {
-      "src": "[image data hash: 7b9f06e268935ef5b01ecafec109a069]",
+      "src": "[image data hash: f41171b504493b497bb63a8e724cac12]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -779,10 +781,10 @@
 
                 ],
                 "y": [
-                  "Head of Household Exited Before Other Household Members",
                   "Dependent Field Data Collection Issue",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
+                  "Head of Household Exited Before Other Household Members",
                   "Missing Relationship to Head of Household"
                 ]
               }
@@ -824,7 +826,7 @@
       ]
     },
     "orgDQHighPriorityByProject": {
-      "src": "[image data hash: 8aea7641d7cc26c62a4f806b83af3b35]",
+      "src": "[image data hash: 2a68d8fe4b780b2dc21713959fd4818e]",
       "width": 1640,
       "height": 400,
       "alt": "Plot object",
@@ -852,8 +854,8 @@
                 ],
                 "y": [
                   "Organization A - HP",
-                  "Organization A - RRH - 2",
                   "Organization A - SO",
+                  "Organization A - RRH - 2",
                   "Organization A - HP - 2"
                 ]
               }
@@ -1165,12 +1167,12 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "117",
+        "Length": "119",
         "Class": "character",
         "Mode": "character"
       },
       "Priority": {
-        "High Priority": 7,
+        "High Priority": 9,
         "Error": 54,
         "Warning": 55,
         "NA's": 1
@@ -1211,7 +1213,7 @@
         "Too Many Heads of Household": 3,
         "Oldest Household Member Under 12": 3,
         "Missing Relationship to Head of Household": 1,
-        "Head of Household Exited Before Other Household Members": 1,
+        "Head of Household Exited Before Other Household Members": 3,
         "Incorrect DOB or Entry Date": 0,
         "Invalid Move-In Date": 2,
         "Missing Approximate Date Homeless": 0,
@@ -1248,7 +1250,7 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 3,
-        "Mean": 8.649572649572649,
+        "Mean": 8.53781512605042,
         "3rd Qu.": 7,
         "Max.": 181
       }
