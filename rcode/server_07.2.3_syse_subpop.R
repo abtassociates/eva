@@ -151,6 +151,7 @@ subpop <- reactive({ comps()$subpop })
 everyone_else <- reactive({ comps()$everyone_else %>% add_destination_type() })
 
 get_syse_compare_subpop_data <- function(output_type = 'table') {
+  logToConsole(session, "In get_syse_compare_subpop_data")
   which_factors_changed <- names(which(did_factors_change()))
   filt_vars <- c('meets_hh_type', 'meets_age_filter', 'meets_race_eth_filter', 'meets_vet_filter')
   filt_unchanged <- setdiff(filt_vars, which_factors_changed)

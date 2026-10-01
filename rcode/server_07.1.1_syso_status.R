@@ -239,16 +239,3 @@ get_sankey_data <- reactive({
       End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
     )
 })
-
-observe({
-  req(session$userData$valid_file() == 1)
-  
-  res <- tryCatch(
-    syso_chart_validation_status(),
-    error = function(e) list(valid = FALSE, message = paste("CRASHED:", e$message))
-  )
-  
-  message("--- DEBUG STATUS VALIDATION ---")
-  message("Valid: ", res$valid)
-  message("Message: ", res$message)
-})
