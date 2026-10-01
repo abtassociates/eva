@@ -1,0 +1,305 @@
+
+logToConsole(session, "building HMIS Participation Datasets")
+## Create Data for HMIS Participation ------------------------------------------
+# Fix Household Type in Enrollment Adjust
+EnrollmentAdjust_BUI <- enrollment_prep %>%
+  fmutate("HouseholdType" = fcase(HHTypeAtReportStart == "PY", 3,
+                                  HHTypeAtReportStart == "ACminusPY",3,
+                                  HHTypeAtReportStart == "UY", 1,
+                                  HHTypeAtReportStart == "AOminusUY",1,
+                                  HHTypeAtReportStart == "CO", 4,
+                                  default = NA)) 
+# Inventory Level --------------------------------------------------------------
+HMIS_project_active_inventories <- qDT(ProjectSegments) %>%
+  fsubset(HMISParticipationType %in% c(0,1,2)) %>% # filter to projects with HMIS Participation
+  join(activeInventory %>% select(-DateCreated,-DateUpdated,-UserID,-DateDeleted),  # activeInv_no_overflow
+       ##on = "ProjectID",
+       how = "inner",
+       multiple = TRUE
+  ) %>% 
+  fsubset(ProjectType %in% project_types_w_beds) %>% # filter to ProjectType with Beds
+  fsubset(ProjectType!=rrh_project_type | RRHSubType ==2) %>% # filter RRH projects to subtype 2
+  # Get the Start+End dates for when each Project was Operating, HMIS Participating, and Active (Inventory)
+  fmutate(
+    InvActiveStart = pmax( # start of Active & Operating 
+      InventoryStartDate, 
+      OperatingStartDate, na.rm = TRUE),
+    InvActiveEnd =  pmin( # end of Active & Operating
+      InventoryEndDate,
+      OperatingEndDate, na.rm = TRUE),
+    InvHMISActiveStart = pmax( # start of (Active & Operating)  & Participating
+      HMISParticipationStatusStartDate,
+      InvActiveStart, na.rm = TRUE),
+    InvHMISActiveEnd = pmin( # end of (Active & Operating)  & Participating
+      HMISParticipationStatusEndDate, 
+      InvActiveEnd, na.rm = TRUE)
+  ) 
+
+HMIS_project_active_inventories <- HMIS_project_active_inventories %>% 
+  fmutate("Availability" = fcase(Availability == 1, "Year-round", 
+                                 Availability == 2, "Seasonal (ES Only)",
+                                 Availability == 3, "Overflow (ES Only)",
+                                 default = "Year-round")) %>%
+  fmutate(VetUnitInventory = UnitInventory * (VetBedInventory + YouthVetBedInventory + CHVetBedInventory)/BedInventory,
+          YouthUnitInventory = UnitInventory * (YouthBedInventory + YouthVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHUnitInventory = UnitInventory * ( CHBedInventory + CHVetBedInventory + CHYouthBedInventory)/BedInventory,
+          CHVetUnitInventory = UnitInventory * CHVetBedInventory/BedInventory,
+          CHYouthUnitInventory = UnitInventory * CHYouthBedInventory/BedInventory,
+          YouthVetUnitInventory = UnitInventory * YouthVetBedInventory/BedInventory,
+          OtherUnitInventory = UnitInventory * OtherBedInventory/BedInventory)
+
+# Project-Level ----------------------------------------------------------------
+HMIS_projects_w_active_inv <- HMIS_project_active_inventories %>%
+  fgroup_by(ProjectID, ProjectType, HMISParticipationType, VictimServiceProvider, HousingType, TargetPopulation, HouseholdType, ESBedType, Availability) %>%
+  fsummarise(ProjectHMISActiveStart = fmin(InvHMISActiveStart), # first active inv start with HMISPartiicpationType 
+             ProjectHMISActiveEnd = fmax(InvHMISActiveEnd), # last active inv end with HMISPartiicpationType
+             #TargetPopulation = list(sort(unique(TargetPopulation))), # sum?
+             UnitInventory = fsum(UnitInventory),
+             BedInventory = fsum(BedInventory),
+             CHVetBedInventory = fsum(CHVetBedInventory),
+             CHVetUnitInventory = fsum(CHVetUnitInventory),
+             YouthVetBedInventory = fsum(YouthVetBedInventory),
+             YouthVetUnitInventory = fsum(YouthVetUnitInventory),
+             VetBedInventory = fsum(VetBedInventory),
+             VetUnitInventory = fsum(VetUnitInventory),
+             CHYouthBedInventory = fsum(CHYouthBedInventory),
+             CHYouthUnitInventory = fsum(CHYouthUnitInventory),
+             YouthBedInventory = fsum(YouthBedInventory),
+             YouthUnitInventory = fsum(YouthUnitInventory),
+             CHBedInventory = fsum(CHBedInventory),
+             CHUnitInventory = fsum(CHUnitInventory),
+             OtherBedInventory = fsum(OtherBedInventory),
+             OtherUnitInventory = fsum(OtherUnitInventory)) %>% 
+  fungroup()
+
+# Estimate Dedicated Vet, Youth, and CH (Child) units based on ratio of beds----
+HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv %>%
+  join(Project %>% fselect(ProjectName, ProjectID), how="left") # join project to get full details (name for inputpicker)
+
+
+## Update Input Pickers --------------------------------------------------------
+# on Inventory & Utilization dropdown - Project LeveL tab ---- 
+
+bui_projects <- Project %>% fsubset((ProjectType %in% project_types_w_beds) & !(ProjectType == rrh_project_type & RRHSubType == 1)) %>% pull(ProjectName)
+updatePickerInput(session = session,
+                  inputId = "bui_HMISprojects",
+                  choices = bui_projects)
+
+# on Inventory & Utilization dropdown - System LeveL tab ----
+c_choices <- sort(unique(HMIS_projects_w_active_inv$Availability))
+c_choices[is.na(c_choices)] <- "NA"
+if(length(c_choices) > 1) {
+  c_choices = c( "All Availability Types", c_choices)
+  updatePickerInput(session = session,
+                    inputId = "bui_bed_avail_sys",
+                    choices = c_choices)
+}
+ 
+
+## Functions -------------------------------------------------------------------
+# make function get_quarters() to get quarterly PIT dates between ReportStart and ReportEnd  ----------------------
+
+get_quarters <- function(){
+  # this always returns the last 4 quarterly end dates, even when they come before session$userDate$ReportStart
+  # for example, if the report start was january 1st 2024 and the report end is december 31st 2024
+  # this returns the last wednesday in january, april, july, and october of 2024
+  # In our calculations,
+  # q1 would track end of january 2024 - end of april 2024
+  # q2 would track end of april 2024 - end of july 2024
+  # q3 would track end of july 2024 - end of october 2024
+  # q4 would track end of october 2023 - end of january 2024
+  # since the current 4th quarter is not complete until end of january 2025, it displays the last Q4
+  # annual totals will therefore be looking at end of october 2023 - end of october 2024
+  # we don't consider ReportStart at all. We do sort the quarters when they are used.
+  # however, annual totals will look at dates a year prior to 
+  
+  # get the last date in activeInventory
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  # the quarters end on the last wednedsay of january, april, july & october
+  # create a function to get the exact date given a month and year
+  last_wednesday <- function(year, month) {
+    # Get the last day of the month
+    last_day <- ceiling_date(ymd(paste(year, month, "01", sep = "-")), "month") - days(1)
+    # Find the weekday of the last day (1 = Sunday, 7 = Saturday)
+    weekday <- wday(last_day)
+    # Calculate the difference to the last Wednesday (4 = Wednesday)
+    diff <- ifelse(weekday >= 4, weekday - 4, weekday + 3)
+    # Subtract the difference to get the last Wednesday
+    last_day - days(diff)
+  }
+  
+  q1_PIT <- as.Date(fifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
+                             last_wednesday(y_last,1), # use last wedensday of this january
+                             last_wednesday(y_last-1,1))) # else use last wednesday of last january
+  q2_PIT <- as.Date(fifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
+                             last_wednesday(y_last,4), # use last wedensday of this april
+                             last_wednesday(y_last-1,4))) # else use last wednesday of last april
+  q3_PIT <- as.Date(fifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
+                             last_wednesday(y_last,7), # use last wedensday of this july
+                             last_wednesday(y_last-1,7))) # else use last wednesday of last july
+  q4_PIT <- as.Date(fifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
+                             last_wednesday(y_last,10), # use last wedensday of this october
+                             last_wednesday(y_last-1,10))) # else use last wednesday of last october
+  
+  quarters <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT) # create vector of quarterly dates
+  names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
+  return(quarters[quarters>=as.Date(session$userData$ReportStart)])
+}
+
+# make function get_months() to get monthly PIT dates between ReportStart and ReportEnd --------------------------
+get_months <- function(){
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  m_last <- month(lastday)
+  end_month = ymd(paste(y_last,m_last,"01", sep="-")) # first day of ending month
+  # if last_day is the last day of the month (first day of next month minus a day)
+  end_month <- as.Date(ifelse(lastday == end_month + months(1) - days(1), 
+                              end_month, # the month is complete
+                              end_month - months(1) # otherwise, use the previous month
+  ))
+  months <- seq(end_month - months(11), end_month, by = "months")
+  names(months) <- month.abb[month(months)]
+  return(months[months>=as.Date(session$userData$ReportStart)])
+}
+# counting functions count_Beds_Units() & count_Enrollments() ------------------
+# create functions to count Beds & Units and Served (Enrollments) & HH_Served (HOH Enrollments) on list of dates
+count_Beds_Units <- function(pit_dates, extra_groups = NULL){ # use NULL so length == 0
+  if(length(extra_groups)==0){
+    grouping_vars <- c("PIT", "ProjectID")
+  }else{
+    grouping_vars <- c("PIT", "ProjectID", extra_groups) %>% unique
+  }
+  pit_dates <- data.frame("PIT" = pit_dates) %>% fmutate(temp=1)
+  
+  Bed_Unit_Count <- HMIS_project_active_inventories %>% 
+    #fselect(ProjectID, BedInventory, UnitInventory, InventoryStartDate, InventoryEndDate) %>%
+    fmutate(temp = 1) %>%
+    join( # expand rows for each PIT date
+      pit_dates, 
+      on="temp", 
+      multiple=T
+    ) %>%
+    fmutate(
+      activeInv = InvActiveStart <= as.Date(PIT) & (is.na(InvActiveEnd) | InvActiveEnd > as.Date(PIT)),
+      activeHMISInv =  InvHMISActiveStart <= as.Date(PIT) & (is.na(InvHMISActiveEnd) | InvHMISActiveEnd > as.Date(PIT))
+    ) 
+  
+  chk1 <- Bed_Unit_Count %>% fgroup_by(PIT,ProjectID, HMISParticipationType) %>% 
+    fsummarise("PIT_Beds" = fsum(BedInventory),
+               "activeInv" =fsum(fifelse(activeInv,BedInventory,0)),
+               "activeHMISInv" = fsum(fifelse(activeHMISInv,BedInventory,0)))
+  ##print(chk1, n=100)
+  
+  Bed_Unit_Count <- Bed_Unit_Count %>%
+    fgroup_by(grouping_vars) %>%
+    fsummarize(
+      PIT_Beds = fsum(fifelse(activeInv,BedInventory,0)),
+      PIT_HMIS_Beds = fsum(fifelse(activeHMISInv,BedInventory,0)),
+      PIT_Units = fsum(fifelse(activeInv,UnitInventory,0)),
+      PIT_HMIS_Units = fsum(fifelse(activeHMISInv,UnitInventory,0)),
+      #PIT_CHVet_Beds = fsum(fifelse(activeInv,CHVetBedInventory,0)),
+      #PIT_HMIS_CHVet_Beds = fsum(fifelse(activeHMISInv,CHVetBedInventory,0)),
+      #PIT_CHVet_Units = fsum(fifelse(activeInv,CHVetUnitInventory,0)),
+      #PIT_HMIS_CHVet_Units = fsum(fifelse(activeHMISInv,CHVetUnitInventory,0)),
+      #PIT_YouthVet_Beds = fsum(fifelse(activeInv,YouthVetBedInventory,0)),
+      #PIT_HMIS_YouthVet_Beds = fsum(fifelse(activeHMISInv,YouthVetBedInventory,0)),
+      #PIT_YouthVet_Units = fsum(fifelse(activeInv,YouthVetUnitInventory,0)),
+      #PIT_HMIS_YouthVet_Units = fsum(fifelse(activeHMISInv,YouthVetUnitInventory,0)),
+      PIT_Vet_Beds = fsum(fifelse(activeInv,VetBedInventory,0)),
+      PIT_HMIS_Vet_Beds = fsum(fifelse(activeHMISInv,VetBedInventory,0)),
+      PIT_Vet_Units = fsum(fifelse(activeInv,VetUnitInventory,0)),
+      PIT_HMIS_Vet_Units = fsum(fifelse(activeHMISInv,VetUnitInventory,0)),
+      #PIT_CHYouth_Beds = fsum(fifelse(activeInv,CHYouthBedInventory,0)),
+      #PIT_HMIS_CHYouth_Beds = fsum(fifelse(activeHMISInv,CHYouthBedInventory,0)),
+      #PIT_CHYouth_Units = fsum(fifelse(activeInv,CHYouthUnitInventory,0)),
+      #PIT_HMIS_CHYouth_Units = fsum(fifelse(activeHMISInv,CHYouthUnitInventory,0)),
+      PIT_Youth_Beds = fsum(fifelse(activeInv,YouthBedInventory,0)),
+      PIT_HMIS_Youth_Beds = fsum(fifelse(activeHMISInv,YouthBedInventory,0)),
+      PIT_Youth_Units = fsum(fifelse(activeInv,YouthUnitInventory,0)),
+      PIT_HMIS_Youth_Units = fsum(fifelse(activeHMISInv,YouthUnitInventory,0)),
+      PIT_CH_Beds = fsum(fifelse(activeInv,CHBedInventory,0)),
+      PIT_HMIS_CH_Beds = fsum(fifelse(activeHMISInv,CHBedInventory,0)),
+      PIT_CH_Units = fsum(fifelse(activeInv,CHUnitInventory,0)),
+      PIT_HMIS_CH_Units = fsum(fifelse(activeHMISInv,CHUnitInventory,0)),
+      PIT_Other_Beds = fsum(fifelse(activeInv,OtherBedInventory,0)),
+      PIT_HMIS_Other_Beds = fsum(fifelse(activeHMISInv,OtherBedInventory,0)),
+      PIT_Other_Units = fsum(fifelse(activeInv,OtherUnitInventory,0)),
+      PIT_HMIS_Other_Units = fsum(fifelse(activeHMISInv,OtherUnitInventory,0))) %>% fungroup()
+  #For each relevant project, count the number of beds and units for the project available for occupancy on each of the 4 PIT Dates.
+  #For inventory to be considered "active" on a PIT Date it must meet the following logic: InventoryStartDate <= [PIT Date] and InventoryEndDate > [PIT Date] or NULL
+  return(Bed_Unit_Count)
+}
+count_Enrollments <-function(pit_dates, pit_labels, extra_groups = NULL){
+  if(length(extra_groups)==0){
+    grouping_vars <- c("PIT", "label", "ProjectID", "ProjectType")
+  }else{
+    grouping_vars <- c("PIT", "label", "ProjectID", "ProjectType", extra_groups) %>% unique
+  }
+  pit_dates <- data.frame("PIT" = pit_dates, "label" = pit_labels) %>% fmutate(temp=1)
+  #For each relevant project and using the EnrollmentAdjust data frame, count the number of people "served in a bed" on each of the 4 PIT Dates.
+  #For an enrollment to be considered "active" on a PIT Date it must meet the following logic: EntryDate <= [PIT Date] and ExitAdjust > [PIT Date] or is NULL
+  #Exclude any ES - NbN enrollments where there is no Bed Night record on [PIT Date]
+  #Exclude any permanent housing enrollments where MoveInDateAdjust < [PIT Date]
+  services_qPIT <- Services %>%
+    fselect(EnrollmentID, DateProvided)  %>% 
+    join(EnrollmentAdjust_BUI %>% fselect(EnrollmentID, ProjectID), on = "EnrollmentID", how = 'full')  %>% 
+    fmutate(temp = 1) %>%
+    join( # expand rows for each PIT date
+      pit_dates %>% fmutate(temp=1), 
+      on="temp", 
+      multiple=T
+    ) %>%
+    fmutate(bn_PIT = as.Date(DateProvided) == as.Date(PIT)) %>%  
+    fmutate(bn_PIT = fifelse(is.na(bn_PIT),FALSE,bn_PIT)) %>%  
+    fgroup_by(EnrollmentID, PIT, label) %>% # For each enrollment & PIT Date,
+    fsummarise( # flag if Enrollment has any Service records where DateProvided == PIT
+      has_bn_PIT = any(bn_PIT, na.rm=TRUE)
+    )  %>% fungroup()
+  Bed_Unit_Util <- EnrollmentAdjust_BUI %>%
+    join(services_qPIT, on = "EnrollmentID", how = "left", multiple = T) %>%
+    fmutate(# Enrollment Active
+      activeEnroll = EntryDate <= as.Date(PIT) & (is.na(ExitAdjust) | ExitAdjust > as.Date(PIT)),
+      eligProjPerm = !(ProjectType %in% c(3,9,10,13)) | fifelse(is.na(MoveInDateAdjust), 
+                                                                FALSE, # if MoveInDateAdjust is missing, use FALSE to count zero days
+                                                                MoveInDateAdjust >= EntryDate)
+    ) %>% 
+    fmutate(Served = fifelse(activeEnroll & eligProjPerm, 1, 0), # flag active & eligible enrollments
+            HHServed = fifelse(activeEnroll & eligProjPerm & RelationshipToHoH==1, # count households by just flagging active/elig enrollments that are head of household
+                               1, 0)) %>%
+    fgroup_by(grouping_vars) %>% 
+    fsummarise(
+      eligProjNBN = any(has_bn_PIT),
+      PIT_Served = fsum(Served),
+      PIT_HHServed = fsum(HHServed))%>%
+    fungroup()  %>% fsubset(!is.na(PIT_Served) & (ProjectType != es_nbn_project_type |eligProjNBN))
+  return(Bed_Unit_Util)
+} 
+
+## Build Project Level data ----------------------------
+logToConsole(session, "building project-level utilization")
+# sort PIT dates
+quarters <- get_quarters() %>% sort
+mons <- get_months() %>% sort
+sys_grouping_vars <- c("HMISParticipationType", "ESBedType", "HouseholdType", "ProjectType",
+                       "TargetPopulation", "HousingType", 
+                       "VictimServiceProvider", "Availability") # all filters
+#print(colnames(EnrollmentAdjust))
+# full join the results of passing through counting functions
+project_level_util_q <- count_Beds_Units(quarters, extra_groups = sys_grouping_vars) %>%
+  join(count_Enrollments(quarters, names(quarters), extra_groups = c("HouseholdType")), how = "left") %>% 
+  group_by( PIT) %>% fill("label", .direction = "updown") %>% fungroup
+
+project_level_util_m <- count_Beds_Units(mons, extra_groups = sys_grouping_vars) %>%
+  join(count_Enrollments(mons, names(mons), extra_groups = c("HouseholdType")), how = "left") %>% 
+  group_by( PIT) %>% fill("label", .direction = "updown") %>% fungroup
+
+# pass results to session for server_09_inv_util.R to finish 
+session$userData$project_level_util_q <- project_level_util_q 
+session$userData$project_level_util_m <- project_level_util_m 
+#print(colnames(HMIS_project_active_inventories))
+session$userData$HMIS_project_active_inventories <- HMIS_project_active_inventories 
+session$userData$EnrollmentAdjust_BUI <- EnrollmentAdjust_BUI
+session$userData$HMIS_projects_w_active_inv <- HMIS_projects_w_active_inv
+session$userData$selectedProjects <- NULL
+
