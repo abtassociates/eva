@@ -213,8 +213,7 @@ build_demographic_heatmap <- function(plot_df,
     geom_text(
       aes(
         label = label_text,
-        color = ifelse(fill_val > fmean(fill_val) & !wasRedacted, 'white', 'black'),
-        na.rm=TRUE
+        color = ifelse(fill_val > fmean(fill_val) & !wasRedacted, 'white', 'black')
       ),
       size = font_size
     ) +
