@@ -178,8 +178,9 @@ process_upload <- function(upload_filename, upload_filepath) {
 
     # 08 ---------------------------
     setProgress(detail = "Preparing Inventory and Utilization Data", value = .95)
-    source(here("rcode", "08_inv_util.R"), local = TRUE) 
-
+    err <- source_trycatch(here("rcode", "08_inv_util.R")) 
+    if(!is.null(err)) return(NULL)
+    
     setProgress(detail = "Done!", value = 1)
     
     logToConsole(session, "Done processing")

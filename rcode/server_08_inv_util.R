@@ -321,6 +321,19 @@ nightly_avg <- function(period, labels, projlist , extragroups = NULL, ded_type 
 ## Update Filters & Selections ---------------------------------
 # define selectedProjects
 # prioritize to run before the renderDT
+
+# observe({
+#   req(session$userData$valid_file() == 1)
+#   if(is.null(input$bui_HMISprojects)){
+#     # If no projects are selected, choose drop-down option from currently selected filters
+#     #selected_projs <- project_choices # session$userData$HMIS_projects_w_active_inv
+#     # except for the project picker which should choose from to the project choices based on current filters
+#     updatePickerInput(session = session,
+#                       inputId = "bui_HMISprojects",
+#                       choices = bui_projects)
+#   }
+# })
+
 observe({
   req(session$userData$valid_file() == 1 & !is.null(input$bui_HMISprojects))
   # Update the list of Projects depending on the currently selected filters
@@ -329,14 +342,7 @@ observe({
   selected_projs <- project_choices %>% # get selected projects
     fsubset(ProjectName %in% input$bui_HMISprojects)
   
-  if(is.null(input$bui_HMISprojects)){
-    # If no projects are selected, choose drop-down option from currently selected filters
-    #selected_projs <- project_choices # session$userData$HMIS_projects_w_active_inv
-    # except for the project picker which should choose from to the project choices based on current filters
-    updatePickerInput(session = session,
-                      inputId = "bui_HMISprojects",
-                      choices = bui_projects)
-  }else{
+ 
     # If projects are selected, update the drop-down options to reflect the choices appearing in selected projects
     
     # the project picker drops selections that don't appear based on current filters
@@ -346,7 +352,7 @@ observe({
     #                   selected = input$bui_HMISprojects) #sort(unique(selected_projs$ProjectName)))
     
     
-  }
+
   # if the selected projects are ES, choose all availability types
   if (all(unique(selected_projs$ProjectType) %in% c(es_ee_project_type,es_nbn_project_type))){ 
     updatePickerInput(session = session,
@@ -617,23 +623,23 @@ observeEvent(input$bui_inventory_level, {
 })
 
 output$proj_bui_hh_plot <- renderPlot({
-  validate(need(fnrow(re_calc()) > 0,no_data_msg))
+  validate(need(fnrow(pivot_avail_type()) > 0,no_data_msg))
            
   if(input$bui_inventory_level == "Beds"){
     if(input$bui_period_filter == "Points in Time"){
-      plot_df <- re_calc() %>% 
+      plot_df <- pivot_avail_type() %>% 
         fmutate(pct_util = `PIT Served` / `PIT Total Beds`)
     } else {
-      plot_df <- re_calc() %>% 
+      plot_df <- pivot_avail_type() %>% 
       #fgroup_by(Availability) %>% 
         fmutate(pct_util = `Avg Nightly Served` / `Avg Nightly Beds`)
     }
   } else if(input$bui_inventory_level == "Units"){
     if(input$bui_period_filter == 'Points in Time'){
-      plot_df <- re_calc() %>% 
+      plot_df <- pivot_avail_type() %>% 
         fmutate(pct_util = `PIT HHServed` / `PIT Total HMIS Units`)
     } else {
-      plot_df <- re_calc() %>% 
+      plot_df <- pivot_avail_type() %>% 
         #fgroup_by(Availability) %>% 
         fmutate(pct_util = `Avg Nightly HHServed` / `Avg Nightly Units`)
     }
