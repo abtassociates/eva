@@ -3,6 +3,20 @@ no_data_msg <- "No data to show."
 no_valid_data_msg <- "No valid data to show."
 all_data_suppressed_msg <- "The chart will not display because all data has been suppressed."
 
+sys_perf_validations <- list(
+  syso = list(
+    "demo"   = "syso_chart_validation_comp",
+    "flow"   = c("syso_chart_validation_flow", "syso_chart_validation_mbm"),
+    "status" = "syso_chart_validation_status"
+  ),
+  syse = list(
+    "type"   = "syse_chart_validation_type",
+    "time"   = "syse_chart_validation_time",
+    "subpop" = "syse_chart_validation_subpop",
+    "phd"    = "syse_chart_validation_phd"
+  )
+)
+
 eval_chart_validity <- function(counts, min_count = 10) {
   # # 1. Check Master Data directly
   # AS 9/30/26: Is this needed or do we handle this in 07?

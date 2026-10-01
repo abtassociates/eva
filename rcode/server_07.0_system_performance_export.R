@@ -417,26 +417,12 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
     }
     sel
   })
-  
-  validations <- if(id_prefix == "syso")
-    list(
-      "demo"   = "syso_chart_validation_comp",
-      "flow"   = c("syso_chart_validation_flow", "syso_chart_validation_mbm", "syso_chart_validation_mbm_inactive", "syso_chart_validation_mbm_fth"),
-      "status" = "syso_chart_validation_status"
-    )
-  else
-    list(
-      "type"   = "syse_chart_validation_type",
-      "time"   = "syse_chart_validation_time",
-      "subpop" = "syse_chart_validation_subpop",
-      "phd"    = "syse_chart_validation_phd"
-    )
     
   observe({
     req(session$userData$valid_file() == 1)
     valid_map <- subtab_validity()
     
-    for (val in names(validations)) {
+    for (val in names(sys_perf_validations[[id_prefix]])) {
       is_valid <- isTRUE(valid_map[[val]])
       
       pptx_chk_id <- paste0(id_prefix, "_export_", val, "_pptx")
@@ -593,8 +579,8 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
     req(session$userData$valid_file() == 1)
     
     res <- list()
-    for (val in names(validations)) {
-      r_names <- validations[[val]]
+    for (val in names(sys_perf_validations[[id_prefix]])) {
+      r_names <- sys_perf_validations[[id_prefix]][[val]]
       val_results <- lapply(r_names, function(name) get(name)())
       res[[val]] <- all(sapply(val_results, function(v) isTRUE(v$valid)))
     }
@@ -603,7 +589,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
   
   # Helper to find which validation key a checkbox belongs to
   get_val_key_from_id <- function(sub_id) {
-    for (k in names(validations)) {
+    for (k in names(sys_perf_validations[[id_prefix]])) {
       if (grepl(paste0("_export_", k, "_"), sub_id)) return(k)
     }
     return(NULL)
