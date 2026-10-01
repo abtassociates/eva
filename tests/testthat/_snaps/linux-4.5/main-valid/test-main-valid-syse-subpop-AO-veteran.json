@@ -1,6 +1,9 @@
 {
   "input": {
     "pageid": "tabSystemExits",
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_project_type": "LHRes",
     "syse_subpop_age": [
       "0 to 12",
       "13 to 17",
@@ -15,6 +18,7 @@
       "Unknown"
     ],
     "syse_subpop_age_selection": false,
+    "syse_subpop_hh_type": "AO",
     "syse_subpop_race_eth_selection": false,
     "syse_subpop_race_ethnicity1": "All",
     "syse_subpop_race_ethnicity2": "All",
@@ -31,9 +35,10 @@
       ]
     },
     "syse_compare_subpop_filter_selections": {
-      "message": "Must use single string to index into reactivevalues.",
-      "call": "checkName(name)",
-      "type": "rlang_error"
+      "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>\n<b>Subpopulation Selections<\/b> <br>\n<div style='text-indent: 20px;'><b>Veteran Status:<\/b> Veteran (Adult Only)<\/div>",
+      "deps": [
+
+      ]
     }
   }
 }
