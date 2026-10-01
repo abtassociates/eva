@@ -121,7 +121,7 @@
       ]
     },
     "sysDQHighPriorityByIssue": {
-      "src": "[image data hash: aed95170132cbadb9839c11c25fbdf67]",
+      "src": "[image data hash: 26db5a1b9647b7abc284d0bcc1d614b8]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the system.",
@@ -140,7 +140,7 @@
             },
             "domain": {
               "left": 0,
-              "right": 13.2,
+              "right": 28.6,
               "bottom": 0.4,
               "top": 5.6,
               "discrete_limits": {
@@ -150,9 +150,9 @@
                 "y": [
                   "Dependent Field Data Collection Issue",
                   "Duplicate Entries",
-                  "Head of Household Exited Before Other Household Members",
                   "Missing Relationship to Head of Household",
-                  "Too Many Heads of Household"
+                  "Too Many Heads of Household",
+                  "Head of Household Exited Before Other Household Members"
                 ]
               }
             },

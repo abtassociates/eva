@@ -255,7 +255,10 @@
       124,
       125,
       126,
-      127
+      127,
+      128,
+      129,
+      130
     ],
     "dq_organization_summary_table_rows_current": [
       1,
@@ -769,7 +772,7 @@
       ]
     },
     "orgDQHighPriorityByIssue": {
-      "src": "[image data hash: 89ab18d4bc979588b0c365c1239b8904]",
+      "src": "[image data hash: 5fa3b91f89cb1ba7b07c4280ba1c6d84]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top High Priority Errors in the organization.",
@@ -796,10 +799,10 @@
 
                 ],
                 "y": [
-                  "Head of Household Exited Before Other Household Members",
                   "Dependent Field Data Collection Issue",
                   "Duplicate Entries",
                   "Too Many Heads of Household",
+                  "Head of Household Exited Before Other Household Members",
                   "Missing Relationship to Head of Household"
                 ]
               }
@@ -841,7 +844,7 @@
       ]
     },
     "orgDQHighPriorityByProject": {
-      "src": "[image data hash: eb187800237b43d8937dfe1f527c42d5]",
+      "src": "[image data hash: f0e44e8012e62c0bb801a61e84efbeae]",
       "width": 1640,
       "height": 400,
       "alt": "Plot object",
@@ -869,9 +872,9 @@
                 ],
                 "y": [
                   "Organization A - HP",
-                  "Organization A - RRH - 2",
                   "Organization A - SO",
                   "Test NbN Project",
+                  "Organization A - RRH - 2",
                   "Organization A - HP - 2"
                 ]
               }
@@ -1172,12 +1175,12 @@
     },
     "dq_organization_summary_table": {
       "Project Name": {
-        "Length": "127",
+        "Length": "130",
         "Class": "character",
         "Mode": "character"
       },
       "Priority": {
-        "High Priority": 9,
+        "High Priority": 12,
         "Error": 62,
         "Warning": 56
       },
@@ -1213,7 +1216,7 @@
         "Too Many Heads of Household": 4,
         "Oldest Household Member Under 12": 3,
         "Missing Relationship to Head of Household": 1,
-        "Head of Household Exited Before Other Household Members": 1,
+        "Head of Household Exited Before Other Household Members": 4,
         "Invalid Move-In Date": 2,
         "Unknown Disabling Condition": 3,
         "No bed night on Entry Date": 1,
@@ -1246,8 +1249,8 @@
         "Min.": 1,
         "1st Qu.": 1,
         "Median": 4,
-        "Mean": 8.220472440944881,
-        "3rd Qu.": 7,
+        "Mean": 8.076923076923077,
+        "3rd Qu.": 6.75,
         "Max.": 181
       }
     }

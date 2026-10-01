@@ -646,7 +646,7 @@
         ],
         [
           "Error        :26  ",
-          "1st Qu.:  2.00  ",
+          "1st Qu.:  3.00  ",
           "Homelessness Start Date Later Than Entry                    : 1  "
         ],
         [
@@ -656,7 +656,7 @@
         ],
         [
           null,
-          "Mean   : 20.74  ",
+          "Mean   : 20.85  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
@@ -677,8 +677,8 @@
       ],
       "Project Summary": [
         [
-          "Length:131        ",
-          "High Priority: 9  ",
+          "Length:134        ",
+          "High Priority:12  ",
           "Invalid Homelessness Start Date/Number of Months Homeless: 7  ",
           "Min.   :  1.000  "
         ],
@@ -692,19 +692,19 @@
           "Mode  :character  ",
           "Warning      :60  ",
           "Unknown SSN                                              : 6  ",
-          "Median :  4.000  "
+          "Median :  3.500  "
         ],
         [
           null,
           null,
           "Missing Length of Stay                                   : 6  ",
-          "Mean   :  8.389  "
+          "Mean   :  8.246  "
         ],
         [
           null,
           null,
           "Conflicting Health Insurance yes/no at Entry             : 5  ",
-          "3rd Qu.:  7.000  "
+          "3rd Qu.:  6.750  "
         ],
         [
           null,
@@ -715,7 +715,7 @@
         [
           null,
           null,
-          "(Other)                                                  :96  ",
+          "(Other)                                                  :99  ",
           null
         ]
       ],
@@ -758,16 +758,16 @@
       ],
       "High Priority": [
         [
-          "Length:22         ",
-          "Length:22         ",
-          "Length:22         ",
-          "Length:22         ",
+          "Length:28         ",
+          "Length:28         ",
+          "Length:28         ",
+          "Length:28         ",
           "Duplicate Entries                                      :8  ",
-          "Length:22         ",
-          "Length:22         ",
-          "Length:22         ",
+          "Length:28         ",
+          "Length:28         ",
+          "Length:28         ",
           "Min.   :2021-03-09  ",
-          "Length:22         "
+          "Length:28         "
         ],
         [
           "Class :character  ",
@@ -778,7 +778,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2021-12-31  ",
+          "1st Qu.:2021-10-18  ",
           "Class :character  "
         ],
         [
@@ -786,11 +786,11 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Too Many Heads of Household                            :5  ",
+          "Head of Household Exited Before Other Household Members:7  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2022-07-01  ",
+          "Median :2021-12-31  ",
           "Mode  :character  "
         ],
         [
@@ -798,11 +798,11 @@
           null,
           null,
           null,
-          "Head of Household Exited Before Other Household Members:1  ",
+          "Too Many Heads of Household                            :5  ",
           null,
           null,
           null,
-          "Mean   :2022-03-21  ",
+          "Mean   :2022-02-15  ",
           null
         ],
         [
@@ -1890,7 +1890,7 @@
         ],
         [
           null,
-          "Mean   : 45.13  ",
+          "Mean   : 45.42  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
@@ -1926,13 +1926,13 @@
           "Mode  :character  ",
           "Warning      :55  ",
           "Conflicting Health Insurance yes/no at Entry                :  3  ",
-          "Median :  4.00  "
+          "Median :  5.00  "
         ],
         [
           null,
           null,
           "Conflicting Income yes/no at Entry                          :  3  ",
-          "Mean   : 20.57  "
+          "Mean   : 20.71  "
         ],
         [
           null,
@@ -1992,27 +1992,27 @@
       ],
       "High Priority": [
         [
-          "Length:48         ",
-          "Length:48         ",
-          "Length:48         ",
-          "Length:48         ",
-          "Duplicate Entries                                      :12  ",
-          "Length:48         ",
-          "Length:48         ",
-          "Length:48         ",
+          "Length:66         ",
+          "Length:66         ",
+          "Length:66         ",
+          "Length:66         ",
+          "Head of Household Exited Before Other Household Members:27  ",
+          "Length:66         ",
+          "Length:66         ",
+          "Length:66         ",
           "Min.   :2020-01-21  ",
-          "Length:48         "
+          "Length:66         "
         ],
         [
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "Too Many Heads of Household                            :12  ",
+          "Duplicate Entries                                      :12  ",
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2021-07-25  ",
+          "1st Qu.:2021-07-21  ",
           "Class :character  "
         ],
         [
@@ -2020,11 +2020,11 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Missing Relationship to Head of Household              :10  ",
+          "Too Many Heads of Household                            :12  ",
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-12-31  ",
+          "Median :2021-11-16  ",
           "Mode  :character  "
         ],
         [
@@ -2032,11 +2032,11 @@
           null,
           null,
           null,
-          "Head of Household Exited Before Other Household Members: 9  ",
+          "Missing Relationship to Head of Household              :10  ",
           null,
           null,
           null,
-          "Mean   :2021-12-20  ",
+          "Mean   :2021-11-12  ",
           null
         ],
         [
@@ -2048,7 +2048,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-07-01  ",
+          "3rd Qu.:2022-06-26  ",
           null
         ],
         [
