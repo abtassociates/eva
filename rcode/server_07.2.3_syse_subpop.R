@@ -25,7 +25,7 @@ get_subpop_labels <- function(which_factors) {
     meets_hh_type = 'All Other Household Types',
     meets_age_filter = 'All Other Ages',
     meets_race_eth_filter = 'All Other Races/Ethnicities',
-    meets_vet_filter = if ('meets_vet_filter' %in% which_factors) paste0(setdiff(c('Veteran', 'Non-Veteran'), input$syse_subpop_spec_pops), 's') else NA_character_
+    meets_vet_filter = if ('meets_vet_filter' %in% which_factors) paste0(setdiff(c('Veteran', 'NonVeteran'), input$syse_subpop_spec_pops), 's') else NA_character_
   )
   
   list(changed = changed, all_other = all_other)
@@ -77,40 +77,19 @@ subpop_chart_validation <- function(show = TRUE, req = FALSE) {
 }
 
 syse_subpop_selections <- reactive({
-  m_type <- input$syse_methodology_type
-  default_race_val <- if (isTruthy(m_type) && m_type == 2) sys_race_ethnicity_method2[1] else sys_race_ethnicity_method1[1]
-  default_vet_val <- sys_spec_pops_people[1]
+  possible <- c("Age","Race/Ethnicity","Veteran Status (Adult Only)")
+  selected <- which(c(input$syse_subpop_age_selection, input$syse_subpop_race_eth_selection, input$syse_subpop_vet_selection))
   
-  active <- character(0)
-  
-  # 1. Age is active if not all categories are selected (and not empty)
-  if (isTruthy(input$syse_subpop_age) && 
-      length(input$syse_subpop_age) > 0 && 
-      length(input$syse_subpop_age) < length(sys_age_cats)) {
-    active <- c(active, "Age")
-  }
-  
-  # 2. Race/Ethnicity is active if changed from default / "All" / "None Selected"
-  if (isTruthy(input$syse_subpop_race_ethnicity) && 
-      !input$syse_subpop_race_ethnicity %in% c("None Selected", "All", default_race_val, "")) {
-    active <- c(active, "Race/Ethnicity")
-  }
-  
-  # 3. Veteran Status is active if changed from default / "None" / "None Selected"
-  if (isTruthy(input$syse_subpop_spec_pops) && 
-      !input$syse_subpop_spec_pops %in% c("None Selected", "None", default_vet_val, "")) {
-    active <- c(active, "Veteran Status (Adult Only)")
-  }
-  
-  active
+  vals <- possible[selected]
+  vals
 })
 
 did_factors_change <- reactive({
   c(
-    meets_hh_type = (isTruthy(input$syse_subpop_hh_type) && input$syse_subpop_hh_type != 'All'),
-    meets_age_filter = ('Age' %in% syse_subpop_selections()),
-    meets_race_eth_filter = ('Race/Ethnicity' %in% syse_subpop_selections()),
-    meets_vet_filter = ('Veteran Status (Adult Only)' %in% syse_subpop_selections())
+    meets_hh_type = input$syse_subpop_hh_type != 'All',
+    meets_age_filter = 'Age' %in% syse_subpop_selections() && length(input$syse_subpop_age) < length(sys_age_cats),
+    meets_race_eth_filter = 'Race/Ethnicity' %in% syse_subpop_selections() && input$syse_subpop_race_ethnicity != 'All',
+    meets_vet_filter = 'Veteran Status (Adult Only)' %in% syse_subpop_selections() && input$syse_subpop_spec_pops != 'None'
   )
 })
 
@@ -185,8 +164,7 @@ get_syse_compare_subpop_data <- function(output_type = 'table') {
     fcountv(cols = c("Destination Type", which_factors_changed), drop = FALSE)
   
   # 2. Identify subpopulation (where all active factors == TRUE)
-  # browser()
-  is_subpop <- Reduce(`&`, lapply(all_data[[which_factors_changed]], \(x) x == TRUE))
+  is_subpop <- Reduce(`&`, lapply(fselect(all_data, which_factors_changed), \(x) x == TRUE))
   
   # 3. Add unchanged factor columns back as TRUE for downstream consistency
   if (length(filt_unchanged) > 0) {
@@ -295,8 +273,8 @@ syse_compare_subpop_chart <- function(subpop_data = get_syse_compare_subpop_data
 }
 
 output$syse_compare_subpop_chart <- renderPlot({
-  validate_chart(syse_chart_validation_subpop())
   subpop_chart_validation(show = TRUE, req = FALSE)
+  validate_chart(syse_chart_validation_subpop())
   syse_compare_subpop_chart(dest_type = input$subpop_dest_type)
 })
 
