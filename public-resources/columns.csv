@@ -489,7 +489,7 @@ Services,SubTypeProvided,1
 Services,FAAmount,1
 Services,FAStartDate,1
 Services,FAEndDate,1
-Services,ReferralOutcome,1
+Services,ReferralOutcome,0
 Services,DateCreated,0
 Services,DateUpdated,0
 Services,UserID,0
