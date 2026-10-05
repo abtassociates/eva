@@ -322,7 +322,7 @@ staging_last6months %>%
   fmutate(Tab = fcase(
     str_detect(Event, "tabChangelog") , "Changelog",
     str_detect(Event, "tabDQExport"), "DQ Export Interface",
-    str_detect(Event, "tabClientCount") , "Project Dashboard",
+    str_detect(Event, "tabClientCount") |str_detect(Event, "tabProjectDashboard") , "Project Dashboard",
     str_detect(Event, "tabDQOrg") , "Organization DQ",
     str_detect(Event, "tabDQSystem") , "System DQ",
     str_detect(Event, "tabLocalSettings") , "Local Settings",
@@ -570,7 +570,9 @@ counts_by_week %>%
   fsubset(str_detect(Event, "Download")) %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export") | str_detect(Event, "System Exits")) %>%
-  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>% 
+  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = "",
+                                           "Powerpoint" = "PPT", "Tabular Data" = "XLSX"))) %>% 
+  fmutate(Event = str_remove(Event, "Downloaded")) %>%
   ggplot(aes(x = WeekEnding, y = n, group = Event, color = Event, label = n)) +
   geom_line(linewidth=0.75) +
   geom_point(size=1) +
@@ -654,6 +656,8 @@ counts_by_month %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "Client Level Export")) %>% 
   fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "System Exits")) %>% 
+  fsubset(!str_detect(Event, "Attempting to Download")) %>% 
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
   fmutate(Event2 = fcase(
         Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
@@ -699,9 +703,12 @@ counts_by_month %>%
 counts_by_month %>%
   fsubset(str_detect(Event, "Download")) %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
-  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "Client Level Export")) %>%
+  fsubset(!str_detect(Event, "System Exits Client Level Export")) %>%
+  fsubset(str_detect(Event, "System Overview") | str_detect(Event, "System Overview Client Level Export")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>%
-  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = ""))) %>%
+  fmutate(Event = str_replace_all(Event, c("<h4>" = "","</h4>" = "","<h5>" = "","</h5>" = "", 
+                                           "Powerpoint" = "PPT", "Tabular Data" = "XLSX"))) %>%
+  fmutate(Event = str_remove(Event, "Downloaded ")) %>% 
   fgroup_by(MonthEnding, Event) %>% 
   fsummarize(n = sum(n, na.rm=T)) %>% 
   fungroup() %>% 
@@ -793,8 +800,10 @@ staging_last6months %>%
   fsubset(!str_detect(Event, "DEMO MODE")) %>%
   fsubset(!str_detect(Event, "Client Level Export")) %>% 
   fsubset(!str_detect(Event, "System Overview")) %>%
+  fsubset(!str_detect(Event, "System Exits")) %>%
   fsubset(!str_detect(Event, "Sys Inflow Outflow")) %>% 
-   fmutate(Event2 = fcase(
+  fsubset(!str_detect(Event, "Attempting to Download")) %>% 
+  fmutate(Event2 = fcase(
         Event == "Downloaded Client Level Export","Downloaded Client Level Export",
         Event == "Downloaded Org-level DQ Report","Downloaded Org-Level DQ Report",                             
         Event == "Downloaded System-level DQ Report","Downloaded System-level DQ Report",                        
@@ -814,6 +823,7 @@ staging_last6months %>%
                   n = ifelse(str_detect(Event, 'for \\d{1,5} organizations'), 
                              n_old * parse_number(str_extract(Event, 'for \\d{1,5} organizations')),
                              n_old)) %>%  
+  fmutate(Event2 = str_remove(Event2, "Downloaded")) %>% 
   fgroup_by(Event2, EventCategory) %>% 
   fsummarize(n = sum(n, na.rm=T)) %>%
   fungroup() %>% 
@@ -891,15 +901,16 @@ staging_last6months %>%
   fmutate(Tab = fcase(
     str_detect(Event, "tabChangelog") , "Changelog",
     str_detect(Event, "tabDQExport"), "DQ Export Interface",
-    str_detect(Event, "tabClientCount") , "Project Dashboard",
+    str_detect(Event, "tabClientCount") | str_detect(Event, "tabProjectDashboard") , "Project Dashboard",
     str_detect(Event, "tabDQOrg") , "Organization DQ",
     str_detect(Event, "tabDQSystem") , "System DQ",
     str_detect(Event, "tabLocalSettings") , "Local Settings",
     str_detect(Event, "tabPDDE") , "PDDE DQ",
     str_detect(Event, "tabSystemOverview") , "System Overview",
+    str_detect(Event, "tabSystemExits") , "System Exits",
     str_detect(Event, "tabGlossary") , "Glossary",
     default = as.character(Event)), 
-    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "DQ Export Interface","PDDE DQ", "System DQ", "Organization DQ", "System Overview", "Glossary", "Changelog"))) %>%
+    Tab = factor(Tab, levels = c("Local Settings", "Project Dashboard", "DQ Export Interface","PDDE DQ", "System DQ", "Organization DQ", "System Overview", "System Exits","Glossary", "Changelog"))) %>%
   fcount(Tab, name='n') %>%
   ggplot(aes(x = Tab, y = n, fill = Tab)) +
   geom_bar(stat = "identity") +
@@ -919,7 +930,7 @@ staging_last6months %>%
        x = "Tab",
        y = "Count") +
   theme_minimal() +
-  theme(legend.position = "none") +
+  theme(legend.position = "none",axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1)) +
   guides(fill = guide_legend(ncol = 2))
 
 ```
