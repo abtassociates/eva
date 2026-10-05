@@ -1,4 +1,3 @@
-#source('tabSystemExits.R')
 
 css_files <- lapply(list.files(path = "www", pattern = "\\.css$"), function(f) {
   includeCSS(here("www", f))

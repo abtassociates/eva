@@ -133,8 +133,8 @@ EnrollmentStaging <- Enrollment %>%
             "UN"
           )
         )
-      ), 
-    levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
+      ),
+      levels = c("AOminusUY", "ACminusPY", "CO", "UN", "PY", "UY")
     )
   ) %>%
   fungroup()
@@ -294,7 +294,7 @@ rm(HHMoveIn)
 
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
-  fselect(EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
+  fselect(ServicesID, EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
   qDT()
 
 # Checking requirements by projectid --------------------------------------

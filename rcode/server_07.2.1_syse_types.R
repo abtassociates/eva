@@ -8,8 +8,8 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
     "Temporary" = get_brand_color('med_grey'),
     "Other/Unknown" = get_brand_color('med_grey')
   )
-  nr <- nrow(tree_exits_data())
   
+  nr <- nrow(tree_exits_data())
   has_data <- nr > 0
   enough_data <- nr > 10
   
