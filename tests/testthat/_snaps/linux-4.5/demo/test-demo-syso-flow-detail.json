@@ -1,7 +1,6 @@
 {
   "input": {
     "pageid": "tabSystemOverview",
-    "sys_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_age": [
       "0 to 12",
       "13 to 17",
@@ -16,6 +15,7 @@
       "Unknown"
     ],
     "syso_hh_type": "All",
+    "syso_inflow_outflow_subtabs": "<h5>Detail Chart<\/h5>",
     "syso_level_of_detail": "All",
     "syso_methodology_type": "1",
     "syso_project_type": "All",
@@ -30,13 +30,13 @@
 
       ]
     },
-    "sys_inflow_outflow_detail_filter_selections": {
+    "syso_inflow_outflow_detail_filter_selections": {
       "html": "<strong>Date Range: <\/strong>\n10-01-2021\n to \n09-30-2022\n<br/>",
       "deps": [
 
       ]
     },
-    "sys_inflow_outflow_detail_ui_chart": {
+    "syso_inflow_outflow_detail_ui_chart": {
       "src": "[image data hash: 591efa92d760548855434e45ca9aa032]",
       "width": 1113,
       "height": 500,
