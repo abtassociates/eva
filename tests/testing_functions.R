@@ -5,7 +5,6 @@ customDownload <- function(app, downloadHandler, fname) {
   file.remove(fname)
 }
 
-
 generate_shinytest2_app <- function(test_script_name) {
   app <- AppDriver$new(
     variant = platform_variant(), 
@@ -28,6 +27,7 @@ teardown_shinytest2_app <- function(app) {
   try(app$stop(), silent = TRUE)
   gc(full = TRUE)
 }
+
 initially_invalid_test_script <- function(test_script_name, test_dataset) {
   test_that(paste0("{shinytest2} recording: ",test_script_name), {
     print(paste0("Running ",test_script_name))
@@ -203,6 +203,8 @@ main_test_script <- function(test_script_name = "main-valid", test_dataset = "te
     app$expect_values(name="just-uploaded", input=TRUE, output=TRUE)
     
     app$wait_for_idle(timeout = 1e+06)
+    
+    app$run_js("$('#downloadImpermissibleCharacterDetail').css('visibility', 'visible');")
     customDownload(app, "downloadImpermissibleCharacterDetail", "Impermissible-Character-Detail.xlsx")
     
     app$set_inputs(pageid = "tabProjectDashboard")
@@ -629,6 +631,8 @@ get_all_helper_filenames <- function(test_script_name) {
   return(gsub("\\..*$", "", new_files))
 }
 review_helpers <- function(datasetnames = NULL, test_script_name = "main-valid", comparison_type = 1) {
+  library(here)
+  library(data.table)
   if(is.null(datasetnames)) 
     datasetnames <- get_all_helper_filenames(test_script_name)
 

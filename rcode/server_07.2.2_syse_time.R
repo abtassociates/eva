@@ -25,13 +25,6 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 
 get_syse_compare_time_data <- function(output_type = 'table'){
   
-  has_data <- fnrow(all_filtered_syse_time()) > 0
-  enough_data <- fnrow(all_filtered_syse_time()) > 10
-  
-  sys_chart_validations$syse$chart_validations$year <- has_data && enough_data
-  validate(need(has_data, no_data_msg))
-  validate(need(enough_data, suppression_msg))
-  
   prev_year <- everyone() %>% 
     fsubset(period == 'Previous Year')
   

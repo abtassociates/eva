@@ -233,9 +233,6 @@ everyone_else <- reactive({
 
 get_syse_compare_subpop_data <- function(output_type = 'table'){
   
-  has_data <- fnrow(subpop()) > 0 && fnrow(everyone_else()) > 0
-  enough_data <- fnrow(subpop()) > 10 && fnrow(everyone_else()) > 10
-  
   sys_chart_validations$syse$chart_validations$subpop <- has_data && enough_data
   validate(need(has_data, no_data_msg))
   validate(need(enough_data, suppression_msg))
