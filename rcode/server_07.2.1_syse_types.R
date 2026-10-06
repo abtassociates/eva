@@ -8,11 +8,7 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
     "Temporary" = get_brand_color('med_grey'),
     "Other/Unknown" = get_brand_color('med_grey')
   )
-  
-  nr <- nrow(tree_exits_data())
-  has_data <- nr > 0
-  enough_data <- nr > 10
-  
+
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 
     fsummarize(Count = GRPN(), 
