@@ -428,15 +428,11 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
       pptx_chk_id <- paste0(id_prefix, "_export_", val, "_pptx")
       xlsx_chk_id <- paste0(id_prefix, "_export_", val, "_xlsx")
       
-      if (is_valid) {
-        shinyjs::enable(pptx_chk_id)
-        shinyjs::enable(xlsx_chk_id)
-      } else {
-        updateCheckboxInput(session, pptx_chk_id, value = FALSE)
-        updateCheckboxInput(session, xlsx_chk_id, value = FALSE)
-        shinyjs::disable(pptx_chk_id)
-        shinyjs::disable(xlsx_chk_id)
-      }
+      updateCheckboxInput(session, pptx_chk_id, value = is_valid)
+      updateCheckboxInput(session, xlsx_chk_id, value = is_valid)
+      
+      shinyjs::toggleState(pptx_chk_id, condition = is_valid)
+      shinyjs::toggleState(xlsx_chk_id, condition = is_valid)
     }
     
     # Disable Master checkboxes if ALL reports in this tab are invalid
