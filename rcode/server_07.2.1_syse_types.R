@@ -9,6 +9,8 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
     "Other/Unknown" = get_brand_color('med_grey')
   )
 
+  nr <- fnrow(tree_exits_data())
+  
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 
     fsummarize(Count = GRPN(), 
