@@ -31,7 +31,7 @@ options(shiny.maxRequestSize = 250 * 1024^2) # was 190MB, is now 222 MB, aka 222
 options(shiny.fullstacktrace = TRUE)
 options(shiny.stacktraceon = TRUE)
 options(BRANDR_BRAND_YML = here::here("_brand.yml"))
-set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
+set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE, mask = "%in%") #masking %in% replaces it with the faster `fmatch`
 
 # source files in /util that end with .R or .r
 # except for Construct FSA Specs, since that relies on an external xlsx file 
