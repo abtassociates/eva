@@ -147,7 +147,12 @@ output$syse_phd_chart_1d <- renderPlot({
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 1)
   
-  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
   
   syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
@@ -160,7 +165,12 @@ output$syse_phd_chart_2d <- renderCachedPlot({
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 2)
   
-  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
   
   syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   

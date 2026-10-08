@@ -388,11 +388,6 @@ sys_perf_ppt_export <- function(file,
   return(print(ppt, target = file))
 }
 
-sys_chart_validations <- reactiveValues(
-  syso = list(),
-  syse = list()
-)
-
 register_sys_export_server <- function(id_prefix, input, output, session) {
   export_config <- get(paste0(id_prefix, "_export_config")) # found in hardcodes.R
   display_name  <- if (id_prefix == "syso") "System Overview" else "System Exits"
@@ -472,29 +467,11 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
   }
   
   # Handle System Overview/System Exits exports
-  # This handles the toggling of the Check All Exports (by xlsx vs. pptx). 
-  # It's triggered by not only that checkbox itself, but also the 
-  # Exits by Subpop selectors (incl. HH Type) because that specific checkbox may 
-  # need to remain unchecked and disabled if no selectors are selected
-  # It's also triggered by the Universe Filters, because if not enough data to show, 
-  # then those exports should not be available
   master_to_sub_cascade <- function(ext) {
     master_id <- paste0(id_prefix, "_export_all_", ext)
     sub_ids <- get_sub_checkbox_ids(ext)
-    filter_ids <- paste0(id_prefix, c("_age", "_spec_pops", "_race_ethnicity"))
-                    
-    observeEvent({
-      # 1. Trigger on master_id input
-      input[[master_id]]
-      
-      # 2. Trigger on conditional inputs
-      if (id_prefix == "syse") {
-        syse_subpop_selections()
-        input$syse_subpop_hh_type
-      }
-      
-      lapply(filter_ids, \(id) input[[id]])
-    }, {
+    
+    observeEvent(c(input[[master_id]], syse_subpop_selections(), input$syse_subpop_hh_type), {
       req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
       
       # If the master changed because of a sub-checkbox update, reset the flag and exit
@@ -503,29 +480,14 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
         return()
       }
       
-      has_subpops <- if(id_prefix == "syse")
-         length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
-      else
-        TRUE
-      
+      has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
       for(id in sub_ids) {
-        chart_validation <- isolate(sys_chart_validations[[id_prefix]][[stringr::str_split_i(id, "_", 3)]])
-        
-        current_val <- isTRUE(input[[id]])
-        
-        if (!isTruthy(chart_validation) && !grepl("export_client_xlsx", id)) {
-          if (current_val != FALSE) updateCheckboxInput(session, id, value = FALSE)
-          next
-        }
-        
-        if (id_prefix == "syse" && grepl("syse_export_subpop_", id) && !has_subpops) {
-          if (current_val != FALSE) updateCheckboxInput(session, id, value = FALSE)
-        } else {
-          target <- isTRUE(input[[master_id]])
-          if (current_val != target) updateCheckboxInput(session, id, value = target)
-        }
+        if(grepl("syse_export_subpop_", id) && !has_subpops)
+          updateCheckboxInput(session, id, value = FALSE)
+        else
+          updateCheckboxInput(session, id, value = input[[master_id]])
       }
-    }, priority = -1)
+    })
   }
   
   sub_to_master_cascade <- function(ext) {
@@ -534,14 +496,6 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
     
     observeEvent(lapply(sub_ids, \(id) input[[id]]), {
       req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
-      
-      # Only check sub_ids that are actually valid/enabled
-      valid_sub_ids <- Filter(function(id) {
-        chart_val <- isolate(sys_chart_validations[[id_prefix]][[stringr::str_split_i(id, "_", 3)]])
-        isTruthy(chart_val) || grepl("export_client_xlsx", id)
-      }, sub_ids)
-      
-      if (length(valid_sub_ids) == 0) return()
       
       all_checked <- all(vapply(sub_ids, \(id) isTRUE(input[[id]]), logical(1)))
       

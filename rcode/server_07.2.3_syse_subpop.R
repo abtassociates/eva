@@ -3,10 +3,16 @@
 subpop_chart_validation <- function(show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
   
-  validate(need(sys_has_enrollment_categories(), no_valid_data_msg))
+  validate(
+    need(
+      fnrow(session$userData$enrollment_categories) > 0,
+      no_valid_data_msg
+    )
+  )
+  
   
   cond <- any(did_factors_change()) 
-  sys_chart_validations$syse$chart_validations$subpop <- cond
+  
   ## whether to show validate message or not
   if(show){
     validate(
@@ -233,9 +239,11 @@ everyone_else <- reactive({
 
 get_syse_compare_subpop_data <- function(output_type = 'table'){
   
-  sys_chart_validations$syse$chart_validations$subpop <- has_data && enough_data
-  validate(need(has_data, no_data_msg))
-  validate(need(enough_data, suppression_msg))
+  validate(need(nrow(subpop()) > 0, no_data_msg))
+  validate(need(nrow(subpop()) > 10, suppression_msg))
+  
+  validate(need(nrow(everyone_else()) > 0, no_data_msg))
+  validate(need(nrow(everyone_else()) > 10, suppression_msg))
   
   df_subpop <- subpop() %>% 
     add_destination_type(as_factor = TRUE)

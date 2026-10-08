@@ -350,8 +350,3 @@ create_filtered_enrollments_reactive <- function(prefix, prev_yr = FALSE, filter
     )
   })
 }
-
-sys_has_enrollment_categories <- reactive({
-  req(session$userData$enrollment_categories)
-  fnrow(session$userData$enrollment_categories) > 0
-})
