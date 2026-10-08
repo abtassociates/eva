@@ -851,3 +851,121 @@ last_wednesday <- function(year, month) {
   last_day - days(diff)
 }
 
+get_pits <- function(session){
+  # get the last date in activeInventory
+  lastday <- as.Date(session$userData$ReportEnd)
+  y_last <- year(lastday)
+  # the quarters end on the last wednedsay of january, april, july & october
+  # create a function to get the exact date given a month and year
+  last_wednesday <- function(year, month) {
+    # Get the last day of the month
+    last_day <- ceiling_date(ymd(paste(year, month, "01", sep = "-")), "month") - days(1)
+    # Find the weekday of the last day (1 = Sunday, 7 = Saturday)
+    weekday <- wday(last_day)
+    # Calculate the difference to the last Wednesday (4 = Wednesday)
+    diff <- ifelse(weekday >= 4, weekday - 4, weekday + 3)
+    # Subtract the difference to get the last Wednesday
+    last_day - days(diff)
+  }
+  
+  q1_PIT <- as.Date(fifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
+                             last_wednesday(y_last,1), # use last wedensday of this january
+                             last_wednesday(y_last-1,1))) # else use last wednesday of last january
+  q2_PIT <- as.Date(fifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
+                             last_wednesday(y_last,4), # use last wedensday of this april
+                             last_wednesday(y_last-1,4))) # else use last wednesday of last april
+  q3_PIT <- as.Date(fifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
+                             last_wednesday(y_last,7), # use last wedensday of this july
+                             last_wednesday(y_last-1,7))) # else use last wednesday of last july
+  q4_PIT <- as.Date(fifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
+                             last_wednesday(y_last,10), # use last wedensday of this october
+                             last_wednesday(y_last-1,10))) # else use last wednesday of last october
+  
+  quarters <- c(q1_PIT, q2_PIT, q3_PIT, q4_PIT) # create vector of quarterly dates
+  names(quarters) <- c("Q1", "Q2", "Q3", "Q4")
+  return(quarters[quarters >= as.Date(session$userData$ReportStart)])
+} # get quarterly dates - copied from 08_inv_util.r
+
+
+calc_homeless_type <- function(enrl_df, lh_info_df, reportStart=session$userData$ReportStart, reportEnd=session$userData$ReportEnd){
+ 
+  spans <- get_active_spans(enrl_df, enrl_df, lh_info_df, reportStart, reportEnd) 
+  
+  join(enrl_df, spans, how='left') %>% 
+    ## field from get_active_spans
+    fsubset(active_in_full_period) %>% 
+    fgroup_by(PersonalID) %>% 
+    fsummarize(
+     
+      HomelessnessType = fcase(
+        (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Sheltered',#'Both'
+        fsum(unsheltered) > 0, 'Unsheltered',
+        fsum(sheltered) > 0, 'Sheltered',
+        (fsum(permanent_housing) > 0) & (fsum(unsheltered) == 0) & (fsum(sheltered) == 0), 'PH Only',
+        default='Other'
+      )
+    )
+  
+}
+
+
+get_active_spans <- function(all_filtered_by_period, all_filtered, lh_info_df = session$userData$lh_info,
+                             reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd){
+  #logToConsole(session, "In get_active_spans")
+  lh_info_filtered <- lh_info_df %>%
+    fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation, -CurrentLivingSituation) %>%
+    join(
+      all_filtered %>% fselect(EnrollmentID, EntryDate, ExitAdjust),
+      on = "EnrollmentID",
+      drop.dup.cols = "x",
+      how = "inner",
+      multiple = TRUE
+    ) %>%
+    frename(
+      active_start = lh_date
+    )
+  
+  entry_as_active <- all_filtered %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid) %>%
+    fmutate(active_start = EntryDate)
+  
+  exit_as_active <- all_filtered %>%
+    fsubset(ProjectType %in% nbn_non_res & !Destination %in% other_livingsituation & !is.na(Destination)) %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid) %>%
+    fmutate(active_start = pmax(ExitAdjust - 15, EntryDate, na.rm=TRUE))
+  
+  lh_spans <- rbindlist(list(
+    lh_info_filtered,
+    entry_as_active,
+    exit_as_active
+  ), use.names=TRUE) %>%
+    funique() %>%
+    fsubset(active_start >= EntryDate) %>%
+    fmutate(
+      MoveInDateAdjust = fifelse(MoveInDateAdjust > ExitAdjust, NA, MoveInDateAdjust),
+      
+      active_end = fcase(
+        ProjectType %in% lh_project_types_nonbn, ExitAdjust,
+        ProjectType %in% ph_project_types, fcoalesce(MoveInDateAdjust, ExitAdjust),
+        default = pmin(active_start + days_lh_valid, ExitAdjust, na.rm=TRUE)
+      )
+    ) 
+  
+  ph_housed_spans <- lh_info_filtered %>%
+    fsubset(ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust)) %>%
+    fmutate(
+      active_start = MoveInDateAdjust,
+      active_end = ExitAdjust
+    )
+  
+  active_info <-  rbindlist(list(
+    lh_spans,
+    ph_housed_spans
+  )) %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
+    fmutate(
+      active_in_full_period = active_start <= reportEnd & active_end >= reportStart
+    )
+  
+  return(active_info)
+}
