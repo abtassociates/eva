@@ -86,7 +86,7 @@ syse_types_data_download <- function(file) {
     "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
       rowbind(
         sys_export_filter_selections(type = 'exits'),
-        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(fnrow(tree_exits_data())))              
       ) %>% 
       frename('System Exits by Type' = Value),
     
@@ -115,7 +115,7 @@ summary_items <- reactive({
     fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
     rowbind(
       sys_export_filter_selections(type = 'exits'),
-      data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))
+      data.table(Chart="Total System Exits", Value = scales::label_comma()(fnrow(tree_exits_data())))
     )
 })
 syse_types_ppt_download <- function(file) {
