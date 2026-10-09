@@ -486,6 +486,7 @@ metric_val_box <- function(title, value, showcase, id) {
 }
 
 create_metric_value_box <- function(box_key, metric_dataset) {
+  logToConsole(session, paste0("creating KPI box for ", box_key))
   switch(
     box_key,
     
@@ -890,11 +891,15 @@ build_metrics_tables_batch <- function(m_datasets, proj_table, is_export = TRUE)
     return(list(summary = data.table(), detail = data.table()))
   }
   
+  logToConsole(session, paste0("building_metrics_table for ", ifelse(is_export,"export","app")))
+  
   target_proj_ids <- proj_table$ProjectID
   all_rows <- list()
   
   # Loop over Metrics first
   for (m_name in names(METRIC_DEFINITIONS)) {
+    logToConsole(session, paste0("Building metric ", m_name))
+    
     m_def <- METRIC_DEFINITIONS[[m_name]]
     # 1. Filter projects applicable to this metric
     applicable_projs <- proj_table[sapply(ProjectType, m_def$applies)]
