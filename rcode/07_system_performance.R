@@ -1,43 +1,68 @@
 logToConsole(session, "Running system overview")
 
-# Age ---------------------------------------------------------------------
-EnrollmentAdjustAge <- qDT(EnrollmentAdjust) %>% 
-  fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1, AgeAtEntry))
+# Data prep ---------------------------------------------------------------
+# Only contains EEs within Operating and Participating Dates --------------
+# to be used for system data analysis purposes. has been culled of enrollments
+# that fall outside of participation/operation date ranges.
+enrollment_prep <- Enrollment %>%
+  fsubset(
+    !EnrollmentvParticipating %in% c(
+      "Enrollment After Participating Period",
+      "Enrollment Before Participating Period"
+    ) &
+      !EnrollmentvOperating %in% c(
+        "Enrollment After Operating Period",
+        "Enrollment Before Operating Period"
+      )
+  ) %>%
+  fmutate(AgeAtEntry = fifelse(is.na(AgeAtEntry), -1L, AgeAtEntry)) %>%
+  fselect(
+    EnrollmentID, PersonalID, ProjectID, ProjectType, HouseholdID, HouseholdType,
+    EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust, Destination, AgeAtEntry,
+    RelationshipToHoH, LivingSituation, RentalSubsidyType, LengthOfStay,
+    LOSUnderThreshold, PreviousStreetESSH, DateToStreetESSH,
+    TimesHomelessPastThreeYears, MonthsHomelessPastThreeYears, DisablingCondition
+  )
 
-system_person_ages <- EnrollmentAdjustAge %>%
+# Free raw Enrollment table immediately
+rm(Enrollment)
+
+# --- Early Exit Checks ---
+if (fnrow(enrollment_prep) == 0) {
+  stop("No active/participating enrollment records found.")
+}
+
+if (allv(enrollment_prep$ProjectType, 12)) {
+  logToConsole(session, "Only HP enrollments found - skipping System Performance")
+  stop("Only HP enrollments found - skipping System Performance")
+}
+
+
+
+# 2. Derive system_person_ages directly from enrollment_prep (summarised to 1 row per person)
+system_person_ages <- enrollment_prep %>%
   fgroup_by(PersonalID) %>%
-  fmutate(AgeAtEntry = fmax(AgeAtEntry, na.rm = TRUE)) %>%
-  fungroup() %>%
+  fsummarise(MostRecentAgeAtEntry = fmax(AgeAtEntry)) %>%
   fmutate(
     AgeCategory = factor(fcase(
-      AgeAtEntry < 0, "Unknown",
-      between(AgeAtEntry, 0, 12), "0 to 12",
-      between(AgeAtEntry, 13, 17), "13 to 17",
-      between(AgeAtEntry, 18, 21), "18 to 21",
-      between(AgeAtEntry, 22, 24), "22 to 24",
-      between(AgeAtEntry, 25, 34), "25 to 34",
-      between(AgeAtEntry, 35, 44), "35 to 44",
-      between(AgeAtEntry, 45, 54), "45 to 54",
-      between(AgeAtEntry, 55, 64), "55 to 64",
-      between(AgeAtEntry, 65, 74), "65 to 74",
-      AgeAtEntry >= 75, "75 and older",
-      default = "Unknown"),
-      levels = c(
-        "0 to 12",
-        "13 to 17",
-        "18 to 21",
-        "22 to 24",
-        "25 to 34",
-        "35 to 44",
-        "45 to 54",
-        "55 to 64",
-        "65 to 74",
-        "75 and older",
-        "Unknown"
-      ))
-  ) %>%
-  fselect(PersonalID, MostRecentAgeAtEntry = AgeAtEntry, AgeCategory)
-
+      MostRecentAgeAtEntry < 0, "Unknown",
+      between(MostRecentAgeAtEntry, 0, 12), "0 to 12",
+      between(MostRecentAgeAtEntry, 13, 17), "13 to 17",
+      between(MostRecentAgeAtEntry, 18, 21), "18 to 21",
+      between(MostRecentAgeAtEntry, 22, 24), "22 to 24",
+      between(MostRecentAgeAtEntry, 25, 34), "25 to 34",
+      between(MostRecentAgeAtEntry, 35, 44), "35 to 44",
+      between(MostRecentAgeAtEntry, 45, 54), "45 to 54",
+      between(MostRecentAgeAtEntry, 55, 64), "55 to 64",
+      between(MostRecentAgeAtEntry, 65, 74), "65 to 74",
+      MostRecentAgeAtEntry >= 75, "75 and older",
+      default = "Unknown"
+    ),
+    levels = c(
+      "0 to 12", "13 to 17", "18 to 21", "22 to 24", "25 to 34",
+      "35 to 44", "45 to 54", "55 to 64", "65 to 74", "75 and older", "Unknown"
+    ))
+  )
 
 # Client-level flags ------------------------------------------------------
 # will help us categorize people for filtering
@@ -262,34 +287,8 @@ session$userData$client_categories <- qDT(Client) %>%
   )
 session$userData$client_categories[, (race_cols) := NULL]
 
-# Data prep ---------------------------------------------------------------
 
-# using EnrollmentAdjust because that df doesn't contain enrollments that fall
-# outside periods of operation/participation
-enrollment_prep <- EnrollmentAdjustAge %>%
-  fselect(EnrollmentID,
-         PersonalID,
-         ProjectID,
-         ProjectType,
-         HouseholdID,
-         HouseholdType,
-         EntryDate,
-         MoveInDateAdjust,
-         ExitDate,
-         ExitAdjust,
-         Destination,
-         AgeAtEntry,
-         RelationshipToHoH,
-         LivingSituation,
-         RentalSubsidyType,
-         LengthOfStay,
-         LOSUnderThreshold,
-         PreviousStreetESSH,
-         DateToStreetESSH,
-         TimesHomelessPastThreeYears,
-         MonthsHomelessPastThreeYears,
-         DisablingCondition
-         ) %>%
+enrollment_prep <- enrollment_prep %>%
   join(Project %>% 
               fselect(ProjectID,
                      ProjectName,
@@ -307,18 +306,11 @@ enrollment_prep <- EnrollmentAdjustAge %>%
   #             select(EnrollmentID, DomesticViolenceSurvivor, CurrentlyFleeing),
   #           by = "EnrollmentID") %>%
   join(system_person_ages, on = "PersonalID") %>%
-  fsubset(ContinuumProject == 1 & EntryDate < coalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
+  fsubset(ContinuumProject == 1 & EntryDate < fcoalesce(ExitDate, no_end_date)) %>% # exclude impossible enrollments
   fselect(-ContinuumProject)
 
 if(fnrow(enrollment_prep) == 0)
   stop("No valid Continuum records in enrollment_prep")
-
-# IMPORTANT: ^ same granularity as EnrollmentAdjust! A @TEST here might be to
-# check that
-# enrollment_prep %>%
-#   nrow() == EnrollmentAdjust %>% filter(ContinuumProject == 1) %>% nrow()
-# This aims to add demographic data that lives in various other tables added
-# to the enrollment data *without changing the granularity*
 
 # corrected hohs ----------------------------------------------------------
 
@@ -349,7 +341,6 @@ enrollment_prep_hohs <- enrollment_prep %>%
   join(hh_adjustments, on = 'EnrollmentID', how='left') %>%
   colorder(RelationshipToHoH, CorrectedHoH, pos = 'after')
 
-# (^ also same granularity as EnrollmentAdjust)
 rm(hh_adjustments)
 
 # Full Enrollment-level Data Prep ----------------------------------------------
@@ -486,13 +477,27 @@ enrollment_categories <- enrollment_categories %>%
 # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
 # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
 session$userData$lh_info <- enrollment_categories %>%
-  join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
-  join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  join(
+    lh_cls %>% frename(InformationDate = lh_date),
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
+  join(
+    Services %>% 
+      fselect(EnrollmentID, lh_date_s = DateProvided) %>%
+      funique(), 
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
   fmutate(
     lh_date = fcoalesce(lh_date, lh_date_s),
     non_exit_lh_in_report = 
       ((EntryDate + days_lh_valid) %between% list(session$userData$ReportStart, session$userData$ReportEnd) & lh_prior_livingsituation) |
       (lh_date + days_lh_valid) %between% list(session$userData$ReportStart, session$userData$ReportEnd)
+  ) %>%
+  fsubset(
+    ((lh_date + days_lh_valid) >= (session$userData$ReportStart %m-% years(2)) &
+      lh_date <= session$userData$ReportEnd) | is.na(lh_date)
   ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(exit_is_only_lh = !any(non_exit_lh_in_report, na.rm=TRUE)) %>%
@@ -712,13 +717,27 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
 # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
 # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
 session$userData$lh_info_prev <- enrollment_categories_prev %>%
-  join(lh_cls %>% frename(InformationDate = lh_date) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
-  join(Services %>% fselect(EnrollmentID, lh_date_s = DateProvided) %>% funique(), on="EnrollmentID", multiple =TRUE) %>%
+  join(
+    lh_cls %>% frename(InformationDate = lh_date),
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
+  join(
+    Services %>% 
+      fselect(EnrollmentID, lh_date_s = DateProvided) %>%
+      funique(), 
+    on="EnrollmentID", 
+    multiple =TRUE
+  ) %>%
   fmutate(
     lh_date = fcoalesce(lh_date, lh_date_s),
     non_exit_lh_in_report = 
       ((EntryDate + days_lh_valid) %between% list(startDatePrev, endDatePrev) & lh_prior_livingsituation) |
       (lh_date + days_lh_valid) %between% list(startDatePrev, endDatePrev)
+  ) %>%
+  fsubset(
+    ((lh_date + days_lh_valid) >= (startDatePrev %m-% years(2)) & lh_date <= endDatePrev) | 
+      is.na(lh_date)
   ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(exit_is_only_lh = !any(non_exit_lh_in_report, na.rm=TRUE)) %>%

@@ -27,14 +27,17 @@ library(readxl)
 library(ggnewscale) # used for applying pattern fills to sankey charts
 library(brandr) # used for extracting style info from brand.yml file
 
-options(shiny.maxRequestSize = 232783872) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
+options(shiny.maxRequestSize = 250 * 1024^2) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
 options(shiny.fullstacktrace = TRUE)
 options(shiny.stacktraceon = TRUE)
 options(BRANDR_BRAND_YML = here::here("_brand.yml"))
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE)
 
 # source files in /util that end with .R or .r
-for(f in dir("./util")[grepl(".R$|.r$", dir("./util"))]) { source(here("util", f)) }
+# except for Construct FSA Specs, since that relies on an external xlsx file 
+utils_to_load <- dir("./util")[grepl(".R$|.r$", dir("./util"))]
+utils_to_load <- setdiff(utils_to_load, "construct_specs_data.R")
+for(f in utils_to_load) { source(here("util", f)) }
 
 if(dir.exists(METADATA_PATH)) {
   capture.output("All good", file = stderr())
@@ -45,7 +48,7 @@ if(dir.exists(METADATA_PATH)) {
 # Asynchronous processing, using mirai, of DQ and PDDE to save time------
 # for a single user and multiple users
 # Create DQ and PDDE script environment
-daemons(1, output = TRUE)
+mirai::daemons(1, output = TRUE)
 mirai::everywhere({
   library(data.table)
   library(tidyverse)
@@ -59,6 +62,9 @@ mirai::everywhere({
   # source non-ui R files in /util 
   source(here("util","hardcodes.R"))
   source(here("util","helper_functions.R"))
+  source(here("util","machine_readable_specs_helpers.R"))
+  
+  load_specs()
   
   set_collapse(na.rm = TRUE, verbose = FALSE) # suppress join printouts
 })
@@ -79,3 +85,5 @@ bslib_eva_theme <- bs_theme(
   "modal-content-bg" = "white",
   font_scale = 0.875 # units are rem, 1rem = 16px
 )
+
+load_specs()

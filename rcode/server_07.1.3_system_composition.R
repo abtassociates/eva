@@ -72,6 +72,13 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, peo
     suppress_values("n") %>%
     suppress_next_val_if_one_suppressed_in_group(selection, "n")
   
+  validate(
+    need(
+      fsum(plot_df$n) > 0,
+      message = all_data_suppressed_msg
+    )
+  )
+  
   return(
     ggplot(plot_df  %>% fmutate(n= ifelse(is.na(n) & wasRedacted, 0, n)), aes("", .data[[selection]])) +
       # main data into cells for each cross-combination
@@ -148,6 +155,15 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, p
       unname(var_cols[[selections[2]]])
     ) %>%
     funique()
+  
+  shinyjs::toggle(
+    "sys_comp_download_btn",
+    condition = nrow(comp_df) > 10
+  )
+  shinyjs::toggle(
+    "sys_comp_download_btn_ppt",
+    condition = nrow(comp_df) > 10
+  )
   
   validate(
     need(
@@ -237,6 +253,12 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, p
     suppress_next_val_if_one_suppressed_in_group(selections[1], "n") %>%
     suppress_next_val_if_one_suppressed_in_group(selections[2], "n")
   
+  validate(
+    need(
+      fsum(plot_df$n) > 0,
+      message = all_data_suppressed_msg
+    )
+  )
   
   g <- ggplot(plot_df %>% fmutate(n = ifelse(is.na(n) & wasRedacted, 0, n)), aes(.data[[selections[1]]], .data[[selections[2]]])) +
     # main data into cells for each cross-combination
@@ -506,7 +528,7 @@ get_people_universe_filtered <- reactive({
       ProjectType %in% c(ph_project_types, lh_project_types_nonbn) | # defintiionally active the whole time
       EntryDate + days_lh_valid >= session$userData$ReportStart | # (active) entry in period
       (!Destination %in% other_livingsituation & !is.na(Destination)) |  # active exit
-      lh_date >= session$userData$ReportStart | lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
+      lh_date + days_lh_valid >= session$userData$ReportStart # active LH date in period
     )) %>%
     fselect(PersonalID) %>%
     funique()
