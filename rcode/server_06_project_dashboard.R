@@ -164,7 +164,7 @@ clean_timeliness_df <- function(tl_df, record_type, orgList = unique(client_coun
 get_project_dashboard_download_info <- function(orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
   logToConsole(session, "in get_project_dashboard_download_info")
-   client_counts_metadata <- data.table(
+  client_counts_metadata <- data.table(
     Chart = c(
       "Export Date",
       "Export Start",
