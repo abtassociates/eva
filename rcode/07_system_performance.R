@@ -589,27 +589,6 @@ session$userData$enrollment_categories <- enrollment_categories %>%
 # (a) unsheltered, (b) sheltered, or (c) both types of enrollments within a specific period
 
 
-homeless_type <- session$userData$enrollment_categories %>% 
-    fsubset(
-      ProjectType != hp_project_type &
-        EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
-    ) %>%
-  fgroup_by(PersonalID) %>%
-  fsummarize(
-    ## full period
-    HomelessnessType= fcase(
-      (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
-      fsum(unsheltered) > 0, 'Unsheltered',
-      fsum(sheltered) > 0, 'Sheltered',
-      (fsum(permanent_housing) > 0) & (fsum(unsheltered) == 0) & (fsum(sheltered) == 0), 'PH Only',
-      default='Other'
-    )
-  ) |>
-  fungroup() 
-
-session$userData$client_categories <- session$userData$client_categories %>%
-  join(homeless_type, on='PersonalID')
-
 # Force run/calculate period_specific_data reactive
 # Better to do it up-front than while charts are loading
 period_specific_data()

@@ -63,47 +63,49 @@ unsh_enrollments_filtered <- reactive({
 # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
 
 unsh_pit_dates <- reactive({
-  lastday <- as.Date(session$userData$ReportEnd)
-  y_last <- year(lastday)
-  
-  q1_PIT <- as.Date(fifelse( last_wednesday(y_last, 1) <= lastday, # if lastday is after the current year's 1st quarter,
-                             last_wednesday(y_last,1), # use last wednesday of this january
-                             last_wednesday(y_last-1,1))) # else use last wednesday of last january
-  q2_PIT <- as.Date(fifelse( last_wednesday(y_last, 4) <= lastday, # if lastday is after the current year's 2nd quarter,
-                             last_wednesday(y_last,4), # use last wednesday of this april
-                             last_wednesday(y_last-1,4))) # else use last wednesday of last april
-  q3_PIT <- as.Date(fifelse( last_wednesday(y_last, 7) <= lastday, # if lastday is after the current year's 3rd quarter,
-                             last_wednesday(y_last,7), # use last wednesday of this july
-                             last_wednesday(y_last-1,7))) # else use last wednesday of last july
-  q4_PIT <- as.Date(fifelse( last_wednesday(y_last, 10) <= lastday, # if lastday is after the current year's 4th quarter,
-                             last_wednesday(y_last,10), # use last wednesday of this october
-                             last_wednesday(y_last-1,10))) # else use last wednesday of last october
-  
-  c(q1_PIT, q2_PIT, q3_PIT, q4_PIT)
+ get_pits(session) %>% sort()
 })
 
-unsh_pit_df <- reactive({
-  pit_dates <- get_pits(session)
-  enrl <- unsh_enrollments_filtered() #%>% #unsh_enrollments_filtered() %>% 
-  #fselect(-HomelessnessType) %>% 
-  # fsubset(
-  #   ProjectType != hp_project_type &
-  #     EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
-  # )
-  joined <- unsh_client_categories_filtered() %>% #unsh_client_enrl_filt() %>% 
-    join(
-      calc_homeless_type(enrl,session$userData$lh_info, pit_dates[1], pit_dates[1]) %>%  frename(homeless_at_pit1 = HomelessnessType), how='left'
-    ) %>% 
-    join(
-      calc_homeless_type(enrl, session$userData$lh_info, pit_dates[2], pit_dates[2]) %>% frename(homeless_at_pit2 = HomelessnessType), how='left') |> 
-    join( 
-      calc_homeless_type(enrl, session$userData$lh_info, pit_dates[3], pit_dates[3]) |> frename(homeless_at_pit3 = HomelessnessType), how='left') |> 
-    join(
-      calc_homeless_type(enrl, session$userData$lh_info, pit_dates[4], pit_dates[4])|> frename(homeless_at_pit4 = HomelessnessType), how='left')
+calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=NULL){
+  if(!is.null(cond)){
+    fcase(
+      (fsum(cond & unsheltered) > 0) & (fsum(cond & sheltered) > 0), 'Both',
+      fsum(cond & unsheltered) > 0, 'Unsheltered',
+      fsum(cond & sheltered) > 0, 'Sheltered',
+      (fsum(cond & permanent_housing) > 0) & (fsum(cond & unsheltered) == 0) & (fsum(cond & sheltered) == 0), 'PH Only',
+      default='Other'
+    )
+  } else {
+    fcase(
+      (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
+      fsum(unsheltered) > 0, 'Unsheltered',
+      fsum(sheltered) > 0, 'Sheltered',
+      (fsum(permanent_housing) > 0) & (fsum(unsheltered) == 0) & (fsum(sheltered) == 0), 'PH Only',
+      default='Other'
+    )
+  }
   
+}
+
+unsh_pit_df <- reactive({
+
+  joined <- unsh_client_enrl_filt() %>% #enrl_sub %>% 
+    fmutate(active_at_pit1 = unsh_pit_dates()[1] %between% list(active_start, active_end),
+            active_at_pit2 = unsh_pit_dates()[2] %between% list(active_start, active_end),
+            active_at_pit3 = unsh_pit_dates()[3] %between% list(active_start, active_end),
+            active_at_pit4 = unsh_pit_dates()[4] %between% list(active_start, active_end)) %>% 
+    fgroup_by(PersonalID) %>%
+    fsummarize( 
+      homeless_at_pit1 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit1),
+      homeless_at_pit2 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit2),
+      homeless_at_pit3 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit3),
+      homeless_at_pit4 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit4)
+    ) 
+    
   joined %>% 
-    fselect(PersonalID, homeless_full_period = HomelessnessType, homeless_at_pit1:homeless_at_pit4) %>% 
-    pivot(ids=1,how='longer', values=2:6, names=list('period','homeless_type'))
+    fselect(PersonalID, #homeless_type_full_period, 
+            homeless_at_pit1:homeless_at_pit4) %>% 
+    pivot(ids=1,how='longer', values=2:5, names=list('period','homeless_type'))
   
 })
 
@@ -117,12 +119,27 @@ unsh_level_of_detail_text <- reactive({
 })
 
 unsh_client_enrl_filt <- reactive({
-  join( 
-    unsh_client_categories_filtered(),
-    unsh_enrollments_filtered(),
-    on = "PersonalID",
-    how = "inner"
+ 
+  enrl <- unsh_enrollments_filtered()  
+  
+  active_enrl <- get_active_spans(enrl,enrl, 
+                                  session$userData$lh_info, session$userData$ReportStart, session$userData$ReportEnd)
+   enrl_filt <- join(enrl, active_enrl, how='left') %>% 
+    fsubset(active_in_full_period) %>% 
+    fsubset(
+      ProjectType != hp_project_type &
+        EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
+    ) %>% 
+    fgroup_by(PersonalID) %>%
+    fmutate( 
+      homeless_type_full_period = calc_homeless_type2(unsheltered, sheltered, permanent_housing)
+    ) %>% 
+    fungroup()
+  
+  join(unsh_client_categories_filtered(),
+       enrl_filt, on = 'PersonalID', how='inner'
   )
+  
 })
 
 output$unsh_dist_filter_selections <-renderUI({ 
@@ -154,15 +171,15 @@ output$unsh_dist_chart <- renderPlot({
   
   ## client level counts and %ages of HomelessnessType
   tree_unsh_data <-  unsh_client_enrl_filt() %>% 
-    fsubset(!is.na(HomelessnessType) & HomelessnessType != 'PH Only') %>% 
-    fcount(HomelessnessType, name='Count') %>% 
+    fsubset(!is.na(homeless_type_full_period) & homeless_type_full_period != 'PH Only') %>% 
+    fcount(homeless_type_full_period, name='Count') %>% 
     fmutate(Percent = Count/fsum(Count),
-          label = str_c(HomelessnessType, ': ', scales::label_comma()(Count),
+          label = str_c(homeless_type_full_period, ': ', scales::label_comma()(Count),
                         ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
           ))
   
   #if(show_legend == FALSE){
-    ggplot(tree_unsh_data, aes(area = Count, fill = HomelessnessType,
+    ggplot(tree_unsh_data, aes(area = Count, fill = homeless_type_full_period,
                                 label = label, subgroup = border_color) )+
       labs(title = paste0("Total ",
                           unsh_level_of_detail_text(), " in ",
@@ -200,10 +217,9 @@ output$unsh_demog_chart <- renderPlot({
       no_valid_data_msg
     )
   )
-  
-  demog_unsh_data <- unsh_client_categories_filtered() %>% 
+  demog_unsh_data <-unsh_client_enrl_filt() %>% #unsh_client_categories_filtered() %>% 
     ## universe for this chart is clients with Unsheltered or Both enrollments
-    fsubset(!is.na(HomelessnessType) & !(HomelessnessType %in% c('Sheltered','PH Only'))) #%>% 
+    fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only'))) #%>% 
    
   if(length(input$unsh_demog_selections) == 1) {
     sys_comp_plot_1var(subtab = 'unsh', 
@@ -253,9 +269,9 @@ output$unsh_demog_filter_selections <-renderUI({
 output$unsh_flow_chart <- renderPlot({
   req(session$userData$valid_file() == 1 )
   
-  unsh_client_categories_filtered() %>% 
+  unsh_client_enrl_filt() %>% 
     ## universe for this chart is clients with Unsheltered or Both enrollments
-    fsubset(!is.na(HomelessnessType) & !(HomelessnessType %in% c('Sheltered','PH Only'))) 
+    fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only'))) 
 })
 
 unsh_pit_counts <- reactive({
@@ -276,19 +292,23 @@ unsh_pit_counts <- reactive({
   
   ## need to account for homelessnesstype changing at each pit date before counting
   counts_df <- unsh_pit_df() %>% 
-    fsubset(!is.na(homeless_type) & homeless_type != 'PH Only' & period != 'homeless_full_period') %>% 
-    fmutate(homeless_type = ifelse(homeless_type == 'Both' & period != 'homeless_full_period', 'Sheltered',homeless_type)) %>% 
+    fsubset(!is.na(homeless_type) & homeless_type != 'PH Only' & homeless_type != 'Other') %>% 
+    fmutate(homeless_type = ifelse(homeless_type == 'Both', 'Sheltered',homeless_type)) %>% 
     fgroup_by(period, homeless_type) %>%  
-    fsummarize(n = GRPN()) %>% fungroup() %>% 
-    pivot_wider(id_cols='homeless_type',names_from='period', values_from='n')
-  
+    fsummarize(n = GRPN()) %>% 
+    fungroup() 
+  counts_df  
 })
 
 output$unsh_pit_table <- renderDT({
   req(session$userData$valid_file() == 1)
 
-  datatable(unsh_pit_counts(), options = list(dom='t', ordering = FALSE), style='default',
-            colnames = c('', format(unsh_pit_dates(),'%m/%d/%Y')),
+  pit_dt_df <- unsh_pit_counts() %>% 
+    pivot_wider(id_cols='homeless_type',names_from='period', values_from='n') %>% 
+    setNames(c(' ',format(unname(unsh_pit_dates()), '%m/%d/%Y') ))
+    
+  datatable(pit_dt_df, 
+            options = list(dom='t', ordering = FALSE), style='default',
             filter = 'none', selection='none', rownames = FALSE)
   
 })
@@ -297,12 +317,7 @@ output$unsh_pit_table <- renderDT({
 output$unsh_pit_chart <- renderPlot({
   req(session$userData$valid_file() == 1)
   
-  unsh_pit_df() %>% 
-    fsubset(!is.na(homeless_type) & homeless_type != 'PH Only' & period != 'homeless_full_period') %>% 
-    fmutate(homeless_type = ifelse(homeless_type == 'Both' & period != 'homeless_full_period', 'Sheltered',homeless_type)) %>% 
-    fgroup_by(period, homeless_type) %>%  
-    fsummarize(n = GRPN()) %>% fungroup() %>% 
-    ggplot(aes(x=period, fill=factor(homeless_type),y=n)) +
+  ggplot(unsh_pit_counts(), aes(x=period, fill=factor(homeless_type), y=n)) +
     geom_bar(stat='identity', position='dodge') +
     scale_fill_manual(values=unsh_colors) +
     scale_y_continuous(limits=c(0, NA), expand = expansion(mult=c(0,0.1),add=0)) +
