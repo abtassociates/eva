@@ -35,7 +35,11 @@ if (fnrow(enrollment_prep) == 0) {
 if (allv(enrollment_prep$ProjectType, 12)) {
   logToConsole(session, "Only HP enrollments found - skipping System Performance")
   stop("Only HP enrollments found - skipping System Performance")
-}
+} #else if(){
+  #nav_show(id = 'pageid', target = "menuSysPerf", session = session)
+  #nav_hide(id = 'pageid', target = 'tabUnsheltered', session = session)
+#  setProgress(detail = "Preparing System Overview Data", value = .85)
+#}
 
 
 
