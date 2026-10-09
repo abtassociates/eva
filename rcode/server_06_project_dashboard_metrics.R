@@ -842,34 +842,18 @@ get_metric_specific_datasets <- function(latest_enrollments) {
   
   income_growth_dt <- get_growth_dt(session$userData$IncomeBenefits, "TotalMonthlyIncome")
   
-  # TO EXCLUDE:
-  # - CEParticipation.AccessPoint == 0
-  # - AssessmentDate not within project’s CE Participation Period
-  # - ProjectID not found in CEParticipation.csv
-  ce_assessments_dt <- session$userData$CEParticipation |>
-    join(
-      latest_enrollments |> 
-        fsubset(
-          RelationshipToHoH == 1,
-          EnrollmentID, ProjectID, ProjectType, HHTypeAtReportStart
-        ),
-      on = "ProjectID",
-      how = "inner",
-      column = TRUE
-    ) |>
-    join(
-      session$userData$Assessment |> fselect(AssessmentID, EnrollmentID, AssessmentDate), 
-      on = "EnrollmentID"
-    ) |>
-    fmutate(
-      nmiss = AccessPoint == 0 | 
-        !AssessmentDate %inrange% list(CEParticipationStatusStartDate, CEParticipationStatusEndDate) |
-        .join == "CEParticipation"
-    ) |>
+  ce_assessed_enrls <- with(
+    session$userData$Assessment, 
+    EnrollmentID[AssessmentDate %between% input$dateRangeCount]
+  ) |> funique()
+  
+  ce_assessments_dt <- latest_enrollments |>
     fsubset(
-      ProjectType == ce_project_type | AssessmentDate %in% input$dateRangeCount,
-      EnrollmentID, ProjectID, HHTypeAtReportStart, nmiss
-    )
+      EnrollmentID %in% ce_assessed_enrls, 
+      HouseholdID, ProjectID, HHTypeAtReportStart
+    ) |>
+    funique()
+  rm(ce_assessed_enrls)
   
   cls_records_dt <- session$userData$CurrentLivingSituation |>
     fselect(EnrollmentID) |>
