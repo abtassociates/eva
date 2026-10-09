@@ -960,7 +960,6 @@ add_response_val_detail <- function(df, ...) {
   df %>% fmutate(Detail = details)
 }
 
-
 # Memory tracking
 get_rss <- function() {
   status <- readLines("/proc/self/status")

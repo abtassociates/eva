@@ -249,6 +249,5 @@ populate_client_level_export <- function(type = 'syso', file){
   # Create a named list of arguments and pass to do.call
   args <- setNames(list(summarize_df(client_level_details)), dname)
   do.call(exportTestValues, args)
-  
 }
 #source(here("sandbox/timeline_viewer.R"), local=TRUE)

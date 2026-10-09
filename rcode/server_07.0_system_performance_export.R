@@ -88,15 +88,12 @@ sys_export_summary_initial_df <- function(type = 'overview') {
 
 sys_export_filter_selections <- function(type = 'overview') {
   
-  if(type == 'exits_subpop'){
-    selections <- tibble(
-      Chart = c('Subpopulation Age', 'Subpopulation Veteran Status', 'Subpopulation Race/Ethnicity')
-    )
-  } else {
-    selections <- tibble(
-      Chart = c('Age', 'Veteran Status', 'Race/Ethnicity')
-    )
-  }
+  selections <- tibble(
+    Chart = if(type == 'exits_subpop')
+      c('Subpopulation Age', 'Subpopulation Veteran Status', 'Subpopulation Race/Ethnicity')
+    else
+      c('Age', 'Veteran Status', 'Race/Ethnicity')
+  )
   
   values <- switch(type,
                    'overview' = c(
@@ -402,17 +399,48 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
   # 1. Evaluate active selections
   selected_reports <- reactive({
     sel <- list()
+    valid_map <- subtab_validity()
+    
     for (item in export_config) {
       input_id <- get_sys_export_id(id_prefix, item)
-      if (isTRUE(input[[input_id]]))
+      val_key  <- get_val_key_from_id(input_id)
+      is_valid <- is.null(val_key) || isTRUE(valid_map[[val_key]])
+      
+      # Must be checked AND valid
+      if (isTRUE(input[[input_id]]) && is_valid) {
         sel[[length(sel) + 1]] <- list(
           name = item$name, 
-          gen = item$gen, # func name found in hardcodes.R, individual funcs found in respective _server.R scripts
-          ext = item$ext
+          gen  = item$gen,
+          ext  = item$ext
         )
+      }
     }
     sel
   })
+    
+  observe({
+    req(session$userData$valid_file() == 1)
+    valid_map <- subtab_validity()
+    
+    for (val in names(sys_perf_validations[[id_prefix]])) {
+      is_valid <- isTRUE(valid_map[[val]])
+      
+      pptx_chk_id <- paste0(id_prefix, "_export_", val, "_pptx")
+      xlsx_chk_id <- paste0(id_prefix, "_export_", val, "_xlsx")
+      
+      updateCheckboxInput(session, pptx_chk_id, value = is_valid)
+      updateCheckboxInput(session, xlsx_chk_id, value = is_valid)
+      
+      shinyjs::toggleState(pptx_chk_id, condition = is_valid)
+      shinyjs::toggleState(xlsx_chk_id, condition = is_valid)
+    }
+    
+    # Disable Master checkboxes if ALL reports in this tab are invalid
+    any_valid <- any(unlist(valid_map))
+    shinyjs::toggleState(paste0(id_prefix, "_export_all_pptx"), condition = any_valid)
+    shinyjs::toggleState(paste0(id_prefix, "_export_all_xlsx"), condition = any_valid)
+  })
+  
   
   # 2. Unified download handler
   output[[output_id]] <- downloadHandler(
@@ -470,7 +498,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
   master_to_sub_cascade <- function(ext) {
     master_id <- paste0(id_prefix, "_export_all_", ext)
     sub_ids <- get_sub_checkbox_ids(ext)
-    
+
     observeEvent(c(input[[master_id]], syse_subpop_selections(), input$syse_subpop_hh_type), {
       req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
       
@@ -480,30 +508,81 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
         return()
       }
       
-      has_subpops <- length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
-      for(id in sub_ids) {
-        if(grepl("syse_export_subpop_", id) && !has_subpops)
+      valid_map <- subtab_validity()
+      target    <- isTRUE(input[[master_id]])
+      
+      has_subpops <- if (id_prefix == "syse") {
+        length(syse_subpop_selections()) > 0 || input$syse_subpop_hh_type != 'All'
+      } else {
+        TRUE
+      }
+      
+      for (id in sub_ids) {
+        val_key  <- get_val_key_from_id(id)
+        is_valid <- is.null(val_key) || isTRUE(valid_map[[val_key]])
+        
+        # Handle Exits Subpop special condition
+        if (id_prefix == "syse" && grepl("syse_export_subpop_", id) && !has_subpops) {
           updateCheckboxInput(session, id, value = FALSE)
-        else
-          updateCheckboxInput(session, id, value = input[[master_id]])
+        } else if (is_valid) {
+          # ONLY check/uncheck if the subtab data is VALID
+          updateCheckboxInput(session, id, value = target)
+        } else {
+          # If invalid, ensure it remains FALSE
+          updateCheckboxInput(session, id, value = FALSE)
+        }
       }
     })
   }
   
+  
   sub_to_master_cascade <- function(ext) {
     master_id <- paste0(id_prefix, "_export_all_", ext)
-    sub_ids <- get_sub_checkbox_ids(ext)
+    sub_ids   <- get_sub_checkbox_ids(ext)
     
     observeEvent(lapply(sub_ids, \(id) input[[id]]), {
-      req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
+      req(session$userData$valid_file() == 1)
       
-      all_checked <- all(vapply(sub_ids, \(id) isTRUE(input[[id]]), logical(1)))
+      valid_map <- subtab_validity()
+      
+      # Filter to only sub-checkboxes that are currently VALID
+      valid_sub_ids <- Filter(function(id) {
+        val_key <- get_val_key_from_id(id)
+        is.null(val_key) || isTRUE(valid_map[[val_key]])
+      }, sub_ids)
+      
+      if (length(valid_sub_ids) == 0) {
+        all_checked <- FALSE
+      } else {
+        all_checked <- all(vapply(valid_sub_ids, \(id) isTRUE(input[[id]]), logical(1)))
+      }
       
       if (!is.null(input[[master_id]]) && isTRUE(input[[master_id]]) != all_checked) {
-        updating[[ext]] <- TRUE # Raise flag before programmatic update
+        updating[[ext]] <- TRUE
         updateCheckboxInput(session, master_id, value = all_checked)
       }
     })
+  }
+  
+  # Reactive validity map for this prefix (returns list(demo = TRUE, flow = FALSE, ...))
+  subtab_validity <- reactive({
+    req(session$userData$valid_file() == 1)
+    
+    res <- list()
+    for (val in names(sys_perf_validations[[id_prefix]])) {
+      r_names <- sys_perf_validations[[id_prefix]][[val]]
+      val_results <- lapply(r_names, function(name) get(name)())
+      res[[val]] <- all(sapply(val_results, function(v) isTRUE(v$valid)))
+    }
+    res
+  })
+  
+  # Helper to find which validation key a checkbox belongs to
+  get_val_key_from_id <- function(sub_id) {
+    for (k in names(sys_perf_validations[[id_prefix]])) {
+      if (grepl(paste0("_export_", k, "_"), sub_id)) return(k)
+    }
+    return(NULL)
   }
   
   # Toggle sub-checkboxes when master is checked

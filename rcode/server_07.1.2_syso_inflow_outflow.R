@@ -417,12 +417,8 @@ get_syso_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
   
   total_clients <- df[InflowOutflow == "Inflow", sum(N)]
 
-  validate(
-    need(
-      total_clients > 10,
-      message = suppression_msg
-    )
-  )
+  enough_data <- total_clients > 10
+  validate(need(enough_data, message = suppression_msg))
 
   # Order: Housed (start), Homeless (start), Inflow, Outflow, Homeless (end), Housed
   df <- df %>%
@@ -570,19 +566,8 @@ renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
   output[[chart_id]] <- renderPlot({
       req(session$userData$valid_file() == 1)
       
-      validate(
-        need(
-          fnrow(session$userData$enrollment_categories) > 0,
-          no_valid_data_msg
-        )
-      )
-      
-      validate(
-        need(
-          nrow(get_inflow_outflow_full()) > 0,
-          message = no_data_msg
-        )
-      )
+      validate_chart(syso_chart_validation_flow())
+
       get_syso_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
@@ -759,7 +744,7 @@ get_syso_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
 }
 
 output$syso_inflow_outflow_monthly_ui_chart <- renderPlot({
-  monthly_chart_validation()
+  validate_chart(syso_chart_validation_mbm())
   get_syso_inflow_outflow_monthly_plot()()
 })
 
@@ -1087,7 +1072,6 @@ get_syso_inflow_outflow_monthly_flextable <- function() {
 }
 
 output$syso_inflow_outflow_monthly_table <- renderDT({
-  monthly_chart_validation()
   get_syso_inflow_outflow_monthly_table()
 })
 
@@ -1135,41 +1119,15 @@ syso_monthly_single_status_ui_chart <- function(varname, status) {
     )
 }
 output$syso_inactive_monthly_ui_chart <- renderPlot({
-  monthly_chart_validation()
+  validate_chart(syso_chart_validation_mbm_inactive())
   syso_monthly_single_status_ui_chart("OutflowTypeDetail", "Inactive")
 })
 
 output$syso_fth_monthly_ui_chart <- renderPlot({
-  monthly_chart_validation()
+  validate_chart(syso_chart_validation_mbm_fth())
   syso_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
 })
 
-monthly_chart_validation <- function() {
-  logToConsole(session, "In monthly_chart_validation")
-  
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
-  
-  num_people <- fnunique(get_inflow_outflow_monthly()$PersonalID)
-  
-  validate(
-    need(
-      num_people > 0,
-      message = no_data_msg
-    )
-  )
-  
-  validate(
-    need(
-      num_people > 10,
-      message = suppression_msg
-    )
-  )
-}
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
 syso_inflow_outflow_totals <- reactive({
