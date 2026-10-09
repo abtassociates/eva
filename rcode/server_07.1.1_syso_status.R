@@ -138,6 +138,7 @@ output$syso_status_ui_chart <- renderPlot({
   validate_chart(syso_chart_validation_status())
   
   plot_data <- get_sankey_data()
+
   render_sankey_plot(plot_data)
 },
 alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",

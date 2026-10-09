@@ -22,7 +22,6 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 }
 
 get_syse_compare_time_data <- function(output_type = 'table'){
-
   prev_year <- everyone() %>% 
     fsubset(period == 'Previous Year')
   

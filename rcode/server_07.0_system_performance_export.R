@@ -495,20 +495,14 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
   }
   
   # Handle System Overview/System Exits exports
-  # This handles the toggling of the Check All Exports (by xlsx vs. pptx). 
-  # It's triggered by not only that checkbox itself, but also the 
-  # Exits by Subpop selectors (incl. HH Type) because that specific checkbox may 
-  # need to remain unchecked and disabled if no selectors are selected
-  # It's also triggered by the Universe Filters, because if not enough data to show, 
-  # then those exports should not be available
   master_to_sub_cascade <- function(ext) {
     master_id <- paste0(id_prefix, "_export_all_", ext)
     sub_ids <- get_sub_checkbox_ids(ext)
-                    
-    observeEvent(input[[master_id]], {
-      req(session$userData$valid_file() == 1)
+
+    observeEvent(c(input[[master_id]], syse_subpop_selections(), input$syse_subpop_hh_type), {
+      req(session$userData$valid_file() == 1, isTruthy(input$in_demo_mode))
       
-      # If the master changed because of a sub-checkbox update, reset and exit
+      # If the master changed because of a sub-checkbox update, reset the flag and exit
       if (updating[[ext]]) {
         updating[[ext]] <- FALSE
         return()
@@ -538,7 +532,7 @@ register_sys_export_server <- function(id_prefix, input, output, session) {
           updateCheckboxInput(session, id, value = FALSE)
         }
       }
-    }, priority = -1)
+    })
   }
   
   

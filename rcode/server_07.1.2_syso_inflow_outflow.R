@@ -565,10 +565,9 @@ get_syso_inflow_outflow_annual_plot <- function(id, isExport = FALSE) {
 renderInflowOutflowFullPlot <- function(chart_id, alt_text) {
   output[[chart_id]] <- renderPlot({
       req(session$userData$valid_file() == 1)
-      logToConsole(session, "rendering inflow outflow plot")
       
       validate_chart(syso_chart_validation_flow())
-      
+
       get_syso_inflow_outflow_annual_plot(chart_id)
     },
     alt = alt_text,
@@ -1128,6 +1127,7 @@ output$syso_fth_monthly_ui_chart <- renderPlot({
   validate_chart(syso_chart_validation_mbm_fth())
   syso_monthly_single_status_ui_chart("InflowTypeDetail", "First-Time Homeless")
 })
+
 
 # Info to include in Inflow/Outflow Exports -----------------------------------
 syso_inflow_outflow_totals <- reactive({

@@ -57,7 +57,7 @@ subpop_metadata_summary <- function() {
 
 subpop_chart_validation <- function(show = TRUE, req = FALSE) {
   logToConsole(session, "In subpop_chart_validation")
-
+  
   cond <- any(did_factors_change()) 
   
   ## whether to show validate message or not

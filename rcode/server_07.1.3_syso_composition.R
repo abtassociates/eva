@@ -97,7 +97,7 @@ output$syso_comp_summary_ui_chart <- renderPlot({
   )
   
   validate_chart(syso_chart_validation_comp())
-  
+
   syso_comp_plot(
     methodology_type = input$syso_methodology_type, 
     selections = input$syso_composition_selections, 

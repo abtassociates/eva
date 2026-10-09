@@ -157,6 +157,7 @@ output$syse_phd_chart_1d <- renderPlot({
         length(input$syse_phd_selections) == 1)
   
   validate_chart(syse_chart_validation_phd())
+
   syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
 }, height = 700, width = 500,
