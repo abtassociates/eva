@@ -63,16 +63,25 @@ create_phd_export_df <- function(plot_df_joined, plot_df_supp, selections) {
   return(export_df)
 }
 
+syse_phd_raw_exits <- reactive({
+  all_filtered_syse_demog() %>%
+    remove_non_applicables(selection = input$syse_phd_selections) %>% 
+    clean_comp_data(input$syse_methodology_type, input$syse_phd_selections)
+})
+syse_phd_ph_exits <- reactive({
+  all_filtered_syse_demog() %>%
+    fsubset(Destination %in% perm_livingsituation) %>%
+    remove_non_applicables(selection = input$syse_phd_selections) %>% 
+    clean_comp_data(input$syse_methodology_type, input$syse_phd_selections)
+})
 syse_phd_plot <- function(methodology_type, selections, isExport = FALSE) {
   logToConsole(session, paste0("In syse_phd_plot, where methodology_type = ", methodology_type, " and selections = ", selections, collapse = ", "))
   
   # 1. Prep Total Exits Universe
-  raw_exits <- all_filtered_syse_demog()
-  total_prep <- prepare_crosstab_data(raw_exits, selections, methodology_type, subtab = "exits")
+  total_prep <- prepare_crosstab_data(syse_phd_raw_exits(), selections, methodology_type, subtab = "exits")
   
   # 2. Prep Permanent Housing (PH) Exits Universe
-  ph_exits <- raw_exits %>% fsubset(Destination %in% perm_livingsituation)
-  ph_prep  <- prepare_crosstab_data(ph_exits, selections, methodology_type, subtab = "exits")
+  ph_prep  <- prepare_crosstab_data(syse_phd_ph_exits(), selections, methodology_type, subtab = "exits")
   
   # 3. Suppress Total Counts & Join with PH Counts
   plot_df_supp <- total_prep$plot_df %>% 
@@ -147,13 +156,8 @@ output$syse_phd_chart_1d <- renderPlot({
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 1)
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
-  
+  validate_chart(syse_chart_validation_phd())
+
   syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   
 }, height = 700, width = 500,
@@ -164,13 +168,6 @@ output$syse_phd_chart_2d <- renderCachedPlot({
   req(session$userData$valid_file() == 1 &
         !is.null(input$syse_phd_selections) &
         length(input$syse_phd_selections) == 2)
-  
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
   
   syse_phd_plot(input$syse_methodology_type, input$syse_phd_selections, isExport = FALSE)
   

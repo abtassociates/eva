@@ -108,7 +108,7 @@ syso_detailBox <- reactive({
 })
 
 
-toggle_sys_components(prefix = 'sys', FALSE, init=TRUE) # initially hide them
+toggle_sys_components(prefix = 'syso', FALSE, init=TRUE) # initially hide them
 
 #### FILTERS ###
 
