@@ -2,6 +2,10 @@
 # Eva Changelog
 ## 2026-10-01
 
+
+### New Features
+ - New comprehensive System Performance export interface.
+
 ### Bug Fixes
  - Updated "Head of Household Exited Before Other Household Members" check to account for cases where the HoH is the only exited household member for an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)
  - Adding table info and pagination controls to PDDE Summary table. Otherwise, will only show the first 10 issue types.
@@ -11,6 +15,7 @@
  - Fixed potential issue due to mishandling of nulls in System Exits by Time
  - Added validation for amount of data in System Overview Demographics chart. Avoids error when not enough data
  - Added new PDDE checks for projects with at least one inventory record where beds or units have a value of 0. (Issue <a href='https://github.com/abtassociates/eva/issues/1075' target ='_blank'>#1075</a>)
+ 
 
 
 ### Miscellaneous

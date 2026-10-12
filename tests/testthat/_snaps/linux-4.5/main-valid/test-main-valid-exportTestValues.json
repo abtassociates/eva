@@ -2457,237 +2457,479 @@
         "Max.": 137
       }
     },
-    "sys_comp_report_num_df": {
-      "All Races/Ethnicities": [
-        "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
-        "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/o",
-        "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/o",
-        "Hispanic/Latina/o alone",
-        "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/o",
-        "Multi-Racial (not Hispanic/Latina/o)",
-        "Multi-Racial & Hispanic/Latina/o",
-        "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
-        "White alone",
-        "White & Hispanic/Latina/o",
-        "Unknown",
-        "Total"
-      ],
-      "Veteran": [
-        16,
-        1,
-        0,
-        0,
-        85,
-        1,
-        0,
-        0,
-        0,
-        11,
-        2,
-        0,
-        0,
-        358,
-        19,
-        2,
-        495
-      ],
-      "Non-Veteran/Unknown": [
-        11,
-        5,
-        6,
-        0,
-        284,
-        7,
-        1,
-        0,
-        0,
-        63,
-        4,
-        0,
-        2,
-        1007,
-        54,
-        3,
-        1447
-      ],
-      "Total": [
-        27,
-        6,
-        6,
-        0,
-        369,
-        8,
-        1,
-        0,
-        0,
-        74,
-        6,
-        0,
-        2,
-        1365,
-        73,
-        5,
-        1942
-      ]
+    "syse_client_level_export_details": {
+      "PersonalID": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "AgeCategory": {
+        "0 to 12": 888,
+        "13 to 17": 264,
+        "18 to 21": 244,
+        "22 to 24": 186,
+        "25 to 34": 956,
+        "35 to 44": 947,
+        "45 to 54": 650,
+        "55 to 64": 561,
+        "65 to 74": 126,
+        "75 and older": 17,
+        "Unknown": 6
+      },
+      "VeteranStatus": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.05180598555211558,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AmIndAKNative": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.04540763673890609,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "Asian": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.009907120743034056,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BlackAfAmerican": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.3706914344685243,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "HispanicLatino": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.07946336429308566,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MidEastNAf": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacific": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.005985552115583075,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "White": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.6385964912280702,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "RaceEthnicityUnknown": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.004953560371517028,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AmIndAKNativeAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.01692466460268318,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AmIndAKNativeLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.003715170278637771,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AsianAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.0043343653250774,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AsianLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.001444788441692466,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BlackAfAmericanAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.299484004127967,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "BlackAfAmericanLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.009907120743034056,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.001857585139318886,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MidEastNAfricanAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "MidEastNAfricanLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacificAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.002889576883384933,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "NativeHIPacificLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.000412796697626419,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "WhiteAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.519298245614035,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "WhiteLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.05737874097007224,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MultipleNotLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.07265221878224974,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MultipleLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.004747162022703818,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BILPOCMethod1Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.4757481940144479,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "WhiteMethod1Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.519298245614035,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "AmIndAKNativeMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.04540763673890609,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AsianMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.009907120743034056,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BlackAfAmericanMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.3706914344685243,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "LatinoMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.07946336429308566,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MidEastNAfricanMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacificMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.005985552115583075,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "WhiteMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.6385964912280702,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "BlackAfAmericanLatinoMethod2Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.01362229102167183,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoMethod2Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.07946336429308566,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoAloneMethod2Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.001857585139318886,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "Earliest-ReportStatus": {
+        "Active at Start": 594,
+        "Inflow": 4251,
+        "Continuous at Start": 0,
+        "Unknown": 0,
+        "First-of-Month Exit": 0,
+        "something's wrong": 0
+      },
+      "Earliest-ReportStatusDetail": {
+        "Housed": 0,
+        "Homeless": 594,
+        "First-Time Homeless": 3514,
+        "Returned from Permanent": 228,
+        "Re-engaged from Non-Permanent": 509,
+        "Continuous at Start": 0,
+        "Unknown": 0,
+        "First-of-Month Exit": 0,
+        "something's wrong": 0
+      },
+      "Latest-ReportStatus": {
+        "Active at End": 0,
+        "Outflow": 4845,
+        "Continuous at End": 0,
+        "Last-of-Month Entry": 0,
+        "something's wrong": 0
+      },
+      "Latest-ReportStatusDetail": {
+        "Housed": 0,
+        "Homeless": 0,
+        "Exited, Non-Permanent": 2812,
+        "Exited, Permanent": 2033,
+        "Continuous at End": 0,
+        "Last-of-Month Entry": 0,
+        "Inactive": 0,
+        "something's wrong": 0
+      },
+      "Earliest-EnrollmentID": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Earliest-HouseholdType": {
+        "AO": 2755,
+        "AC": 1460,
+        "CO": 119,
+        "UN": 0,
+        "AC-PY": 216,
+        "AO-UY": 289,
+        "NA's": 6
+      },
+      "Earliest-CorrectedHoH": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.7397316821465428,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "Earliest-ProjectType": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2773993808049536,
+        "3rd Qu.": 0,
+        "Max.": 8
+      },
+      "Earliest-EntryDate": {
+        "Min.": "2018-10-25",
+        "1st Qu.": "2021-11-13",
+        "Median": "2022-02-01",
+        "Mean": "2022-02-01",
+        "3rd Qu.": "2022-05-05",
+        "Max.": "2022-09-20"
+      },
+      "Earliest-LivingSituation": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Earliest-MoveInDateAdjust": {
+        "Min.": null,
+        "1st Qu.": null,
+        "Median": null,
+        "Mean": "NaN",
+        "3rd Qu.": null,
+        "Max.": null
+      },
+      "Earliest-ExitAdjust": {
+        "Min.": "2021-10-01",
+        "1st Qu.": "2021-12-23",
+        "Median": "2022-03-09",
+        "Mean": "2022-03-16",
+        "3rd Qu.": "2022-06-07",
+        "Max.": "2022-09-29"
+      },
+      "Earliest-Destination": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Latest-EnrollmentID": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Latest-HouseholdType": {
+        "AO": 2762,
+        "AC": 1455,
+        "CO": 119,
+        "UN": 0,
+        "AC-PY": 216,
+        "AO-UY": 287,
+        "NA's": 6
+      },
+      "Latest-CorrectedHoH": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.7424148606811145,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "Latest-ProjectType": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.3075335397316821,
+        "3rd Qu.": 0,
+        "Max.": 8
+      },
+      "Latest-EntryDate": {
+        "Min.": "2018-10-25",
+        "1st Qu.": "2021-11-30",
+        "Median": "2022-02-25",
+        "Mean": "2022-02-18",
+        "3rd Qu.": "2022-05-23",
+        "Max.": "2022-09-22"
+      },
+      "Latest-LivingSituation": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Latest-MoveInDateAdjust": {
+        "Min.": null,
+        "1st Qu.": null,
+        "Median": null,
+        "Mean": "NaN",
+        "3rd Qu.": null,
+        "Max.": null
+      },
+      "Latest-ExitAdjust": {
+        "Min.": "2021-10-01",
+        "1st Qu.": "2022-01-12",
+        "Median": "2022-04-01",
+        "Mean": "2022-04-02",
+        "3rd Qu.": "2022-06-24",
+        "Max.": "2022-09-29"
+      },
+      "Latest-Destination": {
+        "Length": "4845",
+        "Class": "character",
+        "Mode": "character"
+      }
     },
-    "sys_comp_report_pct_df": {
-      "All Races/Ethnicities": [
-        "American Indian, Alaska Native, or Indigenous alone",
-        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
-        "Asian or Asian American alone",
-        "Asian or Asian American & Hispanic/Latina/o",
-        "Black, African American, or African alone",
-        "Black, African American, or African & Hispanic/Latina/o",
-        "Hispanic/Latina/o alone",
-        "Middle Eastern or North African alone",
-        "Middle Eastern or North African & Hispanic/Latina/o",
-        "Multi-Racial (not Hispanic/Latina/o)",
-        "Multi-Racial & Hispanic/Latina/o",
-        "Native Hawaiian or Pacific Islander alone",
-        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
-        "White alone",
-        "White & Hispanic/Latina/o",
-        "Unknown",
-        "Total"
-      ],
-      "Veteran": [
-        "3.2%",
-        "0.2%",
-        "0%",
-        "0%",
-        "17.2%",
-        "0.2%",
-        "0%",
-        "0%",
-        "0%",
-        "2.2%",
-        "0.4%",
-        "0%",
-        "0%",
-        "72.3%",
-        "3.8%",
-        "0.4%",
-        "25.5%"
-      ],
-      "Non-Veteran/Unknown": [
-        "0.8%",
-        "0.3%",
-        "0.4%",
-        "0%",
-        "19.6%",
-        "0.5%",
-        "0.1%",
-        "0%",
-        "0%",
-        "4.4%",
-        "0.3%",
-        "0%",
-        "0.1%",
-        "69.6%",
-        "3.7%",
-        "0.2%",
-        "74.5%"
-      ],
-      "Total": [
-        "1.4%",
-        "0.3%",
-        "0.3%",
-        "0%",
-        "19%",
-        "0.4%",
-        "0.1%",
-        "0%",
-        "0%",
-        "3.8%",
-        "0.3%",
-        "0%",
-        "0.1%",
-        "70.3%",
-        "3.8%",
-        "0.3%",
-        "100%"
-      ]
-    },
-    "sys_inflow_outflow_report": {
-      "Detail": [
-        "Housed",
-        "Homeless",
-        "First-Time Homeless",
-        "Returned from Permanent",
-        "Re-engaged from Non-Permanent",
-        "Exited, Non-Permanent",
-        "Exited, Permanent",
-        "Inactive",
-        "Homeless",
-        "Housed"
-      ],
-      "Summary": [
-        "Active at Start",
-        "Active at Start",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Active at End",
-        "Active at End"
-      ],
-      "InflowOutflow": [
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Outflow"
-      ],
-      "PlotFillGroups": [
-        "Housed",
-        "Homeless",
-        "Inflow",
-        "Inflow",
-        "Inflow",
-        "Outflow",
-        "Outflow",
-        "Outflow",
-        "Homeless",
-        "Housed"
-      ],
-      "N": [
-        575,
-        301,
-        970,
-        61,
-        35,
-        288,
-        663,
-        0,
-        344,
-        647
-      ],
-      "order": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10
-      ]
-    },
-    "sys_phd_df": {
+    "syse_phd_df": {
       "Age (Demographic Section 1)": [
         "0 to 12",
         "13 to 17",
@@ -2752,38 +2994,6 @@
         "No",
         "No",
         "Yes"
-      ]
-    },
-    "sys_status_report": {
-      "Begin": [
-        "Housed",
-        "Housed",
-        "Homeless",
-        "Housed",
-        "Homeless",
-        "Homeless",
-        "Homeless",
-        "Housed"
-      ],
-      "End": [
-        "Exited, Permanent",
-        "Enrolled, Housed",
-        "Exited, Non-Permanent",
-        "Exited, Non-Permanent",
-        "Enrolled, Homeless",
-        "Enrolled, Housed",
-        "Exited, Permanent",
-        "Enrolled, Homeless"
-      ],
-      "freq": [
-        240,
-        262,
-        72,
-        59,
-        73,
-        38,
-        118,
-        14
       ]
     },
     "syse_types_df": {
@@ -2941,6 +3151,738 @@
           "0.0%"
         ]
       }
+    },
+    "syso_client_level_export_details": {
+      "PersonalID": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "AgeCategory": {
+        "0 to 12": 0,
+        "13 to 17": 0,
+        "18 to 21": 99,
+        "22 to 24": 63,
+        "25 to 34": 291,
+        "35 to 44": 415,
+        "45 to 54": 417,
+        "55 to 64": 522,
+        "65 to 74": 121,
+        "75 and older": 14,
+        "Unknown": 0
+      },
+      "VeteranStatus": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2548918640576725,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "AmIndAKNative": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.03810504634397528,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "Asian": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.006694129763130793,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BlackAfAmerican": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2147270854788877,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "HispanicLatino": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.04943357363542739,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MidEastNAf": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacific": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.003604531410916581,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "White": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 1,
+        "Mean": 0.7749742533470649,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "RaceEthnicityUnknown": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.002574665293511844,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AmIndAKNativeAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.01390319258496395,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AmIndAKNativeLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.003089598352214212,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AsianAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.003089598352214212,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AsianLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "BlackAfAmericanAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.1900102986611741,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BlackAfAmericanLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.004119464469618949,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.0005149330587023687,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MidEastNAfricanAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "MidEastNAfricanLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacificAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacificLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.001029866117404737,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "WhiteAloneMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.7028836251287333,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "WhiteLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.03759011328527292,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MultipleNotLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.03810504634397528,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MultipleLatinoMethod1Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.003089598352214212,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BILPOCMethod1Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2945417095777549,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "WhiteMethod1Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 1,
+        "Mean": 0.7028836251287333,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "AmIndAKNativeMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.03810504634397528,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "AsianMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.006694129763130793,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "BlackAfAmericanMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.2147270854788877,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.04943357363542739,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "MidEastNAfricanMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0,
+        "3rd Qu.": 0,
+        "Max.": 0
+      },
+      "NativeHIPacificMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.003604531410916581,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "WhiteMethod2Detailed": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 1,
+        "Mean": 0.7749742533470649,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "BlackAfAmericanLatinoMethod2Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.005664263645726055,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoMethod2Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.04943357363542739,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "LatinoAloneMethod2Summarized": {
+        "Min.": 0,
+        "1st Qu.": 0,
+        "Median": 0,
+        "Mean": 0.0005149330587023687,
+        "3rd Qu.": 0,
+        "Max.": 1
+      },
+      "Earliest-ReportStatus": {
+        "Active at Start": 876,
+        "Inflow": 1066,
+        "Continuous at Start": 0,
+        "Unknown": 0,
+        "First-of-Month Exit": 0,
+        "something's wrong": 0
+      },
+      "Earliest-ReportStatusDetail": {
+        "Housed": 575,
+        "Homeless": 301,
+        "First-Time Homeless": 970,
+        "Returned from Permanent": 61,
+        "Re-engaged from Non-Permanent": 35,
+        "Continuous at Start": 0,
+        "Unknown": 0,
+        "First-of-Month Exit": 0,
+        "something's wrong": 0
+      },
+      "Latest-ReportStatus": {
+        "Active at End": 991,
+        "Outflow": 951,
+        "Continuous at End": 0,
+        "Last-of-Month Entry": 0,
+        "something's wrong": 0
+      },
+      "Latest-ReportStatusDetail": {
+        "Housed": 647,
+        "Homeless": 344,
+        "Exited, Non-Permanent": 288,
+        "Exited, Permanent": 663,
+        "Continuous at End": 0,
+        "Last-of-Month Entry": 0,
+        "Inactive": 0,
+        "something's wrong": 0
+      },
+      "Earliest-EnrollmentID": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Earliest-HouseholdType": {
+        "AO": 1809,
+        "AC": 0,
+        "CO": 0,
+        "UN": 0,
+        "AC-PY": 0,
+        "AO-UY": 133
+      },
+      "Earliest-CorrectedHoH": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 1,
+        "Mean": 0.913491246138002,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "Earliest-ProjectType": {
+        "Min.": 3,
+        "1st Qu.": 13,
+        "Median": 13,
+        "Mean": 10.72554067971164,
+        "3rd Qu.": 13,
+        "Max.": 13
+      },
+      "Earliest-EntryDate": {
+        "Min.": "2005-04-14",
+        "1st Qu.": "2021-04-09",
+        "Median": "2021-11-03",
+        "Mean": "2021-05-25",
+        "3rd Qu.": "2022-04-28",
+        "Max.": "2022-09-26"
+      },
+      "Earliest-LivingSituation": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Earliest-MoveInDateAdjust": {
+        "Min.": "2005-04-14",
+        "1st Qu.": "2021-03-23",
+        "Median": "2021-11-05",
+        "Mean": "2021-04-11",
+        "3rd Qu.": "2022-04-22",
+        "Max.": "2022-10-01"
+      },
+      "Earliest-ExitAdjust": {
+        "Min.": "2021-10-01",
+        "1st Qu.": "2022-02-21",
+        "Median": "2022-08-22",
+        "Mean": "2057-06-22",
+        "3rd Qu.": "2099-09-09",
+        "Max.": "2099-09-09"
+      },
+      "Earliest-Destination": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Latest-EnrollmentID": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Latest-HouseholdType": {
+        "AO": 1811,
+        "AC": 0,
+        "CO": 0,
+        "UN": 0,
+        "AC-PY": 0,
+        "AO-UY": 131
+      },
+      "Latest-CorrectedHoH": {
+        "Min.": 0,
+        "1st Qu.": 1,
+        "Median": 1,
+        "Mean": 0.9129763130792997,
+        "3rd Qu.": 1,
+        "Max.": 1
+      },
+      "Latest-ProjectType": {
+        "Min.": 3,
+        "1st Qu.": 9,
+        "Median": 13,
+        "Mean": 10.48867147270855,
+        "3rd Qu.": 13,
+        "Max.": 13
+      },
+      "Latest-EntryDate": {
+        "Min.": "2005-04-14",
+        "1st Qu.": "2021-05-21",
+        "Median": "2021-11-30",
+        "Mean": "2021-06-25",
+        "3rd Qu.": "2022-05-25",
+        "Max.": "2022-09-26"
+      },
+      "Latest-LivingSituation": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      },
+      "Latest-MoveInDateAdjust": {
+        "Min.": "2005-04-14",
+        "1st Qu.": "2021-04-18",
+        "Median": "2021-11-22",
+        "Mean": "2021-05-11",
+        "3rd Qu.": "2022-05-11",
+        "Max.": "2022-10-01"
+      },
+      "Latest-ExitAdjust": {
+        "Min.": "2021-10-01",
+        "1st Qu.": "2022-03-21",
+        "Median": "2099-09-09",
+        "Mean": "2061-10-01",
+        "3rd Qu.": "2099-09-09",
+        "Max.": "2099-09-09"
+      },
+      "Latest-Destination": {
+        "Length": "1942",
+        "Class": "character",
+        "Mode": "character"
+      }
+    },
+    "syso_comp_report_num_df": {
+      "All Races/Ethnicities": [
+        "American Indian, Alaska Native, or Indigenous alone",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
+        "Asian or Asian American alone",
+        "Asian or Asian American & Hispanic/Latina/o",
+        "Black, African American, or African alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
+        "Middle Eastern or North African alone",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
+        "Native Hawaiian or Pacific Islander alone",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
+        "White alone",
+        "White & Hispanic/Latina/o",
+        "Unknown",
+        "Total"
+      ],
+      "Veteran": [
+        16,
+        1,
+        0,
+        0,
+        85,
+        1,
+        0,
+        0,
+        0,
+        11,
+        2,
+        0,
+        0,
+        358,
+        19,
+        2,
+        495
+      ],
+      "Non-Veteran/Unknown": [
+        11,
+        5,
+        6,
+        0,
+        284,
+        7,
+        1,
+        0,
+        0,
+        63,
+        4,
+        0,
+        2,
+        1007,
+        54,
+        3,
+        1447
+      ],
+      "Total": [
+        27,
+        6,
+        6,
+        0,
+        369,
+        8,
+        1,
+        0,
+        0,
+        74,
+        6,
+        0,
+        2,
+        1365,
+        73,
+        5,
+        1942
+      ]
+    },
+    "syso_comp_report_pct_df": {
+      "All Races/Ethnicities": [
+        "American Indian, Alaska Native, or Indigenous alone",
+        "American Indian, Alaska Native, or Indigenous & Hispanic/Latina/o",
+        "Asian or Asian American alone",
+        "Asian or Asian American & Hispanic/Latina/o",
+        "Black, African American, or African alone",
+        "Black, African American, or African & Hispanic/Latina/o",
+        "Hispanic/Latina/o alone",
+        "Middle Eastern or North African alone",
+        "Middle Eastern or North African & Hispanic/Latina/o",
+        "Multi-Racial (not Hispanic/Latina/o)",
+        "Multi-Racial & Hispanic/Latina/o",
+        "Native Hawaiian or Pacific Islander alone",
+        "Native Hawaiian or Pacific Islander & Hispanic/Latina/o",
+        "White alone",
+        "White & Hispanic/Latina/o",
+        "Unknown",
+        "Total"
+      ],
+      "Veteran": [
+        "3.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "17.2%",
+        "0.2%",
+        "0%",
+        "0%",
+        "0%",
+        "2.2%",
+        "0.4%",
+        "0%",
+        "0%",
+        "72.3%",
+        "3.8%",
+        "0.4%",
+        "25.5%"
+      ],
+      "Non-Veteran/Unknown": [
+        "0.8%",
+        "0.3%",
+        "0.4%",
+        "0%",
+        "19.6%",
+        "0.5%",
+        "0.1%",
+        "0%",
+        "0%",
+        "4.4%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "69.6%",
+        "3.7%",
+        "0.2%",
+        "74.5%"
+      ],
+      "Total": [
+        "1.4%",
+        "0.3%",
+        "0.3%",
+        "0%",
+        "19%",
+        "0.4%",
+        "0.1%",
+        "0%",
+        "0%",
+        "3.8%",
+        "0.3%",
+        "0%",
+        "0.1%",
+        "70.3%",
+        "3.8%",
+        "0.3%",
+        "100%"
+      ]
+    },
+    "syso_inflow_outflow_report": {
+      "Detail": [
+        "Housed",
+        "Homeless",
+        "First-Time Homeless",
+        "Returned from Permanent",
+        "Re-engaged from Non-Permanent",
+        "Exited, Non-Permanent",
+        "Exited, Permanent",
+        "Inactive",
+        "Homeless",
+        "Housed"
+      ],
+      "Summary": [
+        "Active at Start",
+        "Active at Start",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Active at End",
+        "Active at End"
+      ],
+      "InflowOutflow": [
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Outflow"
+      ],
+      "PlotFillGroups": [
+        "Housed",
+        "Homeless",
+        "Inflow",
+        "Inflow",
+        "Inflow",
+        "Outflow",
+        "Outflow",
+        "Outflow",
+        "Homeless",
+        "Housed"
+      ],
+      "N": [
+        575,
+        301,
+        970,
+        61,
+        35,
+        288,
+        663,
+        0,
+        344,
+        647
+      ],
+      "order": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "syso_status_report": {
+      "Begin": [
+        "Housed",
+        "Housed",
+        "Homeless",
+        "Housed",
+        "Homeless",
+        "Homeless",
+        "Homeless",
+        "Housed"
+      ],
+      "End": [
+        "Exited, Permanent",
+        "Enrolled, Housed",
+        "Exited, Non-Permanent",
+        "Exited, Non-Permanent",
+        "Enrolled, Homeless",
+        "Enrolled, Housed",
+        "Exited, Permanent",
+        "Enrolled, Homeless"
+      ],
+      "freq": [
+        240,
+        262,
+        72,
+        59,
+        73,
+        38,
+        118,
+        14
+      ]
     },
     "systemDQ_download": {
       "Export Detail": [

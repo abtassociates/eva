@@ -101,6 +101,7 @@ EnrollmentStaging <- Enrollment %>%
        on = "EnrollmentID") %>%
   fmutate(ExitAdjust = fcoalesce(ExitDate, no_end_date),
          AgeAtEntry = age_years(DOB, EntryDate),
+         AgeAtReportStart = age_years(DOB, pmax(EntryDate, session$userData$meta_HUDCSV_Export_Start, session$userData$ReportStart, na.rm=TRUE)),
          DOB = NULL) %>%
   fgroup_by(ProjectID, HouseholdID) %>%
   fmutate(
