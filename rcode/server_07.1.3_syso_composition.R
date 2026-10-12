@@ -28,10 +28,14 @@ syso_get_people_universe_filtered <- reactive({
 })
 
 
-
+syso_comp_clean_df <- reactive({
+  syso_get_people_universe_filtered() %>%
+    remove_non_applicables(selection = input$syso_composition_selections) %>% 
+    clean_comp_data(input$syso_methodology_type, input$syso_composition_selections)
+})
 syso_comp_plot <- function(methodology_type, selections, isExport = FALSE) {
   # 1. Run Data Preparation Pipeline
-  prep <- prepare_crosstab_data(syso_get_people_universe_filtered(), selections, methodology_type, subtab = "comp")
+  prep <- prepare_crosstab_data(syso_comp_clean_df(), selections, methodology_type, subtab = "comp")
   
   plot_df <- prep$plot_df
   
@@ -50,12 +54,8 @@ syso_comp_plot <- function(methodology_type, selections, isExport = FALSE) {
     plot_df_supp <- plot_df_supp %>% suppress_next_val_if_one_suppressed_in_group(s, "n")
   }
   
-  validate(
-    need(
-      fsum(plot_df_supp$n) > 0,
-      message = all_data_suppressed_msg
-    )
-  )
+  enough_data <- fsum(plot_df_supp$n) > 0
+  validate(need(enough_data, message = all_data_suppressed_msg))
   
   # 5. Render Unified Heatmap
   build_demographic_heatmap(
@@ -96,13 +96,8 @@ output$syso_comp_summary_ui_chart <- renderPlot({
       between(length(input$syso_composition_selections), 1, 2)
   )
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
-  
+  validate_chart(syso_chart_validation_comp())
+
   syso_comp_plot(
     methodology_type = input$syso_methodology_type, 
     selections = input$syso_composition_selections, 

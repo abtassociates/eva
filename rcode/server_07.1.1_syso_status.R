@@ -135,27 +135,10 @@ output$syso_status_ui_chart <- renderPlot({
   logToConsole(session, "in syso_status_ui_chart")
   req(session$userData$valid_file() == 1)
 
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
+  validate_chart(syso_chart_validation_status())
   
   plot_data <- get_sankey_data()
-  
-  validate(
-    need(
-      sum(plot_data$freq) > 0,
-      message = no_data_msg
-    )
-  )
-  validate(
-    need(
-      sum(plot_data$freq) > 10,
-      message = suppression_msg
-    )
-  )
+
   render_sankey_plot(plot_data)
 },
 alt = "A Sankey diagram of the end-of-year housing status of clients that were active in the homeless system at the start of the report period.",
@@ -231,33 +214,23 @@ syso_status_ppt_download <- function(file) {
 
 # The universe is anyone who was Housed or Homeless at Period Start
 # We also need the latest exit for the folks in the Exited categories
-get_sankey_data <- reactive({
-  logToConsole(session, "in get_sankey_data")
+get_sankey_data_raw <- reactive({
   full_data <- get_inflow_outflow_full()
   
-  req(nrow(full_data) > 0)
+  req(fnrow(full_data) > 0)
   
-  plot_df <- full_data[
-    InflowTypeDetail %in% active_at_levels,
-    .(PersonalID, InflowTypeDetail, OutflowTypeDetail)
-  ]
-  
-  shinyjs::toggle(
-    "syso_status_download_btn",
-    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
-  )
-  shinyjs::toggle(
-    "syso_status_download_btn_ppt",
-    condition = if(nrow(full_data) > 0) nrow(plot_df) > 10 else FALSE
-  )
-  
-  validate(
-    need(
-      nrow(plot_df) > 0,
-      message = no_data_msg
+  full_data %>%
+    fsubset(
+      InflowTypeDetail %in% active_at_levels,
+      PersonalID, InflowTypeDetail, OutflowTypeDetail
     )
-  )
-
+})
+get_sankey_data <- reactive({
+  logToConsole(session, "in get_sankey_data")
+  
+  plot_df <- get_sankey_data_raw()
+  req(fnrow(plot_df) > 0)
+  
   plot_df %>%
     fcount(Begin = InflowTypeDetail, End = OutflowTypeDetail, name = "freq") %>% 
     fmutate(
@@ -266,5 +239,4 @@ get_sankey_data <- reactive({
       End = fct_recode(End, 'Enrolled, Homeless' = 'Homeless', 'Enrolled, Housed' = 'Housed'),
       End = fct_relevel(End, rev(c('Enrolled, Housed','Exited, Permanent','Inactive', 'Enrolled, Homeless','Exited, Non-Permanent')))
     )
-  
 })

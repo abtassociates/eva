@@ -2,25 +2,13 @@
 time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, show = TRUE) {
   logToConsole(session, "In time_chart_validation")
   
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
-  
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories_prev) > 0,
-      no_valid_data_msg
-    )
-  )
-  
   cond <- interval(startDate, endDate) >= days(729)
+  valid_data_prev <- fnrow(session$userData$enrollment_categories_prev) > 0
   
   ## whether to show validate message or not
   if(show){
     validate(
+      need(valid_data_prev, no_valid_data_msg),
       need(
         cond,
         message = "Data will not be shown for reporting periods of less than 2 years."
@@ -28,24 +16,12 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
     )
   } else {
     ## otherwise, just hide but do not show a duplicate validate message
-    req(cond)
+    req(cond && valid_data_prev)
   }
   
 }
 
 get_syse_compare_time_data <- function(output_type = 'table'){
-  
-  shinyjs::toggle(
-    "syse_time_download_btn",
-    condition = nrow(all_filtered_syse_time()) > 10
-  )
-  shinyjs::toggle(
-    "syse_time_download_btn_ppt",
-    condition = nrow(all_filtered_syse_time()) > 10
-  )
-  validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
-  validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
-  
   prev_year <- everyone() %>% 
     fsubset(period == 'Previous Year')
   
@@ -387,6 +363,7 @@ output$syse_compare_time_chart <- renderPlot({
   time_chart_validation(startDate = session$userData$meta_HUDCSV_Export_Start, endDate = session$userData$meta_HUDCSV_Export_End,
                         input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
                         show = TRUE)
+  validate_chart(syse_chart_validation_time())
   get_syse_compare_time_chart()
 })
 
@@ -394,6 +371,7 @@ output$syse_compare_time_table <- renderDT({
   # time_chart_validation(startDate = session$userData$ReportStart, endDate = session$userData$ReportEnd,
   #                       input$syse_race_ethnicity, input$syse_spec_pops, input$syse_age,
   #                       show = FALSE)
+  validate_chart(syse_chart_validation_time())
   get_syse_compare_time_table(
     get_syse_compare_time_data(output_type = 'table')
   )
