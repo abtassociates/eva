@@ -494,12 +494,6 @@ outflow_debug_cols <- c(
   "lh_dates"
 )
 
-
-suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
-no_data_msg <- "No data to show."
-no_valid_data_msg <- "No valid data to show."
-all_data_suppressed_msg <- "The chart will not display because all data has been suppressed."
-
 ## files included in DQ Export Interface
 dq_file_options <- data.frame(
   all = "All Data Quality Reports",
@@ -512,6 +506,29 @@ METADATA_PATH <- ifelse(
   grepl("ad.abt.local", Sys.info()[["nodename"]]) | isTRUE(getOption("shiny.testmode")), 
   here("metadata-analysis/metadata"), 
   glue::glue("/srv/shiny-efs/{basename(here())}/metadata-analysis/metadata")
+)
+
+# System Performance Exports ----------
+syso_export_config <- list(
+  list(suffix = "client", name = "System Overview Client Level Export", gen = "populate_client_level_export",     ext = ".xlsx"),
+  list(suffix = "flow",   name = "System Flow",                         gen = "syso_inflow_outflow_ppt_download",  ext = ".pptx"),
+  list(suffix = "flow",   name = "System Flow",                         gen = "syso_inflow_outflow_data_download", ext = ".xlsx"),
+  list(suffix = "status", name = "System Status",                       gen = "syso_status_ppt_download",          ext = ".pptx"),
+  list(suffix = "status", name = "System Status",                       gen = "syso_status_data_download",         ext = ".xlsx"),
+  list(suffix = "demo",   name = "System Demographics",                 gen = "sys_comp_ppt_download",            ext = ".pptx"),
+  list(suffix = "demo",   name = "System Demographics",                 gen = "sys_comp_data_download",           ext = ".xlsx")
+)
+
+syse_export_config <- list(
+  list(suffix = "client", name = "System Exits Client Level Export",     gen = "populate_client_level_export",    ext = ".xlsx"),
+  list(suffix = "type",   name = "Exits by Type",                        gen = "syse_types_ppt_download",         ext = ".pptx"),
+  list(suffix = "type",   name = "Exits by Type",                        gen = "syse_types_data_download",        ext = ".xlsx"),
+  list(suffix = "time",   name = "Exits by Year",                        gen = "syse_time_ppt_download",          ext = ".pptx"),
+  list(suffix = "time",   name = "Exits by Year",                        gen = "syse_time_data_download",         ext = ".xlsx"),
+  list(suffix = "subpop", name = "Exits by Subpopulation",               gen = "syse_subpop_ppt_download",        ext = ".pptx"),
+  list(suffix = "subpop", name = "Exits by Subpopulation",               gen = "syse_subpop_data_download",       ext = ".xlsx"),
+  list(suffix = "phd",    name = "Exits to PH Demographics",             gen = "sys_comp_ppt_download",           ext = ".pptx"),
+  list(suffix = "phd",    name = "Exits to PH Demographics",             gen = "sys_comp_data_download",          ext = ".xlsx")
 )
 
 SPECS_PREPPED_PATH <- here("public-resources", "eva_specs_prepped.rds")
