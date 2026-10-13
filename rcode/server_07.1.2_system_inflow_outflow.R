@@ -285,6 +285,10 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
       )
     ) %>% 
     get_counts_by_month_for_mbm()
+  
+  exportTestValues(syso_inflow_outflow_monthly_chart_data = summarize_df(syso_inflow_outflow_monthly_chart_data))
+  
+  monthly_data
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
