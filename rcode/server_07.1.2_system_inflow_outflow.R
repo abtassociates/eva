@@ -284,10 +284,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         Outflow = outflow_detail_levels
       )
     ) %>% 
-    get_counts_by_month_for_mbm() %>%
-    fsubset(
-      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    )
+    get_counts_by_month_for_mbm()
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
@@ -613,7 +610,10 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   reactive({
     logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
 
-    plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+    plot_data <- syso_inflow_outflow_monthly_chart_data() %>%
+      fsubset(
+        !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
+      ) %>%
       fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels)) %>%
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
