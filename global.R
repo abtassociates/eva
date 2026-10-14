@@ -1,7 +1,18 @@
 
 Sys.setenv(TZ = "America/New_York")
 
-library(tidyverse) # loads ggplot2, dplyr, tidyr, readr, purrr, tibble, stringr, forcats, lubridate
+# Tidyverse packages
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(tibble)
+library(stringr)
+library(forcats)
+library(lubridate)
+library(rlang)     # For sym(), syms(), parse_expr()
+
 library(shiny)
 library(bslib) # bslib: bootstrap UI and theming
 library(bsicons) # bsicons: bootstrap icons for tabs
@@ -23,20 +34,22 @@ library(collapse) # collapse: performance
 library(flextable) # flextable: tables in PPT. (DT does not work well with PPT)
 library(promises) # promises: asynch/parallel processing for performance
 library(ggarchery) # ggarchery: arrows for System Exit Comparison dotplots
-library(readxl)
 library(ggnewscale) # used for applying pattern fills to sankey charts
-library(brandr) # used for extracting style info from brand.yml file
+library(brand.yml) # used for extracting style info from brand.yml file
 
 options(shiny.maxRequestSize = 250 * 1024^2) # was 190MB, is now 222 MB, aka 222*1024^2=210763776
 options(shiny.fullstacktrace = TRUE)
 options(shiny.stacktraceon = TRUE)
-options(BRANDR_BRAND_YML = here::here("_brand.yml"))
+
 set_collapse(na.rm = TRUE, verbose = FALSE, sort = FALSE, mask = "%in%") #masking %in% replaces it with the faster `fmatch`
 
 # source files in /util that end with .R or .r
 # except for Construct FSA Specs, since that relies on an external xlsx file 
 utils_to_load <- dir("./util")[grepl(".R$|.r$", dir("./util"))]
 utils_to_load <- setdiff(utils_to_load, "construct_specs_data.R")
+load_first <- c("hardcodes.R", "helper_functions.R")
+utils_to_load <- c(load_first, utils_to_load[utils_to_load %!iin% load_first])
+
 for(f in utils_to_load) { source(here("util", f)) }
 
 if(dir.exists(METADATA_PATH)) {
@@ -50,8 +63,17 @@ if(dir.exists(METADATA_PATH)) {
 # Create DQ and PDDE script environment
 mirai::daemons(1, output = TRUE)
 mirai::everywhere({
+  library(dplyr)
+  library(tidyr)
+  library(readr)
+  library(purrr)
+  library(tibble)
+  library(stringr)
+  library(forcats)
+  library(lubridate)
+  library(rlang)     # For sym(), syms(), parse_expr()
+  
   library(data.table)
-  library(tidyverse)
   library(collapse)
   library(here)
   

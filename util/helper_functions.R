@@ -1,3 +1,6 @@
+get_brand_color <- function(color) {
+  brand.yml::brand_color_pluck(brand, color)
+}
 
 # Age ---------------------------------------------------------------------
 

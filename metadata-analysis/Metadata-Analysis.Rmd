@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 
 library(here)
-library(tidyverse)
+library(dplyr)
+library(readr)
 library(lubridate)
 library(patchwork)
 library(gt)
