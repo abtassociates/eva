@@ -236,7 +236,7 @@ sys_heatmap_xl_export <- function(file,
       col_names = TRUE
     )
     
-    exportTestValues(syso_comp_df = syso_get_people_universe_filtered())
+    exportTestValues(syso_comp_df = syso_comp_universe())
     exportTestValues(syso_comp_report_num_df = num_df)
     exportTestValues(syso_comp_report_pct_df = pct_df)
     logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,

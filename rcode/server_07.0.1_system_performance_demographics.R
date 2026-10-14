@@ -18,7 +18,7 @@ sys_demographics_selection_info <- function(type = 'overview', selection){
       ),
       Value = c(
         Value,
-        fnrow(syso_get_people_universe_filtered() %>% remove_non_applicables(selection = selection))
+        fnrow(syso_comp_universe() %>% remove_non_applicables(selection = selection))
       )
     )
   } else if (type == 'exits'){

@@ -6,7 +6,7 @@ syso_comp_selections_info <- reactive({
 })
 
 # System Composition/Demographics data for chart
-syso_get_people_universe_filtered <- reactive({
+syso_comp_universe <- reactive({
   full_data <- syso_enrollments_filtered() %>%
     join(session$userData$lh_info %>% fselect(EnrollmentID, lh_date), on="EnrollmentID", multiple = TRUE) %>%
     fsubset(ExitAdjust >= session$userData$ReportStart & (
@@ -29,7 +29,7 @@ syso_get_people_universe_filtered <- reactive({
 
 
 syso_comp_clean_df <- reactive({
-  syso_get_people_universe_filtered() %>%
+  syso_comp_universe() %>%
     remove_non_applicables(selection = input$syso_composition_selections) %>% 
     clean_comp_data(input$syso_methodology_type, input$syso_composition_selections)
 })
