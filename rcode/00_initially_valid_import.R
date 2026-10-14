@@ -109,7 +109,6 @@ isFY2026Export <- function() {
 validate_export_rows <- function() {
   if (hasNoExportRow()) {
     show_invalid_popup(
-      issueID = 142,
       title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file has no data.",
       popupText = "Export.csv should have one and only one row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
       If you are not sure how to resolve this issue, please contact your HMIS vendor."
@@ -120,7 +119,6 @@ validate_export_rows <- function() {
   
   if (fnrow(session$userData$Export) > 1) {
     show_invalid_popup(
-      issueID = 140,
       title = "Unsuccessful Upload: The Export.csv file in your uploaded .zip file contains more than 1 row.",
       popupText = "Export.csv should only have 1 row. Please upload a hashed HMIS CSV Export that meets all of HUD's specifications. 
       If you are not sure how to resolve this issue, please contact your HMIS vendor."
