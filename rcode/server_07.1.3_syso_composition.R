@@ -122,3 +122,84 @@ output$syso_comp_summary_ui_chart <- renderPlot({
 observeEvent(input$syso_composition_selections, {
   limit_checkbox_selections("syso_composition_selections", input$syso_composition_selections)
 }, ignoreNULL = FALSE)
+
+
+get_syso_comp_num_pct_export_dfs <- function(selections, plot_df, methodology_type) {
+  if(length(selections) > 1) {
+    
+    num_df <- plot_df %>%
+      pivot(
+        how = 'wider',
+        names = selections[1],
+        values = 'n',
+        fill = list(n = 0)
+      )
+    
+    # Create x.y% version
+    pct_df <- num_df %>%
+      ftransformv(vars = num_vars(., return="names"),  FUN = function(x) {
+        (x / fsum(x) * 100) %>% 
+          replace_na(0) %>%
+          round(1) %>%
+          paste0("%")
+      })
+    
+    # create totals, but only for Method1
+    if(methodology_type == 1) { 
+      # create total row
+      total_num_row <- num_df %>%
+        summarise(!!selections[1] := "Total",
+                  across(where(is.numeric), \(x) sum(x, na.rm = TRUE))) %>%
+        rename(!!selections[2] := !!selections[1])
+      
+      total_n <- sum(plot_df$n, na.rm = TRUE)
+      
+      total_pct_row <- total_num_row %>% 
+        mutate(
+          across(where(is.numeric), ~ (. / total_n * 100) %>%
+                   replace_na(0) %>%
+                   round(1) %>%
+                   paste0("%")))
+      
+      # Add Total Row and create a total column
+      num_df <- num_df %>%
+        rowbind(total_num_row) %>%
+        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+      
+      pct_df <- pct_df %>% 
+        rowbind(total_pct_row) %>%
+        fmutate(
+          Total =  paste0(
+            round(
+              replace_na(num_df$Total / total_n * 100, 0),
+              1
+            ),
+            "%"
+          )
+        )
+    }
+  } # single selection
+  else {
+    num_df <- plot_df
+    
+    pct_df <- num_df %>%
+      fmutate(across(where(is.numeric), function(x) (x / sum(x, na.rm = TRUE) * 100) %>%
+                       round(1) %>%
+                       paste0("%")))  %>% 
+      frename("pct" = n)
+    
+    if(methodology_type == 1) { 
+      pct_df <- pct_df %>%
+        rowbind(
+          setNames(
+            data.frame("Total", "100%"), 
+            c(selections, "pct")
+          )
+        )
+      num_df <- num_df %>%
+        rowbind(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
+    }
+  }
+  
+  return(list(num = num_df, pct = pct_df))
+}
