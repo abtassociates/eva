@@ -166,8 +166,8 @@ sys_heatmap_xl_export <- function(file,
     )
     
     exportTestValues(syso_comp_df = syso_comp_universe())
-    exportTestValues(syso_comp_report_num_df = num_df)
-    exportTestValues(syso_comp_report_pct_df = pct_df)
+    exportTestValues(syso_comp_report_num_df = syso_comp_export_dfs$num)
+    exportTestValues(syso_comp_report_pct_df = syso_comp_export_dfs$pct)
     logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                                 if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
   } else {
