@@ -248,18 +248,19 @@ dq_full <- reactive({
   
   if(!is.null(session$userData$long_stayers) &&
                      ('DaysSinceLastKnown' %in% names(session$userData$long_stayers))) {
+    lookup <- c(
+      es_nbn_project_type        = input$ESNbNLongStayers,
+      out_project_type           = input$OUTLongStayers,
+      sso_project_type           = input$ServicesOnlyLongStayers,
+      other_project_project_type = input$OtherLongStayers,
+      day_project_type           = input$DayShelterLongStayers,
+      ce_project_type            = input$CELongStayers
+    )
+    
     long_stayers_tc <- tryCatch(
       long_stayers <- session$userData$long_stayers %>%
         fmutate(
-          too_many_days = case_match(
-            ProjectType,
-            es_nbn_project_type ~ input$ESNbNLongStayers,
-            out_project_type ~ input$OUTLongStayers,
-            sso_project_type ~ input$ServicesOnlyLongStayers,
-            other_project_project_type ~ input$OtherLongStayers,
-            day_project_type ~ input$DayShelterLongStayers,
-            ce_project_type ~ input$CELongStayers
-          )
+          too_many_days = unname(lookup[as.character(ProjectType)])
         ) %>% 
         fsubset(DaysSinceLastKnown > too_many_days) %>%
         fselect(c(vars_we_want, "Detail")), 
@@ -406,6 +407,22 @@ renderDQPlot <- function(level, Priority, byType, color) {
   })
   
   # RENDER THE PLOT (The Plot's Content)
+  # 1. Define the lookup table
+  alt_lookup <- c(
+    sysDQHighPriorityByIssue = "A bar chart of the top High Priority Errors in the system.",
+    sysDQHighPriorityByOrg   = "A bar chart of the top organizations with the most High Priority Errors in the system.",
+    sysDQErrorByIssue        = "A bar chart of the top General Errors in the system.",
+    sysDQErrorByOrg          = "A bar chart of the top organizations with the most General Errors in the system.",
+    sysDQWarningByIssue      = "A bar chart of the top Warnings in the system.",
+    sysDQWarningByOrg        = "A bar chart of the top organizations with the most Warnings in the system.",
+    orgDQHighPriorityByIssue = "A bar chart of the top High Priority Errors in the organization.",
+    orgDQHighPriorityProject = "A bar chart of the organization's projects with the most High Priority Errors.",
+    orgDQErrorByIssue        = "A bar chart of the top General Errors in the organization.",
+    orgDQErrorByProject      = "A bar chart of the organization's projects with the most General Errors.",
+    orgDQWarningByIssue      = "A bar count of the top Warnings in the organization.",
+    orgDQWarningByProject    = "A bar chart of the organization's projects with the most Warnings."
+  )
+  
   output[[plot_output_id]] <- renderPlot({
     issuePriorityDisplay <- if_else(Priority == "Warning", "warnings", "errors")
     
@@ -452,22 +469,8 @@ renderDQPlot <- function(level, Priority, byType, color) {
       ) +
       geom_text(aes(label =  format(countVar, big.mark = ",", scientific = FALSE, trim = TRUE)), hjust = -0.5, color = "black", size = sys_chart_text_font)
   },
-  alt = case_match(
-    plot_output_id,
-    "sysDQHighPriorityByIssue" ~ "A bar chart of the top High Priority Errors in the system.",
-    "sysDQHighPriorityByOrg" ~ "A bar chart of the top organizations with the most High Priority Errors in the system.",
-    "sysDQErrorByIssue" ~ "A bar chart of the top General Errors in the system.",
-    "sysDQErrorByOrg" ~ "A bar chart of the top organizations with the most General Errors in the system.",
-    "sysDQWarningByIssue" ~ "A bar chart of the top Warnings in the system.",
-    "sysDQWarningByOrg" ~ "A bar chart of the top organizations with the most Warnings in the system.",
-    "orgDQHighPriorityByIssue" ~ "A bar chart of the top High Priority Errors in the organization.",
-    "orgDQHighPriorityProject" ~ "A bar chart of the organization's projects with the most High Priority Errors.",
-    "orgDQErrorByIssue" ~ "A bar chart of the top General Errors in the organization.",
-    "orgDQErrorByProject" ~ "A bar chart of the organization's projects with the most General Errors.",
-    "orgDQWarningByIssue" ~ "A bar chart of the top Warnings in the organization.",
-    "orgDQWarningByProject" ~ "A bar chart of the organization's projects with the most Warnings.")
-  )
-}
+  alt = unname(alt_lookup[plot_output_id])
+)}
 
 
 # --- 3. ITERATE OVER THE CONFIGS TO CREATE ALL PLOTS ---

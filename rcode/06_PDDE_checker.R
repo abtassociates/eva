@@ -155,7 +155,7 @@ inventory_start_precedes_operating_start <- activeInventory %>%
 
 
 operating_end_precedes_inventory_end <- activeInventory %>%
-  fsubset(fcoalesce(InventoryEndDate, no_end_date) >
+  fsubset(InventoryEndDateAdjust >
            fcoalesce(OperatingEndDate, no_end_date)
   ) %>%
   fmutate(
@@ -382,7 +382,7 @@ rrh_so_w_inventory <- activeInventory %>%
   fmutate(
     InventoryActivePeriod = 
       interval(InventoryStartDate,
-               fcoalesce(InventoryEndDate, no_end_date))
+               InventoryEndDateAdjust)
   ) %>%
   fselect(InventoryID, ProjectID, InventoryActivePeriod, BedInventory) %>%
   join(session$userData$Project0, on = 'ProjectID', how = 'left') %>%

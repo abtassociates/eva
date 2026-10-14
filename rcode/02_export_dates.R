@@ -19,13 +19,13 @@ session$userData$ReportEnd <- fifelse(
   floor_date(session$userData$meta_HUDCSV_Export_End %m+% months(1), unit = "month") - days(1) ==
     session$userData$meta_HUDCSV_Export_End,
   session$userData$meta_HUDCSV_Export_End,
-  floor_date(session$userData$meta_HUDCSV_Export_End, unit = "month") - days(1))
+  floor_date(session$userData$meta_HUDCSV_Export_End, unit = "month") - days(1)) |> as.IDate() |> as.Date()
 
-session$userData$ReportStart <- session$userData$ReportEnd - years(1) + days(1)
+session$userData$ReportStart <- (session$userData$ReportEnd - years(1) + days(1)) |> as.IDate() |> as.Date()
 
 ExportStartAdjusted <- fifelse(
   day(session$userData$meta_HUDCSV_Export_Start) == 1,
   session$userData$meta_HUDCSV_Export_Start,
-  floor_date(session$userData$meta_HUDCSV_Export_Start %m+% months(1), unit = "month"))
+  floor_date(session$userData$meta_HUDCSV_Export_Start %m+% months(1), unit = "month")) |> as.IDate() |> as.Date()
 
-session$userData$days_of_data <- as.Date(session$userData$ReportEnd) - as.Date(ExportStartAdjusted)
+session$userData$days_of_data <- session$userData$ReportEnd - ExportStartAdjusted

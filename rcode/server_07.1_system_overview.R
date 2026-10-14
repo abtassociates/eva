@@ -295,7 +295,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   exit_as_active <- all_filtered %>%
     fsubset(ProjectType %in% nbn_non_res & !Destination %in% other_livingsituation & !is.na(Destination)) %>%
     fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid) %>%
-    fmutate(active_start = pmax(ExitAdjust - 15, EntryDate, na.rm=TRUE))
+    fmutate(active_start = pmax(ExitAdjust - 15L, EntryDate, na.rm=TRUE) |> as.IDate() |> as.Date())
     
   lh_spans <- rbindlist(list(
     lh_info_filtered,
@@ -305,12 +305,13 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
     funique() %>%
     fsubset(active_start >= EntryDate) %>%
     fmutate(
-      MoveInDateAdjust = fifelse(MoveInDateAdjust > ExitAdjust, NA, MoveInDateAdjust),
+      MoveInDateAdjust = fifelse(MoveInDateAdjust > ExitAdjust, NA_Date, MoveInDateAdjust),
         
       active_end = fcase(
         ProjectType %in% lh_project_types_nonbn, ExitAdjust,
         ProjectType %in% ph_project_types, fcoalesce(MoveInDateAdjust, ExitAdjust),
-        default = pmin(active_start + days_lh_valid, ExitAdjust, na.rm=TRUE)
+        default = pmin(active_start + days_lh_valid, ExitAdjust, na.rm=TRUE) |> as.IDate() |> as.Date()
+        
       )
     ) 
   
@@ -349,7 +350,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
     fmutate(
       active_in_period = startDate <= active_end & endDate >= active_start,
       exited_in_period = ExitAdjust %between% list(startDate, endDate),
-      period_of_activity = fifelse(active_in_period & (endDate != reportEnd | startDate != reportStart), startDate, NA)
+      period_of_activity = fifelse(active_in_period & (endDate != reportEnd | startDate != reportStart), startDate, NA_Date)
     ) %>%
     fgroup_by(PersonalID, active_start) %>%
     fmutate(
@@ -381,7 +382,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   prev_info <- all_filtered_w_first_last_active %>%
     fsubset(!is.na(first_active_date_in_period) & active_start < first_active_date_in_period)
   
-  prev_info <- if(fnrow(prev_info) == 0)
+  prev_info <- if(fnrow(prev_info) == 0) {
     data.table(
       PersonalID = character(), 
       period = factor(),
@@ -389,7 +390,8 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
       prev_exit = Date(), 
       prev_exit_dest_perm = logical()
     )
-  else prev_info %>%
+  } else { 
+    prev_info %>%
     fselect(PersonalID, period, EnrollmentID, ProjectType, active_start, active_end, ExitAdjust, Destination, first_active_date_in_period) %>%
     fmutate(
       prev_active = pmin(active_end, first_active_date_in_period, na.rm=TRUE),
@@ -413,17 +415,19 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
       prev_active, prev_exit, prev_exit_dest_perm
     ) %>%
     funique()
+  }
   
   next_info <- all_filtered_w_first_last_active %>%
     fsubset(!is.na(last_active_date_in_period) & active_end > last_active_date_in_period)
   
-  next_info <- if(fnrow(next_info) == 0)
+  next_info <- if(fnrow(next_info) == 0) {
     data.table(
       PersonalID = character(), 
       period = factor(),
       next_active  = Date()
     )
-  else next_info %>%
+  } else {
+    next_info %>%
     fselect(PersonalID, period, active_start, active_end, last_active_date_in_period, exited_in_period, Destination) %>%
     fmutate(
       next_active = pmax(active_start, last_active_date_in_period, na.rm=TRUE)
@@ -437,6 +441,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
       next_active
     ) %>%
     funique()
+  }
 
   prev_next_info <- join(
     prev_info,
@@ -449,7 +454,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   all_filtered_w_active_info <- all_filtered_w_first_last_active %>%
     fsubset(active_in_period | (ExitAdjust >= startDate & active_in_full_period & startDate >= first_period_for_active)) %>% # exited_in_period doesn't work because they might have exited after; ExitAdjust >= startDate doesn't work because then we get earlier periods before the active span (10674);
     join(prev_next_info, verbose = F, multiple=TRUE) %>%
-    fmutate(MoveInDateAdjust = fcoalesce(MoveInDateAdjust, as.Date(Inf)))
+    fmutate(MoveInDateAdjust = fcoalesce(MoveInDateAdjust, no_end_date))
   
   return(all_filtered_w_active_info)
 }
@@ -468,8 +473,8 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       Destination = numeric(),
       EnrollmentID = character(), 
       EnrollmentID_lecr = character(),
-      first_active_date_in_period = Date(), 
-      prev_active = Date()
+      first_active_date_in_period = NA_Date, 
+      prev_active = NA_Date
     )
     
     if(!IN_DEV_MODE) {
@@ -483,17 +488,17 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
   eecrs <- all_filtered_w_active_info %>%
     fmutate(
       straddles_start = startDate %between% list(active_start, active_end),
-      sort_var = fifelse(straddles_start, ProjectTypeWeight, -as.numeric(active_start))
+      sort_var = fifelse(straddles_start, ProjectTypeWeight, -active_start)
     ) %>%
     # New eecr
     roworder(PersonalID, period, -straddles_start, -sort_var, -ProjectTypeWeight, ExitAdjust, verbose = F) %>%
     fgroup_by(PersonalID, period) %>%
     fslice(how="first") %>%
     fmutate(
-      prev_active = fcoalesce(prev_active, as.Date(-Inf)),
-      prev_exit = fcoalesce(prev_exit, as.Date(-Inf)),
+      prev_active = fcoalesce(prev_active, no_start_date),
+      prev_exit = fcoalesce(prev_exit, no_start_date),
       prev_exit_dest_perm = fcoalesce(as.logical(prev_exit_dest_perm), FALSE),
-      first_active_date_in_period = fcoalesce(first_active_date_in_period, as.Date(Inf)),
+      first_active_date_in_period = fcoalesce(first_active_date_in_period, no_end_date),
       
       active_at_start = (
         startDate == first_active_date_in_period & (
@@ -521,8 +526,8 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
     fgroup_by(PersonalID, period) %>%
     fslice(how="last") %>%
     fmutate(
-      next_active = fcoalesce(next_active, as.Date(Inf)),
-      last_active_date_in_period  = fcoalesce(last_active_date_in_period, as.Date(-Inf)),
+      next_active = fcoalesce(next_active, no_end_date),
+      last_active_date_in_period  = fcoalesce(last_active_date_in_period, no_start_date),
       
       active_at_end = (
         endDate == last_active_date_in_period & (
@@ -550,7 +555,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
       ### First-Time Homeless  ----------
       first_time_homeless = !active_at_start & 
         (first_active_date_in_period - pmax(prev_active, prev_exit)) > 730 &
-        first_active_date_in_period != as.Date(Inf),
+        first_active_date_in_period != no_end_date,
       
       ### Continuous at Start  ----------
       continuous_at_start = !active_at_start &
@@ -574,7 +579,7 @@ get_inflows_and_outflows <- function(all_filtered_w_active_info, chart_type = 'm
         ExitAdjust == startDate,
       
       ### Unknown  ----------
-      unknown = first_active_date_in_period == as.Date(Inf) |
+      unknown = first_active_date_in_period == no_end_date |
         (first_active_date_in_period - prev_exit) %between% c(0, 14),
       
       ### InflowTypeDetail  ----------

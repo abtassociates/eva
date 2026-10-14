@@ -239,50 +239,34 @@ get_var_cols <- function(methodology_type) {
 # "expand" the dataset to get repeated rows per period (full + each month)
 # then filter based on the period start and end
 expand_by_periods <- function(dt, chart_type = 'mbm', reportStart = session$userData$ReportStart, reportEnd = session$userData$ReportEnd) {
-  if(chart_type == 'mbm'){
-    all_periods <- data.table(
+  all_periods <- if(chart_type == 'mbm'){
+     data.table(
       period = factor(names(session$userData$report_dates)),
-      startDate = as.Date(sapply(session$userData$report_dates, `[`, 1)),
-      endDate = as.Date(sapply(session$userData$report_dates, `[`, 2))
-    ) %>% 
-      ftransform(
-        exit_cutoff = startDate %m-% years(2),
-        temp_key = 1
-      )
-    
+      startDate = sapply(session$userData$report_dates, `[`, 1) |> as.IDate() |> as.Date(),
+      endDate = sapply(session$userData$report_dates, `[`, 2) |> as.IDate() |> as.Date()
+    )
   } else if(chart_type == 'exits_time'){
-    all_periods <- data.table(
+    data.table(
       period = c('Current Year','Previous Year'),
-      startDate = c(reportStart,
-                    reportStart %m-% years(1)),
-      endDate = c(reportEnd,
-                  reportEnd %m-% years(1))
-    ) %>% 
-      ftransform(
-        exit_cutoff = startDate %m-% years(2),
-        temp_key = 1
-      )
+      startDate = c(reportStart, subtract_years(reportStart)),
+      endDate = c(reportEnd, subtract_years(reportEnd))
+    )
   } else {
-    all_periods <- data.table(
+    data.table(
       period = c('Full'),
       startDate = reportStart,
       endDate = reportEnd
-    ) %>% 
-      ftransform(
-        exit_cutoff = startDate %m-% years(2),
-        temp_key = 1
-      )
+    )
   }
-  
   
   dt %>%
     ftransform(temp_key = 1) %>%
     join(
-      all_periods,
+      all_periods |> ftransform(temp_key = 1),
       on = "temp_key",
       multiple = TRUE
     ) %>%
-    fselect(-temp_key, -exit_cutoff) %>%
+    fselect(-temp_key) %>%
     setkeyv(cols=c("PersonalID", "period", "EnrollmentID"))
 }
 

@@ -280,11 +280,11 @@ Enrollment <- Enrollment %>%
       #   - If they enter on or before HMID, set to HMID
       #   - If they exited before HMID, set to NA
       fcase(
-        !ProjectType %in% ph_project_types, NA_Date_,
+        !ProjectType %in% ph_project_types, NA_Date,
         EntryDate > HMID, EntryDate,
         EntryDate <= HMID, HMID,
-        ExitAdjust < HMID, NA_Date_
-      )
+        ExitAdjust < HMID, NA_Date
+      ) |> structure(class="Date")
     )
   )
 
@@ -334,8 +334,9 @@ activeInventory <- Inventory %>%
     on = "ProjectID",
     how = 'left'
   ) %>%
+  fmutate(InventoryEndDateAdjust = fcoalesce(InventoryEndDate, no_end_date)) %>%
   fsubset(
-    fcoalesce(InventoryEndDate, no_end_date) >= session$userData$meta_HUDCSV_Export_Start &
+    InventoryEndDateAdjust >= session$userData$meta_HUDCSV_Export_Start &
       InventoryStartDate <= session$userData$meta_HUDCSV_Export_End
   )
 

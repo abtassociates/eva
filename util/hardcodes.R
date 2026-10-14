@@ -3,7 +3,9 @@ brand <- brand.yml::read_brand_yml(here::here("_brand.yml"))
 # hc = hard-coded
 hc_prior_living_situation_required <- ymd("20161001")
 hc_psh_started_collecting_move_in_date <- ymd("20171001")
-no_end_date <- ymd("20990909")
+no_end_date <- as.Date(as.IDate("2099-09-09"))
+no_start_date <- as.Date(as.IDate("1900-01-01"))
+NA_Date <- as.Date(as.IDate(NA))
 
 # Living Situations Groups (includes PLS, CLS, and destinations) 
 #(Updated to match FY2024 DS) ---------------------------------------------

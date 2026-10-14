@@ -2,6 +2,14 @@ get_brand_color <- function(color) {
   brand.yml::brand_color_pluck(brand, color)
 }
 
+subtract_years <- function(d, num_yrs = 1) {
+  # subtract a number of years and return integer date
+  lt <- as.POSIXlt(d)
+  lt$year <- lt$year - as.integer(num_yrs)
+  as.IDate(lt) |> as.Date()
+}
+
+
 # Age ---------------------------------------------------------------------
 
 age_years <- function(earlier, later)
@@ -224,11 +232,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   if (length(char_cols) > 0)
     settransformv(data, char_cols, enc2utf8)
   
-  
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
   data[, (names(data)) := lapply(.SD, function(x) {
     if (is.character(x)) x[x == ""] <- NA
     else if (inherits(x, "IDate")) x <- as.Date(x)
+    else if (inherits(x, "Date")) x <- as.Date(as.IDate(x)) # Enough nulls in a row aat the top and `fread` will store as double, not integer. So convert to int first.
     return(x)
   }), .SDcols = names(data)]
 

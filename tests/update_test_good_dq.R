@@ -101,8 +101,8 @@ original_data$Inventory <- original_data$Inventory %>%
       fselect(ProjectID, OperatingStartDate, OperatingEndDate), 
     on = "ProjectID"
   ) %>%
-  fmutate(InventoryStartDate = OperatingStartDate - days(1),
-         InventoryEndDate = OperatingEndDate + days(1)) %>%
+  fmutate(InventoryStartDate = OperatingStartDate - 1L,
+         InventoryEndDate = OperatingEndDate + 1L) %>%
   fselect(-c(OperatingStartDate, OperatingEndDate))
 
 # there are deleted records in the data -----------------------------------
@@ -111,7 +111,7 @@ original_data$Organization <- rbind(
   original_data$Organization[1,], 
   original_data$Organization
   ) %>%
-  fmutate(DateDeleted = fifelse(seq_row(.) == 1, ymd("20231101"), NA))
+  fmutate(DateDeleted = fifelse(seq_row(.) == 1, as.Date(as.IDate("2023-11-01")), NA_Date))
 
 # add some periods of zero utilization ------------------------------------
 # This should make project 1376 flag for Zero Utilization^
@@ -165,8 +165,8 @@ ainv_proj <- XInventory %>% fsubset(ProjectID == XInventory$ProjectID[fnrow(XInv
 # Update all the enrollments to have EntryDate 10 days after the Inventory End Date
 original_data$Enrollment <- original_data$Enrollment %>% 
   fmutate(EntryDate = as.Date(fifelse(ProjectID == ainv_proj$ProjectID,
-                           ymd(ainv_proj$InventoryEndDate + days(10)),
-                           ymd(EntryDate))))
+                           as.IDate(ainv_proj$InventoryEndDate + 10L),
+                           as.IDate(EntryDate))))
 
 rm(XInventory, ainv_proj)
 

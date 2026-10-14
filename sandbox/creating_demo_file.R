@@ -150,7 +150,7 @@ for (file in unique(cols_and_data_types$CSV)) {
           ExitID = c("999999", "999998", "999997", "999996"),
           EnrollmentID = c("999999", "999998", "999997", "999996"),
           PersonalID = rep("999999", 4),
-          ExitDate = as.Date(rep(c("2024-01-10", "2024-01-11"), 2)),
+          ExitDate = as.IDate(rep(c("2024-01-10", "2024-01-11"), 2)),
           Destination = rep(410, 4),
           DateCreated = as.POSIXct(rep("2022-09-22 15:48", 4)),
           DateUpdated = as.POSIXct(rep("2022-09-23 12:27", 4)),

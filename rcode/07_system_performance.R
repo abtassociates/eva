@@ -374,12 +374,12 @@ enrollment_categories <- enrollment_categories %>%
   fsubset(has_enrl_in_date_range) %>%
   fmutate(
     ProjectTypeWeight = fcase(
-      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
-      ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
-      ProjectType %in% lh_residential_project_types, 60,
-      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40,
-      ProjectType == ce_project_type, 30,
-      default = 20
+      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100L,
+      ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80L,
+      ProjectType %in% lh_residential_project_types, 60L,
+      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40L,
+      ProjectType == ce_project_type, 30L,
+      default = 20L
     ),
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (LivingSituation %in% homeless_livingsituation_incl_TH |
@@ -394,11 +394,11 @@ enrollment_categories <- enrollment_categories %>%
     # It also helps us determine if an enrollment is LH at period start/end, 
     # by looking back from the period start/end this number of days to see if there's an LH date
     days_lh_valid = fcase(
-      ProjectType == ce_project_type, 90,
-      ProjectType %in% non_res_project_types, 60,
-      ProjectType == es_nbn_project_type, 15,
-      ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.numeric(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
-      default = 0
+      ProjectType == ce_project_type, 90L,
+      ProjectType %in% non_res_project_types, 60L,
+      ProjectType == es_nbn_project_type, 15L,
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.integer(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
+      default = 0L
     ),
     
     lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
@@ -504,24 +504,25 @@ session$userData$lh_info <- enrollment_categories %>%
   fungroup() %>%
   fmutate(
     first_lh_compare_date = pmin(
-      fifelse(MoveInDateAdjust <= session$userData$ReportStart, NA, ExitAdjust),
+      fifelse(MoveInDateAdjust <= session$userData$ReportStart, NA_Date, ExitAdjust),
       fifelse(
         lh_at_entry,
         EntryDate,
         fifelse(lh_date < EntryDate, ExitAdjust, lh_date)
       ),
-      na.rm=TRUE
-    ),
+      na.rm = TRUE
+    ) |> as.IDate() |> as.Date(),
+    
     last_lh_compare_date = pmax(
-      pmin(lh_date + days_lh_valid, ExitAdjust), # Handle if lh_date + days_lh_valid goes beyond ExitDate.
-      fifelse(!exit_is_only_lh & !ProjectType %in% non_res_project_types, ExitDate, NA), # For non-res projects, we don't use ExitDate. LH_date + days_lh_valid is sufficient
+      pmin(lh_date + days_lh_valid, ExitAdjust, na.rm=TRUE), # Handle if lh_date + days_lh_valid goes beyond ExitDate.
+      fifelse(!exit_is_only_lh & !ProjectType %in% non_res_project_types, ExitDate, NA_Date), # For non-res projects, we don't use ExitDate. LH_date + days_lh_valid is sufficient
       fifelse(
         lh_at_entry,
-        pmin(EntryDate + days_lh_valid, ExitAdjust),
-        NA
+        pmin(EntryDate + days_lh_valid, ExitAdjust, na.rm = TRUE) |> as.IDate() |> as.Date(),
+        NA_Date
       ),
-      na.rm=TRUE
-    )
+      na.rm = TRUE
+    ) |> as.IDate() |> as.Date()
   ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(
@@ -609,12 +610,12 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
   fsubset(has_enrl_in_date_range) %>%
   fmutate(
     ProjectTypeWeight = fcase(
-      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100,
-      ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80,
-      ProjectType %in% lh_residential_project_types, 60,
-      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40,
-      ProjectType == ce_project_type, 30,
-      default = 20
+      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust), 100L,
+      ProjectType %in% ph_project_types & is.na(MoveInDateAdjust), 80L,
+      ProjectType %in% lh_residential_project_types, 60L,
+      ProjectType %in% setdiff(non_res_project_types, ce_project_type), 40L,
+      ProjectType == ce_project_type, 30L,
+      default = 20L
     ),
     lh_prior_livingsituation = !is.na(LivingSituation) &
       (LivingSituation %in% homeless_livingsituation_incl_TH |
@@ -629,11 +630,11 @@ enrollment_categories_prev <- enrollment_categories_prev %>%
     # It also helps us determine if an enrollment is LH at period start/end, 
     # by looking back from the period start/end this number of days to see if there's an LH date
     days_lh_valid = fcase(
-      ProjectType == ce_project_type, 90,
-      ProjectType %in% non_res_project_types, 60,
-      ProjectType == es_nbn_project_type, 15,
-      ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.numeric(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
-      default = 0
+      ProjectType == ce_project_type, 90L,
+      ProjectType %in% non_res_project_types, 60L,
+      ProjectType == es_nbn_project_type, 15L,
+      ProjectType %in% c(lh_project_types_nonbn, ph_project_types), as.integer(pmin(MoveInDateAdjust, ExitAdjust, no_end_date, na.rm=TRUE) - EntryDate),
+      default = 0L
     ),
     
     lh_at_entry = ProjectType %in% c(lh_project_types, ph_project_types) | 
@@ -727,24 +728,24 @@ session$userData$lh_info_prev <- enrollment_categories_prev %>%
   fungroup() %>%
   fmutate(
     first_lh_compare_date = pmin(
-      fifelse(MoveInDateAdjust <= startDatePrev, NA, ExitAdjust),
+      fifelse(MoveInDateAdjust <= startDatePrev, NA_Date, ExitAdjust),
       fifelse(
         lh_at_entry,
         EntryDate,
         fifelse(lh_date < EntryDate, ExitAdjust, lh_date)
       ),
       na.rm=TRUE
-    ),
+    ) |> as.IDate() |> as.Date(),
     last_lh_compare_date = pmax(
-      pmin(lh_date + days_lh_valid, ExitAdjust), # Handle if lh_date + days_lh_valid goes beyond ExitDate.
-      fifelse(!exit_is_only_lh & !ProjectType %in% non_res_project_types, ExitDate, NA), # For non-res projects, we don't use ExitDate. LH_date + days_lh_valid is sufficient
+      pmin(lh_date + days_lh_valid, ExitAdjust, na.rm=TRUE), # Handle if lh_date + days_lh_valid goes beyond ExitDate.
+      fifelse(!exit_is_only_lh & !ProjectType %in% non_res_project_types, ExitDate, NA_Date), # For non-res projects, we don't use ExitDate. LH_date + days_lh_valid is sufficient
       fifelse(
         lh_at_entry,
-        pmin(EntryDate + days_lh_valid, ExitAdjust),
-        NA
+        pmin(EntryDate + days_lh_valid, ExitAdjust, na.rm=TRUE) |> as.IDate() |> as.Date(),
+        NA_Date
       ),
       na.rm=TRUE
-    )
+    ) |> as.IDate() |> as.Date()
   ) %>%
   fgroup_by(EnrollmentID) %>%
   fmutate(

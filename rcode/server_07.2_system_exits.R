@@ -152,8 +152,8 @@ all_filtered_syse_time <- reactive({
     syse_enrollments_filtered_prev(), # Uses cached reactive
     syse_client_categories_filtered(), 
     ctype = 'exits_types', 
-    reportStart = session$userData$ReportStart %m-% years(1), 
-    reportEnd = session$userData$ReportEnd %m-% years(1)
+    reportStart = subtract_years(session$userData$ReportStart), 
+    reportEnd = subtract_years(session$userData$ReportEnd)
   ) %>% 
     fmutate(period = "Previous Year")
   
