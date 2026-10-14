@@ -253,10 +253,10 @@ sys_inflow_outflow_annual_chart_data <- reactive({
   fmutate(
     # switching Homeless and Housed order for Outflow is important for lining up 
     # the bars, which are created by calculating ystart+yend based on the ordering
-    order = case_when(
-      Summary == "Active at End" & Detail == "Homeless" ~ fnrow(.) - 1,
-      Summary == "Active at End" & Detail == "Housed" ~ fnrow(.),
-      TRUE ~ seq_row(.)  # fallback for other statuses/times
+    order = fcase(
+      Summary == "Active at End" & Detail == "Homeless", fnrow(.) - 1L,
+      Summary == "Active at End" & Detail == "Housed", fnrow(.),
+      default = seq_row(.)  # fallback for other statuses/times
     )
   ) %>%
   roworder(order)
@@ -305,7 +305,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 get_counts_by_month_for_mbm <- function(monthly_data) {
-  monthly_counts <- rbind(
+  monthly_counts <- rowbind(
     monthly_data[, .(
       PersonalID, 
       month, 
@@ -395,7 +395,7 @@ sys_monthly_chart_data_wide <- reactive({
   outflow_vals <- summary_data[PlotFillGroups == "Outflow", ..month_cols]
   change_row <- fsum(inflow_vals) - fsum(outflow_vals)
 
-  rbind(
+  rowbind(
     summary_data,
     add_vars(as.list(change_row), 
              PlotFillGroups = "Monthly Change", 
