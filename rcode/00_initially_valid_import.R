@@ -145,10 +145,10 @@ is_hashed <- function() {
     session$userData$Export$HashStatus == 4 &&
     all(c("FirstName", "MiddleName", "LastName", "SSN") %in% names(session$userData$Client)) &&
     all(
-      session$userData$Client$FirstName |> na_rm() |> vlengths() == 64L,
-      session$userData$Client$MiddleName |> na_rm() |> vlengths() == 64L,
-      session$userData$Client$LastName |> na_rm() |> vlengths() == 64L,
-      session$userData$Client$SSN  |> na_rm() |> vlengths() == 68L
+      session$userData$Client$FirstName |> na_rm() |> stringi::stri_length() == 64L,
+      session$userData$Client$MiddleName |> na_rm() |> stringi::stri_length() == 64L,
+      session$userData$Client$LastName |> na_rm() |> stringi::stri_length() == 64L,
+      session$userData$Client$SSN  |> na_rm() |> stringi::stri_length() == 68L
     )
   )
 }
