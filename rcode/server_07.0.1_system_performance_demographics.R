@@ -321,8 +321,6 @@ prepare_crosstab_data <- function(clean_df, selections, methodology_type, subtab
     get_sys_plot_df_2vars(clean_df, var_cols, selections = selections)
   }
   
-  toggle_download_buttons(subtab, plot_df)
-  
   # 5. Factor Level Assignment & Labeling
   type <- if (subtab == 'comp') 'overview' else 'exits'
   for (sel in selections) {

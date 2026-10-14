@@ -215,11 +215,6 @@ sys_detailBox <- function(
   }
 }
 
-toggle_download_buttons <- function(subtab = 'comp',plot_df) {
-  shinyjs::toggle(glue("sys_{subtab}_download_btn"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
-  shinyjs::toggle(glue("sys_{subtab}_download_btn_ppt"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
-}
-
 get_var_cols <- function(methodology_type) {
   return(
     list(

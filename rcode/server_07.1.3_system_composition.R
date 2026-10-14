@@ -36,9 +36,6 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, isE
   
   plot_df <- get_sys_plot_df_1var(comp_df, var_cols[[selection]], selection = selection)
   
-  # hide download buttons if not enough data
-  toggle_download_buttons(subtab,plot_df)
-  
   if(subtab == 'comp'){
     type <- 'overview'
   } else if (subtab == 'phd'){
@@ -153,31 +150,12 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     ) %>%
     funique()
   
-  shinyjs::toggle(
-    "sys_comp_download_btn",
-    condition = nrow(comp_df) > 10
-  )
-  shinyjs::toggle(
-    "sys_comp_download_btn_ppt",
-    condition = nrow(comp_df) > 10
-  )
-  
   validate(
-    need(
-      nrow(comp_df) > 0,
-      message = no_data_msg
-    )
-  )
-  validate(
-    need(
-      nrow(comp_df) > 10,
-      message = suppression_msg
-    )
+    need(nrow(comp_df) > 0, message = no_data_msg),
+    need(nrow(comp_df) > 10, message = suppression_msg)
   )
   
   plot_df <- get_sys_plot_df_2vars(comp_df, var_cols, selections = selections)
-  
-  toggle_download_buttons(subtab, plot_df)
   
   if(subtab == 'comp'){
     type <- 'overview'
@@ -391,19 +369,6 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, i
     )
 }
 
-
-output$sys_comp_download_btn <- downloadHandler(
-  filename = date_stamped_filename("System Demographics Report - "),
-  content = function(file) {
-   sys_heatmap_xl_export(file, 
-                         type = 'overview',
-                         methodology_type = input$syso_methodology_type,
-                         selections = input$system_composition_selections,
-                         plot_df = sys_comp_plot_df,
-                         in_demo_mode = input$in_demo_mode)
-  }
-)
-
 observeEvent(input$system_composition_selections, {
   # they can select up to 2
   #disable all unchecked boxes if they've already selected 2
@@ -474,48 +439,6 @@ output$sys_comp_summary_ui_chart <- renderPlot({
   }
 }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
 
-
-output$sys_comp_download_btn_ppt <- downloadHandler(
-  filename = function() {
-    paste("System Demographics_", Sys.Date(), ".pptx", sep = "")
-  },
-  content = function(file) {
-    sys_perf_ppt_export(
-      file = file,
-      type = 'overview',
-      title_slide_title = "System Demographics",
-      summary_items = sys_export_summary_initial_df(type = 'overview') %>%
-        filter(Chart != "Start Date" & Chart != "End Date") %>% 
-        bind_rows(sys_comp_selections_info()),
-      plots = setNames(
-        list(
-          if (length(input$system_composition_selections) == 1) {
-            sys_comp_plot_1var(subtab = 'comp', 
-                                  methodology_type = input$syso_methodology_type, 
-                                  selection = input$system_composition_selections, 
-                                  isExport = TRUE)
-          } else {
-            sys_comp_plot_2vars(subtab = 'comp', 
-                                  methodology_type = input$syso_methodology_type, 
-                                  selection = input$system_composition_selections, 
-                                  isExport = TRUE)
-          }
-        ),
-        paste0(
-          "System Demographics: ",
-          input$system_composition_selections[1],
-          " by ",
-          input$system_composition_selections[2]
-        )
-      ),
-      summary_font_size = 28,
-      startDate = session$userData$ReportStart, 
-      endDate = session$userData$ReportEnd, 
-      sourceID = session$userData$Export$SourceID,
-      in_demo_mode = input$in_demo_mode
-    )
-  }
-)
 
 # System Composition/Demographics data for chart
 get_people_universe_filtered <- reactive({

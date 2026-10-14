@@ -54,37 +54,6 @@ observeEvent(input$syso_methodology_type, {
   )
 }, ignoreInit = TRUE)
 
-observeEvent(
-  list(
-    input$syso_age,
-    input$syso_race_ethnicity,
-    input$syso_spec_pops,
-    
-    # Enrollment-level filters
-    input$syso_hh_type,
-    input$syso_level_of_detail,
-    input$syso_project_type
-  ),
-  {
-    num_rows <- fnrow(period_specific_data()[["Full"]])
-    
-    num_people <- ifelse(
-      num_rows > 0,
-      fndistinct(period_specific_data()[["Full"]] %>% fselect(PersonalID)),
-      0
-    )
-
-    shinyjs::toggle(
-      "syso_inflow_outflow_download_btn", 
-      condition = num_people > 10
-    )
-    shinyjs::toggle(
-      "syso_inflow_outflow_download_btn_ppt", 
-      condition = num_people > 10
-    )
-  }
-)
-
 
 # observeEvent(input$syso_level_of_detail, {
 #   updatePickerInput(session, "syso_spec_pops",
