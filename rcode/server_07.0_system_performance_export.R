@@ -144,6 +144,7 @@ sys_heatmap_xl_export <- function(file,
   }
   
   if(type == 'overview'){
+    # Tab Names
     if (length(selections) > 1) {
       num_tab_name <- glue("{v1} By {v2} #")
       pct_tab_name <- glue("{v1} By {v2} %")
@@ -170,12 +171,11 @@ sys_heatmap_xl_export <- function(file,
     logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                                 if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
   } else {
-    if (length(selections) > 1) {
-      
-      tab_name <- glue(str_remove_all("{v2}By{v1}CrossTab", ' '))
-    } else {
-      tab_name <- glue(str_remove_all("{v1}CrossTab",' '))
-    }
+    tab_name <- str_remove_all(
+      ifelse(length(selections) > 1, glue::glue("{v2}By{v1}CrossTab"), glue::glue("{v1}CrossTab")),
+      ' '
+    )
+    
     write_xlsx(
       setNames(
         list(sys_phd_selections_summary(), syse_phd_export()),
