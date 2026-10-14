@@ -465,8 +465,8 @@ renderDQPlot <- function(level, Priority, byType, color) {
       ) +
       geom_text(aes(label =  format(countVar, big.mark = ",", scientific = FALSE, trim = TRUE)), hjust = -0.5, color = "black", size = sys_chart_text_font)
   },
-  alt = unname(alt_lookup[plot_output_id])
-)
+  alt = unname(alt_lookup[plot_output_id]))
+}
 
 
 # --- 3. ITERATE OVER THE CONFIGS TO CREATE ALL PLOTS ---
