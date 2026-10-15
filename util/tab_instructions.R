@@ -534,14 +534,19 @@ tabSystemOverview_instructions <-  HTML("<h4>System Overview</h4>
                 panels have an “Interpretation Tips” section that can help you interpret their output. </p>
                 
                 <h4>Downloads</h4>
-                <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes three System Overview export options. The data in these exports reflect the clients that meet the 
-                characteristics of the system subpopulation you selected with the Filters Menu.<p>
-                <ul style='list-style-type: none; padding-left: 10px;'>
-                <li>(1)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.</span></li>
-                <li>(2)  <span style='padding-left: 0.25rem;'>To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel.</span></li>
-                <li>(3)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with all client data used for all of the System Overview Charts, click the \"Client Level Download\" button.</span></li>
-                </ul>
+                <p>To support further systems analysis, local reporting, and presentations, Eva allows you to download 
+                aggregate data and image exports for all charts included on this page. The data in these exports 
+                reflect the clients that meet the characteristics of the system subpopulation you selected with 
+                the Filters Menu.</p>
+                <p>Eva's System Performance Export Interface makes it quick and easy to download multiple exports 
+                for multiple charts all at the same time. If more that one export is selected, 
+                Eva will generate a .zip file.</p>
+                <ol style='padding-left: 1rem;'>
+                <li>To generate an Excel workbook with the aggregate data for a specific chart, check the \"Data\" box.</li>
+                <li>To generate a PowerPoint slide deck with the image(s) for a specific chart, check the \"Image\" box.</li>
+                <li>To generate an Excel workbook with all client data used for all of the System Overview Charts, 
+                check the \"System Overview Client Level Export\" box. 
+                </ol>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -1001,14 +1006,19 @@ of clients who exited your homeless system by the end of the report period.</p>
                 section that can help you interpret their output.</p>
                 
                 <h4>Downloads</h4>
-                <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes three System Performance Overview export options. The data in these exports reflect the clients that meet the 
-                characteristics of the system subpopulation you selected with the Filters Menu.<p>
-                <ul style='list-style-type: none; padding-left: 10px;'>
-                <li>(1)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.</span>  </li>
-                <li>(2)  <span style='padding-left: 0.25rem;'>To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel.</span> </li>
-                <li>(3)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with all client data used for all of the System Exits Charts, click the \"Client Level Download\" button on the System Overview page.</span> </li>
-                </ul>
+                <p>To support further systems analysis, local reporting, and presentations, Eva allows you to download 
+                aggregate data and image exports for all charts included on this page. The data in these exports 
+                reflect the clients that meet the characteristics of the system subpopulation you selected with 
+                the Filters Menu.</p>
+                <p>Eva's System Performance Export Interface makes it quick and easy to download multiple exports 
+                for multiple charts all at the same time. If more that one export is selected, 
+                Eva will generate a .zip file.</p>
+                <ol style='padding-left: 1rem;'>
+                <li>To generate an Excel workbook with the aggregate data for a specific chart, check the \"Data\" box.</li>
+                <li>To generate a PowerPoint slide deck with the image(s) for a specific chart, check the \"Image\" box.</li>
+                <li>To generate an Excel workbook with all client data used for all of the System Exits Charts, 
+                check the \"System Exits Client Level Export\" box. 
+                </ol>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
