@@ -234,6 +234,9 @@ populate_client_level_export <- function(type = 'syso', file){
   if(type == 'syso'){
     wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
     wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
+  } else {
+    wb <- sheet_remove(wb, "Monthly Statuses")
+    wb <- sheet_remove(wb, "Adjusted Enrollments")
   }
  
   print(wb, target = file)
