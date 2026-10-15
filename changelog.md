@@ -4,6 +4,9 @@
 
 ### Bug Fixes
 - Add missing inflow and outflow statuses in the Month-by-Month Export.
+ - Determine string *character* length with `stringi::stri_length`, not *byte* length with `collapse::vlengths`, as some non-ascii characters can be multi-byte thus tripping the exceeds length limit even though the number of *characters* doesn't exceed. (Issue <a href='https://github.com/abtassociates/eva/issues/1100' target ='_blank'>#1100</a>)
+ - Change list reference from V3.3 to V4.4
+ - Turn off "Dependent Field Data Collection Issue" check for column LeaveSituation14Days
 
 ## 2026-10-01
 

@@ -3726,12 +3726,12 @@
         ],
         [
           "NA's         : 1  ",
-          "Mean   :  823.0  ",
+          "Mean   :  821.4  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
           null,
-          "3rd Qu.:  618.5  ",
+          "3rd Qu.:  574.0  ",
           "Conflicting Health Insurance yes/no at Exit                 : 1  "
         ],
         [
@@ -3768,7 +3768,7 @@
           null,
           "NA's         :  7  ",
           "Unknown SSN                          : 26  ",
-          "Mean   :  56.67  "
+          "Mean   :  56.56  "
         ],
         [
           null,
@@ -3914,16 +3914,16 @@
       ],
       "Errors": [
         [
-          "Length:13122      ",
-          "Length:13122      ",
-          "Length:13122      ",
-          "Length:13122      ",
+          "Length:13008      ",
+          "Length:13008      ",
+          "Length:13008      ",
+          "Length:13008      ",
           "No bed night on Entry Date                   :2122  ",
-          "Length:13122      ",
-          "Length:13122      ",
-          "Length:13122      ",
+          "Length:13008      ",
+          "Length:13008      ",
+          "Length:13008      ",
           "Min.   :2007-05-05  ",
-          "Length:13122      "
+          "Length:13008      "
         ],
         [
           "Class :character  ",
@@ -3934,7 +3934,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-04  ",
+          "1st Qu.:2020-06-03  ",
           "Class :character  "
         ],
         [
@@ -3946,7 +3946,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-16  ",
+          "Median :2021-02-17  ",
           "Mode  :character  "
         ],
         [
@@ -3990,7 +3990,7 @@
           null,
           null,
           null,
-          "(Other)                                      :5639  ",
+          "(Other)                                      :5525  ",
           null,
           null,
           null,
