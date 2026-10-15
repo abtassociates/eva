@@ -8,7 +8,8 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
     "Temporary" = get_brand_color('med_grey'),
     "Other/Unknown" = get_brand_color('med_grey')
   )
-  nr <- nrow(tree_exits_data())
+
+  nr <- fnrow(tree_exits_data())
   
   shinyjs::toggle(
     "syse_types_download_btn",
@@ -86,14 +87,7 @@ output$syse_types_filter_selections <- renderUI({
 })
 
 output$syse_types_ui_chart <- renderPlot({
-  
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
-  
+  validate_chart(syse_chart_validation_type())
   get_syse_types_chart("Destination Type", input$syse_dest_type_filter)
 })
 
@@ -104,7 +98,7 @@ syse_types_data_download <- function(file) {
     "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
       rowbind(
         sys_export_filter_selections(type = 'exits'),
-        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(fnrow(tree_exits_data())))              
       ) %>% 
       frename('System Exits by Type' = Value),
     
@@ -133,7 +127,7 @@ summary_items <- reactive({
     fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
     rowbind(
       sys_export_filter_selections(type = 'exits'),
-      data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))
+      data.table(Chart="Total System Exits", Value = scales::label_comma()(fnrow(tree_exits_data())))
     )
 })
 syse_types_ppt_download <- function(file) {
