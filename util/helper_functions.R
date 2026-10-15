@@ -891,7 +891,8 @@ custom_sys_export_dropdown <- function(id_prefix) {
       `data-bs-toggle` = "dropdown",
       `data-bs-auto-close` = "outside",
       `aria-expanded` = "false",
-      icon("download")
+      icon("download"),
+      "Download"
     ),
     tags$div(
       class = "dropdown-menu dropdown-menu-end p-3 export-dropdown-menu",
@@ -911,7 +912,7 @@ custom_sys_export_dropdown <- function(id_prefix) {
       table_rows,
       
       # Unified Export button
-      downloadButton(export_id, "Export", style = "width: 100%; margin-top: 10px")
+      downloadButton(export_id, "Download", style = "width: 100%; margin-top: 10px")
     )
   )
 }
