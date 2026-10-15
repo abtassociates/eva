@@ -1,0 +1,720 @@
+{
+  "input": {
+    "CELongStayers": 90,
+    "CEOutstandingReferrals": 14,
+    "DayShelterLongStayers": 90,
+    "ESNbNLongStayers": 90,
+    "Go_to_upload": 1,
+    "OUTLongStayers": 90,
+    "OtherLongStayers": 90,
+    "ServicesOnlyLongStayers": 90,
+    "accordion_dqexport": null,
+    "accordion_dqorg": null,
+    "accordion_dqsystem": null,
+    "accordion_home": null,
+    "accordion_local_settings": null,
+    "accordion_pdde": null,
+    "accordion_project_dashboard": null,
+    "accordion_systemexits": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+    "currentProviderList": null,
+    "dateRangeCount": [
+      null,
+      null
+    ],
+    "demo_mode_tooltip": false,
+    "dimension": [
+      1920,
+      1080
+    ],
+    "dq_export_date_multiple": [
+      null,
+      null
+    ],
+    "dq_export_date_options": "Date Range",
+    "dq_export_date_single": [
+
+    ],
+    "dq_export_export_types": [
+      "Organization-level (multi-select)",
+      "System-level"
+    ],
+    "dq_export_orgList": null,
+    "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
+    "fileStructureAnalysis_cell_clicked": {
+
+    },
+    "fileStructureAnalysis_cells_selected": [
+
+    ],
+    "fileStructureAnalysis_columns_selected": null,
+    "fileStructureAnalysis_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "fileStructureAnalysis_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "fileStructureAnalysis_rows_selected": null,
+    "fileStructureAnalysis_search": "",
+    "fileStructureAnalysis_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "g_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
+    "glossary_card_full_screen": false,
+    "hp_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Top Issues<\/h5>",
+    "imported": {
+      "name": [
+        "FY26-test-fsa.zip"
+      ],
+      "size": [
+        8770
+      ],
+      "type": [
+        "application/zip"
+      ],
+      "datapath": [
+        "0.zip"
+      ]
+    },
+    "in_demo_mode": false,
+    "mbm_status_filter": "All",
+    "orgList": null,
+    "pageid": "tabUpload",
+    "pdde_subtabs": "<h4>PDDE Check Summary<\/h4>",
+    "project_dashboard_cc_subtabs": "<h5>Summary<\/h5>",
+    "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
+    "subpop_dest_type": "Permanent",
+    "syse_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_export_all_pptx": true,
+    "syse_export_all_xlsx": true,
+    "syse_export_client_xlsx": true,
+    "syse_export_phd_pptx": true,
+    "syse_export_phd_xlsx": true,
+    "syse_export_subpop_pptx": true,
+    "syse_export_subpop_xlsx": true,
+    "syse_export_time_pptx": true,
+    "syse_export_time_xlsx": true,
+    "syse_export_type_pptx": true,
+    "syse_export_type_xlsx": true,
+    "syse_filters_left_full_screen": false,
+    "syse_filters_right_full_screen": false,
+    "syse_hh_type": "All",
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_phd_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ],
+    "syse_phd_subtabs": "<h5>Chart<\/h5>",
+    "syse_project_type": "All",
+    "syse_race_ethnicity": "All",
+    "syse_spec_pops": "None",
+    "syse_subpop_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_subpop_age_selection": false,
+    "syse_subpop_hh_type": "All",
+    "syse_subpop_race_eth_selection": false,
+    "syse_subpop_race_ethnicity": "All",
+    "syse_subpop_spec_pops": "None",
+    "syse_subpop_subtabs": "<h5>Chart<\/h5>",
+    "syse_subpop_vet_selection": false,
+    "syse_tabbox": "<h4>Exits by Type<\/h4>",
+    "syse_time_subtabs": "<h5>Chart<\/h5>",
+    "syse_types_subtabs": "<h5>Chart<\/h5>",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_card_filters_right_full_screen": false,
+    "syso_comp_subtabs": "<h5>Chart<\/h5>",
+    "syso_composition_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ],
+    "syso_export_all_pptx": true,
+    "syso_export_all_xlsx": true,
+    "syso_export_client_xlsx": true,
+    "syso_export_demo_pptx": true,
+    "syso_export_demo_xlsx": true,
+    "syso_export_flow_pptx": true,
+    "syso_export_flow_xlsx": true,
+    "syso_export_status_pptx": true,
+    "syso_export_status_xlsx": true,
+    "syso_filters_left_full_screen": false,
+    "syso_hh_type": "All",
+    "syso_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
+    "syso_level_of_detail": "All",
+    "syso_methodology_type": "1",
+    "syso_project_type": "All",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_status_subtabs": "<h5>Chart<\/h5>",
+    "syso_tabbox": "<h4>System Flow<\/h4>",
+    "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
+    "tabDQSystem_subtabs": "<h4>High Priority Errors<\/h4>",
+    "timeliness_metric": 3,
+    "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "warnings_dqsystem_subtabs": "<h5>Top Issues<\/h5>"
+  },
+  "output": {
+    "downloadFileStructureAnalysisBtn": {
+      "html": "<a aria-disabled=\"true\" class=\"btn btn-default shiny-download-link disabled\" download href=\"\" id=\"downloadFileStructureAnalysis\" tabindex=\"-1\" target=\"_blank\">\n  <i class=\"fas fa-download\" role=\"presentation\" aria-label=\"download icon\"><\/i>\n  Download Structure Analysis Detail\n<\/a>",
+      "deps": [
+        {
+          "name": "font-awesome",
+          "version": "6.5.2",
+          "src": {
+            "href": "font-awesome-6.5.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": [
+            "css/all.min.css",
+            "css/v4-shims.min.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "downloadImpermissibleCharacterDetailBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "fileInfo": null,
+    "fileStructureAnalysis": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Priority<\/th>\n      <th>Issue<\/th>\n      <th>Count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "t",
+          "language": {
+            "zeroRecords": "No file structure analysis issues! \n                      Visit Eva's other pages to explore data quality and system performance."
+          },
+          "columnDefs": [
+            {
+              "className": "dt-right",
+              "targets": 2
+            },
+            {
+              "name": "Priority",
+              "targets": 0
+            },
+            {
+              "name": "Issue",
+              "targets": 1
+            },
+            {
+              "name": "Count",
+              "targets": 2
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false,
+          "ajax": {
+            "type": "POST",
+            "data": "function(d) {\nd.search.caseInsensitive = true;\nd.search.smart = true;\nd.escape = true;\nvar encodeAmp = function(x) { x.value = x.value.replace(/&/g, \"%26\"); }\nencodeAmp(d.search);\n$.each(d.columns, function(i, v) {encodeAmp(v.search);});\n}"
+          },
+          "serverSide": true,
+          "processing": true
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+        "options.ajax.data"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.13.6",
+          "src": {
+            "href": "dt-core-1.13.6"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.2",
+          "src": {
+            "href": "crosstalk-1.2.2"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    },
+    "headerUpload": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    }
+  },
+  "export": {
+    "file_structure_analysis_main": {
+      "Issue": [
+        "Incorrect Data Type",
+        "Incorrect or Misordered Columns",
+        "Incorrect or Misordered Columns",
+        "Incorrect or Misordered Columns",
+        "Incorrect or Misordered Columns",
+        "Incorrect Data Type",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Nulls Not Allowed",
+        "Nulls Not Allowed",
+        "Identifier Does Not Match Across CSV Files",
+        "Nulls Not Allowed",
+        "Nulls Not Allowed",
+        "Nulls Not Allowed",
+        "Nulls Not Allowed",
+        "Nulls Not Allowed",
+        "Invalid Non-Null Value",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files",
+        "Identifier Does Not Match Across CSV Files"
+      ],
+      "Priority": [
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "High Priority",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error",
+        "Error"
+      ],
+      "Guidance": [
+        "Data types must align with the HMIS CSV Format Specifications. Please review the specifications for the data types associated with the file and column listed in the Detail and make the necessary updates. Note that hidden, zero-width space characters may cause Eva to interpret numeric variables as character variables.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file in the order specified in the HMIS CSV Format Specifications. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present and in the correct order.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file in the order specified in the HMIS CSV Format Specifications. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present and in the correct order.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file in the order specified in the HMIS CSV Format Specifications. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present and in the correct order.",
+        "Your HMIS CSV Export should contain - with identical, case-sensitive spelling - only the columns specified in the columns.csv file in the order specified in the HMIS CSV Format Specifications. Please remove any extra columns and make sure all columns represented in the HMIS CSV Format Specifications are present and in the correct order.",
+        "Data types must align with the HMIS CSV Format Specifications. Please review the specifications for the data types associated with the file and column listed in the Detail and make the necessary updates. Note that hidden, zero-width space characters may cause Eva to interpret numeric variables as character variables.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "Nulls are not allowed for this column. Please review the HMIS CSV Format Specifications for the requirements associated with the file and column listed in the Detail and make the necessary updates.",
+        "The value entered in HMIS for this field is invalid. All columns should contain only the allowable values listed in the HMIS CSV Format Specifications for that specific column. Please review the HMIS CSV Format Specifications for this column's associated value list.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers.",
+        "Per the HMIS CSV Format Specifications, certain identifiers must match across some or across all files in the HMIS CSV Export. For example, a UserID in the Client.csv file must match a UserID in the User.csv file. As another example, all instances of ExportID must match the ExportID in the Export.csv file. In the HMIS CSV Format Specifications, refer to the Notes column of each file table to see the match conditions for identifiers."
+      ],
+      "Detail": [
+        "Invalid data type of character when it should be integer. Key Info: AssessmentID 4079498, AssessmentDate 2020-01-20",
+        "The column is Misspelled.",
+        "The column is Extra.",
+        "The column is Missing.",
+        "The column is Missing.",
+        "Invalid data type of character when it should be Date. ",
+        "No match in Enrollment.csv for EnrollmentID 760986. Key Info: AssessmentID 4079498, AssessmentDate 2020-01-20",
+        "No match in Client.csv for PersonalID 656942. Key Info: AssessmentID 4079498, AssessmentDate 2020-01-20",
+        "No match in Enrollment.csv for EnrollmentID 784871. Key Info: CurrentLivingSitID 8, InformationDate 2020-10-06",
+        "No match in Client.csv for PersonalID 68121. Key Info: CurrentLivingSitID 8, InformationDate 2020-10-06",
+        "No match in Enrollment.csv for EnrollmentID 673649. Key Info: DisabilitiesID 673649_1_S, InformationDate 2017-08-04",
+        "No match in Client.csv for PersonalID 482. Key Info: DisabilitiesID 673649_1_S, InformationDate 2017-08-04",
+        "No match in Client.csv for PersonalID 5966. Key Info: EntryDate 2022-01-01",
+        "No match in Project.csv for ProjectID 1182. Key Info: EntryDate 2022-01-01",
+        "No match in Enrollment.csv for EnrollmentID 760987. Key Info: EventID 4079494, EventDate 2020-01-20",
+        "No match in Client.csv for PersonalID 656938. Key Info: EventID 4079494, EventDate 2020-01-20",
+        "No match in Enrollment.csv for EnrollmentID 757722. Key Info: ExitID 757722, ExitDate 2020-01-07",
+        "No match in Client.csv for PersonalID 1362. Key Info: ExitID 757722, ExitDate 2020-01-07",
+        "No match in Project.csv for ProjectID 55. Key Info: FunderID 651, StartDate 2014-05-01",
+        "No match in Enrollment.csv for EnrollmentID 741190. Key Info: HealthAndDVID 741190_3, InformationDate 2019-10-07",
+        "No match in Client.csv for PersonalID 1086. Key Info: HealthAndDVID 741190_3, InformationDate 2019-10-07",
+        "No match in Enrollment.csv for EnrollmentID 741190. Key Info: IncomeBenefitsID 741190_3, InformationDate 2019-10-07",
+        "No match in Client.csv for PersonalID 1086. Key Info: IncomeBenefitsID 741190_3, InformationDate 2019-10-07",
+        "No match in ProjectCoC.csv for ProjectID 55. Key Info: InventoryID 2364, InventoryStartDate 2019-02-06",
+        "No match in Organization.csv for OrganizationID 6. Key Info: ProjectID 109",
+        "No match in Enrollment.csv for EnrollmentID 782675. Key Info: ServicesID 4418624, DateProvided 2020-10-08",
+        "No match in Client.csv for PersonalID 5966. Key Info: ServicesID 4418624, DateProvided 2020-10-08",
+        "AffiliationID (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "ProjectID (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "No match in Project.csv for ResProjectID NA. Key Info: AffiliationID NA",
+        "ResProjectID (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "DateCreated (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "DateUpdated (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "UserID (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "ExportID (in Affiliation.csv) should not be null. Key Info: AffiliationID NA",
+        "Invalid value of a string not found in list 4.19.3. Key Info: AssessmentID 4079498, AssessmentDate 2020-01-20",
+        "No match in Enrollment.csv for EnrollmentID 741190. Key Info: EmploymentEducationID 741190_3, InformationDate 2019-10-07",
+        "No match in Client.csv for PersonalID 1086. Key Info: EmploymentEducationID 741190_3, InformationDate 2019-10-07",
+        "No match in Enrollment.csv for EnrollmentID 741190. Key Info: YouthEducationStatusID 741190_3, InformationDate 2019-10-07",
+        "No match in Client.csv for PersonalID 1086. Key Info: YouthEducationStatusID 741190_3, InformationDate 2019-10-07"
+      ],
+      "CSV": [
+        "Assessment",
+        "Client",
+        "Client",
+        "Client",
+        "Client",
+        "Client",
+        "Assessment",
+        "Assessment",
+        "CurrentLivingSituation",
+        "CurrentLivingSituation",
+        "Disabilities",
+        "Disabilities",
+        "Enrollment",
+        "Enrollment",
+        "Event",
+        "Event",
+        "Exit",
+        "Exit",
+        "Funder",
+        "HealthAndDV",
+        "HealthAndDV",
+        "IncomeBenefits",
+        "IncomeBenefits",
+        "Inventory",
+        "Project",
+        "Services",
+        "Services",
+        "Affiliation",
+        "Affiliation",
+        "Affiliation",
+        "Affiliation",
+        "Affiliation",
+        "Affiliation",
+        "Affiliation",
+        "Affiliation",
+        "Assessment",
+        "EmploymentEducation",
+        "EmploymentEducation",
+        "YouthEducationStatus",
+        "YouthEducationStatus"
+      ],
+      "Column": [
+        "AssessmentType",
+        "VeeteranStatuss",
+        "ExtraCol",
+        "BlackAfAmerican",
+        "DateCreated",
+        "DOB",
+        "EnrollmentID",
+        "PersonalID",
+        "EnrollmentID",
+        "PersonalID",
+        "EnrollmentID",
+        "PersonalID",
+        "PersonalID",
+        "ProjectID",
+        "EnrollmentID",
+        "PersonalID",
+        "EnrollmentID",
+        "PersonalID",
+        "ProjectID",
+        "EnrollmentID",
+        "PersonalID",
+        "EnrollmentID",
+        "PersonalID",
+        "ProjectID",
+        "OrganizationID",
+        "EnrollmentID",
+        "PersonalID",
+        "AffiliationID",
+        "ProjectID",
+        "ResProjectID",
+        "ResProjectID",
+        "DateCreated",
+        "DateUpdated",
+        "UserID",
+        "ExportID",
+        "AssessmentType",
+        "EnrollmentID",
+        "PersonalID",
+        "EnrollmentID",
+        "PersonalID"
+      ],
+      "ID Type": [
+        "EnrollmentID",
+        null,
+        null,
+        null,
+        null,
+        "PersonalID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "ProjectID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "ProjectID",
+        "ProjectID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "ProjectID",
+        "ProjectID",
+        "ProjectID",
+        "ProjectID",
+        "ProjectID",
+        "ProjectID",
+        "ProjectID",
+        "ProjectID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID",
+        "EnrollmentID"
+      ],
+      "ID Value": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "760986",
+        "760986",
+        "784871",
+        "784871",
+        "673649",
+        "673649",
+        "836008",
+        "836008",
+        "760987",
+        "760987",
+        "757722",
+        "757722",
+        "55",
+        "741190",
+        "741190",
+        "741190",
+        "741190",
+        "55",
+        "109",
+        "782675",
+        "782675",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "760986",
+        "741190",
+        "741190",
+        "741190",
+        "741190"
+      ]
+    }
+  }
+}
