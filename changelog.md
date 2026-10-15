@@ -1,5 +1,10 @@
 
 # Eva Changelog
+## 2026-10-15
+
+### Bug Fixes
+- Add missing inflow and outflow statuses in the Month-by-Month Export.
+
 ## 2026-10-01
 
 ### Bug Fixes
