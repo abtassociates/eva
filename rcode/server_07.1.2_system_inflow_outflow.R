@@ -298,7 +298,7 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
     get_counts_by_month_for_mbm() %>%
     fsubset(Detail %!iin% c(inflow_statuses_to_exclude_from_export, outflow_statuses_to_exclude_from_export))
   
-  exportTestValues(syso_inflow_outflow_monthly_chart_data = summarize_df(syso_inflow_outflow_monthly_chart_data))
+  exportTestValues(sys_inflow_outflow_monthly_chart_data = summarize_df(sys_inflow_outflow_monthly_chart_data))
   
   monthly_data
 })
@@ -632,7 +632,7 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
   reactive({
     logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
 
-    plot_data <- syso_inflow_outflow_monthly_chart_data() %>%
+    plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
       fsubset(
         !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
       ) %>%
