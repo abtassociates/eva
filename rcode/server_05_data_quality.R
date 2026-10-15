@@ -260,7 +260,7 @@ dq_full <- reactive({
     long_stayers_tc <- tryCatch(
       long_stayers <- session$userData$long_stayers %>%
         fmutate(
-          too_many_days = unname(lookup[as.character(ProjectType)])
+          too_many_days = unname(lookup[ProjectType])
         ) %>% 
         fsubset(DaysSinceLastKnown > too_many_days) %>%
         fselect(c(vars_we_want, "Detail")), 
@@ -465,8 +465,8 @@ renderDQPlot <- function(level, Priority, byType, color) {
       ) +
       geom_text(aes(label =  format(countVar, big.mark = ",", scientific = FALSE, trim = TRUE)), hjust = -0.5, color = "black", size = sys_chart_text_font)
   },
-  alt = unname(alt_lookup[plot_output_id]))
-}
+  alt = unname(alt_lookup[plot_output_id])
+)}
 
 
 # --- 3. ITERATE OVER THE CONFIGS TO CREATE ALL PLOTS ---
