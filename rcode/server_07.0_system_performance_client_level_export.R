@@ -164,14 +164,10 @@ populate_client_level_export <- function(type = 'syso', file){
         OutflowTypeDetail
       ) %>%
       funique() %>%
-      pivot(
-        ids = c("PersonalID", 
-                "Moved into Housing During Report",
-                "Exited to Permanent Destination During Report",
-                "Moved into Housing or Exited to Permanent Destination by Report End"),        # Column(s) defining the rows of the output
-        names = "month", 
-        values = "OutflowTypeDetail",
-        how = "wider"
+      dcast(
+        ... ~ month, 
+        value.var = "OutflowTypeDetail", 
+        drop = c(TRUE, FALSE) #TRUE drops unobserved row combinations, FALSE forces all factor levels to become columns
       )
     
     system_df_info <- syso_inflow_outflow_annual_chart_data() %>% 
