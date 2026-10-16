@@ -1,5 +1,9 @@
 
 # Eva Changelog
+## 2026-10-16
+
+### Bug Fixes
+ - Fixed grouping condition for Missing Income at Entry checks, which was leading to flagging projects that did NOT require Income (and had no Age At Entry) (Issue <a href='https://github.com/abtassociates/eva/issues/1109' target ='_blank'>#1109</a>)
 ## 2026-10-15
 
 ### Bug Fixes

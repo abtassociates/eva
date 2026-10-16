@@ -1890,7 +1890,7 @@
         ],
         [
           null,
-          "Mean   : 45.39  ",
+          "Mean   : 45.37  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
@@ -1911,14 +1911,14 @@
       ],
       "Organization Summary": [
         [
-          "Length:136        ",
+          "Length:135        ",
           "High Priority:12  ",
           "Dependent Field Data Collection Issue                       :  5  ",
           "Min.   :  1.00  "
         ],
         [
           "Class :character  ",
-          "Error        :69  ",
+          "Error        :68  ",
           "Homelessness Start Date conflicts with Living Situation data:  3  ",
           "1st Qu.:  2.00  "
         ],
@@ -1932,7 +1932,7 @@
           null,
           null,
           "Conflicting Income yes/no at Entry                          :  3  ",
-          "Mean   : 20.69  "
+          "Mean   : 20.84  "
         ],
         [
           null,
@@ -1949,7 +1949,7 @@
         [
           null,
           null,
-          "(Other)                                                     :116  ",
+          "(Other)                                                     :115  ",
           null
         ]
       ],
@@ -2078,16 +2078,16 @@
       ],
       "Errors": [
         [
-          "Length:857        ",
-          "Length:857        ",
-          "Length:857        ",
-          "Length:857        ",
+          "Length:856        ",
+          "Length:856        ",
+          "Length:856        ",
+          "Length:856        ",
           "Incomplete Living Situation Data             :105  ",
-          "Length:857        ",
-          "Length:857        ",
-          "Length:857        ",
+          "Length:856        ",
+          "Length:856        ",
+          "Length:856        ",
           "Min.   :2007-05-05  ",
-          "Length:857        "
+          "Length:856        "
         ],
         [
           "Class :character  ",
@@ -2098,7 +2098,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-10-07  ",
+          "1st Qu.:2020-10-06  ",
           "Class :character  "
         ],
         [
@@ -2110,7 +2110,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-06-28  ",
+          "Median :2021-06-26  ",
           "Mode  :character  "
         ],
         [
@@ -2134,7 +2134,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-02-14  ",
+          "3rd Qu.:2022-02-11  ",
           null
         ],
         [
@@ -2154,7 +2154,7 @@
           null,
           null,
           null,
-          "(Other)                                      :325  ",
+          "(Other)                                      :324  ",
           null,
           null,
           null,
