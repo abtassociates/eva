@@ -10,18 +10,11 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
   )
 
   nr <- fnrow(tree_exits_data())
-  
-  shinyjs::toggle(
-    "syse_types_download_btn",
-    condition = nr > 10
+ 
+  validate(
+    need(nr > 0, no_data_msg),
+    need(nr > 10, suppression_msg)
   )
-  shinyjs::toggle(
-    "syse_types_download_btn_ppt",
-    condition = nr > 10
-  )
-  
-  validate(need(nr > 0, no_data_msg))
-  validate(need(nr > 10, suppression_msg))
   
   tree_exits_summ <- tree_exits_data() %>% 
     fgroup_by(`Destination Type`) %>% 

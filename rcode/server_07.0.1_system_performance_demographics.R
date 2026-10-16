@@ -18,7 +18,7 @@ sys_demographics_selection_info <- function(type = 'overview', selection){
       ),
       Value = c(
         Value,
-        fnrow(syso_get_people_universe_filtered() %>% remove_non_applicables(selection = selection))
+        fnrow(syso_comp_universe() %>% remove_non_applicables(selection = selection))
       )
     )
   } else if (type == 'exits'){
@@ -320,8 +320,6 @@ prepare_crosstab_data <- function(clean_df, selections, methodology_type, subtab
   } else {
     get_sys_plot_df_2vars(clean_df, var_cols, selections = selections)
   }
-  
-  toggle_download_buttons(subtab, plot_df)
   
   # 5. Factor Level Assignment & Labeling
   type <- if (subtab == 'comp') 'overview' else 'exits'

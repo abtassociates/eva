@@ -1248,11 +1248,12 @@ syso_inflow_outflow_data_download <- function(file) {
   logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
                      if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
   exportTestValues(syso_inflow_outflow_report = df)
+  exportTestValues(syso_monthly_inflow_outflow_report = monthly_data$monthly_counts)
 }
 
 # PowerPoint/Image Export -----------------------------------------------------
 syso_inflow_outflow_ppt_download  <- function(file) {
-  logToConsole(session, "In syso_inflow_outflow_download_btn_ppt")
+  logToConsole(session, "In syso_inflow_outflow_download_ppt")
   monthly_data <- syso_export_monthly_info()
 
   sys_perf_ppt_export(
