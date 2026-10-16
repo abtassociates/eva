@@ -65,7 +65,7 @@ get_long_stayers <- function() {
         )
       ) %>%
       fsubset(DaysSinceLastKnown > too_many_days) %>%
-      fselect(vars_we_want) %>%
+      fselect(c(vars_we_want, "Detail")) %>%
       fmutate(Type = factor(Type, levels = issue_levels)),
     error = function(e){e}
   )
@@ -76,7 +76,7 @@ get_outstanding_referrals <- function() {
     session$userData$outstanding_referrals %>%
       fsubset(input$CEOutstandingReferrals < Days) %>%
       merge_check_info(checkIDs = 100) %>%
-      fselect(vars_we_want) %>%
+      fselect(c(vars_we_want, "Detail")) %>%
       fmutate(Type = factor(Type, levels = issue_levels)),
     error = function(e){e}
   )
