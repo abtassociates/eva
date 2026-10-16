@@ -1,5 +1,10 @@
 
 # Eva Changelog
+## 2026-10-29
+
+### Bug Fixes
+ - Add missing inflow and outflow statuses in the Month-by-Month Export. (Issue <a href='https://github.com/abtassociates/eva/issues/1098' target ='_blank'>#1098</a>)
+
 ## 2026-10-15
 
 ### Bug Fixes

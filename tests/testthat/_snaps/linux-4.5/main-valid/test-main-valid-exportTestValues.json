@@ -2613,6 +2613,13 @@
         "100%"
       ]
     },
+    "sys_inflow_outflow_monthly_chart_data": [
+      {
+        "Length": "5",
+        "Class": "{",
+        "Mode": "call"
+      }
+    ],
     "sys_inflow_outflow_report": {
       "Detail": [
         "Housed",

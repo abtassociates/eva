@@ -72,6 +72,7 @@ outflow_statuses_to_exclude_from_chart <- c(
   "something's wrong"
 )
 outflow_statuses_to_exclude_from_export <- c(
+  "Last-of-Month Entry",
   "something's wrong"
 )
 
@@ -252,10 +253,10 @@ sys_inflow_outflow_annual_chart_data <- reactive({
   fmutate(
     # switching Homeless and Housed order for Outflow is important for lining up 
     # the bars, which are created by calculating ystart+yend based on the ordering
-    order = case_when(
-      Summary == "Active at End" & Detail == "Homeless" ~ fnrow(.) - 1,
-      Summary == "Active at End" & Detail == "Housed" ~ fnrow(.),
-      TRUE ~ seq_row(.)  # fallback for other statuses/times
+    order = fcase(
+      Summary == "Active at End" & Detail == "Homeless", fnrow(.) - 1L,
+      Summary == "Active at End" & Detail == "Housed", fnrow(.),
+      default = seq_row(.)  # fallback for other statuses/times
     )
   ) %>%
   roworder(order)
@@ -275,24 +276,36 @@ sys_inflow_outflow_monthly_chart_data <- reactive({
         InflowTypeDetail, 
         `Active at Start: Housed` = "Housed", 
         `Active at Start: Homeless` = "Homeless", 
-        Inflow = inflow_detail_levels
+        `Non-Inflow` = inflow_statuses_to_exclude_from_chart,
+        Inflow = setdiff(inflow_detail_levels, inflow_statuses_to_exclude_from_chart)
       ),
       OutflowPlotFillGroups = fct_collapse(
         OutflowTypeDetail, 
         `Active at End: Homeless` = "Homeless", 
         `Active at End: Housed` = "Housed",
-        Outflow = outflow_detail_levels
-      )
+        `Non-Outflow` = outflow_statuses_to_exclude_from_chart,
+        Outflow = setdiff(outflow_detail_levels, outflow_statuses_to_exclude_from_chart)
+      ),
+      InflowTypeSummary = fct_collapse(
+        InflowTypeSummary,
+        `Non-Inflow` = inflow_statuses_to_exclude_from_chart
+      ) |> fct_relevel("Non-Inflow", after = 1L),
+      OutflowTypeSummary = fct_collapse(
+        OutflowTypeSummary,
+        `Non-Outflow` = outflow_statuses_to_exclude_from_chart
+      ) |> fct_relevel("Non-Outflow", after = 1L)
     ) %>% 
     get_counts_by_month_for_mbm() %>%
-    fsubset(
-      !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
-    )
+    fsubset(Detail %!iin% c(inflow_statuses_to_exclude_from_export, outflow_statuses_to_exclude_from_export))
+  
+  exportTestValues(sys_inflow_outflow_monthly_chart_data = summarize_df(sys_inflow_outflow_monthly_chart_data))
+  
+  monthly_data
 })
 
 # Get counts of Inflow/Outflow statuses by month (long-format, 1 row per month-status)
 get_counts_by_month_for_mbm <- function(monthly_data) {
-  monthly_counts <- rbind(
+  monthly_counts <- rowbind(
     monthly_data[, .(
       PersonalID, 
       month, 
@@ -320,20 +333,26 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
   full_combinations <- data.table(
     Detail = c(
       active_at_levels,
+      inflow_statuses_to_exclude_from_chart,
       inflow_chart_detail_levels,
       outflow_chart_detail_levels,
+      outflow_statuses_to_exclude_from_chart,
       active_at_levels
     ),
     Summary = c(
       rep("Active at Start", length(active_at_levels)),
+      rep("Non-Inflow", length(inflow_statuses_to_exclude_from_chart)),
       rep("Inflow", length(inflow_chart_detail_levels)),
       rep("Outflow", length(outflow_chart_detail_levels)),
+      rep("Non-Outflow", length(outflow_statuses_to_exclude_from_chart)),
       rep("Active at End", length(active_at_levels))
     ),
     PlotFillGroups = c(
       paste0("Active at Start: ", active_at_levels),
+      rep("Non-Inflow", length(inflow_statuses_to_exclude_from_chart)),
       rep("Inflow", length(inflow_chart_detail_levels)),
       rep("Outflow", length(outflow_chart_detail_levels)),
+      rep("Non-Outflow", length(outflow_statuses_to_exclude_from_chart)),
       paste0("Active at End: ", active_at_levels)
     )
   ) %>%
@@ -344,7 +363,7 @@ get_counts_by_month_for_mbm <- function(monthly_data) {
       multiple = TRUE
     ) %>%
     fselect(-k)
-
+  
   # Make sure all month-type combinations are reflected
   join(
     monthly_counts,
@@ -376,7 +395,7 @@ sys_monthly_chart_data_wide <- reactive({
   outflow_vals <- summary_data[PlotFillGroups == "Outflow", ..month_cols]
   change_row <- fsum(inflow_vals) - fsum(outflow_vals)
 
-  rbind(
+  rowbind(
     summary_data,
     add_vars(as.list(change_row), 
              PlotFillGroups = "Monthly Change", 
@@ -614,6 +633,9 @@ get_sys_inflow_outflow_monthly_plot <- function(isExport = FALSE) {
     logToConsole(session, "In get_sys_inflow_outflow_monthly_plot")
 
     plot_data <- sys_inflow_outflow_monthly_chart_data() %>%
+      fsubset(
+        !Detail %in% c(inflow_statuses_to_exclude_from_chart, outflow_statuses_to_exclude_from_chart)
+      ) %>%
       fsubset(PlotFillGroups %in% c(mbm_inflow_levels, mbm_outflow_levels)) %>%
       collap(cols = "Count", FUN=fsum, by = ~ month + PlotFillGroups + Summary) %>%
       fmutate(InflowOutflow = fct_collapse(
