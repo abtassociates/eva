@@ -1,5 +1,10 @@
 
 # Eva Changelog
+## 2026-10-29
+
+### Bug Fixes
+ - Fixed bug in opening Client Level Excel export and on Monthly Statuses tab, due to there being no clients flagged in a given month.
+
 ## 2026-10-15
 
 ### Bug Fixes
