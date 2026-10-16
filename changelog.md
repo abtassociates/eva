@@ -1,5 +1,10 @@
 
 # Eva Changelog
+## 2016-10-29
+
+### New Features
+ - New comprehensive System Performance export interface.
+
 ## 2026-10-15
 
 ### Bug Fixes
@@ -8,10 +13,6 @@
  - Turned off "Dependent Field Data Collection Issue" check for column LeaveSituation14Days in the CurrentLivingSituation.csv file. This data element and related dependent fields (SubsequentResidence, ResourcesToObtain, LeaseOwn60Day, and MovedTwoOrMore) are specific to Coordinated Entry projects (regardless of project type). Any project with data for LeaveSituation14Days is assumed to be a CE project and related dependent fields will be validated with the "Dependent Field Data Collection Issue" check (Issue <a href='https://github.com/abtassociates/eva/issues/1096' target ='_blank'>#1096</a>).
 
 ## 2026-10-01
-
-
-### New Features
- - New comprehensive System Performance export interface.
 
 ### Bug Fixes
  - Updated "Head of Household Exited Before Other Household Members" check to account for cases where the HoH is the only exited household member for an enrollment. (Issue <a href='https://github.com/abtassociates/eva/issues/1061' target ='_blank'>#1061</a>)

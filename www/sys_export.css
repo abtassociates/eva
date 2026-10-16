@@ -98,7 +98,7 @@ EXPORT DROPDOWN
   cursor: pointer;
 }
 
-/* Add a clean spacing gap between the checkbox and its label text (e.g., "PowerPoint") */
+/* Add a clean spacing gap between the checkbox and its label text (e.g., "Image") */
 .export-dropdown-menu .checkbox label span {
   margin-left: 6px !important;
   display: inline-block;
