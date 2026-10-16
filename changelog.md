@@ -6,7 +6,7 @@
 - Add missing inflow and outflow statuses in the Month-by-Month Export.
  - Determine string *character* length with `stringi::stri_length`, not *byte* length with `collapse::vlengths`, as some non-ascii characters can be multi-byte thus tripping the exceeds length limit even though the number of *characters* doesn't exceed. (Issue <a href='https://github.com/abtassociates/eva/issues/1100' target ='_blank'>#1100</a>)
  - Change list reference from V3.3 to V4.4
- - Turn off "Dependent Field Data Collection Issue" check for column LeaveSituation14Days
+ - Turned off "Dependent Field Data Collection Issue" check for column LeaveSituation14Days in the CurrentLivingSituation.csv file. This data element and related dependent fields (SubsequentResidence, ResourcesToObtain, LeaseOwn60Day, and MovedTwoOrMore) are specific to Coordinated Entry projects (regardless of project type). Any project with data for LeaveSituation14Days is assumed to be a CE project and related dependent fields will be validated with the "Dependent Field Data Collection Issue" check (Issue <a href='https://github.com/abtassociates/eva/issues/1096' target ='_blank'>#1096</a>).
 
 ## 2026-10-01
 
