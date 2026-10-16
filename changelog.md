@@ -4,7 +4,7 @@
 
 ### New Features
  - New comprehensive System Performance export interface.
- - 
+
 ## 2026-10-15
 
 ### Bug Fixes
