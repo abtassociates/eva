@@ -34,7 +34,8 @@ function(input, output, session) {
   source(here("rcode", "server_00_glossary.R"), local = TRUE)
   source(here("rcode", "server_00_changelog.R"), local = TRUE)
   source(here("rcode", "server_00_demo_management.R"), local = TRUE)
-
+  source(here("rcode", "server_00_local_settings.R"), local = TRUE)
+  
   logMetadata(session, "Session started")
   
   # set during initially valid processing stop. Rest of processing stops if invalid
