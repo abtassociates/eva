@@ -550,11 +550,11 @@ reset_postvalid_components <- function(session) {
   ))
   session$userData$pdde_main <- NULL
   
-  shinyjs::hide("sys_inflow_outflow_download_btn")
-  shinyjs::hide("sys_inflow_outflow_download_btn_ppt")
+  shinyjs::hide("syso_inflow_outflow_download_btn")
+  shinyjs::hide("syso_inflow_outflow_download_btn_ppt")
   
-  shinyjs::hide("sys_status_download_btn")
-  shinyjs::hide("sys_status_download_btn_ppt")
+  shinyjs::hide("syso_status_download_btn")
+  shinyjs::hide("syso_status_download_btn_ppt")
   
   shinyjs::hide("sys_comp_download_btn")
   shinyjs::hide("sys_comp_download_btn_ppt")
@@ -815,50 +815,107 @@ intentional_stop <- function(session, message) {
   )
 }
 
-add_response_val_detail <- function(df, ...) {
-  # 1. Capture all unquoted column names passed via ...
-  col_names <- sapply(as.list(substitute(list(...))[-1]), deparse)
-  
-  if (length(col_names) == 0) return(df)
-  
-  # Helper to resolve text for a single column
-  get_text_for_col <- function(col_name) {
-    target_list <- cols_and_data_types[Name == col_name, List][1]
-    lookup_dt   <- valid_values_df[List == target_list]
-    
-    val_vec     <- as.character(df[[col_name]])
-    lookup_vals <- as.character(lookup_dt$Value)
-    
-    matched_text <- lookup_dt$Text[match(val_vec, lookup_vals)]
-    
-    # Fallback to code if text not found, or NA if input is NA
-    fifelse(!is.na(matched_text) & matched_text != "", 
-            matched_text, 
-            fifelse(!is.na(val_vec), paste0("[Code: ", val_vec, "]"), NA_character_))
-  }
-  
-  # 2. Get decoded text for each variable
-  all_texts <- lapply(col_names, get_text_for_col)
-  
-  # 3. Format the detail string
-  if (length(col_names) == 1) {
-    # Single variable format: "Response value: Client doesn't know"
-    details <- paste0("Response value: ", all_texts[[1]])
-  } else {
-    # Multiple variables format: "Response value: Var1: Client doesn't know | Var2: No"
-    formatted_cols <- mapply(function(name, vals) {
-      paste0(name, " (", vals, ")")
-    }, col_names, all_texts, SIMPLIFY = FALSE)
-    
-    # Combine columns row-wise with " | " separator
-    combined <- do.call(paste, c(formatted_cols, sep = ", "))
-    details  <- paste0("Response values: ", combined)
-  }
-  
-  # 4. Attach to df
-  df %>% fmutate(Detail = details)
+### System PerformancE Export
+get_sys_export_id <- function(id_prefix, item) {
+  paste0(id_prefix, "_export_", item$suffix, "_", gsub(".", "", item$ext, fixed = TRUE))
 }
 
+custom_sys_export_dropdown <- function(id_prefix) {
+  export_id <- paste0(id_prefix, "_export_act")
+  export_config <- get(paste0(id_prefix, "_export_config"))
+  
+  # 1. Identify the unique report groups (rows) in order
+  unique_suffixes <- unique(sapply(export_config, function(x) x$suffix))
+  
+  # 2. Build the table rows dynamically
+  table_rows <- lapply(unique_suffixes, function(sfx) {
+    # Find configuration definitions matching this row group
+    row_items <- Filter(function(x) x$suffix == sfx, export_config)
+    
+    # Retrieve PPT and Data items if they exist
+    ppt_item  <- Filter(function(x) x$ext == ".pptx", row_items)
+    xlsx_item <- Filter(function(x) x$ext == ".xlsx", row_items)
+    
+    # Extract row display name
+    row_label <- row_items[[1]]$name
+    
+    # Check if this row is the Subpopulation row
+    is_subpop <- grepl("subpop", sfx, ignore.case = TRUE)
+    
+    # Info icon with hover tooltip (shown when disabled)
+    info_icon <- if (is_subpop) {
+      tags$span(
+        id = paste0(id_prefix, "_subpop_info_icon"),
+        title = "You must select one or more subpopulations on the Exits by Subpopulation tab",
+        style = "margin-left: 6px; cursor: help; color: #6c757d; display: none;",
+        icon("info-circle")
+      )
+    } else {
+      NULL
+    }
+    
+    # Build check inputs or default placeholder if not present in configuration
+    ppt_cell <- if (length(ppt_item) > 0) {
+      checkboxInput(get_sys_export_id(id_prefix, ppt_item[[1]]), NULL, value = TRUE)
+    } else {
+      "-"
+    }
+    
+    xlsx_cell <- if (length(xlsx_item) > 0) {
+      checkboxInput(get_sys_export_id(id_prefix, xlsx_item[[1]]), NULL, value = TRUE)
+    } else {
+      "-"
+    }
+    
+    tags$div(
+      class = "row g-0 align-items-center py-1",
+      tags$div(
+        class = "col-5 text-nowrap d-flex align-items-center", 
+        tags$span(row_label),
+        info_icon
+      ),
+      tags$div(class = "col-4 d-flex justify-content-center", ppt_cell),
+      tags$div(class = "col-3 d-flex justify-content-center", xlsx_cell)
+    )
+    
+  })
+  
+  # 3. Assemble the Dropdown structure
+  tags$div(
+    id = paste0(id_prefix, "_export_btn"),
+    class = "dropdown d-inline-block",
+    style = "display: none",
+    tags$button(
+      class = "btn btn-default no-caret",
+      type = "button",
+      `data-bs-toggle` = "dropdown",
+      `data-bs-auto-close` = "outside",
+      `aria-expanded` = "false",
+      icon("download"),
+      "Download"
+    ),
+    tags$div(
+      class = "dropdown-menu dropdown-menu-end p-3 export-dropdown-menu",
+      style = "width: 480px;",
+      
+      # Master Header Row
+      tags$div(
+        class = "row g-0 align-items-center pb-2 mb-2 border-bottom fw-bold",
+        tags$div(class = "col-5", style = "font-size: 0.9rem;", "Report"),
+        tags$div(class = "col-4 d-flex justify-content-center", 
+                 checkboxInput(paste0(id_prefix, "_export_all_pptx"), "Image", value = TRUE)),
+        tags$div(class = "col-3 d-flex justify-content-center", 
+                 checkboxInput(paste0(id_prefix, "_export_all_xlsx"), "Data", value = TRUE))
+      ),
+      
+      # Dynamically generated rows
+      table_rows,
+      
+      # Unified Export button
+      downloadButton(export_id, "Download", style = "width: 100%; margin-top: 10px")
+    )
+  )
+}
 
 # Memory tracking
 get_rss <- function() {

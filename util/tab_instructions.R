@@ -534,14 +534,19 @@ tabSystemOverview_instructions <-  HTML("<h4>System Overview</h4>
                 panels have an “Interpretation Tips” section that can help you interpret their output. </p>
                 
                 <h4>Downloads</h4>
-                <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes three System Overview export options. The data in these exports reflect the clients that meet the 
-                characteristics of the system subpopulation you selected with the Filters Menu.<p>
-                <ul style='list-style-type: none; padding-left: 10px;'>
-                <li>(1)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.</span></li>
-                <li>(2)  <span style='padding-left: 0.25rem;'>To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel.</span></li>
-                <li>(3)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with all client data used for all of the System Overview Charts, click the \"Client Level Download\" button.</span></li>
-                </ul>
+                <p>To support further systems analysis, local reporting, and presentations, Eva allows you to download 
+                aggregate data and image exports for all charts included on this page. The data in these exports 
+                reflect the clients that meet the characteristics of the system subpopulation you selected with 
+                the Filters Menu.</p>
+                <p>Eva's System Performance Export Interface makes it quick and easy to download multiple exports 
+                for multiple charts all at the same time. If more that one export is selected, 
+                Eva will generate a .zip file.</p>
+                <ol style='padding-left: 1rem;'>
+                <li>To generate an Excel workbook with the aggregate data for a specific chart, check the \"Data\" box.</li>
+                <li>To generate a PowerPoint slide deck with the image(s) for a specific chart, check the \"Image\" box.</li>
+                <li>To generate an Excel workbook with all client data used for all of the System Overview Charts, 
+                check the \"System Overview Client Level Export\" box. 
+                </ol>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -560,7 +565,7 @@ tabSystemOverview_instructions <-  HTML("<h4>System Overview</h4>
                 We recommend not sharing this Excel workbook with anyone who does not have permission to view client PII.</p>   
                ")
 
-tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview</h4>
+tab_syso_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview</h4>
                                 <p>The System Flow panel shows your homeless system's inflow and outflow during the period, 
                                 helping you assess the effectiveness of your homeless system. 
                                 The client universe for this panel is the number of clients identified as active in your system 
@@ -616,7 +621,7 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                 interpret the chart. Depending on the data you uploaded, 
                                 some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                <table class='sys_info_table' id='syso_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
@@ -710,7 +715,7 @@ tab_sys_inflow_outflow_subtabs_information <-          HTML("<h4>Chart Overview<
                                   </tr>
                                 </table>")
 
-tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
+tab_syso_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 <p>The Client System Status Chart shows the end-of-year 
                                 housing status of the clients that were active in 
                                 your homeless response system at the start of the 
@@ -749,7 +754,7 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                 interpret the chart. Depending on the data you 
                                 uploaded, some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_status_info_table'>
+                                <table class='sys_info_table' id='syso_status_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
@@ -803,7 +808,7 @@ tab_sys_status_subtabs_information <-    HTML("<h4>Chart Overview</h4>
                                   </tr>
                                 </table>")
 
-tab_sys_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
+tab_syso_comp_subtabs_information <-   HTML("<h4>Chart Overview</h4>
                                 <p>The System Demographics Chart shows the demographic 
                                 make-up of your homeless system and highlights 
                                 important trends among various demographic groups. 
@@ -1001,14 +1006,19 @@ of clients who exited your homeless system by the end of the report period.</p>
                 section that can help you interpret their output.</p>
                 
                 <h4>Downloads</h4>
-                <p>To support further systems analysis, local reporting, and presentations, 
-                Eva includes three System Performance Overview export options. The data in these exports reflect the clients that meet the 
-                characteristics of the system subpopulation you selected with the Filters Menu.<p>
-                <ul style='list-style-type: none; padding-left: 10px;'>
-                <li>(1)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with the aggregate data for a specific panel, click the \"Data Download\" button while viewing the chart.</span>  </li>
-                <li>(2)  <span style='padding-left: 0.25rem;'>To generate a PowerPoint slide deck with the image(s) for a specific panel, click the \"Image Download\" button while viewing the panel.</span> </li>
-                <li>(3)  <span style='padding-left: 0.25rem;'>To generate an Excel workbook with all client data used for all of the System Exits Charts, click the \"Client Level Download\" button on the System Overview page.</span> </li>
-                </ul>
+                <p>To support further systems analysis, local reporting, and presentations, Eva allows you to download 
+                aggregate data and image exports for all charts included on this page. The data in these exports 
+                reflect the clients that meet the characteristics of the system subpopulation you selected with 
+                the Filters Menu.</p>
+                <p>Eva's System Performance Export Interface makes it quick and easy to download multiple exports 
+                for multiple charts all at the same time. If more that one export is selected, 
+                Eva will generate a .zip file.</p>
+                <ol style='padding-left: 1rem;'>
+                <li>To generate an Excel workbook with the aggregate data for a specific chart, check the \"Data\" box.</li>
+                <li>To generate a PowerPoint slide deck with the image(s) for a specific chart, check the \"Image\" box.</li>
+                <li>To generate an Excel workbook with all client data used for all of the System Exits Charts, 
+                check the \"System Exits Client Level Export\" box. 
+                </ol>
                 
                 <h4>Data Suppression and Data Security</h4>
                 <p>To ensure the privacy and protection of individuals and small 
@@ -1040,7 +1050,7 @@ tab_syse_types_subtabs_information <- HTML("<h4>Chart Overview</h4>
                                 interpret the chart. Depending on the data you uploaded, 
                                 some of the items below may not apply.</p>
                                 <br>
-                                <table class='sys_info_table' id='sys_flow_info_table'>
+                                <table class='sys_info_table' id='syse_flow_info_table'>
                                   <tr>
                                     <th>Scenario</th>
                                     <th>What You See</th>
