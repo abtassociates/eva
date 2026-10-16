@@ -35,6 +35,14 @@ time_chart_validation <- function(startDate, endDate, raceeth, vetstatus, age, s
 
 get_syse_compare_time_data <- function(output_type = 'table'){
   
+  shinyjs::toggle(
+    "syse_time_download_btn",
+    condition = nrow(all_filtered_syse_time()) > 10
+  )
+  shinyjs::toggle(
+    "syse_time_download_btn_ppt",
+    condition = nrow(all_filtered_syse_time()) > 10
+  )
   validate(need(nrow(all_filtered_syse_time()) > 0, no_data_msg))
   validate(need(nrow(all_filtered_syse_time()) > 10, suppression_msg))
   

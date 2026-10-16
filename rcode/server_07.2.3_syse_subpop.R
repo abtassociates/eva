@@ -239,6 +239,15 @@ everyone_else <- reactive({
 
 get_syse_compare_subpop_data <- function(output_type = 'table'){
   
+  shinyjs::toggle(
+    "syse_subpop_download_btn",
+    condition = nrow(subpop()) > 10
+  )
+  shinyjs::toggle(
+    "syse_subpop_download_btn_ppt",
+    condition = nrow(subpop()) > 10
+  )
+  
   validate(need(nrow(subpop()) > 0, no_data_msg))
   validate(need(nrow(subpop()) > 10, suppression_msg))
   

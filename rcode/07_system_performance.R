@@ -448,7 +448,13 @@ keep_enrl_in_range <- function(reportStart, reportEnd) {
   return(enrollment_categories)
 }
 
-session$userData$enrollment_categories <- keep_enrl_in_range(session$userData$ReportStart, session$userData$ReportEnd)
+enrollment_categories <- keep_enrl_in_range(session$userData$ReportStart, session$userData$ReportEnd)
+if(fnrow(enrollment_categories) == 0) {
+  session$userData$enrollment_categories <- data.table()
+  session$userData$enrollment_categories_prev <- data.table()
+  intentional_stop(session, message = "enrollment_categories has no rows after removing problematic enrollments")
+}
+session$userData$enrollment_categories <- enrollment_categories
 session$userData$report_dates <- get_report_dates()
 
 
@@ -458,7 +464,12 @@ startDatePrev <- session$userData$ReportStart %m-% years(1)
 endDatePrev <- session$userData$ReportEnd %m-% years(1)
 session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
 
-session$userData$enrollment_categories_prev <- keep_enrl_in_range(startDatePrev, endDatePrev)
+enrollment_categories_prev <- keep_enrl_in_range(startDatePrev, endDatePrev)
+if(fnrow(enrollment_categories_prev) == 0) {
+  session$userData$enrollment_categories_prev <- data.table()
+  intentional_stop(session, message = "enrollment_categories_prev has no rows after removing problematic enrollments")
+}
+session$userData$enrollment_categories_prev <- enrollment_categories_prev
 session$userData$report_dates_prev <- get_report_dates(reportStart = startDatePrev, reportEnd = endDatePrev)
 
 set_user_data_lh_info()

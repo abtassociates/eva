@@ -199,6 +199,14 @@ sys_phd_plot_2vars <- function(subtab = 'phd', methodology_type, selections, isE
   comp_df <- comp_df %>% fselect(-Destination)
   
   
+  shinyjs::toggle(
+    "syse_phd_download_btn",
+    condition = nrow(comp_df) > 10
+  )
+  shinyjs::toggle(
+    "syse_phd_download_btn_ppt",
+    condition = nrow(comp_df) > 10
+  )
   
   validate(
     need(
