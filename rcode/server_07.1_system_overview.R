@@ -1094,6 +1094,10 @@ get_lh_info <- function(enrollment_categories, lh_cls, Services, reportStart, re
         ((EntryDate + days_lh_valid) %between% list(reportStart, reportEnd) & lh_prior_livingsituation) |
         (lh_date + days_lh_valid) %between% list(reportStart, reportEnd)
     ) %>%
+    fsubset(
+      ((lh_date + days_lh_valid) >= (session$userData$ReportStart %m-% years(2)) &
+         lh_date <= session$userData$ReportEnd) | is.na(lh_date)
+    ) %>%
     fgroup_by(EnrollmentID) %>%
     fmutate(exit_is_only_lh = !any(non_exit_lh_in_report, na.rm=TRUE)) %>%
     fungroup() %>%
