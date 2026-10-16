@@ -3042,7 +3042,7 @@
         ],
         [
           null,
-          "Mean   : 45.42  ",
+          "Mean   : 45.39  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
@@ -3084,7 +3084,7 @@
           null,
           null,
           "Conflicting Income yes/no at Entry                          :  3  ",
-          "Mean   : 20.71  "
+          "Mean   : 20.69  "
         ],
         [
           null,
@@ -3230,16 +3230,16 @@
       ],
       "Errors": [
         [
-          "Length:859        ",
-          "Length:859        ",
-          "Length:859        ",
-          "Length:859        ",
+          "Length:857        ",
+          "Length:857        ",
+          "Length:857        ",
+          "Length:857        ",
           "Incomplete Living Situation Data             :105  ",
-          "Length:859        ",
-          "Length:859        ",
-          "Length:859        ",
+          "Length:857        ",
+          "Length:857        ",
+          "Length:857        ",
           "Min.   :2007-05-05  ",
-          "Length:859        "
+          "Length:857        "
         ],
         [
           "Class :character  ",
@@ -3250,7 +3250,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-10-06  ",
+          "1st Qu.:2020-10-07  ",
           "Class :character  "
         ],
         [
@@ -3286,7 +3286,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2022-02-12  ",
+          "3rd Qu.:2022-02-14  ",
           null
         ],
         [
@@ -3306,7 +3306,7 @@
           null,
           null,
           null,
-          "(Other)                                      :327  ",
+          "(Other)                                      :325  ",
           null,
           null,
           null,
