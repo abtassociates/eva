@@ -2982,12 +2982,12 @@
         ],
         [
           "Warning      :28  ",
-          "Median :  185.0  ",
+          "Median :  152.0  ",
           "Homelessness Start Date conflicts with Living Situation data: 1  "
         ],
         [
           "NA's         : 1  ",
-          "Mean   :  821.4  ",
+          "Mean   :  815.4  ",
           "Conflicting Health Insurance yes/no at Entry                : 1  "
         ],
         [
@@ -3008,14 +3008,14 @@
       ],
       "Organization Summary": [
         [
-          "Length:1031       ",
+          "Length:1026       ",
           "High Priority: 90  ",
           "Dependent Field Data Collection Issue: 33  ",
           "Min.   :   1.00  "
         ],
         [
           "Class :character  ",
-          "Error        :461  ",
+          "Error        :456  ",
           "Unknown Destination                  : 26  ",
           "1st Qu.:   3.00  "
         ],
@@ -3029,18 +3029,18 @@
           null,
           "NA's         :  7  ",
           "Unknown SSN                          : 26  ",
-          "Mean   :  56.56  "
+          "Mean   :  56.42  "
         ],
         [
           null,
           null,
           "Incomplete Living Situation Data     : 26  ",
-          "3rd Qu.:  25.00  "
+          "3rd Qu.:  24.00  "
         ],
         [
           null,
           null,
-          "(Other)                              :887  ",
+          "(Other)                              :882  ",
           "Max.   :5367.00  "
         ],
         [
@@ -3175,16 +3175,16 @@
       ],
       "Errors": [
         [
-          "Length:13008      ",
-          "Length:13008      ",
-          "Length:13008      ",
-          "Length:13008      ",
+          "Length:12583      ",
+          "Length:12583      ",
+          "Length:12583      ",
+          "Length:12583      ",
           "No bed night on Entry Date                   :2122  ",
-          "Length:13008      ",
-          "Length:13008      ",
-          "Length:13008      ",
+          "Length:12583      ",
+          "Length:12583      ",
+          "Length:12583      ",
           "Min.   :2007-05-05  ",
-          "Length:13008      "
+          "Length:12583      "
         ],
         [
           "Class :character  ",
@@ -3195,7 +3195,7 @@
           "Class :character  ",
           "Class :character  ",
           "Class :character  ",
-          "1st Qu.:2020-06-03  ",
+          "1st Qu.:2020-05-29  ",
           "Class :character  "
         ],
         [
@@ -3207,7 +3207,7 @@
           "Mode  :character  ",
           "Mode  :character  ",
           "Mode  :character  ",
-          "Median :2021-02-17  ",
+          "Median :2021-02-26  ",
           "Mode  :character  "
         ],
         [
@@ -3219,7 +3219,7 @@
           null,
           null,
           null,
-          "Mean   :2021-01-16  ",
+          "Mean   :2021-01-17  ",
           null
         ],
         [
@@ -3231,7 +3231,7 @@
           null,
           null,
           null,
-          "3rd Qu.:2021-12-01  ",
+          "3rd Qu.:2021-12-07  ",
           null
         ],
         [
@@ -3251,7 +3251,7 @@
           null,
           null,
           null,
-          "(Other)                                      :5525  ",
+          "(Other)                                      :5100  ",
           null,
           null,
           null,
