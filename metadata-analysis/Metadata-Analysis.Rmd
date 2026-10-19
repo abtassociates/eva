@@ -137,12 +137,15 @@ old_way <- rowbind(uploads_df, visits_df) %>%
       Event %in% c(
         "Unsuccessful upload - not structurally valid",
         "Unsuccessful upload - not hashed",
+        "Unsuccessful upload - empty files",
         "Unsuccessful upload - wrong dataset",
         "Unsuccessful upload - wrong/incomplete dataset",
         "Unsuccessful upload - incomplete dataset",
         "Unsuccessful upload - file was mistructured",
         "Unsuccessful upload - zip file was misstructured",
         "Unsuccessful upload - zip file not .zip",
+        "Unsuccessful upload - Export.csv has no rows",
+        "Unsuccessful upload - Export.csv has more than 1 row",
         "Unsuccessful upload - out of date HMIS CSV Export")
       , "Unsuccessful upload",
       Event %in% c("Successful upload") , "Successful Upload",
