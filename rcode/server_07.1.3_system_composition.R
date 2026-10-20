@@ -271,11 +271,7 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, p
     scale_fill_gradient(
       low = get_brand_color('light_purple'),
       high = get_brand_color('dark_purple'),
-      na.value = ifelse(
-        is.na(plot_df$wasRedacted) | !plot_df$wasRedacted,
-        "white",
-        get_brand_color('very_light_purple')
-      )
+      na.value = "white"
     ) + # na.value makes 0s invisible
     # scale_fill_gradient2(
     #   low = get_brand_color('very_light_purple'),

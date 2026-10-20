@@ -349,3 +349,22 @@ output$unsh_pit_filter_selections <-renderUI({
   )
   
 })
+
+observeEvent(input$unsh_demog_selections, {
+  # they can select up to 2
+  #disable all unchecked boxes if they've already selected 2
+  shinyjs::runjs(str_glue("
+    var numSelected = {length(input$unsh_demog_selections)};
+    $('input[name=unsh_demog_selections]:not(\":checked\")')
+      .attr('disabled', numSelected == 2);
+
+    var reSelected = \"{
+      \"All Races/Ethnicities\" %in% input$unsh_demog_selections |
+      \"Grouped Races/Ethnicities\" %in% input$unsh_demog_selections
+    }\";
+    
+    if(numSelected == 1)
+      $('input[name=unsh_demog_selections][value*=\"Races/Ethnicities\"]:not(\":checked\")')
+        .attr('disabled', reSelected == 'TRUE');
+  "))
+}, ignoreNULL = FALSE)
