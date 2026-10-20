@@ -177,10 +177,12 @@ period_specific_data <- reactive({
     )
   
   if(IN_DEV_MODE) store_enrollment_categories_all_for_qc(all_filtered)
-
+  
   period_data <- all_filtered %>% 
     expand_by_periods(chart_type = 'mbm') %>% # expand/repeat enrollments across periods
-    get_active_info(all_filtered) %>%
+    get_active_info(all_filtered, lh_info_df = session$userData$lh_info,
+                    reportStart = session$userData$ReportStart,
+                    reportEnd = session$userData$ReportEnd) %>%
     get_inflows_and_outflows()
   
   if(nrow(period_data) > 0) {

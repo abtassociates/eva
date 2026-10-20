@@ -105,7 +105,7 @@ get_system_exits <- function(
   
   df <- df %>% 
     expand_by_periods(chart_type = ctype, reportStart = reportStart, reportEnd = reportEnd) %>% 
-    get_active_info(df, reportStart = reportStart, reportEnd = reportEnd) %>%
+    get_active_info(df, lh_info_df = session$userData$lh_info, reportStart = reportStart, reportEnd = reportEnd) %>%
     get_inflows_and_outflows(chart_type = 'exits', reportStart = reportStart, reportEnd = reportEnd) %>% 
     fmutate(Destination = fix_missing_destination(Destination, OutflowTypeDetail)) %>% 
     fsubset(OutflowTypeDetail %in% c('Exited, Permanent','Exited, Non-Permanent', 'Inactive'))

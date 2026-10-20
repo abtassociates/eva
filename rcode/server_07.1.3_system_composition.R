@@ -20,7 +20,7 @@ sys_comp_plot_1var <- function(subtab = 'comp', methodology_type, selection, peo
   if(is.null(people_univ)){
     peopl_univ <- get_people_universe_filtered() 
   } 
-  comp_df <- people_unv %>%
+  comp_df <- people_univ %>%
     remove_non_applicables(selection = selection) %>%
     fselect("PersonalID", unname(var_cols[[selection]]))
   
@@ -455,11 +455,13 @@ output$sys_comp_summary_ui_chart <- renderPlot({
     sys_comp_plot_1var(subtab = 'comp', 
                           methodology_type = input$syso_methodology_type, 
                           selection = input$system_composition_selections, 
+                          people_univ = get_people_universe_filtered(),
                           isExport = FALSE)
   } else {
     sys_comp_plot_2vars(subtab = 'comp', 
                            methodology_type = input$syso_methodology_type, 
                            selections = input$system_composition_selections, 
+                        people_univ = get_people_universe_filtered(),
                            isExport = FALSE)
     
   }
