@@ -253,9 +253,9 @@ special_validation_rules <- list(
       },
       SubTypeProvided = quote(
         fcase(
-          RecordType == 144 & TypeProvided == 3, !SubTypeProvided %in% valid_values[["V2.A"]],
-          RecordType == 144 & TypeProvided == 4, !SubTypeProvided %in% valid_values[["V2.B"]],
-          RecordType == 144 & TypeProvided == 5, !SubTypeProvided %in% valid_values[["V2.C"]],
+          RecordType == 144 & TypeProvided == 3, !SubTypeProvided %in% c(valid_values[["V2.A"]], NA),
+          RecordType == 144 & TypeProvided == 4, !SubTypeProvided %in% c(valid_values[["V2.B"]], NA),
+          RecordType == 144 & TypeProvided == 5, !SubTypeProvided %in% c(valid_values[["V2.C"]], NA),
           default = FALSE
         )
       )
