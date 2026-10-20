@@ -162,7 +162,9 @@ output$unsh_dist_filter_selections <-renderUI({
 
 output$unsh_dist_chart <- renderPlot({
   
-  nr <- nrow(unsh_client_enrl_filt())
+  dist_enrl <- unsh_client_enrl_filt() %>% 
+    fsubset(!is.na(homeless_type_full_period) & homeless_type_full_period != 'PH Only')
+  nr <- nrow(dist_enrl)
   
   validate(need(nr > 0, no_data_msg))
   validate(need(nr > 10, suppression_msg))
@@ -170,8 +172,7 @@ output$unsh_dist_chart <- renderPlot({
   border_color <- 'black'
   
   ## client level counts and %ages of HomelessnessType
-  tree_unsh_data <-  unsh_client_enrl_filt() %>% 
-    fsubset(!is.na(homeless_type_full_period) & homeless_type_full_period != 'PH Only') %>% 
+  tree_unsh_data <-  dist_enrl %>% 
     fcount(homeless_type_full_period, name='Count') %>% 
     fmutate(Percent = Count/fsum(Count),
           label = str_c(homeless_type_full_period, ': ', scales::label_comma()(Count),
