@@ -292,9 +292,7 @@ rm(HHMoveIn)
 # Only BedNight Services --------------------------------------------------
 
 Services <- Services %>%
-  fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
-  fselect(ServicesID, EnrollmentID, DateCreated, DateProvided, PersonalID, SubTypeProvided) %>%
-  qDT()
+  fselect(ServicesID, EnrollmentID, DateCreated, DateProvided, PersonalID, SubTypeProvided, RecordType)
 
 # Checking requirements by projectid --------------------------------------
 
@@ -354,7 +352,7 @@ Event <- Event %>%
     ResultDate
   )
 
-session$userData$Services <- Services
+session$userData$Services <- Services %>% fsubset(RecordType == 200 & !is.na(DateProvided))
 session$userData$Exit <- Exit
 session$userData$Enrollment <- Enrollment
 session$userData$CurrentLivingSituation <- CurrentLivingSituation
