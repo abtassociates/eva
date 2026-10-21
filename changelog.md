@@ -1,6 +1,11 @@
 
 # Eva Changelog
 
+## 2026-10-22
+
+### Bug Fixes
+ - Fixed flagging null values in the Invalid Non-Null check of Services.SubTypeProvided (Issue <a href='https://github.com/abtassociates/eva/issues/1102' target ='_blank'>#1102</a>)
+ 
 ## 2026-10-16
 
 ### Bug Fixes
