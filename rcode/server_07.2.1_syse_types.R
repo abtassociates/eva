@@ -8,7 +8,8 @@ get_syse_types_chart <- function(varname, status, show_legend = FALSE){
     "Temporary" = get_brand_color('med_grey'),
     "Other/Unknown" = get_brand_color('med_grey')
   )
-  nr <- nrow(tree_exits_data())
+
+  nr <- fnrow(tree_exits_data())
   
   shinyjs::toggle(
     "syse_types_download_btn",
@@ -86,25 +87,18 @@ output$syse_types_filter_selections <- renderUI({
 })
 
 output$syse_types_ui_chart <- renderPlot({
-  
-  validate(
-    need(
-      fnrow(session$userData$enrollment_categories) > 0,
-      no_valid_data_msg
-    )
-  )
-  
+  validate_chart(syse_chart_validation_type())
   get_syse_types_chart("Destination Type", input$syse_dest_type_filter)
 })
 
-output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filename("System Exits by Type Report - "), content = function(file) {
-   logToConsole(session, "System Exits by Type data download")
-   
+syse_types_data_download <- function(file) {
+  logToConsole(session, "System Exits by Type data download")
+  
   types_dl <- list(
     "SystemExitsByType Metadata" = sys_export_summary_initial_df(type = 'exits') %>%
       rowbind(
         sys_export_filter_selections(type = 'exits'),
-        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(nrow(tree_exits_data())))              
+        data.table(Chart = 'Total System Exits', Value = scales::label_comma()(fnrow(tree_exits_data())))              
       ) %>% 
       frename('System Exits by Type' = Value),
     
@@ -126,26 +120,29 @@ output$syse_types_download_btn <- downloadHandler( filename = date_stamped_filen
    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
                                if_else(isTruthy(input$in_demo_mode), " - DEMO MODE", "")))
    exportTestValues(syse_types_df = types_dl)
-})
+}
 
-output$syse_types_download_btn_ppt <- downloadHandler(filename = function() {
-  paste("System Exits by Type_", Sys.Date(), ".pptx", sep = "")
-},
-content = function(file) {
-  logToConsole(session, "In syse_types_download_btn_ppt")
-  
-  sys_perf_ppt_export(file = file, 
-                      type = 'exits',
-                      title_slide_title = "System Exits by Type",
-                      summary_items = sys_export_summary_initial_df(type = 'exits') %>%
-                        fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
-                        rowbind(sys_export_filter_selections(type = 'exits'),
-                                data.table(Chart="Total System Exits", Value = scales::label_comma()(nrow(tree_exits_data())))),
-                      plots = list("System Exits by Type" = get_syse_types_chart("Destination Type", input$syse_dest_type_filter)),
-                      summary_font_size = 19,
-                      startDate = session$userData$ReportStart, 
-                      endDate = session$userData$ReportEnd, 
-                      sourceID = session$userData$Export$SourceID,
-                      in_demo_mode = input$in_demo_mode
-  )
+summary_items <- reactive({
+  sys_export_summary_initial_df(type = 'exits') %>%
+    fsubset(Chart != "Start Date" & Chart != "End Date") %>% 
+    rowbind(
+      sys_export_filter_selections(type = 'exits'),
+      data.table(Chart="Total System Exits", Value = scales::label_comma()(fnrow(tree_exits_data())))
+    )
 })
+syse_types_ppt_download <- function(file) {
+  logToConsole(session, "In syse_types_ppt_download")
+  
+  sys_perf_ppt_export(
+    file = file, 
+    type = 'exits',
+    title_slide_title = "System Exits by Type",
+    summary_items = summary_items(),
+    plots = list("System Exits by Type" = get_syse_types_chart("Destination Type", input$syse_dest_type_filter)),
+    summary_font_size = 19,
+    startDate = session$userData$ReportStart, 
+    endDate = session$userData$ReportEnd, 
+    sourceID = session$userData$Export$SourceID,
+    in_demo_mode = input$in_demo_mode
+  )
+}
