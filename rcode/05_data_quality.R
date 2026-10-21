@@ -1036,8 +1036,9 @@ logToConsole(session, paste0("overlap_staging: ", nrow(overlap_staging), ' rows'
 
 # For NbNs, modify EnrollmentStart/End to be the first/last DateProvided 
 # for a given enrollment
-if(nrow(Services) > 0) {
+if(has_services_200) {
   services_summary <- Services %>%
+    fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
     fgroup_by(EnrollmentID) %>%
     fsummarize(
       FirstDateProvided = fmin(DateProvided),
@@ -1083,7 +1084,7 @@ if(nrow(overlap_staging) > 0){
   
   
   
-  if(nrow(Services) > 0) {
+  if(has_services_200) {
   # doing these now, to be used for overlap_details later
     overlap_dt <- overlap_dt %>%
       fmutate(
@@ -1175,8 +1176,9 @@ if(nrow(overlap_staging) > 0){
   # for NbN vs. NbN, if any DateProvided are the same, that's an overlap
   # but because DatePRovided is m:1 with Enrollment, we need to process separately
   # from the enrollment-level data above
-  if(nrow(Services) > 0) {
+  if(has_services_200) {
     overlap_dt <- Services %>%
+      fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
       roworder(PersonalID, DateProvided) %>%
       fgroup_by(PersonalID) %>%
       fmutate(
@@ -1201,7 +1203,7 @@ if(nrow(overlap_staging) > 0){
     "Priority",
     "Guidance"
   )
-  if(nrow(Services) > 0) {
+  if(has_services_200) {
     cols_to_keep <- c(
       cols_to_keep,
       "DateProvided",
@@ -1241,7 +1243,7 @@ if(nrow(overlap_staging) > 0){
   #   constructing a range, used for NbN vs. any other type
   get_overlap_col_order <- function() {
     main_enrl_cols <- vars_prep
-    if(nrow(Services) > 0) {
+    if(has_services_200) {
       main_enrl_cols <- c(main_enrl_cols,
                           "FirstDateProvided",
                           "LastDateProvided"
@@ -1257,7 +1259,7 @@ if(nrow(overlap_staging) > 0){
     col_order <- c(main_enrl_cols, previous_enrl_cols)
     
     # add in OverlappingDateProvided
-    if(nrow(Services) > 0) {
+    if(has_services_200) {
       col_order <- append(col_order,
                           c("OverlappingDateProvided" = "DateProvided"),
                           after = which(col_order == "MoveInDateAdjust"))
@@ -1287,7 +1289,7 @@ if(nrow(overlap_staging) > 0){
   
   # Remove unecessary columns
   cols_to_remove <- "PreviousEnrollmentID"
-  if(nrow(Services) > 0) {
+  if(has_services_200) {
     cols_to_remove <- c(
       cols_to_remove,
       "DateProvided",
@@ -1460,9 +1462,9 @@ nbn_w_hmis_participation <- base_dq_data %>%
     how = 'left'
   )
 
-if(nrow(Services) > 0) {
+if(has_services_200) {
 services_chk <- Services %>%
-  fselect(EnrollmentID, DateProvided)  %>% 
+  fsubset(RecordType == 200 & !is.na(DateProvided), EnrollmentID, DateProvided) %>%
   join(Enrollment %>% fselect(EnrollmentID, EntryDate, ExitAdjust), on = "EnrollmentID", how = 'left') %>% 
   fmutate(# Flag if DateProvided is same as EntryDate/ExitAdjust
     bn_eq_entry = DateProvided == EntryDate,
@@ -1700,6 +1702,7 @@ calculate_long_stayers_local_settings_dt <- function(projecttype){
     } else if(projecttype == es_nbn_project_type) {
       # This will be merged back into non_exits
       data_w_dates <- Services %>% 
+        fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
         fselect(UniqueID = ServicesID, EnrollmentID, KnownDate = DateProvided)
       UniqueIDName <- "ServicesID"
       KeyDateName <- "DateProvided"
