@@ -1,3 +1,6 @@
+get_brand_color <- function(color) {
+  brand.yml::brand_color_pluck(brand, color)
+}
 
 # Age ---------------------------------------------------------------------
 
@@ -225,7 +228,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
   data[, (names(data)) := lapply(.SD, function(x) {
     if (is.character(x)) x[x == ""] <- NA
-    else if (inherits(x, "IDate")) x <- as.Date(x)
+    else if (inherits(x, "IDate")) x <- as.Date(as.double(x))
     return(x)
   }), .SDcols = names(data)]
 

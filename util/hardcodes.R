@@ -1,3 +1,4 @@
+brand <- brand.yml::read_brand_yml(here::here("_brand.yml"))
 
 # hc = hard-coded
 hc_prior_living_situation_required <- ymd("20161001")

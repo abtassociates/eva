@@ -1,0 +1,311 @@
+{
+  "input": {
+    "CELongStayers": 90,
+    "CEOutstandingReferrals": 14,
+    "DayShelterLongStayers": 90,
+    "ESNbNLongStayers": 90,
+    "Go_to_upload": 1,
+    "OUTLongStayers": 90,
+    "OtherLongStayers": 90,
+    "ServicesOnlyLongStayers": 90,
+    "accordion_dqexport": null,
+    "accordion_dqorg": null,
+    "accordion_dqsystem": null,
+    "accordion_home": null,
+    "accordion_local_settings": null,
+    "accordion_pdde": null,
+    "accordion_project_dashboard": null,
+    "accordion_systemexits": null,
+    "accordion_systemoverview": null,
+    "accordion_upload": null,
+    "currentProviderList": null,
+    "dateRangeCount": [
+      null,
+      null
+    ],
+    "demo_mode_tooltip": false,
+    "dimension": [
+      1920,
+      1080
+    ],
+    "dq_export_date_multiple": [
+      null,
+      null
+    ],
+    "dq_export_date_options": "Date Range",
+    "dq_export_date_single": [
+
+    ],
+    "dq_export_export_types": [
+      "Organization-level (multi-select)",
+      "System-level"
+    ],
+    "dq_export_orgList": null,
+    "dq_summary_subtabs": "<h4>Data Quality Summary<\/h4>",
+    "g_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "g_errors_dqsystem_subtabs": "<h5>Top Organizations<\/h5>",
+    "glossary_card_full_screen": false,
+    "hp_errors_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "hp_errors_dqsystem_subtabs": "<h5>Top Organizations<\/h5>",
+    "imported": {
+      "name": [
+        "FY26-test-unhashed.zip"
+      ],
+      "size": [
+        8743
+      ],
+      "type": [
+        "application/zip"
+      ],
+      "datapath": [
+        "0.zip"
+      ]
+    },
+    "in_demo_mode": false,
+    "mbm_status_filter": "All",
+    "orgList": null,
+    "pageid": "tabDQSystem",
+    "pdde_subtabs": "<h4>Guidance<\/h4>",
+    "project_dashboard_cc_subtabs": "<h5>Detail<\/h5>",
+    "project_dashboard_subtabs": "<h4>Client Counts<\/h4>",
+    "subpop_dest_type": "Permanent",
+    "syse_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_export_all_pptx": true,
+    "syse_export_all_xlsx": true,
+    "syse_export_client_xlsx": true,
+    "syse_export_phd_pptx": true,
+    "syse_export_phd_xlsx": true,
+    "syse_export_subpop_pptx": true,
+    "syse_export_subpop_xlsx": true,
+    "syse_export_time_pptx": true,
+    "syse_export_time_xlsx": true,
+    "syse_export_type_pptx": true,
+    "syse_export_type_xlsx": true,
+    "syse_filters_left_full_screen": false,
+    "syse_filters_right_full_screen": false,
+    "syse_hh_type": "All",
+    "syse_level_of_detail": "All",
+    "syse_methodology_type": "1",
+    "syse_phd_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ],
+    "syse_phd_subtabs": "<h5>Chart<\/h5>",
+    "syse_project_type": "All",
+    "syse_race_ethnicity": "All",
+    "syse_spec_pops": "None",
+    "syse_subpop_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syse_subpop_age_selection": false,
+    "syse_subpop_hh_type": "All",
+    "syse_subpop_race_eth_selection": false,
+    "syse_subpop_race_ethnicity": "All",
+    "syse_subpop_spec_pops": "None",
+    "syse_subpop_subtabs": "<h5>Chart<\/h5>",
+    "syse_subpop_vet_selection": false,
+    "syse_tabbox": "<h4>Exits by Type<\/h4>",
+    "syse_time_subtabs": "<h5>Chart<\/h5>",
+    "syse_types_subtabs": "<h5>Chart<\/h5>",
+    "syso_age": [
+      "0 to 12",
+      "13 to 17",
+      "18 to 21",
+      "22 to 24",
+      "25 to 34",
+      "35 to 44",
+      "45 to 54",
+      "55 to 64",
+      "65 to 74",
+      "75 and older",
+      "Unknown"
+    ],
+    "syso_card_filters_right_full_screen": false,
+    "syso_comp_subtabs": "<h5>Chart<\/h5>",
+    "syso_composition_selections": [
+      "Age",
+      "All Races/Ethnicities"
+    ],
+    "syso_export_all_pptx": true,
+    "syso_export_all_xlsx": true,
+    "syso_export_client_xlsx": true,
+    "syso_export_demo_pptx": true,
+    "syso_export_demo_xlsx": true,
+    "syso_export_flow_pptx": true,
+    "syso_export_flow_xlsx": true,
+    "syso_export_status_pptx": true,
+    "syso_export_status_xlsx": true,
+    "syso_filters_left_full_screen": false,
+    "syso_hh_type": "All",
+    "syso_inflow_outflow_subtabs": "<h5>Summary Chart<\/h5>",
+    "syso_level_of_detail": "All",
+    "syso_methodology_type": "1",
+    "syso_project_type": "All",
+    "syso_race_ethnicity": "All",
+    "syso_spec_pops": "None",
+    "syso_status_subtabs": "<h5>Chart<\/h5>",
+    "syso_tabbox": "<h4>System Flow<\/h4>",
+    "tabDQOrg_subtabs": "<h4>High Priority Errors<\/h4>",
+    "tabDQSystem_subtabs": "<h4>Warnings<\/h4>",
+    "timeliness_metric": 3,
+    "warnings_dqorg_subtabs": "<h5>Top Issues<\/h5>",
+    "warnings_dqsystem_subtabs": "<h5>Top Organizations<\/h5>"
+  },
+  "output": {
+    "clientCountData": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "clientCountSummary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "downloadFileStructureAnalysisBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadImpermissibleCharacterDetailBtn": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadPDDEReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadProjectDashboardReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "downloadSystemDQReportButton": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "fileInfo": null,
+    "fileStructureAnalysis": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "headerPDDE": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerProjectDashboard": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerSystemDQ": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "headerUpload": {
+      "html": "<h4>This tab will show relevant data once you have uploaded your HMIS CSV Export.<\/h4>",
+      "deps": [
+
+      ]
+    },
+    "pdde_guidance_summary": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "pdde_summary_table": [
+      "",
+      "NULL",
+      "c(\"shiny.silent.error\", \"validation\")"
+    ],
+    "sysDQErrorByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "sysDQErrorByOrg_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "sysDQHighPriorityByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "sysDQHighPriorityByOrg_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    },
+    "sysDQWarningByIssue_ui": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    }
+  },
+  "export": {
+
+  }
+}

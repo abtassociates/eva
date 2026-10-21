@@ -1,7 +1,9 @@
 #
 # PURPOSE: Create test datasets, to be used for automated testing
 #
-library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(readr)
 library(zip)
 library(here)
 library(collapse)

@@ -1,17 +1,5 @@
 directory <- "sandbox/mini-non-shiny-environment/"
 
-library(tidyverse)
-library(lubridate)
-library(scales)
-library(DT)
-library(readxl)
-library(writexl)
-library(glue)
-library(janitor)
-library(here)
-library(shinytest2)
-library(zip)
-
 source(here("global.R"))
 
 source(here("util", "helper_functions.R"))
