@@ -167,7 +167,7 @@ populate_client_level_export <- function(type = 'syso', file){
       dcast(
         ... ~ month, 
         value.var = "OutflowTypeDetail", 
-        drop = c(TRUE, FALSE) #TRUE drops unobserved row combinations, FALSE forces all factor levels to become columns
+        drop = c(TRUE, FALSE)
       )
     
     system_df_info <- syso_inflow_outflow_annual_chart_data() %>% 
@@ -230,7 +230,8 @@ populate_client_level_export <- function(type = 'syso', file){
   if(type == 'syso'){
     wb <- sheet_write_data(wb,  monthly_statuses,  "Monthly Statuses")
     wb <- sheet_write_data(wb,   adjusted_non_res_enrl, "Adjusted Enrollments")
-  } else {
+    
+  } else if(type == 'syse'){
     wb <- sheet_remove(wb, "Monthly Statuses")
     wb <- sheet_remove(wb, "Adjusted Enrollments")
   }
