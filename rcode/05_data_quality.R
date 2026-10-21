@@ -1012,7 +1012,7 @@ rm(enrollment_positions)
 # Create an initial dataset of possible overlaps
 # and establish initial Enrollment intervals, based on project type
 # NOTE: this data.table version is slightly faster than the collapse equivalent
-logToConsole(session, paste0("base_dq_data: ", nrow(base_dq_data), ' rows'))
+logToConsole(session, paste0("base_dq_data: ", fnrow(base_dq_data), ' rows'))
 overlap_staging <- base_dq_data[
   EntryDate != ExitAdjust & 
     ((
@@ -1032,25 +1032,25 @@ overlap_staging <- base_dq_data[
     ),
     EnrollmentEnd = as.Date(ExitAdjust))
 ]
-logToConsole(session, paste0("overlap_staging: ", nrow(overlap_staging), ' rows'))
+logToConsole(session, paste0("overlap_staging: ", fnrow(overlap_staging), ' rows'))
 
 # For NbNs, modify EnrollmentStart/End to be the first/last DateProvided 
 # for a given enrollment
 if(has_services_200) {
-  services_summary <- Services %>%
+  # now merge with staging and overwrite the original EnrollmentStart/End for 
+  # nbns
+  overlap_staging <- Services %>%
     fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
     fgroup_by(EnrollmentID) %>%
     fsummarize(
       FirstDateProvided = fmin(DateProvided),
       LastDateProvided = fmax(DateProvided)
     ) %>%
-    fungroup()
-  
-  # now merge with staging and overwrite the original EnrollmentStart/End for 
-  # nbns
-  overlap_staging <- join(
-    overlap_staging, services_summary, 
+    fungroup() %>%
+    join(
+    overlap_staging, 
     on = "EnrollmentID",
+    how = "right",
     drop.dup.cols = TRUE
   ) %>%
     fmutate(
@@ -1065,12 +1065,11 @@ if(has_services_200) {
         EnrollmentEnd
       )                    
     )
-  logToConsole(session, paste0("overlap_staging with Services merge: ", nrow(overlap_staging), ' rows'))
-  
+  logToConsole(session, paste0("overlap_staging with Services merge: ", fnrow(overlap_staging), ' rows'))
 }
 
 # get previous enrollment info using "lag"
-if(nrow(overlap_staging) > 0){
+if(fnrow(overlap_staging) > 0){
   overlap_dt <- overlap_staging %>%
     roworder(PersonalID, EnrollmentStart, EnrollmentEnd) %>%
     fgroup_by(PersonalID) %>%
