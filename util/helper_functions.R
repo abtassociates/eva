@@ -178,7 +178,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     )
   filename <- paste0(tempdir(), "/", basename(filename))
   
-  expected_rclasses <- get_expected_rclasses(csvFile)
+  expected_rclasses <- get_expected_rclasses(csvFile, filename)
   
   # interpret the data in their original encoding, so they display nicely
   # The resulting characters are almost always UTF-8 characters
@@ -261,7 +261,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   return(data)
 }
 
-get_expected_rclasses <- function(file) {
+get_expected_rclasses <- function(file, file_path) {
   # returns the expected rclasses of the columns in the file as named list, 
   # using data.table::fread column types,
   expected_rclasses <- cols_and_data_types %>%
@@ -273,12 +273,13 @@ get_expected_rclasses <- function(file) {
       })
     )
   
-  cols_in_file <- colnames(read.table(
-    paste0(tempdir(), "/", file, ".csv"),
-    head = TRUE,
-    nrows = 1,
-    sep = ",", 
-    comment.char = ""))
+  cols_in_file <- tryCatch(
+    names(data.table::fread(file_path, nrows = 0)),
+    error = function(e) {
+      warning(glue::glue("Failed to read header from {file_path}: {e$message}"))
+      return(character(0))
+    }
+  )
   
   # get the rclasses for those columns that are actually in the file
   rclasses <- sapply(cols_in_file, function(col_name) {
@@ -473,8 +474,9 @@ nice_names_timeliness <- function(df, record_type){
 
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
-  data <- readr::read_csv(paste0(directory, "data/", filename)
-                   ,col_types = get_expected_rclasses(csvFile)
+  filepath = paste0(directory, "data/", filename)
+  data <- readr::read_csv(filepath
+                   ,col_types = get_expected_rclasses(csvFile, filepath)
                    ,na = ""
   )
   return(data)
