@@ -194,14 +194,15 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     {
       data.table::fread(
         filename,
-        colClasses = unlist(unname(expected_rclasses)),
-        na.strings = c("NA",'""'),
+        colClasses = unlist(expected_rclasses),
+        na.strings = c("NA",'""', ""),
+        fill = TRUE,
         encoding = fread_enc
       )
     },
     error = function(e) {
       # If fread crashes due to malformed quoting/delimiters:
-      if (grepl("colClasses|quoting|fields", e$message, ignore.case = TRUE)) {
+      if (grepl("colClasses|quoting|fields|columns|delimiter|separator|line [0-9]+", e$message, ignore.case = TRUE)) {
         warning(glue::glue("Malformed file: {csvFile}.csv: {e$message}"))
         return(NULL)
       } else {
@@ -723,16 +724,22 @@ standardize_org_name <- function(orgname){
 }
 
 # show popup if upload scripts encounter errors
-show_trycatch_popup <- function(script_name){
+show_trycatch_popup <- function(script_name, err){
   script_num <- as.numeric(substr(script_name, 1, 2))
   title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
+  
+  popup_txt <- paste0("<b>Location: </b>", script_name,'<br>',
+                      '<b>Date of Issue: </b>', Sys.Date(), '<br>',
+                      '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+  
+  if(nchar(err) > 1)
+    popup_txt <- paste0(popup_txt, "<br><b>Error Message: </b>", err)
+  
   showModal(
     modalDialog(
       HTML(
         "<p>Your upload encountered an issue in Eva's processing pipeline. Please report this issue on our <a target = '_blank' href = 'https://github.com/abtassociates/eva/issues'>GitHub</a> page, with the following information:</p><br>",
-        paste0("<b>Location: </b>", script_name,'<br>',
-               '<b>Date of Issue: </b>', Sys.Date(), '<br>',
-               '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+        popup_txt
       ),
       
       easyClose = TRUE,
