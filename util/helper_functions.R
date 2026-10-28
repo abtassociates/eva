@@ -194,6 +194,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     {
       data.table::fread(
         filename,
+        col.names = names(expected_rclasses),
         colClasses = unlist(expected_rclasses),
         na.strings = c("NA",'""', ""),
         fill = TRUE,
@@ -275,7 +276,7 @@ get_expected_rclasses <- function(file, file_path) {
     )
   
   cols_in_file <- tryCatch(
-    names(data.table::fread(file_path, nrows = 0)),
+    names(read.csv(file_path, nrows = 0)),
     error = function(e) {
       warning(glue::glue("Failed to read header from {file_path}: {e$message}"))
       return(character(0))
@@ -816,6 +817,7 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
 # Helper function for intentionally stopping script execution early.
 intentional_stop <- function(session, message) {
   logToConsole(session, message)
+  
   stop(
     structure(
       list(message = message), 
