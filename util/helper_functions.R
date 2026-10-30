@@ -260,9 +260,7 @@ get_expected_rclasses <- function(file, file_path) {
            expected_rclasses$DataType[expected_rclasses$Name == col_name],
            "character")
   })
-
-  if("numeric" %in% rclasses)
-    browser()
+  
   return(rclasses)
 }
 
