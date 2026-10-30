@@ -216,8 +216,12 @@ mod_unsheltered_server <- function(id, global_vars) {
       })
       
       unsh_client_enrl_filt <- reactive({
+      unsh_pit_counts <- reactive({
+        req(session$userData$valid_file() == 1 )
         
-        enrl <- unsh_enrollments_filtered()  
+        # If the client is active in both a sheltered and unsheltered 
+        # enrollment on a given PIT date, precedence is given to the active 
+        # sheltered enrollment (i.e., the client is counted as "Sheltered")
         
         active_enrl <- get_active_spans(enrl,enrl, 
                                         session$userData$lh_info, session$userData$ReportStart, session$userData$ReportEnd)
@@ -232,11 +236,25 @@ mod_unsheltered_server <- function(id, global_vars) {
             homeless_type_full_period = calc_homeless_type2(unsheltered, sheltered, permanent_housing)
           ) %>% 
           fungroup()
+        # If a client is active in a sheltered enrollment and inactive in an 
+        # unsheltered enrollment on a given PIT date, the client should be 
+        # counted under "Sheltered"
         
         join(unsh_client_categories_filtered(),
              enrl_filt, on = 'PersonalID', how='full'
         )
+        # If a client is active in an unsheltered enrollment and inactive in an 
+        # ES – NbN enrollment on a given PIT date, the client should be 
+        # counted under "Unsheltered"
         
+        ## need to account for homelessnesstype changing at each pit date before counting
+        counts_df <- unsh_pit_df() %>% 
+          fsubset(!is.na(homeless_type) & homeless_type != 'PH Only' & homeless_type != 'Other') %>% 
+          fmutate(homeless_type = ifelse(homeless_type == 'Both', 'Sheltered',homeless_type)) %>% 
+          fgroup_by(period, homeless_type) %>%  
+          fsummarize(n = GRPN()) %>% 
+          fungroup() 
+        counts_df  
       })
       
       output$dist_filter_selections <-renderUI({ 
@@ -363,6 +381,8 @@ mod_unsheltered_server <- function(id, global_vars) {
           race_eth = filter_vals$race_ethnicity()
         )
         
+        build_dist_chart(dist_enrl, filter_vals = filter_vals, level_of_detail = unsh_level_of_detail_text(),
+                         chart_colors = unsh_colors)
       })
       
       output$flow_chart <- renderPlot({
@@ -451,21 +471,20 @@ mod_unsheltered_server <- function(id, global_vars) {
       observeEvent(input$demog_selections, {
         # they can select up to 2
         #disable all unchecked boxes if they've already selected 2
+     # Toggle Age, Vet Status, and Race filters based on System OVerview subtab (i.e. hide for System Demographics/Composition)
+     observeEvent(input$unsh_tabbox, {
+        req(session$userData$valid_file() == 1)
+        logMetadata(session, paste0("Clicked on ", input$unsh_tabbox,
+                                    if_else(isTruthy(global_vars$in_demo_mode), " - DEMO MODE", "")))
+       
         shinyjs::runjs(str_glue("
-    var numSelected = {length(input$`unsh-demog_selections`)};
-    $('input[name=`unsh-demog_selections`]:not(\":checked\")')
-      .attr('disabled', numSelected == 2);
-
-    var reSelected = \"{
-      \"All Races/Ethnicities\" %in% input$`unsh-demog_selections` |
-      \"Grouped Races/Ethnicities\" %in% input$`unsh-demog_selections`
-    }\";
-
-    if(numSelected == 1)
-      $('input[name=`unsh-demog_selections`][value*=\"Races/Ethnicities\"]:not(\":checked\")')
-        .attr('disabled', reSelected == 'TRUE');
+    $('#{id}-filt-spec_pops, #{id}-filt-age, #{id}-filt-race_ethnicity')
+      .closest('.bslib-grid-item')
+      .toggle({ifelse(input$unsh_tabbox != '<h4>Unsheltered Demographics</h4>', 'true','false')});
   "))
-      }, ignoreNULL = FALSE)
+      }, ignoreNULL = TRUE, ignoreInit = TRUE)
+      
+ 
     }
   )
 }
@@ -488,5 +507,69 @@ calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=
       default='Other'
     )
   }
+  
+}
+
+get_unsheltered_universe <- function(enrl, client, session){
+  
+  active_enrl <- get_active_spans(enrl,enrl, 
+                                  session$userData$lh_info, session$userData$ReportStart, session$userData$ReportEnd)
+  enrl_filt <- join(enrl, active_enrl, how='left') %>% 
+    fsubset(active_in_full_period) %>% 
+    fsubset(
+      ProjectType != hp_project_type &
+        EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
+    ) %>% 
+    fgroup_by(PersonalID) %>%
+    fmutate( 
+      homeless_type_full_period = calc_homeless_type2(unsheltered, sheltered, permanent_housing)
+    ) %>% 
+    fungroup()
+  
+  join(client,
+       enrl_filt, on = 'PersonalID', how='left'
+  )
+  
+}
+
+build_dist_chart <- function(dist_enrl, filter_vals, level_of_detail, chart_colors = unsh_colors){
+  
+  nr <- nrow(dist_enrl)
+  
+  validate(need(nr > 0, no_data_msg))
+  validate(need(nr > 10, suppression_msg))
+  
+  border_color <- 'black'
+  
+  ## client level counts and %ages of HomelessnessType
+  tree_unsh_data <-  dist_enrl %>% 
+    fcount(homeless_type_full_period, name='Count') %>% 
+    fmutate(Percent = Count/fsum(Count),
+            label = str_c(homeless_type_full_period, ': ', scales::label_comma()(Count),
+                          ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
+            ))
+  
+  chart_title <- paste0("Total ",
+                        level_of_detail, " in ",
+                        str_remove(getNameByValue(sys_hh_types, filter_vals$hh_type()), "- "),
+                        if_else(getNameByValue(sys_hh_types, filter_vals$hh_type()) == "All Household Types", "", " Households"), 
+                        " who Experienced Unsheltered Homelessness: ", scales::label_comma()(nr),"\n")
+  #if(show_legend == FALSE){
+  ggplot(tree_unsh_data, aes(area = Count, fill = homeless_type_full_period,
+                             label = label, subgroup = border_color) )+
+    labs(title = chart_title) +
+    geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE) +
+    geom_treemap_text(layout='squarified', start='bottomright',color = "black",  place = "bottomleft", grow = FALSE, reflow = TRUE) +
+    #geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE) +
+    scale_color_identity() +
+    scale_fill_manual(values = chart_colors) +
+    theme_minimal() +
+    coord_fixed(ratio =0.8) +
+    theme(
+      plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
+    )
+  
+  # } else if (show_legend == TRUE){
+  # }
   
 }

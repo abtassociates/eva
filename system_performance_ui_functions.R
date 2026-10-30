@@ -147,110 +147,210 @@ set_filter_choices <- function(hh_type = sys_hh_types,
 
 
 # tabBox ------------------------------------------------------------------
-
-evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', length(subtabids))){
+sys_detailBox <- function(
+    selection = NULL,
+    detail_type = 'overview',
+    methodology_type = input$syse_methodology_type,
+    cur_project_types = input$syse_project_type,
+    startDate = session$userData$ReportStart,
+    endDate = session$userData$ReportEnd,
+    age = input$syse_age,
+    spec_pops = input$syse_spec_pops,
+    race_eth = input$syse_race_ethnicity
+) {
   
-  #browser()
-  
-  content <- lapply(seq_along(subtabids), function(i){
-     
-    tl <- tagList()
-    #browser()
-    if('header' %in% contentList[[i]] | subtabids[i] != 'demog'){
-      tl <- tagAppendChild(tl,
-                           uiOutput(outputId = glue("{prefix}_{subtabids[i]}_filter_selections")) %>%
-                             withSpinner())
-    }
-   
-    if('plot' %in% contentList[[i]] & 'table' %in% contentList[[i]]){
-      tl <- tagAppendChild(
-        tl,
-        div(id=glue('{prefix}_{subtabids[i]}_vertical_div'),
-        verticalLayout(
-          plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")) %>% withSpinner(),
-          br(),
-          DTOutput(outputId = glue("{prefix}_{subtabids[i]}_table")) %>% withSpinner()
-        )
-      )
-      )
-    } else if('plot' %in% contentList[[i]]){
-      
-      if('demog' %in% subtabids[i]){
-        tl <- tagAppendChildren(
-          tl,
-          card(
-            strong("Select Demographic Crosstab Categories (up to 2)"),
-            p(str_glue(
-              "For a simple count of totals within a demographic 
-                                   category, select only one category. To see the 
-                                   intersection of two demographic categories, select 
-                                   both categories to create a crosstab chart. To 
-                                   change your crosstab selection, uncheck at least 
-                                   one of your previous selections before selecting 
-                                   new categories. Note that you can only select one Race/Ethnicity 
-                                   category to display in the chart at a time."
-            )),
-            checkboxGroupInput(
-              glue("{prefix}_{subtabids[i]}_selections"),
-              label = "",
-              choices = sys_heatmap_selection_choices,
-              selected = c("All Races/Ethnicities", "Age"),
-              inline = TRUE
-            ),
-            width = 12
-          ),
-          br(),
-          plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")) %>%
-            withSpinner()
-        )
-       
-      } else {
-        tl <- tagAppendChild(
-          tl,
-          plotOutput(outputId = glue("{prefix}_{subtabids[i]}_chart")
-          ) %>%
-            withSpinner()
-        )
-      }
-      
-   
-    } else if('table' %in% contentList[[i]]){
-      tl <- tagAppendChild(
-        tl,
-        tagList(
-        br(),
-        DTOutput(outputId = glue("{prefix}_{subtabids[i]}_table"))
-        )
-      )
-    }
-    tl
-  })
-  
-  
-  navset_card_underline(
-    id = glue('{prefix}_tabbox'),
-    
-    !!!lapply(seq_along(subtabids), function(i){
-              nav_panel(
-                title = headerTab(headers[i]),
-                navset_underline(
-                  id = glue("{prefix}_{subtabids[i]}_subtabs"),
-                  selected = headerSubTab("Chart"),
-                  nav_panel(
-                    title = headerSubTab("Chart"),
-                    content[[i]]
-                  ),
-                  nav_panel(
-                    title = headerSubTab("Information"),
-                    br(),
-                    get(glue("tab_{prefix}_{subtabids[i]}_subtabs_information"))
-                  )
-                )
-              )
-    }
-    )
+  # Date Range
+  date_range <- list(
+    strong(fifelse(detail_type == 'time', "Current Year Date Range: ","Date Range: ")),
+    format(startDate, "%m-%d-%Y"), " to ", format(endDate, "%m-%d-%Y"), br()
   )
+  
+  if(detail_type == 'time') { 
+    date_range <- c(
+      date_range, 
+      list(
+        strong("Previous Year Date Range: "),
+        format(startDate - years(1) , "%m-%d-%Y"), " to ", format(endDate - years(1), "%m-%d-%Y"), br()
+      )
+    )
+  } else if (detail_type == 'subpop') {
+    subpop_mini_header <- list(HTML("<b>Subpopulation Selections</b> <br>") )
+  }
+  
+  if(!is.null(race_eth) && (race_eth != "All" | (!is.null(selection) & !is.na(methodology_type)))){
+    
+    race_eth_methodology_type <- list(
+      #detail_line for "Methodology Type" where only the first part of the label before the : is pulled in
+      HTML(glue(
+        "<b>Race/Ethnicity Methodology Type:</b> {str_sub(getNameByValue(sys_methodology_types , methodology_type), start = 1, end = 8)} <br>"
+      ))
+    )
+    
+  } else {
+    race_eth_methodology_type <- NULL
+  }
+  
+  if (cur_project_types != "All"){
+    
+    project_type <- c(
+      list(chart_selection_detail_line("Project Type Group", sys_project_types, str_remove(cur_project_types, "- ")))
+    )
+  } else {
+    project_type <- NULL
+  }
+  
+  # For System Comp/Demographics and System Exits, the demographic items to display 
+  # are which checkboxes user selected for the chart. Otherwise, they're the selected filter values
+  demographics <- if(!is.null(selection) & detail_type != 'subpop') {
+    list(
+      HTML(glue("<strong>Selections</strong>: {paste(selection, collapse=' and ')} <br>"))
+    )
+  } else if (detail_type == 'subpop'){
+    list(
+      if (length(age) != length(sys_age_cats))
+        HTML(glue(
+          "<div style='text-indent: 20px;'><b>Age:</b> {paste(age, collapse = ', ')}</div>"
+        )),
+      
+      if (!is.null(race_eth) && race_eth != "All")
+        div(style='text-indent: 20px;',
+            chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth)),
+      
+      if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
+        HTML(glue(
+          "<div style='text-indent: 20px;'><b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')}</div>"
+        ))
+    )
+  } else {
+    list(
+      if (length(age) != length(sys_age_cats))
+        HTML(glue(
+          "<b>Age:</b> {paste(age, collapse = ', ')} <br>"
+        )),
+      
+      if (!is.null(race_eth) && race_eth != "All")
+        chart_selection_detail_line("Race/Ethnicity", sys_race_ethnicity_cats(methodology_type), race_eth),
+      
+      if(getNameByValue(sys_spec_pops_people, spec_pops) != "All Statuses")
+        HTML(glue(
+          "<b>Veteran Status:</b> {paste(getNameByValue(sys_spec_pops_people, spec_pops), '(Adult Only)')} <br>"
+        ))
+    )
+  }
+  
+  if(detail_type == 'subpop'){
+    if (!is.null(race_eth) && race_eth != "All"){
+      return(c(date_range, race_eth_methodology_type, subpop_mini_header, demographics))
+    } else {
+      return(c(date_range, subpop_mini_header, demographics))
+    }
+    
+  }  else {
+    return(c(date_range, race_eth_methodology_type, project_type, demographics))
+  }
 }
+
+# evaTabBox <- function(prefix, headers, subtabids, contentList = vector('list', length(subtabids))){
+#   
+#   
+#   content <- lapply(seq_along(subtabids), function(i){
+#      
+#     tl <- tagList()
+#     if('header' %in% contentList[[i]] | subtabids[i] != 'demog'){
+#       tl <- tagAppendChild(tl,
+#                            uiOutput(outputId = glue("{subtabids[i]}_filter_selections")) %>%
+#                              withSpinner())
+#     }
+#    
+#     if('plot' %in% contentList[[i]] & 'table' %in% contentList[[i]]){
+#       tl <- tagAppendChild(
+#         tl,
+#         div(id=glue('{subtabids[i]}_vertical_div'),
+#         verticalLayout(
+#           plotOutput(outputId = glue("{subtabids[i]}_chart")) %>% withSpinner(),
+#           br(),
+#           DTOutput(outputId = glue("{subtabids[i]}_table")) %>% withSpinner()
+#         )
+#       )
+#       )
+#     } else if('plot' %in% contentList[[i]]){
+#       
+#       if('demog' %in% subtabids[i]){
+#         tl <- tagAppendChildren(
+#           tl,
+#           card(
+#             strong("Select Demographic Crosstab Categories (up to 2)"),
+#             p(str_glue(
+#               "For a simple count of totals within a demographic 
+#                                    category, select only one category. To see the 
+#                                    intersection of two demographic categories, select 
+#                                    both categories to create a crosstab chart. To 
+#                                    change your crosstab selection, uncheck at least 
+#                                    one of your previous selections before selecting 
+#                                    new categories. Note that you can only select one Race/Ethnicity 
+#                                    category to display in the chart at a time."
+#             )),
+#             checkboxGroupInput(
+#               glue("{prefix}_{subtabids[i]}_selections"),
+#               label = "",
+#               choices = sys_heatmap_selection_choices,
+#               selected = c("All Races/Ethnicities", "Age"),
+#               inline = TRUE
+#             ),
+#             width = 12
+#           ),
+#           br(),
+#           plotOutput(outputId = glue("{subtabids[i]}_chart")) %>%
+#             withSpinner()
+#         )
+#        
+#       } else {
+#         tl <- tagAppendChild(
+#           tl,
+#           plotOutput(outputId = glue("{subtabids[i]}_chart")
+#           ) %>%
+#             withSpinner()
+#         )
+#       }
+#       
+#    
+#     } else if('table' %in% contentList[[i]]){
+#       tl <- tagAppendChild(
+#         tl,
+#         tagList(
+#         br(),
+#         DTOutput(outputId = glue("{subtabids[i]}_table"))
+#         )
+#       )
+#     }
+#     tl
+#   })
+#   
+#   
+#   navset_card_underline(
+#     id = glue('{prefix}_tabbox'),
+#     
+#     !!!lapply(seq_along(subtabids), function(i){
+#               nav_panel(
+#                 title = headerTab(headers[i]),
+#                 navset_underline(
+#                   id = glue("{subtabids[i]}_subtabs"),
+#                   selected = headerSubTab("Chart"),
+#                   nav_panel(
+#                     title = headerSubTab("Chart"),
+#                     content[[i]]
+#                   ),
+#                   nav_panel(
+#                     title = headerSubTab("Information"),
+#                     br(),
+#                     get(glue("tab_{prefix}_{str_remove(str_remove(subtabids[i],prefix),'-')}_subtabs_information"))
+#                   )
+#                 )
+#               )
+#     }
+#     )
+#   )
+# }
 
 # evaTabBox(prefix = 'unsh', 
 #           headers = c('Unsheltered Distribution',
