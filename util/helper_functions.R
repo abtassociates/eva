@@ -219,39 +219,10 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   # Tag all character columns as UTF-8
   # Strings are tagged with a certain encoding metadata that is critical for some
   # data.table functions (e.g. `roworder`)
-  char_cols <- char_vars(data, return = "names")
-  if (length(char_cols) > 0)
-    settransformv(data, char_cols, enc2utf8)
-  
+  settransformv(data, char_vars(data, return = "names"), enc2utf8)
   
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
-  data[, (names(data)) := lapply(.SD, function(x) {
-    if (is.character(x)) x[x == ""] <- NA
-    else if (inherits(x, "IDate")) x <- as.Date(x)
-    return(x)
-  }), .SDcols = names(data)]
-
-  for(col in names(data)) {
-    if(is.character(data[[col]]) && expected_rclasses[[col]] == "numeric") {
-      current_col_values <- data[[col]]
-      original_nas <- is.na(current_col_values)
-      temp_numeric_values <- suppressWarnings(as.numeric(current_col_values))
-      coerced_nas <- is.na(temp_numeric_values)
-      new_nas_introduced_from_non_na <- any(coerced_nas & !original_nas)
-      
-      if (!new_nas_introduced_from_non_na) {
-        # It's safe to convert: all non-NA values were successfully parsed as numeric
-        # or were already NA.
-        message(glue::glue("  SUCCESS: Converted {col} from character to numeric."))
-        data[[col]] <- as.numeric(current_col_values) # Perform the actual conversion
-      } else {
-        message(glue::glue("  SKIPPED: Column {col} contains character values that are not purely numeric (or NA) and would be coerced to NA."))
-        # You could add more detail here if needed:
-        problematic_values <- current_col_values[coerced_nas & !original_nas]
-        message(glue::glue("    Problematic values (first few): {paste(head(problematic_values), collapse=', ')}"))
-      }
-    }
-  }
+  settransformv(data, date_vars(data, return = "names"), as.Date)
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
@@ -290,6 +261,8 @@ get_expected_rclasses <- function(file, file_path) {
            "character")
   })
 
+  if("numeric" %in% rclasses)
+    browser()
   return(rclasses)
 }
 
