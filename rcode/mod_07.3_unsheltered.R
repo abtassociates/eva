@@ -98,46 +98,10 @@ mod_unsheltered_ui <- function(id) {
             br(),
             tab_unsh_flow_subtabs_information
           )
-        ),
-      nav_panel(
-        title = headerTab("Unsheltered Demographics"),
-        navset_underline(
-          id = ns("demog_subtabs"),
-          selected = headerSubTab("Chart"),
-          nav_panel(
-            title = headerSubTab("Chart"),
-            card(
-              strong("Select Demographic Crosstab Categories (up to 2)"),
-              p(str_glue(
-                "For a simple count of totals within a demographic 
-                                   category, select only one category. To see the 
-                                   intersection of two demographic categories, select 
-                                   both categories to create a crosstab chart. To 
-                                   change your crosstab selection, uncheck at least 
-                                   one of your previous selections before selecting 
-                                   new categories. Note that you can only select one Race/Ethnicity 
-                                   category to display in the chart at a time."
-              )),
-              checkboxGroupInput(
-                ns("demog_selections"),
-                label = "",
-                choices = sys_heatmap_selection_choices,
-                selected = c("All Races/Ethnicities", "Age"),
-                inline = TRUE
-              ),
-              width = 12
-            ),
-            # uiOutput(outputId = glue("demog_filter_selections")) %>%
-            #   withSpinner(),
-            plotOutput(outputId = ns('demog_chart')) %>% withSpinner()
-          ),
-          nav_panel(
-            title = headerSubTab("Information"),
-            br(),
-            tab_unsh_demog_subtabs_information
-          )
-        )
       ),
+      
+      ## Demographics subtab - using mod_system_demog -----
+      mod_system_demog_ui(id = ns('demog'), title_prefix = 'Unsheltered', instructions = tab_unsh_demog_subtabs_information)
     )
   )
 }
@@ -216,6 +180,17 @@ mod_unsheltered_server <- function(id, global_vars) {
       })
       
       unsh_client_enrl_filt <- reactive({
+        get_unsheltered_universe(enrl = unsh_enrollments_filtered(), 
+                                 client = unsh_client_categories_filtered(), session) 
+      })
+      
+      unsh_people_universe_demog <- reactive({
+        get_unsheltered_universe(enrl = unsh_enrollments_filtered(), 
+                                 client = session$userData$client_categories, session) %>% 
+          ## universe for this chart is clients with Unsheltered or Both enrollments
+          fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only')))
+      })
+      
       unsh_pit_counts <- reactive({
         req(session$userData$valid_file() == 1 )
         
@@ -223,26 +198,10 @@ mod_unsheltered_server <- function(id, global_vars) {
         # enrollment on a given PIT date, precedence is given to the active 
         # sheltered enrollment (i.e., the client is counted as "Sheltered")
         
-        active_enrl <- get_active_spans(enrl,enrl, 
-                                        session$userData$lh_info, session$userData$ReportStart, session$userData$ReportEnd)
-        enrl_filt <- join(enrl, active_enrl, how='left') %>% 
-          fsubset(active_in_full_period) %>% 
-          fsubset(
-            ProjectType != hp_project_type &
-              EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
-          ) %>% 
-          fgroup_by(PersonalID) %>%
-          fmutate( 
-            homeless_type_full_period = calc_homeless_type2(unsheltered, sheltered, permanent_housing)
-          ) %>% 
-          fungroup()
         # If a client is active in a sheltered enrollment and inactive in an 
         # unsheltered enrollment on a given PIT date, the client should be 
         # counted under "Sheltered"
         
-        join(unsh_client_categories_filtered(),
-             enrl_filt, on = 'PersonalID', how='full'
-        )
         # If a client is active in an unsheltered enrollment and inactive in an 
         # ES – NbN enrollment on a given PIT date, the client should be 
         # counted under "Unsheltered"
@@ -257,6 +216,7 @@ mod_unsheltered_server <- function(id, global_vars) {
         counts_df  
       })
       
+      ## Distribution subtab outputs -----
       output$dist_filter_selections <-renderUI({ 
         
         req(session$userData$valid_file() == 1 )
@@ -274,112 +234,11 @@ mod_unsheltered_server <- function(id, global_vars) {
         
       })
       
-      
       output$dist_chart <- renderPlot({
-        
         dist_enrl <- unsh_client_enrl_filt() %>% 
-          fsubset(!is.na(homeless_type_full_period) & homeless_type_full_period != 'PH Only')
-        nr <- nrow(dist_enrl)
-        
-        validate(need(nr > 0, no_data_msg))
-        validate(need(nr > 10, suppression_msg))
-        
-        border_color <- 'black'
-        
-        ## client level counts and %ages of HomelessnessType
-        tree_unsh_data <-  dist_enrl %>% 
-          fcount(homeless_type_full_period, name='Count') %>% 
-          fmutate(Percent = Count/fsum(Count),
-                  label = str_c(homeless_type_full_period, ': ', scales::label_comma()(Count),
-                                ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
-                  ))
-        
-        #if(show_legend == FALSE){
-        ggplot(tree_unsh_data, aes(area = Count, fill = homeless_type_full_period,
-                                   label = label, subgroup = border_color) )+
-          labs(title = paste0("Total ",
-                              unsh_level_of_detail_text(), " in ",
-                              str_remove(getNameByValue(sys_hh_types, filter_vals$hh_type()), "- "),
-                              if_else(getNameByValue(sys_hh_types, filter_vals$hh_type()) == "All Household Types", "", " Households"), 
-                              " who Experienced Unsheltered Homelessness: ", scales::label_comma()(nr),"\n")
-          ) +
-          geom_treemap(layout='squarified', start='bottomright',color = "black", size = 2, show.legend = FALSE) +
-          geom_treemap_text(layout='squarified', start='bottomright',color = "black",  place = "bottomleft", grow = FALSE, reflow = TRUE) +
-          #geom_treemap_subgroup_border(layout='squarified',start='bottomright',color = "black", size = 4, show.legend = FALSE) +
-          scale_color_identity() +
-          scale_fill_manual(values = unsh_colors) +
-          theme_minimal() +
-          coord_fixed(ratio =0.8) +
-          theme(
-            plot.title = element_text(size = sys_chart_title_font, hjust = 0.5)
-          )
-        
-        # } else if (show_legend == TRUE){
-        # }
-        
-      })
-      sys_comp_plot_df <- reactiveVal()
-      
-      output$demog_chart <- renderPlot({
-       
-        req(
-          !is.null(input$demog_selections) &
-            session$userData$valid_file() == 1 &
-            between(length(input$demog_selections), 1, 2)
-        )
-        
-        validate(
-          need(
-            fnrow(session$userData$enrollment_categories) > 0,
-            no_valid_data_msg
-          )
-        )
-        demog_unsh_data <-unsh_client_enrl_filt() %>% #unsh_client_categories_filtered() %>% 
-          ## universe for this chart is clients with Unsheltered or Both enrollments
-          fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only'))) #%>% 
-        
-        if(length(input$demog_selections) == 1) {
-          sys_comp_plot_1var(subtab = 'unsh', 
-                             methodology_type = filter_vals$methodology_type(), 
-                             selection = input$demog_selections, 
-                             people_univ = demog_unsh_data,
-                             isExport = FALSE, display_var = unsh_full_unit_of_analysis_display())
-        } else {
-          sys_comp_plot_2vars(subtab = 'unsh', 
-                              methodology_type = filter_vals$methodology_type(), 
-                              selections = input$demog_selections, 
-                              people_univ = demog_unsh_data,
-                              isExport = FALSE, session = session, display_var = unsh_full_unit_of_analysis_display())
-          
-        }
-      }, height = function() {
-        ifelse(!is.null(input$demog_selections), 700, 100)
-      }, width = function() {
-        input$demog_subtabs
-        input$unsh_tabbox
-        input$pageid
-        if (length(input$demog_selections) == 1 |
-            isTRUE(getOption("shiny.testmode"))) {
-          500
-        } else {
-          "auto"
-        }
-      }, alt = "A crosstab data table of the demographic make-up of the homeless system.")
-      
-      output$demog_filter_selections <-renderUI({ 
-        
-        req(session$userData$valid_file() == 1 )
-        
-        sys_detailBox(
-          detail_type = 'unsh',
-          methodology_type = filter_vals$methodology_type(),
-          cur_project_types = filter_vals$project_type(),
-          startDate = session$userData$ReportStart,
-          endDate = session$userData$ReportEnd,
-          age = filter_vals$age(),
-          spec_pops = filter_vals$spec_pops(),
-          race_eth = filter_vals$race_ethnicity()
-        )
+          fsubset(!is.na(homeless_type_full_period) & homeless_type_full_period != 'PH Only') %>% 
+          fselect('PersonalID', 'homeless_type_full_period') %>% 
+          funique()
         
         build_dist_chart(dist_enrl, filter_vals = filter_vals, level_of_detail = unsh_level_of_detail_text(),
                          chart_colors = unsh_colors)
@@ -393,31 +252,7 @@ mod_unsheltered_server <- function(id, global_vars) {
           fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only'))) 
       })
       
-      unsh_pit_counts <- reactive({
-        req(session$userData$valid_file() == 1 )
-        
-        # If the client is active in both a sheltered and unsheltered 
-        # enrollment on a given PIT date, precedence is given to the active 
-        # sheltered enrollment (i.e., the client is counted as "Sheltered")
-        
-        # If a client is active in a sheltered enrollment and inactive in an 
-        # unsheltered enrollment on a given PIT date, the client should be 
-        # counted under "Sheltered"
-        
-        # If a client is active in an unsheltered enrollment and inactive in an 
-        # ES – NbN enrollment on a given PIT date, the client should be 
-        # counted under "Unsheltered"
-        
-        ## need to account for homelessnesstype changing at each pit date before counting
-        counts_df <- unsh_pit_df() %>% 
-          fsubset(!is.na(homeless_type) & homeless_type != 'PH Only' & homeless_type != 'Other') %>% 
-          fmutate(homeless_type = ifelse(homeless_type == 'Both', 'Sheltered',homeless_type)) %>% 
-          fgroup_by(period, homeless_type) %>%  
-          fsummarize(n = GRPN()) %>% 
-          fungroup() 
-        counts_df  
-      })
-      
+      ## PIT subtab outputs -----
       output$pit_table <- renderDT({
         req(session$userData$valid_file() == 1)
         
@@ -430,7 +265,6 @@ mod_unsheltered_server <- function(id, global_vars) {
                   filter = 'none', selection='none', rownames = FALSE)
         
       })
-      
       
       output$pit_chart <- renderPlot({
         req(session$userData$valid_file() == 1)
@@ -450,7 +284,6 @@ mod_unsheltered_server <- function(id, global_vars) {
         
       })
       
-      
       output$pit_filter_selections <-renderUI({ 
         
         req(session$userData$valid_file() == 1 )
@@ -468,9 +301,12 @@ mod_unsheltered_server <- function(id, global_vars) {
         
       })
       
-      observeEvent(input$demog_selections, {
-        # they can select up to 2
-        #disable all unchecked boxes if they've already selected 2
+     ## Demographics subtab outputs - using submodule -----
+     unsh_demog_out <- mod_system_demog_server(id = 'demog', type = 'unsheltered',
+                                               people_univ = unsh_people_universe_demog(),
+                                               display_var = unsh_full_unit_of_analysis_display(), 
+                                               filter_vals, global_vars)
+      
      # Toggle Age, Vet Status, and Race filters based on System OVerview subtab (i.e. hide for System Demographics/Composition)
      observeEvent(input$unsh_tabbox, {
         req(session$userData$valid_file() == 1)
