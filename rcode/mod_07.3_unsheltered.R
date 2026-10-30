@@ -142,14 +142,12 @@ mod_unsheltered_ui <- function(id) {
   )
 }
 
-mod_unsheltered_server <- function(id, in_demo_mode, imported_name) {
+mod_unsheltered_server <- function(id, global_vars) {
   moduleServer(
     id,
     function(input, output, session) {
       
       ns <- session$ns
-      
-      unsh_filtered_data <- mod_filter_panel_server(id='filt', in_demo_mode, imported_name)
       
       unsh_colors <- c(
         "Sheltered" = get_brand_color('dark_grey'),
@@ -157,38 +155,18 @@ mod_unsheltered_server <- function(id, in_demo_mode, imported_name) {
         'Both' = get_brand_color('light_grey')
       )
       
-      # Client-level flags, filtered ----------------------------------------------------
+      ## Run and retrieve output from filter panel submodule -----
+      unsh_filtered_data <- mod_filter_panel_server(id='filt', global_vars)
+      
+      # Client-level flags, filtered 
       unsh_client_categories_filtered <- unsh_filtered_data$client
       unsh_enrollments_filtered <- unsh_filtered_data$enrl
       filter_vals <- unsh_filtered_data$filter_vals
 
-      # Create passes-enrollment-filter flag to exclude enrollments from heatmap -------
-      
+      ## Reactives -----
       unsh_pit_dates <- reactive({
-       
         get_pits(session) %>% sort()
       })
-      
-      calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=NULL){
-        if(!is.null(cond)){
-          fcase(
-            (fsum(cond & unsheltered) > 0) & (fsum(cond & sheltered) > 0), 'Both',
-            fsum(cond & unsheltered) > 0, 'Unsheltered',
-            fsum(cond & sheltered) > 0, 'Sheltered',
-            (fsum(cond & permanent_housing) > 0) & (fsum(cond & unsheltered) == 0) & (fsum(cond & sheltered) == 0), 'PH Only',
-            default='Other'
-          )
-        } else {
-          fcase(
-            (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
-            fsum(unsheltered) > 0, 'Unsheltered',
-            fsum(sheltered) > 0, 'Sheltered',
-            (fsum(permanent_housing) > 0) & (fsum(unsheltered) == 0) & (fsum(sheltered) == 0), 'PH Only',
-            default='Other'
-          )
-        }
-        
-      }
       
       unsh_pit_df <- reactive({
         
@@ -222,7 +200,6 @@ mod_unsheltered_server <- function(id, in_demo_mode, imported_name) {
             getNameByValue(sys_level_of_detail, filter_vals$level_of_detail())
         )
       })
-      
       
       unsh_full_unit_of_analysis_display <- reactive({
         paste0(
@@ -493,3 +470,23 @@ mod_unsheltered_server <- function(id, in_demo_mode, imported_name) {
   )
 }
 
+calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=NULL){
+  if(!is.null(cond)){
+    fcase(
+      (fsum(cond & unsheltered) > 0) & (fsum(cond & sheltered) > 0), 'Both',
+      fsum(cond & unsheltered) > 0, 'Unsheltered',
+      fsum(cond & sheltered) > 0, 'Sheltered',
+      (fsum(cond & permanent_housing) > 0) & (fsum(cond & unsheltered) == 0) & (fsum(cond & sheltered) == 0), 'PH Only',
+      default='Other'
+    )
+  } else {
+    fcase(
+      (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
+      fsum(unsheltered) > 0, 'Unsheltered',
+      fsum(sheltered) > 0, 'Sheltered',
+      (fsum(permanent_housing) > 0) & (fsum(unsheltered) == 0) & (fsum(sheltered) == 0), 'PH Only',
+      default='Other'
+    )
+  }
+  
+}

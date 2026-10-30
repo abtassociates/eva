@@ -18,6 +18,25 @@ function(input, output, session) {
   windowSize <- reactiveVal(NULL)
   triggerPlot <- reactiveVal(NULL)
   
+  global_mod_vars <- reactiveValues(
+    windowSize = NULL,   # updated by windowSize(),
+    triggerPlot = NULL,  # updated by triggerPlot(),
+    in_demo_mode = NULL, # updated by input$in_demo_mode,
+    imported_name = NULL # updated by input$imported$name
+  )
+  observeEvent(windowSize(),{
+    global_mod_vars$windowSize <- windowSize()
+  })
+  
+  observeEvent(input$in_demo_mode, {
+    global_mod_vars$in_demo_mode <- input$in_demo_mode
+  })
+  
+  observeEvent(input$imported, {
+    if(!is.null(input$imported$name))
+      global_mod_vars$imported_name <- input$imported$name
+  })
+  
   reset_app(session)
   
   # Handle if user arrives from external site
@@ -156,7 +175,7 @@ function(input, output, session) {
   source(here("rcode", "server_07.2.4_syse_phd.R"), local = TRUE)
   
   
-  mod_unsheltered_server(id='unsh',imported_name = input$imported$name, in_demo_mode = input$in_demo_mode)
+  mod_unsheltered_server(id='unsh', global_mod_vars)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
