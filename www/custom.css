@@ -136,6 +136,10 @@
   height:100% !important; 
 }
 
+#unsh-demog-demog_chart {
+  height:100% !important;
+}
+
 /* vertical bar and spacing of sys demographic selections, 
 to group All + Grouped Race selections*/
 #system_composition_selections label.checkbox-inline {

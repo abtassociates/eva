@@ -12,7 +12,7 @@ color:
     dark_blue: '#16697A'
     dark_blue2: '#214853'
     coral: '#C2462E'
-    coral2: '#8D3D2A'
+    dark_coral: '#8D3D2A'
     blue: '#71B4CB'
     sky: '#D0E7EC'
     
@@ -36,6 +36,7 @@ color:
     light_purple: '#D6D1E6'
     very_light_purple: '#EBE9F1'
     light_coral: '#D1AB98'
+    very_light_coral: '#EBD9D1'
     # app background color
     grey_bg: '#ecf0f5'
   # theme colors  

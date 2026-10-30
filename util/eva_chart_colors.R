@@ -50,7 +50,7 @@ sankey_bar_colors <- bar_colors[c("Housed","Homeless","Exited, Non-Permanent","E
 
 sankey_border_colors <- c(
   "Exited, Non-Permanent" = get_brand_color('light_coral'),
-  "Enrolled, Homeless" = get_brand_color('coral2'),
+  "Enrolled, Homeless" = get_brand_color('dark_coral'),
   "Inactive" = "black",
   "Exited, Permanent" = get_brand_color('light_blue'),
   "Enrolled, Housed" = get_brand_color('dark_blue2')
