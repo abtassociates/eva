@@ -1,5 +1,4 @@
 #source('tabSystemExits.R')
-source('system_performance_ui_functions.R')
 page_navbar(
   # options, theme, and title ----------------
   id = 'pageid',
@@ -1178,46 +1177,7 @@ nav_panel(
 ),
 
 # Unsheltered Homelessness ------------------------------------------------
-  nav_panel(
-    title = "Unsheltered Homelessness",
-    value = "tabUnsheltered",
-    icon = icon('flag'),
-    
-    card(
-      htmlOutput("headerUnsheltered")
-    ),
-    accordion(
-      id = 'accordion_unsheltered',
-      open = FALSE,
-      accordion_panel(
-        title = 'Instructions',
-        tabUnsheltered_instructions
-      )
-    ),
-    br(),
-    ## Filters --------------
-    evaFilterPanel(
-      fprefix = 'unsh',
-      flabels = set_filter_labels('project_type'= "Unsheltered Project Type"), 
-      fchoices = set_filter_choices("project_type" = unsh_project_types)
-    ),
-    
-    evaTabBox(prefix = 'unsh', 
-              headers = c('Unsheltered Distribution',
-                          'Unsheltered PIT',
-                          'Unsheltered Inflow-Outflow',
-                          'Unsheltered Demographics'),
-              subtabids = c('dist', 'pit','flow','demog'),
-              contentList = list(
-                'dist'  = c('header', 'plot'),
-                'pit'   = c('header', 'plot','table'),
-                'flow'  = c('header', 'plot'),
-                'demog' = c('header', 'plot')
-              )
-    )
-    
-  
-  )
+  mod_unsheltered_ui(id = 'unsh'),
 ),
 # Resources menu -----------
 nav_menu(

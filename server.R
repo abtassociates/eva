@@ -155,8 +155,8 @@ function(input, output, session) {
   source(here("rcode", "server_07.2.3_syse_subpop.R"), local = TRUE)
   source(here("rcode", "server_07.2.4_syse_phd.R"), local = TRUE)
   
-  source(here("rcode", "server_07.3_unsheltered.R"), local = TRUE)
   
+  mod_unsheltered_server(id='unsh',imported_name = input$imported$name, in_demo_mode = input$in_demo_mode)
   
   # Handle session end --------------------------------------------------------
   session$onSessionEnded(function(){
