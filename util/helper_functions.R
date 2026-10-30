@@ -178,7 +178,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     )
   filename <- paste0(tempdir(), "/", basename(filename))
   
-  expected_rclasses <- get_expected_rclasses(csvFile)
+  expected_rclasses <- get_expected_rclasses(csvFile, filename)
   
   # interpret the data in their original encoding, so they display nicely
   # The resulting characters are almost always UTF-8 characters
@@ -194,14 +194,16 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
     {
       data.table::fread(
         filename,
-        colClasses = unlist(unname(expected_rclasses)),
-        na.strings = c("NA",'""'),
+        col.names = names(expected_rclasses),
+        colClasses = unlist(expected_rclasses),
+        na.strings = c("NA",'""', ""),
+        fill = TRUE,
         encoding = fread_enc
       )
     },
     error = function(e) {
       # If fread crashes due to malformed quoting/delimiters:
-      if (grepl("colClasses|quoting|fields", e$message, ignore.case = TRUE)) {
+      if (grepl("colClasses|quoting|fields|columns|delimiter|separator|line [0-9]+", e$message, ignore.case = TRUE)) {
         warning(glue::glue("Malformed file: {csvFile}.csv: {e$message}"))
         return(NULL)
       } else {
@@ -217,39 +219,10 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   # Tag all character columns as UTF-8
   # Strings are tagged with a certain encoding metadata that is critical for some
   # data.table functions (e.g. `roworder`)
-  char_cols <- char_vars(data, return = "names")
-  if (length(char_cols) > 0)
-    settransformv(data, char_cols, enc2utf8)
-  
+  settransformv(data, char_vars(data, return = "names"), enc2utf8)
   
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
-  data[, (names(data)) := lapply(.SD, function(x) {
-    if (is.character(x)) x[x == ""] <- NA
-    else if (inherits(x, "IDate")) x <- as.Date(x)
-    return(x)
-  }), .SDcols = names(data)]
-
-  for(col in names(data)) {
-    if(is.character(data[[col]]) && expected_rclasses[[col]] == "numeric") {
-      current_col_values <- data[[col]]
-      original_nas <- is.na(current_col_values)
-      temp_numeric_values <- suppressWarnings(as.numeric(current_col_values))
-      coerced_nas <- is.na(temp_numeric_values)
-      new_nas_introduced_from_non_na <- any(coerced_nas & !original_nas)
-      
-      if (!new_nas_introduced_from_non_na) {
-        # It's safe to convert: all non-NA values were successfully parsed as numeric
-        # or were already NA.
-        message(glue::glue("  SUCCESS: Converted {col} from character to numeric."))
-        data[[col]] <- as.numeric(current_col_values) # Perform the actual conversion
-      } else {
-        message(glue::glue("  SKIPPED: Column {col} contains character values that are not purely numeric (or NA) and would be coerced to NA."))
-        # You could add more detail here if needed:
-        problematic_values <- current_col_values[coerced_nas & !original_nas]
-        message(glue::glue("    Problematic values (first few): {paste(head(problematic_values), collapse=', ')}"))
-      }
-    }
-  }
+  settransformv(data, date_vars(data, return = "names"), as.Date)
 
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
@@ -261,7 +234,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   return(data)
 }
 
-get_expected_rclasses <- function(file) {
+get_expected_rclasses <- function(file, file_path) {
   # returns the expected rclasses of the columns in the file as named list, 
   # using data.table::fread column types,
   expected_rclasses <- cols_and_data_types %>%
@@ -273,12 +246,13 @@ get_expected_rclasses <- function(file) {
       })
     )
   
-  cols_in_file <- colnames(read.table(
-    paste0(tempdir(), "/", file, ".csv"),
-    head = TRUE,
-    nrows = 1,
-    sep = ",", 
-    comment.char = ""))
+  cols_in_file <- tryCatch(
+    names(read.csv(file_path, nrows = 0)),
+    error = function(e) {
+      warning(glue::glue("Failed to read header from {file_path}: {e$message}"))
+      return(character(0))
+    }
+  )
   
   # get the rclasses for those columns that are actually in the file
   rclasses <- sapply(cols_in_file, function(col_name) {
@@ -286,7 +260,7 @@ get_expected_rclasses <- function(file) {
            expected_rclasses$DataType[expected_rclasses$Name == col_name],
            "character")
   })
-
+  
   return(rclasses)
 }
 
@@ -473,8 +447,9 @@ nice_names_timeliness <- function(df, record_type){
 
 importFileSandbox <- function(csvFile) {
   filename = str_glue("{csvFile}.csv")
-  data <- readr::read_csv(paste0(directory, "data/", filename)
-                   ,col_types = get_expected_rclasses(csvFile)
+  filepath = paste0(directory, "data/", filename)
+  data <- readr::read_csv(filepath
+                   ,col_types = get_expected_rclasses(csvFile, filepath)
                    ,na = ""
   )
   return(data)
@@ -721,16 +696,22 @@ standardize_org_name <- function(orgname){
 }
 
 # show popup if upload scripts encounter errors
-show_trycatch_popup <- function(script_name){
+show_trycatch_popup <- function(script_name, err){
   script_num <- as.numeric(substr(script_name, 1, 2))
   title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
+  
+  popup_txt <- paste0("<b>Location: </b>", script_name,'<br>',
+                      '<b>Date of Issue: </b>', Sys.Date(), '<br>',
+                      '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+  
+  if(nchar(err) > 1)
+    popup_txt <- paste0(popup_txt, "<br><b>Error Message: </b>", err)
+  
   showModal(
     modalDialog(
       HTML(
         "<p>Your upload encountered an issue in Eva's processing pipeline. Please report this issue on our <a target = '_blank' href = 'https://github.com/abtassociates/eva/issues'>GitHub</a> page, with the following information:</p><br>",
-        paste0("<b>Location: </b>", script_name,'<br>',
-               '<b>Date of Issue: </b>', Sys.Date(), '<br>',
-               '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
+        popup_txt
       ),
       
       easyClose = TRUE,
@@ -807,6 +788,7 @@ calc_pct_change <- function(count_prev, count_current, accuracy = 1, format='cha
 # Helper function for intentionally stopping script execution early.
 intentional_stop <- function(session, message) {
   logToConsole(session, message)
+  
   stop(
     structure(
       list(message = message), 
