@@ -222,8 +222,8 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   settransformv(data, char_vars(data, return = "names"), enc2utf8)
   
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
-  settransformv(data, date_vars(data, return = "names"), as.Date)
-
+  settransformv(data, get_vars(data, \(x) inherits(x, "IDate"), return = "names"), as.Date)
+  
   if(csvFile != "Export" & "DateDeleted" %in% colnames(data)){
     data <- data %>%
       fsubset(is.na(DateDeleted))
