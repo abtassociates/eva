@@ -162,7 +162,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       unlink(qs2_filepath)
       
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
-      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
+      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R", err = conditionMessage(.))
       if(IN_DEV_MODE) browser()
     }
     

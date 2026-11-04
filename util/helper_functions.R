@@ -695,7 +695,7 @@ standardize_org_name <- function(orgname){
 }
 
 # show popup if upload scripts encounter errors
-show_trycatch_popup <- function(script_name, err){
+show_trycatch_popup <- function(script_name, err = ""){
   script_num <- as.numeric(substr(script_name, 1, 2))
   title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
   
@@ -703,7 +703,7 @@ show_trycatch_popup <- function(script_name, err){
                       '<b>Date of Issue: </b>', Sys.Date(), '<br>',
                       '<b>Time of Issue: </b>', format(Sys.time(),format='%H:%M',usetz = TRUE, tz="EST"))
   
-  if(nchar(err) > 1)
+  if(nzchar(err))
     popup_txt <- paste0(popup_txt, "<br><b>Error Message: </b>", err)
   
   showModal(
