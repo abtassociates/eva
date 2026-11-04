@@ -1,6 +1,10 @@
 
 # Eva Changelog
 
+## 2026-11-05
+### Bug Fixes
+- Fixed issue where an apostrophe in an unquoted string cell in the first data row triggered an upload error (Issue <a href='https://github.com/abtassociates/eva/issues/1116' target ='_blank'>#1116</a>)
+
 ## 2026-10-22
 
 ### Bug Fixes
