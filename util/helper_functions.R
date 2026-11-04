@@ -197,7 +197,6 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
         col.names = names(expected_rclasses),
         colClasses = unlist(expected_rclasses),
         na.strings = c("NA",'""', ""),
-        fill = TRUE,
         encoding = fread_enc
       )
     },
