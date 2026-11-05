@@ -13,7 +13,7 @@ process_upload <- function(upload_filename, upload_filepath) {
         logToConsole(session, src_att)
         logToConsole(session, paste0("Error occured in ", script_name))
         if(src_att$message != "No valid Continuum records in enrollment_prep")
-          show_trycatch_popup(script_name)
+          show_trycatch_popup(script_name, err = src_att$message)
         return("err")
       } else if("intentional_stop" %in% class(src_att)) {
         logToConsole(session, paste0("Intentional stop occurred: ", src_att$message))
@@ -162,7 +162,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       unlink(qs2_filepath)
       
       logToConsole(session, paste0("dq_pdde_results mirai failed with error: ", .))
-      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R")
+      show_trycatch_popup("05_DataQuality.R / 06_PDDE_Checker.R", err = conditionMessage(.))
       if(IN_DEV_MODE) browser()
     }
     
