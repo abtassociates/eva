@@ -212,7 +212,10 @@ mod_unsheltered_server <- function(id, global_vars) {
           fmutate(homeless_type = ifelse(homeless_type == 'Both', 'Sheltered',homeless_type)) %>% 
           fgroup_by(period, homeless_type) %>%  
           fsummarize(n = GRPN()) %>% 
-          fungroup() 
+          fungroup() %>% 
+          complete(period = paste0('homeless_at_pit',1:4), 
+                   homeless_type = c('Unsheltered','Sheltered'), 
+                   fill = list(n=0))
         counts_df  
       })
       
