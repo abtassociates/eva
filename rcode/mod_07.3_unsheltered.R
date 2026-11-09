@@ -272,14 +272,21 @@ mod_unsheltered_server <- function(id, global_vars) {
       output$pit_chart <- renderPlot({
         req(session$userData$valid_file() == 1)
         
+        chart_title <- paste0("Unsheltered PIT Counts for ", 
+                              unsh_level_of_detail_text(), " in ",
+                              str_remove(getNameByValue(sys_hh_types, filter_vals$hh_type()), "- "),
+                              if_else(getNameByValue(sys_hh_types, filter_vals$hh_type()) == "All Household Types", "", " Households")
+                              )
+        
         ggplot(unsh_pit_counts(), aes(x=period, fill=factor(homeless_type), y=n)) +
           geom_bar(stat='identity', position='dodge') +
           scale_fill_manual(values=unsh_colors) +
           scale_y_continuous(limits=c(0, NA), expand = expansion(mult=c(0,0.1),add=0)) +
           labs(y = '', 
-               title = ) +
+               title = chart_title) +
           theme_minimal() +
-          theme(legend.position = 'none', 
+          theme(legend.position = 'none',
+                plot.title = element_text(size = sys_chart_title_font, hjust = 0.5),
                 axis.text.x = element_blank(), 
                 axis.ticks.x = element_blank(),
                 axis.title.x = element_blank(),
