@@ -293,7 +293,7 @@ rm(HHMoveIn)
 
 Services <- Services %>%
   fsubset(RecordType == 200 & !is.na(DateProvided)) %>%
-  fselect(ServicesID, EnrollmentID, DateCreated, DateProvided, PersonalID) %>%
+  fselect(ServicesID, EnrollmentID, DateCreated, DateProvided, PersonalID, SubTypeProvided) %>%
   qDT()
 
 # Checking requirements by projectid --------------------------------------

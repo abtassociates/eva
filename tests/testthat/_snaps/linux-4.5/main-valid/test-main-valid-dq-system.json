@@ -44,7 +44,7 @@
       ]
     },
     "sysDQErrorByIssue": {
-      "src": "[image data hash: 52169f675fa5d1a1d8743e57bc23cb16]",
+      "src": "[image data hash: af5621902b3c9380546809c92805ccaf]",
       "width": 1640,
       "height": 400,
       "alt": "A bar chart of the top General Errors in the system.",
@@ -71,8 +71,8 @@
 
                 ],
                 "y": [
+                  "Incomplete Living Situation Data",
                   "Conflicting Health Insurance yes/no at Exit",
-                  "Dependent Field Data Collection Issue",
                   "Conflicting Health Insurance yes/no at Entry",
                   "Conflicting Income yes/no at Entry",
                   "Conflicting Income yes/no at Exit",

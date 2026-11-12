@@ -1,5 +1,32 @@
 
 # Eva Changelog
+
+## 2026-11-05
+### Bug Fixes
+ - Fixed issue where an apostrophe in an unquoted string cell in the first data row triggered an upload error (Issue <a href='https://github.com/abtassociates/eva/issues/1116' target ='_blank'>#1116</a>)
+
+### Miscellaneous
+ - Added error message text in upload crash pop-ups. The hope is that in some cases, it will be clear to the user what the problem is, and in others they can include the error message in the GitHub issue for easier cross-referencing.
+ 
+ 
+## 2026-10-22
+
+### Bug Fixes
+ - Fixed flagging null values in the Invalid Non-Null check of Services.SubTypeProvided (Issue <a href='https://github.com/abtassociates/eva/issues/1102' target ='_blank'>#1102</a>)
+ 
+## 2026-10-16
+
+### Bug Fixes
+ - Fixed grouping condition for Missing Income at Entry checks, which was leading to flagging projects that did NOT require Income (and had no Age At Entry) (Issue <a href='https://github.com/abtassociates/eva/issues/1109' target ='_blank'>#1109</a>)
+ - Fixed bug in opening Client Level Excel export and on Monthly Statuses tab, due to there being no clients flagged in a given month.
+
+## 2026-10-15
+
+### Bug Fixes
+ - Determine string *character* length with `stringi::stri_length`, not *byte* length with `collapse::vlengths`, as some non-ascii characters can be multi-byte thus tripping the exceeds length limit even though the number of *characters* doesn't exceed. (Issue <a href='https://github.com/abtassociates/eva/issues/1100' target ='_blank'>#1100</a>)
+ - Change list reference from V3.3 to V4.4
+ - Turned off "Dependent Field Data Collection Issue" check for column LeaveSituation14Days in the CurrentLivingSituation.csv file. This data element and related dependent fields (SubsequentResidence, ResourcesToObtain, LeaseOwn60Day, and MovedTwoOrMore) are specific to Coordinated Entry projects (regardless of project type). Any project with data for LeaveSituation14Days is assumed to be a CE project and related dependent fields will be validated with the "Dependent Field Data Collection Issue" check (Issue <a href='https://github.com/abtassociates/eva/issues/1096' target ='_blank'>#1096</a>).
+
 ## 2026-10-01
 
 ### Bug Fixes

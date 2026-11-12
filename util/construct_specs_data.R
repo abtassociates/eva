@@ -174,10 +174,10 @@ special_validation_rules <- list(
       )
     ),
     "Value Length Exceeds Column Character Limit" = list(
-      FirstName = quote(all(vlengths(FirstName) > fifelse(HashStatus == 4, 64, str_len_limit))),
-      MiddleName = quote(all(vlengths(MiddleName) > fifelse(HashStatus == 4, 64, str_len_limit))),
-      LastName = quote(all(vlengths(LastName) > fifelse(HashStatus == 4, 64, str_len_limit))),
-      SSN  = quote(all(vlengths(SSN) > fifelse(HashStatus == 4, 68, str_len_limit)))
+      FirstName = quote(all(stringi::stri_length(FirstName) > fifelse(HashStatus == 4, 64, str_len_limit))),
+      MiddleName = quote(all(stringi::stri_length(MiddleName) > fifelse(HashStatus == 4, 64, str_len_limit))),
+      LastName = quote(all(stringi::stri_length(LastName) > fifelse(HashStatus == 4, 64, str_len_limit))),
+      SSN  = quote(all(stringi::stri_length(SSN) > fifelse(HashStatus == 4, 68, str_len_limit)))
     )
   ),
   CurrentLivingSituation = list(
@@ -253,9 +253,9 @@ special_validation_rules <- list(
       },
       SubTypeProvided = quote(
         fcase(
-          RecordType == 144 & TypeProvided == 3, !SubTypeProvided %in% valid_values[["V2.A"]],
-          RecordType == 144 & TypeProvided == 4, !SubTypeProvided %in% valid_values[["V2.B"]],
-          RecordType == 144 & TypeProvided == 5, !SubTypeProvided %in% valid_values[["V2.C"]],
+          RecordType == 144 & TypeProvided == 3, !SubTypeProvided %in% c(valid_values[["V2.A"]], NA),
+          RecordType == 144 & TypeProvided == 4, !SubTypeProvided %in% c(valid_values[["V2.B"]], NA),
+          RecordType == 144 & TypeProvided == 5, !SubTypeProvided %in% c(valid_values[["V2.C"]], NA),
           default = FALSE
         )
       )
@@ -414,7 +414,7 @@ specs_rules[
 specs_rules[
   Issue == "Value Length Exceeds Column Character Limit", 
   rule_expr := Map(function(col, limit) 
-    rlang::parse_expr(glue::glue("vlengths({col}) > {limit}")),
+    rlang::parse_expr(glue::glue("stringi::stri_length({col}) > {limit}")),
     Name, 
     str_len_limit
   )
