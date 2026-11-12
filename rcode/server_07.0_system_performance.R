@@ -111,6 +111,10 @@ toggle_sys_components <- function(prefix = 'syso', cond, init=FALSE) {
                  )
   )
   
+
+  prefix4 <- ifelse(prefix == 'sys', 'syso',prefix)
+  prefixnone <- ifelse(prefix == 'sys', '', ifelse(prefix=='syse', 'syse_', 'unsh'))
+  
   for (tab in tabs) {
     shinyjs::toggle(glue('{prefix}_{tab}_subtabs'), condition = cond)
     shinyjs::toggle(selector = glue('#{prefix}_{tab}_subtabs + div.tab-content'), condition = cond)
