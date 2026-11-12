@@ -114,22 +114,6 @@ toggle_sys_components(prefix = 'sys', FALSE, init=TRUE) # initially hide them
 
 # Population reactives ----------------------------------------------------
 
-# Total Count Above Chart -------------------------------------------------
-
-sys_total_count_display <- function(total_count) {
-  return(paste0(
-    str_wrap(
-      paste0(
-        full_unit_of_analysis_display(),
-        ": ",
-        format(total_count, big.mark = ',', scientific = FALSE, trim = TRUE)
-      ),
-      width = 40
-    ),
-    "\n")
-  )
-}
-
 
 
 observe({

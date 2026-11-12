@@ -780,49 +780,6 @@ sys_comp_plot_2vars <- function(subtab = 'comp', methodology_type, selections, p
     )
 }
 
-sys_total_count_display <- function(total_count, display_var ) {
-  return(paste0(
-    str_wrap(
-      paste0(
-        display_var,#full_unit_of_analysis_display(),
-        ": ",
-        format(total_count, big.mark = ',', scientific = FALSE, trim = TRUE)
-      ),
-      width = 40
-    ),
-    "\n")
-  )
-}
-
-get_race_ethnicity_vars <- function(v, methodology_type, race_ethnicity_func) {
-  #browser()
-  if (v == "All") {
-    sys_race_ethnicities_all <- unlist(c(race_ethnicity_func(methodology_type)["Detailed"],"Unknown" = "RaceEthnicityUnknown"))
-    names(sys_race_ethnicities_all) <- gsub("Detailed.", "", names(sys_race_ethnicities_all))
-    return(sys_race_ethnicities_all)
-  } else if (v %in% c("Grouped")) {
-    sys_race_ethnicities_grouped <- unlist(c(race_ethnicity_func(methodology_type)["Summarized"], "Unknown" = "RaceEthnicityUnknown"))
-    names(sys_race_ethnicities_grouped) <- gsub("Summarized.", "", names(sys_race_ethnicities_grouped))
-    return(sys_race_ethnicities_grouped)
-  }
-}
-
-get_var_cols <- function(methodology_type, race_ethnicity_func = sys_race_ethnicity_cats) {
-  #browser()
-  return(
-    list(
-      "Age" = "AgeCategory",
-      "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = methodology_type, 
-                                                        race_ethnicity_func = race_ethnicity_func),
-      "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = methodology_type, 
-                                                            race_ethnicity_func = race_ethnicity_func),
-      #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
-      # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
-      "Veteran Status (Adult Only)" =  "VeteranStatus"
-    )
-  )
-}
-
 get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections, session = session) {
   # if number of variables associated with selection > 1, then they're dummies
   
@@ -882,30 +839,3 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
   return(freqs)
 }
 
-# Function to process each combination of the variables underlying the all-served
-# selections E.g. if Age and Race (and Method 1),
-# then we'd combine 0 to 12 with White, 0 to 12 with Black,
-# 13 to 24 with White, etc.
-process_combination <- function(v1, v2, comp_df, var_cols, selections, session = session) {
-  logToConsole(session, glue("processing combination of {v1} and {v2}"))
-  freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
-  names(freq_df) <- c(
-    selections[1],
-    selections[2],
-    "n"
-  )
-  
-  # for selections comprised of multiple (binary/dummy) vars (e.g. Race), 
-  # filter to the 1s and change the 1 to the variable name
-  for (i in seq_along(selections)) {
-    v <- get(paste0("v", i))
-    vname <- sym(selections[i])
-    var_cats <- var_cols[[vname]]
-    if (length(var_cats) > 1) {
-      freq_df <- freq_df %>%
-        filter(!!vname == 1) %>%
-        mutate(!!vname := v)
-    }
-  }
-  return(freq_df)
-}

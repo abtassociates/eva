@@ -640,19 +640,19 @@ sys_detailBox <- function(
   }
 }
 
-toggle_download_buttons <- function(subtab = 'comp',plot_df) {
-  shinyjs::toggle(glue("sys_{subtab}_download_btn"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
-  shinyjs::toggle(glue("sys_{subtab}_download_btn_ppt"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+toggle_download_buttons <- function(prefix='sys', subtab = 'comp',plot_df) {
+  shinyjs::toggle(glue("{prefix}_{subtab}_download_btn"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
+  shinyjs::toggle(glue("{prefix}_{subtab}_download_btn_ppt"), condition = sum(plot_df$n > 10, na.rm = TRUE) > 0)
 }
 
-get_var_cols <- function(methodology_type) {
+get_var_cols <- function(methodology_type, race_ethnicity_func = sys_race_ethnicity_cats) {
   return(
     list(
       "Age" = "AgeCategory",
       "All Races/Ethnicities" = get_race_ethnicity_vars("All", methodology_type = methodology_type, 
-                                                        race_ethnicity_func = sys_race_ethnicity_cats),
+                                                        race_ethnicity_func = race_ethnicity_func),
       "Grouped Races/Ethnicities" = get_race_ethnicity_vars("Grouped", methodology_type = methodology_type, 
-                                                            race_ethnicity_func = sys_race_ethnicity_cats),
+                                                            race_ethnicity_func = race_ethnicity_func),
       #"Domestic Violence" = "DomesticViolenceCategory", #VL 9/20/24: Not including for launch
       # "Homelessness Type" =  "HomelessnessType",# Victoria, 8/15/24: Not including this for Launch
       "Veteran Status (Adult Only)" =  "VeteranStatus"
@@ -660,6 +660,25 @@ get_var_cols <- function(methodology_type) {
   )
 }
 
+# Total Count Above Chart -------------------------------------------------
+sys_total_count_display <- function(total_count, display_var ) {
+  return(paste0(
+    str_wrap(
+      paste0(
+        display_var,#full_unit_of_analysis_display(),
+        ": ",
+        format(total_count, big.mark = ',', scientific = FALSE, trim = TRUE)
+      ),
+      width = 40
+    ),
+    "\n")
+  )
+}
+
+sys_race_ethnicity_cats <- function(methodology = 1){
+  if(methodology == 1) sys_race_ethnicity_method1 
+  else sys_race_ethnicity_method2
+}
 
 # Demographic chart-specific stuff-----------------
 sys_demographics_selection_info <- function(type = 'overview', selection = input$sys_composition_selections){
@@ -715,12 +734,13 @@ sys_demographics_selection_info <- function(type = 'overview', selection = input
   return(df)
 }
 
-get_selection_cats <- function(selection,type = 'overview') {
+get_selection_cats <- function(selection,methodology_type){#,type = 'overview') {
   # this gets all the categories of the selected variable
   # this is used to make sure even empty categories are included in the chart
-  methodology_type <- switch(type,
-                             'overview' = input$syso_methodology_type,
-                             'exits' = input$syse_methodology_type)
+  # methodology_type <- switch(type,
+  #                            'overview' = input$syso_methodology_type,
+  #                            'exits' = input$syse_methodology_type,
+  #                            'unsh' = input$methodology_type)
   return(
     switch(
       selection,
@@ -744,7 +764,7 @@ get_selection_cats <- function(selection,type = 'overview') {
   )
 }
 
-get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections) {
+get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_composition_selections, session = session) {
   # if number of variables associated with selection > 1, then they're dummies
   
   if (length(var_col) > 1) {
@@ -772,13 +792,14 @@ get_sys_plot_df_1var <- function(comp_df, var_col, selection = input$system_comp
   return(plot_df)
 }
 
-get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_composition_selections) {
+get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_composition_selections, session = session) {
   
+ 
   # Function to process each combination of the variables underlying the all-served
   # selections E.g. if Age and Race (and Method 1),
   # then we'd combine 0 to 12 with White, 0 to 12 with Black,
   # 13 to 24 with White, etc.
-  process_combination <- function(v1, v2, comp_df) {
+  process_combination <- function(v1, v2, comp_df, var_cols, selections, session = session) {
     logToConsole(session, glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
@@ -805,7 +826,7 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
   # Get a dataframe of the freqs of all combinations
   # along with percents
   freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
-    pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
+    pmap_dfr(~ process_combination(..1, ..2, comp_df, session = session)) # %>%
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.
