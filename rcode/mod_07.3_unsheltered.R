@@ -344,7 +344,7 @@ mod_unsheltered_server <- function(id, global_vars) {
 calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=NULL){
   if(!is.null(cond)){
     fcase(
-      fsum(housed) > 0, 'Housed',
+      #fsum(housed) > 0, 'Housed',
       #(fsum(cond & permanent_housing) > 0) & ((fsum(cond & sheltered) > 0) | (fsum(cond & unsheltered) > 0)), 'Housed',
       (fsum(cond & unsheltered) > 0) & (fsum(cond & sheltered) > 0), 'Both',
       fsum(cond & unsheltered) > 0, 'Unsheltered',
@@ -354,7 +354,7 @@ calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=
     )
   } else {
     fcase(
-      fsum(housed > 0), 'Housed',
+      #fsum(housed > 0), 'Housed',
       #(fsum(permanent_housing) > 0) & ((fsum(sheltered) > 0) | (fsum(unsheltered) > 0)), 'Housed',
       (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
       fsum(unsheltered) > 0, 'Unsheltered',
