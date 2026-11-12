@@ -378,7 +378,8 @@ get_unsheltered_universe <- function(enrl, client, session){
   
 }
 
-build_dist_chart <- function(dist_enrl, filter_vals, level_of_detail, chart_colors = unsh_colors){
+build_dist_chart <- function(dist_enrl, filter_vals, level_of_detail, chart_colors = unsh_colors, 
+                             no_data_msg = no_data_msg, suppression_msg = suppression_msg){
   
   nr <- nrow(dist_enrl)
   
