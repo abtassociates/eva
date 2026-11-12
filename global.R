@@ -89,6 +89,8 @@ bslib_eva_theme <- bs_theme(
 load_specs()
 
 source('system_performance_ui_functions.R')
+source(here("rcode", "server_07.0_system_performance.R"), local = TRUE)
+
 source(here('rcode','mod_filter_panel.R'), local = TRUE)
 source(here('rcode','mod_system_demographics.R'), local = TRUE)
 source(here('rcode','mod_07.3_unsheltered.R'), local = TRUE)

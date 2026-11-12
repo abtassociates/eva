@@ -105,7 +105,7 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections) {
   # selections E.g. if Age and Race (and Method 1),
   # then we'd combine 0 to 12 with White, 0 to 12 with Black,
   # 13 to 24 with White, etc.
-  process_combination <- function(v1, v2, comp_df) {
+  process_combination <- function(v1, v2, comp_df, var_cols, selections, session = session) {
     logToConsole(session, glue("processing combination of {v1} and {v2}"))
     freq_df <- as.data.frame(table(comp_df[[v1]], comp_df[[v2]]))
     names(freq_df) <- c(
@@ -118,20 +118,20 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections) {
     # filter to the 1s and change the 1 to the variable name
     for (i in seq_along(selections)) {
       v <- get(paste0("v", i))
-      var_cats <- var_cols[[selections[i]]]
+      vname <- sym(selections[i])
+      var_cats <- var_cols[[vname]]
       if (length(var_cats) > 1) {
         freq_df <- freq_df %>%
-          fsubset(gv(., selections[i]) == 1) %>%
-          mutate(!!sym(selections[i]) := v)
+          filter(!!vname == 1) %>%
+          mutate(!!vname := v)
       }
     }
     return(freq_df)
   }
-  
   # Get a dataframe of the freqs of all combinations
   # along with percents
   freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
-    pmap_dfr(~ process_combination(..1, ..2, comp_df)) # %>%
+    pmap_dfr(~ process_combination(..1, ..2, comp_df, session = session)) # %>%
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.

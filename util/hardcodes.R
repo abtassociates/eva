@@ -541,4 +541,16 @@ syse_export_config <- list(
   list(suffix = "phd",    name = "Exits to PH Demographics",             gen = "sys_comp_data_download",          ext = ".xlsx")
 )
 
+unsh_export_config <- list(
+  list(suffix = "client", name = "Unsheltered Client Level Export",     gen = "populate_client_level_export",   ext = ".xlsx"),
+  list(suffix = "type",   name = "Unsheltered Distribution",            gen = "unsh_dist_ppt_download",         ext = ".pptx"),
+  list(suffix = "type",   name = "Unsheltered Distribution",            gen = "unsh_dist_data_download",        ext = ".xlsx"),
+  #list(suffix = "flow",   name = "Unsheltered Flow",                   gen = "unsh_flow_ppt_download",          ext = ".pptx"),
+  #list(suffix = "flow",   name = "Unsheltered Flow",                   gen = "unsh_flow_data_download",         ext = ".xlsx"),
+  list(suffix = "subpop", name = "Unsheltered PIT",                     gen = "unsh_pit_ppt_download",          ext = ".pptx"),
+  list(suffix = "subpop", name = "Unsheltered PIT",                     gen = "unsh_pit_data_download",         ext = ".xlsx"),
+  list(suffix = "phd",    name = "Unsheltered Demographics",            gen = "unsh_demog_ppt_download",        ext = ".pptx"),
+  list(suffix = "phd",    name = "Unsheltered Demographics",            gen = "unsh_demog_data_download",       ext = ".xlsx")
+)
+
 SPECS_PREPPED_PATH <- here("public-resources", "eva_specs_prepped.rds")

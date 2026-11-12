@@ -55,7 +55,7 @@ suppress_values <- function(.data, count_var, keep_orig_var = FALSE) {
 # Suppression Rule 2: If only one cell in a group (i.e. row and/or column) is suppressed,
 # then suppress the next lowest value in that group
 suppress_next_val_if_one_suppressed_in_group <- function(.data, group_v, n_v) {
-  if(length(input$syso_composition_selections) > 1) {
+  if(length(group_v) > 1) {
     .data <- .data %>% fgroup_by(group_v)
   }
   
@@ -102,6 +102,12 @@ toggle_sys_components <- function(prefix = 'syso', cond, init=FALSE) {
                    "Exits by Year" = "time",
                    "Exits by Subpopulation" = "subpop",
                    "Exits to PH Demographics" = "phd"
+                 ),
+                 'unsh' = c(
+                   'Unsheltered Distribution' = 'dist',
+                   'Unsheltered PIT' = 'pit',
+                   'Unsheltered Flow' = 'flow',
+                   'Unsheltered Demographics' = 'demog'
                  )
   )
   
@@ -109,6 +115,309 @@ toggle_sys_components <- function(prefix = 'syso', cond, init=FALSE) {
     shinyjs::toggle(glue('{prefix}_{tab}_subtabs'), condition = cond)
     shinyjs::toggle(selector = glue('#{prefix}_{tab}_subtabs + div.tab-content'), condition = cond)
   }
+  
+    shinyjs::toggle(glue('{prefixnone}client_level_download_btn'), condition = cond)
+    if(init) {
+      shinyjs::runjs(glue("
+      document.getElementById('{prefix4}_tabbox')
+        .insertAdjacentHTML('beforeEnd', '<li class=\"sys_download_tab\" id=\"{prefixnone}client_level_download_tab\"></li>');
+      $('#{prefixnone}client_level_download_btn').appendTo('#{prefixnone}client_level_download_tab')
+        .toggle('{cond}' == 'TRUE');
+    "))
+    }
+ 
+  
+}
+
+sys_heatmap_xl_export <- function(file, 
+                                  type = 'overview',
+                                  methodology_type,
+                                  selections,
+                                  people_univ,
+                                  plot_df = sys_comp_plot_df,
+                                  summary_df = sys_comp_selections_summary(),
+                                  export_df = NULL,
+                                  in_demo_mode = input$in_demo_mode
+                                  ){
+ 
+  #selections <- input$system_composition_selections
+  v1 <- gsub("Races/Ethnicities", "Race", selections[1])
+  v1 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v1)
+  
+  # multiple selections
+  # reshape so the values of v1 are the column headers and v2 are the "row headers"
+  # though technically just a column
+  if(length(selections) > 1) {
+    v2 <- gsub("Races/Ethnicities", "Race", selections[2])
+    v2 <- gsub("Veteran Status \\(Adult Only\\)", "Veteran Status", v2)
+    
+    # make sure R/E is the rows, not the columns
+    if (v1 %in% c("All Race", "Grouped Race")) {
+      selections <- c(selections[2], selections[1])
+    }
+    
+    num_df <- plot_df() %>% #sys_comp_plot_df() %>%
+      pivot(
+        how = 'wider',
+        names = selections[1],
+        values = 'n',
+        fill = list(n = 0)
+      )
+    
+    # Create x.y% version
+    pct_df <- num_df %>%
+      ftransformv(vars = num_vars(., return="names"),  FUN = function(x) {
+        (x / fsum(x) * 100) %>% 
+          replace_na(0) %>%
+          round(1) %>%
+          paste0("%")
+      })
+    
+    # create totals, but only for Method1
+    if(methodology_type == 1) { 
+      # create total row
+      total_num_row <- num_df %>%
+        summarise(!!selections[1] := "Total",
+                  across(where(is.numeric), \(x) sum(x, na.rm = TRUE))) %>%
+        rename(!!selections[2] := !!selections[1])
+      
+      total_n <- sum(plot_df()$n, na.rm = TRUE)
+      
+      total_pct_row <- total_num_row %>% 
+        mutate(
+          across(where(is.numeric), ~ (. / total_n * 100) %>%
+                   replace_na(0) %>%
+                   round(1) %>%
+                   paste0("%")))
+      
+      # Add Total Row and create a total column
+      num_df <- num_df %>%
+        rowbind(total_num_row) %>%
+        mutate(Total = rowSums(select(., where(is.numeric)), na.rm = TRUE))
+      
+      pct_df <- pct_df %>% 
+        rowbind(total_pct_row) %>%
+        mutate(
+          Total =  paste0(
+            round(
+              replace_na(num_df$Total / total_n * 100, 0),
+              1
+            ),
+            "%"
+          )
+        )
+    }
+  } 
+  # single selection
+  else {
+    num_df <- plot_df()
+    
+    pct_df <- num_df %>%
+      fmutate(across(where(is.numeric), function(x) (x / sum(x, na.rm = TRUE) * 100) %>%
+                      round(1) %>%
+                      paste0("%")))  %>% 
+      frename("pct" = n)
+    
+    if(methodology_type == 1) { 
+      pct_df <- pct_df %>%
+        rowbind(
+          setNames(
+            data.frame("Total", "100%"), 
+            c(selections, "pct")
+          )
+        )
+      num_df <- num_df %>%
+        rowbind(summarise(., !!sym(selections) := "Total", n = sum(n, na.rm = TRUE)))
+    }
+  }
+  
+  if(type == 'overview'){
+    if (length(selections) > 1) {
+      num_tab_name <- glue("{v1} By {v2} #")
+      pct_tab_name <- glue("{v1} By {v2} %")
+    } else {
+      num_tab_name <- glue("{v1} #")
+      pct_tab_name <- glue("{v1} %")
+    }
+    
+    write_xlsx(
+      setNames(
+        list(summary_df, num_df, pct_df),
+        #list(sys_comp_selections_summary(), num_df, pct_df),
+        c("System Demographics Metadata", num_tab_name, pct_tab_name)
+      ),
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    exportTestValues(sys_comp_df = people_univ) #get_people_universe_filtered())
+    exportTestValues(sys_comp_report_num_df = num_df)
+    exportTestValues(sys_comp_report_pct_df = pct_df)
+    logMetadata(session, paste0("Downloaded System Overview Tabular Data: ", input$syso_tabbox,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  } else if (type == 'exits'){
+    if (length(selections) > 1) {
+      
+      tab_name <- glue(str_remove_all("{v2}By{v1}CrossTab", ' '))
+    } else {
+      tab_name <- glue(str_remove_all("{v1}CrossTab",' '))
+    }
+    write_xlsx(
+      setNames(
+        list(summary_df, export_df),
+        #list(sys_phd_selections_summary(), sys_phd_export()),
+        c("SystemExitDemographics Metadata", tab_name)
+      ),
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+    
+    exportTestValues(sys_phd_df = export_df) #sys_phd_export())
+    
+    logMetadata(session, paste0("Downloaded System Exits Tabular Data: ", input$syse_tabbox,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  } else if (type == 'unsheltered'){
+   
+    tab_name <- ifelse(length(selections) > 1,
+                       glue(str_remove_all("{v2}By{v1}CrossTab", ' ')),
+                       glue(str_remove_all("{v1}CrossTab",' ')))
+    
+    write_xlsx(
+      setNames(
+        list(summary_df, export_df),
+        c("UnshelteredDemographics Metadata", tab_name)
+      ),
+      path = file,
+      format_headers = FALSE,
+      col_names = TRUE
+    )
+  }
+  
+}
+
+# PowerPoint Export -------------------------------------------------------
+## joint ppt export function for System Overview and System Exits
+sys_perf_ppt_export <- function(file,
+                                type = 'overview',
+                                title_slide_title,
+                                summary_items,
+                                plots,
+                                summary_font_size,
+                                startDate = session$userData$ReportStart, 
+                                endDate = session$userData$ReportEnd, 
+                                sourceID = session$userData$Export$SourceID,
+                                in_demo_mode = input$in_demo_mode) {
+  
+  if(type == 'overview'){
+    logMetadata(session, paste0("Downloaded System Overview Powerpoint: ", title_slide_title,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  } else if (type == 'exits'){
+    logMetadata(session, paste0("Downloaded System Exits Powerpoint: ", title_slide_title,
+                                if_else(isTruthy(in_demo_mode), " - DEMO MODE", "")))
+  }
+  
+  #NEED TO UPDATE - if want to get more granular, need to detect with title slide
+  
+  report_period <- paste0("Report Period: ", 
+                          format(startDate, "%m/%d/%Y"),
+                          " - ",
+                          format(endDate, "%m/%d/%Y")
+  )
+  loc_title <- ph_location_type(type = "title")
+  loc_footer <- ph_location_type(type = "ftr")
+  loc_dt <- ph_location_type(type = "dt")
+  loc_slidenum <- ph_location_type(type = "sldNum")
+  loc_body <- ph_location_type(type = "body")
+  loc_subtitle <- ph_location_type(type = "subTitle")
+  loc_ctrtitle <- ph_location_type(type = "ctrTitle")
+  
+  fp_normal <- fp_text(font.size = summary_font_size)
+  fp_title <- fp_text(font.size = ppt_chart_title_font_size)
+  fp_bold <- update(fp_normal, bold = TRUE)
+  fp_red <- update(fp_normal, color = "red")
+  
+  ppt <- read_pptx(here("www","system_pptx_template.pptx"))
+  
+  add_footer <- function(.ppt) {
+    return(
+      .ppt %>%
+        ph_with(value = paste0("CoC Code: ", sourceID), location = loc_footer) %>%
+        ph_with(value = report_period, location = loc_dt) %>%
+        ph_with(
+          value = paste0(
+            "Export Generated: ",
+            format(Sys.Date()),
+            "\n",
+            "https://hmis.abtsites.com/eva/"
+          ),
+          location = loc_slidenum
+        )
+    )
+  }
+  
+  # title Slide
+  ppt <- add_slide(ppt, layout = "Title Slide", master = "Office Theme") %>%
+    ph_with(value = title_slide_title, location = loc_ctrtitle) %>%
+    ph_with(value = "Eva Image Export", location = loc_subtitle) %>%
+    add_footer()
+  
+ 
+  
+  if(type == 'exits_comparison'){
+    for(summary_slide_title in names(summary_items)) {
+      p <- summary_items[[summary_slide_title]]
+      if(!is.null(p)) {
+        
+        s_items <- do.call(block_list, lapply(1:nrow(p), function(i) {
+          fpar(
+            ftext(paste0(p$Chart[i], ": ", p$Value[i]), fp_normal)
+          )
+        }))
+        
+        add_slide(ppt, layout = "Title and Content") %>%
+          ph_with(value = summary_slide_title, location = loc_title) %>%
+          ph_with(
+            value = s_items,
+            level_list = c(rep(1L, length(s_items))),
+            location = loc_body
+          ) %>% 
+          add_footer()
+      }
+    }
+  } else {
+    # Summary
+    s_items <- do.call(block_list, lapply(1:nrow(summary_items), function(i) {
+      fpar(
+        ftext(paste0(summary_items$Chart[i], ": ", summary_items$Value[i]), fp_normal)
+      )
+    }))
+    
+    ppt <- add_slide(ppt, layout = "Title and Content") %>%
+      ph_with(value = "Summary", location = loc_title) %>%
+      ph_with(
+        value = s_items,
+        level_list = c(rep(1L, length(s_items))),
+        location = loc_body
+      ) %>% 
+      add_footer()
+  }
+  
+ 
+  # Chart
+  for(plot_slide_title in names(plots)) {
+    p <- plots[[plot_slide_title]]
+    if(!is.null(p)) {
+      ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme") %>%
+        ph_with(value = fpar(ftext(plot_slide_title, fp_title)), location = loc_title) %>%
+        ph_with(value = p, location = loc_body) %>%
+        add_footer()
+    }
+  }
+  
+  # Export the PowerPoint
+  return(print(ppt, target = file))
 }
 
 #### DISPLAY FILTER SELECTIONS ###
@@ -397,11 +706,11 @@ get_sys_plot_df_2vars <- function(comp_df, var_cols, selections = input$system_c
     }
     return(freq_df)
   }
-  
+  browser()
   # Get a dataframe of the freqs of all combinations
   # along with percents
   freqs <- expand_grid(v1 = var_cols[[selections[1]]], v2 = var_cols[[selections[2]]]) %>%
-    pmap_dfr(~ process_combination(..1, ..2, comp_df, session = session)) # %>%
+    pmap_dfr(~ process_combination(..1, ..2, comp_df, var_cols = var_cols, selections = selections, session = session)) # %>%
   # mutate(pct = (n / sum(n, na.rm = TRUE)))
   
   # Handle DV, since the "Total" is not an actual value of DomesticViolenceCategory.

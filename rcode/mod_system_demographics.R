@@ -45,7 +45,7 @@ mod_system_demog_server <- function(id, type = 'overview', people_univ, display_
   moduleServer(
     id,
     function(input, output, session) {
-      
+
       demog_comp_plot_df <- reactiveVal()
       
       demog_selection_info <- reactive({
@@ -150,6 +150,9 @@ build_demog_plot <- function(subtab, prefix, methodology_type, selections, peopl
   for (s in selections) {
     plot_df_supp <- plot_df_supp %>% suppress_next_val_if_one_suppressed_in_group(s, "n")
   }
+  
+  no_valid_data_msg <- "No valid data to show."
+  all_data_suppressed_msg <- "The chart will not display because all data has been suppressed."
   
   enough_data <- fsum(plot_df_supp$n) > 0
   validate(need(enough_data, message = all_data_suppressed_msg))
@@ -418,7 +421,6 @@ build_demographic_heatmap <- function(plot_df,
 
 ## clean
 prepare_crosstab_data <- function(clean_df, selections, methodology_type, subtab = 'comp', prefix = 'syso', session = session) {
-  
   
   # 1. Enforce Race/Ethnicity ordering (2D)
   if (length(selections) == 2 && selections[1] %in% c("All Races/Ethnicities", "Grouped Races/Ethnicities")) {

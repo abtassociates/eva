@@ -101,7 +101,13 @@ mod_unsheltered_ui <- function(id) {
       ),
       
       ## Demographics subtab - using mod_system_demog -----
-      mod_system_demog_ui(id = ns('demog'), title_prefix = 'Unsheltered', instructions = tab_unsh_demog_subtabs_information)
+      mod_system_demog_ui(id = ns('demog'), title_prefix = 'Unsheltered', instructions = tab_unsh_demog_subtabs_information),
+      
+      # FLOATING CONSOLIDATED DOWNLOADS (TOP RIGHT)
+      div(
+        class = "export-container-floating",
+        custom_sys_export_dropdown("unsh")
+      )
     )
   )
 }
@@ -118,7 +124,7 @@ mod_unsheltered_server <- function(id, global_vars) {
         "Unsheltered" = get_brand_color('coral'),
         'Both' = get_brand_color('light_grey')
       )
-      
+
       ## Run and retrieve output from filter panel submodule -----
       unsh_filtered_data <- mod_filter_panel_server(id='filt', global_vars)
       
@@ -335,9 +341,11 @@ mod_unsheltered_server <- function(id, global_vars) {
   )
 }
 
-calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=NULL){
+calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, housed, cond=NULL){
   if(!is.null(cond)){
     fcase(
+      fsum(housed) > 0, 'Housed',
+      #(fsum(cond & permanent_housing) > 0) & ((fsum(cond & sheltered) > 0) | (fsum(cond & unsheltered) > 0)), 'Housed',
       (fsum(cond & unsheltered) > 0) & (fsum(cond & sheltered) > 0), 'Both',
       fsum(cond & unsheltered) > 0, 'Unsheltered',
       fsum(cond & sheltered) > 0, 'Sheltered',
@@ -346,6 +354,8 @@ calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=
     )
   } else {
     fcase(
+      fsum(housed > 0), 'Housed',
+      #(fsum(permanent_housing) > 0) & ((fsum(sheltered) > 0) | (fsum(unsheltered) > 0)), 'Housed',
       (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
       fsum(unsheltered) > 0, 'Unsheltered',
       fsum(sheltered) > 0, 'Sheltered',
@@ -360,7 +370,7 @@ get_unsheltered_universe <- function(enrl, client, session){
   
   active_enrl <- get_active_spans(enrl,enrl, 
                                   session$userData$lh_info, session$userData$ReportStart, session$userData$ReportEnd)
-  enrl_filt <- join(enrl, active_enrl, how='left') %>% 
+  enrl_filt <- join(enrl, active_enrl, how='left', multiple=TRUE) %>% #how='full') %>% 
     fsubset(active_in_full_period) %>% 
     fsubset(
       ProjectType != hp_project_type &
@@ -373,7 +383,7 @@ get_unsheltered_universe <- function(enrl, client, session){
     fungroup()
   
   join(client,
-       enrl_filt, on = 'PersonalID', how='left'
+       enrl_filt, on = 'PersonalID', how='left', multiple = TRUE
   )
   
 }
@@ -383,8 +393,8 @@ build_dist_chart <- function(dist_enrl, filter_vals, level_of_detail, chart_colo
   
   nr <- nrow(dist_enrl)
   
-  validate(need(nr > 0, no_data_msg))
-  validate(need(nr > 10, suppression_msg))
+  validate(need(nr > 0, "No data to show."))
+  validate(need(nr > 10, "The chart cannot be displayed because there are fewer than 11 clients."))
   
   border_color <- 'black'
   

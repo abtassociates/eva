@@ -1108,10 +1108,10 @@ get_active_spans <- function(all_filtered_by_period, all_filtered, lh_info_df = 
     )
   
   active_info <-  rbindlist(list(
-    lh_spans,
-    ph_housed_spans
+    lh_spans %>% fmutate(span_type = 'lh_span'),
+    ph_housed_spans %>% fmutate(span_type = 'ph_housed_span')
   )) %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
+    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end, span_type) %>%
     fmutate(
       active_in_full_period = active_start <= reportEnd & active_end >= reportStart
     )
