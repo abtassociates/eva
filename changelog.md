@@ -1,11 +1,24 @@
 
 # Eva Changelog
 
-## 2016-10-29
+## 2016-11-30
 
 ### New Features
  - New comprehensive System Performance export interface.
 
+## 2026-11-05
+### Bug Fixes
+ - Fixed issue where an apostrophe in an unquoted string cell in the first data row triggered an upload error (Issue <a href='https://github.com/abtassociates/eva/issues/1116' target ='_blank'>#1116</a>)
+
+### Miscellaneous
+ - Added error message text in upload crash pop-ups. The hope is that in some cases, it will be clear to the user what the problem is, and in others they can include the error message in the GitHub issue for easier cross-referencing.
+ 
+ 
+## 2026-10-22
+
+### Bug Fixes
+ - Fixed flagging null values in the Invalid Non-Null check of Services.SubTypeProvided (Issue <a href='https://github.com/abtassociates/eva/issues/1102' target ='_blank'>#1102</a>)
+ 
 ## 2026-10-16
 
 ### Bug Fixes
