@@ -107,6 +107,8 @@ clean_zip_for_fy26_specs <- function(zip_path) {
   remove_orphan_enrollments(temp_dir, "HealthAndDV", enrollment_ids)
   remove_orphan_enrollments(temp_dir, "CurrentLivingSituation", enrollment_ids)
   remove_orphan_enrollments(temp_dir, "Event", enrollment_ids)
+  remove_orphan_enrollments(temp_dir, "EmploymentEducation", enrollment_ids)
+  
   
   remove_orphan_project_ids(temp_dir, "Project", project_ids)
   remove_orphan_project_ids(temp_dir, "CEParticipation", project_ids)
