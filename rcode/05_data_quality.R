@@ -882,7 +882,7 @@ missing_inc_data <- IncomeBenefits %>%
     base_dq_data %>%
       fsubset(
         ProjectID %in% projects_require_income & 
-          AgeAtEntry > 17 | is.na(AgeAtEntry),
+          (AgeAtEntry > 17 | is.na(AgeAtEntry)),
         vars_prep
       ),
     on = c("EnrollmentID"),
