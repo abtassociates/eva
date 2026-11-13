@@ -215,6 +215,11 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   if (is.null(data)) return(NULL)
   
+  data[, (names(data)) := lapply(.SD, function(x) {
+    if (is.character(x)) x[x == ""] <- NA
+    return(x)
+  }), .SDcols = names(data)]
+  
   # Tag all character columns as UTF-8
   # Strings are tagged with a certain encoding metadata that is critical for some
   # data.table functions (e.g. `roworder`)
