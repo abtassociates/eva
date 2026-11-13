@@ -147,12 +147,11 @@ populate_client_level_export <- function(type = 'syso', file){
       ) %>%
       fungroup() %>%
       fmutate(
-        `Moved into Housing or Exited to Permanent Destination by Report End` = case_match(
-          last_outflow,
-          "Exited, Permanent" ~ "Yes - Exited, Permanent",
-          "Housed" ~ "Yes - Enrolled, Housed",
-          "Homeless" ~ "No - Enrolled, Homeless",
-          .default = paste0("No - ", last_outflow)
+        `Moved into Housing or Exited to Permanent Destination by Report End` = fcase(
+          last_outflow == "Exited, Permanent", "Yes - Exited, Permanent",
+          last_outflow == "Housed", "Yes - Enrolled, Housed",
+          last_outflow == "Homeless", "No - Enrolled, Homeless",
+          default = paste0("No - ", last_outflow)
         )
       ) %>%
       fselect(

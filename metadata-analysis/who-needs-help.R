@@ -1,5 +1,7 @@
-library(tidyverse)
+library(tidyr)
+library(dplyr)
 library(here)
+library(readr)
 x <- read_csv(here("metadata-analysis/metadata/metadata.csv"))
 y <- read_csv(here("metadata-analysis/metadata/sessiondata.csv"))
 
