@@ -1,6 +1,11 @@
 
 # Eva Changelog
 
+## 2026-11-19
+### Bug Fixes
+ - Ensure System Performance is hidden in cases where it is not useful (e.g. only HP enrollments or no Continuum records) 
+ - Fix display of try-catch popup title in some cases
+
 ## 2026-11-05
 ### Bug Fixes
  - Fixed issue where an apostrophe in an unquoted string cell in the first data row triggered an upload error (Issue <a href='https://github.com/abtassociates/eva/issues/1116' target ='_blank'>#1116</a>)

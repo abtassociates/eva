@@ -701,7 +701,7 @@ standardize_org_name <- function(orgname){
 
 # show popup if upload scripts encounter errors
 show_trycatch_popup <- function(script_name, err = ""){
-  script_num <- as.numeric(substr(script_name, 1, 2))
+  script_num <- as.numeric(substr(basename(script_name), 1, 2))
   title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
   
   popup_txt <- paste0("<b>Location: </b>", script_name,'<br>',
@@ -876,8 +876,8 @@ release_worker_memory <- function() {
   }
 }
 
-# Format mirai traceback
-format_mirai_traceback <- function(err) {
+# Format traceback
+format_traceback <- function(err) {
   calls <- sys.calls()
   
   # 1. Find where the sourced script was executed
@@ -897,7 +897,7 @@ format_mirai_traceback <- function(err) {
   end_idx <- length(calls)
   for (i in seq(length(calls), start_idx)) {
     cl_str <- paste(deparse(calls[[i]][[1]]), collapse = " ")
-    if (grepl("format_mirai_traceback|\\.handleSimpleError|h\\(", cl_str)) {
+    if (grepl("format_traceback|\\.handleSimpleError|h\\(", cl_str)) {
       end_idx <- i - 1
     } else {
       break
