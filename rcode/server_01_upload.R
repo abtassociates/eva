@@ -141,7 +141,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       }, 
       # Capture the traceback before the stack unwinds
       error = function(e) {
-        msg <- format_mirai_traceback(e)
+        msg <- format_traceback(e)
         stop(msg, call. = FALSE)
       })
     }, .args =  list(dependency_filepath = qs2_filepath)
