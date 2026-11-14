@@ -712,7 +712,7 @@ get_metric_specific_datasets <- function(latest_enrollments) {
       end_date = pmax(ExitAdjust, input$dateRangeCount[2]),
       length_of_participation = as.integer(difftime(end_date, EntryDate, unit="days"))
     ) |>
-    fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust, HHTypeAtReportStart)
+    fselect(EnrollmentID, ProjectID, EntryDate, ExitAdjust, HHTypeAtReportStart, length_of_participation)
   
   los_dt <- latest_enrollments |>
     fsubset(ProjectType %in% project_types_w_beds) |>
