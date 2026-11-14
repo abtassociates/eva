@@ -20,6 +20,7 @@ client_count_data_df <- reactive({
   ReportEnd <- input$dateRangeCount[2]
   
   session$userData$Enrollment %>%
+    fsubset(EntryDate <= ReportEnd & ExitAdjust >= ReportStart) %>%
     fselect(
       PersonalID,
       EnrollmentID,
@@ -37,13 +38,13 @@ client_count_data_df <- reactive({
     ) %>%
     fmutate(
       PersonalID = as.character(PersonalID),
-      RelationshipToHoH = case_when(
-        RelationshipToHoH == 1 ~ "Head of Household",
-        RelationshipToHoH == 2 ~ "Child",
-        RelationshipToHoH == 3 ~ "Spouse or Partner",
-        RelationshipToHoH == 4 ~ "Other relative",
-        RelationshipToHoH == 5 ~ "Unrelated household member",
-        RelationshipToHoH == 99 ~ "Data not collected (please correct)"
+      RelationshipToHoH = fcase(
+        RelationshipToHoH == 1, "Head of Household",
+        RelationshipToHoH == 2, "Child",
+        RelationshipToHoH == 3, "Spouse or Partner",
+        RelationshipToHoH == 4, "Other relative",
+        RelationshipToHoH == 5, "Unrelated household member",
+        RelationshipToHoH == 99, "Data not collected (please correct)"
       ),
       Status = factor(
         fcase(
@@ -78,9 +79,7 @@ client_count_data_df <- reactive({
       OrganizationName,
       ProjectType,
       days
-    ) %>%
-    fsubset(EntryDate <= ReportEnd &
-             (is.na(ExitDate) | ExitDate >= ReportStart))
+    )
 })
 
 ##### SUMMARY STUFF ######
@@ -165,7 +164,7 @@ clean_timeliness_df <- function(tl_df, record_type, orgList = unique(client_coun
 get_project_dashboard_download_info <- function(orgList = unique(client_count_data_df()$OrganizationName),
                                           dateRangeEnd = input$dateRangeCount[2]) {
   logToConsole(session, "in get_project_dashboard_download_info")
-   client_counts_metadata <- data.table(
+  client_counts_metadata <- data.table(
     Chart = c(
       "Export Date",
       "Export Start",
@@ -274,6 +273,19 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDetail <- NULL
   }
 
+  # METRICS
+  m_ds <- metric_datasets_all_proj()
+  proj_table <- session$userData$Project0[OrganizationName %in% orgList]
+  
+  # Calculate all metrics across all projects in one vectorized call
+  metrics_exported <- build_metrics_tables_batch(
+    m_datasets  = m_ds,
+    proj_table  = proj_table,
+    is_export   = TRUE
+  )
+  
+  metricsSummaryExport <- metrics_exported$summary
+  metricsDetailExport  <- metrics_exported$detail
   
   # TIMELINESS
   if(!is.null(tl_df_project_start())){
@@ -320,6 +332,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     validationDateRange = validationDateRange %>% nice_names(),
     validationFullExportRange = validationFullExportRange %>% nice_names(),
     validationDetail = validationDetail %>% nice_names(),
+    metricsSummaryExport = metricsSummaryExport %>% nice_names(),
+    metricsDetailExport = metricsDetailExport %>% nice_names(),
     validationStart = validationStart,
     validationExit = validationExit
   )
@@ -329,6 +343,8 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     "ClientCounts - Date Range",
     "ClientCounts-Full Export Range",
     "ClientCounts - Detail",
+    "Metrics - Summary",
+    "Metrics - Detail",
     "Timeliness - Project Start",
     "Timeliness - Project Exit"
   )
@@ -351,36 +367,31 @@ get_project_dashboard_download_info <- function(orgList = unique(client_count_da
     client_count_download_timeliness_exit = summarize_df(validationExit %>% nice_names_timeliness(record_type = 'exit'))
   )
 
-  if(!is.null(validationCLS)){
-    exportDFList[[length(exportDFList) + 1]] <- validationCLS
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CLS"
-    exportTestValues(
-      client_count_download_timeliness_cls = summarize_df(validationCLS %>% nice_names_timeliness(record_type = 'cls'))
-    )
-  }
-  
-  if(!is.null(validationNbN)){
-    exportDFList[[length(exportDFList) + 1]] <- validationNbN
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - Bed-Night Dates"
-    exportTestValues(
-      client_count_download_timeliness_nbn = summarize_df(validationNbN %>% nice_names_timeliness(record_type = 'nbn'))
-    )
-  }
-  
-  if(!is.null(validationCEAssess)){
-    exportDFList[[length(exportDFList) + 1]] <- validationCEAssess
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CE Assessment"
-    exportTestValues(
-      client_count_download_timeliness_ce_assess = summarize_df(validationCEAssess %>% nice_names_timeliness(record_type = 'ce_assess'))
-    )
-  }
-  
-  if(!is.null(validationCEEvent)){
-    exportDFList[[length(exportDFList) + 1]] <- validationCEEvent
-    names(exportDFList)[[length(exportDFList)]] <- "Timeliness - CE Event"
-    exportTestValues(
-      client_count_download_timeliness_ce_event = summarize_df(validationCEEvent %>% nice_names_timeliness(record_type = 'ce_event'))
-    )
+  timeliness_export_list <- list(
+    'cls'       = list(df = validationCLS,      name = "CLS"),
+    'nbn'       = list(df = validationNbN,      name = "Bed-Night Dates"),
+    'ce_assess' = list(df = validationCEAssess, name = "CE Assessment"),
+    'ce_event'  = list(df = validationCEEvent,  name = "CE Event")
+  )
+  for(e in names(timeliness_export_list)) {
+    export <- timeliness_export_list[[e]]
+    if(!is.null(export$df)){
+      exportDFList[[length(exportDFList) + 1]] <- export$df
+      names(exportDFList)[[length(exportDFList)]] <- paste0("Timeliness - ", export$name)
+      test_value_name <- paste0(
+        "client_count_download_timeliness_", e
+      )
+      
+      do.call(
+        exportTestValues,
+        setNames(
+          list(
+            summarize_df(export$df %>% nice_names_timeliness(record_type = e))
+          ),
+          test_value_name
+        )
+      )
+    }
   }
   logToConsole(session, "returning from get_project_dashboard_download_info")
   
