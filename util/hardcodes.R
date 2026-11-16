@@ -1,4 +1,10 @@
 
+suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
+no_data_msg <- "No data to show."
+no_valid_data_msg <- "No valid data to show."
+all_data_suppressed_msg <- "The chart will not display because all data has been suppressed."
+
+
 # hc = hard-coded
 hc_prior_living_situation_required <- ymd("20161001")
 hc_psh_started_collecting_move_in_date <- ymd("20171001")

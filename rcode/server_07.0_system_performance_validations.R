@@ -1,7 +1,3 @@
-suppression_msg <- "The chart cannot be displayed because there are fewer than 11 clients."
-no_data_msg <- "No data to show."
-no_valid_data_msg <- "No valid data to show."
-all_data_suppressed_msg <- "The chart will not display because all data has been suppressed."
 
 sys_perf_validations <- list(
   syso = list(
