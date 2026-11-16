@@ -146,12 +146,17 @@ mod_unsheltered_server <- function(id, global_vars) {
                   active_at_pit2 = unsh_pit_dates()[2] %between% list(active_start, active_end),
                   active_at_pit3 = unsh_pit_dates()[3] %between% list(active_start, active_end),
                   active_at_pit4 = unsh_pit_dates()[4] %between% list(active_start, active_end)) %>% 
+          fmutate( housed_pit1 = active_at_pit1 & permanent_housing & (MoveInDateAdjust < unsh_pit_dates()[1] & ExitAdjust >= unsh_pit_dates()[1]),        
+                   housed_pit2 = active_at_pit2 & permanent_housing  & (MoveInDateAdjust < unsh_pit_dates()[2] & ExitAdjust >= unsh_pit_dates()[2]),
+                   housed_pit3 = active_at_pit3 & permanent_housing & (MoveInDateAdjust < unsh_pit_dates()[3] & ExitAdjust >= unsh_pit_dates()[3]),
+                   housed_pit4 = active_at_pit4 & permanent_housing & (MoveInDateAdjust < unsh_pit_dates()[4] & ExitAdjust >= unsh_pit_dates()[4])
+          ) %>% 
           fgroup_by(PersonalID) %>%
           fsummarize( 
-            homeless_at_pit1 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit1),
-            homeless_at_pit2 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit2),
-            homeless_at_pit3 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit3),
-            homeless_at_pit4 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, cond=active_at_pit4)
+            homeless_at_pit1 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, housed = housed_pit1, cond=active_at_pit1),
+            homeless_at_pit2 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, housed = housed_pit2, cond=active_at_pit2),
+            homeless_at_pit3 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, housed = housed_pit3, cond=active_at_pit3),
+            homeless_at_pit4 = calc_homeless_type2(unsheltered, sheltered, permanent_housing, housed = housed_pit4, cond=active_at_pit4)
           ) 
         
         joined %>% 
@@ -193,8 +198,9 @@ mod_unsheltered_server <- function(id, global_vars) {
       unsh_people_universe_demog <- reactive({
         get_unsheltered_universe(enrl = unsh_enrollments_filtered(), 
                                  client = session$userData$client_categories, session) %>% 
+          distinct(PersonalID, .keep_all = TRUE) %>% 
           ## universe for this chart is clients with Unsheltered or Both enrollments
-          fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only')))
+          fsubset(!is.na(homeless_type_full_period) & !(homeless_type_full_period %in% c('Sheltered','PH Only','Housed')))
       })
       
       unsh_pit_counts <- reactive({
@@ -319,10 +325,11 @@ mod_unsheltered_server <- function(id, global_vars) {
       
      ## Demographics subtab outputs - using submodule -----
      unsh_demog_out <- mod_system_demog_server(id = 'demog', type = 'unsheltered',
-                                               people_univ = unsh_people_universe_demog(),
-                                               display_var = unsh_full_unit_of_analysis_display(), 
+                                               people_univ = unsh_people_universe_demog,#reactive(unsh_people_universe_demog),
+                                               display_var = unsh_full_unit_of_analysis_display,#reactive(unsh_full_unit_of_analysis_display), 
                                                filter_vals, global_vars)
-      
+    
+    
      # Toggle Age, Vet Status, and Race filters based on System OVerview subtab (i.e. hide for System Demographics/Composition)
      observeEvent(input$unsh_tabbox, {
         req(session$userData$valid_file() == 1)
@@ -341,10 +348,10 @@ mod_unsheltered_server <- function(id, global_vars) {
   )
 }
 
-calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=NULL){
+calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, housed, cond=NULL){
   if(!is.null(cond)){
     fcase(
-      #fsum(housed) > 0, 'Housed',
+      fsum(housed) > 0, 'Housed',
       #(fsum(cond & permanent_housing) > 0) & ((fsum(cond & sheltered) > 0) | (fsum(cond & unsheltered) > 0)), 'Housed',
       (fsum(cond & unsheltered) > 0) & (fsum(cond & sheltered) > 0), 'Both',
       fsum(cond & unsheltered) > 0, 'Unsheltered',
@@ -354,7 +361,7 @@ calc_homeless_type2 <- function(unsheltered, sheltered, permanent_housing, cond=
     )
   } else {
     fcase(
-      #fsum(housed > 0), 'Housed',
+      fsum(housed) > 0, 'Housed',
       #(fsum(permanent_housing) > 0) & ((fsum(sheltered) > 0) | (fsum(unsheltered) > 0)), 'Housed',
       (fsum(unsheltered) > 0) & (fsum(sheltered) > 0), 'Both',
       fsum(unsheltered) > 0, 'Unsheltered',
@@ -370,21 +377,26 @@ get_unsheltered_universe <- function(enrl, client, session){
   
   active_enrl <- get_active_spans(enrl,enrl, 
                                   session$userData$lh_info, session$userData$ReportStart, session$userData$ReportEnd)
-  enrl_filt <- join(enrl, active_enrl, how='left', multiple=TRUE) %>% #how='full') %>% 
-    fsubset(active_in_full_period) %>% 
+  enrl_joined <- join(enrl, active_enrl, how='left', multiple=TRUE) %>% 
+    fsubset(active_in_full_period)
+  
+  enrl_filt <- enrl_joined %>% 
     fsubset(
       ProjectType != hp_project_type &
         EntryDate <= session$userData$ReportEnd & ExitAdjust >= session$userData$ReportStart
     ) %>% 
-    fgroup_by(PersonalID) %>%
     fmutate( 
-      homeless_type_full_period = calc_homeless_type2(unsheltered, sheltered, permanent_housing)
+      housed_full_period = permanent_housing & !is.na(MoveInDateAdjust) & (MoveInDateAdjust < session$userData$ReportStart) & (ExitAdjust > session$userData$ReportEnd)
+    ) %>% 
+    fgroup_by(PersonalID) %>%
+    fsummarize(
+      homeless_type_full_period = calc_homeless_type2(unsheltered, sheltered, permanent_housing, housed = housed_full_period)
     ) %>% 
     fungroup()
-  
-  join(client,
-       enrl_filt, on = 'PersonalID', how='left', multiple = TRUE
-  )
+    
+    
+  join(enrl_joined, enrl_filt) %>% 
+  join(client,., on = 'PersonalID', how='left', multiple = TRUE)
   
 }
 
@@ -399,17 +411,22 @@ build_dist_chart <- function(dist_enrl, filter_vals, level_of_detail, chart_colo
   
   ## client level counts and %ages of HomelessnessType
   tree_unsh_data <-  dist_enrl %>% 
+    fsubset(homeless_type_full_period != 'Housed') %>% 
     fcount(homeless_type_full_period, name='Count') %>% 
     fmutate(Percent = Count/fsum(Count),
             label = str_c(homeless_type_full_period, ': ', scales::label_comma()(Count),
                           ' (', scales::label_percent(accuracy = 0.1)(Percent),')'
             ))
   
+  nr2 <- tree_unsh_data %>% 
+    fsubset(homeless_type_full_period %in% c('Unsheltered', 'Both')) %>% 
+    fsummarize(Count = sum(Count, na.rm=T)) %>% pull(Count)
+  
   chart_title <- paste0("Total ",
                         level_of_detail, " in ",
                         str_remove(getNameByValue(sys_hh_types, filter_vals$hh_type()), "- "),
                         if_else(getNameByValue(sys_hh_types, filter_vals$hh_type()) == "All Household Types", "", " Households"), 
-                        " who Experienced Unsheltered Homelessness: ", scales::label_comma()(nr),"\n")
+                        " who Experienced Unsheltered Homelessness: ", scales::label_comma()(nr2),"\n")
   #if(show_legend == FALSE){
   ggplot(tree_unsh_data, aes(area = Count, fill = homeless_type_full_period,
                              label = label, subgroup = border_color) )+

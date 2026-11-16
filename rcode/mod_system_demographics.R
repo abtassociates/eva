@@ -54,7 +54,7 @@ mod_system_demog_server <- function(id, type = 'overview', people_univ, display_
       })
       
       sys_demog_clean_df <- reactive({
-        people_univ %>% #demog_people_universe_filtered()
+        people_univ() %>% 
           remove_non_applicables(selection = input$demog_selections) %>% 
           clean_comp_data(filter_vals$methodology_type(), input$demog_selections)
       })
@@ -83,7 +83,7 @@ mod_system_demog_server <- function(id, type = 'overview', people_univ, display_
       })
       
       demog_chart_validation <- reactive({
-        eval_chart_validity(counts = fnrow(people_univ), min_count = 10, session = session)
+        eval_chart_validity(counts = fnrow(people_univ()), min_count = 10, session = session)
       })
       
       output$demog_chart <- renderPlot({
@@ -99,10 +99,10 @@ mod_system_demog_server <- function(id, type = 'overview', people_univ, display_
                          prefix='unsh',
           methodology_type = filter_vals$methodology_type(), 
           selections = input$demog_selections, 
-          people_univ = people_univ,
+          people_univ = people_univ(),
           isExport = FALSE,
           session = session, 
-          display_var = display_var
+          display_var = display_var()
         )
         
       }, height = function() {
