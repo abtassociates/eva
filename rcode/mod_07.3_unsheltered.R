@@ -220,7 +220,7 @@ mod_unsheltered_server <- function(id, global_vars) {
         
         ## need to account for homelessnesstype changing at each pit date before counting
         counts_df <- unsh_pit_df() %>% 
-          fsubset(!is.na(homeless_type) & homeless_type != 'PH Only' & homeless_type != 'Other') %>% 
+          fsubset(!is.na(homeless_type) & !(homeless_type %in% c('PH Only', 'Other', 'Housed'))) %>% 
           fmutate(homeless_type = ifelse(homeless_type == 'Both', 'Sheltered',homeless_type)) %>% 
           fgroup_by(period, homeless_type) %>%  
           fsummarize(n = GRPN()) %>% 
