@@ -701,7 +701,7 @@ standardize_org_name <- function(orgname){
 
 # show popup if upload scripts encounter errors
 show_trycatch_popup <- function(script_name, err = ""){
-  script_num <- as.numeric(substr(basename(script_name), 1, 2))
+  script_num <- as.numeric(substr(script_name, 1, 2))
   title <- ifelse(script_num <= 3, "Unsuccessful Upload","Problematic Upload")
   
   popup_txt <- paste0("<b>Location: </b>", script_name,'<br>',
