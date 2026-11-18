@@ -34,7 +34,7 @@ if (fnrow(enrollment_prep) == 0) {
 
 if (allv(enrollment_prep$ProjectType, 12)) {
   logToConsole(session, "Only HP enrollments found - skipping System Performance")
-  stop("Only HP enrollments found - skipping System Performance")
+  intentional_stop(session, "Only HP enrollments found - skipping System Performance")
 }
 
 

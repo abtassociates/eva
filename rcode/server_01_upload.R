@@ -13,10 +13,11 @@ process_upload <- function(upload_filename, upload_filepath) {
         logToConsole(session, src_att)
         logToConsole(session, paste0("Error occured in ", script_name))
         if(src_att$message != "No valid Continuum records in enrollment_prep")
-          show_trycatch_popup(script_name, err = src_att$message)
+          show_trycatch_popup(basename(script_name), err = src_att$message)
         return("err")
       } else if("intentional_stop" %in% class(src_att)) {
         logToConsole(session, paste0("Intentional stop occurred: ", src_att$message))
+        return("err")
       }
       
     }
@@ -140,7 +141,7 @@ process_upload <- function(upload_filename, upload_filepath) {
       }, 
       # Capture the traceback before the stack unwinds
       error = function(e) {
-        msg <- format_mirai_traceback(e)
+        msg <- format_traceback(e)
         stop(msg, call. = FALSE)
       })
     }, .args =  list(dependency_filepath = qs2_filepath)
