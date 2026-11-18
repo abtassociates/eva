@@ -503,7 +503,7 @@ ES_BedType_HousingType <- activeInventory %>%
   fselect(PDDEcols)
 
 # No Enrollments in Services for NbN Project ------------------------------------
-if(nrow(Services) > 0) {
+if(has_services_200) {
 nbn_nobns <- nbn_w_hmis_participation %>% # Get enrollments whose projects were NBN and had HMIS Participation
   fselect(EnrollmentID, ProjectID, ProjectName, OrganizationName) %>%
   funique() %>%

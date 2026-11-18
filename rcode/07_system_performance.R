@@ -483,7 +483,7 @@ session$userData$lh_info <- enrollment_categories %>%
     multiple =TRUE
   ) %>%
   join(
-    Services %>% 
+    session$userData$Services %>% 
       fselect(EnrollmentID, lh_date_s = DateProvided) %>%
       funique(), 
     on="EnrollmentID", 
@@ -706,7 +706,7 @@ session$userData$lh_info_prev <- enrollment_categories_prev %>%
     multiple =TRUE
   ) %>%
   join(
-    Services %>% 
+    session$userData$Services %>% 
       fselect(EnrollmentID, lh_date_s = DateProvided) %>%
       funique(), 
     on="EnrollmentID", 

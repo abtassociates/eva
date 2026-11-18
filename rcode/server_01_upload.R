@@ -114,6 +114,8 @@ process_upload <- function(upload_filename, upload_filepath) {
       rm(deps)
       log_memory("after dependencies read in")
       
+      has_services_200 <- any(!is.na(Services$DateProvided[Services$RecordType == 200]))
+      
       withCallingHandlers({
         logToConsole(session, "About to run dq_mirai")
         source(here("rcode", "05_data_quality.R"), local = TRUE)
