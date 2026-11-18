@@ -276,7 +276,7 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
   logToConsole(session, "In get_active_info")
   
   lh_info_filtered <- lh_info_df %>%
-    fselect(-first_lh_date, -last_lh_date, -lh_prior_livingsituation) %>%
+    # Bring in the adjusted/recoded EntryDate and ExitAdjust after session$userData$lh_info was created,
     join(
       all_filtered %>% fselect(EnrollmentID, EntryDate, ExitAdjust),
       on = "EnrollmentID",
@@ -284,50 +284,53 @@ get_active_info <- function(all_filtered_by_period, all_filtered, lh_info_df = s
       how = "inner",
       multiple = TRUE
     ) %>%
-    frename(
-      active_start = lh_date
+    fselect(
+      PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid, "active_start" = lh_date
     )
-
+  
   entry_as_active <- all_filtered %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid) %>%
+    fselect(
+      PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid
+    ) %>%
     fmutate(active_start = EntryDate)
   
   exit_as_active <- all_filtered %>%
-    fsubset(ProjectType %in% nbn_non_res & !Destination %in% other_livingsituation & !is.na(Destination)) %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid) %>%
+    fsubset(
+      ProjectType %in% nbn_non_res & !Destination %in% other_livingsituation & !is.na(Destination),
+      PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid
+    ) %>%
     fmutate(active_start = pmax(ExitAdjust - 15, EntryDate, na.rm=TRUE))
-    
-  lh_spans <- rbindlist(list(
-    lh_info_filtered,
-    entry_as_active,
-    exit_as_active
-  ), use.names=TRUE) %>%
-    funique() %>%
-    fsubset(active_start >= EntryDate) %>%
-    fmutate(
-      MoveInDateAdjust = fifelse(MoveInDateAdjust > ExitAdjust, NA, MoveInDateAdjust),
-        
-      active_end = fcase(
-        ProjectType %in% lh_project_types_nonbn, ExitAdjust,
-        ProjectType %in% ph_project_types, fcoalesce(MoveInDateAdjust, ExitAdjust),
-        default = pmin(active_start + days_lh_valid, ExitAdjust, na.rm=TRUE)
-      )
-    ) 
-  
-  ph_housed_spans <- lh_info_filtered %>%
-    fsubset(ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust)) %>%
+
+  ph_housed_spans <- all_filtered %>%
+    fsubset(
+      ProjectType %in% ph_project_types & !is.na(MoveInDateAdjust),
+      PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, days_lh_valid
+    ) %>%
     fmutate(
       active_start = MoveInDateAdjust,
       active_end = ExitAdjust
     )
   
-  active_info <-  rbindlist(list(
-    lh_spans,
-    ph_housed_spans
-  )) %>%
-    fselect(PersonalID, EnrollmentID, ProjectType, EntryDate, MoveInDateAdjust, ExitAdjust, active_start, active_end) %>%
+  active_info <-  rowbind(
+    lh_info_filtered,
+    entry_as_active,
+    exit_as_active,
+    ph_housed_spans,
+    fill = TRUE
+  ) %>%
+    fsubset(active_start >= EntryDate) %>%
+    funique() %>%
     fmutate(
-      active_in_full_period = active_start <= reportEnd & active_end >= reportStart
+      MoveInDateAdjust = fifelse(MoveInDateAdjust > ExitAdjust, NA, MoveInDateAdjust),
+      
+      active_end = fcase(
+        !is.na(active_end), active_end,
+        ProjectType %in% lh_project_types_nonbn, ExitAdjust,
+        ProjectType %in% ph_project_types, fcoalesce(MoveInDateAdjust, ExitAdjust),
+        default = pmin(active_start + days_lh_valid, ExitAdjust, na.rm=TRUE)
+      ),
+      active_in_full_period = active_start <= reportEnd & active_end >= reportStart,
+      days_lh_valid = NULL
     )
   
   all_filtered_w_first_last_active <- all_filtered_by_period %>%

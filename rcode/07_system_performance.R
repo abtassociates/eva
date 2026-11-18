@@ -476,21 +476,19 @@ enrollment_categories <- enrollment_categories %>%
 #     (Only applicable to non-res projects with no LH PLS or no ExitDate, but with an LH CLS)
 # lh_date is the InformationDate (Non-Res) or DateProvided (ES-NbN) 
 # first_lh_date and last_lh_date are also used to determine days_since_last_lh. And first_lh_date is used for the FTH Inflow status
-session$userData$lh_info <- enrollment_categories %>%
+session$userData$lh_info <- rowbind(
+  lh_cls %>% 
+    fselect(EnrollmentID, lh_date = InformationDate) |>
+    funique(),
+  Services %>% 
+    fselect(EnrollmentID, lh_date = DateProvided) %>%
+    funique()
+) %>%
   join(
-    lh_cls %>% frename(InformationDate = lh_date),
-    on="EnrollmentID", 
-    multiple =TRUE
-  ) %>%
-  join(
-    Services %>% 
-      fselect(EnrollmentID, lh_date_s = DateProvided) %>%
-      funique(), 
-    on="EnrollmentID", 
-    multiple =TRUE
+    enrollment_categories |> fselect(EnrollmentID, PersonalID, ProjectType, EntryDate, MoveInDateAdjust, ExitDate, ExitAdjust, days_lh_valid, lh_at_entry, lh_prior_livingsituation),
+    on="EnrollmentID"
   ) %>%
   fmutate(
-    lh_date = fcoalesce(lh_date, lh_date_s),
     non_exit_lh_in_report = 
       ((EntryDate + days_lh_valid) %between% list(session$userData$ReportStart, session$userData$ReportEnd) & lh_prior_livingsituation) |
       (lh_date + days_lh_valid) %between% list(session$userData$ReportStart, session$userData$ReportEnd)
@@ -564,13 +562,13 @@ session$userData$enrollment_categories <- enrollment_categories %>%
     ExitAdjust_orig = ExitAdjust,
     
     EntryDate = fifelse(
-      ProjectType %in% c(lh_project_types_nonbn, ph_project_types, out_project_type, es_nbn_project_type),
-      EntryDate,
-      first_lh_date
+      ProjectType %in% c(sso_project_type, day_project_type, hp_project_type, ce_project_type),
+      fcoalesce(first_lh_date, EntryDate),
+      EntryDate
     ),
     ExitAdjust = fifelse(
       ProjectType %in% nbn_non_res & ExitAdjust == no_end_date,
-      last_lh_date,
+      fcoalesce(last_lh_date, EntryDate + days_lh_valid),
       ExitAdjust
     ),
     adjusted_dates = EntryDate != EntryDate_orig | ExitAdjust != ExitAdjust_orig
