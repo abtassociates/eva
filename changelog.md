@@ -1,6 +1,11 @@
 
 # Eva Changelog
 
+## 2016-12-29
+
+### New Features
+ - New comprehensive System Performance export interface.
+
 ## 2026-11-05
 ### Bug Fixes
  - Fixed issue where an apostrophe in an unquoted string cell in the first data row triggered an upload error (Issue <a href='https://github.com/abtassociates/eva/issues/1116' target ='_blank'>#1116</a>)
@@ -14,6 +19,7 @@
 ### Bug Fixes
  - Fixed flagging null values in the Invalid Non-Null check of Services.SubTypeProvided (Issue <a href='https://github.com/abtassociates/eva/issues/1102' target ='_blank'>#1102</a>)
  
+>>>>>>> dev
 ## 2026-10-16
 
 ### Bug Fixes
@@ -38,6 +44,7 @@
  - Fixed potential issue due to mishandling of nulls in System Exits by Time
  - Added validation for amount of data in System Overview Demographics chart. Avoids error when not enough data
  - Added new PDDE checks for projects with at least one inventory record where beds or units have a value of 0. (Issue <a href='https://github.com/abtassociates/eva/issues/1075' target ='_blank'>#1075</a>)
+ 
 
 
 ### Miscellaneous

@@ -686,7 +686,7 @@ pdde_table_names <- c(
 # 1. Rowbind using mget()
 pdde_main <- rowbind(l = mget(pdde_table_names), fill=TRUE) %>%
   funique() %>%
-  fmutate(Priority = factor(Priority, levels = c("High Priority", "Error", "Warning")))
+  fmutate(Priority = factor(Priority, levels = issue_priorities))
 
 # 2. Delete all underlying datasets and the name vector
 rm(list = c(pdde_table_names, "pdde_table_names"))
