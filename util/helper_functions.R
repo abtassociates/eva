@@ -179,16 +179,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   filename <- paste0(tempdir(), "/", basename(filename))
   
   expected_rclasses <- get_expected_rclasses(csvFile, filename)
-  
-  # interpret the data in their original encoding, so they display nicely
-  # The resulting characters are almost always UTF-8 characters
-  # While a byte sequence may not be UTF-8, the character itself usually has a UTF-8 representation
-  # So, e.g., if there's a ‰ in a Windows-encoded file, we want to interpret
-  # as Windows, so it will display ‰, rather than the Windows+non-UTF8 byte \x89
-  # But if there's a ‰ in a UTF-8 encoded file, it's already been interpreted correctly
-  guessed_enc <- readr::guess_encoding(filename)$encoding[1]
-  fread_enc <- ifelse(guessed_enc %in% c(NA, "UTF-8", "ASCII"), "UTF-8", "Latin-1")
-  
+   
   # import data
   data <- tryCatch(
     {
@@ -197,7 +188,7 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
         col.names = names(expected_rclasses),
         colClasses = unlist(expected_rclasses),
         na.strings = c("NA",'""', ""),
-        encoding = fread_enc
+        encoding = "UTF-8"
       )
     },
     error = function(e) {
@@ -215,15 +206,50 @@ importFile <- function(upload_filepath = NULL, csvFile, guess_max = 1000) {
   
   if (is.null(data)) return(NULL)
   
+  # Validate that all character columns' *bytes* are actually valid UTF-8 rather than
+  # relying on heuristic encoding detection (e.g. `readr::guess_encoding`, which 
+  # can misclassify mostly-ASCII UTF-8 files as Latin-1), and re-import with 
+  # encoding = unknown before decoding from WINDOWS-1252 to UTF-8. This should enable  
+  # Eva's dashboard to maintain fidelity to the original special characters 
+  # (accents, single curly quotes, non-breaking spaces, etc.), while also correctly 
+  # interpreting them as single-character UTF-8 characters, for the purposes of string-length validation
+  # 
+  # OneA couple more notes on encoding:
+  # - A file's encoding determines how characters are represented in raw bytes
+  # - Almost all characters, special and otherwise, can be represented in UTF-8 bytes
+  # - But if certain special characters are in a non-UTF-8 encoded file, e.g. ANSI/Windows-1252/Latin-1/ISO-8859-1, 
+  # they will be stored in those encodings' bytes, and will not be valid UTF-8.
+  # - an "unknown" encoding tells `fread` not to tag the bytes and then 
+  # `stringi::stri_encode` tells it to encode everything from WINDOWS-1252 
+  # (a superset of printable Latin-1) to UTF8.
+  char_cols <- char_vars(data, return = "names")
+  is_valid_utf8 <- TRUE
+  for (col in char_cols) {
+    if (!all(validUTF8(data[[col]]))) {
+      is_valid_utf8 <- FALSE
+      break
+    }
+  }
+  
+  if (!is_valid_utf8) {
+    data <- data.table::fread(
+      filename,
+      col.names = names(expected_rclasses),
+      colClasses = unlist(expected_rclasses),
+      na.strings = c("NA",'""', ""),
+      encoding = "unknown"
+    )
+    settransformv(
+      data,
+      char_cols,
+      \(x) stringi::stri_encode(x, from = "WINDOWS-1252", to = "UTF-8")
+    )
+  }
+  
   data[, (names(data)) := lapply(.SD, function(x) {
     if (is.character(x)) x[x == ""] <- NA
     return(x)
   }), .SDcols = names(data)]
-  
-  # Tag all character columns as UTF-8
-  # Strings are tagged with a certain encoding metadata that is critical for some
-  # data.table functions (e.g. `roworder`)
-  settransformv(data, char_vars(data, return = "names"), enc2utf8)
   
   # handle dates - new data.table converts to IDate, but we want "Date" for FSA
   settransformv(data, get_vars(data, \(x) inherits(x, "IDate"), return = "names"), as.Date)
